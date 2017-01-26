@@ -11,3 +11,22 @@ solution "pfs-mpl"
         architecture "x32"
     filter "platforms:*64"
         architecture "x64"
+
+project "test-mpl-string"
+    include("test-mpl-string/project.gbs")
+
+project "test-mpl-list"
+    include("test-mpl-list/project.gbs")
+
+project "test-mpl-map"
+    include("test-mpl-map/project.gbs")
+
+project "test-mpl-string_builder"
+    include("test-mpl-string_builder/project.gbs")
+
+--project "test-mpl-fs-path"
+--    include("test-mpl-fs-path/project.gbs")
+
+--project "test-mpl-cli"
+--    include("test-mpl-cli/project.gbs")
+
