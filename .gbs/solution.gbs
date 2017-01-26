@@ -1,0 +1,13 @@
+--************************************************************
+--* Generated automatically by `gbs'
+--* Command: `gbs solution --create --name=pfs-mpl'
+--* Date:    Thu Jan 26 08:18:39 2017
+--************************************************************
+
+solution "pfs-mpl"
+    configurations {"debug", "release"}
+    platforms {"unix32", "unix64", "mswin32", "mswin64"}
+    filter "platforms:*32"
+        architecture "x32"
+    filter "platforms:*64"
+        architecture "x64"
