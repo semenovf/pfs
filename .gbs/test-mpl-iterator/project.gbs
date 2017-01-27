@@ -1,0 +1,30 @@
+--************************************************************
+--* Generated automatically by `gbs'
+--* Command: `gbs project --create --name=test-mpl-iterator --type=test'
+--* Date:    Fri Jan 27 12:02:00 2017
+--************************************************************
+
+kind          "ConsoleApp"
+language      "C++"
+targetname    "test-mpl-iterator"
+defines       {  }
+includedirs   {   "../../include"
+                , "../../../pfs/include"
+              }
+libdirs       { "../../../.build" }
+files         { "../../tests/test-mpl-iterator/*.cpp" }
+
+configuration "debug"
+    flags        { "FatalWarnings", "Symbols" }
+    defines      { "DEBUG" }
+    objdir       "../../../.build/pfs/test-mpl-iterator/debug"
+    targetdir    "../../../.build/tests"
+    targetsuffix "-d"
+    links        { "pfs-test-d" }
+
+configuration "release"
+    flags        { "FatalWarnings" }
+    defines      { "NDEBUG" }
+    objdir       "../../../.build/pfs/test-mpl-iterator/release"
+    targetdir    "../../../.build/tests"
+    links        { "pfs-test" }
