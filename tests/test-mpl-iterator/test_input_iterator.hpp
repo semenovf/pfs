@@ -5,7 +5,10 @@ struct A
     int x;
 };
 
-struct input_iterator : public pfs::iterator<pfs::input_iterator_tag, input_iterator, A, A *, A &>
+struct input_iterator : public pfs::iterator<
+          pfs::input_iterator_tag
+        , input_iterator
+        , A, A *, A &>
 {
     A * _p;
 
@@ -17,7 +20,7 @@ struct input_iterator : public pfs::iterator<pfs::input_iterator_tag, input_iter
         : _p(p)
     {}
 
-    static reference ref (input_iterator & it)
+    static const reference ref (input_iterator const & it)
     {
         return *it._p;
     }

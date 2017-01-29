@@ -1,81 +1,72 @@
 #include <pfs/iterator.hpp>
 
-struct A 
+struct B 
 {
     int x;
 };
 
-struct output_iterator : public pfs::iterator<pfs::<pfs::output_iterator_tag, output_iterator, A, A *, A &>
+struct output_iterator : public pfs::iterator<
+          pfs::output_iterator_tag
+        , output_iterator
+        , B, B *, int &>
 {
-    A * _p;
+    B * _p;
 
-    output_iterator (input_iterator const & rhs)
+    output_iterator (output_iterator const & rhs)
         : _p(rhs._p)
     {}
     
-    output_iterator (A * p)
+    output_iterator (B * p)
         : _p(p)
     {}
 
-//    static reference ref (output_iterator & it)
-//    {
-//        return *it._p;
-//    }
-//    
-//    static pointer ptr (output_iterator & it)
-//    {
-//        return it._p;
-//    }
-//    
-//    static void increment (output_iterator & it)
-//    {
-//        ++it._p;
-//    }
-//    
-//    static void decrement (output_iterator & it)
-//    {
-//        --it._p;
-//    }
-//    
-//    static bool equals (output_iterator const & it1, output_iterator const & it2)
-//    {
-//        return it1._p == it2._p;
-//    }
+    static reference ref (output_iterator & it)
+    {
+        return it._p->x;
+    }
+
+    static void increment (output_iterator & it)
+    {
+        ++it._p;
+    }
 };
 
-void test_input_iterator ()
+void test_output_iterator ()
 {
-    ADD_TESTS(12);
+    ADD_TESTS(4);
     
-    A data[] = { {1}, {2}, {3}, {4} };
+    B data[4];
     
     {
         output_iterator it(data);
-
-        TEST_OK((*it++).x == 1);
-        TEST_OK((*it++).x == 2);
-        TEST_OK((*it++).x == 3);
-        TEST_OK((*it++).x == 4);
+        *it++ = 1;
+        *it++ = 2;
+        *it++ = 3;
+        *it++ = 4;
+        TEST_OK(data[0].x == 1);
+        TEST_OK(data[1].x == 2);
+        TEST_OK(data[2].x == 3);
+        TEST_OK(data[3].x == 4);
     }
 
-    // Test prefix increment
-    {
-        output_iterator it(data);
-        TEST_OK((*it).x == 1);
-        TEST_OK((*++it).x == 2);
-        TEST_OK((*++it).x == 3);
-        TEST_OK((*++it).x == 4);
-    }
-    
-    // Test equality and `->` operator
-    {
-        output_iterator it1(data);
-        output_iterator it2(data);
-
-        TEST_OK(it1 == it2++);
-        TEST_OK(it1 != it2);
-
-        TEST_OK(it1->x == 1);
-        TEST_OK(it2->x == 2);
-    }
+//    // Test prefix increment
+//    {
+//        output_iterator it(data);
+//        TEST_OK((*it).x == 1);
+//        TEST_OK((*++it).x == 2);
+//        TEST_OK((*++it).x == 3);
+//        TEST_OK((*++it).x == 4);
+//    }
+//    
+//    // Test equality and `->` operator
+//    {
+//        output_iterator it1(data);
+//        output_iterator it2(data);
+//
+//        TEST_OK(it1 == it2++);
+//        TEST_OK(it1 != it2);
+//
+//        TEST_OK(it1->x == 1);
+//        TEST_OK(it2->x == 2);
+//    }
 }

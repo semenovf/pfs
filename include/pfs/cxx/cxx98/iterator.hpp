@@ -79,10 +79,9 @@ struct iterator<input_iterator_tag, Derived, T, Pointer, Reference, Distance>
     typedef Reference          reference;
 
     static reference ref (Derived &);
-    static pointer ptr (Derived &);
-    static void increment (Derived &);
-    static void decrement (Derived &);
-    static bool equals (Derived const &, Derived const &);
+    static pointer   ptr (Derived &);
+    static void      increment (Derived &);
+    static bool      equals (Derived const &, Derived const &);
 
     value_type operator * () const
     {
@@ -128,10 +127,7 @@ struct iterator<output_iterator_tag, Derived, T, Pointer, Reference, Distance>
     typedef Reference           reference;
 
     static reference ref (Derived &);
-//    static pointer ptr (Derived &);
-//    static void increment (Derived &);
-//    static void decrement (Derived &);
-//    static bool equals (Derived const &, Derived const &);
+    static void increment (Derived &) {}
 
     reference operator * () const
     {
@@ -140,14 +136,14 @@ struct iterator<output_iterator_tag, Derived, T, Pointer, Reference, Distance>
     
     Derived & operator ++ () // prefix increment
 	{
-//    	iterator_type::increment(*this);
-//    	return *this;
+    	Derived::increment(static_cast<Derived &>(*this));
+    	return *this;
 	}
 
     Derived operator ++ (int) // postfix increment
 	{
-        iterator_facade r(*this);
-        iterator_type::increment(*this);
+        Derived r(static_cast<Derived &>(*this));
+        Derived::increment(static_cast<Derived &>(*this));
 		return r;
 	}
 };
