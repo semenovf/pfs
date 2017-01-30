@@ -20,7 +20,7 @@ namespace pfs {
 namespace fs {
 
 template <typename Traits>
-class path<Traits>::iterator : public iterator<
+class path<Traits>::iterator : public iterator_facade<
           bidirectional_iterator_tag // category
         , path>                    // value type
 {
@@ -35,7 +35,7 @@ class path<Traits>::iterator : public iterator<
 //    {
 //    }
 private:
-    static void increment (iterator & it);
+    static void increment (iterator_facade & it);
     
 public:
 
@@ -90,20 +90,20 @@ public:
 //        return _p;
 //    }
 //
-    friend bool operator == (iterator const & lhs, iterator const & rhs)
+    friend bool operator == (iterator_facade const & lhs, iterator_facade const & rhs)
     {
         return lhs._owner == rhs._owner 
                 && lhs._pos == rhs._pos;
     }
 
-    friend bool operator != (iterator const & lhs, iterator const & rhs)
+    friend bool operator != (iterator_facade const & lhs, iterator_facade const & rhs)
     {
         return ! (lhs == rhs);
     }
 };
 
 template <typename Traits>
-void path<Traits>::iterator::increment (iterator & it)
+void path<Traits>::iterator::increment (iterator_facade & it)
 {
     PFS_ASSERT(it._pos < it._owner->m_pathname.size(),
       "path::basic_iterator increment past end()");

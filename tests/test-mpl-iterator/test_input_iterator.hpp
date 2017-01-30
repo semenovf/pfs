@@ -5,7 +5,7 @@ struct A
     int x;
 };
 
-struct input_iterator : public pfs::iterator<
+struct input_iterator : public pfs::iterator_facade<
           pfs::input_iterator_tag
         , input_iterator
         , A, A *, A &>
@@ -20,7 +20,7 @@ struct input_iterator : public pfs::iterator<
         : _p(p)
     {}
 
-    static const reference ref (input_iterator const & it)
+    static reference ref (input_iterator & it)
     {
         return *it._p;
     }
@@ -35,11 +35,6 @@ struct input_iterator : public pfs::iterator<
         ++it._p;
     }
     
-    static void decrement (input_iterator & it)
-    {
-        --it._p;
-    }
-    
     static bool equals (input_iterator const & it1, input_iterator const & it2)
     {
         return it1._p == it2._p;
@@ -48,7 +43,7 @@ struct input_iterator : public pfs::iterator<
 
 void test_input_iterator ()
 {
-    ADD_TESTS(12);
+    ADD_TESTS_X(12, "Test Input Iterator");
     
     A data[] = { {1}, {2}, {3}, {4} };
     

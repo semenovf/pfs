@@ -5,7 +5,7 @@ struct B
     int x;
 };
 
-struct output_iterator : public pfs::iterator<
+struct output_iterator : public pfs::iterator_facade<
           pfs::output_iterator_tag
         , output_iterator
         , B, B *, int &>
@@ -33,7 +33,7 @@ struct output_iterator : public pfs::iterator<
 
 void test_output_iterator ()
 {
-    ADD_TESTS(4);
+    ADD_TESTS_X(4, "Test Output Iterator");
     
     B data[4];
     

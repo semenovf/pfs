@@ -84,12 +84,12 @@ public:
         
 		iterator begin ()
 		{
-			return iterator(_pcomponents->begin());
+			return iterator_facade(_pcomponents->begin());
 		}
 
 		iterator end ()
 		{
-			return iterator(_pcomponents->end());
+			return iterator_facade(_pcomponents->end());
 		}
         
 //        /**

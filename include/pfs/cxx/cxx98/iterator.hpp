@@ -25,16 +25,16 @@ typedef std::forward_iterator_tag       forward_iterator_tag;
 typedef std::bidirectional_iterator_tag bidirectional_iterator_tag;
 typedef std::random_access_iterator_tag random_access_iterator_tag;
 
-//template <typename Category, typename T, typename Distance = ptrdiff_t,
-//    typename Pointer = T *, typename Reference = T &>
-//struct iterator
-//{
-//    typedef Category  iterator_category;
-//    typedef T         value_type;
-//    typedef Distance  difference_type;
-//    typedef Pointer   pointer;
-//    typedef Reference reference;
-//};
+template <typename Category, typename T, typename Distance = ptrdiff_t,
+    typename Pointer = T *, typename Reference = T &>
+struct iterator
+{
+    typedef Category  iterator_category;
+    typedef T         value_type;
+    typedef Distance  difference_type;
+    typedef Pointer   pointer;
+    typedef Reference reference;
+};
 
 template <typename Iterator>
 struct iterator_traits
@@ -67,10 +67,10 @@ struct iterator_traits<const T *>
 };
 
 template <typename Category, typename Derived, typename T, typename Pointer, typename Reference, typename Distance = ptrdiff_t>
-struct iterator; 
+struct iterator_facade; 
 
 template <typename Derived, typename T, typename Pointer, typename Reference, typename Distance>
-struct iterator<input_iterator_tag, Derived, T, Pointer, Reference, Distance> 
+struct iterator_facade<input_iterator_tag, Derived, T, Pointer, Reference, Distance> 
 {
     typedef input_iterator_tag iterator_category;
     typedef T                  value_type;
@@ -93,7 +93,7 @@ struct iterator<input_iterator_tag, Derived, T, Pointer, Reference, Distance>
     	return Derived::ptr(*const_cast<Derived *>(static_cast<Derived const *>(this)));
     }
 
-    iterator & operator ++ () // prefix increment
+    iterator_facade & operator ++ () // prefix increment
 	{
     	Derived::increment(static_cast<Derived &>(*this));
     	return *this;
@@ -106,19 +106,19 @@ struct iterator<input_iterator_tag, Derived, T, Pointer, Reference, Distance>
 		return r;
 	}
     
-    bool operator == (Derived const & rhs)
+    friend bool operator == (Derived const & lhs, Derived const & rhs)
     {
-        return Derived::equals(static_cast<Derived const &>(*this), rhs);
+        return Derived::equals(lhs, rhs);
     }
 
-    bool operator != (Derived const & rhs)
+    friend bool operator != (Derived const & lhs, Derived const & rhs)
     {
-        return ! Derived::equals(static_cast<Derived const &>(*this), rhs);
+        return ! Derived::equals(lhs, rhs);
     }
 };
 
 template <typename Derived, typename T, typename Pointer, typename Reference, typename Distance>
-struct iterator<output_iterator_tag, Derived, T, Pointer, Reference, Distance> 
+struct iterator_facade<output_iterator_tag, Derived, T, Pointer, Reference, Distance> 
 {
     typedef output_iterator_tag iterator_category;
     typedef T                   value_type;
@@ -148,19 +148,36 @@ struct iterator<output_iterator_tag, Derived, T, Pointer, Reference, Distance>
 	}
 };
 
-//template <typename Iterator>
-//struct iterator_facade<forward_iterator_tag, Iterator> 
-//        : public iterator_facade<input_iterator_tag, Iterator>
-//{
-//    typedef Iterator iterator_type;
-//    typedef typename iterator_traits<Iterator>::reference reference;
 //
-//    reference operator * () const
-//    {
-//    	return iterator_type::ref(*this);
-//    }
-//};
-//
+// ForwardIterator:
+//      * satisfies InputIterator
+//      * satisfies DefaultConstructible
+//      * Objects provide multipass guarantee
+//      * 
+template <typename Derived, typename T, typename Pointer, typename Reference, typename Distance>
+struct iterator_facade<forward_iterator_tag, Derived, T, Pointer, Reference, Distance>
+        : public iterator_facade<input_iterator_tag, Derived, T, Pointer, Reference, Distance>
+{
+    typedef forward_iterator_tag iterator_category;
+    typedef T                    value_type;
+    typedef Distance             difference_type;
+    typedef Pointer              pointer;
+    typedef Reference            reference;
+    typedef const Reference      const_reference;
+
+    iterator_facade () {}
+    
+    reference operator * ()
+    {
+    	return Derived::ref(*static_cast<Derived *>(this));
+    }
+
+    const_reference operator * () const
+    {
+    	return Derived::ref(*static_cast<Derived const *>(this));
+    }
+};
+
 //template <typename Iterator>
 //struct iterator_facade<bidirectional_iterator_tag, Iterator> 
 //        : public iterator_facade<forward_iterator_tag, Iterator>
@@ -180,7 +197,7 @@ struct iterator<output_iterator_tag, Derived, T, Pointer, Reference, Distance>
 //		return r;
 //	}
 //};
-//
+
 //template <typename Iterator>
 //struct iterator_facade<random_access_iterator_tag, Iterator> 
 //        : public iterator_facade<bidirectional_iterator_tag, Iterator>
