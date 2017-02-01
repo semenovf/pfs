@@ -11,8 +11,8 @@
  * Created on January 11, 2017, 4:05 PM
  */
 
-#ifndef __PFS_TRAITS_QT_STRING_HPP__
-#define __PFS_TRAITS_QT_STRING_HPP__
+#ifndef __PFS_FOUNDATION_QT_STRING_HPP__
+#define __PFS_FOUNDATION_QT_STRING_HPP__
 
 #include <pfs/traits/string.hpp>
 #include <QString>
@@ -165,5 +165,5 @@ public:
 
 }} // pfs::traits
 
-#endif /* __PFS_TRAITS_QT_STRING_HPP__ */
+#endif /* __PFS_FOUNDATION_QT_STRING_HPP__ */
 

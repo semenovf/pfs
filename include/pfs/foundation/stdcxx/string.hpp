@@ -11,8 +11,8 @@
  * Created on January 9, 2017, 3:21 PM
  */
 
-#ifndef __PFS_TRAITS_STDCXX_STRING_HPP__
-#define __PFS_TRAITS_STDCXX_STRING_HPP__
+#ifndef __PFS_FOUNDATION_STDCXX_STRING_HPP__
+#define __PFS_FOUNDATION_STDCXX_STRING_HPP__
 
 #include <string>
 #include <pfs/traits/string.hpp>
@@ -242,4 +242,4 @@ public:
 
 }} // pfs::traits
 
-#endif /* __PFS_TRAITS_STDCXX_STRING_HPP__ */
+#endif /* __PFS_FOUNDATION_STDCXX_STRING_HPP__ */

@@ -11,12 +11,13 @@
  * Created on January 24, 2017, 2:22 PM
  */
 
-#ifndef __PFS_STRING_BUILDER_HPP__
-#define __PFS_STRING_BUILDER_HPP__
+#ifndef __PFS_TRAITS_STRING_BUILDER_HPP__
+#define __PFS_TRAITS_STRING_BUILDER_HPP__
 
 #include <pfs/string.hpp>
 
 namespace pfs {
+namespace traits {
 
 template <typename T>
 class basic_string_builder;
@@ -36,7 +37,7 @@ class string_builder : public basic_string_builder<T>
 
 public:
     typedef T value_type;
-    typedef typename base_type::size_type              size_type;
+    typedef typename base_type::size_type size_type;
 
 public:
     string_builder ();
@@ -59,7 +60,7 @@ public:
     StringT str () const;
 };
 
-} // pfs
+}} // pfs
 
-#endif /* __PFS_STRING_BUILDER_HPP__ */
+#endif /* __PFS_TRAITS_STRING_BUILDER_HPP__ */
 

@@ -11,14 +11,15 @@
  * Created on January 24, 2017, 2:49 PM
  */
 
-#ifndef __PFS_TRAITS_STDCXX_STRING_BUILDER_HPP__
-#define __PFS_TRAITS_STDCXX_STRING_BUILDER_HPP__
+#ifndef __PFS_FOUNDATION_STDCXX_STRING_BUILDER_HPP__
+#define __PFS_FOUNDATION_STDCXX_STRING_BUILDER_HPP__
 
 #include <string>
-#include <pfs/traits/stdcxx/string.hpp>
-#include <pfs/string_builder.hpp>
+#include <pfs/foundation/stdcxx/string.hpp>
+#include <pfs/traits/string_builder.hpp>
 
 namespace pfs {
+namespace traits {
 
 template <>
 class basic_string_builder<char> : public details::basic_string_builder<char>
@@ -27,7 +28,7 @@ class basic_string_builder<char> : public details::basic_string_builder<char>
     typedef std::string data_type;
     
 public:    
-    typedef traits::string<std::string>    string_type;
+    typedef traits::string<std::string>     string_type;
     typedef typename string_type::size_type size_type;
     
 protected:
@@ -95,7 +96,7 @@ char const * string_builder<char>::str<char const *> () const
     return _d.data();
 }
 
-} // pfs
+}} // pfs::traits
 
-#endif /* __PFS_TRAITS_STDCXX_STRING_BUILDER_HPP__ */
+#endif /* __PFS_FOUNDATION_STDCXX_STRING_BUILDER_HPP__ */
 

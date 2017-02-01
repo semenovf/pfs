@@ -424,6 +424,10 @@ public:
 public:
     explicit c_str (string_type const & s);
     char const * operator () () const;
+    operator char const * () const
+    {
+        return operator () ();
+    }
 };
 
 }} // pfs::traits

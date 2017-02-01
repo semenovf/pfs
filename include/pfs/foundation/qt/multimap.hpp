@@ -5,25 +5,25 @@
  */
 
 /* 
- * File:   map.hpp
+ * File:   multimap.hpp
  * Author: wladt
  *
- * Created on January 16, 2017, 3:12 PM
+ * Created on January 20, 2017, 3:55 PM
  */
 
-#ifndef __PFS_TRAITS_QT_MAP_HPP__
-#define __PFS_TRAITS_QT_MAP_HPP__
+#ifndef __PFS_FOUNDATION_QT_MULTIMAP_HPP__
+#define __PFS_FOUNDATION_QT_MULTIMAP_HPP__
 
-#include <QMap>
+#include <QMultiMap>
 #include <pfs/cxxlang.hpp>
-#include <pfs/traits/map.hpp>
+#include <pfs/traits/multimap.hpp>
 
 namespace qt {
 
 template <typename Key, typename T>
-struct map
+struct multimap
 {
-    typedef QMap<Key, T> type;
+    typedef QMultiMap<Key, T> type;
 };
 
 } // qt
@@ -34,21 +34,21 @@ namespace traits {
 namespace qt {
 
 template <typename Key, typename T>
-struct map_iterator : public QMap<Key, T>::iterator
+struct multimap_iterator : public QMultiMap<Key, T>::iterator
 {
-    typedef typename QMap<Key, T>::iterator base_type;
+    typedef typename QMultiMap<Key, T>::iterator base_type;
 
-    map_iterator (base_type lhs) pfs_noexcept
+    multimap_iterator (base_type lhs) pfs_noexcept
         : base_type(lhs)
     {}
 };
 
 template <typename Key, typename T>
-struct map_const_iterator : public QMap<Key, T>::const_iterator
+struct multimap_const_iterator : public QMultiMap<Key, T>::const_iterator
 {
-    typedef typename QMap<Key, T>::const_iterator base_type;
+    typedef typename QMultiMap<Key, T>::const_iterator base_type;
 
-    map_const_iterator (base_type lhs) pfs_noexcept
+    multimap_const_iterator (base_type lhs) pfs_noexcept
         : base_type(lhs)
     {}
 };
@@ -56,9 +56,9 @@ struct map_const_iterator : public QMap<Key, T>::const_iterator
 } // qt
 
 template <typename Key, typename T>
-struct map_traits<Key, T, ::qt::map>
+struct multimap_traits<Key, T, ::qt::multimap>
 {
-    typedef typename ::qt::map<Key, T>::type             native_type;
+    typedef ::qt::multimap<Key, T>                       native_type;
     typedef typename native_type::size_type              size_type;
     typedef typename native_type::key_type               key_type;
     typedef typename native_type::mapped_type            mapped_type;
@@ -66,18 +66,19 @@ struct map_traits<Key, T, ::qt::map>
     typedef typename qt::map_const_iterator<Key, T>      const_iterator;
     typedef typename std::reverse_iterator<iterator>     reverse_iterator;
     typedef typename std::reverse_iterator<const_iterator> const_reverse_iterator;
-    typedef typename native_type::difference_type        difference_type;
     typedef native_type                                  data_type;
 };
 
-
 template <typename Key, typename T>
-class basic_map<Key, T, ::qt::map>
-    : public details::basic_map<Key, T, ::qt::map>
+class basic_multimap<Key, T, ::qt::multimap>
+    : public details::basic_multimap<Key, T, ::qt::multimap>
 {
+    typedef details::basic_multimap<Key, T, ::qt::multimap> base_type;
+    typedef basic_multimap<Key, T, ::qt::multimap>          self_type;
+    
 protected:
-    typedef details::basic_map<Key, T, ::qt::map>        base_type;
     typedef typename base_type::size_type              size_type;
+    typedef typename base_type::key_type               key_type;
     typedef typename base_type::mapped_type            mapped_type;
     typedef typename base_type::native_type            native_type;
     typedef typename base_type::iterator               iterator;
@@ -131,27 +132,6 @@ protected:
         return this->_d.size();
     }
     
-    virtual mapped_type & xat (Key const & key)
-    {
-        iterator it = this->xfind(key);
-        if (it == this->xend())
-            throw out_of_range("map::at");
-        return it.value();
-    }
-
-    virtual mapped_type const & xat (Key const & key) const
-    {
-        const_iterator it = this->xfind(key);
-        if (it == this->xend())
-            throw out_of_range("map::at");
-        return it.value();
-    }
-    
-    virtual mapped_type & xsubscript (Key const & key)
-    {
-        return this->_d[key];
-    }
-
     virtual void xclear ()
     {
         this->_d.clear();
@@ -167,25 +147,44 @@ protected:
         this->_d.swap(rhs._d);
     }
 
-    virtual size_type xcount (Key const & key) const
+    virtual size_type xcount (key_type const & key) const
     {
         return this->_d.count(key);
     }
-    
-    virtual iterator xfind (Key const & key)
+   
+    virtual iterator xfind (key_type const & key)
     {
         return iterator(this->_d.find(key));
     }
 		
-    virtual const_iterator xfind (Key const & key) const
+    virtual const_iterator xfind (key_type const & key) const
     {
         return const_iterator(this->_d.find(key));
     }
-    
-    virtual pfs::pair<iterator, bool> xinsert (Key const & key, T const & value)
+
+    virtual iterator xlower_bound (key_type const & key)
     {
-        iterator it = iterator(this->_d.insert(key, value));
-        return pfs::pair<iterator, bool>(it, true);
+        return this->_d.lowerBound(key);
+    }
+    
+    virtual const_iterator xlower_bound (key_type const & key) const
+    {
+        return this->_d.lowerBound(key);
+    }
+    
+    virtual iterator xupper_bound (key_type const & key)
+    {
+        return this->_d.upperBound(key);
+    }
+    
+    virtual const_iterator xupper_bound (key_type const & key) const
+    {
+        return this->_d.upperBound(key);
+    }
+    
+    virtual iterator xinsert (key_type const & key, mapped_type const & value)
+    {
+        return this->_d.insert();
     }
     
 public:
@@ -202,4 +201,5 @@ public:
 
 }} // pfs::traits
 
-#endif /* __PFS_TRAITS_QT_MAP_HPP__ */
+#endif /* __PFS_FOUNDATION_QT_MULTIMAP_HPP__ */
+

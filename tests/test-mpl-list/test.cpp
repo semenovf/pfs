@@ -9,11 +9,11 @@
 #include <pfs/test/test.hpp>
 #include <pfs.hpp>
 
-#include <pfs/traits/stdcxx/list.hpp>
+#include <pfs/foundation/stdcxx/list.hpp>
 
 // Enabled by `qt_enable`
 #ifdef QT_CORE_LIB
-#   include <pfs/traits/qt/list.hpp>
+#   include <pfs/foundation/qt/list.hpp>
 #endif
 
 #include "test_iterator.hpp"

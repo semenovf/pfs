@@ -11,8 +11,8 @@
  * Created on January 16, 2017, 11:52 AM
  */
 
-#ifndef __PFS_TRAITS_STDCXX_VECTOR_HPP__
-#define __PFS_TRAITS_STDCXX_VECTOR_HPP__
+#ifndef __PFS_FOUNDATION_STDCXX_VECTOR_HPP__
+#define __PFS_FOUNDATION_STDCXX_VECTOR_HPP__
 
 #include <pfs/traits/vector.hpp>
 #include <vector>
@@ -28,5 +28,5 @@ namespace traits {
 
 }} // pfs::traits
 
-#endif /* __PFS_TRAITS_STDCXX_VECTOR_HPP__ */
+#endif /* __PFS_FOUNDATION_STDCXX_VECTOR_HPP__ */
 

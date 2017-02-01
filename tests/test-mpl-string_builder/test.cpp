@@ -9,10 +9,10 @@
 #include <pfs.hpp>
 #include <pfs/test/test.hpp>
 #include <cstring>
-#include <pfs/traits/stdcxx/string.hpp>
-#include <pfs/traits/stdcxx/string_builder.hpp>
+#include <pfs/foundation/stdcxx/string.hpp>
+#include <pfs/foundation/stdcxx/string_builder.hpp>
 
-typedef pfs::string_builder<char>         string_builder;
+typedef pfs::traits::string_builder<char> string_builder;
 typedef pfs::traits::string<std::string>  string_type;
 
 int main(int argc, char *argv[])

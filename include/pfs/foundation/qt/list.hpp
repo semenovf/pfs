@@ -11,8 +11,8 @@
  * Created on January 16, 2017, 2:34 PM
  */
 
-#ifndef __PFS_TRAITS_QT_LIST_HPP__
-#define __PFS_TRAITS_QT_LIST_HPP__
+#ifndef __PFS_FOUNDATION_QT_LIST_HPP__
+#define __PFS_FOUNDATION_QT_LIST_HPP__
 
 #include <QLinkedList>
 #include <pfs/traits/list.hpp>
@@ -193,5 +193,5 @@ void basic_list<T, qt::list>::xresize (size_type count, value_type const & value
 
 }} // pfs::traits
 
-#endif /* __PFS_TRAITS_QT_LIST_HPP__ */
+#endif /* __PFS_FOUNDATION_QT_LIST_HPP__ */
 
