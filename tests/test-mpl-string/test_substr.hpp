@@ -14,19 +14,19 @@
 #ifndef __PFS_TEST_SUBSTR_HPP__
 #define __PFS_TEST_SUBSTR_HPP__
 
-template <typename StringImpl>
+template <typename CharT>
 void test_substr ()
 {
-    test_description<StringImpl>(__PRETTY_FUNCTION__);
+    test_description<CharT>(__PRETTY_FUNCTION__);
     
     ADD_TESTS(7);
     
-    typedef pfs::traits::string<StringImpl> string;
-    string orig(string_samples<StringImpl>(STR_ORIG));
-    string same(string_samples<StringImpl>(STR_SAME));
-    string head(string_samples<StringImpl>(STR_HEAD));
-    string tail(string_samples<StringImpl>(STR_TAIL));
-    string mid(string_samples<StringImpl>(STR_MID));
+    typedef pfs::traits::string<CharT> string;
+    string orig(string_samples<CharT>(STR_ORIG));
+    string same(string_samples<CharT>(STR_SAME));
+    string head(string_samples<CharT>(STR_HEAD));
+    string tail(string_samples<CharT>(STR_TAIL));
+    string mid(string_samples<CharT>(STR_MID));
     
     TEST_OK(orig.substr(0) == orig);
     TEST_OK(orig.substr(0) == same);

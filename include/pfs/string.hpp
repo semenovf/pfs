@@ -20,12 +20,18 @@
 namespace pfs {
 
 #if PFS_CXX_USE_FOUNDATION == PFS_CXX_FOUNDATION_STDCXX
-    typedef traits::string<std::string>  string;
-    typedef traits::string<std::wstring> wstring;
-    typedef traits::c_str<std::string>   c_str;
+    
+#   ifdef _WCHAR_H   
+        typedef traits::string<wchar_t> wstring;
+        typedef traits::c_str<wchar_t>  c_str;
+#   else
+        typedef traits::string<char>  string;
+        typedef traits::c_str<char>   c_str;
+#   endif
+    
 #elif PFS_CXX_USE_FOUNDATION == PFS_CXX_FOUNDATION_QT
-    typedef traits::string<QString>  string;
-    typedef traits::c_str<QString>   c_str;
+    typedef traits::string<QChar>  string;
+    typedef traits::c_str<QChar>   c_str;
 #elif PFS_CXX_USE_FOUNDATION == PFS_CXX_FOUNDATION_BOOST
 #   error "Need to implement BOOST-specific traits for string"
 #elif PFS_CXX_USE_FOUNDATION == PFS_CXX_FOUNDATION_GTK

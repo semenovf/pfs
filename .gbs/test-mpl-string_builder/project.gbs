@@ -14,6 +14,15 @@ includedirs   {   "../../include"
 libdirs       { "../../../.build" }
 files         { "../../tests/test-mpl-string_builder/*.cpp" }
 
+-- Special for Qt projects
+require("../../../.gbs/qt_enable")
+
+--Available modules:
+--    core, gui, multimedia, network, opengl, positioning, printsupport,
+--    qml, quick, sensors, sql, svg, testlib, websockets, widgets, xml
+--
+qtmodules     { "core" }
+
 configuration "debug"
     flags        { "FatalWarnings", "Symbols" }
     defines      { "DEBUG" }
@@ -28,3 +37,6 @@ configuration "release"
     objdir       "../../../.build/pfs/test-mpl-string_builder/release"
     targetdir    "../../../.build/tests"
     links        { "pfs-test" }
+
+-- Special for Qt projects
+package.loaded["../../../.gbs/qt_enable"] = nil

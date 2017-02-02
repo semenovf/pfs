@@ -25,29 +25,59 @@
 namespace pfs {
 namespace traits {
 
-template <typename T>
+template <typename CharT>
 struct string_traits
 {
-    typedef T const &                          const_native_reference;
-    typedef typename T::size_type              size_type;
-    typedef typename T::value_type             value_type;
-    typedef typename T::const_pointer          const_pointer;
-    typedef typename T::const_iterator         const_iterator;
-    typedef typename T::const_reverse_iterator const_reverse_iterator;
+    typedef CharT const * native_type;
+    typedef CharT const * const_native_reference;
+    typedef size_t        size_type;
+    typedef CharT         value_type;
+    typedef CharT const * const_pointer;
+    typedef CharT const * const_iterator;
+    typedef CharT const * const_reverse_iterator;
+    typedef native_type   data_type;
+
+    static void xassign (data_type & d, const_native_reference lhs);
+    static void xassign (data_type & d, const_pointer lhs, size_type n);
+    static size_type xsize (data_type const & d);
+    static const_iterator xbegin (data_type const & d);
+    static const_iterator xend (data_type const & d);
+    static const_reverse_iterator xrbegin (data_type const & d);
+    static const_reverse_iterator xrend (data_type const & d);
+    static value_type xat (data_type const & d, size_type pos);
+
+    static int xcompare (data_type const & d
+            , size_type pos1, size_type count1
+            , data_type const & rhs
+            , size_type pos2, size_type count2);
     
-    typedef T data_type;
+    static size_type xfind (data_type const & d
+            , data_type const & rhs
+            , size_type pos);
+    
+    static size_type xfind (data_type const & d
+            , value_type c
+            , size_type pos);
+
+    static size_type xrfind (data_type const & d
+            , data_type const & rhs
+            , size_type pos);
+    
+    static size_type xrfind (data_type const & d
+            , value_type c
+            , size_type pos);
+    
+    static const_pointer xdata (data_type const & d);
+    
+    static const_native_reference xcast (data_type const & d);
 };
 
-template <typename T>
-class basic_string;
-
-namespace details {
-    
-template <typename T>
-class basic_string 
+template <typename CharT>
+class string
 {
 public:
-    typedef string_traits<T>                             traits_type;
+    typedef string_traits<CharT>                         traits_type;
+    typedef typename traits_type::native_type            native_type;
     typedef typename traits_type::const_native_reference const_native_reference;
     typedef typename traits_type::size_type              size_type;
     typedef typename traits_type::value_type             value_type;
@@ -55,59 +85,17 @@ public:
     typedef typename traits_type::const_iterator         const_iterator;
     typedef typename traits_type::const_reverse_iterator const_reverse_iterator;
     typedef typename traits_type::data_type              data_type;
-
-public:
+    
+private:
     data_type _d;
-
-public:
-    virtual size_type xsize () const = 0;
-    virtual const_iterator xbegin () const = 0;
-    virtual const_iterator xend () const = 0;
-    virtual const_reverse_iterator xrbegin () const = 0;
-    virtual const_reverse_iterator xrend () const = 0;
-    virtual value_type xat (size_type pos) const = 0;
-
-    virtual int xcompare (size_type pos1, size_type count1
-        , basic_string const & rhs, size_type pos2, size_type count2) const = 0;
-    virtual size_type xfind (const_native_reference rhs, size_type pos) const = 0;
-    virtual size_type xfind (value_type c, size_type pos) const = 0;
-    virtual size_type xrfind (value_type c, size_type pos) const = 0;
-    virtual size_type xrfind (const_native_reference rhs, size_type pos) const = 0;
-    
-public:
-    basic_string ()
-    {}
-
-    basic_string (data_type const & d)
-        : _d(d)
-    {}
-    
-    virtual const_native_reference native () const = 0;
-};
-
-} // details
-
-template <typename T>
-class string : public basic_string<T>
-{
-    typedef basic_string<T> base_type;
-    
-public:    
-    typedef typename base_type::traits_type            traits_type;
-    typedef typename base_type::const_native_reference const_native_reference;
-    typedef typename base_type::size_type              size_type;
-    typedef typename base_type::value_type             value_type;
-    typedef typename base_type::const_pointer          const_pointer;
-    typedef typename base_type::const_iterator         const_iterator;
-    typedef typename base_type::const_reverse_iterator const_reverse_iterator;
     
 public:
     string ()
-        : base_type()
+        : _d()
     {}
     
     explicit string (const_native_reference s)
-        : base_type(s)
+        : _d(s)
     {}
 
     /**
@@ -115,53 +103,49 @@ public:
      * @param str
      * @note 
      */
-    explicit string (char const * str, size_type n)
-        : base_type(str)
+    explicit string (CharT const * str, size_type n)
+        : _d(str, n)
     {}
-    
-#ifdef _WCHAR_H
-    /**
-     * @details If @c wchar_t is 4 bytes, the string is interpreted as UCS-4, 
-     *          if @c wchar_t is 2 bytes it is interpreted as UCS-2.
-     * @param s
-     */
-    explicit string (wchar_t const * str, size_type n)
-        : base_type(str)
-    {}
-#endif
     
     string (const_iterator begin, const_iterator end)
-        : base_type(begin, end)
+        : _d(begin, end)
     {}
 
     string (string const & rhs)
-        : base_type(rhs)
+        : _d(rhs._d)
     {}
     
-    /**
-     * @param rhs
-     * @return 
-     */
     string & operator = (string const & rhs)
     {
-        if (this != & rhs)
-            base_type::operator = (rhs);
+        traits_type::xassign(_d, traits_type::xcast(rhs._d));
         return *this;
     }
 
-    /**
-     * @param rhs
-     * @return 
-     */
     string & operator = (const_native_reference rhs)
     {
-        base_type::operator = (rhs);
+        traits_type::xassign(_d, rhs);
         return *this;
+    }
+
+    string & operator = (const_pointer rhs)
+    {
+        traits_type::xassign(_d, rhs, size_type(-1));
+        return *this;
+    }
+    
+    const_pointer data () const
+    {
+        return traits_type::xdata(_d);
+    }
+    
+    const_native_reference cast () const
+    {
+        return traits_type::xcast(_d);
     }
 
     size_type size () const
     {
-        return this->xsize();
+        return traits_type::xsize(_d);
     }
     
     size_type length () const
@@ -180,12 +164,12 @@ public:
     
     const_iterator begin () const
     {
-        return this->xbegin();
+        return traits_type::xbegin(_d);
     }
 
     const_iterator end () const
     {
-        return this->xend();
+        return traits_type::xend(_d);
     }
 
     const_iterator cbegin () const
@@ -200,12 +184,12 @@ public:
 
     const_reverse_iterator rbegin () const
     {
-        return this->xrbegin();
+        return traits_type::xrbegin(_d);
     }
 
     const_reverse_iterator rend () const
     {
-        return this->xrend();
+        return traits_type::xrend(_d);
     }
 
     const_reverse_iterator crbegin () const
@@ -227,7 +211,7 @@ public:
     {
         if (pos >= this->size())
             throw out_of_range("string::at");
-        return this->xat(pos);
+        return traits_type::xat(_d, pos);
     }
     
     value_type operator [] (size_type pos) const
@@ -238,17 +222,17 @@ public:
     int compare (size_type pos1, size_type count1
         , string const & rhs, size_type pos2, size_type count2) const
     {
-        return this->xcompare(pos1, count1, rhs, pos2, count2) ;
+        return traits_type::xcompare(_d, pos1, count1, rhs._d, pos2, count2) ;
     }
     
     int compare (size_type pos1, size_type count1, string const & rhs) const
     {
-        return this->xcompare(pos1, count1, rhs, 0, rhs.size());
+        return traits_type::xcompare(_d, pos1, count1, rhs._d, 0, rhs.size());
     }
     
     int compare (string const & rhs) const
     {
-        return this->xcompare(0, this->size(), rhs, 0, rhs.size());
+        return traits_type::xcompare(_d, 0, this->size(), rhs._d, 0, rhs.size());
     }
     
     bool starts_with (string const & rhs) const
@@ -274,17 +258,17 @@ public:
     
     bool contains (string const & rhs, size_type pos = 0) const
 	{
-		return this->xfind(rhs.base(), pos) != size_type(-1);
+		return traits_type::xfind(_d, rhs._d, pos) != size_type(-1);
 	}
 
     bool contains (const_native_reference rhs, size_type pos = 0)
     {
-        return this->xfind(rhs, pos) != size_type(-1);
+        return traits_type::xfind(_d, rhs._d, pos) != size_type(-1);
     }
     
 	bool contains (value_type c, size_type pos = 0) const
 	{
-        return this->xfind(c, pos) != size_type(-1);
+        return traits_type::xfind(_d, c, pos) != size_type(-1);
 	}
    
     /**
@@ -302,32 +286,32 @@ public:
      */
     size_type find (string const & rhs, size_type pos = 0) const
     {
-        return this->xfind(rhs.base(), pos);
+        return traits_type::xfind(_d, rhs._d, pos);
     }
     
     size_type find (const_native_reference rhs, size_type pos = 0) const
     {
-        return this->xfind(rhs.base(), pos);
+        return traits_type::xfind(_d, rhs._d, pos);
     }
     
     size_type find (value_type c, size_type pos = 0) const
     {
-        return this->xfind(c, pos);
+        return traits_type::xfind(_d, c, pos);
     }
     
     size_type rfind (string const & rhs, size_type pos = size_type(-1)) const
     {
-        return this->xrfind(rhs.base(), pos);
+        return traits_type::xrfind(_d, rhs._d, pos);
     }
     
     size_type rfind (const_native_reference rhs, size_type pos = size_type(-1)) const
     {
-        return this->xfind(rhs.base(), pos);
+        return traits_type::xfind(_d, rhs._d, pos);
     }
     
     size_type rfind (value_type c, size_type pos = size_type(-1)) const
     {
-        return this->xrfind(c, pos);
+        return traits_type::xrfind(_d, c, pos);
     }
     
     /**
@@ -416,28 +400,25 @@ inline bool operator >= (string<T> const & lhs
 }
 
 template <typename T>
-class c_str
-{
-public:
-    typedef string<T> string_type;
-    
-public:
-    explicit c_str (string_type const & s);
-    char const * operator () () const;
-    operator char const * () const
-    {
-        return operator () ();
-    }
-};
+class c_str;
+
+template <typename CharT>
+class c_wstr;
 
 }} // pfs::traits
 
 namespace std {
 
-template <typename T>
-ostream & operator << (ostream & out, pfs::traits::string<T> const & s)
+template <typename CharT>
+ostream & operator << (ostream & out, pfs::traits::string<CharT> const & s)
 {
-    return out << pfs::traits::c_str<pfs::traits::string<T> >(s)();
+    return out << pfs::traits::c_str<CharT>(s)();
+}
+
+template <typename CharT>
+wostream & operator << (wostream & out, pfs::traits::string<CharT> const & s)
+{
+    return out << pfs::traits::c_wstr<CharT>(s)();
 }
 
 } // std

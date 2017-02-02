@@ -21,145 +21,157 @@ namespace pfs {
 namespace traits {
 
 template <>
-struct string_traits<QString>
+struct string_traits<QChar>
 {
-    typedef QString const &                      const_native_reference;
-    typedef size_t                               size_type;
-    typedef QString::value_type                  value_type;
-    typedef QChar const *                        const_pointer;
-    typedef QString::const_iterator              const_iterator;
-    typedef std::reverse_iterator<QChar const *> const_reverse_iterator;
+    typedef QString                               native_type;
+    typedef native_type const &                   const_native_reference;
+    typedef size_t                                size_type;
+    typedef typename native_type::value_type      value_type;
+    typedef QChar const *                         const_pointer;
+    typedef typename native_type::const_iterator  const_iterator;
+    typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
+    typedef native_type                           data_type;
 
-    typedef QString data_type;
-};
-
-template <>
-class basic_string<QString> : public details::basic_string<QString>
-{
-    typedef details::basic_string<QString> base_type;
-    typedef typename base_type::data_type data_type;
-
-public:    
-    typedef typename base_type::traits_type            traits_type;
-    typedef typename base_type::const_native_reference const_native_reference;
-    typedef typename base_type::size_type              size_type;
-    typedef typename base_type::value_type             value_type;
-    typedef typename base_type::const_pointer          const_pointer;
-    typedef typename base_type::const_iterator         const_iterator;
-    typedef typename base_type::const_reverse_iterator const_reverse_iterator;
-    
-protected:
-    virtual size_type xsize () const
+    static void xassign (data_type & d, const_native_reference lhs)
     {
-        return this->_d.size();
+        d = lhs;
+    }
+
+    static void xassign (data_type & d, const_pointer lhs, size_type n)
+    {
+        d = (n == size_type(-1)) 
+                ? data_type(lhs)
+                : data_type(lhs, int(n));
     }
     
-    virtual const_iterator xbegin () const
+    static size_type xsize (data_type const & d)
     {
-        return this->_d.begin();
-    }
-
-    virtual const_iterator xend () const
-    {
-        return this->_d.end();
-    }
-
-    virtual const_reverse_iterator xrbegin () const
-    {
-        return const_reverse_iterator(this->_d.end());
-    }
-
-    virtual const_reverse_iterator xrend () const
-    {
-        return const_reverse_iterator(this->_d.begin());
+        return d.size();    
     }
     
-    virtual value_type xat (size_type pos) const
+    static const_iterator xbegin (data_type const & d)
     {
-        return this->_d.at(int(pos));
+        return d.begin();
+    }
+    
+    static const_iterator xend (data_type const & d)
+    {
+        return d.end();
+    }
+    
+    static const_reverse_iterator xrbegin (data_type const & d)
+    {
+        return const_reverse_iterator(d.end());
+    }
+    
+    static const_reverse_iterator xrend (data_type const & d)
+    {
+        return const_reverse_iterator(d.begin());
+    }
+    
+    static value_type xat (data_type const & d, size_type pos)
+    {
+        return d.at(int(pos));
     }
 
-    virtual int xcompare (size_type pos1, size_type count1
-        , base_type const & rhs, size_type pos2, size_type count2) const
+    static int xcompare (data_type const & d
+            , size_type pos1, size_type count1
+            , data_type const & rhs
+            , size_type pos2, size_type count2)
     {
-        return this->_d.midRef(pos1, count1).compare(rhs._d.midRef(pos2, count2));
+        return d.midRef(pos1, count1).compare(d.midRef(pos2, count2));
     }
-
-    virtual size_type xfind (const_native_reference rhs, size_type pos) const
+    
+    static size_type xfind (data_type const & d
+            , data_type const & rhs
+            , size_type pos)
     {
-        int i = this->_d.indexOf(rhs, pos);
+        int i = d.indexOf(rhs, pos); 
         return i < 0 ? size_type(-1) : size_type(i);
     }
     
-    virtual size_type xfind (value_type c, size_type pos) const
+    static size_type xfind (data_type const & d
+            , value_type c
+            , size_type pos)
     {
-        int i = this->_d.indexOf(c, pos);
-        return i < 0 ? size_type(-1) : size_type(i);
-    }
-    
-    virtual size_type xrfind (const_native_reference rhs, size_type pos) const
-    {
-        int i = this->_d.lastIndexOf(rhs, pos);
+        int i = d.indexOf(c, pos);
         return i < 0 ? size_type(-1) : size_type(i);
     }
 
-    virtual size_type xrfind (value_type c, size_type pos) const
+    static size_type xrfind (data_type const & d
+            , data_type const & rhs
+            , size_type pos)
     {
-        int i = this->_d.lastIndexOf(c, pos);
+        int i = d.lastIndexOf(rhs, pos);
         return i < 0 ? size_type(-1) : size_type(i);
     }
-
-public:
-    basic_string ()
-    {}
-
-    basic_string (const_native_reference s)
-        : base_type(s)
-    {}
     
-    basic_string (const_iterator begin, const_iterator end)
-        : base_type(data_type(begin, end - begin))
-    {}
-
-    basic_string (basic_string const & rhs)
-        : base_type(rhs)
-    {}
-
-    explicit basic_string (char const * str, size_type n = size_type(-1))
+    static size_type xrfind (data_type const & d
+            , value_type c
+            , size_type pos)
     {
-        this->_d.fromUtf8(str, n == size_type(-1) ? -1 : int(n));
+        int i = d.lastIndexOf(c, pos);
+        return i < 0 ? size_type(-1) : size_type(i);
     }
     
-#ifdef _WCHAR_H
-    explicit basic_string (wchar_t const * str, size_type n = size_type(-1))
+    static const_pointer xdata (data_type const & d)
     {
-        this->_d.fromWCharArray(str, n == size_type(-1) ? -1 : int(n));
+        return d.constData();
     }
-#endif
     
-    virtual const_native_reference native () const
+    static const_native_reference xcast (data_type const & d)
     {
-        return this->_d;
+        return d;
     }
 };
 
 template <>
-class c_str<QString>
+class c_str<QChar>
 {
 public:
-    typedef string<QString> string_type;
+    typedef string<QChar> string_type;
     
 private:
     QByteArray _d;
     
 public:
     explicit c_str (string_type const & s)
-        : _d(s.native().toUtf8())
+        : _d(s.cast().toUtf8())
     {}
     
     char const * operator () () const
     {
         return _d.constData();
+    }
+    
+    operator char const * () const
+    {
+        return _d.constData();
+    }
+};
+
+template <>
+class c_wstr<QChar>
+{
+public:
+    typedef string<QChar> string_type;
+    
+private:
+    std::wstring _d;
+    
+public:
+    explicit c_wstr (string_type const & s)
+        : _d(s.cast().toStdWString())
+    {}
+    
+    wchar_t const * operator () () const
+    {
+        return _d.c_str();
+    }
+    
+    operator wchar_t const * () const
+    {
+        return _d.c_str();
     }
 };
 

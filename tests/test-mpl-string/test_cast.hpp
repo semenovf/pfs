@@ -16,39 +16,39 @@
 
 #include <cstring>
 
-template <typename StringImpl>
+template <typename CharT>
 void test_c_str_cast ()
 {
-    test_description<StringImpl>(__PRETTY_FUNCTION__);
+    test_description<CharT>(__PRETTY_FUNCTION__);
     
     ADD_TESTS(7);
     
-    typedef pfs::traits::string<StringImpl> string;
+    typedef pfs::traits::string<CharT> string;
 
-    string orig(string_samples<StringImpl>(STR_ORIG));
-    string same(string_samples<StringImpl>(STR_SAME));
-    string diff(string_samples<StringImpl>(STR_DIFF));
-    string empty(string_samples<StringImpl>(STR_EMPTY));
+    string orig(string_samples<CharT>(STR_ORIG));
+    string same(string_samples<CharT>(STR_SAME));
+    string diff(string_samples<CharT>(STR_DIFF));
+    string empty(string_samples<CharT>(STR_EMPTY));
     
-    TEST_OK(std::strcmp(string_samples<char const *>(STR_ORIG)
-            , pfs::traits::c_str<StringImpl>(orig)()) == 0);
+    TEST_OK(std::strcmp(string_samples<char>(STR_ORIG)
+            , pfs::traits::c_str<CharT>(orig)()) == 0);
 
-    TEST_OK(std::strcmp(string_samples<char const *>(STR_SAME)
-            , pfs::traits::c_str<StringImpl>(orig)()) == 0);
+    TEST_OK(std::strcmp(string_samples<char>(STR_SAME)
+            , pfs::traits::c_str<CharT>(orig)()) == 0);
 
-    TEST_OK(std::strcmp(string_samples<char const *>(STR_DIFF)
-            , pfs::traits::c_str<StringImpl>(orig)()) != 0);
+    TEST_OK(std::strcmp(string_samples<char>(STR_DIFF)
+            , pfs::traits::c_str<CharT>(orig)()) != 0);
 
-    TEST_OK(std::strcmp(pfs::traits::c_str<StringImpl>(orig)()
-            , pfs::traits::c_str<StringImpl>(orig)()) == 0);
+    TEST_OK(std::strcmp(pfs::traits::c_str<CharT>(orig)()
+            , pfs::traits::c_str<CharT>(orig)()) == 0);
 
-    TEST_OK(std::strcmp(pfs::traits::c_str<StringImpl>(orig)()
-            , pfs::traits::c_str<StringImpl>(same)()) == 0);
+    TEST_OK(std::strcmp(pfs::traits::c_str<CharT>(orig)()
+            , pfs::traits::c_str<CharT>(same)()) == 0);
 
-    TEST_OK(std::strcmp(pfs::traits::c_str<StringImpl>(orig)()
-            , pfs::traits::c_str<StringImpl>(same)()) == 0);
+    TEST_OK(std::strcmp(pfs::traits::c_str<CharT>(orig)()
+            , pfs::traits::c_str<CharT>(same)()) == 0);
 
-    TEST_OK(std::strcmp(pfs::traits::c_str<StringImpl>(empty)()
+    TEST_OK(std::strcmp(pfs::traits::c_str<CharT>(empty)()
             , "") == 0);
 }
 

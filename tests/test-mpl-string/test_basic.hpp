@@ -14,26 +14,26 @@
 #ifndef __PFS_TEST_BASIC_HPP__
 #define __PFS_TEST_BASIC_HPP__
 
-template <typename StringImpl>
+template <typename CharT>
 void test_assign ()
 {
-    test_description<StringImpl>(__PRETTY_FUNCTION__);
+    test_description<CharT>(__PRETTY_FUNCTION__);
     
     ADD_TESTS(5);
     
-    typedef pfs::traits::string<StringImpl>         string;
+    typedef pfs::traits::string<CharT>         string;
     typedef typename string::const_iterator         const_iterator;
     typedef typename string::const_reverse_iterator const_reverse_iterator;
     typedef typename string::value_type             value_type;
     
-    string orig(string_samples<StringImpl>(STR_ORIG)); // Constructor (StringImpl const &)
-    string same(string_samples<StringImpl>(STR_SAME)); // Constructor (StringImpl const &)
-    string diff(string_samples<StringImpl>(STR_DIFF)); // Constructor (StringImpl const &)
+    string orig(string_samples<CharT>(STR_ORIG)); // Constructor (StringImpl const &)
+    string same(string_samples<CharT>(STR_SAME)); // Constructor (StringImpl const &)
+    string diff(string_samples<CharT>(STR_DIFF)); // Constructor (StringImpl const &)
     string dup(orig); // Copy constructor
     string orig1;     // Empty string
     orig1 = orig;     // Copy assign operator
     string orig2;
-    orig2 = string_samples<StringImpl>(STR_ORIG); // Assign from string implementation type
+    orig2 = string_samples<CharT>(STR_ORIG); // Assign from string implementation type
 
     TEST_OK(orig == same);
     TEST_OK(orig != diff);
@@ -42,19 +42,19 @@ void test_assign ()
     TEST_OK(orig == orig2);
 }
 
-template <typename StringImpl>
+template <typename CharT>
 void test_iterator ()
 {
-    test_description<StringImpl>(__PRETTY_FUNCTION__);
+    test_description<CharT>(__PRETTY_FUNCTION__);
     
     ADD_TESTS(16);
     
-    typedef pfs::traits::string<StringImpl>         string;
+    typedef pfs::traits::string<CharT>         string;
     typedef typename string::const_iterator         const_iterator;
     typedef typename string::const_reverse_iterator const_reverse_iterator;
     typedef typename string::value_type             value_type;
     
-    string str(string_samples<StringImpl>(STR_ORIG));
+    string str(string_samples<CharT>(STR_ORIG));
 
     const_iterator it = str.cbegin();
     const_iterator end = str.cend();
@@ -86,17 +86,17 @@ void test_iterator ()
 }
 
 
-template <typename StringImpl>
+template <typename CharT>
 void test_subscript ()
 {
-    test_description<StringImpl>(__PRETTY_FUNCTION__);
+    test_description<CharT>(__PRETTY_FUNCTION__);
 
     ADD_TESTS(7);
 
-    typedef pfs::traits::string<StringImpl> string;
+    typedef pfs::traits::string<CharT> string;
     typedef typename string::value_type  value_type;
 
-    string str(string_samples<StringImpl>(STR_ORIG)); 
+    string str(string_samples<CharT>(STR_ORIG)); 
  
     TEST_OK(str[0] == value_type('A'));
     TEST_OK(str[1] == value_type('B'));
@@ -114,12 +114,12 @@ void test_subscript ()
     }    
 }
 
-template <typename StringImpl>
+template <typename CharT>
 void test_basic ()
 {
-    test_assign<StringImpl>();
-    test_iterator<StringImpl>();
-    test_subscript<StringImpl>();
+    test_assign<CharT>();
+    test_iterator<CharT>();
+    test_subscript<CharT>();
 }
 
 #endif /* __PFS_TEST_BASIC_HPP__ */

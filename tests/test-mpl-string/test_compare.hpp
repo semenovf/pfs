@@ -14,18 +14,18 @@
 #ifndef __PFS_TEST_COMPARE_HPP__
 #define __PFS_TEST_COMPARE_HPP__
 
-template <typename StringImpl>
+template <typename CharT>
 void test_compare_basic ()
 {
-    test_description<StringImpl>(__PRETTY_FUNCTION__);
+    test_description<CharT>(__PRETTY_FUNCTION__);
     
     ADD_TESTS(3);
     
-    typedef pfs::traits::string<StringImpl> string;
-    string orig(string_samples<StringImpl>(STR_ORIG));
-    string same(string_samples<StringImpl>(STR_SAME));
-    string head(string_samples<StringImpl>(STR_HEAD));
-    string tail(string_samples<StringImpl>(STR_TAIL));
+    typedef pfs::traits::string<CharT> string;
+    string orig(string_samples<CharT>(STR_ORIG));
+    string same(string_samples<CharT>(STR_SAME));
+    string head(string_samples<CharT>(STR_HEAD));
+    string tail(string_samples<CharT>(STR_TAIL));
     
     TEST_OK(orig.compare(same) == 0);
     TEST_OK(orig.starts_with(head));
@@ -41,16 +41,16 @@ struct test_compare_empty_data
     int    result;
 };
 
-template <typename StringImpl>
+template <typename CharT>
 void test_compare_empty ()
 {
-    test_description<StringImpl>(__PRETTY_FUNCTION__);
+    test_description<CharT>(__PRETTY_FUNCTION__);
     
     ADD_TESTS(1);
 
-    typedef pfs::traits::string<StringImpl> string;
-    string s1(string_samples<StringImpl>(STR_ORIG));
-    string s2(string_samples<StringImpl>(STR_SAME));
+    typedef pfs::traits::string<CharT> string;
+    string s1(string_samples<CharT>(STR_ORIG));
+    string s2(string_samples<CharT>(STR_SAME));
     
     typename string::size_type n1 = s1.size();
     typename string::size_type n2 = s2.size();
@@ -73,7 +73,7 @@ void test_compare_empty ()
     for (; i < count; ++i) {
         if (s1.compare(t[i].pos1, t[i].count1, s2, t[i].pos2, t[i].count2) != t[i].result) {
             std::cerr << "Compare strings implemented using <" 
-                    << stringify_string_impl<StringImpl>()
+                    << stringify_string_impl<CharT>()
                     << ">: failed with index: " << i << std::endl;
             break;
         }
@@ -81,17 +81,17 @@ void test_compare_empty ()
 
     std::ostringstream ss;
     ss << "Compare strings implemented using <" 
-            << stringify_string_impl<StringImpl>() 
+            << stringify_string_impl<CharT>() 
             << ">";
     
     TEST_OK2(i == count, ss.str().c_str());
 }
 
-template <typename StringImpl>
+template <typename CharT>
 void test_compare ()
 {
-    test_compare_basic<StringImpl>();
-    test_compare_empty<StringImpl>();
+    test_compare_basic<CharT>();
+    test_compare_empty<CharT>();
 }
 
 #endif /* __PFS_TEST_COMPARE_HPP__ */
