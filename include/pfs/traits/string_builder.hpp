@@ -57,8 +57,13 @@ public:
     template <typename StringT>
     string_builder & push_back (StringT const & s);
 
-//    template <typename StringT>
-//    string_builder & push_back (enable_if<! is_same<CharT, char>, char>::value_type const * s);
+//    template <typename CharU>
+//    typename enable_if<! is_same<CharU, char>::value, string_builder &>::type
+//    push_back (char const * s)
+//    {
+//        _d.append(s);
+//        return *this;
+//    }
 
     string_builder & push_back (const_pointer s)
     {

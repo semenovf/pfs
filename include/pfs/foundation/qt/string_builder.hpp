@@ -41,14 +41,13 @@ struct string_builder_traits<QChar>
     }
 };
 
-template <>
-template <>
-inline string_builder<QChar> & string_builder<QChar>::push_back<char const *> (char const * s)
-{
-    _d.append(s);
-    return *this;
-}
-
+//template <>
+//template <>
+//inline string_builder<QChar> & string_builder<QChar>::push_back (char const * s)
+//{
+//    _d.append(s);
+//    return *this;
+//}
 
 //template <>
 //template <>
