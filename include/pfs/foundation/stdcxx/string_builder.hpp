@@ -57,7 +57,6 @@ struct string_builder_traits<wchar_t> : public stdcxx::string_builder_traits<wch
 {};
 
 template <>
-template <>
 inline string_builder<char> & 
 string_builder<char>::push_back (traits::string<char> const & s)
 {
@@ -65,7 +64,6 @@ string_builder<char>::push_back (traits::string<char> const & s)
     return *this;
 }
 
-template <>
 template <>
 inline string_builder<wchar_t> &
 string_builder<wchar_t>::push_back (traits::string<wchar_t> const & s)

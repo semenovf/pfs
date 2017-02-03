@@ -21,7 +21,7 @@
 template <typename CharT>
 void test_basic ()
 {
-    ADD_TESTS(3);
+    ADD_TESTS(2);
 
     typedef pfs::traits::string<CharT>         string_type;
     typedef pfs::traits::string_builder<CharT> string_builder;
@@ -29,16 +29,13 @@ void test_basic ()
     string_builder sb;
     sb.push_back("Hello");
     sb.push_back(',');
-    sb.push_back(' ');
-    sb.push_back(std::string("World"));
-    sb.push_back('!');
+    sb.push_back(1, ' ');
+    sb.push_back(string_type("World"));
+    sb.push_back("! abracadabra", 1);
     sb.push_back(string_type(" Yeh!"));
 
-	ADD_TESTS(3);
-    
-    TEST_OK(sb.template str<std::string>() == "Hello, World! Yeh!");
     TEST_OK(sb.template str<string_type>() == string_type("Hello, World! Yeh!"));
-    TEST_OK(std::strcmp(sb.template str<char const *>(), "Hello, World! Yeh!") == 0);
+    TEST_OK(sb.template str<string_type>() != string_type("Hello, World! Yeh! Cool!"));
 }
 
 int main(int argc, char *argv[])

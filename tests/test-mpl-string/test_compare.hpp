@@ -19,14 +19,25 @@ void test_compare_basic ()
 {
     test_description<CharT>(__PRETTY_FUNCTION__);
     
-    ADD_TESTS(3);
+    ADD_TESTS(10);
     
     typedef pfs::traits::string<CharT> string;
     string orig(string_samples<CharT>(STR_ORIG));
     string same(string_samples<CharT>(STR_SAME));
+    string diff(string_samples<CharT>(STR_DIFF));
+    string less(string_samples<CharT>(STR_LESS));
+    string greater(string_samples<CharT>(STR_GREATER));
     string head(string_samples<CharT>(STR_HEAD));
     string tail(string_samples<CharT>(STR_TAIL));
-    
+
+    TEST_OK(orig == orig);
+    TEST_OK(orig == same);
+    TEST_OK(orig != diff);
+    TEST_OK(orig > less);
+    TEST_OK(orig >= less);
+    TEST_OK(orig < greater);
+    TEST_OK(orig <= greater);
+
     TEST_OK(orig.compare(same) == 0);
     TEST_OK(orig.starts_with(head));
     TEST_OK(orig.ends_with(tail));
@@ -93,6 +104,39 @@ void test_compare ()
     test_compare_basic<CharT>();
     test_compare_empty<CharT>();
 }
+
+template <typename CharT>
+void test_compare_cstr ()
+{
+    test_description<CharT>(__PRETTY_FUNCTION__);
+    
+    ADD_TESTS(16);
+    
+    typedef pfs::traits::string<CharT> string;
+    string orig(string_samples<CharT>(STR_ORIG));
+    
+    TEST_OK(orig == string_samples<char>(STR_ORIG));
+    TEST_OK(orig >= string_samples<char>(STR_ORIG));
+    TEST_OK(orig <= string_samples<char>(STR_ORIG));
+    
+    TEST_OK(string_samples<char>(STR_ORIG) == orig);
+    TEST_OK(string_samples<char>(STR_ORIG) >= orig);
+    TEST_OK(string_samples<char>(STR_ORIG) <= orig);
+    
+    TEST_OK(orig != string_samples<char>(STR_DIFF));
+    TEST_OK(string_samples<char>(STR_DIFF) != orig);
+    
+    TEST_OK(orig > string_samples<char>(STR_LESS));
+    TEST_OK(string_samples<char>(STR_LESS) < orig);
+    TEST_OK(orig >= string_samples<char>(STR_LESS));
+    TEST_OK(string_samples<char>(STR_LESS) <= orig);
+    
+    TEST_OK(orig < string_samples<char>(STR_GREATER));
+    TEST_OK(string_samples<char>(STR_GREATER) > orig);
+    TEST_OK(orig <= string_samples<char>(STR_GREATER));
+    TEST_OK(string_samples<char>(STR_GREATER) >= orig);
+}
+
 
 #endif /* __PFS_TEST_COMPARE_HPP__ */
 

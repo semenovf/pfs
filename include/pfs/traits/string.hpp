@@ -106,6 +106,10 @@ public:
     explicit string (CharT const * str, size_type n)
         : _d(str, n)
     {}
+
+    explicit string (const_pointer str)
+        : _d(str)
+    {}
     
     string (const_iterator begin, const_iterator end)
         : _d(begin, end)
@@ -337,10 +341,16 @@ public:
 	{
 		return substr(this->size() - count, count);
 	}
+  
+    template <typename CharU>
+    friend int compare (string<CharU> const & lhs, char const * rhs);
+
+    template <typename CharU>
+    friend int compare (string<CharU> const & lhs, wchar_t const * rhs);
 };
 
-template <typename T>
-string<T> string<T>::substr (size_type pos, size_type count) const
+template <typename CharT>
+string<CharT> string<CharT>::substr (size_type pos, size_type count) const
 {
     if (pos >= this->size())
         throw out_of_range("string::substr");
@@ -357,49 +367,115 @@ string<T> string<T>::substr (size_type pos, size_type count) const
     return string(b, e);
 }
 
-template <typename T>
-inline bool operator == (string<T> const & lhs
-    , string<T> const & rhs)
+template <typename CharT>
+inline bool operator == (string<CharT> const & lhs, string<CharT> const & rhs)
 {
     return lhs.compare(rhs) == 0;
 }
 
-template <typename T>
-inline bool operator != (string<T> const & lhs
-    , string<T> const & rhs)
+template <typename CharT>
+inline bool operator != (string<CharT> const & lhs, string<CharT> const & rhs)
 {
     return lhs.compare(rhs) != 0;
 }
 
-template <typename T>
-inline bool operator < (string<T> const & lhs
-    , string<T> const & rhs)
+template <typename CharT>
+inline bool operator < (string<CharT> const & lhs, string<CharT> const & rhs)
 {
     return lhs.compare(rhs) < 0;
 }
 
-template <typename T>
-inline bool operator <= (string<T> const & lhs
-    , string<T> const & rhs)
+template <typename CharT>
+inline bool operator <= (string<CharT> const & lhs, string<CharT> const & rhs)
 {
     return lhs.compare(rhs) <= 0;
 }
 
-template <typename T>
-inline bool operator > (string<T> const & lhs
-    , string<T> const & rhs)
+template <typename CharT>
+inline bool operator > (string<CharT> const & lhs, string<CharT> const & rhs)
 {
     return lhs.compare(rhs) > 0;
 }
 
-template <typename T>
-inline bool operator >= (string<T> const & lhs
-    , string<T> const & rhs)
+template <typename CharT>
+inline bool operator >= (string<CharT> const & lhs, string<CharT> const & rhs)
 {
     return lhs.compare(rhs) >= 0;
 }
 
-template <typename T>
+template <typename CharT>
+inline bool operator == (string<CharT> const & lhs, char const * rhs)
+{
+    return compare(lhs, rhs) == 0;
+}
+
+template <typename CharT>
+inline bool operator == (char const * lhs, string<CharT> const & rhs)
+{
+    return compare(rhs, lhs) == 0;
+}
+
+template <typename CharT>
+inline bool operator != (string<CharT> const & lhs, char const * rhs)
+{
+    return compare(lhs, rhs) != 0;
+}
+
+template <typename CharT>
+inline bool operator != (char const * lhs, string<CharT> const & rhs)
+{
+    return compare(rhs, lhs) != 0;
+}
+
+template <typename CharT>
+inline bool operator < (string<CharT> const & lhs, char const * rhs)
+{
+    return compare(lhs, rhs) < 0;
+}
+
+template <typename CharT>
+inline bool operator < (char const * lhs, string<CharT> const & rhs)
+{
+    return compare(rhs, lhs) > 0;
+}
+
+template <typename CharT>
+inline bool operator <= (string<CharT> const & lhs, char const * rhs)
+{
+    return compare(lhs, rhs) <= 0;
+}
+
+template <typename CharT>
+inline bool operator <= (char const * lhs, string<CharT> const & rhs)
+{
+    return compare(rhs, lhs) >= 0;
+}
+
+template <typename CharT>
+inline bool operator > (string<CharT> const & lhs, char const * rhs)
+{
+    return compare(lhs, rhs) > 0;
+}
+
+template <typename CharT>
+inline bool operator > (char const * lhs, string<CharT> const & rhs)
+{
+    return compare(rhs, lhs) < 0;
+}
+
+template <typename CharT>
+inline bool operator >= (string<CharT> const & lhs, char const * rhs)
+{
+    return compare(lhs, rhs) >= 0;
+}
+
+template <typename CharT>
+inline bool operator >= (char const * lhs, string<CharT> const & rhs)
+{
+    return compare(rhs, lhs) <= 0;
+}
+
+template <typename CharT>
 class c_str;
 
 template <typename CharT>

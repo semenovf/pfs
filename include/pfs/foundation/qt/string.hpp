@@ -24,11 +24,11 @@ template <>
 struct string_traits<QChar>
 {
     typedef QString                               native_type;
-    typedef native_type const &                   const_native_reference;
+    typedef QString const &                       const_native_reference;
     typedef size_t                                size_type;
-    typedef typename native_type::value_type      value_type;
+    typedef QString::value_type                   value_type;
     typedef QChar const *                         const_pointer;
-    typedef typename native_type::const_iterator  const_iterator;
+    typedef QString::const_iterator               const_iterator;
     typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
     typedef native_type                           data_type;
 
@@ -79,7 +79,7 @@ struct string_traits<QChar>
             , data_type const & rhs
             , size_type pos2, size_type count2)
     {
-        return d.midRef(pos1, count1).compare(d.midRef(pos2, count2));
+        return d.midRef(pos1, count1).compare(rhs.midRef(pos2, count2));
     }
     
     static size_type xfind (data_type const & d
@@ -124,6 +124,17 @@ struct string_traits<QChar>
         return d;
     }
 };
+
+template <>
+inline string<QChar>::string (const_iterator begin, const_iterator end)
+    : _d(begin, end - begin)
+{}
+
+template <>
+int compare<QChar> (string<QChar> const & lhs, char const * rhs)
+{
+    return lhs._d.compare(QString(rhs)); // TODO Reimplement
+}
 
 template <>
 class c_str<QChar>

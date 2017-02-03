@@ -51,20 +51,16 @@ public:
         : _d()
     {}
 
+    string_builder & push_back (traits::string<CharT> const & s);
+
     template <typename CharU>
-    string_builder & push_back (traits::string<CharU> const & s);
+    typename enable_if<! is_same<CharU, CharT>::value, string_builder &>::type
+    push_back (CharU const * s);
 
-    template <typename StringT>
-    string_builder & push_back (StringT const & s);
-
-//    template <typename CharU>
-//    typename enable_if<! is_same<CharU, char>::value, string_builder &>::type
-//    push_back (char const * s)
-//    {
-//        _d.append(s);
-//        return *this;
-//    }
-
+    template <typename CharU>
+    typename enable_if<! is_same<CharU, CharT>::value, string_builder &>::type
+    push_back (CharU const * s, size_type n);
+    
     string_builder & push_back (const_pointer s)
     {
         traits_type::xpush_back(_d, s, size_type(-1));
@@ -76,12 +72,20 @@ public:
         traits_type::xpush_back(_d, s, n);
         return *this;
     }
+
+    template <typename CharU>
+    typename enable_if<! is_same<CharU, CharT>::value, string_builder &>::type
+    push_back (CharU c);
     
     string_builder & push_back (value_type c)
     {
         traits_type::xpush_back(_d, 1, c);
         return *this;
     }
+
+    template <typename CharU>
+    typename enable_if<! is_same<CharU, CharT>::value, string_builder &>::type
+    push_back (size_type n, CharU c);
     
     string_builder & push_back (size_type n, value_type c)
     {

@@ -21,18 +21,18 @@ void test_assign ()
     
     ADD_TESTS(5);
     
-    typedef pfs::traits::string<CharT>         string;
-    typedef typename string::const_iterator         const_iterator;
-    typedef typename string::const_reverse_iterator const_reverse_iterator;
-    typedef typename string::value_type             value_type;
+    typedef pfs::traits::string<CharT>                   string_type;
+    typedef typename string_type::const_iterator         const_iterator;
+    typedef typename string_type::const_reverse_iterator const_reverse_iterator;
+    typedef typename string_type::value_type             value_type;
     
-    string orig(string_samples<CharT>(STR_ORIG)); // Constructor (StringImpl const &)
-    string same(string_samples<CharT>(STR_SAME)); // Constructor (StringImpl const &)
-    string diff(string_samples<CharT>(STR_DIFF)); // Constructor (StringImpl const &)
-    string dup(orig); // Copy constructor
-    string orig1;     // Empty string
+    string_type orig(string_samples<CharT>(STR_ORIG)); // Constructor (StringImpl const &)
+    string_type same(string_samples<CharT>(STR_SAME)); // Constructor (StringImpl const &)
+    string_type diff(string_samples<CharT>(STR_DIFF)); // Constructor (StringImpl const &)
+    string_type dup(orig); // Copy constructor
+    string_type orig1;     // Empty string
     orig1 = orig;     // Copy assign operator
-    string orig2;
+    string_type orig2;
     orig2 = string_samples<CharT>(STR_ORIG); // Assign from string implementation type
 
     TEST_OK(orig == same);
@@ -49,12 +49,12 @@ void test_iterator ()
     
     ADD_TESTS(16);
     
-    typedef pfs::traits::string<CharT>         string;
-    typedef typename string::const_iterator         const_iterator;
-    typedef typename string::const_reverse_iterator const_reverse_iterator;
-    typedef typename string::value_type             value_type;
+    typedef pfs::traits::string<CharT>                   string_type;
+    typedef typename string_type::const_iterator         const_iterator;
+    typedef typename string_type::const_reverse_iterator const_reverse_iterator;
+    typedef typename string_type::value_type             value_type;
     
-    string str(string_samples<CharT>(STR_ORIG));
+    string_type str(string_samples<CharT>(STR_ORIG));
 
     const_iterator it = str.cbegin();
     const_iterator end = str.cend();
@@ -93,10 +93,10 @@ void test_subscript ()
 
     ADD_TESTS(7);
 
-    typedef pfs::traits::string<CharT> string;
-    typedef typename string::value_type  value_type;
+    typedef pfs::traits::string<CharT>        string_type;
+    typedef typename string_type::value_type  value_type;
 
-    string str(string_samples<CharT>(STR_ORIG)); 
+    string_type str(string_samples<CharT>(STR_ORIG)); 
  
     TEST_OK(str[0] == value_type('A'));
     TEST_OK(str[1] == value_type('B'));

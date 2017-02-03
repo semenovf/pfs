@@ -125,36 +125,24 @@ int main (int argc, char *argv[])
     
     test_basic<char>();
     test_basic<wchar_t>();
-    
-#ifdef QT_CORE_LIB
-//    test_basic<QChar>();
-#endif    
-    test_compare<char>();
-    test_compare<wchar_t>();
-
-#ifdef QT_CORE_LIB
-//    test_compare<QChar>();
-#endif
-
     test_find<char>();
     test_find<wchar_t>();
-
-#ifdef QT_CORE_LIB
-//    test_find<QChar>();
-#endif
-
     test_substr<char>();
     test_substr<wchar_t>();
-
-#ifdef QT_CORE_LIB
-//    test_substr<QString>();
-#endif
-
     test_c_str_cast<char>();
 //    test_c_str_cast<std::wstring>();    // TODO
+    test_compare<char>();
+    test_compare<wchar_t>();
+    test_compare_cstr<char>();
 
 #ifdef QT_CORE_LIB
-//    test_c_str_cast<QChar>();
+    test_basic<QChar>();
+    test_find<QChar>();
+    test_substr<QChar>();
+    test_c_str_cast<QChar>();
+    
+    test_compare<QChar>();
+    test_compare_cstr<QChar>();
 #endif
 
 	return END_TESTS;

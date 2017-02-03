@@ -17,6 +17,7 @@
 #include <string>
 #include <pfs/foundation/qt/string.hpp>
 #include <pfs/traits/string_builder.hpp>
+#include <QByteArray>
 
 namespace pfs {
 namespace traits {
@@ -41,71 +42,52 @@ struct string_builder_traits<QChar>
     }
 };
 
-//template <>
-//template <>
-//inline string_builder<QChar> & string_builder<QChar>::push_back (char const * s)
-//{
-//    _d.append(s);
-//    return *this;
-//}
+template <>
+inline string_builder<QChar> & 
+string_builder<QChar>::push_back (traits::string<QChar> const & s)
+{
+    _d.append(s.cast());
+    return *this;
+}
 
-//template <>
-//template <>
-//inline string_builder<char> & string_builder<char>::push_back<std::string> (std::string const & s)
-//{
-//    _d.append(s);
-//    return *this;
-//}
-//
-//template <>
-//template <>
-//inline string_builder<wchar_t> & string_builder<wchar_t>::push_back<std::wstring> (std::wstring const & s)
-//{
-//    _d.append(s);
-//    return *this;
-//}
-//
-//template <>
-//template <>
-//std::string string_builder<char>::str<std::string> () const
-//{
-//    return _d;
-//}
-//
-//template <>
-//template <>
-//std::wstring string_builder<char>::str<std::wstring> () const
-//{
-//    return _d;
-//}
-//
-//template <>
-//template <>
-//traits::string<char> string_builder<char>::str<traits::string<char> > () const
-//{
-//    return traits::string<char>(_d);
-//}
-//
-//template <>
-//template <>
-//traits::string<wchar_t> string_builder<wchar_t>::str<traits::string<wchar_t> > () const
-//{
-//    return traits::string<wchar_t>(_d);
-//}
-//
-//template <>
-//template <>
-//char const * string_builder<char>::str<char const *> () const
-//{
-//    return _d.data();
-//}
-//
-//template <>
-//template <>
-//wchar_t const * string_builder<wchar_t>::str<wchar_t const *> () const
-//{
-//    return _d.data();
-//}
+template <>
+template <>
+inline string_builder<QChar> & string_builder<QChar>::push_back (char const * s)
+{
+    _d.append(s);
+    return *this;
+}
+
+template <>
+template <>
+inline string_builder<QChar> & string_builder<QChar>::push_back (char const * s, size_type n )
+{
+    _d.append(QByteArray(s, int(n)).constData());
+    return *this;
+}
+
+template <>
+template <>
+inline string_builder<QChar> & string_builder<QChar>::push_back (char c)
+{
+    _d.append(QChar(c));
+    return *this;
+}
+
+template <>
+template <>
+inline string_builder<QChar> & string_builder<QChar>::push_back (size_type n, char c)
+{
+    _d.append(QString(int(n), QChar(c)));
+    return *this;
+}
+
+template <>
+template <>
+traits::string<QChar> string_builder<QChar>::str<traits::string<QChar> > () const
+{
+    return traits::string<QChar>(_d);
+}
 
 }} // pfs::traits
 

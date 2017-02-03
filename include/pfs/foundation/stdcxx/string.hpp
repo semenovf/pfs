@@ -169,6 +169,18 @@ public:
 };
 
 template <>
+int compare<char> (string<char> const & lhs, char const * rhs)
+{
+    return lhs._d.compare(rhs);
+}
+
+template <>
+int compare<wchar_t> (string<wchar_t> const & lhs, wchar_t const * rhs)
+{
+    return lhs._d.compare(rhs);
+}
+
+template <>
 class c_wstr<wchar_t> : public stdcxx::c_str<wchar_t>
 {
     typedef stdcxx::c_str<wchar_t> base_type;

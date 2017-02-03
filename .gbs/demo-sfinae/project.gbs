@@ -1,0 +1,39 @@
+--************************************************************
+--* Generated automatically by `gbs'
+--* Command: `gbs project --create --name=demo-sfinae --type=console-app'
+--* Date:    Fri Feb  3 09:36:40 2017
+--************************************************************
+
+kind          "ConsoleApp"
+language      "C++"
+targetname    "demo-sfinae"
+defines       {  }
+includedirs   { "../../include" }
+libdirs       { "../../../.build" }
+files         { "../../src/demo-sfinae/*.c", "../../src/demo-sfinae/*.cpp" }
+
+configuration "debug"
+    flags        { "FatalWarnings", "Symbols" }
+    defines      { "DEBUG" }
+    objdir       "../../../.build/pfs-mpl/demo-sfinae/debug"
+    targetdir    "../../../.build"
+    targetsuffix "-d"
+    links        {  }
+
+configuration "release"
+    flags        { "FatalWarnings" }
+    defines      { "NDEBUG" }
+    objdir       "../../../.build/pfs-mpl/demo-sfinae/release"
+    targetdir    "../../../.build"
+    links        {  }
+
+
+filter "action:gmake"
+    buildoptions {}
+    linkoptions  {}
+
+include(os.getenv("GBS_HOME") .. "/premake/filter_action_gmake_install")
+
+filter { "debug", "action:gmake" }
+    linkoptions  { "-rdynamic" }
+

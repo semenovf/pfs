@@ -21,12 +21,13 @@ void test_substr ()
     
     ADD_TESTS(7);
     
-    typedef pfs::traits::string<CharT> string;
-    string orig(string_samples<CharT>(STR_ORIG));
-    string same(string_samples<CharT>(STR_SAME));
-    string head(string_samples<CharT>(STR_HEAD));
-    string tail(string_samples<CharT>(STR_TAIL));
-    string mid(string_samples<CharT>(STR_MID));
+    typedef pfs::traits::string<CharT> string_type;
+    
+    string_type orig(string_samples<CharT>(STR_ORIG));
+    string_type same(string_samples<CharT>(STR_SAME));
+    string_type head(string_samples<CharT>(STR_HEAD));
+    string_type tail(string_samples<CharT>(STR_TAIL));
+    string_type mid(string_samples<CharT>(STR_MID));
     
     TEST_OK(orig.substr(0) == orig);
     TEST_OK(orig.substr(0) == same);
