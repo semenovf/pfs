@@ -12,6 +12,8 @@
 #include "test_input_iterator.hpp"
 #include "test_output_iterator.hpp"
 #include "test_forward_iterator.hpp"
+#include "test_bidirectional_iterator.hpp"
+#include "test_random_access_iterator.hpp"
 
 int main (int argc, char *argv[])
 {
@@ -23,6 +25,8 @@ int main (int argc, char *argv[])
   	test_input_iterator();
     test_output_iterator();
     test_forward_iterator();
+    test_bidirectional_iterator();
+    test_random_access_iterator();
     
 	return END_TESTS;
 }

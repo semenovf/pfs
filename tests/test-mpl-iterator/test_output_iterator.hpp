@@ -25,7 +25,7 @@ struct output_iterator : public pfs::iterator_facade<
         return it._p->x;
     }
 
-    static void increment (output_iterator & it)
+    static void increment (output_iterator & it, difference_type)
     {
         ++it._p;
     }

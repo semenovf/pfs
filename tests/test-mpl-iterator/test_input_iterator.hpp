@@ -30,14 +30,14 @@ struct input_iterator : public pfs::iterator_facade<
         return it._p;
     }
     
-    static void increment (input_iterator & it)
+    static void increment (input_iterator & it, difference_type)
     {
         ++it._p;
     }
     
-    static bool equals (input_iterator const & it1, input_iterator const & it2)
+    static int compare (input_iterator const & it1, input_iterator const & it2)
     {
-        return it1._p == it2._p;
+        return it1._p == it2._p ? 0 : 1;
     }
 };
 
