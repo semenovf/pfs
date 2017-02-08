@@ -36,7 +36,7 @@
 #endif
 
 #define PFS_CXX_FOUNDATION_X(x) x
-#define PFS_CXX_FOUNDATION(x) <pfs/foundation/__PFS_CXX_FOUNDATION_HPREFIX__/PFS_CXX_FOUNDATION_X(x).hpp>
+#define PFS_CXX_FOUNDATION(x) <pfs/foundation/cxx/__PFS_CXX_FOUNDATION_HPREFIX__/PFS_CXX_FOUNDATION_X(x).hpp>
 
 #endif /* __PFS_CXXFOUNDATION_HPP__ */
 
