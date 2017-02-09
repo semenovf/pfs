@@ -30,6 +30,7 @@ struct string_traits
     typedef typename native_type::size_type              size_type;
     typedef typename native_type::value_type             value_type;
     typedef typename native_type::const_pointer          const_pointer;
+    typedef typename native_type::iterator               iterator;
     typedef typename native_type::const_iterator         const_iterator;
     typedef typename native_type::const_reverse_iterator const_reverse_iterator;
     typedef native_type                                  data_type;
@@ -112,6 +113,21 @@ struct string_traits
         return d.rfind(c, pos);
     }
     
+    static void xerase (data_type & d, size_type index, size_type count)
+    {
+        d.erase(index, count);
+    }
+
+    static iterator xerase (data_type & d, const_iterator first, const_iterator last)
+#if __cplusplus >= 201103L
+    {
+        return d.erase(first, last);
+    }
+#else
+    ;
+#endif
+
+    
     static const_pointer xdata (data_type const & d)
     {
         return d.c_str();
@@ -122,6 +138,25 @@ struct string_traits
         return d;
     }
 };
+
+#if __cplusplus < 201103L
+//
+// C++ prior to C++11 
+// erase() has signature `iterator erase(iterator first, iterator last)`
+//
+template <typename CharT>
+typename string_traits<CharT>::iterator string_traits<CharT>::xerase (data_type & d
+    , const_iterator first
+    , const_iterator last)
+{
+    const_iterator begin = d.begin();
+    size_type index = pfs::distance(begin, first);
+    size_type count = pfs::distance(first, last);
+    d.erase(index, count);
+    return d.begin() + index;
+}
+
+#endif
 
 template <typename CharT>
 class c_str
@@ -169,6 +204,16 @@ public:
 };
 
 template <>
+class c_wstr<wchar_t> : public stdcxx::c_str<wchar_t>
+{
+    typedef stdcxx::c_str<wchar_t> base_type;
+public:
+    explicit c_wstr (string_type const & s)
+        : base_type(s)
+    {}
+};
+
+template <>
 int compare<char> (string<char> const & lhs, char const * rhs)
 {
     return lhs._d.compare(rhs);
@@ -179,16 +224,6 @@ int compare<wchar_t> (string<wchar_t> const & lhs, wchar_t const * rhs)
 {
     return lhs._d.compare(rhs);
 }
-
-template <>
-class c_wstr<wchar_t> : public stdcxx::c_str<wchar_t>
-{
-    typedef stdcxx::c_str<wchar_t> base_type;
-public:
-    explicit c_wstr (string_type const & s)
-        : base_type(s)
-    {}
-};
 
 }} // pfs::traits
 

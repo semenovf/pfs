@@ -9,13 +9,13 @@
 #include <pfs/test/test.hpp>
 #include <pfs.hpp>
 
-#include <pfs/foundation/stdcxx/map.hpp>
-#include <pfs/foundation/stdcxx/multimap.hpp>
+#include <pfs/foundation/cxx/stdcxx/map.hpp>
+#include <pfs/foundation/cxx/stdcxx/multimap.hpp>
 
 // Enabled by `qt_enable`
 #ifdef QT_CORE_LIB
-#   include <pfs/foundation/qt/map.hpp>
-#   include <pfs/foundation/qt/multimap.hpp>
+#   include <pfs/foundation/cxx/qt/map.hpp>
+#   include <pfs/foundation/cxx/qt/multimap.hpp>
 #endif
 
 #include "test_access.hpp"

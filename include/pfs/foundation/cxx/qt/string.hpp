@@ -28,6 +28,7 @@ struct string_traits<QChar>
     typedef size_t                                size_type;
     typedef QString::value_type                   value_type;
     typedef QChar const *                         const_pointer;
+    typedef QString::iterator                     iterator;
     typedef QString::const_iterator               const_iterator;
     typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
     typedef native_type                           data_type;
@@ -114,6 +115,13 @@ struct string_traits<QChar>
         return i < 0 ? size_type(-1) : size_type(i);
     }
     
+    static void xerase (data_type & d, size_type index, size_type count)
+    {
+        d.remove(static_cast<int>(index), static_cast<int>(count));
+    }
+    
+    static iterator xerase (data_type & d, const_iterator first, const_iterator last);
+        
     static const_pointer xdata (data_type const & d)
     {
         return d.constData();
@@ -123,7 +131,21 @@ struct string_traits<QChar>
     {
         return d;
     }
+    
+    static void x ();
 };
+
+typename string_traits<QChar>::iterator string_traits<QChar>::xerase (
+    data_type & d
+    , const_iterator first
+    , const_iterator last)
+{
+    const_iterator begin = d.begin();
+    size_type index = pfs::distance(begin, first);
+    size_type count = pfs::distance(first, last);
+    d.remove(index, count);
+    return d.begin() + index;
+}
 
 template <>
 inline string<QChar>::string (const_iterator begin, const_iterator end)

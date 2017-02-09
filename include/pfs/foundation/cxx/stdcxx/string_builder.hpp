@@ -15,7 +15,7 @@
 #define __PFS_FOUNDATION_STDCXX_STRING_BUILDER_HPP__
 
 #include <string>
-#include <pfs/foundation/stdcxx/string.hpp>
+#include <pfs/foundation/cxx/stdcxx/string.hpp>
 #include <pfs/traits/string_builder.hpp>
 
 namespace pfs {

@@ -15,7 +15,7 @@
 #define __PFS_FOUNDATION_QT_STRING_BUILDER_HPP__
 
 #include <string>
-#include <pfs/foundation/qt/string.hpp>
+#include <pfs/foundation/cxx/qt/string.hpp>
 #include <pfs/traits/string_builder.hpp>
 #include <QByteArray>
 

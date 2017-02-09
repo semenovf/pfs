@@ -39,3 +39,8 @@ project "test-mpl-string_builder"
 project "demo-sfinae"
     include("demo-sfinae/project.gbs")
 -- END PROJECT
+
+-- BEGIN PROJECT
+--project "demo-db"
+--    include("demo-db/project.gbs")
+-- END PROJECT

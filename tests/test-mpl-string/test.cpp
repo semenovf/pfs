@@ -13,11 +13,11 @@
 #include <cwchar>
 #include <iostream>
 #include <sstream>
-#include <pfs/foundation/stdcxx/string.hpp>
+#include <pfs/foundation/cxx/stdcxx/string.hpp>
 
 // Enabled by `qt_enable`
 #ifdef QT_CORE_LIB
-#   include <pfs/foundation/qt/string.hpp>
+#   include <pfs/foundation/cxx/qt/string.hpp>
 #endif
 
 template <typename CharT>
@@ -115,6 +115,7 @@ QChar const * string_samples<QChar> (int i)
 #include "test_find.hpp"
 #include "test_substr.hpp"
 #include "test_cast.hpp"
+#include "test_erase.hpp"
 
 int main (int argc, char *argv[])
 {
@@ -134,6 +135,10 @@ int main (int argc, char *argv[])
     test_compare<char>();
     test_compare<wchar_t>();
     test_compare_cstr<char>();
+    //test_compare_cstr<wchar_t>();
+    
+    test_erase<char>();
+    test_erase<wchar_t>();
 
 #ifdef QT_CORE_LIB
     test_basic<QChar>();
@@ -143,6 +148,8 @@ int main (int argc, char *argv[])
     
     test_compare<QChar>();
     test_compare_cstr<QChar>();
+    
+    test_erase<QChar>();
 #endif
 
 	return END_TESTS;

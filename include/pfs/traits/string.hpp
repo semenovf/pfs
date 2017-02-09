@@ -28,11 +28,12 @@ namespace traits {
 template <typename CharT>
 struct string_traits
 {
-    typedef CharT const * native_type;
-    typedef CharT const * const_native_reference;
+    typedef struct {} native_type;
+    typedef native_type const & const_native_reference;
     typedef size_t        size_type;
     typedef CharT         value_type;
     typedef CharT const * const_pointer;
+    typedef CharT *       iterator;
     typedef CharT const * const_iterator;
     typedef CharT const * const_reverse_iterator;
     typedef native_type   data_type;
@@ -66,6 +67,9 @@ struct string_traits
     static size_type xrfind (data_type const & d
             , value_type c
             , size_type pos);
+
+    static void xerase (data_type & d, size_type index, size_type count);
+    static iterator xerase (data_type & d, const_iterator first, const_iterator last);
     
     static const_pointer xdata (data_type const & d);
     
@@ -82,6 +86,7 @@ public:
     typedef typename traits_type::size_type              size_type;
     typedef typename traits_type::value_type             value_type;
     typedef typename traits_type::const_pointer          const_pointer;
+    typedef typename traits_type::const_iterator         iterator;
     typedef typename traits_type::const_iterator         const_iterator;
     typedef typename traits_type::const_reverse_iterator const_reverse_iterator;
     typedef typename traits_type::data_type              data_type;
@@ -98,11 +103,6 @@ public:
         : _d(s)
     {}
 
-    /**
-     * @details @a str Interpreted as UTF-8 encoded string. 
-     * @param str
-     * @note 
-     */
     explicit string (CharT const * str, size_type n)
         : _d(str, n)
     {}
@@ -341,6 +341,23 @@ public:
 	{
 		return substr(this->size() - count, count);
 	}
+    
+    string & erase (size_type index = 0, size_type count = size_type(-1))
+    {
+        if (index > size())
+            throw out_of_range("string::erase()");
+        traits_type::xerase(_d, index, count);
+    }
+    
+    iterator erase (const_iterator position)
+    {
+        traits_type::xerase(_d, position, position + 1);
+    }
+    
+    iterator erase (const_iterator first, const_iterator last)
+    {
+        traits_type::xerase(_d, first, last);
+    }
   
     template <typename CharU>
     friend int compare (string<CharU> const & lhs, char const * rhs);

@@ -1,0 +1,42 @@
+--************************************************************
+--* Generated automatically by `gbs'
+--* Command: `gbs project --create --name=demo-db --type=console-app'
+--* Date:    Thu Feb  9 10:52:25 2017
+--************************************************************
+
+kind          "ConsoleApp"
+language      "C++"
+targetname    "demo-db"
+defines       {  }
+includedirs   {
+     "../../include" 
+    ,  "/usr/include/postgresql"
+}
+libdirs       { "../../../.build" }
+files         { "../../src/demo-db/*.c", "../../src/demo-db/*.cpp" }
+
+configuration "debug"
+    flags        { "FatalWarnings", "Symbols" }
+    defines      { "DEBUG" }
+    objdir       "../../../.build/pfs-mpl/demo-db/debug"
+    targetdir    "../../../.build"
+    targetsuffix "-d"
+    links        { "pq" }
+
+configuration "release"
+    flags        { "FatalWarnings" }
+    defines      { "NDEBUG" }
+    objdir       "../../../.build/pfs-mpl/demo-db/release"
+    targetdir    "../../../.build"
+    links        { "pq" }
+
+
+filter "action:gmake"
+    buildoptions {}
+    linkoptions  {}
+
+include(os.getenv("GBS_HOME") .. "/premake/filter_action_gmake_install")
+
+filter { "debug", "action:gmake" }
+    linkoptions  { "-rdynamic" }
+

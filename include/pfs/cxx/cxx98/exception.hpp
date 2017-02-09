@@ -18,6 +18,7 @@
 
 namespace pfs {
 
+typedef std::bad_alloc        bad_alloc;
 typedef std::logic_error      logic_error;
 typedef std::domain_error     domain_error;
 typedef std::invalid_argument invalid_argument;

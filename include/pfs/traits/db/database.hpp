@@ -15,7 +15,8 @@
 #define __PFS_DB_DATABASE_HPP__
 
 #include <pfs/traits/string.hpp>
-#include <pfs/db/exception.hpp>
+#include <pfs/traits/string_builder.hpp>
+#include <pfs/traits/db/exception.hpp>
 
 namespace pfs {
 namespace db {
@@ -23,13 +24,17 @@ namespace db {
 template <typename CharT, typename DatabaseTag>
 struct database_traits
 {
-    typedef string<CharT>    string_type;
-    typedef struct {}        data_type;
+    typedef traits::string<CharT> string_type;
+    typedef traits::c_str<CharT>  c_str;
+    typedef traits::string_builder<CharT> string_builder;
+    typedef struct {}             data_type;
     
     class exception : public db::exception<CharT>
     {};
     
-    bool xconnect (string_type const & uri);
+    static bool xopen (data_type & d, string_type const & uri);
+    static bool xopen (data_type & d, CharT const * uri);
+    static void xclose (data_type & d);
 };
 
 template <typename CharT, typename DatabaseTag>
@@ -54,9 +59,19 @@ public:
         : _d()
     {}
     
-    void connect (string_type const & uri)
+    bool open (string_type const & uri)
     {
-        traits_type::xconnect(uri);
+        return traits_type::xopen(_d, uri);
+    }
+
+    bool open (CharT const * uri)
+    {
+        return traits_type::xopen(_d, uri);
+    }
+
+    void close ()
+    {
+        traits_type::xclose(_d);
     }
 };
 

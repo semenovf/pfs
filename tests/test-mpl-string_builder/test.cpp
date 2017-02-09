@@ -9,13 +9,13 @@
 #include <pfs.hpp>
 #include <pfs/test/test.hpp>
 #include <cstring>
-#include <pfs/foundation/stdcxx/string.hpp>
-#include <pfs/foundation/stdcxx/string_builder.hpp>
+#include <pfs/foundation/cxx/stdcxx/string.hpp>
+#include <pfs/foundation/cxx/stdcxx/string_builder.hpp>
 
 // Enabled by `qt_enable`
 #ifdef QT_CORE_LIB
-#   include <pfs/foundation/qt/string.hpp>
-#   include <pfs/foundation/qt/string_builder.hpp>
+#   include <pfs/foundation/cxx/qt/string.hpp>
+#   include <pfs/foundation/cxx/qt/string_builder.hpp>
 #endif
 
 template <typename CharT>

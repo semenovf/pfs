@@ -83,7 +83,6 @@ struct iterator_facade<input_iterator_tag, Derived, T, Pointer, Reference, Dista
     static void      increment (Derived &, difference_type n = 1);
     static int       compare (Derived const & lhs, Derived const & rhs);
 
-
     value_type operator * () const
     {
     	return Derived::ref(*const_cast<Derived *>(static_cast<Derived const *>(this)));
