@@ -126,8 +126,32 @@ struct string_traits
 #else
     ;
 #endif
-
     
+    static void xclear (data_type & d)
+    {
+        d.clear(); d.append();
+    }
+    
+    static void xinsert (data_type & d, size_type index, size_type count, value_type ch)
+    {
+        d.insert(index, count, ch);
+    }
+    
+    static void xinsert (data_type & d, size_type index, const_pointer s)
+    {
+        d.insert(index, index, s);
+    }
+    
+    static void xinsert (data_type & d, size_type index, const_pointer s, size_type count)
+    {
+        d.insert(index, s, count);
+    }
+    
+    static void xpush_back (data_type & d, value_type ch)
+    {
+        d.push_back(ch);
+    }
+
     static const_pointer xdata (data_type const & d)
     {
         return d.c_str();

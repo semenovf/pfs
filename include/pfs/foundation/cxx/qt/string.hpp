@@ -121,7 +121,32 @@ struct string_traits<QChar>
     }
     
     static iterator xerase (data_type & d, const_iterator first, const_iterator last);
-        
+    
+    static void xclear (data_type & d)
+    {
+        d.clear();
+    }
+
+    static void xinsert (data_type & d, size_type index, size_type count, value_type ch)
+    {
+        d.insert(index, QString(int(count), ch));
+    }
+    
+    static void xinsert (data_type & d, size_type index, const_pointer s)
+    {
+        d.insert(index, index, QString(s));
+    }
+    
+    static void xinsert (data_type & d, size_type index, const_pointer s, size_type count)
+    {
+        d.insert(index, s, int(count));
+    }
+    
+    static void xpush_back (data_type & d, value_type ch)
+    {
+        d.append(ch);
+    }
+
     static const_pointer xdata (data_type const & d)
     {
         return d.constData();

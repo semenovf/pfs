@@ -9,8 +9,6 @@
  * Author: wladt
  *
  * Created on January 9, 2017, 10:49 AM
- * 
- * @brief Immutable string interface.
  */
 
 #ifndef __PFS_TRAITS_STRING_HPP__
@@ -70,7 +68,15 @@ struct string_traits
 
     static void xerase (data_type & d, size_type index, size_type count);
     static iterator xerase (data_type & d, const_iterator first, const_iterator last);
+
+    static void xclear (data_type & d);
     
+    static void xinsert (data_type & d, size_type index, size_type count, value_type ch);
+    static void xinsert (data_type & d, size_type index, const_pointer s);
+    static void xinsert (data_type & d, size_type index, const_pointer s, size_type count);
+
+    static void xpush_back (data_type & d, value_type ch);
+
     static const_pointer xdata (data_type const & d);
     
     static const_native_reference xcast (data_type const & d);
@@ -359,6 +365,78 @@ public:
         traits_type::xerase(_d, first, last);
     }
   
+    void clear ()
+    {
+        traits_type::xclear(_d);
+    }
+    
+    string & insert (size_type index, size_type count, value_type ch)
+    {
+        if (index > size())
+            throw pfs::out_of_range("string::insert()");
+
+// TODO        
+//        if (size() + count > max_size())
+//            throw pfs::length_error("string::insert()");
+        
+        traits_type::xinsert(_d, index, count, ch);
+        return *this;
+    }
+    
+    string & insert (size_type index, const_pointer s)
+    {
+        if (index > size())
+            throw pfs::out_of_range("string::insert()");
+
+// TODO        
+//        if (size() + Traits::length(s) > max_size())
+//            throw pfs::length_error("string::insert()");
+        
+        traits_type::xinsert(_d, index, s);
+        return *this;
+    }
+    
+    string & insert (size_type index, const_pointer s, size_type count)
+    {
+        if (index > size())
+            throw pfs::out_of_range("string::insert()");
+
+// TODO        
+//        if (size() + count > max_size())
+//            throw pfs::length_error("string::insert()");
+        
+        traits_type::xinsert(_d, index, s, count);
+        return *this;
+    }
+    
+    string & insert (size_type index, string const & str)
+    {
+        return insert(index, str.data(), str.size());
+    }
+    
+    string & insert (size_type index, string const & str, size_type index_str, size_type count)
+    {
+        if (index_str > str.size())
+            throw pfs::out_of_range("string::insert()");
+        
+        return insert(index, str.data() + index_str, count);
+    }
+
+    // TODO
+    // iterator insert (const_iterator pos, CharT ch);
+    
+    // TODO
+    // iterator insert (iterator pos, size_type count, CharT ch);
+    
+    // TODO
+    // template <typename InputIt>
+    // iterator insert (const_iterator i, InputIt first, InputIt last);
+    
+    void push_back (value_type ch)
+    {
+        traits_type::xpush_back(_d, ch);
+    }
+
     template <typename CharU>
     friend int compare (string<CharU> const & lhs, char const * rhs);
 
@@ -370,7 +448,7 @@ template <typename CharT>
 string<CharT> string<CharT>::substr (size_type pos, size_type count) const
 {
     if (pos >= this->size())
-        throw out_of_range("string::substr");
+        throw out_of_range("string::substr()");
     size_type n = this->size() - pos;
 
     if (n > count)
