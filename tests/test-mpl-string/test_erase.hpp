@@ -19,7 +19,7 @@ void test_erase ()
 {
     test_description<CharT>(__PRETTY_FUNCTION__);
     
-    ADD_TESTS(19);
+    ADD_TESTS(21);
     
     typedef pfs::traits::string<CharT> string_type;
 
@@ -72,6 +72,15 @@ void test_erase ()
         TEST_OK(s[1] == orig[3]);
         TEST_OK(s[2] == orig[4]);
         TEST_OK(s[3] == orig[5]);
+    }
+
+    {
+        string_type s(string_samples<CharT>(STR_ORIG));
+        TEST_OK(!s.empty());
+        
+        s.clear();
+        
+        TEST_OK(s.empty());
     }
 }
 

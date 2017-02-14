@@ -129,7 +129,7 @@ struct string_traits
     
     static void xclear (data_type & d)
     {
-        d.clear(); d.append();
+        d.clear();
     }
     
     static void xinsert (data_type & d, size_type index, size_type count, value_type ch)

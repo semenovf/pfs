@@ -134,7 +134,7 @@ struct string_traits<QChar>
     
     static void xinsert (data_type & d, size_type index, const_pointer s)
     {
-        d.insert(index, index, QString(s));
+        d.insert(index, QString(s));
     }
     
     static void xinsert (data_type & d, size_type index, const_pointer s, size_type count)
