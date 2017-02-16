@@ -35,6 +35,8 @@ struct string_traits
     typedef typename native_type::const_reverse_iterator const_reverse_iterator;
     typedef native_type                                  data_type;
 
+    static size_type xlength (const_pointer p);
+    
     static void xassign (data_type & d, const_native_reference lhs)
     {
         d = lhs;
@@ -50,6 +52,11 @@ struct string_traits
     static size_type xsize (data_type const & d)
     {
         return d.size();    
+    }
+    
+    static size_type xmax_size (data_type const & d)
+    {
+        return d.max_size();
     }
     
     static const_iterator xbegin (data_type const & d)
@@ -206,6 +213,18 @@ public:
         return _d.data();
     }
 };
+
+template <>
+inline string_traits<char>::size_type string_traits<char>::xlength (const_pointer p)
+{
+    return std::strlen(p);
+}
+
+template <>
+inline string_traits<wchar_t>::size_type string_traits<wchar_t>::xlength (const_pointer p)
+{
+    return std::wcslen(p);
+}
 
 } // stdcxx
 

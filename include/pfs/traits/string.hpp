@@ -36,9 +36,11 @@ struct string_traits
     typedef CharT const * const_reverse_iterator;
     typedef native_type   data_type;
 
+    static size_type xlength (const_pointer p);
     static void xassign (data_type & d, const_native_reference lhs);
     static void xassign (data_type & d, const_pointer lhs, size_type n);
     static size_type xsize (data_type const & d);
+    static size_type xmax_size (data_type const & d);
     static const_iterator xbegin (data_type const & d);
     static const_iterator xend (data_type const & d);
     static const_reverse_iterator xrbegin (data_type const & d);
@@ -161,6 +163,28 @@ public:
     size_type length () const
     {
         return this->size();
+    }
+    
+    /**
+     * @details Returns the maximum number of elements the string is able to 
+     *          hold due to system or library implementation limitations, 
+     *          i.e. ​std::distance(begin(), end())​ for the largest string. 
+     * @return 
+     */
+    size_type max_size () const
+    {
+        // Formulas for calculate max_size 
+        //
+        // * std::basic_string (GNU)
+        //   max_size = (((npos - sizeof(_Rep_base))/sizeof(_CharT)) - 1) / 4
+        //
+        // * std::basic_string (STLport)
+        //   max_size = size_type(-1)/sizeof(CharT) - 1
+        //
+        // * QString (has no max_size) so formula will look like:
+        //   INT_MAX/sizeof(QChar) - 1;
+
+        return traits_type::xmax_size(_d);
     }
     
   	/**
@@ -370,44 +394,11 @@ public:
         traits_type::xclear(_d);
     }
     
-    string & insert (size_type index, size_type count, value_type ch)
-    {
-        if (index > size())
-            throw pfs::out_of_range("string::insert()");
-
-// TODO        
-//        if (size() + count > max_size())
-//            throw pfs::length_error("string::insert()");
-        
-        traits_type::xinsert(_d, index, count, ch);
-        return *this;
-    }
+    string & insert (size_type index, size_type count, value_type ch);
     
-    string & insert (size_type index, const_pointer s)
-    {
-        if (index > size())
-            throw pfs::out_of_range("string::insert()");
-
-// TODO        
-//        if (size() + Traits::length(s) > max_size())
-//            throw pfs::length_error("string::insert()");
-        
-        traits_type::xinsert(_d, index, s);
-        return *this;
-    }
+    string & insert (size_type index, const_pointer s);
     
-    string & insert (size_type index, const_pointer s, size_type count)
-    {
-        if (index > size())
-            throw pfs::out_of_range("string::insert()");
-
-// TODO        
-//        if (size() + count > max_size())
-//            throw pfs::length_error("string::insert()");
-        
-        traits_type::xinsert(_d, index, s, count);
-        return *this;
-    }
+    string & insert (size_type index, const_pointer s, size_type count);
     
     string & insert (size_type index, string const & str)
     {
@@ -460,6 +451,49 @@ string<CharT> string<CharT>::substr (size_type pos, size_type count) const
     pfs::advance(e, pos + n);
 
     return string(b, e);
+}
+
+template <typename CharT>
+string<CharT> & string<CharT>::insert (size_type index
+        , size_type count
+        , value_type ch)
+{
+    if (index > size())
+        throw pfs::out_of_range("string::insert()");
+
+    if (size() + count > max_size())
+        throw pfs::length_error("string::insert()");
+
+    traits_type::xinsert(_d, index, count, ch);
+    return *this;
+}
+    
+template <typename CharT>
+string<CharT> & string<CharT>::insert (size_type index, const_pointer s)
+{
+    if (index > size())
+        throw pfs::out_of_range("string::insert()");
+
+    if (size() + traits_type::xlength(s) > max_size())
+        throw pfs::length_error("string::insert()");
+
+    traits_type::xinsert(_d, index, s);
+    return *this;
+}
+    
+template <typename CharT>
+string<CharT> & string<CharT>::insert (size_type index
+        , const_pointer s
+        , size_type count)
+{
+    if (index > size())
+        throw pfs::out_of_range("string::insert()");
+
+    if (size() + count > max_size())
+        throw pfs::length_error("string::insert()");
+
+    traits_type::xinsert(_d, index, s, count);
+    return *this;
 }
 
 template <typename CharT>

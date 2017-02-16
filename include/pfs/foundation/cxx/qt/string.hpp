@@ -33,6 +33,14 @@ struct string_traits<QChar>
     typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
     typedef native_type                           data_type;
 
+    size_type xlength (const_pointer p)
+    {
+        size_type n = 0;
+        while (p[n] != 0)
+            ++n;
+        return n;
+    }
+
     static void xassign (data_type & d, const_native_reference lhs)
     {
         d = lhs;
@@ -48,6 +56,11 @@ struct string_traits<QChar>
     static size_type xsize (data_type const & d)
     {
         return d.size();    
+    }
+    
+    static size_type xmax_size (data_type const &)
+    {
+        return (INT_MAX)/sizeof(QChar) - 1;
     }
     
     static const_iterator xbegin (data_type const & d)
