@@ -15,6 +15,7 @@
 #define __PFS_FOUNDATION_STDCXX_STRING_HPP__
 
 #include <string>
+#include <cstring>
 #include <pfs/traits/string.hpp>
 
 namespace pfs {

@@ -66,10 +66,19 @@ struct iterator_traits<const T *>
     typedef const T & reference;
 };
 
-template <typename Category, typename Derived, typename T, typename Pointer, typename Reference, typename Distance = ptrdiff_t>
+template <typename Category
+        , typename Derived
+        , typename T
+        , typename Pointer
+        , typename Reference
+        , typename Distance = ptrdiff_t>
 struct iterator_facade; 
 
-template <typename Derived, typename T, typename Pointer, typename Reference, typename Distance>
+template <typename Derived
+        , typename T
+        , typename Pointer
+        , typename Reference
+        , typename Distance>
 struct iterator_facade<input_iterator_tag, Derived, T, Pointer, Reference, Distance> 
 {
     typedef input_iterator_tag iterator_category;
@@ -81,7 +90,7 @@ struct iterator_facade<input_iterator_tag, Derived, T, Pointer, Reference, Dista
     static reference ref (Derived &);
     static pointer   ptr (Derived &);
     static void      increment (Derived &, difference_type n = 1);
-    static int       compare (Derived const & lhs, Derived const & rhs);
+    static bool      equals (Derived const & lhs, Derived const & rhs);
 
     value_type operator * () const
     {
@@ -108,16 +117,20 @@ struct iterator_facade<input_iterator_tag, Derived, T, Pointer, Reference, Dista
     
     friend bool operator == (Derived const & lhs, Derived const & rhs)
     {
-        return Derived::compare(lhs, rhs) == 0;
+        return Derived::equals(lhs, rhs);
     }
 
     friend bool operator != (Derived const & lhs, Derived const & rhs)
     {
-        return Derived::compare(lhs, rhs) != 0;
+        return ! Derived::equals(lhs, rhs);
     }
 };
 
-template <typename Derived, typename T, typename Pointer, typename Reference, typename Distance>
+template <typename Derived
+        , typename T
+        , typename Pointer
+        , typename Reference
+        , typename Distance>
 struct iterator_facade<output_iterator_tag, Derived, T, Pointer, Reference, Distance> 
 {
     typedef output_iterator_tag iterator_category;
@@ -148,7 +161,11 @@ struct iterator_facade<output_iterator_tag, Derived, T, Pointer, Reference, Dist
 	}
 };
 
-template <typename Derived, typename T, typename Pointer, typename Reference, typename Distance>
+template <typename Derived
+        , typename T
+        , typename Pointer
+        , typename Reference
+        , typename Distance>
 struct iterator_facade<forward_iterator_tag, Derived, T, Pointer, Reference, Distance>
         : public iterator_facade<input_iterator_tag, Derived, T, Pointer, Reference, Distance>
 {
@@ -167,13 +184,17 @@ struct iterator_facade<forward_iterator_tag, Derived, T, Pointer, Reference, Dis
     }
 };
 
-template <typename Derived, typename T, typename Pointer, typename Reference, typename Distance>
+template <typename Derived
+        , typename T
+        , typename Pointer
+        , typename Reference
+        , typename Distance>
 struct iterator_facade<bidirectional_iterator_tag, Derived, T, Pointer, Reference, Distance>
         : public iterator_facade<forward_iterator_tag, Derived, T, Pointer, Reference, Distance>
 {
     typedef bidirectional_iterator_tag iterator_category;
 
-    static void decrement (Derived &);
+    static void decrement (Derived &, difference_type n);
 
     iterator_facade & operator -- () // prefix decrement
 	{
@@ -189,7 +210,11 @@ struct iterator_facade<bidirectional_iterator_tag, Derived, T, Pointer, Referenc
 	}
 };
 
-template <typename Derived, typename T, typename Pointer, typename Reference, typename Distance>
+template <typename Derived
+        , typename T
+        , typename Pointer
+        , typename Reference
+        , typename Distance>
 struct iterator_facade<random_access_iterator_tag, Derived, T, Pointer, Reference, Distance>
         : public iterator_facade<bidirectional_iterator_tag, Derived, T, Pointer, Reference, Distance>
 {
@@ -199,6 +224,12 @@ struct iterator_facade<random_access_iterator_tag, Derived, T, Pointer, Referenc
 
     static reference subscript (Derived &, difference_type n);
     static difference_type diff (Derived const & lhs, Derived const & rhs);
+    static int       compare (Derived const & lhs, Derived const & rhs);
+    
+    static bool equals (Derived const & lhs, Derived const & rhs)
+    {
+        return compare(lhs, rhs) == 0;
+    }
     
   	iterator_facade & operator += (difference_type n)
 	{

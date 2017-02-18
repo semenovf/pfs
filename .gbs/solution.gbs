@@ -12,6 +12,9 @@ solution "pfs-mpl"
     filter "platforms:*64"
         architecture "x64"
 
+project "pfs-test"
+    include("pfs-test/project.gbs")
+
 project "test-mpl-iterator"
     include("test-mpl-iterator/project.gbs")
 
@@ -24,23 +27,20 @@ project "test-mpl-list"
 project "test-mpl-map"
     include("test-mpl-map/project.gbs")
 
-project "test-mpl-string_builder"
-    include("test-mpl-string_builder/project.gbs")
-
-
 --project "test-mpl-fs-path"
 --    include("test-mpl-fs-path/project.gbs")
 
 --project "test-mpl-cli"
 --    include("test-mpl-cli/project.gbs")
 
-
--- BEGIN PROJECT
 project "demo-sfinae"
     include("demo-sfinae/project.gbs")
--- END PROJECT
 
--- BEGIN PROJECT
 --project "demo-db"
 --    include("demo-db/project.gbs")
--- END PROJECT
+
+project "test-mpl-algo-between"
+    include("test-mpl-algo-between/project.gbs")
+
+project "test-mpl-fsm"
+    include("test-mpl-fsm/project.gbs")

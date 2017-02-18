@@ -58,7 +58,7 @@ typedef std::atomic_ptrdiff_t       atomic_ptrdiff_t;
 typedef std::atomic_intmax_t        atomic_intmax_t;
 typedef std::atomic_uintmax_t       atomic_uintmax_t;
 
-}
+} // pfs
 
 #endif /* __PFS_CXX11_ATOMIC_HPP__ */
 

@@ -26,7 +26,7 @@ namespace traits {
 template <typename CharT>
 struct string_traits
 {
-    typedef struct {} native_type;
+    typedef struct __Use_Specialized_Traits__ {} native_type;
     typedef native_type const & const_native_reference;
     typedef size_t        size_type;
     typedef CharT         value_type;
@@ -111,7 +111,7 @@ public:
         : _d(s)
     {}
 
-    explicit string (CharT const * str, size_type n)
+    explicit string (const_pointer str, size_type n)
         : _d(str, n)
     {}
 

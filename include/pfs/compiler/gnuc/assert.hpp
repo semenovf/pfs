@@ -16,6 +16,7 @@
 
 #include <stdio.h>
 #include <unistd.h>
+#include <cstdlib> // abort()
 #include <execinfo.h>
 
 #define __TFILE__ __FILE__

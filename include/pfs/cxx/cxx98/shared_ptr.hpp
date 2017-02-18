@@ -9,8 +9,10 @@
 #ifndef __PFS_CXX98_SHARED_PTR_HPP__
 #define __PFS_CXX98_SHARED_PTR_HPP__
 
+#include <pfs/cxxlang.hpp>
 #include <pfs/utility.hpp>
 #include <pfs/atomic.hpp>
+#include <pfs/assert.hpp>
 
 namespace pfs {
 
@@ -28,7 +30,7 @@ template <typename T>
 struct default_deleter<T[]>
 {
 public:
-    default_deleter() noexcept {}
+    default_deleter() pfs_noexcept {}
 
     void operator () (T * p) const
     {

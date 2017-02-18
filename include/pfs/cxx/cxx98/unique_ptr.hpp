@@ -8,7 +8,7 @@
 #ifndef __PFS_CXX98_UNIQUE_PTR_HPP__
 #define __PFS_CXX98_UNIQUE_PTR_HPP__
 
-#include <pfs.hpp>
+#include <pfs/types.hpp>
 #include <pfs/utility.hpp>
 
 namespace pfs {
@@ -17,7 +17,8 @@ namespace pfs {
 template <typename T>
 struct default_delete
 {
-    default_delete () noexcept {}
+    default_delete () pfs_noexcept 
+    {}
 
     void operator() (T * p) const
     {
@@ -31,7 +32,8 @@ template <typename T>
 struct default_delete<T[]>
 {
 public:
-    default_delete() noexcept {}
+    default_delete() pfs_noexcept 
+    {}
 
     void operator () (T * p) const
     {
@@ -59,7 +61,7 @@ private:
 
 public:
     // Default constructor, creates a unique_ptr that owns nothing.
-    unique_ptr () noexcept
+    unique_ptr () pfs_noexcept
     	: _value(0)
     {
     	// TODO Need to check null function pointer deleter
@@ -71,7 +73,7 @@ public:
      *
      * @param p  A pointer to an object of @c element_type
      */
-    explicit unique_ptr (pointer p) noexcept
+    explicit unique_ptr (pointer p) pfs_noexcept
     	: _value(p), _deleter(deleter_type())
     {
     	// TODO Need to check null function pointer deleter
@@ -84,12 +86,12 @@ public:
      * @param p  A pointer to an array of @c element_type
      * @param d  A reference to a deleter.
      */
-    unique_ptr (pointer p, const deleter_type & d) noexcept
-    		: _value(p), _deleter(d)
+    unique_ptr (pointer p, const deleter_type & d) pfs_noexcept
+        : _value(p), _deleter(d)
     {}
 
     // Destructor, invokes the deleter if the stored pointer is not null.
-    ~unique_ptr () noexcept
+    ~unique_ptr () pfs_noexcept
     {
     	if (_value != 0)
     		_deleter(_value);
@@ -111,28 +113,28 @@ public:
         return get();
     }
 
-    pointer get () const noexcept
+    pointer get () const pfs_noexcept
     {
     	return _value;
     }
 
-    deleter_type & get_deleter() noexcept
+    deleter_type & get_deleter() pfs_noexcept
     {
     	return _deleter;
     }
 
-    const deleter_type & get_deleter() const noexcept
+    const deleter_type & get_deleter() const pfs_noexcept
     {
     	return _deleter;
     }
 
-    operator bool () const noexcept
+    operator bool () const pfs_noexcept
     {
     	return get() == 0 ? false : true;
     }
 
     // Release ownership of any stored pointer.
-    pointer release () noexcept
+    pointer release () pfs_noexcept
     {
     	pointer p = get();
     	_value = 0;
@@ -145,7 +147,7 @@ public:
      *
      * @param p  The new pointer to store.
      */
-    void reset (pointer p = 0) noexcept
+    void reset (pointer p = 0) pfs_noexcept
     {
     	pfs::swap(_value, p);
 
@@ -154,7 +156,7 @@ public:
     	}
 
     /// Exchange the pointer and deleter with another object.
-    void swap (unique_ptr & u) noexcept
+    void swap (unique_ptr & u) pfs_noexcept
     {
     	pfs::swap(_value, u._value);
     	pfs::swap(_deleter, u._deleter);
@@ -181,7 +183,7 @@ private:
 
 public:
     // Default constructor, creates a unique_ptr that owns nothing.
-    unique_ptr () noexcept
+    unique_ptr () pfs_noexcept
     	: _value(0)
     {
     	// TODO Need to check null function pointer deleter
@@ -193,7 +195,7 @@ public:
      *
      * @param p  A pointer to an object of @c element_type
      */
-    explicit unique_ptr (pointer p) noexcept
+    explicit unique_ptr (pointer p) pfs_noexcept
     	: _value(p), _deleter(deleter_type())
     {
     	// TODO Need to check null function pointer deleter
@@ -206,7 +208,7 @@ public:
      * @param p  A pointer to an array of @c element_type
      * @param d  A reference to a deleter.
      */
-    unique_ptr (pointer p, const deleter_type & d) noexcept
+    unique_ptr (pointer p, const deleter_type & d) pfs_noexcept
     		: _value(p), _deleter(d)
     {}
 
@@ -228,25 +230,25 @@ public:
     }
 
     /// Return the stored pointer.
-    pointer get () const noexcept
+    pointer get () const pfs_noexcept
     {
     	return _value;
     }
 
     /// Return a reference to the stored deleter.
-    deleter_type & get_deleter() noexcept
+    deleter_type & get_deleter() pfs_noexcept
     {
     	return _deleter;
     }
 
     /// Return a reference to the stored deleter.
-    const deleter_type & get_deleter() const noexcept
+    const deleter_type & get_deleter() const pfs_noexcept
     {
     	return _deleter;
     }
 
     /// Return @c true if the stored pointer is not null.
-    operator bool () const noexcept
+    operator bool () const pfs_noexcept
     {
     	return get() == 0 ? false : true;
     }
@@ -254,7 +256,7 @@ public:
     // Modifiers.
 
     /// Release ownership of any stored pointer.
-    pointer release() noexcept
+    pointer release() pfs_noexcept
     {
     	pointer p = get();
     	_value = 0;
@@ -268,7 +270,7 @@ public:
      *
      * @param p  The new pointer to store.
      */
-    void reset (pointer p = 0) noexcept
+    void reset (pointer p = 0) pfs_noexcept
     {
     	pfs::swap(_value, p);
 
@@ -277,7 +279,7 @@ public:
     }
 
     /// Exchange the pointer and deleter with another object.
-    void swap (unique_ptr & u) noexcept
+    void swap (unique_ptr & u) pfs_noexcept
     {
     	pfs::swap(_value, u._value);
     	pfs::swap(_deleter, u._deleter);
@@ -285,7 +287,7 @@ public:
 };
 
 template <typename T, typename Deleter>
-inline void swap (unique_ptr<T, Deleter> & x, unique_ptr<T, Deleter> & y) noexcept
+inline void swap (unique_ptr<T, Deleter> & x, unique_ptr<T, Deleter> & y) pfs_noexcept
 {
 	x.swap(y);
 }

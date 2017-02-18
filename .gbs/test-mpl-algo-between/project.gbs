@@ -1,0 +1,37 @@
+--************************************************************
+--* Generated automatically by `gbs'
+--* Command: `gbs project --create --name=test-mpl-algo-between --type=test'
+--* Date:    Sat Feb 18 12:57:43 2017
+--************************************************************
+
+kind          "ConsoleApp"
+language      "C++"
+targetname    "test-mpl-algo-between"
+defines       {  }
+includedirs   { "../../include" }
+libdirs       { "../../../.build" }
+files         { "../../tests/test-mpl-algo-between/*.cpp" }
+
+configuration "debug"
+    flags        { "FatalWarnings", "Symbols" }
+    defines      { "DEBUG" }
+    objdir       "../../../.build/pfs-mpl/test-mpl-algo-between/debug"
+    targetdir    "../../../.build/tests"
+    targetsuffix "-d"
+    links        { "pfs-test-d" }
+
+configuration "release"
+    flags        { "FatalWarnings" }
+    defines      { "NDEBUG" }
+    objdir       "../../../.build/pfs-mpl/test-mpl-algo-between/release"
+    targetdir    "../../../.build/tests"
+    links        { "pfs-test" }
+
+
+filter "action:gmake"
+    buildoptions {}
+    linkoptions  {}
+
+filter { "debug", "action:gmake" }
+    linkoptions  { "-rdynamic" }
+

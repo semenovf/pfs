@@ -14,7 +14,7 @@
 #ifndef __PFS_CXX98_UTILITY_HPP__
 #define __PFS_CXX98_UTILITY_HPP__
 
-#include <algorithm>
+//#include <algorithm>
 
 namespace pfs {
 
@@ -70,6 +70,49 @@ struct pair
         pfs::swap(second, p.second);
     }
 };
+
+template <typename T1, typename T2>
+inline pair<T1, T2> make_pair (T1 x, T2 y)
+{
+    return pair<T1, T2>(x, y);
+}
+
+template <typename T1, typename T2>
+inline bool operator == (pair<T1,T2> const & lhs, pair<T1,T2> const & rhs)
+{
+    return lhs.first == rhs.first && lhs.second == rhs.second;   
+}
+	
+template <typename T1, typename T2>
+inline bool operator != (pair<T1,T2> const & lhs, pair<T1,T2> const & rhs)
+{
+    return ! (lhs == rhs);
+}
+
+template <typename T1, typename T2>
+inline bool operator < (pair<T1,T2> const & lhs, pair<T1,T2> const & rhs)
+{
+    return lhs.first < rhs.first
+	     || (!(rhs.first < lhs.first) && lhs.second < rhs.second); 
+}
+
+template <typename T1, typename T2>
+inline bool operator <= (pair<T1,T2> const & lhs, pair<T1,T2> const & rhs)
+{
+    return !(rhs < lhs);
+}
+
+template <typename T1, typename T2>
+inline bool operator > (pair<T1,T2> const & lhs, pair<T1,T2> const & rhs)
+{
+    return rhs < lhs;
+}
+
+template <typename T1, typename T2>
+inline bool operator >= (pair<T1,T2> const & lhs, pair<T1,T2> const & rhs)
+{
+    return !(lhs < rhs);
+}
 
 } // pfs
 
