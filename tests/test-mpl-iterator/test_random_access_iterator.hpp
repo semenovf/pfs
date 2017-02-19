@@ -33,7 +33,8 @@ struct random_access_iterator : public pfs::iterator_facade<
         it._p += n;
     }
 
-    static int compare (random_access_iterator const & it1, random_access_iterator const & it2)
+    static int compare (random_access_iterator const & it1
+            , random_access_iterator const & it2)
     {
         return it1._p - it2._p;
     }

@@ -17,6 +17,12 @@
 #include <pfs/cxxfoundation.hpp>
 #include PFS_CXX_FOUNDATION(string)
 
+#ifdef Tr
+#   error "Tr(x) macro aleady defined"
+#endif
+
+#define Tr(x) x
+
 namespace pfs {
 
 #if PFS_CXX_USE_FOUNDATION == PFS_CXX_FOUNDATION_STDCXX
@@ -27,7 +33,7 @@ namespace pfs {
     typedef traits::c_str<wchar_t>  c_wstr;
    
 #elif PFS_CXX_USE_FOUNDATION == PFS_CXX_FOUNDATION_QT
-    
+
     typedef traits::string<QChar>  string;
     typedef traits::c_str<QChar>   c_str;
     

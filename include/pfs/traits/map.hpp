@@ -18,6 +18,8 @@
 #include <pfs/exception.hpp>
 #include <pfs/utility.hpp>
 
+// FIXME Reimplement `map` like `vector`
+
 namespace pfs {
 namespace traits {
 

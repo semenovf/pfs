@@ -35,9 +35,9 @@ struct forward_iterator : public pfs::iterator_facade<
         ++it._p;
     }
     
-    static int compare (forward_iterator const & it1, forward_iterator const & it2)
+    static bool equals (forward_iterator const & it1, forward_iterator const & it2)
     {
-        return it1._p == it2._p ? 0 : 1;
+        return it1._p == it2._p;
     }
 };
 

@@ -13,13 +13,7 @@
  * Adopted to C++ version prior to C++11.
  */
 
-#include <pfs/iterator.hpp>
-#include <pfs/traits/map.hpp>
-#include <pfs/traits/vector.hpp>
-#include <pfs/traits/string.hpp>
-#include <pfs/limits.hpp>
-#include <pfs/utility.hpp>
-#include <pfs/exception.hpp>
+#include <pfs/json/traits.hpp>
 //#include <pfs/memory.hpp>
 //#include <pfs/byte_string.hpp>
 
@@ -28,38 +22,17 @@
 namespace pfs {
 namespace json {
 
-template <typename CharT>
+template <typename Traits>
 class value
 {
 public:
-
-    enum type_enum
-    {
-          type_null
-        , type_boolean
-        , type_integer
-        , type_uinteger
-        , type_float
-        , type_string
-        , type_object
-        , type_array
-    };
-
+    typedef Traits        traits_type;
     typedef value         value_type;
     typedef value *       pointer;
     typedef value const * const_pointer;
     typedef value &       reference;
     typedef value const & const_reference;
-    typedef ptrdiff_t     difference_type;
-    typedef size_t        size_type;
 
-    typedef bool                                 boolean_type;
-    typedef intmax_t                             integer_type;
-    typedef uintmax_t                            uinteger_type;
-    typedef double                               float_type;
-    typedef traits::string<CharT>                string_type;
-    typedef traits::vector<value_type>           array_type;
-    typedef traits::map<string_type, value_type> object_type;
 //
 //    typedef pfs::shared_ptr<value> shared_type;
 
@@ -70,18 +43,21 @@ private:
     {
         boolean_type  boolean;
         integer_type  integer;
-        float_type    flt;
+        real_type     real;
         string_type * string;
         array_type *  array;
         object_type * object;
 
-        value_rep (boolean_type v) : boolean (v)
+        value_rep (boolean_type v)
+            : boolean (v)
         {}
 
-        value_rep (integer_type v) : integer (v)
+        value_rep (integer_type v) 
+            : integer (v)
         {}
 
-        value_rep (float_type v) : flt (v)
+        value_rep (real_type v) 
+            : real (v)
         {}
 
         value_rep ()
@@ -235,97 +211,6 @@ public:
             return *this;
         }
 
-//        /**
-//         * @brief Returns a reference to the value
-//         */
-//        reference operator* () const;
-//
-//        /**
-//         * @brief Returns a pointer to the value
-//         */
-//        pointer operator-> () const;
-//
-//        /**
-//         * @brief Postfix increment.
-//         */
-//        const_iterator operator++ (int)
-//        {
-//            const_iterator result = *this;
-//            ++(*this);
-//
-//            return result;
-//        }
-//
-//        /**
-//         * @brief Prefix increment.
-//         */
-//        const_iterator & operator++ ();
-//
-//        /**
-//         * @brief Postfix decrement.
-//         */
-//        const_iterator operator-- (int)
-//        {
-//            const_iterator result = *this;
-//            --(*this);
-//
-//            return result;
-//        }
-//
-//        /**
-//         * @brief Prefix decrement.
-//         */
-//        const_iterator & operator-- ();
-//
-//        bool operator== (const const_iterator & other) const;
-//
-//        bool operator!= (const const_iterator & other) const
-//        {
-//            return not operator== (other);
-//        }
-//
-//        bool operator< (const const_iterator & other) const;
-//
-//        bool operator<= (const const_iterator & other) const
-//        {
-//            return not other.operator< (*this);
-//        }
-//
-//        bool operator> (const const_iterator & other) const
-//        {
-//            return not operator<= (other);
-//        }
-//
-//        bool operator>= (const const_iterator & other) const
-//        {
-//            return not operator< (other);
-//        }
-//
-//        const_iterator & operator+= (difference_type i);
-//
-//        const_iterator & operator-= (difference_type i)
-//        {
-//            return operator+= (-i);
-//        }
-//
-//        const_iterator operator+ (difference_type i)
-//        {
-//            const_iterator result = *this;
-//            result += i;
-//            return result;
-//        }
-//
-//        const_iterator operator- (difference_type i)
-//        {
-//            const_iterator result = *this;
-//            result -= i;
-//            return result;
-//        }
-//
-//        difference_type operator- (const const_iterator & other) const;
-//
-//        reference operator[] (difference_type n) const;
-//
         object_type::key_type key () const;
     };
 
@@ -529,14 +414,14 @@ public:
     /**
      * @brief Constructs number value from float value.
      */
-    value (float v) : _type (type_float), _value (static_cast<float_type> (v))
+    value (float v) : _type (type_float), _value (static_cast<real_type> (v))
     {
     }
 
     /**
      * @brief Constructs number value from double value.
      */
-    value (double v) : _type (type_float), _value (static_cast<float_type> (v))
+    value (double v) : _type (type_float), _value (static_cast<real_type> (v))
     {
     }
 
@@ -545,7 +430,7 @@ public:
     /**
      * @brief Constructs number value from double value.
      */
-    value (long double v) : _type (type_float), _value (static_cast<float_type> (v))
+    value (long double v) : _type (type_float), _value (static_cast<real_type> (v))
     {
     }
 #endif
@@ -1105,7 +990,5 @@ bool unpack (unpack_context & ctx, json::value & v);
 
 
 } // pfs
-
-#include "iterator.hpp"
 
 #endif /* __PFS_JSON_VALUE_HPP__ */

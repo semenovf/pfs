@@ -193,7 +193,8 @@ struct iterator_facade<bidirectional_iterator_tag, Derived, T, Pointer, Referenc
         : public iterator_facade<forward_iterator_tag, Derived, T, Pointer, Reference, Distance>
 {
     typedef bidirectional_iterator_tag iterator_category;
-
+    typedef Distance difference_type;
+    
     static void decrement (Derived &, difference_type n);
 
     iterator_facade & operator -- () // prefix decrement
@@ -224,11 +225,11 @@ struct iterator_facade<random_access_iterator_tag, Derived, T, Pointer, Referenc
 
     static reference subscript (Derived &, difference_type n);
     static difference_type diff (Derived const & lhs, Derived const & rhs);
-    static int       compare (Derived const & lhs, Derived const & rhs);
+    static int compare (Derived const & lhs, Derived const & rhs);
     
     static bool equals (Derived const & lhs, Derived const & rhs)
     {
-        return compare(lhs, rhs) == 0;
+        return Derived::compare(lhs, rhs) == 0;
     }
     
   	iterator_facade & operator += (difference_type n)

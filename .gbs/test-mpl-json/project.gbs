@@ -1,0 +1,31 @@
+--************************************************************
+--* Generated automatically by `gbs'
+--* Command: `gbs project --create --name=test-mpl-json --type=test'
+--* Date:    Sun Feb 19 13:06:10 2017
+--************************************************************
+
+kind          "ConsoleApp"
+language      "C++"
+targetname    "test-mpl-json"
+defines       {  }
+includedirs   { "../../include" }
+libdirs       { "../../../.build" }
+files         { "../../tests/test-mpl-json/*.cpp" }
+
+configuration "debug"
+    flags        { "FatalWarnings", "Symbols" }
+    defines      { "DEBUG" }
+    objdir       "../../../.build/pfs-mpl/test-mpl-json/debug"
+    targetdir    "../../../.build/tests"
+    targetsuffix "-d"
+    links        { "pfs-test-d" }
+
+configuration "release"
+    flags        { "FatalWarnings" }
+    defines      { "NDEBUG" }
+    objdir       "../../../.build/pfs-mpl/test-mpl-json/release"
+    targetdir    "../../../.build/tests"
+    links        { "pfs-test" }
+
+filter { "debug", "action:gmake" }
+    linkoptions  { "-rdynamic" }

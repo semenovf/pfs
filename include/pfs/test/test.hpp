@@ -11,6 +11,12 @@
 #include <string>
 #include "dllapi.h"
 
+#ifndef PFS_UNUSED
+#   define PFS_UNUSED(x)         ((void)(x))
+#   define PFS_UNUSED2(x1,x2)    ((void)(x1));((void)(x2))
+#   define PFS_UNUSED3(x1,x2,x3) ((void)(x1));((void)(x2));((void)(x3))
+#endif
+
 #define BEGIN_TESTS(n)   pfs::test::start(n);
 #define END_TESTS        pfs::test::finish(false);
 #define ABORT_TESTS      pfs::test::finish(true);
