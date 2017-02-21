@@ -15,9 +15,11 @@
 
 namespace pfs { namespace fsm {
 
-static int const normal_status = 0;
-static int const reject_status = 1;
-static int const accept_status = 2;
+enum {
+    normal_status = 0;
+    reject_status = 1;
+    accept_status = 2;
+};
 
 template <typename Sequence>
 struct result
