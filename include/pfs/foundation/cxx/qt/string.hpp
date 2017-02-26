@@ -14,8 +14,9 @@
 #ifndef __PFS_FOUNDATION_QT_STRING_HPP__
 #define __PFS_FOUNDATION_QT_STRING_HPP__
 
-#include <pfs/traits/string.hpp>
 #include <QString>
+#include <pfs/limits.hpp>
+#include <pfs/traits/string.hpp>
 
 namespace pfs {
 namespace traits {
@@ -60,7 +61,8 @@ struct string_traits<QChar>
     
     static size_type xmax_size (data_type const &)
     {
-        return (INT_MAX)/sizeof(QChar) - 1;
+        //return (INT_MAX)/sizeof(QChar) - 1;
+        return pfs::numeric_limits<int>::max()/sizeof(QChar) - sizeof(native_type);
     }
     
     static const_iterator xbegin (data_type const & d)

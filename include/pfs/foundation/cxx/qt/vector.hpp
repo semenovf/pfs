@@ -1,45 +1,52 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+
 /* 
  * File:   vector.hpp
  * Author: wladt
  *
- * Created on January 16, 2017, 11:52 AM
+ * Created on February 26, 2017, 10:58 AM
  */
 
-#ifndef __PFS_FOUNDATION_STDCXX_VECTOR_HPP__
-#define __PFS_FOUNDATION_STDCXX_VECTOR_HPP__
+#ifndef __PFS_FOUNDATION_QT_VECTOR_HPP__
+#define __PFS_FOUNDATION_QT_VECTOR_HPP__
 
-#include <vector>
+#include <QVector>
+#include <pfs/algo/compare.hpp>
 #include <pfs/traits/vector.hpp>
 
-namespace stdcxx {
+namespace qt {
 
 template <typename T>
 struct vector
 {
-    typedef std::vector<T> type;
+    typedef QVector<T> type;
 };
 
-} // stdcxx
+} // qt
 
 namespace pfs {
 namespace traits {
 
 template <typename T>
-struct vector_traits<T, ::stdcxx::vector>
+struct vector_traits<T, ::qt::vector>
 {
-    typedef typename ::stdcxx::vector<T>::type           native_type;
-    typedef native_type const &                          const_native_reference;
-    typedef typename native_type::size_type              size_type;
-    typedef typename native_type::value_type             value_type;
-    typedef typename native_type::reference              reference;
-    typedef typename native_type::const_reference        const_reference;
-    typedef typename native_type::pointer                pointer;
-    typedef typename native_type::const_pointer          const_pointer;
-    typedef typename native_type::iterator               iterator;
-    typedef typename native_type::const_iterator         const_iterator;
-    typedef typename native_type::reverse_iterator       reverse_iterator;
-    typedef typename native_type::const_reverse_iterator const_reverse_iterator;
-    typedef native_type                                  data_type;
+    typedef typename ::qt::vector<T>::type                 native_type;
+    typedef native_type const &                            const_native_reference;
+    typedef typename native_type::size_type                size_type;
+    typedef typename native_type::value_type               value_type;
+    typedef typename native_type::reference                reference;
+    typedef typename native_type::const_reference          const_reference;
+    typedef typename native_type::pointer                  pointer;
+    typedef typename native_type::const_pointer            const_pointer;
+    typedef typename native_type::iterator                 iterator;
+    typedef typename native_type::const_iterator           const_iterator;
+    typedef typename std::reverse_iterator<iterator>       reverse_iterator;
+    typedef typename std::reverse_iterator<const_iterator> const_reverse_iterator;
+    typedef native_type                                    data_type;
 
     static void xassign (data_type & d, const_native_reference lhs)
     {
@@ -53,7 +60,7 @@ struct vector_traits<T, ::stdcxx::vector>
     
     static size_type xmax_size (data_type const & d)
     {
-        return d.max_size();
+        return (INT_MAX)/sizeof(T) - sizeof(native_type);
     }
     
     static iterator xbegin (data_type & d)
@@ -78,34 +85,34 @@ struct vector_traits<T, ::stdcxx::vector>
     
     static reverse_iterator xrbegin (data_type & d)
     {
-        return d.rbegin();
+        return reverse_iterator(xend(d));
     }
     
     static const_reverse_iterator xrbegin (data_type const & d)
     {
-        return d.rbegin();    
+        return const_reverse_iterator(xend(d));
     }
     
     static reverse_iterator xrend (data_type & d)
     {
-        return d.rend();
+        return reverse_iterator(xbegin(d));
     }
     
     static const_reverse_iterator xrend (data_type const & d)
     {
-        return d.rend();
+        return const_reverse_iterator(xbegin(d));
     }
     
     static reference xat (data_type & d, size_type pos)
     {
-        return d.at(pos);
+        return d[pos];
     }
     
     static const_reference xat (data_type const & d, size_type pos)
     {
         return d.at(pos);
     }
-
+    
     static void xreserve (data_type & d, size_type new_capacity)
     {
         d.reserve(new_capacity);
@@ -143,11 +150,7 @@ struct vector_traits<T, ::stdcxx::vector>
     
     static int xcompare (data_type const & lhs, data_type const & rhs)
     {
-        return lhs < rhs
-                ? -1
-                : rhs < lhs
-                    ? 1
-                    : 0;
+        return pfs::compare(lhs.begin(), lhs.end(), rhs.begin(), rhs.end());
     }
     
     static void xswap (data_type & lhs, data_type & rhs)
@@ -168,5 +171,5 @@ struct vector_traits<T, ::stdcxx::vector>
 
 }} // pfs::traits
 
-#endif /* __PFS_FOUNDATION_STDCXX_VECTOR_HPP__ */
+#endif /* __PFS_FOUNDATION_QT_VECTOR_HPP__ */
 

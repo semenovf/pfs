@@ -219,9 +219,9 @@ template <typename Derived
 struct iterator_facade<random_access_iterator_tag, Derived, T, Pointer, Reference, Distance>
         : public iterator_facade<bidirectional_iterator_tag, Derived, T, Pointer, Reference, Distance>
 {
-    typedef output_iterator_tag random_access_iterator_tag;
-    typedef Distance            difference_type;
-    typedef Reference           reference;
+    typedef random_access_iterator_tag iterator_category;
+    typedef Distance     difference_type;
+    typedef Reference    reference;
 
     static reference subscript (Derived &, difference_type n);
     static difference_type diff (Derived const & lhs, Derived const & rhs);

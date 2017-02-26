@@ -45,8 +45,8 @@ project "test-mpl-algo-between"
 project "test-mpl-fsm"
     include("test-mpl-fsm/project.gbs")
 
---project "test-mpl-json"
---    include("test-mpl-json/project.gbs")
+project "test-mpl-json"
+    include("test-mpl-json/project.gbs")
 
 project "test-mpl-vector"
     include("test-mpl-vector/project.gbs")

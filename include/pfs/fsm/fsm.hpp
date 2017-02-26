@@ -16,9 +16,9 @@
 namespace pfs { namespace fsm {
 
 enum {
-    normal_status = 0;
-    reject_status = 1;
-    accept_status = 2;
+      normal_status = 0
+    , reject_status
+    , accept_status
 };
 
 template <typename Sequence>

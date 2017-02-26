@@ -38,6 +38,10 @@ struct map_iterator : public ::stdcxx::map<Key, T>::type::iterator
 {
     typedef typename ::stdcxx::map<Key, T>::type::iterator base_type;
 
+    map_iterator () pfs_noexcept
+        : base_type()
+    {}
+
     map_iterator (base_type lhs) pfs_noexcept
         : base_type(lhs)
     {}
@@ -57,6 +61,10 @@ template <typename Key, typename T>
 struct map_const_iterator : public ::stdcxx::map<Key, T>::type::const_iterator
 {
     typedef typename ::stdcxx::map<Key, T>::type::const_iterator base_type;
+
+    map_const_iterator () pfs_noexcept
+        : base_type()
+    {}
 
     map_const_iterator (base_type lhs) pfs_noexcept
         : base_type(lhs)

@@ -32,7 +32,6 @@ struct vector_traits
     typedef native_type         data_type;
 
     static void xassign (data_type & d, const_native_reference lhs);
-    static void xassign (data_type & d, const_pointer lhs, size_type n);
     static size_type xsize (data_type const & d);
     static size_type xmax_size (data_type const & d);
     static iterator xbegin (data_type & d);
@@ -43,7 +42,8 @@ struct vector_traits
     static const_reverse_iterator xrbegin (data_type const & d);
     static reverse_iterator xrend (data_type & d);
     static const_reverse_iterator xrend (data_type const & d);
-    static reference xat (data_type const & d, size_type pos);
+    static reference xat (data_type & d, size_type pos);
+    static const_reference xat (data_type const & d, size_type pos);
     static void xreserve (data_type & d, size_type new_capacity);
     static size_type xcapacity (data_type const & d);
     static iterator xerase (data_type & d, const_iterator first, const_iterator last);
@@ -111,7 +111,8 @@ public:
 
     vector & operator = (vector const & rhs)
     {
-        traits_type::xassign(_d, traits_type::xcast(rhs._d));
+        if (this != & rhs)
+            traits_type::xassign(_d, traits_type::xcast(rhs._d));
         return *this;
     }
 
@@ -121,13 +122,7 @@ public:
         return *this;
     }
 
-    vector & operator = (const_pointer rhs)
-    {
-        traits_type::xassign(_d, rhs, size_type(-1));
-        return *this;
-    }
-
-    // TODO Implement
+// TODO Implement
 //    void assign( size_type count, const T& value );
 //    template< class InputIt >
 //    void assign( InputIt first, InputIt last );
@@ -137,14 +132,14 @@ public:
     {
         if (pos >= this->size())
             throw out_of_range("string::at()");
-        return traits_type::xassign(_d, pos);
+        return traits_type::xat(_d, pos);
     }
 		
     const_reference at (size_type pos) const
     {
         if (pos >= this->size())
             throw out_of_range("string::at()");
-        return traits_type::xassign(_d, pos);
+        return traits_type::xat(_d, pos);
     }
 	
     /**
@@ -158,7 +153,7 @@ public:
      */
     reference operator [] (size_type pos)
     {
-        return traits_type::xassign(_d, pos);
+        return traits_type::xat(_d, pos);
     }
 
     /**
@@ -172,7 +167,7 @@ public:
      */
     const_reference operator [] (size_type pos) const
     {
-        return traits_type::xassign(_d, pos);
+        return traits_type::xat(_d, pos);
     }
 	
     /**

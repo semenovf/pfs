@@ -38,6 +38,10 @@ struct map_iterator : public QMap<Key, T>::iterator
 {
     typedef typename QMap<Key, T>::iterator base_type;
 
+    map_iterator () pfs_noexcept
+        : base_type()
+    {}
+
     map_iterator (base_type lhs) pfs_noexcept
         : base_type(lhs)
     {}
@@ -48,6 +52,10 @@ struct map_const_iterator : public QMap<Key, T>::const_iterator
 {
     typedef typename QMap<Key, T>::const_iterator base_type;
 
+    map_const_iterator () pfs_noexcept
+        : base_type()
+    {}
+    
     map_const_iterator (base_type lhs) pfs_noexcept
         : base_type(lhs)
     {}
@@ -76,7 +84,7 @@ class basic_map<Key, T, ::qt::map>
     : public details::basic_map<Key, T, ::qt::map>
 {
 protected:
-    typedef details::basic_map<Key, T, ::qt::map>        base_type;
+    typedef details::basic_map<Key, T, ::qt::map>      base_type;
     typedef typename base_type::size_type              size_type;
     typedef typename base_type::mapped_type            mapped_type;
     typedef typename base_type::native_type            native_type;
