@@ -14,14 +14,14 @@
 #ifndef __PFS_TEST_ERASE_HPP__
 #define __PFS_TEST_ERASE_HPP__
 
-template <typename CharT>
+template <typename Foundation, typename CharT>
 void test_erase ()
 {
     test_description<CharT>(__PRETTY_FUNCTION__);
     
     ADD_TESTS(21);
     
-    typedef pfs::traits::string<CharT> string_type;
+    typedef pfs::traits::string<Foundation, CharT> string_type;
 
     {
         string_type s(string_samples<CharT>(STR_ORIG));
@@ -54,9 +54,11 @@ void test_erase ()
     
     {
         string_type s(string_samples<CharT>(STR_ORIG));
+
         typename string_type::iterator it = s.erase(s.cbegin(), s.cend());
-        TEST_OK(it == s.cend())
+        
         TEST_OK(it == s.cbegin());
+        TEST_OK(it == s.cend())
         TEST_OK(s.empty());
     }
 

@@ -17,12 +17,12 @@
 namespace pfs {
 namespace json {
 
-template <typename CharT      // char
+template <typename Foundation
+        , typename CharT      // char
         , typename BoolT      // bool
         , typename IntegerT   // intmax_t
         , typename UIntegerT  // uintmax_t
         , typename RealT      // double
-        , template <typename> class ArrayT
         , template <typename, typename> class ObjectT>
 class value
 {
@@ -34,8 +34,8 @@ public:
     typedef IntegerT                   integer_type;
     typedef UIntegerT                  uinteger_type;
     typedef RealT                      real_type;
-    typedef pfs::traits::string<CharT> string_type;
-    typedef pfs::traits::vector<value, ArrayT>            array_type;
+    typedef pfs::traits::string<Foundation, CharT>        string_type;
+    typedef pfs::traits::vector<Foundation, value>        array_type;
     typedef pfs::traits::map<string_type, value, ObjectT> object_type;
 
     struct value_rep
@@ -102,7 +102,7 @@ public:
         //value_rep (type_enum t);
     };
     
-    typedef value_rep     data_type;
+    typedef value_rep data_type;
    
     typedef value                       value_type;
     typedef value *                     pointer;

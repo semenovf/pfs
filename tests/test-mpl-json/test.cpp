@@ -36,12 +36,12 @@ namespace stdcxx {
 namespace json {
 
 typedef pfs::json::value<
-          char
+          foundation::stdcxx
+        , char
         , bool
         , intmax_t
         , uintmax_t
         , double
-        , stdcxx::vector
         , stdcxx::map>
     value;
 
@@ -53,11 +53,11 @@ namespace qt {
 namespace json {
 
 typedef pfs::json::value<
-          QChar
+          foundation::qt
+        , QChar
         , bool
         , intmax_t
         , uintmax_t, double
-        , qt::vector
         , qt::map> 
     value;
 

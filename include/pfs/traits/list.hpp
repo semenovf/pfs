@@ -17,42 +17,57 @@
 #include <pfs/cxxlang.hpp>
 #include <pfs/iterator.hpp>
 
-// FIXME Reimplement `list` like `vector`
-
 namespace pfs {
 namespace traits {
 
-template <typename T, template <typename> class ListT>
+template <typename Foundation, typename T>
 struct list_traits
 {
-    typedef ListT<T>                                  native_type;
-    typedef typename ListT<T>::size_type              size_type;
-    typedef typename ListT<T>::difference_type        difference_type;
-    typedef typename ListT<T>::value_type             value_type;
-    typedef typename ListT<T>::reference              reference;
-    typedef typename ListT<T>::const_reference        const_reference;
-    typedef typename ListT<T>::iterator               iterator;
-    typedef typename ListT<T>::const_iterator         const_iterator;
-    typedef typename ListT<T>::reverse_iterator       reverse_iterator;
-    typedef typename ListT<T>::const_reverse_iterator const_reverse_iterator;
-    typedef ListT<T> data_type;
+    typedef struct __Use_Specialized_Traits__ {} native_type;
+    typedef native_type const & const_native_reference;
+    typedef size_t              size_type;
+    typedef T                   value_type;
+    typedef T &                 reference;
+    typedef T const &           const_reference;
+    typedef T *                 iterator;
+    typedef T const *           const_iterator;
+    typedef T *                 reverse_iterator;
+    typedef T const *           const_reverse_iterator;
+    typedef native_type         data_type;
+    
+    static void xassign (data_type & d, const_native_reference lhs);
+    static size_type xsize (data_type const & d);
+    static iterator xbegin (data_type & d);
+    static const_iterator xbegin (data_type const & d);
+    static iterator xend (data_type & d);
+    static const_iterator xend (data_type const & d);
+    static reverse_iterator xrbegin (data_type & d);
+    static const_reverse_iterator xrbegin (data_type const & d);
+    static reverse_iterator xrend (data_type & d);
+    static const_reverse_iterator xrend (data_type const & d);
+    static iterator xerase (data_type & d, iterator first, iterator last);
+    static void xclear (data_type & d);
+    static void xpush_back (data_type & d, const_reference value);
+    static void xpop_back (data_type & d);
+    static void xpush_front (data_type & d, const_reference value);
+    static void xpop_front (data_type & d);
+    static void xresize (data_type & d, size_type count, const_reference value);
+    static iterator xinsert (data_type & d, iterator pos, value_type const & value);
+    static void xswap (data_type & lhs, data_type & rhs);
+    static void xsplice (data_type & lhs, iterator pos, data_type & rhs);
+
+    static const_native_reference xcast (data_type const & d);
 };
 
-template <typename T, template <typename> class ListT>
-class basic_list;
-
-namespace details {
-    
-template <typename T, template <typename> class ListT>
-class basic_list
+template <typename Foundation, typename T>
+class list
 {
 public:
-    typedef basic_list                                   self_type;
-    typedef list_traits<T, ListT>                        traits_type;
+    typedef list_traits<Foundation, T>                   traits_type;
     typedef typename traits_type::native_type            native_type;
-    typedef typename traits_type::value_type             value_type;
+    typedef typename traits_type::const_native_reference const_native_reference;
     typedef typename traits_type::size_type              size_type;
-    typedef typename traits_type::difference_type        difference_type;
+    typedef typename traits_type::value_type             value_type;
     typedef typename traits_type::reference              reference;
     typedef typename traits_type::const_reference        const_reference;
     typedef typename traits_type::iterator               iterator;
@@ -60,89 +75,21 @@ public:
     typedef typename traits_type::reverse_iterator       reverse_iterator;
     typedef typename traits_type::const_reverse_iterator const_reverse_iterator;
     typedef typename traits_type::data_type              data_type;
-
-public:
+    
+private:
     data_type _d;
-
-protected:
-    virtual iterator xbegin () = 0;
-    virtual const_iterator xbegin () const = 0;
-    virtual iterator xend () = 0;
-    virtual const_iterator xend () const = 0;
-    virtual reverse_iterator xrbegin () = 0;
-    virtual const_reverse_iterator xrbegin () const = 0;
-    virtual reverse_iterator xrend () = 0;
-    virtual const_reverse_iterator xrend () const = 0;
-    virtual size_type xsize () const = 0;
-    virtual void xclear () = 0;
-    virtual iterator xerase (iterator position) = 0;
-    virtual iterator xerase (iterator first, iterator last)
-    {
-        if (first == this->xbegin() && last == this->xend())
-            this->xclear();
-        else
-            while (first != last)
-                this->xerase(first++);
-    }
-	virtual void xpush_back (T const & value) = 0;
-    virtual void xpop_back () = 0;
-    virtual void xpush_front (T const & value) = 0;
-    virtual void xpop_front () = 0;
-    virtual void xresize (size_type count, value_type const & value) = 0;
-    virtual void xsplice (iterator pos, self_type & rhs) = 0;
-    virtual iterator xinsert (iterator pos, value_type const & value) = 0;
-    virtual void xswap (self_type & rhs) = 0;
-
-public:
-    basic_list ()
-    {}
-
-    basic_list (native_type const & rhs)
-        : _d(rhs)
-    {}
-    
-    basic_list & operator = (native_type const & rhs)
-    {
-        if (this != & rhs)
-            _d = rhs;
-        return *this;
-    }
-    
-    virtual native_type & native () = 0;
-    virtual native_type const & native () const = 0;
-};
-
-} // details
-
-template <typename T, template <typename> class ListT>
-class list : public basic_list<T, ListT>
-{
-    typedef basic_list<T, ListT> base_type;
-    typedef list self_type;
-
-public:    
-    typedef typename base_type::native_type            native_type;
-    typedef typename base_type::value_type             value_type;
-    typedef typename base_type::size_type              size_type;
-    typedef typename base_type::difference_type        difference_type;
-    typedef typename base_type::reference              reference;
-    typedef typename base_type::const_reference        const_reference;
-    typedef typename base_type::iterator               iterator;
-    typedef typename base_type::const_iterator         const_iterator;
-    typedef typename base_type::reverse_iterator       reverse_iterator;
-    typedef typename base_type::const_reverse_iterator const_reverse_iterator;
    
 public:
 	explicit list ()
-		: base_type()
+		: _d()
 	{}
 
     list (size_type count, T const & value)
-        : base_type(count, value)
+        : _d(count, value)
     {}
     
     explicit list (size_type count)
-        : base_type(count)
+        : _d(count)
     {}
     
     template <typename InputIt>
@@ -152,84 +99,91 @@ public:
             push_back(*first);
     }
     
-    list (native_type const & rhs)
-        : base_type(rhs)
+    explicit list (const_native_reference rhs)
+        : _d(rhs)
     {}
 
-    self_type & operator = (native_type const & rhs)
+    list & operator = (list const & rhs)
     {
-        base_type::operator = (rhs);
+        if (this != & rhs)
+            traits_type::xassign(_d, traits_type::xcast(rhs._d));
+        return *this;
+    }
+
+    list & operator = (const_native_reference rhs)
+    {
+        traits_type::xassign(_d, rhs);
         return *this;
     }
     
     iterator begin ()
     {
-        return this->xbegin();
+        return traits_type::xbegin(_d);
     }
 		
     const_iterator begin () const
     {
-        return this->xbegin();
+        return traits_type::xbegin(_d);
     }
 		
     const_iterator cbegin () const
     {
-        return this->begin();
+        return traits_type::xbegin(_d);
     }
     
     iterator end ()
     {
-        return this->xend();
+        return traits_type::xend(_d);
     }
 		
     const_iterator end () const
     {
-        return this->xend();
+        return traits_type::xend(_d);
     }
 		
     const_iterator cend () const
     {
-        return this->end();
+        return traits_type::xend(_d);
     }
     
     reverse_iterator rbegin ()
     {
-        return this->xrbegin();
+        return traits_type::xrbegin(_d);
     }
 		
     const_reverse_iterator rbegin () const
     {
-        return this->xrbegin();
+        return traits_type::xrbegin(_d);
     }
 		
     const_reverse_iterator crbegin () const
     {
-        return rbegin();
+        return traits_type::xrbegin(_d);
     }
     
     reverse_iterator rend ()
     {
-        return this->xrend();
+        return traits_type::xrend(_d);
     }
 		
     const_reverse_iterator rend () const
     {
-        return this->xrend();
+        return traits_type::xrend(_d);
     }
 		
     const_reverse_iterator crend () const
     {
-        return rend();
+        return traits_type::xrend(_d);
     }
     
     reference front ()
     {
-        return *this->begin();
+        return *begin();
     }
 		
     const_reference front () const
     {
-        return *this->begin();
+        return *begin();
     }
     
     reference back ()
@@ -248,9 +202,8 @@ public:
     
     size_type size () const pfs_noexcept
     {
-        return this->xsize();
+        return traits_type::xsize(_d);
     }
-
 	
     bool empty () const pfs_noexcept
     {
@@ -259,62 +212,69 @@ public:
 	
     void clear ()
     {
-        this->xclear();
+        traits_type::xclear(_d);
     }
     
-    iterator erase (iterator position)
+    iterator erase (iterator pos)
     {
-        return this->xerase(position);
+        iterator last(pos);
+        ++last;
+        return erase(pos, last);
     }
 
     iterator erase (iterator first, iterator last)
     {
-        return this->xerase(first, last);
+        return traits_type::xerase(_d, first, last);
     }
 
-    void push_back (T const & value)
+    void push_back (const_reference value)
     {
-        this->xpush_back(value);
+        traits_type::xpush_back(_d, value);
     }
     
     void pop_back ()
     {
-        this->xpop_back();
+        traits_type::xpop_back(_d);
     }
     
     void push_front (T const & value)
     {
-        this->xpush_front(value);
+        traits_type::xpush_front(_d, value);
     }
 		
     void pop_front ()
     {
-        this->xpop_front();
+        traits_type::xpop_front(_d);
     }
 	
     void resize (size_type count)
     {
-        this->resize(count, value_type());
+        resize(count, value_type());
     }
     
     void resize (size_type count, value_type const & value)
     {
-        this->xresize(count, value);
+        traits_type::xresize(_d, count, value);
     }
 
-    void swap (self_type & rhs)
+    const_native_reference cast () const
     {
-        this->xswap(rhs);
+        return traits_type::xcast(_d);
+    }
+
+    void swap (list & rhs)
+    {
+        traits_type::xswap(_d, rhs._d);
     }
     
-    void splice (iterator pos, self_type & rhs)
+    void splice (iterator pos, list & rhs)
     {
-        this->xsplice(pos, rhs);
+        traits_type::xsplice(_d, pos, rhs._d);
     }
     
     iterator insert (iterator pos, value_type const & value)
     {
-        this->xinsert(pos, value);
+        return traits_type::xinsert(_d, pos, value);
     }
     
     iterator insert (iterator pos, size_type count, value_type const & value)
@@ -326,7 +286,7 @@ public:
         }
         return pos;
     }
-    
+
     template <typename InputIt>
     iterator insert (iterator pos, InputIt first, InputIt last)
     {
@@ -339,20 +299,23 @@ public:
     }
 };
 
-template <typename T, template <typename> class ListT>
-inline bool operator == (list<T, ListT> const & lhs, list<T, ListT> const & rhs)
-{
-    return lhs.native() == rhs.native();
-}
+//template <typename Foundation, typename T>
+//inline bool operator == (list<Foundation, T> const & lhs
+//        , list<Foundation, T> const & rhs)
+//{
+//    return lhs.cast() == rhs.cast();
+//}
 
-template <typename T, template <typename> class ListT>
-inline bool operator != (list<T, ListT> const & lhs, list<T, ListT> const & rhs)
-{
-    return ! operator == (lhs, rhs);
-}
+//template <typename Foundation, typename T>
+//inline bool operator != (list<Foundation, T> const & lhs
+//        , list<Foundation, T> const & rhs)
+//{
+//    return ! operator == (lhs, rhs);
+//}
 
-template <typename T, template <typename> class ListT>
-inline void swap (list<T, ListT> const & lhs, list<T, ListT> const & rhs)
+template <typename Foundation, typename T>
+inline void swap (list<Foundation, T> const & lhs
+        , list<Foundation, T> const & rhs)
 {
     lhs.swap(rhs);
 }

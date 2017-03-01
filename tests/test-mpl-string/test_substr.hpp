@@ -14,14 +14,14 @@
 #ifndef __PFS_TEST_SUBSTR_HPP__
 #define __PFS_TEST_SUBSTR_HPP__
 
-template <typename CharT>
+template <typename Foundation, typename CharT>
 void test_substr ()
 {
     test_description<CharT>(__PRETTY_FUNCTION__);
     
     ADD_TESTS(7);
     
-    typedef pfs::traits::string<CharT> string_type;
+    typedef pfs::traits::string<Foundation, CharT> string_type;
     
     string_type orig(string_samples<CharT>(STR_ORIG));
     string_type same(string_samples<CharT>(STR_SAME));
@@ -39,4 +39,3 @@ void test_substr ()
 }
 
 #endif /* __PFS_TEST_SUBSTR_HPP__ */
-

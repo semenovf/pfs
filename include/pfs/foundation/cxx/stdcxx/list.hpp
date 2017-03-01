@@ -16,26 +16,17 @@
 
 #include <list>
 #include <pfs/traits/list.hpp>
-
-namespace stdcxx {
-
-template <typename T>
-struct list
-{
-    typedef std::list<T> type;
-};
-
-} // stdcxx
+#include <pfs/foundation/cxx/stdcxx.hpp>
 
 namespace pfs {
 namespace traits {
 
 template <typename T>
-struct list_traits<T, ::stdcxx::list>
+struct list_traits<foundation::stdcxx, T>
 {
-    typedef typename ::stdcxx::list<T>::type             native_type;
+    typedef std::list<T>                                 native_type;
+    typedef native_type const &                          const_native_reference;
     typedef typename native_type::size_type              size_type;
-    typedef typename native_type::difference_type        difference_type;
     typedef typename native_type::value_type             value_type;
     typedef typename native_type::reference              reference;
     typedef typename native_type::const_reference        const_reference;
@@ -44,153 +35,132 @@ struct list_traits<T, ::stdcxx::list>
     typedef typename native_type::reverse_iterator       reverse_iterator;
     typedef typename native_type::const_reverse_iterator const_reverse_iterator;
     typedef native_type                                  data_type;
-};
-
-template <typename T>
-class basic_list<T, ::stdcxx::list>
-    : public details::basic_list<T, ::stdcxx::list>
-{
-    typedef details::basic_list<T, ::stdcxx::list> base_type;
-    typedef basic_list self_type;
     
-protected:
-    typedef typename base_type::native_type            native_type;
-    typedef typename base_type::value_type             value_type;
-    typedef typename base_type::size_type              size_type;
-    typedef typename base_type::difference_type        difference_type;
-    typedef typename base_type::iterator               iterator;
-    typedef typename base_type::const_iterator         const_iterator;
-    typedef typename base_type::reverse_iterator       reverse_iterator;
-    typedef typename base_type::const_reverse_iterator const_reverse_iterator;
-
-    virtual iterator xbegin ()
+    static void xassign (data_type & d, const_native_reference lhs)
     {
-        return this->_d.begin();
+        d = lhs;    
     }
     
-    virtual const_iterator xbegin () const
+    static size_type xsize (data_type const & d)
     {
-        return this->_d.begin();
+        return d.size();        
     }
     
-    virtual iterator xend ()
+//    static size_type xmax_size (data_type const & d);
+    
+    static iterator xbegin (data_type & d)
     {
-        return this->_d.end();
+        return d.begin();    
     }
     
-    virtual const_iterator xend () const
+    static const_iterator xbegin (data_type const & d)
     {
-        return this->_d.end();
+        return d.begin();    
     }
     
-    virtual reverse_iterator xrbegin ()
+    static iterator xend (data_type & d)
     {
-        return this->_d.rbegin();
+        return d.end();    
     }
     
-    virtual const_reverse_iterator xrbegin () const
+    static const_iterator xend (data_type const & d)
     {
-        return this->_d.rbegin();
+        return d.end();    
     }
     
-    virtual reverse_iterator xrend ()
+    static reverse_iterator xrbegin (data_type & d)
     {
-        return this->_d.rend();
+        return d.rbegin();
     }
     
-    virtual const_reverse_iterator xrend () const
+    static const_reverse_iterator xrbegin (data_type const & d)
     {
-        return this->_d.rend();
+        return d.rbegin();
     }
     
-    virtual size_type xsize () const
+    static reverse_iterator xrend (data_type & d)
     {
-        return this->_d.size();
+        return d.rend();
     }
     
-    virtual void xclear ()
+    static const_reverse_iterator xrend (data_type const & d)
     {
-        this->_d.clear();
+        return d.rend();
     }
-
-    virtual iterator xerase (iterator position)
+    
+//    static void xreserve (data_type & d, size_type new_capacity);
+//    static size_type xcapacity (data_type const & d);
+    
+    static iterator xerase (data_type & d
+            , iterator first
+            , iterator last)
     {
 #if __cplusplus >= 201103
-        return _d.erase(position);
+        return d.erase(first, last);
 #else
-        this->_d.erase(position++);
-        return position;
+        d.erase(first, last);
+        return last; // TODO check in manual if iterator is valid after eraser.
 #endif        
     }
-
-    virtual iterator xerase (iterator first, iterator last)
+    
+    static void xclear (data_type & d)
     {
-#if __cplusplus >= 201103
-        return _d.erase(first, last);
-#else
-        this->_d.erase(first, last);
-        return last;
-#endif        
-    }
-
-    virtual void xpush_back (T const & value)
-    {
-        this->_d.push_back(value);
-    }
-
-    virtual void xpop_back ()
-    {
-        this->_d.pop_back();
-    }
-
-    virtual void xpush_front (T const & value)
-    {
-        this->_d.push_front(value);
-    }
-
-    virtual void xpop_front ()
-    {
-        this->_d.pop_front();
-    }
-
-    virtual void xswap (base_type & rhs)
-    {
-        this->_d.swap(rhs._d);
-    }
-
-    virtual void xresize (size_type count, value_type const & value)
-    {
-        this->_d.resize(count, value);
+        d.clear();
     }
     
-    virtual void xsplice (iterator pos, base_type & rhs)
+    static void xpush_back (data_type & d, const_reference value)
     {
-        this->_d.splice(pos, rhs.native());
+        d.push_back(value);
     }
     
-    virtual iterator xinsert (iterator pos, value_type const & value)
+    static void xpop_back (data_type & d)
+    {
+        d.pop_back();    
+    }
+    
+    static void xpush_front (data_type & d, const_reference value)
+    {
+        d.push_front(value);
+    }
+    
+    static void xpop_front (data_type & d)
+    {
+        d.pop_front();
+    }
+    
+    static void xresize (data_type & d, size_type count, const_reference value)
+    {
+        d.resize(count, value);
+    }
+    
+//    static int xcompare (data_type const & lhs, data_type const & rhs);
+    
+    static void xswap (data_type & lhs, data_type & rhs)
+    {
+        lhs.swap(rhs);
+    }
+
+    static void xsplice (data_type & lhs, iterator pos, data_type & rhs)
+    {
+        lhs.splice(pos, rhs);
+    }
+    
+    static const_native_reference xcast (data_type const & d)
+    {
+        return d;
+    }
+
+    static iterator xinsert (data_type & d, iterator pos, value_type const & value)
     {
 #if __cplusplus >= 201103L
-        return this->_d.insert(pos, value);
+        return d.insert(pos, value);
 #else
-        this->_d.insert(pos++, value);
+        d.insert(pos++, value);
         return pos;
 #endif
-    }
-
-public:
-    virtual native_type & native ()
-    {
-        return this->_d;
-    }
-
-    virtual native_type const & native () const
-    {
-        return this->_d;
     }
 };
 
 }} // pfs::traits
 
 #endif /* __PFS_FOUNDATION_STDCXX_LIST_HPP__ */
-

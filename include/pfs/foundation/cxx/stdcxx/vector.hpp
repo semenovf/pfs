@@ -10,24 +10,15 @@
 
 #include <vector>
 #include <pfs/traits/vector.hpp>
-
-namespace stdcxx {
-
-template <typename T>
-struct vector
-{
-    typedef std::vector<T> type;
-};
-
-} // stdcxx
+#include <pfs/foundation/cxx/stdcxx.hpp>
 
 namespace pfs {
 namespace traits {
 
 template <typename T>
-struct vector_traits<T, ::stdcxx::vector>
+struct vector_traits<foundation::stdcxx, T>
 {
-    typedef typename ::stdcxx::vector<T>::type           native_type;
+    typedef std::vector<T>                               native_type;
     typedef native_type const &                          const_native_reference;
     typedef typename native_type::size_type              size_type;
     typedef typename native_type::value_type             value_type;
@@ -169,4 +160,3 @@ struct vector_traits<T, ::stdcxx::vector>
 }} // pfs::traits
 
 #endif /* __PFS_FOUNDATION_STDCXX_VECTOR_HPP__ */
-

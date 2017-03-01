@@ -16,178 +16,147 @@
 
 #include <QLinkedList>
 #include <pfs/traits/list.hpp>
-
-namespace qt {
-
-template <typename T>
-struct list
-{
-    typedef QLinkedList<T> type;
-};
-
-} // qt
+#include <pfs/foundation/cxx/qt.hpp>
 
 namespace pfs {
 namespace traits {
 
 template <typename T>
-struct list_traits<T, ::qt::list>
+struct list_traits<foundation::qt, T>
 {
-    typedef typename ::qt::list<T>::type                   native_type;
-    typedef typename native_type::size_type                size_type;
-    typedef typename native_type::difference_type          difference_type;
-    typedef typename native_type::value_type               value_type;
-    typedef typename native_type::reference                reference;
-    typedef typename native_type::const_reference          const_reference;
-    typedef typename native_type::iterator                 iterator;
-    typedef typename native_type::const_iterator           const_iterator;
-    typedef typename std::reverse_iterator<iterator>       reverse_iterator;
+    typedef QLinkedList<T>                               native_type;
+    typedef native_type const &                          const_native_reference;
+    typedef typename native_type::size_type              size_type;
+    typedef typename native_type::value_type             value_type;
+    typedef typename native_type::reference              reference;
+    typedef typename native_type::const_reference        const_reference;
+    typedef typename native_type::iterator               iterator;
+    typedef typename native_type::const_iterator         const_iterator;
+    typedef typename std::reverse_iterator<iterator>     reverse_iterator;
     typedef typename std::reverse_iterator<const_iterator> const_reverse_iterator;
-    typedef native_type                                    data_type;
-};
+    typedef native_type                                  data_type;
+    
+    static void xassign (data_type & d, const_native_reference lhs)
+    {
+        d = lhs;    
+    }
+    
+    static size_type xsize (data_type const & d)
+    {
+        return d.size();        
+    }
+    
+    static iterator xbegin (data_type & d)
+    {
+        return d.begin();    
+    }
+    
+    static const_iterator xbegin (data_type const & d)
+    {
+        return d.begin();    
+    }
+    
+    static iterator xend (data_type & d)
+    {
+        return d.end();    
+    }
+    
+    static const_iterator xend (data_type const & d)
+    {
+        return d.end();    
+    }
+    
+    static reverse_iterator xrbegin (data_type & d)
+    {
+        return reverse_iterator(xend(d));
+    }
+    
+    static const_reverse_iterator xrbegin (data_type const & d)
+    {
+        return const_reverse_iterator(xend(d));
+    }
+    
+    static reverse_iterator xrend (data_type & d)
+    {
+        return reverse_iterator(xbegin(d));
+    }
+    
+    static const_reverse_iterator xrend (data_type const & d)
+    {
+        return const_reverse_iterator(xbegin(d));
+    }
+    
+//    static void xreserve (data_type & d, size_type new_capacity);
+//    static size_type xcapacity (data_type const & d);
+    
+    static iterator xerase (data_type & d
+            , iterator first
+            , iterator last)
+    {
+        return d.erase(first, last);
+    }
+    
+    static void xclear (data_type & d)
+    {
+        d.clear();
+    }
+    
+    static void xpush_back (data_type & d, const_reference value)
+    {
+        d.push_back(value);
+    }
+    
+    static void xpop_back (data_type & d)
+    {
+        d.pop_back();    
+    }
+    
+    static void xpush_front (data_type & d, const_reference value)
+    {
+        d.push_front(value);
+    }
+    
+    static void xpop_front (data_type & d)
+    {
+        d.pop_front();
+    }
+    
+    static void xresize (data_type & d, size_type count, const_reference value);
+    
+    static void xswap (data_type & lhs, data_type & rhs)
+    {
+        lhs.swap(rhs);
+    }
+    
+    static const_native_reference xcast (data_type const & d)
+    {
+        return d;
+    }
 
-template <typename T>
-class basic_list<T, ::qt::list>
-    : public details::basic_list<T, ::qt::list>
-{
-    typedef details::basic_list<T, ::qt::list> base_type;
-    typedef basic_list self_type;
-    
-protected:
-    typedef typename base_type::native_type            native_type;
-    typedef typename base_type::value_type             value_type;
-    typedef typename base_type::size_type              size_type;
-    typedef typename base_type::difference_type        difference_type;
-    typedef typename base_type::iterator               iterator;
-    typedef typename base_type::const_iterator         const_iterator;
-    typedef typename base_type::reverse_iterator       reverse_iterator;
-    typedef typename base_type::const_reverse_iterator const_reverse_iterator;
-
-    virtual iterator xbegin ()
-    {
-        return this->_d.begin();
-    }
-    
-    virtual const_iterator xbegin () const
-    {
-        return this->_d.begin();
-    }
-    
-    virtual iterator xend ()
-    {
-        return this->_d.end();
-    }
-    
-    virtual const_iterator xend () const
-    {
-        return this->_d.end();
-    }
-    
-    virtual reverse_iterator xrbegin ()
-    {
-        return reverse_iterator(this->xend());
-    }
-    
-    virtual const_reverse_iterator xrbegin () const
-    {
-        return const_reverse_iterator(this->xend());
-    }
-    
-    virtual reverse_iterator xrend ()
-    {
-        return reverse_iterator(this->xbegin());
-    }
-    
-    virtual const_reverse_iterator xrend () const
-    {
-        return const_reverse_iterator(this->xbegin());
-    }
-    
-    virtual size_type xsize () const
-    {
-        return this->_d.size();
-    }
-    
-    virtual void xclear ()
-    {
-        this->_d.clear();
-    }
-
-    virtual iterator xerase (iterator position)
-    {
-        return this->_d.erase(position);
-    }
-
-    virtual iterator xerase (iterator first, iterator last)
-    {
-        return this->_d.erase(first, last);
-    }
-
-    virtual void xpush_back (T const & value)
-    {
-        this->_d.push_back(value);
-    }
-
-    virtual void xpop_back ()
-    {
-        this->_d.pop_back();
-    }
-
-    virtual void xpush_front (T const & value)
-    {
-        this->_d.push_front(value);
-    }
-
-    virtual void xpop_front ()
-    {
-        this->_d.pop_front();
-    }
-    
-    virtual void xresize (size_type count, value_type const & value);
-
-    virtual void xsplice (iterator pos, base_type & rhs)
+    static void xsplice (data_type & lhs, iterator pos, data_type & rhs)
     {
         // Emulate splice operation through move elements
-        for (iterator it = this->xbegin(); it != this->xend(); ++it)
-            pos = this->xinsert(pos, *it);
-        static_cast<self_type &>(rhs).xclear();
-    }
-
-    virtual void xswap (base_type & rhs)
-    {
-        this->_d.swap(rhs._d);
-    }
-
-    virtual iterator xinsert (iterator pos, value_type const & value)
-    {
-        return this->_d.insert(pos, value);
-    }
-    
-public:
-    virtual native_type & native ()
-    {
-        return this->_d;
-    }
-
-    virtual native_type const & native () const
-    {
-        return this->_d;
+        // TODO Optimize it
+        for (iterator it = xbegin(rhs); it != xend(rhs); ++it)
+            pos = lhs.insert(pos, *it);
+        rhs.clear();
     }
 };
 
-
 template <typename T>
-void basic_list<T, qt::list>::xresize (size_type count, value_type const & value)
+void list_traits<foundation::qt, T>::xresize (data_type & d
+        , size_type count
+        , const_reference value)
 {
-    if (count < this->xsize()) {
+    if (count < xsize(d)) {
         // Reduce container to first count elements
         //
-        iterator first = this->xbegin();
+        iterator first = xbegin(d);
         pfs::advance(first, count);
-        this->xerase(first, this->xend());
+        xerase(d, first, xend(d));
     } else {
-        for (size_type i = this->xsize(); i < count; ++i)
-            this->_d.append(value);
+        for (size_type i = xsize(d); i < count; ++i)
+            d.append(value);
     }
 }
 

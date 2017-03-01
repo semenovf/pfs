@@ -17,11 +17,11 @@
 using std::cout;
 using std::endl;
 
-typedef pfs::traits::string<char>           sequence_type;
-typedef pfs::fsm::fsm<sequence_type>        fsm_type;
-typedef pfs::fsm::transition<sequence_type> transition_type;
-typedef fsm_type::result_type               result_type;
-typedef pfs::fsm::m<sequence_type>          M;
+typedef pfs::traits::string<foundation::stdcxx, char> sequence_type;
+typedef pfs::fsm::fsm<sequence_type>                  fsm_type;
+typedef pfs::fsm::transition<sequence_type>           transition_type;
+typedef fsm_type::result_type                         result_type;
+typedef pfs::fsm::m<sequence_type>                    M;
 
 static int const FSM_NORMAL = pfs::fsm::normal_status;
 static int const FSM_ACCEPT = pfs::fsm::accept_status;

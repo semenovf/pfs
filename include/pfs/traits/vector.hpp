@@ -14,7 +14,7 @@
 namespace pfs {
 namespace traits {
 
-template <typename T, template <typename> class VectorT>
+template <typename Foundation, typename T>
 struct vector_traits
 {
     typedef struct __Use_Specialized_Traits__ {} native_type;
@@ -57,11 +57,11 @@ struct vector_traits
     static const_native_reference xcast (data_type const & d);
 };
 
-template <typename T, template <typename> class VectorT>
+template <typename Foundation, typename T>
 class vector
 {
 public:
-    typedef vector_traits<T, VectorT>                    traits_type;
+    typedef vector_traits<Foundation, T>                 traits_type;
     typedef typename traits_type::native_type            native_type;
     typedef typename traits_type::const_native_reference const_native_reference;
     typedef typename traits_type::size_type              size_type;
@@ -81,6 +81,7 @@ private:
     
 public:
     explicit vector ()
+        : _d()
     {}
 
     vector (size_type count, T const & value)
@@ -381,48 +382,48 @@ public:
     
     void swap (vector & rhs)
     {
-        this->xswap(rhs);
+        traits_type::xswap(_d, rhs._d);
     }
 };
 
-template <typename T, template <typename> class VectorT>
-inline bool operator == (vector<T, VectorT> const & lhs
-        , vector<T, VectorT> const & rhs)
+template <typename Foundation, typename T>
+inline bool operator == (vector<Foundation, T> const & lhs
+        , vector<Foundation, T> const & rhs)
 {
     return lhs.compare(rhs) == 0;
 }
 
-template <typename T, template <typename> class VectorT>
-inline bool operator != (vector<T, VectorT> const & lhs
-        , vector<T, VectorT> const & rhs)
+template <typename Foundation, typename T>
+inline bool operator != (vector<Foundation, T> const & lhs
+        , vector<Foundation, T> const & rhs)
 {
     return lhs.compare(rhs) != 0;
 }
 
-template <typename T, template <typename> class VectorT>
-inline bool operator < (vector<T, VectorT> const & lhs
-        , vector<T, VectorT> const & rhs)
+template <typename Foundation, typename T>
+inline bool operator < (vector<Foundation, T> const & lhs
+        , vector<Foundation, T> const & rhs)
 {
     return lhs.compare(rhs) < 0;
 }
 
-template <typename T, template <typename> class VectorT>
-inline bool operator <= (vector<T, VectorT> const & lhs
-        , vector<T, VectorT> const & rhs)
+template <typename Foundation, typename T>
+inline bool operator <= (vector<Foundation, T> const & lhs
+        , vector<Foundation, T> const & rhs)
 {
     return lhs.compare(rhs) <= 0;
 }
 
-template <typename T, template <typename> class VectorT>
-inline bool operator > (vector<T, VectorT> const & lhs
-        , vector<T, VectorT> const & rhs)
+template <typename Foundation, typename T>
+inline bool operator > (vector<Foundation, T> const & lhs
+        , vector<Foundation, T> const & rhs)
 {
     return lhs.compare(rhs) > 0;
 }
 
-template <typename T, template <typename> class VectorT>
-inline bool operator >= (vector<T, VectorT> const & lhs
-        , vector<T, VectorT> const & rhs)
+template <typename Foundation, typename T>
+inline bool operator >= (vector<Foundation, T> const & lhs
+        , vector<Foundation, T> const & rhs)
 {
     return lhs.compare(rhs) >= 0;
 }
@@ -430,4 +431,3 @@ inline bool operator >= (vector<T, VectorT> const & lhs
 }} // pfs::traits
 
 #endif /* __PFS_TRAITS_VECTOR_HPP__ */
-

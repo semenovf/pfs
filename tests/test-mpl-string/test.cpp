@@ -119,38 +119,38 @@ QChar const * string_samples<QChar> (int i)
 
 int main (int argc, char *argv[])
 {
- 	PFS_UNUSED(argc);
-	PFS_UNUSED(argv);
-    
-	BEGIN_TESTS(0);
-    
-    test_basic<char>();
-    test_basic<wchar_t>();
-    test_find<char>();
-    test_find<wchar_t>();
-    test_substr<char>();
-    test_substr<wchar_t>();
-    test_c_str_cast<char>();
+    PFS_UNUSED(argc);
+    PFS_UNUSED(argv);
+
+    BEGIN_TESTS(0);
+
+    test_basic<foundation::stdcxx, char>();
+    test_basic<foundation::stdcxx, wchar_t>();
+    test_find<foundation::stdcxx, char>();
+    test_find<foundation::stdcxx, wchar_t>();
+    test_substr<foundation::stdcxx, char>();
+    test_substr<foundation::stdcxx, wchar_t>();
+    test_c_str_cast<foundation::stdcxx, char>();
 //    test_c_str_cast<std::wstring>();    // TODO
-    test_compare<char>();
-    test_compare<wchar_t>();
-    test_compare_cstr<char>();
+    test_compare<foundation::stdcxx, char>();
+    test_compare<foundation::stdcxx, wchar_t>();
+    test_compare_cstr<foundation::stdcxx, char>();
     //test_compare_cstr<wchar_t>();
     
-    test_erase<char>();
-    test_erase<wchar_t>();
+    test_erase<foundation::stdcxx, char>();
+    test_erase<foundation::stdcxx, wchar_t>();
 
 #ifdef QT_CORE_LIB
-    test_basic<QChar>();
-    test_find<QChar>();
-    test_substr<QChar>();
-    test_c_str_cast<QChar>();
+    test_basic<foundation::qt, QChar>();
+    test_find<foundation::qt, QChar>();
+    test_substr<foundation::qt, QChar>();
+    test_c_str_cast<foundation::qt, QChar>();
     
-    test_compare<QChar>();
-    test_compare_cstr<QChar>();
+    test_compare<foundation::qt, QChar>();
+    test_compare_cstr<foundation::qt, QChar>();
     
-    test_erase<QChar>();
+    test_erase<foundation::qt, QChar>();
 #endif
 
-	return END_TESTS;
+    return END_TESTS;
 }

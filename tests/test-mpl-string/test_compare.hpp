@@ -14,14 +14,14 @@
 #ifndef __PFS_TEST_COMPARE_HPP__
 #define __PFS_TEST_COMPARE_HPP__
 
-template <typename CharT>
+template <typename Foundation, typename CharT>
 void test_compare_basic ()
 {
     test_description<CharT>(__PRETTY_FUNCTION__);
     
     ADD_TESTS(10);
     
-    typedef pfs::traits::string<CharT> string;
+    typedef pfs::traits::string<Foundation, CharT> string;
     string orig(string_samples<CharT>(STR_ORIG));
     string same(string_samples<CharT>(STR_SAME));
     string diff(string_samples<CharT>(STR_DIFF));
@@ -52,14 +52,14 @@ struct test_compare_empty_data
     int    result;
 };
 
-template <typename CharT>
+template <typename Foundation, typename CharT>
 void test_compare_empty ()
 {
     test_description<CharT>(__PRETTY_FUNCTION__);
     
     ADD_TESTS(1);
 
-    typedef pfs::traits::string<CharT> string;
+    typedef pfs::traits::string<Foundation, CharT> string;
     string s1(string_samples<CharT>(STR_ORIG));
     string s2(string_samples<CharT>(STR_SAME));
     
@@ -98,21 +98,21 @@ void test_compare_empty ()
     TEST_OK2(i == count, ss.str().c_str());
 }
 
-template <typename CharT>
+template <typename Foundation, typename CharT>
 void test_compare ()
 {
-    test_compare_basic<CharT>();
-    test_compare_empty<CharT>();
+    test_compare_basic<Foundation, CharT>();
+    test_compare_empty<Foundation, CharT>();
 }
 
-template <typename CharT>
+template <typename Foundation, typename CharT>
 void test_compare_cstr ()
 {
     test_description<CharT>(__PRETTY_FUNCTION__);
     
     ADD_TESTS(16);
     
-    typedef pfs::traits::string<CharT> string;
+    typedef pfs::traits::string<Foundation, CharT> string;
     string orig(string_samples<CharT>(STR_ORIG));
     
     TEST_OK(orig == string_samples<char>(STR_ORIG));

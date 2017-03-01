@@ -26,12 +26,12 @@ int main (int argc, char *argv[])
     
 	BEGIN_TESTS(0);
     
-    test_iterator<stdcxx::list>();
-//    test_access<pfs::mpl::stdcxx::list>();
+    test_iterator<foundation::stdcxx>();
+//    test_access<foundation::stdcxx>();
     
 #ifdef QT_CORE_LIB
-    test_iterator<qt::list>();
-//    test_access<QList>();
+    test_iterator<foundation::qt>();
+//    test_access<foundation::qt>();
 #endif    
 
 	return END_TESTS;

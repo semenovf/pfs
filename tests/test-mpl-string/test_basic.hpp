@@ -14,14 +14,14 @@
 #ifndef __PFS_TEST_BASIC_HPP__
 #define __PFS_TEST_BASIC_HPP__
 
-template <typename CharT>
+template <typename Foundation, typename CharT>
 void test_assign ()
 {
     test_description<CharT>(__PRETTY_FUNCTION__);
     
     ADD_TESTS(5);
     
-    typedef pfs::traits::string<CharT>                   string_type;
+    typedef pfs::traits::string<Foundation, CharT>       string_type;
     typedef typename string_type::const_iterator         const_iterator;
     typedef typename string_type::const_reverse_iterator const_reverse_iterator;
     typedef typename string_type::value_type             value_type;
@@ -42,14 +42,14 @@ void test_assign ()
     TEST_OK(orig == orig2);
 }
 
-template <typename CharT>
+template <typename Foundation, typename CharT>
 void test_iterator ()
 {
     test_description<CharT>(__PRETTY_FUNCTION__);
     
     ADD_TESTS(16);
     
-    typedef pfs::traits::string<CharT>                   string_type;
+    typedef pfs::traits::string<Foundation, CharT>       string_type;
     typedef typename string_type::const_iterator         const_iterator;
     typedef typename string_type::const_reverse_iterator const_reverse_iterator;
     typedef typename string_type::value_type             value_type;
@@ -86,15 +86,15 @@ void test_iterator ()
 }
 
 
-template <typename CharT>
+template <typename Foundation, typename CharT>
 void test_subscript ()
 {
     test_description<CharT>(__PRETTY_FUNCTION__);
 
     ADD_TESTS(7);
 
-    typedef pfs::traits::string<CharT>        string_type;
-    typedef typename string_type::value_type  value_type;
+    typedef pfs::traits::string<Foundation, CharT> string_type;
+    typedef typename string_type::value_type       value_type;
 
     string_type str(string_samples<CharT>(STR_ORIG)); 
  
@@ -114,12 +114,12 @@ void test_subscript ()
     }    
 }
 
-template <typename CharT>
+template <typename Foundation, typename CharT>
 void test_basic ()
 {
-    test_assign<CharT>();
-    test_iterator<CharT>();
-    test_subscript<CharT>();
+    test_assign<Foundation, CharT>();
+    test_iterator<Foundation, CharT>();
+    test_subscript<Foundation, CharT>();
 }
 
 #endif /* __PFS_TEST_BASIC_HPP__ */

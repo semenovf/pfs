@@ -17,12 +17,13 @@
 #include <QString>
 #include <pfs/limits.hpp>
 #include <pfs/traits/string.hpp>
+#include <pfs/foundation/cxx/qt.hpp>
 
 namespace pfs {
 namespace traits {
 
 template <>
-struct string_traits<QChar>
+struct string_traits<foundation::qt, QChar>
 {
     typedef QString                               native_type;
     typedef QString const &                       const_native_reference;
@@ -175,7 +176,8 @@ struct string_traits<QChar>
     static void x ();
 };
 
-typename string_traits<QChar>::iterator string_traits<QChar>::xerase (
+typename string_traits<foundation::qt, QChar>::iterator
+string_traits<foundation::qt, QChar>::xerase (
     data_type & d
     , const_iterator first
     , const_iterator last)
@@ -188,21 +190,25 @@ typename string_traits<QChar>::iterator string_traits<QChar>::xerase (
 }
 
 template <>
-inline string<QChar>::string (const_iterator begin, const_iterator end)
+inline string<foundation::qt, QChar>::string (
+          const_iterator begin
+        , const_iterator end)
     : _d(begin, end - begin)
 {}
 
 template <>
-int compare<QChar> (string<QChar> const & lhs, char const * rhs)
+int compare<foundation::qt, QChar> (
+          string<foundation::qt, QChar> const & lhs
+        , char const * rhs)
 {
     return lhs._d.compare(QString(rhs)); // TODO Reimplement
 }
 
 template <>
-class c_str<QChar>
+class c_str<foundation::qt, QChar>
 {
 public:
-    typedef string<QChar> string_type;
+    typedef string<foundation::qt, QChar> string_type;
     
 private:
     QByteArray _d;
@@ -224,10 +230,10 @@ public:
 };
 
 template <>
-class c_wstr<QChar>
+class c_wstr<foundation::qt, QChar>
 {
 public:
-    typedef string<QChar> string_type;
+    typedef string<foundation::qt, QChar> string_type;
     
 private:
     std::wstring _d;

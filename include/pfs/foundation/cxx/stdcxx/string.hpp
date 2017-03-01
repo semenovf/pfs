@@ -17,13 +17,14 @@
 #include <string>
 #include <cstring>
 #include <pfs/traits/string.hpp>
+#include <pfs/foundation/cxx/stdcxx.hpp>
 
 namespace pfs {
 namespace traits {
 
 namespace stdcxx {
 
-template <typename CharT>
+template <typename Foundation, typename CharT>
 struct string_traits
 {
     typedef std::basic_string<CharT>                     native_type;
@@ -176,8 +177,9 @@ struct string_traits
 // C++ prior to C++11 
 // erase() has signature `iterator erase(iterator first, iterator last)`
 //
-template <typename CharT>
-typename string_traits<CharT>::iterator string_traits<CharT>::xerase (data_type & d
+template <typename Foundation, typename CharT>
+typename string_traits<Foundation, CharT>::iterator 
+string_traits<Foundation, CharT>::xerase (data_type & d
     , const_iterator first
     , const_iterator last)
 {
@@ -190,11 +192,11 @@ typename string_traits<CharT>::iterator string_traits<CharT>::xerase (data_type 
 
 #endif
 
-template <typename CharT>
+template <typename Foundation, typename CharT>
 class c_str
 {
 public:
-    typedef string<CharT> string_type;
+    typedef string<Foundation, CharT> string_type;
     
 protected:
     string_type const & _d;
@@ -216,13 +218,15 @@ public:
 };
 
 template <>
-inline string_traits<char>::size_type string_traits<char>::xlength (const_pointer p)
+inline string_traits<foundation::stdcxx, char>::size_type 
+string_traits<foundation::stdcxx, char>::xlength (const_pointer p)
 {
     return std::strlen(p);
 }
 
 template <>
-inline string_traits<wchar_t>::size_type string_traits<wchar_t>::xlength (const_pointer p)
+inline string_traits<foundation::stdcxx, wchar_t>::size_type
+string_traits<foundation::stdcxx, wchar_t>::xlength (const_pointer p)
 {
     return std::wcslen(p);
 }
@@ -230,17 +234,20 @@ inline string_traits<wchar_t>::size_type string_traits<wchar_t>::xlength (const_
 } // stdcxx
 
 template <>
-struct string_traits<char> : public stdcxx::string_traits<char>
+struct string_traits<foundation::stdcxx, char> 
+    : public stdcxx::string_traits<foundation::stdcxx, char>
 {};
 
 template <>
-struct string_traits<wchar_t> : public stdcxx::string_traits<wchar_t>
+struct string_traits<foundation::stdcxx, wchar_t> 
+    : public stdcxx::string_traits<foundation::stdcxx, wchar_t>
 {};
 
 template <>
-class c_str<char> : public stdcxx::c_str<char>
+class c_str<foundation::stdcxx, char> 
+    : public stdcxx::c_str<foundation::stdcxx, char>
 {
-    typedef stdcxx::c_str<char> base_type;
+    typedef stdcxx::c_str<foundation::stdcxx, char> base_type;
 public:
     explicit c_str (string_type const & s)
         : base_type(s)
@@ -248,9 +255,10 @@ public:
 };
 
 template <>
-class c_wstr<wchar_t> : public stdcxx::c_str<wchar_t>
+class c_wstr<foundation::stdcxx, wchar_t> 
+    : public stdcxx::c_str<foundation::stdcxx, wchar_t>
 {
-    typedef stdcxx::c_str<wchar_t> base_type;
+    typedef stdcxx::c_str<foundation::stdcxx, wchar_t> base_type;
 public:
     explicit c_wstr (string_type const & s)
         : base_type(s)
@@ -258,13 +266,17 @@ public:
 };
 
 template <>
-int compare<char> (string<char> const & lhs, char const * rhs)
+int compare<foundation::stdcxx, char> (
+          string<foundation::stdcxx, char> const & lhs
+        , char const * rhs)
 {
     return lhs._d.compare(rhs);
 }
 
 template <>
-int compare<wchar_t> (string<wchar_t> const & lhs, wchar_t const * rhs)
+int compare<foundation::stdcxx, wchar_t> (
+          string<foundation::stdcxx, wchar_t> const & lhs
+        , wchar_t const * rhs)
 {
     return lhs._d.compare(rhs);
 }

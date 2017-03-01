@@ -17,24 +17,25 @@
 #include <QVector>
 #include <pfs/algo/compare.hpp>
 #include <pfs/traits/vector.hpp>
+#include <pfs/foundation/cxx/qt.hpp>
 
-namespace qt {
-
-template <typename T>
-struct vector
-{
-    typedef QVector<T> type;
-};
-
-} // qt
+//namespace qt {
+//
+//template <typename T>
+//struct vector
+//{
+//    typedef QVector<T> type;
+//};
+//
+//} // qt
 
 namespace pfs {
 namespace traits {
 
 template <typename T>
-struct vector_traits<T, ::qt::vector>
+struct vector_traits<foundation::qt, T>
 {
-    typedef typename ::qt::vector<T>::type                 native_type;
+    typedef QVector<T>                                     native_type;
     typedef native_type const &                            const_native_reference;
     typedef typename native_type::size_type                size_type;
     typedef typename native_type::value_type               value_type;
@@ -172,4 +173,3 @@ struct vector_traits<T, ::qt::vector>
 }} // pfs::traits
 
 #endif /* __PFS_FOUNDATION_QT_VECTOR_HPP__ */
-
