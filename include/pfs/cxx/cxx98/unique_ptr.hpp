@@ -56,8 +56,8 @@ public:
 
 private:
     // Disable copy from lvalue.
-    unique_ptr (const unique_ptr &);
-    unique_ptr & operator = (const unique_ptr &);
+    unique_ptr (unique_ptr const &);
+    unique_ptr & operator = (unique_ptr const &);
 
 public:
     // Default constructor, creates a unique_ptr that owns nothing.

@@ -6,21 +6,34 @@
  * @brief
  */
 
+
 #include <pfs/test/test.hpp>
-#include <pfs/foundation/cxx/stdcxx/string.hpp>
+#include <pfs/string.hpp>
 #include <pfs/fsm/fsm.hpp>
+#include <pfs/fsm/aliases.hpp>
+
+#include <iostream>
+
+using std::cout;
+using std::endl;
 
 typedef pfs::traits::string<foundation::stdcxx, char> sequence_type;
-typedef pfs::fsm::fsm<sequence_type> fsm_type;
-typedef fsm_type::char_type          char_type;
+typedef pfs::fsm::fsm<sequence_type>                  fsm_type;
+typedef pfs::fsm::transition<sequence_type>           transition_type;
+typedef fsm_type::result_type                         result_type;
+typedef pfs::fsm::m<sequence_type>                    M;
+
+static int const FSM_NORMAL = pfs::fsm::normal_status;
+static int const FSM_ACCEPT = pfs::fsm::accept_status;
+static int const FSM_REJECT = pfs::fsm::reject_status;
 
 /* DIGIT / "A" / "B" / "C" / "D" / "E" / "F" */
 static sequence_type const _DIGITS("0123456789");
 static sequence_type const _HEXDIGITS("ABCDEFabcdef");
 
-static fsm_type::transition_type hexdig_tr[] = {
-	  {-1, 1, fsm_type::one_of(_DIGITS)    , fsm_type::accept, 0, 0 }
-    , {-1,-1, fsm_type::one_of(_HEXDIGITS) , fsm_type::accept, 0, 0 }
+static transition_type HEXDIG_FSM[] = {
+	  {-1, 1, M::chr(_DIGITS).m    , FSM_ACCEPT, 0, 0 }
+    , {-1,-1, M::chr(_HEXDIGITS).m , FSM_ACCEPT, 0, 0 }
 };
 
 static void test_alternatives_simple ()
@@ -31,13 +44,12 @@ static void test_alternatives_simple ()
 	sequence_type const digit("9");
 	sequence_type const notdigit("w");
     
-	fsm_type fsm(hexdig_tr);
+	fsm_type fsm(HEXDIG_FSM, 0);
 
-    fsm_type::result_type r = fsm.exec(0, hexdig.cbegin(), hexdig.cbegin());
-	TEST_FAIL(r.first == false);
+	TEST_FAIL(fsm.exec(0, hexdig.cbegin(), hexdig.cbegin()).first == false);
 
 	sequence_type::const_iterator it_end;
-	
+	result_type r;
 
 	it_end = hexdig.cbegin();
 	pfs::advance(it_end, 1);
@@ -55,100 +67,25 @@ static void test_alternatives_simple ()
 	TEST_FAIL(!r.first && r.second == it_end);
 }
 
-static sequence_type const alphabet("ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-        "abcdefghijklmnopqrstuvwxyz");
-
-static fsm_type::transition_type alphabet_length_tr[] = {
-	  { 1,-1, fsm_type::length(1), fsm_type::normal, 0, 0 }
-	, { 2,-1, fsm_type::length(2), fsm_type::normal, 0, 0 }
-	, { 3,-1, fsm_type::length(3), fsm_type::normal, 0, 0 }
-	, { 4,-1, fsm_type::length(4), fsm_type::normal, 0, 0 }
-	, { 5,-1, fsm_type::length(5), fsm_type::normal, 0, 0 }
-	, { 6,-1, fsm_type::length(6), fsm_type::normal, 0, 0 }
-	, { 7,-1, fsm_type::length(7), fsm_type::normal, 0, 0 }
-	, { 8,-1, fsm_type::length(8), fsm_type::normal, 0, 0 }
-	, { 9,-1, fsm_type::length(9), fsm_type::normal, 0, 0 }
-	, {-1,-1, fsm_type::length(7), fsm_type::accept, 0, 0 }
-};
-
-static fsm_type::transition_type z_pos_tr[] = {
-	  { 1,-1, fsm_type::length(25)                , fsm_type::normal, 0, 0 }
-	, { 2,-1, fsm_type::subseq(sequence_type("Z")), fsm_type::normal, 0, 0 }
-	, { 3,-1, fsm_type::length(25)                , fsm_type::normal, 0, 0 }
-	, {-1,-1, fsm_type::one_of(sequence_type("z")), fsm_type::accept, 0, 0 }
-};
-
-void test_length ()
-{
-    ADD_TESTS(2);
-    
-	fsm_type fsm1(alphabet_length_tr);
-	fsm_type fsm2(z_pos_tr);
-
-	TEST_OK(fsm1.exec(0, alphabet.begin(), alphabet.end())
-			== fsm_type::result_type(true, alphabet.end()));
-
-	TEST_OK(fsm2.exec(0, alphabet.begin(), alphabet.end())
-			== fsm_type::result_type(true, alphabet.cend()));
-}
-
-static fsm_type::transition_type subseq_tr[] = {
-	  { 1,-1, fsm_type::subseq(sequence_type("ABCD")), fsm_type::normal, 0, 0 }
-	, { 2,-1, fsm_type::subseq(sequence_type("EFGH")), fsm_type::normal, 0, 0 }
-	, { 3,-1, fsm_type::subseq(sequence_type("IJKL")), fsm_type::normal, 0, 0 }
-	, { 4,-1, fsm_type::subseq(sequence_type("MNOP")), fsm_type::normal, 0, 0 }
-	, { 5,-1, fsm_type::subseq(sequence_type("QRST")), fsm_type::normal, 0, 0 }
-	, { 6,-1, fsm_type::subseq(sequence_type("UVWX")), fsm_type::normal, 0, 0 }
-	, { 7,-1, fsm_type::subseq(sequence_type("YZ"))  , fsm_type::normal, 0, 0 }
-    , {-1,-1, fsm_type::subseq(sequence_type("abcdefghijklmnopqrstuvwxyz")), fsm_type::accept, 0, 0 }
-};
-
-void test_subseq ()
-{
-    ADD_TESTS(3);
-    
-	fsm_type fsm(subseq_tr);
-
-	TEST_OK(fsm.exec(0, alphabet.begin(), alphabet.end())
-			== fsm_type::result_type(true, alphabet.end()));
-
-    TEST_OK(fsm.exec(0, _DIGITS.begin(), _DIGITS.begin()).first == false)
-	TEST_OK(fsm.exec(0, _DIGITS.begin(), _DIGITS.end()).first == false);
-}
-
-static fsm_type::transition_type range_tr[] = {
-	  { 1,-1, fsm_type::range(char_type('A'), char_type('B')), fsm_type::normal, 0, 0 }
-	, {-1,-1, fsm_type::range(char_type('B'), char_type('C')), fsm_type::accept, 0, 0 }
-};
-
-void test_range ()
-{
-    ADD_TESTS(2);
-    
-    fsm_type fsm(range_tr);
-    
-    TEST_OK(fsm.exec(0, alphabet.begin(), alphabet.end()).first == true);
-    TEST_OK(fsm.exec(0, _DIGITS.begin(), _DIGITS.end()).first == false);
-}
-
-
 /* 0*DIGIT */
-static fsm_type::transition_type decimal0more_fsm[] = {
-	  { 0, 1, fsm_type::one_of(_DIGITS), fsm_type::accept, 0, 0 }
-	, {-1,-1, fsm_type::nothing()      , fsm_type::accept, 0, 0 }
+static transition_type decimal0more_fsm[] = {
+	  { 0, 1, M::chr(_DIGITS).m, FSM_ACCEPT, 0, 0 }
+	, {-1,-1, M::nothing().m   , FSM_ACCEPT, 0, 0 }
 };
 
 static void test_repetition_0more ()
 {
     ADD_TESTS(11);
     
+	typedef pfs::fsm::fsm<pfs::string>::result_type result_type;
+
 	sequence_type const dec("1972");
 	sequence_type const notdec("x1972");
     
-	fsm_type fsm(decimal0more_fsm);
+	fsm_type fsm(decimal0more_fsm, 0);
 
 	sequence_type::const_iterator it_end;
-	fsm_type::result_type r;
+	result_type r;
 
 	it_end = dec.cbegin();
 	r = fsm.exec(0, dec.cbegin(), it_end);
@@ -195,9 +132,6 @@ static void test_repetition_0more ()
 	TEST_FAIL(r.first && pfs::distance(notdec.cbegin(), r.second) == 0);
 }
 
-
-#if __COMMENT__
-
 /* 1*DIGIT */
 static transition_type decimal1more_fsm[] = {
 	  { 0,-1, M::chr(_DIGITS).m, FSM_ACCEPT, 0, 0 }
@@ -209,9 +143,10 @@ static transition_type decimal2more_fsm[] = {
 	, { 1,-1, M::chr(_DIGITS).m, FSM_ACCEPT, 0, 0 }
 };
 
+
 /* 1*HEXDIG_FSM */
 static transition_type hex_fsm[] = {
-      { 0,-1, M::tr(hexdig_tr).m, FSM_ACCEPT, 0, 0 }
+      { 0,-1, M::tr(HEXDIG_FSM).m, FSM_ACCEPT, 0, 0 }
 };
 
 static void test_repetition_1or2more ()
@@ -411,6 +346,42 @@ static void test_alternatives(void)
 	TEST_FAIL(fsm.exec(0, notnumber.cbegin(), it_end) == result_type(false, it_end));
 }
 
+static transition_type alpha_len_fsm[] = {
+	  { 1,-1, M::len(1).m , FSM_NORMAL, 0, 0 }
+	, { 2,-1, M::len(2).m , FSM_NORMAL, 0, 0 }
+	, { 3,-1, M::len(3).m , FSM_NORMAL, 0, 0 }
+	, { 4,-1, M::len(4).m , FSM_NORMAL, 0, 0 }
+	, { 5,-1, M::len(5).m , FSM_NORMAL, 0, 0 }
+	, { 6,-1, M::len(6).m , FSM_NORMAL, 0, 0 }
+	, { 7,-1, M::len(7).m , FSM_NORMAL, 0, 0 }
+	, { 8,-1, M::len(8).m , FSM_NORMAL, 0, 0 }
+	, { 9,-1, M::len(9).m , FSM_NORMAL, 0, 0 }
+	, {-1,-1, M::len(7).m , FSM_ACCEPT, 0, 0 }
+};
+
+static transition_type z_pos_fsm[] = {
+	  { 1,-1, M::len(25).m                 , FSM_NORMAL, 0, 0 }
+	, { 2,-1, M::sub(sequence_type("Z")).m , FSM_NORMAL, 0, 0 }
+	, { 3,-1, M::len(25).m                 , FSM_NORMAL, 0, 0 }
+	, {-1,-1, M::chr(sequence_type("z")).m , FSM_ACCEPT, 0, 0 }
+};
+
+void test_len ()
+{
+    ADD_TESTS(2);
+    
+    static sequence_type const alpha_chars("ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        "abcdefghijklmnopqrstuvwxyz");
+
+	fsm_type fsm1(alpha_len_fsm, 0);
+	fsm_type fsm2(z_pos_fsm, 0);
+
+	TEST_OK(fsm1.exec(0, alpha_chars.begin(), alpha_chars.end())
+			== result_type(true, alpha_chars.end()));
+
+	TEST_OK(fsm2.exec(0, alpha_chars.begin(), alpha_chars.end())
+			== result_type(true, alpha_chars.cend()));
+}
 
 static pfs::fsm::transition<pfs::string> rpt_fsm[] = {
 	  {-1,-1, M::rpt_sub(sequence_type("_ABC"), 0, 10).m , FSM_ACCEPT, 0, 0 }
@@ -427,8 +398,6 @@ void test_rpt ()
 			== result_type(true, rpt_chars.end()));
 }
 
-#endif
-
 int main(int argc, char *argv[])
 {
 	(void)argc;
@@ -437,14 +406,11 @@ int main(int argc, char *argv[])
 	BEGIN_TESTS(0);
 
 	test_alternatives_simple();
-    test_length();
-    test_subseq();
-    test_range();
-//	test_repetition_0more();
-    
-//	test_repetition_1or2more();
-//	test_alternatives();
-//	test_rpt();
+	test_repetition_0more();
+	test_repetition_1or2more();
+	test_alternatives();
+	test_len();
+	test_rpt();
 
 	return END_TESTS;
 }

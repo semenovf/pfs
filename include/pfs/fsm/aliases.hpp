@@ -8,6 +8,8 @@
 #ifndef __PFS_FSM_ALIASES_HPP__
 #define __PFS_FSM_ALIASES_HPP__
 
+#if __COMMENT__
+
 namespace pfs { namespace fsm {
 
 template <typename Sequence>
@@ -157,5 +159,7 @@ struct m
 };
 
 }} // pfs::fsm
+
+#endif
 
 #endif /* __PFS_FSM_ALIASES_HPP__ */

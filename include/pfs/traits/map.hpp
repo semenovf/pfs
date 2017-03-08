@@ -1,9 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 /* 
  * File:   map.hpp
  * Author: wladt
@@ -23,124 +17,80 @@
 namespace pfs {
 namespace traits {
 
-template <typename Key, typename T, template <typename, typename> class MapT>
+template <typename Foundation, typename Key, typename T>
 struct map_traits
 {
-    typedef MapT<Key, T>                              native_type;
-    typedef typename MapT<Key, T>::size_type          size_type;
-    typedef typename MapT<Key, T>::key_type           key_type;
-    typedef typename MapT<Key, T>::mapped_type        mapped_type;
-    typedef typename MapT<Key, T>::iterator           iterator;
-    typedef typename MapT<Key, T>::const_iterator     const_iterator;
-    typedef typename MapT<Key, T>::difference_type    difference_type;
-    typedef typename MapT<Key, T>::reverse_iterator   reverse_iterator;
-    typedef typename MapT<Key, T>::const_reverse_iterator const_reverse_iterator;
-    
-    typedef MapT<Key, T> data_type;
+    typedef struct __Use_Specialized_Traits__ {} native_type;
+    typedef native_type const & const_native_reference;
+    typedef size_t              size_type;
+    typedef Key                 key_type;
+    typedef T                   mapped_type;
+//    typedef T &                 reference;
+//    typedef T const &           const_reference;
+    typedef T *                 iterator;
+    typedef T const *           const_iterator;
+    typedef T *                 reverse_iterator;
+    typedef T const *           const_reverse_iterator;
+    typedef native_type         data_type;
+
+    static void xassign (data_type & d, const_native_reference lhs);
+    static size_type xsize (data_type const & d);
+    static iterator xbegin (data_type & d);
+    static const_iterator xbegin (data_type const & d);
+    static iterator xend (data_type & d);
+    static const_iterator xend (data_type const & d);
+    static reverse_iterator xrbegin (data_type & d);
+    static const_reverse_iterator xrbegin (data_type const & d);
+    static reverse_iterator xrend (data_type & d);
+    static const_reverse_iterator xrend (data_type const & d);
+    static mapped_type & xat (data_type & d, Key const & key);
+    static mapped_type const & xat (data_type const & d, Key const & key);
+    static mapped_type & xsubscript (data_type & d, Key const & key);
+    static void xclear (data_type & d);
+    static iterator xerase (data_type & d, iterator position);
+    static iterator xerase (data_type & d, iterator first, iterator last);
+    static size_type xcount (data_type const & d, Key const & key);
+    static iterator xfind (data_type & d, Key const & key);
+    static const_iterator xfind (data_type const & d, Key const & key);
+    static pfs::pair<iterator, bool> xinsert (data_type & d
+            , Key const & key
+            , T const & value);
+    static void xswap (data_type & lhs, data_type & rhs);
+    static const_native_reference xcast (data_type const & d);
 };
 
-template <typename Key, typename T, template <typename, typename> class MapT>
-class basic_map;
-
-namespace details {
-    
-template <typename Key, typename T, template <typename, typename> class MapT>
-class basic_map
+template <typename Foundation, typename Key, typename T>
+class map
 {
 public:
-    typedef map_traits<Key, T, MapT>                     traits_type;
+    typedef map_traits<Foundation, Key, T>               traits_type;
     typedef typename traits_type::native_type            native_type;
+    typedef typename traits_type::const_native_reference const_native_reference;
     typedef typename traits_type::size_type              size_type;
     typedef typename traits_type::key_type               key_type;
     typedef typename traits_type::mapped_type            mapped_type;
+//    typedef typename traits_type::reference              reference;
+//    typedef typename traits_type::const_reference        const_reference;
     typedef typename traits_type::iterator               iterator;
     typedef typename traits_type::const_iterator         const_iterator;
     typedef typename traits_type::reverse_iterator       reverse_iterator;
     typedef typename traits_type::const_reverse_iterator const_reverse_iterator;
-    typedef typename traits_type::difference_type        difference_type;
     typedef typename traits_type::data_type              data_type;
-
-public:
+    
+private:
     data_type _d;
-
-protected:
-    virtual iterator xbegin () = 0;
-    virtual const_iterator xbegin () const = 0;
-    virtual iterator xend () = 0;
-    virtual const_iterator xend () const = 0;
-    virtual reverse_iterator xrbegin () = 0;
-    virtual const_reverse_iterator xrbegin () const = 0;
-    virtual reverse_iterator xrend () = 0;
-    virtual const_reverse_iterator xrend () const = 0;
-    virtual size_type xsize () const = 0;
-    virtual mapped_type & xsubscript (Key const & key) = 0;
-    virtual mapped_type & xat (Key const & key) = 0;
-    virtual mapped_type const & xat (Key const & key) const = 0;
-    virtual void xclear () = 0;
-    virtual iterator xerase (iterator position) = 0;
-    
-    virtual iterator xerase (iterator first, iterator last)
-    {
-        if (first == this->xbegin() && last == this->xend())
-            this->xclear();
-        else
-            while (first != last)
-                this->xerase(first++);
-    }
-	
-    virtual void xswap (basic_map & rhs) = 0;
-    virtual size_type xcount (Key const & key) const = 0;
-    virtual iterator xfind (Key const & key) = 0;
-    virtual const_iterator xfind (Key const & key) const = 0;
-    virtual pfs::pair<iterator, bool> xinsert (Key const & key, T const & value) = 0;
-
-public:
-    basic_map ()
-    {}
-
-    basic_map (native_type const & rhs)
-        : _d(rhs)
-    {}
-    
-    basic_map & operator = (native_type const & rhs)
-    {
-        if (this != & rhs)
-            _d = rhs;
-        return *this;
-    }
-    
-    virtual native_type & native () = 0;
-    virtual native_type const & native () const = 0;
-};
-
-} // details
-
-template <typename Key, typename T, template <typename, typename> class MapT>
-class map : public basic_map<Key, T, MapT>
-{
-    typedef basic_map<Key, T, MapT> base_type;
-
-public:    
-    typedef typename base_type::native_type            native_type;
-    typedef typename base_type::size_type              size_type;
-    typedef typename base_type::key_type               key_type;
-    typedef typename base_type::mapped_type            mapped_type;
-    typedef typename base_type::iterator               iterator;
-    typedef typename base_type::const_iterator         const_iterator;
-    typedef typename base_type::reverse_iterator       reverse_iterator;
-    typedef typename base_type::const_reverse_iterator const_reverse_iterator;
    
 public:
 	explicit map ()
-		: base_type()
+		: _d()
 	{}
 
 	map (map const & rhs)
-        : base_type(rhs)
+        : _d(rhs._d)
 	{}
     
-    map (native_type const & rhs)
-        : base_type(rhs)
+    explicit map (const_native_reference rhs)
+        : _d(_d)
     {}
     
 //    template <typename InputIt>
@@ -149,75 +99,84 @@ public:
     map & operator = (map const & rhs)
     {
         if (this != & rhs)
-            base_type::operator = (rhs);
+            traits_type::xassign(_d, traits_type::xcast(rhs._d));
         return *this;
     }
 
-    map & operator = (native_type const & rhs)
+    map & operator = (const_native_reference rhs)
     {
-        if (this != & rhs)
-            base_type::operator = (rhs);
+        traits_type::xassign(_d, rhs);
         return *this;
     }
+
+    size_type size () const
+    {
+        return traits_type::xsize(_d);
+    }
     
+    bool empty () const
+    {
+        return size() == 0;
+    }
+
     iterator begin ()
     {
-        return this->xbegin();
+        return traits_type::xbegin(_d);
     }
 		
     const_iterator begin () const
     {
-        return this->xbegin();
+        return traits_type::xbegin(_d);
     }
 		
     const_iterator cbegin () const
     {
-        return this->begin();
+        return traits_type::xbegin(_d);
     }
     
     iterator end ()
     {
-        return this->xend();
+        return traits_type::xend(_d);
     }
 		
     const_iterator end () const
     {
-        return this->xend();
+        return traits_type::xend(_d);
     }
 		
     const_iterator cend () const
     {
-        return this->end();
+        return traits_type::xend(_d);
     }
     
     reverse_iterator rbegin ()
     {
-        return this->xrbegin();
+        return traits_type::xrbegin(_d);
     }
 		
     const_reverse_iterator rbegin () const
     {
-        return this->xrbegin();
+        return traits_type::xrbegin(_d);
     }
 		
     const_reverse_iterator crbegin () const
     {
-        return rbegin();
+        return traits_type::xrbegin(_d);
     }
     
     reverse_iterator rend ()
     {
-        return this->xrend();
+        return traits_type::xrend(_d);
     }
 		
     const_reverse_iterator rend () const
     {
-        return this->xrend();
+        return traits_type::xrend(_d);
     }
 		
     const_reverse_iterator crend () const
     {
-        return rend();
+        return traits_type::xrend(_d);
     }
     
     /**
@@ -229,12 +188,12 @@ public:
      */
     mapped_type & at (Key const & key)
     {
-        return this->xat(key);
+        return traits_type::xat(_d, key);
     }
 
     mapped_type const & at (Key const & key) const
     {
-        return this->xat(key);
+        return traits_type::xat(_d, key);
     }
     
     /**
@@ -249,19 +208,9 @@ public:
      */
     mapped_type & operator [] (Key const & key)
     {
-        return this->xsubscript(key);
+        return traits_type::xsubscript(_d, key);
     }
     
-    size_type size () const
-    {
-        return this->xsize();
-    }
-    
-    bool empty () const
-    {
-        return size() == 0;
-    }
-	
     //size_type max_size() const;
     
     /**
@@ -272,7 +221,7 @@ public:
      */    
     void clear ()
     {
-        this->xclear();
+        traits_type::xclear(_d);
     }
 	
     // 
@@ -280,54 +229,62 @@ public:
     //
     iterator erase (iterator position)
     {
-        return this->xerase(position);
+        return traits_type::xerase(_d, position);
     }
 
     iterator erase (iterator first, iterator last)
     {
-        return this->xerase(first, last);
+        return traits_type::xerase(_d, first, last);
     }
 	
-    void swap (map & rhs)
-    {
-        this->xswap(rhs);
-    }
-    
     size_type count (Key const & key) const
     {
-        this->xcount(key);
+        return traits_type::xcount(_d, key);
     }
 	
     iterator find (Key const & key)
     {
-        return this->xfind(key);
+        return traits_type::xfind(_d, key);
     }
 		
     const_iterator find (Key const & key) const
     {
-        return this->xfind(key);
+        return traits_type::xfind(_d, key);
     }
     
     pfs::pair<iterator, bool> insert (Key const & key, T const & value)
     {
-        return this->xinsert(key, value);
+        return traits_type::xinsert(_d, key, value);
+    }
+
+    void swap (map & rhs)
+    {
+        traits_type::xswap(_d, rhs._d);
+    }
+    
+    const_native_reference cast () const
+    {
+        return traits_type::xcast(_d);
     }
 };
 
-template <typename Key, typename T, template <typename, typename> class MapT>
-inline bool operator == (map<Key, T, MapT> const & lhs, map<Key, T, MapT> const & rhs)
+template <typename Foundation, typename Key, typename T>
+inline bool operator == (map<Foundation, Key, T> const & lhs
+        , map<Foundation, Key, T> const & rhs)
 {
-    return lhs.native() == rhs.native();
+    return lhs.cast() == rhs.cast();
 }
 
-template <typename Key, typename T, template <typename, typename> class MapT>
-inline bool operator != (map<Key, T, MapT> const & lhs, map<Key, T, MapT> const & rhs)
+template <typename Foundation, typename Key, typename T>
+inline bool operator != (map<Foundation, Key, T> const & lhs
+        , map<Foundation, Key, T> const & rhs)
 {
     return ! operator == (lhs, rhs);
 }
 
-template <typename Key, typename T, template <typename, typename> class MapT>
-inline void swap (map<Key, T, MapT> const & lhs, map<Key, T, MapT> const & rhs)
+template <typename Foundation, typename Key, typename T>
+inline void swap (map<Foundation, Key, T> const & lhs
+        , map<Foundation, Key, T> const & rhs)
 {
     lhs.swap(rhs);
 }

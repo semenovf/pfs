@@ -1,9 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 /* 
  * File:   list.hpp
  * Author: wladt
@@ -257,16 +251,6 @@ public:
         traits_type::xresize(_d, count, value);
     }
 
-    const_native_reference cast () const
-    {
-        return traits_type::xcast(_d);
-    }
-
-    void swap (list & rhs)
-    {
-        traits_type::xswap(_d, rhs._d);
-    }
-    
     void splice (iterator pos, list & rhs)
     {
         traits_type::xsplice(_d, pos, rhs._d);
@@ -297,21 +281,31 @@ public:
         }
         return pos;
     }
+
+    void swap (list & rhs)
+    {
+        traits_type::xswap(_d, rhs._d);
+    }
+    
+    const_native_reference cast () const
+    {
+        return traits_type::xcast(_d);
+    }
 };
 
-//template <typename Foundation, typename T>
-//inline bool operator == (list<Foundation, T> const & lhs
-//        , list<Foundation, T> const & rhs)
-//{
-//    return lhs.cast() == rhs.cast();
-//}
+template <typename Foundation, typename T>
+inline bool operator == (list<Foundation, T> const & lhs
+        , list<Foundation, T> const & rhs)
+{
+    return lhs.cast() == rhs.cast();
+}
 
-//template <typename Foundation, typename T>
-//inline bool operator != (list<Foundation, T> const & lhs
-//        , list<Foundation, T> const & rhs)
-//{
-//    return ! operator == (lhs, rhs);
-//}
+template <typename Foundation, typename T>
+inline bool operator != (list<Foundation, T> const & lhs
+        , list<Foundation, T> const & rhs)
+{
+    return ! operator == (lhs, rhs);
+}
 
 template <typename Foundation, typename T>
 inline void swap (list<Foundation, T> const & lhs

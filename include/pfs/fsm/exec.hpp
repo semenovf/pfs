@@ -11,7 +11,8 @@
 namespace pfs { namespace fsm {
 
 template <typename Sequence>
-typename fsm<Sequence>::result_type fsm<Sequence>::exec (int state_cur
+typename fsm<Sequence>::result_type
+fsm<Sequence>::exec (int state_cur
         , const_iterator begin
         , const_iterator end)
 {
@@ -25,16 +26,16 @@ typename fsm<Sequence>::result_type fsm<Sequence>::exec (int state_cur
 //	PFS_ASSERT(_context->_trans_tab);
 
     // FIXME need to check state_cur value (must be in specified bounds)
-    transition<Sequence> const * trans = & _context->trans_tab[state_cur];
+    transition const * trans = & _pcontext->trans_tab[state_cur];
 
 	do {
-		result_type result = trans->m(_context.get(), ptr, end);
+		result_type result = trans->m(_pcontext.get(), ptr, end);
 
 		if (result.first) {
 			if (trans->action) {
 				if (!trans->action(ptr
                         , result.second
-                        , _context->parse_context
+                        , _pcontext->parse_context
                         , trans->action_args)) {
 
 					// Let's support this situation
@@ -46,7 +47,7 @@ typename fsm<Sequence>::result_type fsm<Sequence>::exec (int state_cur
 					//};
 					if (trans->status == accept_status) {
 						if (trans->state_fail >= 0) {
-							trans = & _context->trans_tab[trans->state_fail];
+							trans = & _pcontext->trans_tab[trans->state_fail];
 							continue;
 						}
 					}
@@ -84,7 +85,7 @@ typename fsm<Sequence>::result_type fsm<Sequence>::exec (int state_cur
 		if (state_cur < 0)
 			break;
 
-		trans = & _context->trans_tab[state_cur];
+		trans = & _pcontext->trans_tab[state_cur];
 
 	} while (true);
 

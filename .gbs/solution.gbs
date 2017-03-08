@@ -12,20 +12,20 @@ solution "pfs-mpl"
     filter "platforms:*64"
         architecture "x64"
 
-project "pfs-test"
-    include("pfs-test/project.gbs")
+--project "pfs-test"
+--    include("pfs-test/project.gbs")
 
-project "test-mpl-iterator"
-    include("test-mpl-iterator/project.gbs")
+--project "test-mpl-iterator"
+--    include("test-mpl-iterator/project.gbs")
 
-project "test-mpl-string"
-    include("test-mpl-string/project.gbs")
+--project "test-mpl-string"
+--    include("test-mpl-string/project.gbs")
 
-project "test-mpl-list"
-    include("test-mpl-list/project.gbs")
+--project "test-mpl-list"
+--    include("test-mpl-list/project.gbs")
 
-project "test-mpl-map"
-    include("test-mpl-map/project.gbs")
+--project "test-mpl-map"
+--    include("test-mpl-map/project.gbs")
 
 --project "test-mpl-fs-path"
 --    include("test-mpl-fs-path/project.gbs")
@@ -33,20 +33,20 @@ project "test-mpl-map"
 --project "test-mpl-cli"
 --    include("test-mpl-cli/project.gbs")
 
-project "demo-sfinae"
-    include("demo-sfinae/project.gbs")
+--project "demo-sfinae"
+--    include("demo-sfinae/project.gbs")
 
 --project "demo-db"
 --    include("demo-db/project.gbs")
 
-project "test-mpl-algo-between"
-    include("test-mpl-algo-between/project.gbs")
+--project "test-mpl-algo-between"
+--    include("test-mpl-algo-between/project.gbs")
 
 project "test-mpl-fsm"
     include("test-mpl-fsm/project.gbs")
 
-project "test-mpl-json"
-    include("test-mpl-json/project.gbs")
+--project "test-mpl-json"
+--    include("test-mpl-json/project.gbs")
 
-project "test-mpl-vector"
-    include("test-mpl-vector/project.gbs")
+--project "test-mpl-vector"
+--    include("test-mpl-vector/project.gbs")

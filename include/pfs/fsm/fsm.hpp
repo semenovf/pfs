@@ -9,12 +9,119 @@
 #ifndef __PFS_FSM_HPP__
 #define __PFS_FSM_HPP__
 
-#include <pfs/memory.hpp>  // unique_ptr
-#include <pfs/utility.hpp> // pair
-//#include <pfs/exception.hpp>
+#include <pfs/memory.hpp>    // unique_ptr
+#include <pfs/fsm/match.hpp>
 
 namespace pfs { namespace fsm {
 
+template <typename Sequence>
+struct transition
+{
+    typedef match<Sequence>                     match_type;
+    typedef typename match_type::const_iterator const_iterator;
+    
+    int        state_next;
+    int        state_fail;
+    match_type m;
+    int        status;
+    bool       (* action)(const_iterator begin
+                    , const_iterator end
+                    , void * context
+                    , void * action_args);
+    void *     action_args;
+};
+
+template <typename Sequence>
+struct context
+{
+    typedef transition<Sequence> transition_type;
+    
+    transition_type const * trans_tab;
+    void * parse_context;
+
+    context (transition_type const * tab, void * ctx)
+            : trans_tab(tab)
+            , parse_context(ctx)
+    {}
+};
+
+template <typename Sequence>
+class fsm
+{
+public:
+    typedef match<Sequence>                     match_type;
+    typedef typename match_type::sequence_type  sequence_type;
+    typedef typename match_type::char_type      char_type;
+    typedef typename match_type::size_type      size_type;
+    typedef typename match_type::const_iterator const_iterator;
+    typedef typename match_type::result_type    result_type;
+    typedef transition<Sequence>                transition_type;
+    typedef context<Sequence>                   context_type;
+    
+    enum status_enum {
+          normal = 0
+        , reject
+        , accept
+    };
+private:
+    unique_ptr<context_type> _pcontext;
+
+public:
+        
+public:
+  	fsm ()
+        : _pcontext(new context_type(0, 0))
+    {}
+
+  	fsm (transition_type const * initial, void * parse_context)
+        : _pcontext(new context_type(initial, parse_context))
+    {}
+
+   	fsm (transition_type const * initial)
+        : _pcontext(new context_type(initial, 0))
+    {}
+
+    result_type exec (int state_cur, const_iterator begin, const_iterator end);
+
+	result_type exec (const_iterator begin, const_iterator end)
+	{
+		return exec(0, begin, end);
+	}
+    
+    static match_type nothing ()
+    {
+        return match_type::template make<typename match_type::match_nothing>();
+    }
+
+    static match_type length (size_type n)
+    {
+        return match_type::template make<typename match_type::match_length
+                , size_type>(n);
+    }
+
+    static match_type subseq (sequence_type const & seq)
+    {
+        return match_type::template make<typename match_type::match_subseq
+                , sequence_type const &>(seq);
+    }
+    
+    static match_type one_of (sequence_type const & seq)
+    {
+        return match_type::template make<typename match_type::match_one_of
+                , sequence_type const &>(seq);
+    }
+
+    static match_type range (char_type from, char_type to)
+    {
+        return match_type::template make<typename match_type::match_range
+                , char_type, char_type>(from, to);
+    }
+};
+
+//
+// Below is the old implementation
+//
+#if __COMMENT__
 enum {
       normal_status = 0
     , reject_status
@@ -112,12 +219,12 @@ public:
         deref(); 
     }
 
-	result_type operator () (context<Sequence> * fsm
-            , const_iterator begin
-            , const_iterator end) const
-	{
-		return _match->do_match(fsm, begin, end);
-	}
+//	result_type operator () (context<Sequence> * fsm
+//            , const_iterator begin
+//            , const_iterator end) const
+//	{
+//		return _match->do_match(fsm, begin, end);
+//	}
 };
 
 template <typename Sequence>
@@ -158,19 +265,19 @@ public:
 	typedef typename result<sequence_type>::type   result_type;
 
 public:
-	fsm ()
-        : _context(new context<Sequence>)
-    {
-        _context->trans_tab     = 0;
-        _context->parse_context = 0;
-    }
+//	fsm ()
+//        : _context(new context<Sequence>)
+//    {
+//        _context->trans_tab     = 0;
+//        _context->parse_context = 0;
+//    }
         
-	fsm (transition<Sequence> const * initial_tb, void * parse_context)
-        : _context(new context<Sequence>)
-    {
-        _context->trans_tab     = initial_tb;
-        _context->parse_context = parse_context;
-    }
+//	fsm (transition<Sequence> const * initial_tb, void * parse_context)
+//        : _context(new context<Sequence>)
+//    {
+//        _context->trans_tab     = initial_tb;
+//        _context->parse_context = parse_context;
+//    }
 
 	void set_transition_table (transition<Sequence> * tb)
 	{
@@ -182,12 +289,12 @@ public:
 		_context->parse_context = parse_context;
 	}
 
-	result_type exec (int state_cur, const_iterator begin, const_iterator end);
-
-	result_type exec (const_iterator begin, const_iterator end)
-	{
-		return exec(0, begin, end);
-	}
+//	result_type exec (int state_cur, const_iterator begin, const_iterator end);
+//
+//	result_type exec (const_iterator begin, const_iterator end)
+//	{
+//		return exec(0, begin, end);
+//	}
 
 public:
 	/** @brief Checks if character @c ch belongs to the subset of characters
@@ -247,16 +354,92 @@ typename fsm<Sequence>::result_type fsm<Sequence>::contains_chars (const_iterato
 			? result_type(true, ith)
 			: result_type(false, haystack_end);
 }
+#endif
 
 template <typename Sequence>
-inline bool fsm<Sequence>::range_char (char_type ch, char_type from, char_type to)
+typename fsm<Sequence>::result_type
+fsm<Sequence>::exec (int state_cur
+        , const_iterator begin
+        , const_iterator end)
 {
-	return ch >= from && ch <= to ? true : false;
+	const_iterator ptr = begin;
+	const_iterator ptr_accepted = begin;
+	
+	bool accepted = false;
+
+	// FIXME no need after _contex
+//	PFS_ASSERT(_context);
+//	PFS_ASSERT(_context->_trans_tab);
+
+    // FIXME need to check state_cur value (must be in specified bounds)
+    transition_type const * trans = & _pcontext->trans_tab[state_cur];
+
+	do {
+		result_type r = trans->m(_pcontext.get(), ptr, end);
+
+		if (r.first) {
+			if (trans->action) {
+				if (!trans->action(ptr
+                        , r.second
+                        , _pcontext->parse_context
+                        , trans->action_args)) {
+
+					// Let's support this situation
+					//
+					//static FSM_TRANSITION record_fsm[] = {
+					//	  {-1,  1, FSM_MATCH_SEQ(10) , FSM_ACCEPT, on_record1, 0 }
+					//	, {-1,  2, FSM_MATCH_SEQ(11) , FSM_ACCEPT, on_record2, 0 }
+					//	, {-1, -1, FSM_MATCH_SEQ(12) , FSM_ACCEPT, on_record3, 0 }
+					//};
+					if (trans->status == accept) {
+						if (trans->state_fail >= 0) {
+							trans = & _pcontext->trans_tab[trans->state_fail];
+							continue;
+						}
+					}
+
+					return result_type(false, end);
+				}
+			}
+
+			if (trans->status == accept) {
+				accepted = true;
+			}
+
+			ptr = r.second;
+
+			if (trans->status == accept) {
+				ptr_accepted = ptr;
+			}
+
+			if (trans->status == reject) {
+				state_cur = -1;
+				accepted = false;
+			} else {
+				state_cur = trans->state_next;
+			}
+		} else {
+			state_cur = trans->state_fail;
+
+			if (trans->status != accept) {
+				accepted = false;
+			}
+
+			ptr = ptr_accepted;
+		}
+
+		if (state_cur < 0)
+			break;
+
+		trans = & _pcontext->trans_tab[state_cur];
+
+	} while (true);
+
+	return accepted
+			? result_type(true, ptr_accepted)
+			: result_type(false, end);
 }
 
 }} // pfs::fsm
-
-#include <pfs/fsm/match.hpp>
-#include <pfs/fsm/exec.hpp>
 
 #endif /* __PFS_FSM_HPP__ */
