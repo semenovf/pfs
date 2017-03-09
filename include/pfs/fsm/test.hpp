@@ -15,31 +15,31 @@
 
 namespace pfs { namespace fsm {
 
-template <typename Sequence>
-bool test_valid_entry (transition<Sequence> * trans_tab
-        , void * parse_context
+template <typename Sequence, typename Atomic>
+bool test_valid_entry (transition<Sequence, Atomic> * trans_tab
+        , void * user_context
         , const Sequence & s)
 {
-	fsm<Sequence> f;
+	fsm<Sequence, Atomic> f;
 	f.set_transition_table(trans_tab);
-	f.set_user_context(parse_context);
+	f.set_user_context(user_context);
 
-	typename fsm<Sequence>::result_type result = f.exec(s.cbegin(), s.cend());
+	typename fsm<Sequence, Atomic>::result_type result = f.exec(s.cbegin(), s.cend());
 
 	return result.first && result.second == s.cend();
 }
 
-template <typename Sequence>
-bool test_invalid_entry (transition<Sequence> * trans_tab
-        , void * parse_context
-        , const Sequence & s
+template <typename Sequence, typename Atomic>
+bool test_invalid_entry (transition<Sequence, Atomic> * trans_tab
+        , void * user_context
+        , Sequence const & s
         , ssize_t offset)
 {
-	fsm<Sequence> f;
+	fsm<Sequence, Atomic> f;
 	f.set_transition_table(trans_tab);
-	f.set_user_context(parse_context);
+	f.set_user_context(user_context);
 
-	typename fsm<Sequence>::result_type result = f.exec(s.cbegin(), s.cend());
+	typename fsm<Sequence, Atomic>::result_type result = f.exec(s.cbegin(), s.cend());
 
 	if (offset >= 0) {
 		typename Sequence::const_iterator it(s.cbegin());

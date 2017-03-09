@@ -132,8 +132,39 @@ void test_range ()
 }
 
 
+static fsm_type::result_type is_alphabet (
+                          fsm_type::const_iterator begin
+                        , fsm_type::const_iterator end
+                        , void * parse_context
+                        , void * fn_context)
+{
+    PFS_UNUSED2(parse_context, fn_context);
+    
+    sequence_type sample(begin, end);
+            
+    if (sample == alphabet) {
+        return fsm_type::result_type(true, begin + alphabet.size());
+    }
+    
+    return fsm_type::result_type(false, end);
+}
+
+static fsm_type::transition_type alphabet_func_tr[] = {
+	  {-1,-1, fsm_type::func(is_alphabet, 0), fsm_type::accept, 0, 0 }
+};
+
+void test_func ()
+{
+    ADD_TESTS(2);
+    
+    fsm_type fsm(alphabet_func_tr);
+    
+    TEST_OK(fsm.exec(0, alphabet.begin(), alphabet.end()).first == true);
+    TEST_OK(fsm.exec(0, _DIGITS.begin(), _DIGITS.end()).first == false);
+}
+
 /* 0*DIGIT */
-static fsm_type::transition_type decimal0more_fsm[] = {
+static fsm_type::transition_type decimal0more_tr[] = {
 	  { 0, 1, fsm_type::one_of(_DIGITS), fsm_type::accept, 0, 0 }
 	, {-1,-1, fsm_type::nothing()      , fsm_type::accept, 0, 0 }
 };
@@ -145,7 +176,7 @@ static void test_repetition_0more ()
 	sequence_type const dec("1972");
 	sequence_type const notdec("x1972");
     
-	fsm_type fsm(decimal0more_fsm);
+	fsm_type fsm(decimal0more_tr);
 
 	sequence_type::const_iterator it_end;
 	fsm_type::result_type r;
@@ -195,23 +226,20 @@ static void test_repetition_0more ()
 	TEST_FAIL(r.first && pfs::distance(notdec.cbegin(), r.second) == 0);
 }
 
-
-#if __COMMENT__
-
 /* 1*DIGIT */
-static transition_type decimal1more_fsm[] = {
-	  { 0,-1, M::chr(_DIGITS).m, FSM_ACCEPT, 0, 0 }
+static fsm_type::transition_type decimal1more_tr[] = {
+	{ 0,-1, fsm_type::one_of(_DIGITS), fsm_type::accept, 0, 0 }
 };
 
 /* 2*DIGIT */
-static transition_type decimal2more_fsm[] = {
-	  { 1,-1, M::chr(_DIGITS).m, FSM_NORMAL, 0, 0 }
-	, { 1,-1, M::chr(_DIGITS).m, FSM_ACCEPT, 0, 0 }
+static fsm_type::transition_type decimal2more_tr[] = {
+	  { 1,-1, fsm_type::one_of(_DIGITS), fsm_type::normal, 0, 0 }
+	, { 1,-1, fsm_type::one_of(_DIGITS), fsm_type::accept, 0, 0 }
 };
 
 /* 1*HEXDIG_FSM */
-static transition_type hex_fsm[] = {
-      { 0,-1, M::tr(hexdig_tr).m, FSM_ACCEPT, 0, 0 }
+static fsm_type::transition_type hex_tr[] = {
+    { 0,-1, fsm_type::tr(hexdig_tr), fsm_type::accept, 0, 0 }
 };
 
 static void test_repetition_1or2more ()
@@ -223,10 +251,10 @@ static void test_repetition_1or2more ()
 	sequence_type const hex("BEAF");
 	sequence_type const nothex("BEAR");
 
-	fsm_type fsm(decimal1more_fsm, 0);
+	fsm_type fsm(decimal1more_tr, 0);
 
 	sequence_type::const_iterator it_end;
-	result_type r;
+	fsm_type::result_type r;
 
 	it_end = dec.cbegin();
 	r = fsm.exec(0, dec.cbegin(), it_end);
@@ -260,7 +288,7 @@ static void test_repetition_1or2more ()
 	r = fsm.exec(0, notdec.cbegin(), it_end);
 	TEST_FAIL(!r.first);
 
-	fsm.set_transition_table(decimal2more_fsm);
+	fsm.set_transition_table(decimal2more_tr);
 
 	it_end = dec.cbegin();
 	r = fsm.exec(0, dec.cbegin(), it_end);
@@ -282,7 +310,7 @@ static void test_repetition_1or2more ()
 	r = fsm.exec(0, dec.cbegin(), it_end);
 	TEST_FAIL(r.first && pfs::distance(dec.cbegin(), r.second) == 4);
 
-	fsm.set_transition_table(hex_fsm);
+	fsm.set_transition_table(hex_tr);
 
 	it_end = hex.cbegin();
 	r = fsm.exec(0, hex.cbegin(), it_end);
@@ -326,21 +354,21 @@ static void test_repetition_1or2more ()
 }
 
 /* NON-ZERO_DIGIT *DIGIT */
-static transition_type non_zero_decimal_fsm[] = {
-	  { 1,-1, M::chr(sequence_type("123456789")).m, FSM_ACCEPT, 0, 0 }
-	, { 1,-1, M::chr(_DIGITS).m                   , FSM_ACCEPT, 0, 0 }
+static fsm_type::transition_type non_zero_decimal_tr[] = {
+	  { 1,-1, fsm_type::one_of(sequence_type("123456789")), fsm_type::accept, 0, 0 }
+	, { 1,-1, fsm_type::one_of(_DIGITS)                   , fsm_type::accept, 0, 0 }
 };
 
 
 /* (non-zero-dec dec)  / ( "0" ("x" / "X") hex ) */
-static transition_type number_fsm[] = {
-	  {-1, 1, M::tr(non_zero_decimal_fsm).m   , FSM_ACCEPT, 0, 0 }
-	, { 2,-1, M::sub(sequence_type("0")).m , FSM_NORMAL, 0, 0 }
-	, { 3,-1, M::chr(sequence_type("xX")).m   , FSM_NORMAL, 0, 0 }
-	, {-1,-1, M::tr(hex_fsm).m                , FSM_ACCEPT, 0, 0 }
+static fsm_type::transition_type number_tr[] = {
+	  {-1, 1, fsm_type::tr(non_zero_decimal_tr)    , fsm_type::accept, 0, 0 }
+	, { 2,-1, fsm_type::subseq(sequence_type("0")) , fsm_type::normal, 0, 0 }
+	, { 3,-1, fsm_type::one_of(sequence_type("xX")), fsm_type::normal, 0, 0 }
+	, {-1,-1, fsm_type::tr(hex_tr)                 , fsm_type::accept, 0, 0 }
 };
 
-static void test_alternatives(void)
+static void test_alternatives ()
 {
     ADD_TESTS(16);
 
@@ -348,19 +376,22 @@ static void test_alternatives(void)
 	sequence_type const decimal("1972");
 	sequence_type const notnumber("[number]");
     
-	fsm_type fsm(number_fsm, 0);
+	fsm_type fsm(number_tr, 0);
 
 	sequence_type::const_iterator it_end;
-	result_type r;
+	fsm_type::result_type r;
 
 	it_end = hex.cbegin();
-	TEST_FAIL(fsm.exec(0, hex.cbegin(), it_end) == result_type(false, it_end));
+	TEST_FAIL(fsm.exec(0, hex.cbegin(), it_end) 
+            == fsm_type::result_type(false, it_end));
 
 	pfs::advance(it_end, 1);
-	TEST_FAIL(fsm.exec(0, hex.cbegin(), it_end) == result_type(false, it_end));
+	TEST_FAIL(fsm.exec(0, hex.cbegin(), it_end) 
+            == fsm_type::result_type(false, it_end));
 
 	pfs::advance(it_end, 1);
-	TEST_FAIL(fsm.exec(0, hex.cbegin(), it_end) == result_type(false, it_end));
+	TEST_FAIL(fsm.exec(0, hex.cbegin(), it_end)
+            == fsm_type::result_type(false, it_end));
 
 	pfs::advance(it_end, 1);
 	r = fsm.exec(0, hex.cbegin(), it_end);
@@ -379,7 +410,8 @@ static void test_alternatives(void)
 	TEST_FAIL(r.first && pfs::distance(hex.cbegin(), r.second) == 6);
 
 	it_end = decimal.cbegin();
-	TEST_FAIL(fsm.exec(0, decimal.cbegin(), it_end) == result_type(false, it_end));
+	TEST_FAIL(fsm.exec(0, decimal.cbegin(), it_end) 
+            == fsm_type::result_type(false, it_end));
 
 	pfs::advance(it_end, 1);
 	r = fsm.exec(0, decimal.cbegin(), it_end);
@@ -399,21 +431,24 @@ static void test_alternatives(void)
 
 	it_end = notnumber.cbegin();
 	pfs::advance(it_end, 1);
-	TEST_FAIL(fsm.exec(0, notnumber.cbegin(), it_end) == result_type(false, it_end));
+	TEST_FAIL(fsm.exec(0, notnumber.cbegin(), it_end)
+            == fsm_type::result_type(false, it_end));
 
 	pfs::advance(it_end, 1);
-	TEST_FAIL(fsm.exec(0, notnumber.cbegin(), it_end) == result_type(false, it_end));
+	TEST_FAIL(fsm.exec(0, notnumber.cbegin(), it_end) 
+            == fsm_type::result_type(false, it_end));
 
 	pfs::advance(it_end, 1);
-	TEST_FAIL(fsm.exec(0, notnumber.cbegin(), it_end) == result_type(false, it_end));
+	TEST_FAIL(fsm.exec(0, notnumber.cbegin(), it_end)
+            == fsm_type::result_type(false, it_end));
 
 	pfs::advance(it_end, 5);
-	TEST_FAIL(fsm.exec(0, notnumber.cbegin(), it_end) == result_type(false, it_end));
+	TEST_FAIL(fsm.exec(0, notnumber.cbegin(), it_end) 
+            == fsm_type::result_type(false, it_end));
 }
 
-
-static pfs::fsm::transition<pfs::string> rpt_fsm[] = {
-	  {-1,-1, M::rpt_sub(sequence_type("_ABC"), 0, 10).m , FSM_ACCEPT, 0, 0 }
+static fsm_type::transition_type rpt_tr[] = {
+	{-1,-1, fsm_type::rpt_subseq(sequence_type("_ABC"), 0, 10), fsm_type::accept, 0, 0 }
 };
 
 void test_rpt ()
@@ -421,13 +456,11 @@ void test_rpt ()
     ADD_TESTS(1);
     
     static sequence_type const rpt_chars("_ABC_ABC_ABC_ABC");
-	fsm_type fsm(rpt_fsm, 0);
+	fsm_type fsm(rpt_tr, 0);
     
 	TEST_FAIL(fsm.exec(0, rpt_chars.begin(), rpt_chars.end())
-			== result_type(true, rpt_chars.end()));
+			== fsm_type::result_type(true, rpt_chars.end()));
 }
-
-#endif
 
 int main(int argc, char *argv[])
 {
@@ -436,15 +469,15 @@ int main(int argc, char *argv[])
 
 	BEGIN_TESTS(0);
 
-	test_alternatives_simple();
+    test_alternatives_simple();
     test_length();
     test_subseq();
     test_range();
-//	test_repetition_0more();
-    
-//	test_repetition_1or2more();
-//	test_alternatives();
-//	test_rpt();
+    test_func();
+    test_repetition_0more();
+    test_repetition_1or2more();
+    test_alternatives();
+    test_rpt();
 
 	return END_TESTS;
 }
