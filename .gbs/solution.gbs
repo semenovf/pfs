@@ -50,3 +50,6 @@ project "test-mpl-fsm"
 
 --project "test-mpl-vector"
 --    include("test-mpl-vector/project.gbs")
+
+project "test-mpl-uri"
+    include("test-mpl-uri/project.gbs")

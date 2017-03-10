@@ -1,0 +1,39 @@
+--************************************************************
+--* Generated automatically by `gbs'
+--* Command: `gbs prj --create --type=test --name=test-mpl-uri'
+--* Date:    Fri Mar 10 15:53:40 2017
+--************************************************************
+
+kind          "ConsoleApp"
+language      "C++"
+targetname    "test-mpl-uri"
+defines       {  }
+includedirs   { "../../include" }
+libdirs       { "../../../.build" }
+files         { "../../tests/test-mpl-uri/*.c", "../../tests/test-mpl-uri/*.cpp" }
+
+configuration "debug"
+    flags        { "FatalWarnings", "Symbols" }
+    defines      { "DEBUG" }
+    objdir       "../../../.build/pfs-mpl/test-mpl-uri/debug"
+    targetdir    "../../../.build/tests"
+    targetsuffix "-d"
+    links        {  }
+
+configuration "release"
+    flags        { "FatalWarnings" }
+    defines      { "NDEBUG" }
+    objdir       "../../../.build/pfs-mpl/test-mpl-uri/release"
+    targetdir    "../../../.build/tests"
+    links        {  }
+
+
+filter "action:gmake"
+    buildoptions {}
+    linkoptions  {}
+
+include(os.getenv("GBS_HOME") .. "/premake/filter_action_gmake_install")
+
+filter { "debug", "action:gmake" }
+    linkoptions  { "-rdynamic" }
+

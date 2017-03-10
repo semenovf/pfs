@@ -110,9 +110,9 @@ public:
                 , size_type>(n);
     }
 
-    static match_type subseq (sequence_type const & seq)
+    static match_type seq (sequence_type const & seq)
     {
-        return match_type::template make<typename match_type::match_subseq
+        return match_type::template make<typename match_type::match_seq
                 , sequence_type const &>(seq);
     }
     
@@ -153,17 +153,17 @@ public:
         return rpt_one_of(seq, 0, 1);
 	};
     
-    static match_type rpt_subseq (sequence_type const & seq
+    static match_type rpt_seq (sequence_type const & seq
             , size_type from
             , size_type to)
 	{
-        return match_type::template make_rpt<typename match_type::match_subseq
+        return match_type::template make_rpt<typename match_type::match_seq
                 , sequence_type const &>(seq, from, to);
 	};
 
-  	static match_type opt_subseq (sequence_type const & seq)
+  	static match_type opt_seq (sequence_type const & seq)
 	{
-        return rpt_subseq(seq, 0, 1);
+        return rpt_seq(seq, 0, 1);
 	};
 
  	static match_type rpt_range (

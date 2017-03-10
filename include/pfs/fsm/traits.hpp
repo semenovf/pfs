@@ -37,7 +37,7 @@ struct match_traits
             , const_iterator end
             , sequence_type const & seq);
 
-    static result_type xmatch_subseq (
+    static result_type xmatch_seq (
               const_iterator begin
             , const_iterator end
             , sequence_type const & seq);
@@ -88,7 +88,7 @@ match_traits<Sequence, Atomic>::xmatch_one_of (const_iterator begin
 
 template <typename Sequence, typename Atomic>
 typename match_traits<Sequence, Atomic>::result_type
-match_traits<Sequence, Atomic>::xmatch_subseq (const_iterator begin
+match_traits<Sequence, Atomic>::xmatch_seq (const_iterator begin
             , const_iterator end
             , sequence_type const & seq)
 {

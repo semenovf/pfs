@@ -73,7 +73,7 @@ static fsm_type::transition_type alphabet_length_tr[] = {
 
 static fsm_type::transition_type z_pos_tr[] = {
 	  { 1,-1, fsm_type::length(25)                , fsm_type::normal, 0, 0 }
-	, { 2,-1, fsm_type::subseq(sequence_type("Z")), fsm_type::normal, 0, 0 }
+	, { 2,-1, fsm_type::seq(sequence_type("Z")), fsm_type::normal, 0, 0 }
 	, { 3,-1, fsm_type::length(25)                , fsm_type::normal, 0, 0 }
 	, {-1,-1, fsm_type::one_of(sequence_type("z")), fsm_type::accept, 0, 0 }
 };
@@ -93,14 +93,14 @@ void test_length ()
 }
 
 static fsm_type::transition_type subseq_tr[] = {
-	  { 1,-1, fsm_type::subseq(sequence_type("ABCD")), fsm_type::normal, 0, 0 }
-	, { 2,-1, fsm_type::subseq(sequence_type("EFGH")), fsm_type::normal, 0, 0 }
-	, { 3,-1, fsm_type::subseq(sequence_type("IJKL")), fsm_type::normal, 0, 0 }
-	, { 4,-1, fsm_type::subseq(sequence_type("MNOP")), fsm_type::normal, 0, 0 }
-	, { 5,-1, fsm_type::subseq(sequence_type("QRST")), fsm_type::normal, 0, 0 }
-	, { 6,-1, fsm_type::subseq(sequence_type("UVWX")), fsm_type::normal, 0, 0 }
-	, { 7,-1, fsm_type::subseq(sequence_type("YZ"))  , fsm_type::normal, 0, 0 }
-    , {-1,-1, fsm_type::subseq(sequence_type("abcdefghijklmnopqrstuvwxyz")), fsm_type::accept, 0, 0 }
+	  { 1,-1, fsm_type::seq(sequence_type("ABCD")), fsm_type::normal, 0, 0 }
+	, { 2,-1, fsm_type::seq(sequence_type("EFGH")), fsm_type::normal, 0, 0 }
+	, { 3,-1, fsm_type::seq(sequence_type("IJKL")), fsm_type::normal, 0, 0 }
+	, { 4,-1, fsm_type::seq(sequence_type("MNOP")), fsm_type::normal, 0, 0 }
+	, { 5,-1, fsm_type::seq(sequence_type("QRST")), fsm_type::normal, 0, 0 }
+	, { 6,-1, fsm_type::seq(sequence_type("UVWX")), fsm_type::normal, 0, 0 }
+	, { 7,-1, fsm_type::seq(sequence_type("YZ"))  , fsm_type::normal, 0, 0 }
+    , {-1,-1, fsm_type::seq(sequence_type("abcdefghijklmnopqrstuvwxyz")), fsm_type::accept, 0, 0 }
 };
 
 void test_subseq ()
@@ -363,7 +363,7 @@ static fsm_type::transition_type non_zero_decimal_tr[] = {
 /* (non-zero-dec dec)  / ( "0" ("x" / "X") hex ) */
 static fsm_type::transition_type number_tr[] = {
 	  {-1, 1, fsm_type::tr(non_zero_decimal_tr)    , fsm_type::accept, 0, 0 }
-	, { 2,-1, fsm_type::subseq(sequence_type("0")) , fsm_type::normal, 0, 0 }
+	, { 2,-1, fsm_type::seq(sequence_type("0")) , fsm_type::normal, 0, 0 }
 	, { 3,-1, fsm_type::one_of(sequence_type("xX")), fsm_type::normal, 0, 0 }
 	, {-1,-1, fsm_type::tr(hex_tr)                 , fsm_type::accept, 0, 0 }
 };
@@ -448,7 +448,7 @@ static void test_alternatives ()
 }
 
 static fsm_type::transition_type rpt_tr[] = {
-	{-1,-1, fsm_type::rpt_subseq(sequence_type("_ABC"), 0, 10), fsm_type::accept, 0, 0 }
+	{-1,-1, fsm_type::rpt_seq(sequence_type("_ABC"), 0, 10), fsm_type::accept, 0, 0 }
 };
 
 void test_rpt ()

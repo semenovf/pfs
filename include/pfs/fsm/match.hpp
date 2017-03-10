@@ -115,7 +115,7 @@ public:
         {}
     };
 
-    class match_subseq : public match_base
+    class match_seq : public match_base
     {
         sequence_type _seq;
 
@@ -123,11 +123,11 @@ public:
                 , const_iterator begin
                 , const_iterator end) const
         {
-            return match_traits_type::xmatch_subseq(begin, end, _seq);
+            return match_traits_type::xmatch_seq(begin, end, _seq);
         }
 
     public:
-        match_subseq (sequence_type const & seq)
+        match_seq (sequence_type const & seq)
                 : _seq(seq)
         {}
     };
