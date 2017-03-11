@@ -11,8 +11,8 @@
  * Created on February 9, 2017, 1:23 PM
  */
 
-#ifndef __PFS_TEST_ERASE_HPP__
-#define __PFS_TEST_ERASE_HPP__
+#ifndef __TEST_ERASE_HPP__
+#define __TEST_ERASE_HPP__
 
 template <typename Foundation, typename CharT>
 void test_erase ()
@@ -86,4 +86,4 @@ void test_erase ()
     }
 }
 
-#endif /* __PFS_TEST_ERASE_HPP__ */
+#endif /* __TEST_ERASE_HPP__ */

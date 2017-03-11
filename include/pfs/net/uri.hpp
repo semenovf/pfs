@@ -8,6 +8,7 @@
 #ifndef __PFS_NET_URI_HPP__
 #define __PFS_NET_URI_HPP__
 
+#include <pfs/traits/string.hpp>
 #include <pfs/traits/map.hpp>
 #include <pfs/traits/vector.hpp>
 #include <pfs/algo/split.hpp>
@@ -20,16 +21,20 @@ namespace net {
  * Qt   QUrl, QUrlQuery (for query string parsing)
  */
 
-template <typename StringT>
+template <typename Foundation, typename CharT>
 class uri
 {
 public:
-    typedef StringT string_type;
-    typedef traits::map<string_type, string_type> items_map_type;
+    typedef traits::string<Foundation, CharT> string_type;
+    typedef traits::map<Foundation, string_type, string_type> items_map_type;
     
     struct data_rep
     {
-        data() : port(0), host_is_ip(false) {}
+        data_rep ()
+            : port(0)
+            , is_raw_host(false)
+        {}
+        
         void clear ();
 
         string_type scheme;
@@ -41,59 +46,11 @@ public:
         string_type path;
         string_type query;
         string_type fragment;
-        bool        host_is_ip;
+        bool        is_raw_host;
     };
 
 private:
 	data_rep _d;
-
-private:
-    //
-    // Parser specific functions
-    //
-    static bool set_scheme (string_type::const_iterator begin
-            , string_type::const_iterator end
-            , void * context
-            , void * action_args);
-    
-    static bool set_query (string_type::const_iterator begin
-            , string_type::const_iterator end
-            , void * context
-            , void * action_args);
-    
-    static bool set_fragment (string_type::const_iterator begin
-            , string_type::const_iterator end
-            , void * context, void * action_args);
-    
-    static bool set_path (string_type::const_iterator begin
-            , string_type::const_iterator end
-            , void * context
-            , void * action_args);
-    
-    static bool set_userinfo (string_type::const_iterator begin
-            , string_type::const_iterator end
-            , void * context
-            , void * action_args);
-    
-    static bool unset_userinfo (string_type::const_iterator begin
-            , string_type::const_iterator end
-            , void * context
-            , void * action_args);
-    
-    static bool set_host (string_type::const_iterator begin
-            , string_type::const_iterator end
-            , void * context
-            , void * action_args);
-    
-    static bool set_port (string_type::const_iterator begin
-            , string_type::const_iterator end
-            , void * context
-            , void * action_args);
-    
-    static bool set_host_is_ip (string_type::const_iterator begin
-            , string_type::const_iterator end
-            , void * context
-            , void * action_args);
 
 public:
 	uri ()
@@ -169,7 +126,7 @@ public:
 	 */
 	bool host_is_ip () const
 	{
-		return _d.hostIsIp;
+		return _d.is_raw_host;
 	}
 
 	items_map_type query_items (
@@ -181,8 +138,8 @@ public:
 	string_type to_string () const;
 };
 
-template <typename StringT>
-void uri<StringT>::data_rep::clear()
+template <typename Foundation, typename CharT>
+void uri<Foundation, CharT>::data_rep::clear()
 {
 	scheme.clear();
 	authority.clear();
@@ -192,16 +149,16 @@ void uri<StringT>::data_rep::clear()
 	path.clear();
 	query.clear();
 	fragment.clear();
-	host_is_ip = false;
+	is_raw_host = false;
 }
 
-template <typename StringT>
-typename uri<StringT>::items_map_type
-uri<StringT>::query_items (
+template <typename Foundation, typename CharT>
+typename uri<Foundation, CharT>::items_map_type
+uri<Foundation, CharT>::query_items (
 		  string_type const & value_delim
 		, string_type const & pair_delim)
 {
-    typedef vector<string_type> stringlist_type;
+    typedef traits::vector<Foundation, string_type> stringlist_type;
 	items_map_type r;
 
 	stringlist_type pairs;
@@ -210,8 +167,8 @@ uri<StringT>::query_items (
             , pfs::keep_empty
             , & pairs);
 
-	stringlist_type::const_iterator it = pairs.cbegin();
-	stringlist_type::const_iterator it_end = pairs.cend();
+	typename stringlist_type::const_iterator it = pairs.cbegin();
+	typename stringlist_type::const_iterator it_end = pairs.cend();
 
 	while (it != it_end) {
 		stringlist_type pair;
@@ -232,9 +189,9 @@ uri<StringT>::query_items (
 	return r;
 }
 
-template <typename StringT>
-typename uri<StringT>::string_type 
-uri<StringT>::to_string () const
+template <typename Foundation, typename CharT>
+typename uri<Foundation, CharT>::string_type 
+uri<Foundation, CharT>::to_string () const
 {
 	string_type r;
 
@@ -285,18 +242,6 @@ uri<StringT>::to_string () const
 }
 
 }} // pfs::net
-
-namespace pfs {
-
-template <typename StringT>
-inline StringT to_string (net::uri<StringT> const & u)
-{
-    return u.to_string();
-}
-
-} // pfs
-
-#include "uri_rfc3986.hpp"
 
 #endif /* __PFS_NET_URI_HPP__ */
 

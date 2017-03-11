@@ -31,6 +31,8 @@ struct string_traits
     typedef native_type const &                          const_native_reference;
     typedef typename native_type::size_type              size_type;
     typedef typename native_type::value_type             value_type;
+    typedef typename native_type::reference              reference;
+    typedef typename native_type::const_reference        const_reference;
     typedef typename native_type::const_pointer          const_pointer;
     typedef typename native_type::iterator               iterator;
     typedef typename native_type::const_iterator         const_iterator;
@@ -140,7 +142,17 @@ struct string_traits
     {
         d.clear();
     }
+
+    static void xappend (data_type & d, size_type count, const_reference ch)
+    {
+        d.append(count, ch);
+    }
     
+    static void xappend (data_type & d, const_pointer s, size_type count)
+    {
+        d.append(s, count);
+    }
+
     static void xinsert (data_type & d, size_type index, size_type count, value_type ch)
     {
         d.insert(index, count, ch);

@@ -30,6 +30,8 @@ struct string_traits
     typedef native_type const & const_native_reference;
     typedef size_t        size_type;
     typedef CharT         value_type;
+    typedef CharT &       reference;
+    typedef CharT const & const_reference;
     typedef CharT const * const_pointer;
     typedef CharT *       iterator;
     typedef CharT const * const_iterator;
@@ -72,6 +74,9 @@ struct string_traits
     static iterator xerase (data_type & d, const_iterator first, const_iterator last);
 
     static void xclear (data_type & d);
+   
+    static void xappend (data_type & d, size_type count, const_reference ch);
+    static void xappend (data_type & d, const_pointer s, size_type count);
     
     static void xinsert (data_type & d, size_type index, size_type count, value_type ch);
     static void xinsert (data_type & d, size_type index, const_pointer s);
@@ -88,17 +93,22 @@ template <typename Foundation, typename CharT>
 class string
 {
 public:
+    typedef Foundation                                   foundation;
     typedef string_traits<Foundation, CharT>             traits_type;
     typedef typename traits_type::native_type            native_type;
     typedef typename traits_type::const_native_reference const_native_reference;
     typedef typename traits_type::size_type              size_type;
     typedef typename traits_type::value_type             value_type;
+    typedef typename traits_type::reference              reference;
+    typedef typename traits_type::const_reference        const_reference;
     typedef typename traits_type::const_pointer          const_pointer;
     typedef typename traits_type::const_iterator         iterator;
     typedef typename traits_type::const_iterator         const_iterator;
     typedef typename traits_type::const_reverse_iterator const_reverse_iterator;
     typedef typename traits_type::data_type              data_type;
-    
+
+    static size_type const npos = size_type(-1);
+
 private:
     data_type _d;
     
@@ -393,6 +403,41 @@ public:
     void clear ()
     {
         traits_type::xclear(_d);
+    }
+    
+    string & append (size_type count, const_reference ch)
+    {
+        traits_type::xappend(_d, count, ch);
+        return *this;
+    }
+    
+    string & append (string const & str)
+    {
+        return append(str, 0, str.size());
+    }
+    
+    string & append (string const & str
+                , size_type pos
+                , size_type count)
+    {
+        if (pos >= str.size())
+            throw out_of_range("string::append()");
+        
+        if (count == size_type(-1) || pos + count > str.size())
+            count = str.size() - pos;
+        
+        return append(str.data() + pos, count);
+    }
+    
+    string & append (const_pointer s, size_type count)
+    {
+        traits_type::xappend(_d, s, count);
+        return *this;
+    }
+    
+    string & append (const_pointer s)
+    {
+        return append(s, traits_type::xlength(s));
     }
     
     string & insert (size_type index, size_type count, value_type ch);

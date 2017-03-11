@@ -11,7 +11,7 @@
 #define __PFS_FSM_TEST_HPP__
 
 #include <pfs/test/test.hpp>
-#include <pfs/fsm.hpp>
+#include <pfs/fsm/fsm.hpp>
 
 namespace pfs { namespace fsm {
 

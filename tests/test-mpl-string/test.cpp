@@ -59,6 +59,7 @@ void test_description (char const * title)
 #define STR_MID     4
 #define STR_DIFF    4
 #define STR_EMPTY   5
+#define STR_CONCAT  6
 
 template <typename CharT>
 CharT const * string_samples (int i);
@@ -73,6 +74,7 @@ char const * string_samples<char> (int i)
         , "BCDEF"
         , "BCDE"
         , ""
+        , "ABCDEFABCDEF"
     };
     
     return s[i];
@@ -88,6 +90,7 @@ wchar_t const * string_samples<wchar_t> (int i)
         , L"BCDEF"
         , L"BCDE"
         , L""
+        , L"ABCDEFABCDEF"
     };
     
     return s[i];
@@ -104,6 +107,7 @@ QChar const * string_samples<QChar> (int i)
         , QString("BCDEF")
         , QString("BCDE")
         , QString()
+        , QString("ABCDEFABCDEF")
     };
     
     return s[i].constData();
@@ -116,6 +120,7 @@ QChar const * string_samples<QChar> (int i)
 #include "test_substr.hpp"
 #include "test_cast.hpp"
 #include "test_erase.hpp"
+#include "test_append.hpp"
 
 int main (int argc, char *argv[])
 {
@@ -140,6 +145,9 @@ int main (int argc, char *argv[])
     test_erase<foundation::stdcxx, char>();
     test_erase<foundation::stdcxx, wchar_t>();
 
+    test_append<foundation::stdcxx, char>();
+    test_append<foundation::stdcxx, wchar_t>();
+
 #ifdef QT_CORE_LIB
     test_basic<foundation::qt, QChar>();
     test_find<foundation::qt, QChar>();
@@ -150,6 +158,7 @@ int main (int argc, char *argv[])
     test_compare_cstr<foundation::qt, QChar>();
     
     test_erase<foundation::qt, QChar>();
+    test_append<foundation::qt, QChar>();
 #endif
 
     return END_TESTS;

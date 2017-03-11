@@ -292,4 +292,3 @@ inline void swap (map<Foundation, Key, T> const & lhs
 }} // pfs::traits
 
 #endif /* __PFS_MAP_HPP__ */
-

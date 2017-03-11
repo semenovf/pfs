@@ -108,6 +108,7 @@ void test_subscript ()
     try {
         // throw, even if capacity allowed to access element
         (void)str[6];
+        TEST_FAIL2(false, "expected `out_of_range` exception throw");
     } catch (pfs::out_of_range const & ex) {
         TEST_OK2(true, "`out_of_range` exception throw");
         std::cout << ex.what() << std::endl;

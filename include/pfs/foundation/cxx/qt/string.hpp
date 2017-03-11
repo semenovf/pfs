@@ -23,6 +23,8 @@ struct string_traits<foundation::qt, QChar>
     typedef QString const &                       const_native_reference;
     typedef size_t                                size_type;
     typedef QString::value_type                   value_type;
+    typedef QString::reference                    reference;
+    typedef QString::const_reference              const_reference;
     typedef QChar const *                         const_pointer;
     typedef QString::iterator                     iterator;
     typedef QString::const_iterator               const_iterator;
@@ -135,6 +137,16 @@ struct string_traits<foundation::qt, QChar>
     static void xclear (data_type & d)
     {
         d.clear();
+    }
+
+    static void xappend (data_type & d, size_type count, const_reference ch)
+    {
+        d.append(QString(count, ch));
+    }
+    
+    static void xappend (data_type & d, const_pointer s, size_type count)
+    {
+        d.append(QString(s, count));
     }
 
     static void xinsert (data_type & d, size_type index, size_type count, value_type ch)

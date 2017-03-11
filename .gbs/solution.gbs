@@ -18,8 +18,8 @@ solution "pfs-mpl"
 --project "test-mpl-iterator"
 --    include("test-mpl-iterator/project.gbs")
 
---project "test-mpl-string"
---    include("test-mpl-string/project.gbs")
+project "test-mpl-string"
+    include("test-mpl-string/project.gbs")
 
 --project "test-mpl-list"
 --    include("test-mpl-list/project.gbs")
