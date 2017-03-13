@@ -82,7 +82,7 @@ public:
         : _pcontext(new context_type(initial, 0))
     {}
 
- 	void set_transition_table (transition<Sequence, Atomic> * tb)
+ 	void set_transition_table (transition_type const * tb)
 	{
 		_pcontext->trans_tab = tb;
 	}

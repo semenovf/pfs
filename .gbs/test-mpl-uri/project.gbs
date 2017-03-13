@@ -18,14 +18,14 @@ configuration "debug"
     objdir       "../../../.build/pfs-mpl/test-mpl-uri/debug"
     targetdir    "../../../.build/tests"
     targetsuffix "-d"
-    links        {  }
+    links        { "pfs-test-d" }
 
 configuration "release"
     flags        { "FatalWarnings" }
     defines      { "NDEBUG" }
     objdir       "../../../.build/pfs-mpl/test-mpl-uri/release"
     targetdir    "../../../.build/tests"
-    links        {  }
+    links        { "pfs-test" }
 
 
 filter "action:gmake"

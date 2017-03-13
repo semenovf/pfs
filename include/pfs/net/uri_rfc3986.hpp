@@ -250,6 +250,17 @@ struct uri_grammar
     static transition_type const * p_uri_reference_tr;
 };
 
+#if __PFS_TEST__
+template <typename UriT>
+typename uri_grammar<UriT>::transition_type const * uri_grammar<UriT>::p_authority_tr = 0;
+#endif
+
+template <typename UriT>
+typename uri_grammar<UriT>::transition_type const * uri_grammar<UriT>::p_uri_tr = 0;
+
+template <typename UriT>
+typename uri_grammar<UriT>::transition_type const * uri_grammar<UriT>::p_uri_reference_tr = 0;
+
 template <typename UriT>
 uri_grammar<UriT>::uri_grammar ()
 {
@@ -782,6 +793,10 @@ uri_grammar<UriT>::uri_grammar ()
     
     p_uri_tr = & uri_tr[0];
     p_uri_reference_tr = & uri_reference_tr[0];
+    
+#if __PFS_TEST__
+    p_authority_tr = & authority_tr[0];
+#endif
 }
 
 template <typename StringT>
@@ -795,7 +810,7 @@ bool uri_grammar<StringT>::set_port (const_iterator begin
 		string_type digits(begin, end);
 
 		bool ok;
-		ctx->port = digits.template lexical_cast<uint16_t>(& ok);
+		ctx->port = lexical_cast<string_type, uint16_t>(digits, 10, & ok);
 
 		if (!ok) {
 			return false;

@@ -238,19 +238,28 @@ static pfs::fsm::test_entry __test_entries[] = {
 
 #endif
 
-using pfs::fsm::test_valid_entry;
-using pfs::fsm::test_invalid_entry;
-
 typedef pfs::traits::string<foundation::stdcxx, char> string_type;
 typedef pfs::net::uri<string_type> uri_type;
 typedef pfs::net::uri_grammar<uri_type> uri_grammar_type;
 
+typedef pfs::fsm::test_valid_entry<string_type> test_valid_entry;
+typedef pfs::fsm::test_invalid_entry<string_type> test_invalid_entry;
+
+static uri_grammar_type grammar; // Initialize static members
+
 void test_uri_tr ()
 {
 	ADD_TESTS(25);
-
-	TEST_OK((test_valid_entry<string_type, size_t>(*uri_grammar_type::p_authority_tr, 0, string_type("192.168.1.1"))));
-	TEST_OK((test_valid_entry<string_type, size_t>(*uri_grammar_type::p_authority_tr, 0, string_type("user@192.168.1.1"))));
+    
+	TEST_OK(test_valid_entry()(
+              uri_grammar_type::p_authority_tr
+            , 0
+            , string_type("192.168.1.1")));
+    
+//	TEST_OK((pfs::fsm::test_valid_entry<string_type>(
+//              uri_grammar_type::p_authority_tr
+//            , 0
+//            , string_type("user@192.168.1.1"))));
 
 //	// ALPHA / DIGIT / "-" / "." / "_" / "~"
 //	//

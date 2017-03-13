@@ -87,6 +87,19 @@ struct string_traits
     static const_pointer xdata (data_type const & d);
     
     static const_native_reference xcast (data_type const & d);
+    
+    static intmax_t xint_cast (const_iterator first
+            , const_iterator last
+            , int radix
+            , intmax_t min_value
+            , uintmax_t max_value
+            , const_iterator * endptr);
+
+    static intmax_t xuint_cast (const_iterator first
+            , const_iterator last
+            , int radix
+            , uintmax_t max_value
+            , const_iterator * endptr);
 };
 
 template <typename Foundation, typename CharT>
@@ -474,19 +487,6 @@ public:
         traits_type::xpush_back(_d, ch);
     }
 
-    template <typename T>
-    T lexical_cast (bool * ok);
-
-    template <typename T>
-    T lexical_cast ()
-    {
-        bool ok = true;
-        T result = lexical_cast<T>(& ok);
-        if (! ok)
-            throw bad_cast("string::lexical_cast()");
-        return result;
-    }
-    
     template <typename FoundationU, typename CharU>
     friend int compare (string<FoundationU, CharU> const & lhs, char const * rhs);
 
@@ -692,6 +692,28 @@ template <typename Foundation, typename CharT>
 class c_wstr;
 
 }} // pfs::traits
+
+namespace pfs {
+
+template <typename StringT, typename Integer>
+Integer lexical_cast (StringT const & s, int radix, bool * ok)
+{
+    // TODO Implement
+    ..
+}
+
+template <typename StringT, typename Integer>
+typename pfs::enable_if<pfs::is_integral<Integer>::value,Integer>::type
+lexical_cast (StringT const & s, int radix = 10)
+{
+    bool ok = true;
+    Integer result = lexical_cast<StringT, Integer>(s, radix, & ok);
+    if (! ok)
+        throw bad_cast("lexical_cast()");
+    return result;
+}
+
+}
 
 namespace std {
 

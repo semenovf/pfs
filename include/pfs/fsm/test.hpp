@@ -15,8 +15,30 @@
 
 namespace pfs { namespace fsm {
 
+template <typename Sequence, typename Atomic = size_t>
+struct test_valid_entry
+{
+    test_valid_entry () {}
+    
+    bool operator () (transition<Sequence, Atomic> const * trans_tab
+        , void * user_context
+        , Sequence const & s);
+};
+
+template <typename Sequence, typename Atomic = size_t>
+struct test_invalid_entry
+{
+    test_invalid_entry () {}
+    
+    bool operator () (transition<Sequence, Atomic> const * trans_tab
+        , void * user_context
+        , Sequence const & s
+        , ssize_t offset);
+};
+
 template <typename Sequence, typename Atomic>
-bool test_valid_entry (transition<Sequence, Atomic> * trans_tab
+bool test_valid_entry<Sequence, Atomic>::operator () (
+          transition<Sequence, Atomic> const * trans_tab
         , void * user_context
         , Sequence const & s)
 {
@@ -30,7 +52,8 @@ bool test_valid_entry (transition<Sequence, Atomic> * trans_tab
 }
 
 template <typename Sequence, typename Atomic>
-bool test_invalid_entry (transition<Sequence, Atomic> * trans_tab
+bool test_invalid_entry<Sequence, Atomic>::operator () (
+          transition<Sequence, Atomic> const * trans_tab
         , void * user_context
         , Sequence const & s
         , ssize_t offset)
