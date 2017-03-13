@@ -16,7 +16,7 @@
 
 namespace pfs { namespace fsm {
 
-template <typename Sequence, typename Atomic>
+template <typename Sequence, typename Atomic = size_t>
 struct transition
 {
     typedef match<Sequence, Atomic>             match_type;
@@ -33,7 +33,7 @@ struct transition
     void *     action_args;
 };
 
-template <typename Sequence, typename Atomic>
+template <typename Sequence, typename Atomic = size_t>
 struct context
 {
     typedef transition<Sequence, Atomic> transition_type;

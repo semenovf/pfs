@@ -18,7 +18,7 @@ namespace pfs { namespace fsm {
 template <typename Sequence, typename Atomic>
 bool test_valid_entry (transition<Sequence, Atomic> * trans_tab
         , void * user_context
-        , const Sequence & s)
+        , Sequence const & s)
 {
 	fsm<Sequence, Atomic> f;
 	f.set_transition_table(trans_tab);

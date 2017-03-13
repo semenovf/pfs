@@ -6,9 +6,9 @@
  * @brief URI testing
  */
 
+#define __PFS_TEST__ 1
 
 #include <cstdio>
-
 #include "pfs/foundation/cxx/stdcxx/string.hpp"
 #include "pfs/fsm/test.hpp"
 #include "pfs/net/uri.hpp"
@@ -242,15 +242,15 @@ using pfs::fsm::test_valid_entry;
 using pfs::fsm::test_invalid_entry;
 
 typedef pfs::traits::string<foundation::stdcxx, char> string_type;
-typedef pfs::net::uri<foundation::stdcxx, char> uri_type;
-typedef pfs::net::uri_grammar<string_type> uri_grammar_type;
+typedef pfs::net::uri<string_type> uri_type;
+typedef pfs::net::uri_grammar<uri_type> uri_grammar_type;
 
 void test_uri_tr ()
 {
 	ADD_TESTS(25);
 
-	TEST_OK(test_valid_entry<string_type>(uri_grammar_type::authority_tr, 0, string_type("192.168.1.1")));
-	TEST_OK(test_valid_entry<string_type>(uri_grammar_type::authority_tr, 0, string_type("user@192.168.1.1")));
+	TEST_OK((test_valid_entry<string_type, size_t>(*uri_grammar_type::p_authority_tr, 0, string_type("192.168.1.1"))));
+	TEST_OK((test_valid_entry<string_type, size_t>(*uri_grammar_type::p_authority_tr, 0, string_type("user@192.168.1.1"))));
 
 //	// ALPHA / DIGIT / "-" / "." / "_" / "~"
 //	//

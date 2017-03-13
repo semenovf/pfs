@@ -21,12 +21,12 @@ namespace net {
  * Qt   QUrl, QUrlQuery (for query string parsing)
  */
 
-template <typename Foundation, typename CharT>
+template <typename StringT>
 class uri
 {
 public:
-    typedef traits::string<Foundation, CharT> string_type;
-    typedef traits::map<Foundation, string_type, string_type> items_map_type;
+    typedef StringT string_type;
+//    typedef traits::map<Foundation, string_type, string_type> items_map_type;
     
     struct data_rep
     {
@@ -124,22 +124,22 @@ public:
 	/**
 	 * @brief Checks if host represented as IP address (as opposite to DNS name).
 	 */
-	bool host_is_ip () const
+	bool raw_host () const
 	{
 		return _d.is_raw_host;
 	}
 
-	items_map_type query_items (
-		  string_type const & value_delim = string_type(1, '=')
-		, string_type const & pair_delim = string_type(1, '&'));
+//	items_map_type query_items (
+//		  string_type const & value_delim = string_type(1, '=')
+//		, string_type const & pair_delim = string_type(1, '&'));
 
-	bool parse (string_type const & uri);
+	bool parse (string_type const & str);
 
 	string_type to_string () const;
 };
 
-template <typename Foundation, typename CharT>
-void uri<Foundation, CharT>::data_rep::clear()
+template <typename StringT>
+void uri<StringT>::data_rep::clear()
 {
 	scheme.clear();
 	authority.clear();
@@ -152,46 +152,46 @@ void uri<Foundation, CharT>::data_rep::clear()
 	is_raw_host = false;
 }
 
-template <typename Foundation, typename CharT>
-typename uri<Foundation, CharT>::items_map_type
-uri<Foundation, CharT>::query_items (
-		  string_type const & value_delim
-		, string_type const & pair_delim)
-{
-    typedef traits::vector<Foundation, string_type> stringlist_type;
-	items_map_type r;
+//template <typename Foundation, typename CharT>
+//typename uri<Foundation, CharT>::items_map_type
+//uri<Foundation, CharT>::query_items (
+//		  string_type const & value_delim
+//		, string_type const & pair_delim)
+//{
+//    typedef traits::vector<Foundation, string_type> stringlist_type;
+//	items_map_type r;
+//
+//	stringlist_type pairs;
+//	split(this->query().cbegin(), this->query().cend()
+//            , pair_delim.cbegin(), pair_delim.cend()
+//            , pfs::keep_empty
+//            , & pairs);
+//
+//	typename stringlist_type::const_iterator it = pairs.cbegin();
+//	typename stringlist_type::const_iterator it_end = pairs.cend();
+//
+//	while (it != it_end) {
+//		stringlist_type pair;
+//        
+//        split(it->cbegin(), it->cend()
+//                , value_delim.cbegin(), value_delim.cend()
+//                , pfs::keep_empty
+//                , & pair);
+//
+//		if (!pair.empty()) {
+//			r.insert(items_map_type::value_type(pair[0], pair.size() > 1 
+//                    ? pair[1]
+//                    : string_type()));
+//		}
+//		++it;
+//	}
+//
+//	return r;
+//}
 
-	stringlist_type pairs;
-	split(this->query().cbegin(), this->query().cend()
-            , pair_delim.cbegin(), pair_delim.cend()
-            , pfs::keep_empty
-            , & pairs);
-
-	typename stringlist_type::const_iterator it = pairs.cbegin();
-	typename stringlist_type::const_iterator it_end = pairs.cend();
-
-	while (it != it_end) {
-		stringlist_type pair;
-        
-        split(it->cbegin(), it->cend()
-                , value_delim.cbegin(), value_delim.cend()
-                , pfs::keep_empty
-                , & pair);
-
-		if (!pair.empty()) {
-			r.insert(items_map_type::value_type(pair[0], pair.size() > 1 
-                    ? pair[1]
-                    : string_type()));
-		}
-		++it;
-	}
-
-	return r;
-}
-
-template <typename Foundation, typename CharT>
-typename uri<Foundation, CharT>::string_type 
-uri<Foundation, CharT>::to_string () const
+template <typename StringT>
+typename uri<StringT>::string_type 
+uri<StringT>::to_string () const
 {
 	string_type r;
 

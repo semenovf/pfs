@@ -474,6 +474,19 @@ public:
         traits_type::xpush_back(_d, ch);
     }
 
+    template <typename T>
+    T lexical_cast (bool * ok);
+
+    template <typename T>
+    T lexical_cast ()
+    {
+        bool ok = true;
+        T result = lexical_cast<T>(& ok);
+        if (! ok)
+            throw bad_cast("string::lexical_cast()");
+        return result;
+    }
+    
     template <typename FoundationU, typename CharU>
     friend int compare (string<FoundationU, CharU> const & lhs, char const * rhs);
 

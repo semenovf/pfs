@@ -19,7 +19,7 @@ struct transition;
 template <typename Sequence, typename Atomic>
 struct context;
 
-template <typename Sequence, typename Atomic>
+template <typename Sequence, typename Atomic = size_t>
 class match
 {
 public:
