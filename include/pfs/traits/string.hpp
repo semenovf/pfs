@@ -693,28 +693,6 @@ class c_wstr;
 
 }} // pfs::traits
 
-namespace pfs {
-
-template <typename StringT, typename Integer>
-Integer lexical_cast (StringT const & s, int radix, bool * ok)
-{
-    // TODO Implement
-    ..
-}
-
-template <typename StringT, typename Integer>
-typename pfs::enable_if<pfs::is_integral<Integer>::value,Integer>::type
-lexical_cast (StringT const & s, int radix = 10)
-{
-    bool ok = true;
-    Integer result = lexical_cast<StringT, Integer>(s, radix, & ok);
-    if (! ok)
-        throw bad_cast("lexical_cast()");
-    return result;
-}
-
-}
-
 namespace std {
 
 template <typename Foundation, typename CharT>

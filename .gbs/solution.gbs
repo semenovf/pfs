@@ -51,5 +51,8 @@ project "test-mpl-fsm"
 --project "test-mpl-vector"
 --    include("test-mpl-vector/project.gbs")
 
-project "test-mpl-uri"
-    include("test-mpl-uri/project.gbs")
+--project "test-mpl-uri"
+--    include("test-mpl-uri/project.gbs")
+
+project "test-mpl-lexical_cast"
+    include("test-mpl-lexical_cast/project.gbs")

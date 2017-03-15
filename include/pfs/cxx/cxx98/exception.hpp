@@ -15,12 +15,10 @@
 #define __PFS_CXX98_EXCEPTION_HPP__
 
 #include <stdexcept>
-#include <typeinfo>
 
 namespace pfs {
 
 typedef std::bad_alloc        bad_alloc;
-typedef std::bad_cast         bad_cast;
 typedef std::logic_error      logic_error;
 typedef std::domain_error     domain_error;
 typedef std::invalid_argument invalid_argument;
