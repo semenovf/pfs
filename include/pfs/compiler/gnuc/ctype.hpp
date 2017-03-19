@@ -32,13 +32,13 @@ template <typename CharT>
 bool is_cntrl (CharT c);
 
 template <typename CharT>
-bool is_digit (int c);
+bool is_digit (CharT c);
 
 template <typename CharT>
 bool is_graph (CharT c);
 
 template <typename CharT>
-bool islower (CharT c);
+bool is_lower (CharT c);
 
 template <typename CharT>
 bool is_print (CharT c);
