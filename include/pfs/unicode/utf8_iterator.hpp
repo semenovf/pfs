@@ -9,8 +9,8 @@
 #define __PFS_UNICODE_UTF8_ITERATOR_HPP__
 
 #include <pfs/iterator.hpp>
-#include <pfs/unicode/char.hpp>
 #include <pfs/exception.hpp>
+#include <pfs/unicode/char.hpp>
 
 /* UTF-8
  *
@@ -26,17 +26,29 @@
 namespace pfs {
 namespace unicode {
 
-template <typename OctetIter>
+template <typename OctetIt>
 class utf8_iterator : public iterator_facade<bidirectional_iterator_tag
-        , utf8_iterator
+        , utf8_iterator<OctetIt>
         , char_t
-        , OctetIter
-        , OctetIter &>
+        , char_t *  // unused pointer
+        , char_t &> // unused reference
 {
-    OctetIter _p;
+    OctetIt _p;
+
+public:
+    typedef iterator_facade<bidirectional_iterator_tag
+        , utf8_iterator<OctetIt>
+        , char_t
+        , char_t *
+        , char_t &> base_class;
+    
+    typedef typename base_class::difference_type difference_type;
+    
+private:
+    char_t * operator -> () const; // avoid '->' operator
         
 public:
-    utf8_iterator (D * p)
+    utf8_iterator (OctetIt p)
         : _p(p)
     {}
 
@@ -46,39 +58,11 @@ public:
     }
 
 protected:
-    static void advance_forward (OctetIter & p, difference_type n);
-    static void advance_backward (OctetIter & p, difference_type n);
-    static char_t decode (OctetIter const & p, OctetIter * pnewpos);
-    
-public: // static
-    void advance (OctetIter & p, difference_type n)
-    {
-        advance_forward(p, n);
-    }
-    
-    /**
-     * @brief Decodes UTF-8 octet sequence into Unicode code point.
-     *
-     * @return Unicode code point.
-     */
-    static char_t decode (OctetIter & p)
-    {
-        return decode(p, p);
-    }
-    
-    static OctetIter encode (char_t uc, OctetIter begin);
-        
-protected:
-//    static reference ref (utf8_iterator & it)
-//    {
-//        return *it._p;
-//    }
-//    
-//    static pointer ptr (utf8_iterator & it)
-//    {
-//        return it._p;
-//    }
-    
+    static void advance_forward (OctetIt & p, difference_type n);
+    static void advance_backward (OctetIt & p, difference_type n);
+    static char_t decode (OctetIt const & p, OctetIt * pnewpos);
+
+public:
     static void increment (utf8_iterator & it, difference_type)
     {
         advance_forward(it._p, 1);
@@ -93,10 +77,49 @@ protected:
     {
         advance_backward(it._p, 1);
     }
+    
+public: // static
+    void advance (OctetIt & p, difference_type n)
+    {
+        advance_forward(p, n);
+    }
+    
+    /**
+     * @brief Decodes UTF-8 octet sequence into Unicode code point.
+     *
+     * @return Unicode code point.
+     */
+    static char_t decode (OctetIt & p)
+    {
+        return decode(p, & p);
+    }
+    
+    template <typename BackInsertIt>
+    static BackInsertIt encode (char_t uc, BackInsertIt it);
+
+    friend bool operator < (utf8_iterator const & lhs, utf8_iterator const & rhs)
+    {
+        return lhs._p < rhs._p;
+    }
+
+    friend bool operator <= (utf8_iterator const & lhs, utf8_iterator const & rhs)
+    {
+        return lhs._p <= rhs._p;
+    }
+
+    friend bool operator > (utf8_iterator const & lhs, utf8_iterator const & rhs)
+    {
+        return lhs._p > rhs._p;
+    }
+
+    friend bool operator >= (utf8_iterator const & lhs, utf8_iterator const & rhs)
+    {
+        return lhs._p >= rhs._p;
+    }
 };
 
-template <typename OctetIter>
-void utf8_iterator::advance_forward (OctetIter & p, difference_type n)
+template <typename OctetIt>
+void utf8_iterator<OctetIt>::advance_forward (OctetIt & p, difference_type n)
 {
     if (n < 0) {
         advance_backward(p, -n);
@@ -122,8 +145,8 @@ void utf8_iterator::advance_forward (OctetIter & p, difference_type n)
     }
 }
 
-template <typename OctetIter>
-void utf8_iterator::advance_backward (OctetIter & p, difference_type n)
+template <typename OctetIt>
+void utf8_iterator<OctetIt>::advance_backward (OctetIt & p, difference_type n)
 {
     if (n < 0) {
         advance_forward(p, -n);
@@ -149,10 +172,10 @@ void utf8_iterator::advance_backward (OctetIter & p, difference_type n)
     }
 }
 
-template <typename OctetIter>
-char_t utf8_iterator::decode (OctetIter const & p, OctetIter * pnewpos)
+template <typename OctetIt>
+char_t utf8_iterator<OctetIt>::decode (OctetIt const & p, OctetIt * pnewpos)
 {
-    OctetIter newpos = p;
+    OctetIt newpos = p;
 	uint8_t b = static_cast<uint8_t>(*newpos);
 	char_t::value_type result;
     int nunits = 0;
@@ -201,41 +224,40 @@ char_t utf8_iterator::decode (OctetIter const & p, OctetIter * pnewpos)
     return result;
 }
 
-template <typename OctetIter>
-OctetIter utf8_iterator::encode (char_t uc, OctetIter begin)
+template <typename OctetIt>
+template <typename BackInsertIt>
+BackInsertIt utf8_iterator<OctetIt>::encode (char_t uc, BackInsertIt it)
 {
-	OctetIter result(begin);
-
-    if (uc < 0x80) {
-        *result++ = uint8_t(uc);
-    } else if (uc < 0x0800) {
-    	*result++ = 0xC0 | uint8_t(uc >> 6);
-    	*result++ = 0x80 | uint8_t(uc & 0x3f);
-    } else if (uc < 0x10000) {
-    	*result++ = 0xE0 | uint8_t(uc >> 12);
-    	*result++ = 0x80 | (uint8_t(uc >> 6)  & 0x3F);
-    	*result++ = 0x80 | uint8_t(uc & 0x3F);
-    } else if (uc < 0x200000) {
-    	*result++ = 0xF0 | uint8_t(uc >> 18);
-    	*result++ = 0x80 | (uint8_t(uc >> 12) & 0x3F);
-    	*result++ = 0x80 | (uint8_t(uc >> 6)  & 0x3F);
-    	*result++ = 0x80 | uint8_t(uc & 0x3F);
-    } else if (uc < 0x4000000) {
-    	*result++ = 0xF8 | uint8_t(uc >> 24);
-    	*result++ = 0x80 | (uint8_t(uc >> 18) & 0x3F);
-    	*result++ = 0x80 | (uint8_t(uc >> 12) & 0x3F);
-    	*result++ = 0x80 | (uint8_t(uc >> 6)  & 0x3F);
-    	*result++ = 0x80 | uint8_t(uc & 0x3F);
-    } else if (uc < 0x80000000) {
-    	*result++ = 0xFC | uint8_t(uc >> 30);
-    	*result++ = 0x80 | (uint8_t(uc >> 24) & 0x3F);
-    	*result++ = 0x80 | (uint8_t(uc >> 18) & 0x3F);
-    	*result++ = 0x80 | (uint8_t(uc >> 12) & 0x3F);
-    	*result++ = 0x80 | (uint8_t(uc >> 6)  & 0x3F);
-    	*result++ = 0x80 | uint8_t(uc & 0x3F);
+    if (uc.value < 0x80) {
+        *it++ = uint8_t(uc.value);
+    } else if (uc.value < 0x0800) {
+    	*it++ = 0xC0 | uint8_t(uc.value >> 6);
+    	*it++ = 0x80 | uint8_t(uc.value & 0x3f);
+    } else if (uc.value < 0x10000) {
+    	*it++ = 0xE0 | uint8_t(uc.value >> 12);
+    	*it++ = 0x80 | (uint8_t(uc.value >> 6)  & 0x3F);
+    	*it++ = 0x80 | uint8_t(uc.value & 0x3F);
+    } else if (uc.value < 0x200000) {
+    	*it++ = 0xF0 | uint8_t(uc.value >> 18);
+    	*it++ = 0x80 | (uint8_t(uc.value >> 12) & 0x3F);
+    	*it++ = 0x80 | (uint8_t(uc.value >> 6)  & 0x3F);
+    	*it++ = 0x80 | uint8_t(uc.value & 0x3F);
+    } else if (uc.value < 0x4000000) {
+    	*it++ = 0xF8 | uint8_t(uc.value >> 24);
+    	*it++ = 0x80 | (uint8_t(uc.value >> 18) & 0x3F);
+    	*it++ = 0x80 | (uint8_t(uc.value >> 12) & 0x3F);
+    	*it++ = 0x80 | (uint8_t(uc.value >> 6)  & 0x3F);
+    	*it++ = 0x80 | uint8_t(uc.value & 0x3F);
+    } else if (uc.value < 0x80000000) {
+    	*it++ = 0xFC | uint8_t(uc.value >> 30);
+    	*it++ = 0x80 | (uint8_t(uc.value >> 24) & 0x3F);
+    	*it++ = 0x80 | (uint8_t(uc.value >> 18) & 0x3F);
+    	*it++ = 0x80 | (uint8_t(uc.value >> 12) & 0x3F);
+    	*it++ = 0x80 | (uint8_t(uc.value >> 6)  & 0x3F);
+    	*it++ = 0x80 | uint8_t(uc.value & 0x3F);
     }
 
-    return result;
+    return it;
 }
 
 }} // pfs::unicode

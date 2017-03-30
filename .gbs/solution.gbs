@@ -56,3 +56,6 @@ project "test-mpl-fsm"
 
 project "test-mpl-lexical_cast"
     include("test-mpl-lexical_cast/project.gbs")
+
+project "test-mpl-utf8"
+    include("test-mpl-utf8/project.gbs")
