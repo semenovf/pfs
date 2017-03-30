@@ -1,9 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 /* 
  * File:   iterator.hpp
  * Author: wladt
@@ -301,9 +295,9 @@ distance (InputIt begin, InputIt end)
     return std::distance(begin, end);
 }
 
-template <typename InputIterator, typename Distance>
+template <typename InputIt>
 inline void
-advance (InputIterator & it, Distance n)
+advance (InputIt & it, typename pfs::iterator_traits<InputIt>::difference_type n)
 {
     return std::advance(it, n);
 }
@@ -311,4 +305,3 @@ advance (InputIterator & it, Distance n)
 } // pfs
 
 #endif /* __PFS_CXX98_ITERATOR_HPP__ */
-
