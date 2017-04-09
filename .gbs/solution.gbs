@@ -59,3 +59,6 @@ project "test-mpl-lexical_cast"
 
 project "test-mpl-utf8"
     include("test-mpl-utf8/project.gbs")
+
+project "test-mpl-treap"
+    include("test-mpl-treap/project.gbs")
