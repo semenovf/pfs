@@ -183,7 +183,7 @@ struct string_traits<foundation::qt, QChar>
 };
 
 typename string_traits<foundation::qt, QChar>::iterator
-string_traits<foundation::qt, QChar>::xerase (
+inline string_traits<foundation::qt, QChar>::xerase (
     data_type & d
     , const_iterator first
     , const_iterator last)
@@ -203,7 +203,7 @@ inline string<foundation::qt, QChar>::string (
 {}
 
 template <>
-int compare<foundation::qt, QChar> (
+inline int compare<foundation::qt, QChar> (
           string<foundation::qt, QChar> const & lhs
         , char const * rhs)
 {

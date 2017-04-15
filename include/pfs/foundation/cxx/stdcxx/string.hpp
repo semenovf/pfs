@@ -1,9 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 /* 
  * File:   string.hpp
  * Author: wladt
@@ -278,7 +272,7 @@ public:
 };
 
 template <>
-int compare<foundation::stdcxx, char> (
+inline int compare<foundation::stdcxx, char> (
           string<foundation::stdcxx, char> const & lhs
         , char const * rhs)
 {
@@ -286,7 +280,7 @@ int compare<foundation::stdcxx, char> (
 }
 
 template <>
-int compare<foundation::stdcxx, wchar_t> (
+inline int compare<foundation::stdcxx, wchar_t> (
           string<foundation::stdcxx, wchar_t> const & lhs
         , wchar_t const * rhs)
 {

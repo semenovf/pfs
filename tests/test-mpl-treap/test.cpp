@@ -9,7 +9,7 @@
 #include <cstdlib>
 #include <vector>
 #include <pfs/test/test.hpp>
-#include <pfs/implicit_treap.hpp>
+#include <pfs/experimental/implicit_treap.hpp>
 #include <iostream>
 
 using std::cout;
