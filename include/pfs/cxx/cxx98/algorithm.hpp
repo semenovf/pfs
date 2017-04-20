@@ -5,8 +5,8 @@
  * Created on January 18, 2017, 1:18 PM
  */
 
-#ifndef __PFS_CXX98_ALGOBASE_HPP__
-#define __PFS_CXX98_ALGOBASE_HPP__
+#ifndef __PFS_CXX98_ALGORITHM_HPP__
+#define __PFS_CXX98_ALGORITHM_HPP__
 
 #include <algorithm>
 #include <pfs/cxxlang.hpp>
