@@ -162,6 +162,12 @@ public:
         return *this;
     }
     
+    operator const_native_reference () const
+    {
+        return cast();
+    }
+
+    
     const_pointer data () const
     {
         return traits_type::xdata(_d);

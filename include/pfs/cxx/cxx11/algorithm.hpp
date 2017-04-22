@@ -12,17 +12,29 @@
 
 namespace pfs {
 
-template <typename T>
-using min = std::min<T>;
+template< class T >
+inline T const & min (T const & a, T const & b )
+{
+    return std::min(a, b);
+}
 
-template <typename T, typename Compare>
-using min = std::min<T, Comapre>;
+template< class T, class Compare >
+inline T const & min (T const & a, T const & b, Compare comp)
+{
+    return std::min(a, b, comp);
+}
 
-template <typename T>
-using max = std::max<T>;
+template< class T >
+inline T const & max (T const & a, T const & b )
+{
+    return std::max(a, b);
+}
 
-template <typename T, typename Compare>
-using max = std::max<T, Compare>;
+template< class T, class Compare >
+inline T const & max (T const & a, T const & b, Compare comp)
+{
+    return std::max(a, b, comp);
+}
 
 }
 
