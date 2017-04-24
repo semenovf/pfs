@@ -10,39 +10,40 @@
 
 #include <cstring>
 
-template <typename Foundation, typename CharT>
+template <typename StringT>
 void test_c_str_cast ()
 {
-    test_description<CharT>(__PRETTY_FUNCTION__);
+    typedef pfs::traits::string<StringT> string;
+    typedef typename string::value_type  value_type;
+    
+    test_description<value_type>(__PRETTY_FUNCTION__);
     
     ADD_TESTS(7);
-    
-    typedef pfs::traits::string<Foundation, CharT> string;
 
-    string orig(string_samples<CharT>(STR_ORIG));
-    string same(string_samples<CharT>(STR_SAME));
-    string diff(string_samples<CharT>(STR_DIFF));
-    string empty(string_samples<CharT>(STR_EMPTY));
+    string orig(string_samples<value_type>(STR_ORIG));
+    string same(string_samples<value_type>(STR_SAME));
+    string diff(string_samples<value_type>(STR_DIFF));
+    string empty(string_samples<value_type>(STR_EMPTY));
     
     TEST_OK(std::strcmp(string_samples<char>(STR_ORIG)
-            , pfs::traits::c_str<Foundation, CharT>(orig)()) == 0);
+            , pfs::traits::c_str<StringT>(orig)()) == 0);
 
     TEST_OK(std::strcmp(string_samples<char>(STR_SAME)
-            , pfs::traits::c_str<Foundation, CharT>(orig)()) == 0);
+            , pfs::traits::c_str<StringT>(orig)()) == 0);
 
     TEST_OK(std::strcmp(string_samples<char>(STR_DIFF)
-            , pfs::traits::c_str<Foundation, CharT>(orig)()) != 0);
+            , pfs::traits::c_str<StringT>(orig)()) != 0);
 
-    TEST_OK(std::strcmp(pfs::traits::c_str<Foundation, CharT>(orig)()
-            , pfs::traits::c_str<Foundation, CharT>(orig)()) == 0);
+    TEST_OK(std::strcmp(pfs::traits::c_str<StringT>(orig)()
+            , pfs::traits::c_str<StringT>(orig)()) == 0);
 
-    TEST_OK(std::strcmp(pfs::traits::c_str<Foundation, CharT>(orig)()
-            , pfs::traits::c_str<Foundation, CharT>(same)()) == 0);
+    TEST_OK(std::strcmp(pfs::traits::c_str<StringT>(orig)()
+            , pfs::traits::c_str<StringT>(same)()) == 0);
 
-    TEST_OK(std::strcmp(pfs::traits::c_str<Foundation, CharT>(orig)()
-            , pfs::traits::c_str<Foundation, CharT>(same)()) == 0);
+    TEST_OK(std::strcmp(pfs::traits::c_str<StringT>(orig)()
+            , pfs::traits::c_str<StringT>(same)()) == 0);
 
-    TEST_OK(std::strcmp(pfs::traits::c_str<Foundation, CharT>(empty)()
+    TEST_OK(std::strcmp(pfs::traits::c_str<StringT>(empty)()
             , "") == 0);
 }
 

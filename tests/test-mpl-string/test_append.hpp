@@ -8,34 +8,35 @@
 #ifndef __TEST_APPEND_HPP__
 #define __TEST_APPEND_HPP__
 
-template <typename Foundation, typename CharT>
+template <typename StringT>
 void test_append ()
 {
-    test_description<CharT>(__PRETTY_FUNCTION__);
+    typedef pfs::traits::string<StringT> string;
+    typedef typename string::value_type  value_type;
+    
+    test_description<value_type>(__PRETTY_FUNCTION__);
     
     ADD_TESTS(3);
-    
-    typedef pfs::traits::string<Foundation, CharT> string_type;
 
     {
-        string_type orig(string_samples<CharT>(STR_ORIG));
-        string_type same(string_samples<CharT>(STR_SAME));
-        string_type result(string_samples<CharT>(STR_CONCAT));
+        string orig(string_samples<value_type>(STR_ORIG));
+        string same(string_samples<value_type>(STR_SAME));
+        string result(string_samples<value_type>(STR_CONCAT));
         
         TEST_OK(orig.append(same) == result);
     }
 
     {
-        string_type orig(string_samples<CharT>(STR_ORIG));
-        string_type same(string_samples<CharT>(STR_SAME));
-        string_type result(string_samples<CharT>(STR_CONCAT));
+        string orig(string_samples<value_type>(STR_ORIG));
+        string same(string_samples<value_type>(STR_SAME));
+        string result(string_samples<value_type>(STR_CONCAT));
 
-        TEST_OK(orig.append(same, 0, string_type::npos) == result);
+        TEST_OK(orig.append(same, 0, string::npos) == result);
     }
     
     {
-        string_type orig(string_samples<CharT>(STR_ORIG));
-        string_type same(string_samples<CharT>(STR_SAME));
+        string orig(string_samples<value_type>(STR_ORIG));
+        string same(string_samples<value_type>(STR_SAME));
         
         try {
             orig.append(same, same.size(), 1);

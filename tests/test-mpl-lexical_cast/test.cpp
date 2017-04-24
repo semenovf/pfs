@@ -24,7 +24,7 @@ int main(int argc, char *argv[])
 	BEGIN_TESTS(0);
 
     {
-        typedef pfs::traits::string<foundation::stdcxx, char> string_type;
+        typedef pfs::traits::string<std::string> string_type;
 
         test_string_to_uintmax<string_type>();
 //        test_integer<string_type>();

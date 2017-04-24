@@ -8,25 +8,25 @@
 #ifndef __TEST_ERASE_HPP__
 #define __TEST_ERASE_HPP__
 
-template <typename Foundation, typename CharT>
+template <typename StringT>
 void test_erase ()
 {
-    test_description<CharT>(__PRETTY_FUNCTION__);
+    typedef pfs::traits::string<StringT> string;
+    typedef typename string::value_type  value_type;
+    
+    test_description<value_type>(__PRETTY_FUNCTION__);
     
     ADD_TESTS(21);
-    
-    typedef pfs::traits::string<Foundation, CharT> string_type;
-
     {
-        string_type s(string_samples<CharT>(STR_ORIG));
+        string s(string_samples<value_type>(STR_ORIG));
 
         s.erase(0, s.size());
         TEST_OK(s.empty());
     }
 
     {
-        string_type orig(string_samples<CharT>(STR_ORIG));
-        string_type s(string_samples<CharT>(STR_ORIG));
+        string orig(string_samples<value_type>(STR_ORIG));
+        string s(string_samples<value_type>(STR_ORIG));
 
         s.erase(0, 1);
         TEST_OK(s.size() == orig.size() - 1);
@@ -34,8 +34,8 @@ void test_erase ()
     }
 
     {
-        string_type orig(string_samples<CharT>(STR_ORIG));
-        string_type s(string_samples<CharT>(STR_ORIG));
+        string orig(string_samples<value_type>(STR_ORIG));
+        string s(string_samples<value_type>(STR_ORIG));
 
         s.erase(1, 2);
         TEST_OK(s.size() == orig.size() - 2);
@@ -47,9 +47,9 @@ void test_erase ()
     }
     
     {
-        string_type s(string_samples<CharT>(STR_ORIG));
+        string s(string_samples<value_type>(STR_ORIG));
 
-        typename string_type::iterator it = s.erase(s.cbegin(), s.cend());
+        typename string::iterator it = s.erase(s.cbegin(), s.cend());
         
         TEST_OK(it == s.cbegin());
         TEST_OK(it == s.cend())
@@ -57,10 +57,10 @@ void test_erase ()
     }
 
     {
-        string_type orig(string_samples<CharT>(STR_ORIG));
-        string_type s(string_samples<CharT>(STR_ORIG));
+        string orig(string_samples<value_type>(STR_ORIG));
+        string s(string_samples<value_type>(STR_ORIG));
 
-        typename string_type::iterator it = s.erase(s.cbegin() + 1, s.cbegin() + 3);
+        typename string::iterator it = s.erase(s.cbegin() + 1, s.cbegin() + 3);
         TEST_OK(s.size() == orig.size() - 2);
         TEST_OK(*it == orig[3]);
         TEST_OK(s[0] == orig[0]);
@@ -71,7 +71,7 @@ void test_erase ()
     }
 
     {
-        string_type s(string_samples<CharT>(STR_ORIG));
+        string s(string_samples<value_type>(STR_ORIG));
         TEST_OK(!s.empty());
         
         s.clear();

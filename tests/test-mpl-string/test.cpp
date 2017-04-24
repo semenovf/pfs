@@ -129,36 +129,36 @@ int main (int argc, char *argv[])
 
     BEGIN_TESTS(0);
 
-    test_basic<foundation::stdcxx, char>();
-    test_basic<foundation::stdcxx, wchar_t>();
-    test_find<foundation::stdcxx, char>();
-    test_find<foundation::stdcxx, wchar_t>();
-    test_substr<foundation::stdcxx, char>();
-    test_substr<foundation::stdcxx, wchar_t>();
-    test_c_str_cast<foundation::stdcxx, char>();
+    test_basic<std::string>();
+    test_basic<std::wstring>();
+    test_find<std::string>();
+    test_find<std::wstring>();
+    test_substr<std::string>();
+    test_substr<std::wstring>();
+    test_c_str_cast<std::string>();
 //    test_c_str_cast<std::wstring>();    // TODO
-    test_compare<foundation::stdcxx, char>();
-    test_compare<foundation::stdcxx, wchar_t>();
-    test_compare_cstr<foundation::stdcxx, char>();
+    test_compare<std::string>();
+    test_compare<std::wstring>();
+    test_compare_cstr<std::string>();
     //test_compare_cstr<wchar_t>();
     
-    test_erase<foundation::stdcxx, char>();
-    test_erase<foundation::stdcxx, wchar_t>();
+    test_erase<std::string>();
+    test_erase<std::wstring>();
 
-    test_append<foundation::stdcxx, char>();
-    test_append<foundation::stdcxx, wchar_t>();
+    test_append<std::string>();
+    test_append<std::wstring>();
 
 #ifdef QT_CORE_LIB
-    test_basic<foundation::qt, QChar>();
-    test_find<foundation::qt, QChar>();
-    test_substr<foundation::qt, QChar>();
-    test_c_str_cast<foundation::qt, QChar>();
+    test_basic<QString>();
+    test_find<QString>();
+    test_substr<QString>();
+    test_c_str_cast<QString>();
     
-    test_compare<foundation::qt, QChar>();
-    test_compare_cstr<foundation::qt, QChar>();
+    test_compare<QString>();
+    test_compare_cstr<QString>();
     
-    test_erase<foundation::qt, QChar>();
-    test_append<foundation::qt, QChar>();
+    test_erase<QString>();
+    test_append<QString>();
 #endif
 
     return END_TESTS;

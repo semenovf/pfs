@@ -10,7 +10,7 @@
 #include <pfs/foundation/cxx/stdcxx/string.hpp>
 #include <pfs/fsm/fsm.hpp>
 
-typedef pfs::traits::string<foundation::stdcxx, char> sequence_type;
+typedef pfs::traits::string<std::string> sequence_type;
 typedef pfs::fsm::fsm<sequence_type> fsm_type;
 typedef fsm_type::char_type          char_type;
 

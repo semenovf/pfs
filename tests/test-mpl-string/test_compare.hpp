@@ -8,21 +8,23 @@
 #ifndef __PFS_TEST_COMPARE_HPP__
 #define __PFS_TEST_COMPARE_HPP__
 
-template <typename Foundation, typename CharT>
+template <typename StringT>
 void test_compare_basic ()
 {
-    test_description<CharT>(__PRETTY_FUNCTION__);
+    typedef pfs::traits::string<StringT> string;
+    typedef typename string::value_type  value_type;
+    
+    test_description<value_type>(__PRETTY_FUNCTION__);
     
     ADD_TESTS(10);
     
-    typedef pfs::traits::string<Foundation, CharT> string;
-    string orig(string_samples<CharT>(STR_ORIG));
-    string same(string_samples<CharT>(STR_SAME));
-    string diff(string_samples<CharT>(STR_DIFF));
-    string less(string_samples<CharT>(STR_LESS));
-    string greater(string_samples<CharT>(STR_GREATER));
-    string head(string_samples<CharT>(STR_HEAD));
-    string tail(string_samples<CharT>(STR_TAIL));
+    string orig(string_samples<value_type>(STR_ORIG));
+    string same(string_samples<value_type>(STR_SAME));
+    string diff(string_samples<value_type>(STR_DIFF));
+    string less(string_samples<value_type>(STR_LESS));
+    string greater(string_samples<value_type>(STR_GREATER));
+    string head(string_samples<value_type>(STR_HEAD));
+    string tail(string_samples<value_type>(STR_TAIL));
 
     TEST_OK(orig == orig);
     TEST_OK(orig == same);
@@ -46,16 +48,18 @@ struct test_compare_empty_data
     int    result;
 };
 
-template <typename Foundation, typename CharT>
+template <typename StringT>
 void test_compare_empty ()
 {
-    test_description<CharT>(__PRETTY_FUNCTION__);
+    typedef pfs::traits::string<StringT> string;
+    typedef typename string::value_type  value_type;
+
+    test_description<value_type>(__PRETTY_FUNCTION__);
     
     ADD_TESTS(1);
 
-    typedef pfs::traits::string<Foundation, CharT> string;
-    string s1(string_samples<CharT>(STR_ORIG));
-    string s2(string_samples<CharT>(STR_SAME));
+    string s1(string_samples<value_type>(STR_ORIG));
+    string s2(string_samples<value_type>(STR_SAME));
     
     typename string::size_type n1 = s1.size();
     typename string::size_type n2 = s2.size();
@@ -78,7 +82,7 @@ void test_compare_empty ()
     for (; i < count; ++i) {
         if (s1.compare(t[i].pos1, t[i].count1, s2, t[i].pos2, t[i].count2) != t[i].result) {
             std::cerr << "Compare strings implemented using <" 
-                    << stringify_string_impl<CharT>()
+                    << stringify_string_impl<value_type>()
                     << ">: failed with index: " << i << std::endl;
             break;
         }
@@ -86,28 +90,30 @@ void test_compare_empty ()
 
     std::ostringstream ss;
     ss << "Compare strings implemented using <" 
-            << stringify_string_impl<CharT>() 
+            << stringify_string_impl<value_type>() 
             << ">";
     
     TEST_OK2(i == count, ss.str().c_str());
 }
 
-template <typename Foundation, typename CharT>
+template <typename StringT>
 void test_compare ()
 {
-    test_compare_basic<Foundation, CharT>();
-    test_compare_empty<Foundation, CharT>();
+    test_compare_basic<StringT>();
+    test_compare_empty<StringT>();
 }
 
-template <typename Foundation, typename CharT>
+template <typename StringT>
 void test_compare_cstr ()
 {
-    test_description<CharT>(__PRETTY_FUNCTION__);
+    typedef pfs::traits::string<StringT> string;
+    typedef typename string::value_type  value_type;
+    
+    test_description<value_type>(__PRETTY_FUNCTION__);
     
     ADD_TESTS(16);
     
-    typedef pfs::traits::string<Foundation, CharT> string;
-    string orig(string_samples<CharT>(STR_ORIG));
+    string orig(string_samples<value_type>(STR_ORIG));
     
     TEST_OK(orig == string_samples<char>(STR_ORIG));
     TEST_OK(orig >= string_samples<char>(STR_ORIG));

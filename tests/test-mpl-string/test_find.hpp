@@ -17,10 +17,13 @@ struct test_find_data
     int    result;
 };
 
-template <typename Foundation, typename CharT>
+template <typename StringT>
 void test_find_basic ()
 {
-    test_description<CharT>(__PRETTY_FUNCTION__);
+    typedef pfs::traits::string<StringT> string;
+    typedef typename string::value_type  value_type;
+
+    test_description<value_type>(__PRETTY_FUNCTION__);
     
 //    ADD_TESTS(1);
 //
@@ -63,10 +66,10 @@ void test_find_basic ()
 //    TEST_OK2(i == count, ss.str().c_str());
 }
 
-template <typename Foundation, typename CharT>
+template <typename StringT>
 void test_find ()
 {
-    test_find_basic<Foundation, CharT>();
+    test_find_basic<StringT>();
 }
 
 

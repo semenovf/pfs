@@ -11,19 +11,18 @@
 #include <string>
 #include <cstring>
 #include <pfs/traits/string.hpp>
-#include <pfs/foundation/cxx/stdcxx.hpp>
 
 namespace pfs {
 namespace traits {
 
 namespace stdcxx {
 
-template <typename Foundation, typename CharT>
+template <typename StringT>
 struct string_traits
 {
-    typedef std::basic_string<CharT>                     native_type;
+    typedef StringT                                      native_type;
     typedef native_type const &                          const_native_reference;
-    typedef typename native_type::size_type              size_type;
+    typedef size_t                                       size_type;
     typedef typename native_type::value_type             value_type;
     typedef typename native_type::reference              reference;
     typedef typename native_type::const_reference        const_reference;
@@ -32,6 +31,7 @@ struct string_traits
     typedef typename native_type::const_iterator         const_iterator;
     typedef typename native_type::const_reverse_iterator const_reverse_iterator;
     typedef native_type                                  data_type;
+
 
     static size_type xlength (const_pointer p);
     
@@ -183,9 +183,9 @@ struct string_traits
 // C++ prior to C++11 
 // erase() has signature `iterator erase(iterator first, iterator last)`
 //
-template <typename Foundation, typename CharT>
-typename string_traits<Foundation, CharT>::iterator 
-string_traits<Foundation, CharT>::xerase (data_type & d
+template <typename StringT>
+typename string_traits<StringT>::iterator 
+string_traits<StringT>::xerase (data_type & d
     , const_iterator first
     , const_iterator last)
 {
@@ -198,11 +198,12 @@ string_traits<Foundation, CharT>::xerase (data_type & d
 
 #endif
 
-template <typename Foundation, typename CharT>
+template <typename StringT>
 class c_str
 {
 public:
-    typedef string<Foundation, CharT> string_type;
+    typedef string<StringT> string_type;
+    typedef typename string_type::const_pointer const_pointer;
     
 protected:
     string_type const & _d;
@@ -212,27 +213,29 @@ public:
         : _d(s)
     {}
     
-    CharT const * operator () () const
+    //CharT const * operator () () const
+    const_pointer operator () () const
     {
         return _d.data();
     }
     
-    operator CharT const * () const
+    //operator CharT const * () const
+    operator const_pointer () const
     {
         return _d.data();
     }
 };
 
 template <>
-inline string_traits<foundation::stdcxx, char>::size_type 
-string_traits<foundation::stdcxx, char>::xlength (const_pointer p)
+inline string_traits<std::string>::size_type 
+string_traits<std::string>::xlength (const_pointer p)
 {
     return std::strlen(p);
 }
 
 template <>
-inline string_traits<foundation::stdcxx, wchar_t>::size_type
-string_traits<foundation::stdcxx, wchar_t>::xlength (const_pointer p)
+inline string_traits<std::wstring>::size_type
+string_traits<std::wstring>::xlength (const_pointer p)
 {
     return std::wcslen(p);
 }
@@ -240,20 +243,20 @@ string_traits<foundation::stdcxx, wchar_t>::xlength (const_pointer p)
 } // stdcxx
 
 template <>
-struct string_traits<foundation::stdcxx, char> 
-    : public stdcxx::string_traits<foundation::stdcxx, char>
+struct string_traits<std::string> 
+    : public stdcxx::string_traits<std::string>
 {};
 
 template <>
-struct string_traits<foundation::stdcxx, wchar_t> 
-    : public stdcxx::string_traits<foundation::stdcxx, wchar_t>
+struct string_traits<std::wstring> 
+    : public stdcxx::string_traits<std::wstring>
 {};
 
 template <>
-class c_str<foundation::stdcxx, char> 
-    : public stdcxx::c_str<foundation::stdcxx, char>
+class c_str<std::string> 
+    : public stdcxx::c_str<std::string>
 {
-    typedef stdcxx::c_str<foundation::stdcxx, char> base_type;
+    typedef stdcxx::c_str<std::string> base_type;
 public:
     explicit c_str (string_type const & s)
         : base_type(s)
@@ -261,10 +264,10 @@ public:
 };
 
 template <>
-class c_wstr<foundation::stdcxx, wchar_t> 
-    : public stdcxx::c_str<foundation::stdcxx, wchar_t>
+class c_wstr<std::wstring> 
+    : public stdcxx::c_str<std::wstring>
 {
-    typedef stdcxx::c_str<foundation::stdcxx, wchar_t> base_type;
+    typedef stdcxx::c_str<std::wstring> base_type;
 public:
     explicit c_wstr (string_type const & s)
         : base_type(s)
@@ -272,16 +275,16 @@ public:
 };
 
 template <>
-inline int compare<foundation::stdcxx, char> (
-          string<foundation::stdcxx, char> const & lhs
+inline int compare<std::string> (
+          string<std::string> const & lhs
         , char const * rhs)
 {
     return lhs._d.compare(rhs);
 }
 
 template <>
-inline int compare<foundation::stdcxx, wchar_t> (
-          string<foundation::stdcxx, wchar_t> const & lhs
+inline int compare<std::wstring> (
+          string<std::wstring> const & lhs
         , wchar_t const * rhs)
 {
     return lhs._d.compare(rhs);

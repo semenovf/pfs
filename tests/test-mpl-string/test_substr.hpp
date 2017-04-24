@@ -8,20 +8,21 @@
 #ifndef __PFS_TEST_SUBSTR_HPP__
 #define __PFS_TEST_SUBSTR_HPP__
 
-template <typename Foundation, typename CharT>
+template <typename StringT>
 void test_substr ()
 {
-    test_description<CharT>(__PRETTY_FUNCTION__);
+    typedef pfs::traits::string<StringT>     string_type;
+    typedef typename string_type::value_type value_type;
+
+    test_description<value_type>(__PRETTY_FUNCTION__);
     
     ADD_TESTS(7);
     
-    typedef pfs::traits::string<Foundation, CharT> string_type;
-    
-    string_type orig(string_samples<CharT>(STR_ORIG));
-    string_type same(string_samples<CharT>(STR_SAME));
-    string_type head(string_samples<CharT>(STR_HEAD));
-    string_type tail(string_samples<CharT>(STR_TAIL));
-    string_type mid(string_samples<CharT>(STR_MID));
+    string_type orig(string_samples<value_type>(STR_ORIG));
+    string_type same(string_samples<value_type>(STR_SAME));
+    string_type head(string_samples<value_type>(STR_HEAD));
+    string_type tail(string_samples<value_type>(STR_TAIL));
+    string_type mid(string_samples<value_type>(STR_MID));
     
     TEST_OK(orig.substr(0) == orig);
     TEST_OK(orig.substr(0) == same);

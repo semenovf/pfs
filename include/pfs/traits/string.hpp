@@ -17,20 +17,20 @@
 namespace pfs {
 namespace traits {
 
-template <typename Foundation, typename CharT>
+template <typename StringT>
 struct string_traits
 {
-    typedef struct __Use_Specialized_Traits__ {} native_type;
-    typedef native_type const & const_native_reference;
-    typedef size_t        size_type;
-    typedef CharT         value_type;
-    typedef CharT &       reference;
-    typedef CharT const & const_reference;
-    typedef CharT const * const_pointer;
-    typedef CharT *       iterator;
-    typedef CharT const * const_iterator;
-    typedef CharT const * const_reverse_iterator;
-    typedef native_type   data_type;
+    typedef StringT                                      native_type;
+    typedef native_type const &                          const_native_reference;
+    typedef size_t                                       size_type;
+    typedef typename native_type::value_type             value_type;
+    typedef typename native_type::reference              reference;
+    typedef typename native_type::const_reference        const_reference;
+    typedef typename native_type::const_pointer          const_pointer;
+    typedef typename native_type::iterator               iterator;
+    typedef typename native_type::const_iterator         const_iterator;
+    typedef typename native_type::const_reverse_iterator const_reverse_iterator;
+    typedef native_type                                  data_type;
 
     static size_type xlength (const_pointer p);
     static void xassign (data_type & d, const_native_reference lhs);
@@ -96,12 +96,11 @@ struct string_traits
             , const_iterator * endptr);
 };
 
-template <typename Foundation, typename CharT>
+template <typename StringT>
 class string
 {
 public:
-    typedef Foundation                                   foundation;
-    typedef string_traits<Foundation, CharT>             traits_type;
+    typedef string_traits<StringT>                       traits_type;
     typedef typename traits_type::native_type            native_type;
     typedef typename traits_type::const_native_reference const_native_reference;
     typedef typename traits_type::size_type              size_type;
@@ -487,16 +486,16 @@ public:
         traits_type::xpush_back(_d, ch);
     }
 
-    template <typename FoundationU, typename CharU>
-    friend int compare (string<FoundationU, CharU> const & lhs, char const * rhs);
+    template <typename StringU>
+    friend int compare (string<StringU> const & lhs, char const * rhs);
 
-    template <typename FoundationU, typename CharU>
-    friend int compare (string<FoundationU, CharU> const & lhs, wchar_t const * rhs);
+    template <typename StringU>
+    friend int compare (string<StringU> const & lhs, wchar_t const * rhs);
 };
 
-template <typename Foundation, typename CharT>
-string<Foundation, CharT> 
-string<Foundation, CharT>::substr (size_type pos, size_type count) const
+template <typename StringT>
+string<StringT> 
+string<StringT>::substr (size_type pos, size_type count) const
 {
     if (pos >= this->size())
         throw out_of_range("string::substr()");
@@ -513,9 +512,9 @@ string<Foundation, CharT>::substr (size_type pos, size_type count) const
     return string(b, e);
 }
 
-template <typename Foundation, typename CharT>
-string<Foundation, CharT> & 
-string<Foundation, CharT>::insert (size_type index
+template <typename StringT>
+string<StringT> & 
+string<StringT>::insert (size_type index
         , size_type count
         , value_type ch)
 {
@@ -529,9 +528,9 @@ string<Foundation, CharT>::insert (size_type index
     return *this;
 }
     
-template <typename Foundation, typename CharT>
-string<Foundation, CharT> &
-string<Foundation, CharT>::insert (size_type index, const_pointer s)
+template <typename StringT>
+string<StringT> &
+string<StringT>::insert (size_type index, const_pointer s)
 {
     if (index > size())
         throw pfs::out_of_range("string::insert()");
@@ -543,9 +542,9 @@ string<Foundation, CharT>::insert (size_type index, const_pointer s)
     return *this;
 }
     
-template <typename Foundation, typename CharT>
-string<Foundation, CharT> &
-string<Foundation, CharT>::insert (size_type index
+template <typename StringT>
+string<StringT> &
+string<StringT>::insert (size_type index
         , const_pointer s
         , size_type count)
 {
@@ -559,154 +558,134 @@ string<Foundation, CharT>::insert (size_type index
     return *this;
 }
 
-template <typename Foundation, typename CharT>
-inline bool operator == (string<Foundation, CharT> const & lhs
-        , string<Foundation, CharT> const & rhs)
+template <typename StringT>
+inline bool operator == (string<StringT> const & lhs, string<StringT> const & rhs)
 {
     return lhs.compare(rhs) == 0;
 }
 
-template <typename Foundation, typename CharT>
-inline bool operator != (string<Foundation, CharT> const & lhs
-        , string<Foundation, CharT> const & rhs)
+template <typename StringT>
+inline bool operator != (string<StringT> const & lhs, string<StringT> const & rhs)
 {
     return lhs.compare(rhs) != 0;
 }
 
-template <typename Foundation, typename CharT>
-inline bool operator < (string<Foundation, CharT> const & lhs
-        , string<Foundation, CharT> const & rhs)
+template <typename StringT>
+inline bool operator < (string<StringT> const & lhs, string<StringT> const & rhs)
 {
     return lhs.compare(rhs) < 0;
 }
 
-template <typename Foundation, typename CharT>
-inline bool operator <= (string<Foundation, CharT> const & lhs
-        , string<Foundation, CharT> const & rhs)
+template <typename StringT>
+inline bool operator <= (string<StringT> const & lhs, string<StringT> const & rhs)
 {
     return lhs.compare(rhs) <= 0;
 }
 
-template <typename Foundation, typename CharT>
-inline bool operator > (string<Foundation, CharT> const & lhs
-        , string<Foundation, CharT> const & rhs)
+template <typename StringT>
+inline bool operator > (string<StringT> const & lhs, string<StringT> const & rhs)
 {
     return lhs.compare(rhs) > 0;
 }
 
-template <typename Foundation, typename CharT>
-inline bool operator >= (string<Foundation, CharT> const & lhs
-        , string<Foundation, CharT> const & rhs)
+template <typename StringT>
+inline bool operator >= (string<StringT> const & lhs, string<StringT> const & rhs)
 {
     return lhs.compare(rhs) >= 0;
 }
 
-template <typename Foundation, typename CharT>
-inline bool operator == (string<Foundation, CharT> const & lhs
-        , char const * rhs)
+template <typename StringT>
+inline bool operator == (string<StringT> const & lhs, char const * rhs)
 {
     return compare(lhs, rhs) == 0;
 }
 
-template <typename Foundation, typename CharT>
-inline bool operator == (char const * lhs
-        , string<Foundation, CharT> const & rhs)
+template <typename StringT>
+inline bool operator == (char const * lhs, string<StringT> const & rhs)
 {
     return compare(rhs, lhs) == 0;
 }
 
-template <typename Foundation, typename CharT>
-inline bool operator != (string<Foundation, CharT> const & lhs
-        , char const * rhs)
+template <typename StringT>
+inline bool operator != (string<StringT> const & lhs, char const * rhs)
 {
     return compare(lhs, rhs) != 0;
 }
 
-template <typename Foundation, typename CharT>
-inline bool operator != (char const * lhs
-        , string<Foundation, CharT> const & rhs)
+template <typename StringT>
+inline bool operator != (char const * lhs, string<StringT> const & rhs)
 {
     return compare(rhs, lhs) != 0;
 }
 
-template <typename Foundation, typename CharT>
-inline bool operator < (string<Foundation, CharT> const & lhs
-        , char const * rhs)
+template <typename StringT>
+inline bool operator < (string<StringT> const & lhs, char const * rhs)
 {
     return compare(lhs, rhs) < 0;
 }
 
-template <typename Foundation, typename CharT>
-inline bool operator < (char const * lhs
-        , string<Foundation, CharT> const & rhs)
+template <typename StringT>
+inline bool operator < (char const * lhs, string<StringT> const & rhs)
 {
     return compare(rhs, lhs) > 0;
 }
 
-template <typename Foundation, typename CharT>
-inline bool operator <= (string<Foundation, CharT> const & lhs
-        , char const * rhs)
+template <typename StringT>
+inline bool operator <= (string<StringT> const & lhs, char const * rhs)
 {
     return compare(lhs, rhs) <= 0;
 }
 
-template <typename Foundation, typename CharT>
-inline bool operator <= (char const * lhs
-        , string<Foundation, CharT> const & rhs)
+template <typename StringT>
+inline bool operator <= (char const * lhs, string<StringT> const & rhs)
 {
     return compare(rhs, lhs) >= 0;
 }
 
-template <typename Foundation, typename CharT>
-inline bool operator > (string<Foundation, CharT> const & lhs
-        , char const * rhs)
+template <typename StringT>
+inline bool operator > (string<StringT> const & lhs, char const * rhs)
 {
     return compare(lhs, rhs) > 0;
 }
 
-template <typename Foundation, typename CharT>
-inline bool operator > (char const * lhs
-        , string<Foundation, CharT> const & rhs)
+template <typename StringT>
+inline bool operator > (char const * lhs, string<StringT> const & rhs)
 {
     return compare(rhs, lhs) < 0;
 }
 
-template <typename Foundation, typename CharT>
-inline bool operator >= (string<Foundation, CharT> const & lhs
-        , char const * rhs)
+template <typename StringT>
+inline bool operator >= (string<StringT> const & lhs, char const * rhs)
 {
     return compare(lhs, rhs) >= 0;
 }
 
-template <typename Foundation, typename CharT>
-inline bool operator >= (char const * lhs
-        , string<Foundation, CharT> const & rhs)
+template <typename StringT>
+inline bool operator >= (char const * lhs, string<StringT> const & rhs)
 {
     return compare(rhs, lhs) <= 0;
 }
 
-template <typename Foundation, typename CharT>
+template <typename StringT>
 class c_str;
 
-template <typename Foundation, typename CharT>
+template <typename StringT>
 class c_wstr;
 
 }} // pfs::traits
 
 namespace std {
 
-template <typename Foundation, typename CharT>
-ostream & operator << (ostream & out
-        , pfs::traits::string<Foundation, CharT> const & s)
+template <typename StringT>
+ostream & operator << (ostream & out, pfs::traits::string<StringT> const & s)
 {
-    return out << pfs::traits::c_str<Foundation, CharT>(s)();
+    return out << pfs::traits::c_str<StringT>(s)();
 }
 
-template <typename Foundation, typename CharT>
-wostream & operator << (wostream & out
-        , pfs::traits::string<Foundation, CharT> const & s)
+template <typename StringT>
+wostream & operator << (wostream & out, pfs::traits::string<StringT> const & s)
 {
-    return out << pfs::traits::c_wstr<Foundation, CharT>(s)();
+    return out << pfs::traits::c_wstr<StringT>(s)();
 }
 
 } // std
