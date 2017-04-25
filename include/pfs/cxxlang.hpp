@@ -20,7 +20,7 @@
 #   undef pfs_override
 #endif
 
-#if __cplusplus >= 201103
+#if __cplusplus >= 201103L
 #   define pfs_constexpr           constexpr
 #   define pfs_noexcept            noexcept
 #   define pfs_noexcept_expr(expr) noexcept(expr)
