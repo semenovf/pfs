@@ -25,8 +25,7 @@ template <typename StringT>
 class uri
 {
 public:
-    typedef StringT string_type;
-//    typedef traits::map<Foundation, string_type, string_type> items_map_type;
+    typedef traits::string<StringT> string_type;
     
     struct data_rep
     {
@@ -151,6 +150,7 @@ void uri<StringT>::data_rep::clear()
 	fragment.clear();
 	is_raw_host = false;
 }
+
 
 //template <typename Foundation, typename CharT>
 //typename uri<Foundation, CharT>::items_map_type

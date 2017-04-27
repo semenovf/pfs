@@ -238,8 +238,8 @@ static pfs::fsm::test_entry __test_entries[] = {
 
 #endif
 
-typedef pfs::traits::string<foundation::stdcxx, char> string_type;
-typedef pfs::net::uri<string_type> uri_type;
+typedef pfs::traits::string<std::string> string_type;
+typedef pfs::net::uri<std::string> uri_type;
 typedef pfs::net::uri_grammar<uri_type> uri_grammar_type;
 
 typedef pfs::fsm::test_valid_entry<string_type> test_valid_entry;

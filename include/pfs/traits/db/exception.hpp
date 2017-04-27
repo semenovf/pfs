@@ -13,11 +13,11 @@
 namespace pfs {
 namespace db {
 
-template <typename CharT>
+template <typename StringT>
 class exception
 {
 public:
-    typedef pfs::traits::string<CharT> string_type;
+    typedef pfs::traits::string<StringT> string_type;
         
 protected:
     string_type _msg;

@@ -10,12 +10,12 @@
 
 namespace test_iterator_00 {
 
-template <typename Foundation>
+template <template <typename> class VectorT>
 void test ()
 {
     ADD_TESTS(4);
     
-    typedef pfs::traits::vector<Foundation, int> vector_type;
+    typedef pfs::traits::vector<int, VectorT> vector_type;
     vector_type v;
     
     TEST_OK(v.begin()   == v.end());
@@ -29,10 +29,10 @@ void test ()
 
 } // test_iterator_00
 
-template <typename Foundation>
+template <template <typename> class VectorT>
 void test_iterator ()
 {
-    test_iterator_00::test<Foundation>();
+    test_iterator_00::test<VectorT>();
 }
 
 #endif /* __PFS_TEST_ITERATOR_HPP__ */

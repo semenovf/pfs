@@ -6,15 +6,13 @@
  * @brief testing ...
  */
 
+#include <vector>
 #include <pfs/test/test.hpp>
-
-#include <pfs/foundation/cxx/stdcxx.hpp>
-#include <pfs/foundation/cxx/stdcxx/vector.hpp>
+#include <pfs/traits/stdcxx/vector.hpp>
 
 // Enabled by `qt_enable`
 #ifdef QT_CORE_LIB
-#   include <pfs/foundation/cxx/qt.hpp>
-#   include <pfs/foundation/cxx/qt/vector.hpp>
+#   include <pfs/traits/qt/vector.hpp>
 #endif
 
 #include "test_iterator.hpp"
@@ -27,12 +25,12 @@ int main (int argc, char *argv[])
     
 	BEGIN_TESTS(0);
     
-    test_iterator<foundation::stdcxx>();
-//    test_access<foundation::stdcxx>();
+    test_iterator<stdcxx::vector>();
+//    test_access<stdcxx::vector>();
     
 #ifdef QT_CORE_LIB
-    test_iterator<foundation::qt>();
-//    test_access<foundation::qt>();
+    test_iterator<qt::vector>();
+//    test_access<qt::vector>();
 #endif    
 
 	return END_TESTS;
