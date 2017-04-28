@@ -17,17 +17,26 @@ template <typename StringT>
 class exception
 {
 public:
-    typedef pfs::traits::string<StringT> string_type;
+    typedef pfs::traits::string<StringT>        string_type;
+    typedef typename string_type::const_pointer const_pointer;
         
 protected:
     string_type _msg;
     
 public:
-    explicit exception (string_type const & msg)
+    explicit exception (StringT const & msg)
         : _msg(msg)
     {}
 
-    string_type const & what () const
+    explicit exception (char const * msg)
+        : _msg(msg)
+    {}
+
+    explicit exception (wchar_t const * msg)
+        : _msg(msg)
+    {}
+
+    StringT const & what () const
     {
         return _msg;
     }

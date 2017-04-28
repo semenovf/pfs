@@ -16,41 +16,27 @@ namespace db {
 
 template <typename StringT, typename DatabaseTag>
 struct database_rep
-{};
-
-template <typename StringT, typename DatabaseTag>
-struct statement_rep
-{};
-
-template <typename StringT, typename DatabaseTag>
-struct database_traits
 {
     typedef traits::string<StringT>   string_type;
     typedef traits::c_str<StringT>    c_str;
-    typedef database_rep<DatabaseTag> rep_type;
-    typedef db::exception<StringT>    exception_type;
-    
-    static bool xopen (rep_type & d, string_type const & uri);
-    static void xclose (rep_type & d);
+    typedef db::exception<StringT>    exception;
 };
 
-template <typename StringT, typename DatabaseTag>
-struct statement_traits
-{
-    typedef traits::string<StringT>    string_type;
-    typedef traits::c_str<StringT>     c_str;
-    typedef statement_rep<DatabaseTag> rep_type;
-    typedef db::exception<StringT>     exception_type;
-};
+//template <typename StringT, typename DatabaseTag>
+//struct database_traits
+//{
+//    
+//    static bool xopen (rep_type & d, string_type const & uri);
+//    static void xclose (rep_type & d);
+//};
 
-template <typename StringT, typename DatabaseTag>
+template <typename DatabaseRep>
 class database
 {
 public:
-    typedef database_traits<StringT, DatabaseTag> traits_type;
-    typedef typename traits_type::string_type     string_type;
-    typedef typename traits_type::exception_type  exception_type;
-    typedef typename traits_type::rep_type        rep_type;
+    typedef typename DatabaseRep               rep_type;
+    typedef typename rep_type::string_type     string_type;
+    typedef typename rep_type::exception       exception;
 
 private:
     rep_type _d;
@@ -67,12 +53,12 @@ public:
     
     bool open (string_type const & uri)
     {
-        return traits_type::xopen(_d, uri);
+        return _d.open(uri);
     }
 
     void close ()
     {
-        traits_type::xclose(_d);
+        _d.close();
     }
 };
 

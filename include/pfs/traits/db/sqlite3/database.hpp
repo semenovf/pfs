@@ -5,11 +5,12 @@
  * Created on Apr 27, 2017
  */
 
-#ifndef __PFS_FOUNDATION_DB_SQLITE3_DATABASE_HPP__
-#define __PFS_FOUNDATION_DB_SQLITE3_DATABASE_HPP__
+#ifndef __PFS_TRAITS_DB_SQLITE3_DATABASE_HPP__
+#define __PFS_TRAITS_DB_SQLITE3_DATABASE_HPP__
 
 #include <sqlite3.h>
-#include <pfs/foundation/db/sqlite3/tag.hpp>
+#include <pfs/net/uri.hpp>
+#include <pfs/traits/db/sqlite3/tag.hpp>
 #include <pfs/traits/db/database.hpp>
 
 namespace pfs {
@@ -18,7 +19,19 @@ namespace db {
 template <typename StringT>
 struct database_rep<StringT, sqlite3_tag>
 {
-    sqlite3 * handle;
+    typedef traits::string<StringT>   string_type;
+    typedef traits::c_str<StringT>    c_str;
+    typedef db::exception<StringT>    exception;
+
+    database_rep ()
+        : _handle(0)
+    {}
+    
+    bool open (string_type const & uri);
+    void close ();
+    
+private:
+    sqlite3 * _handle;
 };
 
 /**
@@ -66,35 +79,33 @@ struct database_rep<StringT, sqlite3_tag>
  * @note  Autocommit mode is on by default.
  */
 template <typename StringT>
-bool database_traits<StringT, sqlite3_tag>::xopen (data_type & d
-    , string_type const & uri)
+bool
+database_traits<StringT, sqlite3_tag>::open (string_type const & uristr)
 {
+    pfs::net::uri<StringT> uri
+    
     if (! uri.starts_with(string_type("sqlite3:"))) {
         throw exception_type(string_type("bad database URI"));
     }
 
-    _d.handle = 0;
-	int        rc           = SQLITE_OK;
-	int        s3_flags     = SQLITE_OPEN_URI;
-	int        s3_flag_mode = SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE;
+	int rc        = SQLITE_OK;
+	int flags     = SQLITE_OPEN_URI;
+	int flag_mode = SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE;
 
-    s3_flags;
-	s3_flag_mode
-
-	pfs::map<pfs::string, pfs::string>::const_iterator mode = params.find(pfs::string("mode"));
+	pfs::map<pfs::string, pfs::string>::const_iterator mode = params.find(string_type("mode"));
 
 	if (mode != params.cend()) {
 		if (mode->second == "ro")
-			s3_flag_mode = SQLITE_OPEN_READONLY;
+			flag_mode = SQLITE_OPEN_READONLY;
 		else if (mode->second == "rw")
-			s3_flag_mode = SQLITE_OPEN_READWRITE;
+			flag_mode = SQLITE_OPEN_READWRITE;
 		else if (mode->second == "rwc")
-			s3_flag_mode = SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE;
+			flag_mode = SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE;
 		else if (mode->second == "memory")
-			s3_flag_mode = SQLITE_OPEN_MEMORY;
+			flag_mode = SQLITE_OPEN_MEMORY;
 	}
 
-	s3_flags |= s3_flag_mode;
+	flags |= flag_mode;
 
     rc = sqlite3_open_v2(path.c_str(), & dbh_native, s3_flags, NULL);
 
@@ -134,13 +145,13 @@ bool database_traits<StringT, sqlite3_tag>::xopen (data_type & d
     return true;
 }
 
-template <typename StringT>
-void database_traits<StringT, sqlite3_rep>::xclose (data_type & d)
-{
-    
-}
+//template <typename StringT>
+//void database_traits<StringT, sqlite3_rep>::xclose (data_type & d)
+//{
+//    
+//}
 
 }} // pfs::db
 
-#endif /* __PFS_FOUNDATION_DB_SQLITE3_DATABASE_HPP__ */
+#endif /* __PFS_TRAITS_DB_SQLITE3_DATABASE_HPP__ */
 

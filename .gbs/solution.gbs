@@ -24,8 +24,8 @@ project "test-mpl-string"
 --project "test-mpl-list"
 --    include("test-mpl-list/project.gbs")
 
---project "test-mpl-map"
---    include("test-mpl-map/project.gbs")
+project "test-mpl-map"
+    include("test-mpl-map/project.gbs")
 
 --project "test-mpl-fs-path"
 --    include("test-mpl-fs-path/project.gbs")

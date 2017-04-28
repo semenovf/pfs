@@ -15,7 +15,9 @@ namespace stdcxx {
 
 template <typename T>
 struct vector
-{};
+{
+    typedef std::vector<T> type;
+};
 
 } // qt
 
@@ -23,10 +25,10 @@ namespace pfs {
 namespace traits {
 
 template <typename T>
-struct vector_rep<T, ::stdcxx::vector> : public std::vector<T>
+struct vector_rep<T, ::stdcxx::vector> : public ::stdcxx::vector<T>::type
 {
-    typedef std::vector<T>                               base_class;
-    typedef std::vector<T>                               native_type;
+    typedef typename ::stdcxx::vector<T>::type           base_class;
+    typedef typename ::stdcxx::vector<T>::type           native_type;
     typedef native_type const &                          const_native_reference;
     typedef typename native_type::size_type              size_type;
     typedef typename native_type::value_type             value_type;

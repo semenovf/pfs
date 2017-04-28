@@ -9,13 +9,13 @@
 #include <pfs/test/test.hpp>
 #include <pfs.hpp>
 
-#include <pfs/foundation/cxx/stdcxx/map.hpp>
-#include <pfs/foundation/cxx/stdcxx/multimap.hpp>
+#include <pfs/traits/stdcxx/map.hpp>
+#include <pfs/traits/stdcxx/multimap.hpp>
 
 // Enabled by `qt_enable`
 #ifdef QT_CORE_LIB
-#   include <pfs/foundation/cxx/qt/map.hpp>
-#   include <pfs/foundation/cxx/qt/multimap.hpp>
+#   include <pfs/traits/qt/map.hpp>
+#   include <pfs/traits/qt/multimap.hpp>
 #endif
 
 #include "test_access.hpp"
@@ -32,14 +32,14 @@ int main (int argc, char *argv[])
     test_compare<pfs::traits::map, stdcxx::map>();
     test_swap<pfs::traits::map, stdcxx::map>();
     
-//    test_access<pfs::mpl::multimap, pfs::mpl::stdcxx::multimap>();
-//    test_compare<pfs::mpl::multimap, pfs::mpl::stdcxx::multimap>();
-//    test_swap<pfs::mpl::multimap, pfs::mpl::stdcxx::multimap>();
+//    test_access<pfs::traits::multimap, stdcxx::multimap>();
+//    test_compare<pfs::traits::multimap, stdcxx::multimap>();
+//    test_swap<pfs::traits::multimap, stdcxx::multimap>();
     
 #ifdef QT_CORE_LIB
-    test_access<pfs::traits::map, qt::map>();
-    test_compare<pfs::traits::map, qt::map>();
-    test_swap<pfs::traits::map, qt::map>();
+    test_access<pfs::traits::map, QMap>();
+    test_compare<pfs::traits::map, QMap>();
+    test_swap<pfs::traits::map, QMap>();
 
 //    test_access<pfs::mpl::multimap, QMultiMap>();
 //    test_compare<pfs::mpl::multimap, QMultiMap>();

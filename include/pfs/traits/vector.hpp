@@ -58,6 +58,10 @@ public:
     explicit vector ()
         : _d()
     {}
+        
+    vector (vector const & other)
+        : _d(other._d)
+    {}
 
     vector (size_type count, T const & value)
         : _d(count, value)
@@ -69,10 +73,6 @@ public:
 
     template <typename InputIt>
     vector (InputIt first, InputIt last);
-
-    vector (vector const & other)
-        : _d(other._d)
-    {}
 
     explicit vector (const_native_reference s)
         : _d(s)
@@ -88,7 +88,7 @@ public:
     vector & operator = (vector const & rhs)
     {
         if (this != & rhs)
-            _d = rhs._d.cast();
+            _d = rhs._d;
         return *this;
     }
 
@@ -96,6 +96,11 @@ public:
     {
         _d = rhs;
         return *this;
+    }
+    
+    operator const_native_reference () const pfs_noexcept
+    {
+        return _d;
     }
 
 // TODO Implement

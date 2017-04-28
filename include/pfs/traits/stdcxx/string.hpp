@@ -79,7 +79,7 @@ template <typename StringT>
 class c_str
 {
 public:
-    typedef string<StringT> string_type;
+    typedef string<StringT>                     string_type;
     typedef typename string_type::const_pointer const_pointer;
     
 protected:
@@ -90,13 +90,11 @@ public:
         : _d(s)
     {}
     
-    //CharT const * operator () () const
     const_pointer operator () () const
     {
         return _d.data();
     }
     
-    //operator CharT const * () const
     operator const_pointer () const
     {
         return _d.data();

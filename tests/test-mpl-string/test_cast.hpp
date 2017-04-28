@@ -34,6 +34,15 @@ void test_c_str_cast ()
     TEST_OK(std::strcmp(string_samples<char>(STR_DIFF)
             , pfs::traits::c_str<StringT>(orig)()) != 0);
 
+//    TEST_OK(std::strcmp(string_samples<wchar_t>(STR_ORIG)
+//            , pfs::traits::c_wstr<StringT>(orig)()) == 0);
+//
+//    TEST_OK(std::strcmp(string_samples<wchar_t>(STR_SAME)
+//            , pfs::traits::c_wstr<StringT>(orig)()) == 0);
+//
+//    TEST_OK(std::strcmp(string_samples<wchar_t>(STR_DIFF)
+//            , pfs::traits::c_wstr<StringT>(orig)()) != 0);
+    
     TEST_OK(std::strcmp(pfs::traits::c_str<StringT>(orig)()
             , pfs::traits::c_str<StringT>(orig)()) == 0);
 

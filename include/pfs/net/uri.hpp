@@ -134,6 +134,46 @@ public:
 
 	bool parse (string_type const & str);
 
+	void set_scheme (string_type const & scheme)
+	{
+		_d.scheme = scheme;
+	}
+
+	void set_authority (string_type const & authority)
+	{
+		_d.authority = authority;
+	}
+
+	void set_userinfo (string_type const & userinfo)
+	{
+		_d.userinfo = userinfo;
+	}
+
+	void set_host (string_type const & host)
+	{
+		_d.host = host;
+	}
+
+	void set_port (uint16_t port)
+    {
+        _d.port = port;
+    }
+
+	void set_path (string_type const & path)
+	{
+		_d.path = path;
+	}
+
+	void set_query (string_type const & query)
+	{
+		_d.query = query;
+	}
+
+	void set_fragment (string_type const & fragment)
+	{
+		_d.fragment = fragment;
+	}
+    
 	string_type to_string () const;
 };
 
