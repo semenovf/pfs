@@ -9,7 +9,7 @@
 #define __PFS_TEST__ 1
 
 #include <cstdio>
-#include "pfs/foundation/cxx/stdcxx/string.hpp"
+#include "pfs/traits/stdcxx/string.hpp"
 #include "pfs/fsm/test.hpp"
 #include "pfs/net/uri.hpp"
 #include "pfs/net/uri_parse.hpp"

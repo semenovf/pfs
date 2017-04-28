@@ -7,7 +7,7 @@
  */
 
 #include <pfs/test/test.hpp>
-#include <pfs/foundation/cxx/stdcxx/string.hpp>
+#include <pfs/traits/stdcxx/string.hpp>
 #include <pfs/fsm/fsm.hpp>
 
 typedef pfs::traits::string<std::string> sequence_type;

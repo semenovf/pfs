@@ -10,6 +10,7 @@
 #define __PFS_NET_URI_RFC3986_HPP__
 
 #include <pfs/fsm/fsm.hpp>
+#include <pfs/lexical_cast.hpp>
 
 namespace pfs {
 namespace net {
@@ -792,12 +793,11 @@ bool uri_grammar<StringT>::set_port (const_iterator begin
 		user_context * ctx = reinterpret_cast<user_context *>(context);
 		string_type digits(begin, end);
 
-		bool ok;
-		ctx->port = lexical_cast<string_type, uint16_t>(digits, 10, & ok);
-
-		if (!ok) {
-			return false;
-		}
+        try {
+            ctx->port = lexical_cast<string_type, uint16_t>(digits, 10);
+        } catch (bad_lexical_cast<StringT> ex) {
+            return false;
+        }
 	}
 	return true;
 }

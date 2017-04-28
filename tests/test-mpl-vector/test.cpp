@@ -29,7 +29,7 @@ int main (int argc, char *argv[])
 //    test_access<stdcxx::vector>();
     
 #ifdef QT_CORE_LIB
-    test_iterator<qt::vector>();
+    test_iterator<QVector>();
 //    test_access<qt::vector>();
 #endif    
 

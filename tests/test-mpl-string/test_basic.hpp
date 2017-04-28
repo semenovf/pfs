@@ -25,7 +25,7 @@ void test_assign ()
     string_type diff(string_samples<value_type>(STR_DIFF)); // Constructor (StringImpl const &)
     string_type dup(orig); // Copy constructor
     string_type orig1;     // Empty string
-    orig1 = orig;     // Copy assign operator
+    orig1 = orig;          // Copy assign operator
     string_type orig2;
     orig2 = string_samples<value_type>(STR_ORIG); // Assign from string implementation type
 

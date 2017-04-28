@@ -13,11 +13,11 @@
 #include <cwchar>
 #include <iostream>
 #include <sstream>
-#include <pfs/foundation/cxx/stdcxx/string.hpp>
+#include <pfs/traits/stdcxx/string.hpp>
 
 // Enabled by `qt_enable`
 #ifdef QT_CORE_LIB
-#   include <pfs/foundation/cxx/qt/string.hpp>
+#   include <pfs/traits/qt/string.hpp>
 #endif
 
 template <typename CharT>

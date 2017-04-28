@@ -12,19 +12,11 @@
 #include <pfs/algo/compare.hpp>
 #include <pfs/traits/vector.hpp>
 
-namespace qt {
-
-template <typename T>
-struct vector
-{};
-
-} // qt
-
 namespace pfs {
 namespace traits {
 
 template <typename T>
-struct vector_rep<T, ::qt::vector> : public QVector<T>
+struct vector_rep<T, QVector> : public QVector<T>
 {
     typedef QVector<T>                                     base_class;
     typedef QVector<T>                                     native_type;

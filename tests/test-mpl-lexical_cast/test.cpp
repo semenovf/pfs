@@ -7,7 +7,7 @@
  */
 #include <pfs/test/test.hpp>
 #include <pfs/lexical_cast.hpp>
-#include <pfs/foundation/cxx/stdcxx/string.hpp>
+#include <pfs/traits/stdcxx/string.hpp>
 
 #ifdef QT_CORE_LIB
 #   include <pfs/foundation/cxx/qt/string.hpp>
