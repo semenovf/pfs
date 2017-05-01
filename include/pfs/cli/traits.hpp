@@ -25,7 +25,7 @@ struct traits
     typedef traits::list<string_type, ListT> domain_list_type;
 };
 
-}}} // pfs::cli
+}} // pfs::cli
 
 #endif /* __PFS_CLI_TRAITS_HPP__ */
 
