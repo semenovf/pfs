@@ -15,14 +15,14 @@ solution "pfs-mpl"
 --project "pfs-test"
 --    include("pfs-test/project.gbs")
 
---project "test-mpl-iterator"
---    include("test-mpl-iterator/project.gbs")
+project "test-mpl-iterator"
+    include("test-mpl-iterator/project.gbs")
 
 project "test-mpl-string"
     include("test-mpl-string/project.gbs")
 
---project "test-mpl-list"
---    include("test-mpl-list/project.gbs")
+project "test-mpl-list"
+    include("test-mpl-list/project.gbs")
 
 project "test-mpl-map"
     include("test-mpl-map/project.gbs")

@@ -19,7 +19,7 @@ struct vector
     typedef std::vector<T> type;
 };
 
-} // qt
+} // stdcxx
 
 namespace pfs {
 namespace traits {

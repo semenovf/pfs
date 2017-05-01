@@ -55,7 +55,7 @@ private:
     rep_type _d;
     
 public:
-    explicit vector ()
+    vector ()
         : _d()
     {}
         
@@ -72,7 +72,11 @@ public:
     {}
 
     template <typename InputIt>
-    vector (InputIt first, InputIt last);
+    vector (InputIt first, InputIt last)
+    {
+        for (; first != last; ++first)
+            push_back(*first);
+    }
 
     explicit vector (const_native_reference s)
         : _d(s)

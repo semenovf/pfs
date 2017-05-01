@@ -9,11 +9,11 @@
 #include <pfs/test/test.hpp>
 #include <pfs.hpp>
 
-#include <pfs/foundation/cxx/stdcxx/list.hpp>
+#include <pfs/traits/stdcxx/list.hpp>
 
 // Enabled by `qt_enable`
 #ifdef QT_CORE_LIB
-#   include <pfs/foundation/cxx/qt/list.hpp>
+#   include <pfs/traits/qt/list.hpp>
 #endif
 
 #include "test_iterator.hpp"
@@ -26,12 +26,12 @@ int main (int argc, char *argv[])
     
 	BEGIN_TESTS(0);
     
-    test_iterator<foundation::stdcxx>();
-//    test_access<foundation::stdcxx>();
+    test_iterator<stdcxx::list>();
+//    test_access<stdcxx::list>();
     
 #ifdef QT_CORE_LIB
-    test_iterator<foundation::qt>();
-//    test_access<foundation::qt>();
+    test_iterator<QLinkedList>();
+//    test_access<QLinkedList>();
 #endif    
 
 	return END_TESTS;

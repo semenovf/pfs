@@ -25,15 +25,36 @@ public:
 private:
     multimap_type _map;
     
+private:
+    void parse (string_type const & querystr);
+
 public:
-    uri_query ();
+    uri_query ()
+    {}
 
-    uri_query (uri_type const & uri);
+    uri_query (uri_type const & uri)
+    {
+        parse(string_type(uri.query()));
+    }
 
-    uri_query (string_type const & querystr);
+    uri_query (StringT const & querystr)
+    {
+        parse(string_type(querystr));
+    }
+             
+    uri_query (char const * querystr)
+    {
+        parse(string_type(querystr));
+    }
 
-    uri_query (uri_query const & rhs);
+    uri_query (wchar_t const * querystr)
+    {
+        parse(string_type(querystr));
+    }
 
+    uri_query (uri_query const & rhs)
+        : _map(rhs._map)
+    {}
 };
 
 }} // pfs::net
