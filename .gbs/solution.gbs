@@ -62,3 +62,6 @@ project "test-mpl-utf8"
 
 project "test-mpl-treap"
     include("test-mpl-treap/project.gbs")
+
+project "test-mpl-numeric"
+    include("test-mpl-numeric/project.gbs")

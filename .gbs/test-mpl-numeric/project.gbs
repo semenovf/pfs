@@ -1,0 +1,39 @@
+--************************************************************
+--* Generated automatically by `gbs'
+--* Command: `gbs prj --create --type=test --name=test-mpl-numeric'
+--* Date:    Tue May  2 13:22:33 2017
+--************************************************************
+
+kind          "ConsoleApp"
+language      "C++"
+targetname    "test-mpl-numeric"
+defines       {  }
+includedirs   { "../../include" }
+libdirs       { "../../../.build" }
+files         { "../../tests/test-mpl-numeric/*.cpp" }
+
+configuration "debug"
+    flags        { "FatalWarnings", "Symbols" }
+    defines      { "DEBUG" }
+    objdir       "../../../.build/pfs-mpl/test-mpl-numeric/debug"
+    targetdir    "../../../.build/tests"
+    targetsuffix "-d"
+    links        { "pfs-test-d" }
+
+configuration "release"
+    flags        { "FatalWarnings" }
+    defines      { "NDEBUG" }
+    objdir       "../../../.build/pfs-mpl/test-mpl-numeric/release"
+    targetdir    "../../../.build/tests"
+    links        { "pfs-test" }
+
+
+filter "action:gmake"
+    buildoptions {}
+    linkoptions  {}
+
+include(os.getenv("GBS_HOME") .. "/premake/filter_action_gmake_install")
+
+filter { "debug", "action:gmake" }
+    linkoptions  { "-rdynamic" }
+
