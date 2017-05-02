@@ -65,3 +65,6 @@ project "test-mpl-treap"
 
 project "test-mpl-numeric"
     include("test-mpl-numeric/project.gbs")
+
+project "test-mpl-functional"
+    include("test-mpl-functional/project.gbs")

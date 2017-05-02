@@ -7,8 +7,7 @@
  */
 
 #include <pfs/test/test.hpp>
-
-#include "iota.hpp"
+#include "reference_wrapper.hpp"
 
 int main(int argc, char *argv[])
 {
@@ -17,7 +16,7 @@ int main(int argc, char *argv[])
 
     BEGIN_TESTS(0);
 
-    test_iota();
+    test_reference_wrapper();
 
     return END_TESTS;
 }

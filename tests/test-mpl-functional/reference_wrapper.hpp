@@ -23,7 +23,7 @@ void test_reference_wrapper ()
     
     std::vector<pfs::reference_wrapper<int> > same(orig.begin(), orig.end());
     
-    for(int i = 0; i < same.size(); i++)
+    for (int i = 0; i < same.size(); i++)
         same[i] += 5;
     
     int i = 0;
@@ -36,4 +36,3 @@ void test_reference_wrapper ()
 }
 
 #endif /* __TEST_REFERENCE_WRAPPER_HPP__ */
-

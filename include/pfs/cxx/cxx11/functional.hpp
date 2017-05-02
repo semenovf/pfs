@@ -15,6 +15,12 @@ namespace pfs {
 template <typename T>
 using reference_wrapper = std::reference_wrapper<T>;
 
+template <typename T>
+using ref = std::ref<T>;
+
+template <typename T>
+using cref = std::cref<T>;
+
 } // pfs
 
 #endif /* __PFS_CXX_CXX11_FUNCTIONAL_HPP__ */

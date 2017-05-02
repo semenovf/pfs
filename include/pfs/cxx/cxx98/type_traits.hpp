@@ -395,6 +395,130 @@ struct is_volatile<T volatile>
     : public true_type
 {};
 
+template <typename>
+struct is_reference : public false_type 
+{};
+
+template <typename T>
+struct is_reference<T &> : public true_type
+{};
+
+// is_function
+
+template <typename>
+struct is_function : false_type {};
+
+template <typename R>
+struct is_function<R()> : true_type {};
+
+template <typename R, typename A1>
+struct is_function<R(A1)> : true_type {};
+
+template <typename R, typename A1, typename A2>
+struct is_function<R(A1, A2)> : true_type {};
+
+template <typename R, typename A1, typename A2, typename A3>
+struct is_function<R(A1, A2, A3)> : true_type {};
+
+template <typename R, typename A1, typename A2, typename A3, typename A4>
+struct is_function<R(A1, A2, A3, A4)> : true_type {};
+
+template <typename R, typename A1, typename A2, typename A3, typename A4, typename A5>
+struct is_function<R(A1, A2, A3, A4, A5)> : true_type {};
+
+template <typename R, typename A1, typename A2, typename A3, typename A4, typename A5, typename A6>
+struct is_function<R(A1, A2, A3, A4, A5, A6)> : true_type {};
+
+template <typename R, typename A1, typename A2, typename A3, typename A4, typename A5, typename A6, typename A7>
+struct is_function<R(A1, A2, A3, A4, A5, A6, A7)> : true_type {};
+
+template <typename R, typename A1, typename A2, typename A3, typename A4, typename A5, typename A6, typename A7, typename A8>
+struct is_function<R(A1, A2, A3, A4, A5, A6, A7, A8)> : true_type {};
+
+// cost
+template <typename R>
+struct is_function<R() const> : true_type {};
+
+template <typename R, typename A1>
+struct is_function<R(A1) const> : true_type {};
+
+template <typename R, typename A1, typename A2>
+struct is_function<R(A1, A2) const> : true_type {};
+
+template <typename R, typename A1, typename A2, typename A3>
+struct is_function<R(A1, A2, A3) const> : true_type {};
+
+template <typename R, typename A1, typename A2, typename A3, typename A4>
+struct is_function<R(A1, A2, A3, A4) const> : true_type {};
+
+template <typename R, typename A1, typename A2, typename A3, typename A4, typename A5>
+struct is_function<R(A1, A2, A3, A4, A5) const> : true_type {};
+
+template <typename R, typename A1, typename A2, typename A3, typename A4, typename A5, typename A6>
+struct is_function<R(A1, A2, A3, A4, A5, A6) const> : true_type {};
+
+template <typename R, typename A1, typename A2, typename A3, typename A4, typename A5, typename A6, typename A7>
+struct is_function<R(A1, A2, A3, A4, A5, A6, A7) const> : true_type {};
+
+template <typename R, typename A1, typename A2, typename A3, typename A4, typename A5, typename A6, typename A7, typename A8>
+struct is_function<R(A1, A2, A3, A4, A5, A6, A7, A8) const> : true_type {};
+
+// volatile
+template <typename R>
+struct is_function<R() volatile> : true_type {};
+
+template <typename R, typename A1>
+struct is_function<R(A1) volatile> : true_type {};
+
+template <typename R, typename A1, typename A2>
+struct is_function<R(A1, A2) volatile> : true_type {};
+
+template <typename R, typename A1, typename A2, typename A3>
+struct is_function<R(A1, A2, A3) volatile> : true_type {};
+
+template <typename R, typename A1, typename A2, typename A3, typename A4>
+struct is_function<R(A1, A2, A3, A4) volatile> : true_type {};
+
+template <typename R, typename A1, typename A2, typename A3, typename A4, typename A5>
+struct is_function<R(A1, A2, A3, A4, A5) volatile> : true_type {};
+
+template <typename R, typename A1, typename A2, typename A3, typename A4, typename A5, typename A6>
+struct is_function<R(A1, A2, A3, A4, A5, A6) volatile> : true_type {};
+
+template <typename R, typename A1, typename A2, typename A3, typename A4, typename A5, typename A6, typename A7>
+struct is_function<R(A1, A2, A3, A4, A5, A6, A7) volatile> : true_type {};
+
+template <typename R, typename A1, typename A2, typename A3, typename A4, typename A5, typename A6, typename A7, typename A8>
+struct is_function<R(A1, A2, A3, A4, A5, A6, A7, A8) volatile> : true_type {};
+
+// const volatile
+template <typename R>
+struct is_function<R() const volatile> : true_type {};
+
+template <typename R, typename A1>
+struct is_function<R(A1) const volatile> : true_type {};
+
+template <typename R, typename A1, typename A2>
+struct is_function<R(A1, A2) const volatile> : true_type {};
+
+template <typename R, typename A1, typename A2, typename A3>
+struct is_function<R(A1, A2, A3) const volatile> : true_type {};
+
+template <typename R, typename A1, typename A2, typename A3, typename A4>
+struct is_function<R(A1, A2, A3, A4) const volatile> : true_type {};
+
+template <typename R, typename A1, typename A2, typename A3, typename A4, typename A5>
+struct is_function<R(A1, A2, A3, A4, A5) const volatile> : true_type {};
+
+template <typename R, typename A1, typename A2, typename A3, typename A4, typename A5, typename A6>
+struct is_function<R(A1, A2, A3, A4, A5, A6) const volatile> : true_type {};
+
+template <typename R, typename A1, typename A2, typename A3, typename A4, typename A5, typename A6, typename A7>
+struct is_function<R(A1, A2, A3, A4, A5, A6, A7) const volatile> : true_type {};
+
+template <typename R, typename A1, typename A2, typename A3, typename A4, typename A5, typename A6, typename A7, typename A8>
+struct is_function<R(A1, A2, A3, A4, A5, A6, A7, A8) const volatile> : true_type {};
+
 } // pfs
 
 #endif /* __PFS_CXX98_TYPE_TRAITS_HPP__ */
