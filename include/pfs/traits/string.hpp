@@ -194,6 +194,11 @@ public:
         return this->rend();
     }
 
+    // TODO reference front ()
+    // TODO const_reference front () const;
+    // TODO reference back ();
+    // TODO const_reference back () const;
+
     /**
      * @brief
      * @param pos Position of the character to return.
