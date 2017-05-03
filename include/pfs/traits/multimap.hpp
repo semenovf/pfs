@@ -5,6 +5,8 @@
  * Created on January 20, 2017, 3:54 PM
  */
 
+// XXX DEPRECATED, use kmvcontainer.hpp
+
 #ifndef __PFS_TRAITS_MULTIMAP_HPP__
 #define __PFS_TRAITS_MULTIMAP_HPP__
 
@@ -31,36 +33,6 @@ struct multimap_rep
     
     native_type d;
 };
-
-//namespace details {
-//    
-//template <typename Key, typename T, template <typename, typename> class MultiMapT>
-//class basic_multimap
-//{
-//protected:
-//    virtual iterator xerase (iterator first, iterator last)
-//    {
-//        if (first == this->xbegin() && last == this->xend())
-//            this->xclear();
-//        else
-//            while (first != last)
-//                this->xerase(first++);
-//    }
-//	
-//    virtual pfs::pair<iterator,iterator> xequal_range (Key const & key) 
-//    {
-//        return pfs::pair<iterator,iterator>(this->xlower_bound(key)
-//                , this->xupper_bound(key));
-//    }
-//    
-//    virtual pfs::pair<const_iterator,const_iterator> xequal_range (Key const & key) const
-//    {
-//        return pfs::pair<iterator,iterator>(this->xlower_bound(key)
-//                , this->xupper_bound(key));
-//    }
-//};
-//
-//} // details
 
 template <typename Key, typename T, template <typename, typename> class MultiMapT>
 class multimap

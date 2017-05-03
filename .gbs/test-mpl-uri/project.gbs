@@ -12,6 +12,15 @@ includedirs   { "../../include" }
 libdirs       { "../../../.build" }
 files         { "../../tests/test-mpl-uri/*.c", "../../tests/test-mpl-uri/*.cpp" }
 
+-- Special for Qt projects
+require("../../../.gbs/qt_enable")
+
+--Available modules:
+--    core, gui, multimedia, network, opengl, positioning, printsupport,
+--    qml, quick, sensors, sql, svg, testlib, websockets, widgets, xml
+--
+qtmodules     { "core" }
+
 configuration "debug"
     flags        { "FatalWarnings", "Symbols" }
     defines      { "DEBUG" }
@@ -37,3 +46,5 @@ include(os.getenv("GBS_HOME") .. "/premake/filter_action_gmake_install")
 filter { "debug", "action:gmake" }
     linkoptions  { "-rdynamic" }
 
+-- Special for Qt projects
+package.loaded["../../../.gbs/qt_enable"] = nil

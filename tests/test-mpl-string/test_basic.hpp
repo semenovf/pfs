@@ -39,7 +39,7 @@ void test_assign ()
 template <typename StringT>
 void test_iterator ()
 {
-    typedef pfs::traits::string<StringT>                 string_type;
+    typedef pfs::traits::string<StringT>                         string_type;
     typedef typename string_type::const_iterator         const_iterator;
     typedef typename string_type::const_reverse_iterator const_reverse_iterator;
     typedef typename string_type::value_type             value_type;

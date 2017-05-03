@@ -1,16 +1,18 @@
 --************************************************************
 --* Generated automatically by `gbs'
---* Command: `gbs project --create --name=test-mpl-lexical_cast --type=test'
---* Date:    Wed Mar 15 17:39:19 2017
+--* Command: `gbs prj --create --type=test --name=test-mpl-kvcontainer'
+--* Date:    May 3 20:28:0 2017
 --************************************************************
 
 kind          "ConsoleApp"
 language      "C++"
-targetname    "test-mpl-lexical_cast"
+targetname    "test-mpl-kvcontainer"
 defines       {  }
-includedirs   { "../../include" }
+includedirs   {   "../../include"
+                , "../../../pfs/include"
+              }
 libdirs       { "../../../.build" }
-files         { "../../tests/test-mpl-lexical_cast/*.c", "../../tests/test-mpl-lexical_cast/*.cpp" }
+files         { "../../tests/test-mpl-kvcontainer/*.cpp" }
 
 -- Special for Qt projects
 require("../../../.gbs/qt_enable")
@@ -24,7 +26,7 @@ qtmodules     { "core" }
 configuration "debug"
     flags        { "FatalWarnings", "Symbols" }
     defines      { "DEBUG" }
-    objdir       "../../../.build/pfs-mpl/test-mpl-lexical_cast/debug"
+    objdir       "../../../.build/pfs/test-mpl-kvcontainer/debug"
     targetdir    "../../../.build/tests"
     targetsuffix "-d"
     links        { "pfs-test-d" }
@@ -32,19 +34,9 @@ configuration "debug"
 configuration "release"
     flags        { "FatalWarnings" }
     defines      { "NDEBUG" }
-    objdir       "../../../.build/pfs-mpl/test-mpl-lexical_cast/release"
+    objdir       "../../../.build/pfs/test-mpl-kvcontainer/release"
     targetdir    "../../../.build/tests"
     links        { "pfs-test" }
-
-
-filter "action:gmake"
-    buildoptions {}
-    linkoptions  {}
-
-include(os.getenv("GBS_HOME") .. "/premake/filter_action_gmake_install")
-
-filter { "debug", "action:gmake" }
-    linkoptions  { "-rdynamic" }
 
 -- Special for Qt projects
 package.loaded["../../../.gbs/qt_enable"] = nil

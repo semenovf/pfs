@@ -20,6 +20,7 @@ namespace stdcxx {
 template <typename CharT>
 struct string_rep : public std::basic_string<CharT>
 {
+    typedef std::basic_string<CharT>                     base_class;
     typedef std::basic_string<CharT>                     native_type;
     typedef native_type const &                          const_native_reference;
     typedef typename native_type::size_type              size_type;
@@ -33,9 +34,9 @@ struct string_rep : public std::basic_string<CharT>
     typedef typename native_type::reverse_iterator       reverse_iterator;
     typedef typename native_type::const_reverse_iterator const_reverse_iterator;
     
-    native_type d;
+    using base_class::erase;
     
-    using native_type::erase;
+    native_type d;
     
     string_rep ()
         : d()
@@ -67,10 +68,10 @@ struct string_rep : public std::basic_string<CharT>
         const_iterator begin = d.begin();
         size_type index = pfs::distance(begin, first);
         size_type count = pfs::distance(first, last);
-        d.erase(index, count);
+        base_class::erase(index, count);
         return d.begin() + index;
 #else
-        return d.erase(first, last);
+        return base_class::erase(first, last);
 #endif
     }
 };
@@ -169,9 +170,9 @@ struct string_rep<std::wstring>
 
 template <>
 class c_str<std::string> 
-    : public stdcxx::c_str<std::string>
+    : public traits::stdcxx::c_str<std::string>
 {
-    typedef stdcxx::c_str<std::string> base_type;
+    typedef traits::stdcxx::c_str<std::string> base_type;
 public:
     explicit c_str (string_type const & s)
         : base_type(s)
@@ -180,9 +181,9 @@ public:
 
 template <>
 class c_wstr<std::wstring> 
-    : public stdcxx::c_str<std::wstring>
+    : public traits::stdcxx::c_str<std::wstring>
 {
-    typedef stdcxx::c_str<std::wstring> base_type;
+    typedef traits::stdcxx::c_str<std::wstring> base_type;
 public:
     explicit c_wstr (string_type const & s)
         : base_type(s)

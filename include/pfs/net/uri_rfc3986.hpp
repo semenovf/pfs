@@ -106,11 +106,11 @@ namespace net {
 template <typename UriT>
 struct uri_grammar
 {
-    typedef typename UriT::string_type           string_type;
+    typedef typename UriT::string_traits           string_traits;
     typedef typename UriT::data_rep              user_context;
-    typedef fsm::fsm<string_type>                fsm_type;
+    typedef fsm::fsm<string_traits>                fsm_type;
     typedef typename fsm_type::transition_type   transition_type;
-    typedef typename string_type::const_iterator const_iterator;
+    typedef typename string_traits::const_iterator const_iterator;
     
     uri_grammar ();
     
@@ -159,9 +159,9 @@ struct uri_grammar
             , void * action_args);
 
 #if __PFS_TEST__
-    static string_type const * p_alpha;
-    static string_type const * p_digit;
-    static string_type const * p_hexdigit; // DIGIT / "A" / "B" / "C" / "D" / "E" / "F"
+    static string_traits const * p_alpha;
+    static string_traits const * p_digit;
+    static string_traits const * p_hexdigit; // DIGIT / "A" / "B" / "C" / "D" / "E" / "F"
 
     static transition_type const * p_digit_tr;
     static transition_type const * p_hexdig_tr;
@@ -248,11 +248,11 @@ typename uri_grammar<UriT>::transition_type const * uri_grammar<UriT>::p_uri_ref
 template <typename UriT>
 uri_grammar<UriT>::uri_grammar ()
 {
-    static string_type const alpha("ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    static string_traits const alpha("ABCDEFGHIJKLMNOPQRSTUVWXYZ"
             "abcdefghijklmnopqrstuvwxyz");
-    static string_type const digit("0123456789");
+    static string_traits const digit("0123456789");
 
-    static string_type const hexdigit("0123456789ABCDEFabcdef");
+    static string_traits const hexdigit("0123456789ABCDEFabcdef");
 
     static transition_type const digit_tr[] = {
         {-1,-1, fsm_type::one_of(digit), fsm_type::accept, 0, 0 }
@@ -266,12 +266,12 @@ uri_grammar<UriT>::uri_grammar ()
     static transition_type const unreserved_tr[] = {
           {-1, 1, fsm_type::one_of(alpha), fsm_type::accept, 0, 0 }
         , {-1, 2, fsm_type::one_of(digit), fsm_type::accept, 0, 0 }
-        , {-1,-1, fsm_type::one_of(string_type("-._~")), fsm_type::accept, 0, 0 }
+        , {-1,-1, fsm_type::one_of(string_traits("-._~")), fsm_type::accept, 0, 0 }
     };
 
     /* "%" HEXDIG HEXDIG */
     static transition_type const pct_encoded_tr[] = {
-          { 1,-1, fsm_type::seq(string_type("%")) , fsm_type::normal, 0, 0 }
+          { 1,-1, fsm_type::seq(string_traits("%")) , fsm_type::normal, 0, 0 }
         , { 2,-1, fsm_type::one_of(hexdigit), fsm_type::normal, 0, 0 }
         , {-1,-1, fsm_type::one_of(hexdigit), fsm_type::accept, 0, 0 }
     };
@@ -280,7 +280,7 @@ uri_grammar<UriT>::uri_grammar ()
            / "*" / "+" / "," / ";" / "="
     */
     static transition_type const sub_delims_tr[] = {
-        {-1,-1, fsm_type::one_of(string_type("!$&'()*+,;=")), fsm_type::accept, 0, 0 }
+        {-1,-1, fsm_type::one_of(string_traits("!$&'()*+,;=")), fsm_type::accept, 0, 0 }
     };
 
     /* unreserved / pct-encoded / sub-delims / ":" / "@" */
@@ -288,7 +288,7 @@ uri_grammar<UriT>::uri_grammar ()
           {-1, 1, fsm_type::tr(unreserved_tr) , fsm_type::accept, 0, 0 }
         , {-1, 2, fsm_type::tr(pct_encoded_tr), fsm_type::accept, 0, 0 }
         , {-1, 3, fsm_type::tr(sub_delims_tr) , fsm_type::accept, 0, 0 }
-        , {-1,-1, fsm_type::one_of(string_type(":@")), fsm_type::accept, 0, 0 }
+        , {-1,-1, fsm_type::one_of(string_traits(":@")), fsm_type::accept, 0, 0 }
     };
 
 
@@ -306,7 +306,7 @@ uri_grammar<UriT>::uri_grammar ()
 
     /* "/" segment */
     static transition_type const slash_segment_tr[] = {
-          { 1,-1, fsm_type::seq(string_type("/")), fsm_type::normal, 0, 0 }
+          { 1,-1, fsm_type::seq(string_traits("/")), fsm_type::normal, 0, 0 }
         , {-1,-1, fsm_type::tr(segment_tr)          , fsm_type::accept, 0, 0 }
     };
 
@@ -318,7 +318,7 @@ uri_grammar<UriT>::uri_grammar ()
 
     /* "/" [ segment-nz *slash_segment ] */
     static transition_type const path_absolute_tr[] = {
-          { 1,-1, fsm_type::seq(string_type("/"))    , fsm_type::normal, 0, 0 }
+          { 1,-1, fsm_type::seq(string_traits("/"))    , fsm_type::normal, 0, 0 }
         , {-1,-1, fsm_type::opt_tr(segment_nz_slash_tr) , fsm_type::accept, 0, 0 }
     };
 
@@ -329,7 +329,7 @@ uri_grammar<UriT>::uri_grammar ()
           {-1, 1, fsm_type::tr(unreserved_tr)       , fsm_type::accept, 0, 0 }
         , {-1, 2, fsm_type::tr(pct_encoded_tr)      , fsm_type::accept, 0, 0 }
         , {-1, 3, fsm_type::tr(sub_delims_tr)       , fsm_type::accept, 0, 0 }
-        , {-1,-1, fsm_type::one_of(string_type("@")), fsm_type::accept, 0, 0 }
+        , {-1,-1, fsm_type::one_of(string_traits("@")), fsm_type::accept, 0, 0 }
     };
 
     static transition_type const segment_nz_nc_tr[] = {
@@ -357,27 +357,27 @@ uri_grammar<UriT>::uri_grammar ()
 
     /* "25" %x30-35        ; 250-255 */
     static transition_type const dec_octet_tr_4[] = {
-          { 1,-1, fsm_type::seq(string_type("25"))    , fsm_type::normal, 0, 0 }
-        , {-1,-1, fsm_type::one_of(string_type("012345")), fsm_type::accept, 0, 0 }
+          { 1,-1, fsm_type::seq(string_traits("25"))    , fsm_type::normal, 0, 0 }
+        , {-1,-1, fsm_type::one_of(string_traits("012345")), fsm_type::accept, 0, 0 }
     };
 
     /* "2" %x30-34 DIGIT   ; 200-249 */
     static transition_type const dec_octet_tr_3[] = {
-          { 1,-1, fsm_type::seq(string_type("2"))         , fsm_type::normal, 0, 0 }
-        , { 2,-1, fsm_type::one_of(string_type("01234"))  , fsm_type::normal, 0, 0 }
+          { 1,-1, fsm_type::seq(string_traits("2"))         , fsm_type::normal, 0, 0 }
+        , { 2,-1, fsm_type::one_of(string_traits("01234"))  , fsm_type::normal, 0, 0 }
         , {-1,-1, fsm_type::one_of(digit), fsm_type::accept, 0, 0 }
     };
 
     /* "1" 2DIGIT  ; 100-199 */
     static transition_type const dec_octet_tr_2[] = {
-          { 1,-1, fsm_type::seq(string_type("1")), fsm_type::normal, 0, 0 }
+          { 1,-1, fsm_type::seq(string_traits("1")), fsm_type::normal, 0, 0 }
         , { 2,-1, fsm_type::one_of(digit)      , fsm_type::normal, 0, 0 }
         , {-1,-1, fsm_type::one_of(digit)      , fsm_type::accept, 0, 0 }
     };
 
     /* %x31-39 DIGIT       ; 10-99*/
     static transition_type const dec_octet_tr_1[] = {
-          { 1,-1, fsm_type::one_of(string_type("123456789")), fsm_type::normal, 0, 0 }
+          { 1,-1, fsm_type::one_of(string_traits("123456789")), fsm_type::normal, 0, 0 }
         , {-1,-1, fsm_type::one_of(digit), fsm_type::accept, 0, 0 }
     };
 
@@ -399,11 +399,11 @@ uri_grammar<UriT>::uri_grammar ()
     /* dec-octet "." dec-octet "." dec-octet "." dec-octet */
     static transition_type const ipv4address_tr[] = {
           { 1,-1, fsm_type::tr(dec_octet_tr)     , fsm_type::normal, 0, 0 }
-        , { 2,-1, fsm_type::seq(string_type(".")), fsm_type::normal, 0, 0 }
+        , { 2,-1, fsm_type::seq(string_traits(".")), fsm_type::normal, 0, 0 }
         , { 3,-1, fsm_type::tr(dec_octet_tr)     , fsm_type::normal, 0, 0 }
-        , { 4,-1, fsm_type::seq(string_type(".")), fsm_type::normal, 0, 0 }
+        , { 4,-1, fsm_type::seq(string_traits(".")), fsm_type::normal, 0, 0 }
         , { 5,-1, fsm_type::tr(dec_octet_tr)     , fsm_type::normal, 0, 0 }
-        , { 6,-1, fsm_type::seq(string_type(".")), fsm_type::normal, 0, 0 }
+        , { 6,-1, fsm_type::seq(string_traits(".")), fsm_type::normal, 0, 0 }
         , {-1,-1, fsm_type::tr(dec_octet_tr)     , fsm_type::accept, 0, 0 }
     };
 
@@ -411,14 +411,14 @@ uri_grammar<UriT>::uri_grammar ()
     static transition_type const ls32_tr[] = {
           {-1, 1, fsm_type::tr(ipv4address_tr), fsm_type::accept, 0, 0 }
         , { 2,-1, fsm_type::tr(h16_tr)        , fsm_type::normal, 0, 0 }
-        , { 3,-1, fsm_type::seq(string_type(":")), fsm_type::normal, 0, 0 }
+        , { 3,-1, fsm_type::seq(string_traits(":")), fsm_type::normal, 0, 0 }
         , {-1,-1, fsm_type::tr(h16_tr)        , fsm_type::accept, 0, 0 }
     };
 
     /* h16 ":" */
     static transition_type const h16_semi_tr[] = {
           { 1,-1, fsm_type::tr(h16_tr), fsm_type::normal, 0, 0 }
-        , {-1,-1, fsm_type::seq(string_type(":")), fsm_type::accept, 0, 0 }
+        , {-1,-1, fsm_type::seq(string_traits(":")), fsm_type::accept, 0, 0 }
     };
 
     /* *1( h16 ":" ) h16 */
@@ -471,7 +471,7 @@ uri_grammar<UriT>::uri_grammar ()
 
     /* "::" 5( h16 ":" ) ls32 */
     static transition_type const ipv6address_tr_2[] = {
-          { 1,-1, fsm_type::seq(string_type("::")), fsm_type::normal, 0, 0 }
+          { 1,-1, fsm_type::seq(string_traits("::")), fsm_type::normal, 0, 0 }
         , { 2,-1, fsm_type::rpt_tr(h16_semi_tr, 5, 5), fsm_type::normal, 0, 0 }
         , {-1,-1, fsm_type::tr(ls32_tr)              , fsm_type::accept, 0, 0 }
     };
@@ -479,7 +479,7 @@ uri_grammar<UriT>::uri_grammar ()
     /* [ h16 ] "::" 4( h16 ":" ) ls32 */
     static transition_type const ipv6address_tr_3[] = {
           { 1, 1, fsm_type::tr(h16_tr), fsm_type::normal, 0, 0 }
-        , { 2,-1, fsm_type::seq(string_type("::")), fsm_type::normal, 0, 0 }
+        , { 2,-1, fsm_type::seq(string_traits("::")), fsm_type::normal, 0, 0 }
         , { 3,-1, fsm_type::rpt_tr(h16_semi_tr, 4, 4), fsm_type::normal, 0, 0 }
         , {-1,-1, fsm_type::tr(ls32_tr)              , fsm_type::accept, 0, 0 }
     };
@@ -488,7 +488,7 @@ uri_grammar<UriT>::uri_grammar ()
     static transition_type const ipv6address_tr_4[] = {
           { 1, 1, fsm_type::tr(ipv6address_tr_4_1), fsm_type::normal, 0, 0 }
 
-        , { 2,-1, fsm_type::seq(string_type("::")), fsm_type::normal, 0, 0 }
+        , { 2,-1, fsm_type::seq(string_traits("::")), fsm_type::normal, 0, 0 }
         , { 3,-1, fsm_type::tr(h16_semi_tr), fsm_type::normal, 0, 0 }
         , { 4,-1, fsm_type::tr(h16_semi_tr), fsm_type::normal, 0, 0 }
         , { 5,-1, fsm_type::tr(h16_semi_tr), fsm_type::normal, 0, 0 }
@@ -500,7 +500,7 @@ uri_grammar<UriT>::uri_grammar ()
           { 1, 2, fsm_type::tr(ipv6address_tr_5_1), fsm_type::normal, 0, 0 }
         , { 2, 2, fsm_type::tr(ipv6address_tr_5_1), fsm_type::normal, 0, 0 }
 
-        , { 3,-1, fsm_type::seq(string_type("::")), fsm_type::normal, 0, 0 }
+        , { 3,-1, fsm_type::seq(string_traits("::")), fsm_type::normal, 0, 0 }
         , { 4,-1, fsm_type::tr(h16_semi_tr), fsm_type::normal, 0, 0 }
         , { 5,-1, fsm_type::tr(h16_semi_tr), fsm_type::normal, 0, 0 }
         , {-1,-1, fsm_type::tr(ls32_tr)    , fsm_type::accept, 0, 0 }
@@ -512,7 +512,7 @@ uri_grammar<UriT>::uri_grammar ()
         , { 2, 3, fsm_type::tr(ipv6address_tr_6_1), fsm_type::normal, 0, 0 }
         , { 3, 3, fsm_type::tr(ipv6address_tr_6_1), fsm_type::normal, 0, 0 }
 
-        , { 4,-1, fsm_type::seq(string_type("::")), fsm_type::normal, 0, 0 }
+        , { 4,-1, fsm_type::seq(string_traits("::")), fsm_type::normal, 0, 0 }
         , { 5,-1, fsm_type::tr(h16_semi_tr), fsm_type::normal, 0, 0 }
         , {-1,-1, fsm_type::tr(ls32_tr)    , fsm_type::accept, 0, 0 }
     };
@@ -525,7 +525,7 @@ uri_grammar<UriT>::uri_grammar ()
         , { 3, 4, fsm_type::tr(ipv6address_tr_7_1), fsm_type::normal, 0, 0 }
         , { 4, 4, fsm_type::tr(ipv6address_tr_7_1), fsm_type::normal, 0, 0 }
 
-        , { 5,-1, fsm_type::seq(string_type("::")), fsm_type::normal, 0, 0 }
+        , { 5,-1, fsm_type::seq(string_traits("::")), fsm_type::normal, 0, 0 }
         , {-1,-1, fsm_type::tr(ls32_tr) , fsm_type::accept, 0, 0 }
     };
 
@@ -537,7 +537,7 @@ uri_grammar<UriT>::uri_grammar ()
         , { 4, 5, fsm_type::tr(ipv6address_tr_8_1), fsm_type::normal, 0, 0 }
         , { 5, 5, fsm_type::tr(ipv6address_tr_8_1), fsm_type::normal, 0, 0 }
 
-        , { 6,-1, fsm_type::seq(string_type("::")) , fsm_type::normal, 0, 0 }
+        , { 6,-1, fsm_type::seq(string_traits("::")) , fsm_type::normal, 0, 0 }
         , {-1,-1, fsm_type::tr(h16_tr)   , fsm_type::accept, 0, 0 }
     };
 
@@ -550,7 +550,7 @@ uri_grammar<UriT>::uri_grammar ()
         , { 4, 6, fsm_type::tr(ipv6address_tr_9_1), fsm_type::normal, 0, 0 }
         , { 5, 6, fsm_type::tr(ipv6address_tr_9_1), fsm_type::normal, 0, 0 }
         , { 6, 6, fsm_type::tr(ipv6address_tr_9_1), fsm_type::normal, 0, 0 }
-        , {-1,-1, fsm_type::seq(string_type("::"))          , fsm_type::accept, 0, 0 }
+        , {-1,-1, fsm_type::seq(string_traits("::"))          , fsm_type::accept, 0, 0 }
     };
 
 
@@ -581,13 +581,13 @@ uri_grammar<UriT>::uri_grammar ()
     static transition_type const ipvfuture_tail_tr[] = {
           {-1, 1, fsm_type::tr(unreserved_tr)    , fsm_type::accept, 0, 0 }
         , {-1, 2, fsm_type::tr(sub_delims_tr)    , fsm_type::accept, 0, 0 }
-        , {-1,-1, fsm_type::seq(string_type(":")), fsm_type::accept, 0, 0 }
+        , {-1,-1, fsm_type::seq(string_traits(":")), fsm_type::accept, 0, 0 }
     };
 
     static transition_type const ipvfuture_tr[] = {
-          { 1,-1, fsm_type::seq(string_type("v"))           , fsm_type::normal, 0, 0 }
+          { 1,-1, fsm_type::seq(string_traits("v"))           , fsm_type::normal, 0, 0 }
         , { 2,-1, fsm_type::rpt_tr(hexdig_tr, 1, -1)        , fsm_type::normal, 0, 0 }
-        , { 3,-1, fsm_type::seq(string_type("."))           , fsm_type::normal, 0, 0 }
+        , { 3,-1, fsm_type::seq(string_traits("."))           , fsm_type::normal, 0, 0 }
         , {-1,-1, fsm_type::rpt_tr(ipvfuture_tail_tr, 1, -1), fsm_type::accept, 0, 0 }
     };
 
@@ -597,9 +597,9 @@ uri_grammar<UriT>::uri_grammar ()
         , {-1,-1, fsm_type::tr(ipvfuture_tr)  , fsm_type::accept, 0, 0 }
     };
     static transition_type const ip_literal_tr[] = {
-          { 1,-1, fsm_type::seq(string_type("["))  , fsm_type::normal, 0, 0 }
+          { 1,-1, fsm_type::seq(string_traits("["))  , fsm_type::normal, 0, 0 }
         , { 2,-1, fsm_type::tr(ip_literal_entry_tr), fsm_type::normal, 0, 0 }
-        , {-1,-1, fsm_type::seq(string_type("]"))  , fsm_type::accept, 0, 0 }
+        , {-1,-1, fsm_type::seq(string_traits("]"))  , fsm_type::accept, 0, 0 }
     };
 
     /* *( unreserved / pct-encoded / sub-delims ) */
@@ -631,7 +631,7 @@ uri_grammar<UriT>::uri_grammar ()
 
     /* ":" port */
     static transition_type const authority_tr_2[] = {
-          { 1,-1, fsm_type::seq(string_type(":")), fsm_type::normal, 0, 0 }
+          { 1,-1, fsm_type::seq(string_traits(":")), fsm_type::normal, 0, 0 }
         , {-1,-1, fsm_type::tr(port_tr), fsm_type::accept, set_port, 0}
     };
 
@@ -640,14 +640,14 @@ uri_grammar<UriT>::uri_grammar ()
           { 0, 1, fsm_type::tr(unreserved_tr)    , fsm_type::accept, 0, 0 }
         , { 0, 2, fsm_type::tr(pct_encoded_tr)   , fsm_type::accept, 0, 0 }
         , { 0, 3, fsm_type::tr(sub_delims_tr)    , fsm_type::accept, 0, 0 }
-        , { 0, 4, fsm_type::seq(string_type(":")), fsm_type::accept, 0, 0 }
+        , { 0, 4, fsm_type::seq(string_traits(":")), fsm_type::accept, 0, 0 }
         , {-1,-1, fsm_type::nothing(), fsm_type::accept, 0, 0 }
     };
 
     /* userinfo "@" */
     static transition_type const authority_tr_1[] = {
           { 1,-1, fsm_type::tr(userinfo_tr)      , fsm_type::normal, set_userinfo, 0 }
-        , {-1,-1, fsm_type::seq(string_type("@")), fsm_type::accept, 0, 0 }
+        , {-1,-1, fsm_type::seq(string_traits("@")), fsm_type::accept, 0, 0 }
     };
 
     /* [ userinfo "@" ] host [ ":" port ] */
@@ -671,7 +671,7 @@ uri_grammar<UriT>::uri_grammar ()
                   / path-empty
     */
     static transition_type const relative_part_tr[] = {
-          { 1, 3, fsm_type::seq(string_type("//")), fsm_type::normal, 0, 0 }
+          { 1, 3, fsm_type::seq(string_traits("//")), fsm_type::normal, 0, 0 }
         , { 2, 3, fsm_type::tr(authority_tr)      , fsm_type::normal, set_path, 0 }
         , {-1, 3, fsm_type::tr(path_abempty_tr)   , fsm_type::accept, set_path, 0 }
 
@@ -683,7 +683,7 @@ uri_grammar<UriT>::uri_grammar ()
     /* *( pchar / "/" / "?" ) */
     static transition_type const query_chars_tr[] = {
           {-1, 1, fsm_type::tr(pchar_tr)             , fsm_type::accept, 0, 0 }
-        , {-1,-1, fsm_type::one_of(string_type("/?")), fsm_type::accept, 0, 0 }
+        , {-1,-1, fsm_type::one_of(string_traits("/?")), fsm_type::accept, 0, 0 }
     };
     static transition_type const query_tr[] = {
         {-1,-1, fsm_type::rpt_tr(query_chars_tr, 0, -1), fsm_type::accept, 0, 0 }
@@ -691,7 +691,7 @@ uri_grammar<UriT>::uri_grammar ()
 
     /* "?" query */
     static transition_type const relative_ref_tr_1[] = {
-          { 1,-1, fsm_type::seq(string_type("?")) , fsm_type::normal, 0, 0 }
+          { 1,-1, fsm_type::seq(string_traits("?")) , fsm_type::normal, 0, 0 }
         , {-1,-1, fsm_type::tr(query_tr), fsm_type::accept, set_query, 0 }
     };
 
@@ -702,7 +702,7 @@ uri_grammar<UriT>::uri_grammar ()
 
     /* "#" fragment */
     static transition_type const relative_ref_tr_2[] = {
-          { 1,-1, fsm_type::seq(string_type("#")), fsm_type::normal, 0, 0 }
+          { 1,-1, fsm_type::seq(string_traits("#")), fsm_type::normal, 0, 0 }
         , {-1,-1, fsm_type::tr(fragment_tr), fsm_type::accept, set_fragment, 0}
     };
 
@@ -717,7 +717,7 @@ uri_grammar<UriT>::uri_grammar ()
     static transition_type const scheme_chars_tr[] = {
           {-1, 1, fsm_type::one_of(alpha), fsm_type::accept, 0, 0 }
         , {-1, 2, fsm_type::one_of(digit), fsm_type::accept, 0, 0 }
-        , {-1,-1, fsm_type::one_of(string_type("+-.")), fsm_type::accept, 0, 0 }
+        , {-1,-1, fsm_type::one_of(string_traits("+-.")), fsm_type::accept, 0, 0 }
     };
     static transition_type const scheme_tr[] = {
           { 1,-1, fsm_type::one_of(alpha), fsm_type::normal, 0, 0 }
@@ -737,7 +737,7 @@ uri_grammar<UriT>::uri_grammar ()
              / path-empty
     */
     static transition_type const hier_part_tr[] = {
-          { 1, 3, fsm_type::seq(string_type("//")), fsm_type::normal, 0, 0 }
+          { 1, 3, fsm_type::seq(string_traits("//")), fsm_type::normal, 0, 0 }
         , { 2, 3, fsm_type::tr(authority_tr)      , fsm_type::normal, set_path, 0 }
         , {-1, 3, fsm_type::tr(path_abempty_tr)   , fsm_type::accept, set_path, 0 }
 
@@ -749,13 +749,13 @@ uri_grammar<UriT>::uri_grammar ()
 
     /* "?" query */
     static transition_type const uri_tr_1[] = {
-          { 1,-1, fsm_type::seq(string_type("?")), fsm_type::normal, 0, 0 }
+          { 1,-1, fsm_type::seq(string_traits("?")), fsm_type::normal, 0, 0 }
         , {-1,-1, fsm_type::tr(query_tr), fsm_type::accept, set_query, 0 }
     };
 
     /* "#" fragment */
     static transition_type const uri_tr_2[] = {
-          { 1,-1, fsm_type::seq(string_type("#")), fsm_type::normal, 0, 0 }
+          { 1,-1, fsm_type::seq(string_traits("#")), fsm_type::normal, 0, 0 }
         , {-1,-1, fsm_type::tr(fragment_tr), fsm_type::accept, set_fragment, 0 }
     };
 
@@ -763,7 +763,7 @@ uri_grammar<UriT>::uri_grammar ()
     /* scheme ":" hier-part [ "?" query ] [ "#" fragment ] */
     static transition_type const uri_tr[] = {
           { 1,-1, fsm_type::tr(scheme_tr)         , fsm_type::normal, set_scheme, 0 }
-        , { 2,-1, fsm_type::seq(string_type(":")) , fsm_type::normal, 0, 0 }
+        , { 2,-1, fsm_type::seq(string_traits(":")) , fsm_type::normal, 0, 0 }
         , { 3,-1, fsm_type::tr(hier_part_tr)      , fsm_type::normal, 0, 0 }
         , { 4,-1, fsm_type::rpt_tr(uri_tr_1, 0, 1), fsm_type::normal, 0, 0 }
         , {-1,-1, fsm_type::rpt_tr(uri_tr_2, 0, 1), fsm_type::accept, 0, 0 }
@@ -791,10 +791,10 @@ bool uri_grammar<StringT>::set_port (const_iterator begin
 {
 	if (context) {
 		user_context * ctx = reinterpret_cast<user_context *>(context);
-		string_type digits(begin, end);
+		string_traits digits(begin, end);
 
         try {
-            ctx->port = lexical_cast<string_type, uint16_t>(digits, 10);
+            ctx->port = lexical_cast<string_traits, uint16_t>(digits, 10);
         } catch (bad_lexical_cast<StringT> ex) {
             return false;
         }
@@ -835,7 +835,7 @@ inline bool uri_grammar<StringT>::set_scheme (const_iterator begin
 		, void *)
 {
 	if (context) {
-		reinterpret_cast<user_context *>(context)->scheme = string_type(begin, end);
+		reinterpret_cast<user_context *>(context)->scheme = string_traits(begin, end);
 	}
 	return true;
 }
@@ -847,7 +847,7 @@ inline bool uri_grammar<StringT>::set_userinfo (const_iterator begin
 		, void *)
 {
 	if (context) {
-		reinterpret_cast<user_context *>(context)->userinfo = string_type(begin, end);
+		reinterpret_cast<user_context *>(context)->userinfo = string_traits(begin, end);
 	}
 	return true;
 }
@@ -859,7 +859,7 @@ inline bool uri_grammar<StringT>::set_host (const_iterator begin
 		, void *)
 {
 	if (context) {
-		reinterpret_cast<user_context *>(context)->host = string_type(begin, end);
+		reinterpret_cast<user_context *>(context)->host = string_traits(begin, end);
 	}
 	return true;
 }
@@ -871,7 +871,7 @@ inline bool uri_grammar<StringT>::set_path (const_iterator begin
 		, void *)
 {
 	if (context) {
-		reinterpret_cast<user_context *>(context)->path = string_type(begin, end);
+		reinterpret_cast<user_context *>(context)->path = string_traits(begin, end);
 	}
 	return true;
 }
@@ -883,7 +883,7 @@ inline bool uri_grammar<StringT>::set_query (const_iterator begin
 		, void *)
 {
 	if (context) {
-		reinterpret_cast<user_context *>(context)->query = string_type(begin, end);
+		reinterpret_cast<user_context *>(context)->query = string_traits(begin, end);
 	}
 	return true;
 }
@@ -895,7 +895,7 @@ inline bool uri_grammar<StringT>::set_fragment (const_iterator begin
 		, void *)
 {
 	if (context) {
-		reinterpret_cast<user_context *>(context)->fragment = string_type(begin, end);
+		reinterpret_cast<user_context *>(context)->fragment = string_traits(begin, end);
 	}
 	return true;
 }
@@ -910,10 +910,10 @@ inline bool uri_grammar<StringT>::set_fragment (const_iterator begin
 template <typename StringT>
 bool uri<StringT>::parse (string_type const & str)
 {
-    typedef pfs::fsm::fsm<string_type> fsm_type;
+    typedef pfs::fsm::fsm<string_traits> fsm_type;
     
     // Initialize grammar's static memebers
-    static uri_grammar<string_type> grammar;
+    static uri_grammar<string_traits> grammar;
 
     _d.clear();
     

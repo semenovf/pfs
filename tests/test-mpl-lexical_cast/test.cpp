@@ -10,7 +10,7 @@
 #include <pfs/traits/stdcxx/string.hpp>
 
 #ifdef QT_CORE_LIB
-#   include <pfs/foundation/cxx/qt/string.hpp>
+#   include <pfs/traits/qt/string.hpp>
 #endif
 
 #include "test_string_to_uintmax.hpp"
@@ -32,9 +32,9 @@ int main(int argc, char *argv[])
             
 #ifdef QT_CORE_LIB
     {
-        typedef pfs::traits::string<foundation::qt, QChar> string_type;
+        typedef pfs::traits::string<QString> string_type;
 
-        test_string_to_uintmax::test<string_type>();
+        test_string_to_uintmax<string_type>();
         test_integer<string_type>();
     }
 #endif

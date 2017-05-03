@@ -11,8 +11,8 @@
 #include <pfs/fsm/fsm.hpp>
 
 typedef pfs::traits::string<std::string> sequence_type;
-typedef pfs::fsm::fsm<sequence_type> fsm_type;
-typedef fsm_type::char_type          char_type;
+typedef pfs::fsm::fsm<sequence_type>     fsm_type;
+typedef fsm_type::char_type              char_type;
 
 /* DIGIT / "A" / "B" / "C" / "D" / "E" / "F" */
 static sequence_type const _DIGITS("0123456789");
@@ -38,7 +38,6 @@ static void test_alternatives_simple ()
 
 	sequence_type::const_iterator it_end;
 	
-
 	it_end = hexdig.cbegin();
 	pfs::advance(it_end, 1);
 	r = fsm.exec(0, hexdig.cbegin(), it_end);

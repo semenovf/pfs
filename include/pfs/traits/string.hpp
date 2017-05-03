@@ -40,7 +40,7 @@ template <typename StringT>
 class string
 {
 public:
-    typedef string_rep<StringT>                       rep_type;
+    typedef traits::string_rep<StringT>               rep_type;
     typedef typename rep_type::native_type            native_type;
     typedef typename rep_type::const_native_reference const_native_reference;
     typedef typename rep_type::size_type              size_type;

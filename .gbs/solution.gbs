@@ -54,8 +54,8 @@ project "test-mpl-vector"
 project "test-mpl-uri"
     include("test-mpl-uri/project.gbs")
 
-project "test-mpl-lexical_cast"
-    include("test-mpl-lexical_cast/project.gbs")
+--project "test-mpl-lexical_cast"
+--    include("test-mpl-lexical_cast/project.gbs")
 
 project "test-mpl-utf8"
     include("test-mpl-utf8/project.gbs")
@@ -66,5 +66,8 @@ project "test-mpl-treap"
 project "test-mpl-numeric"
     include("test-mpl-numeric/project.gbs")
 
-project "test-mpl-functional"
-    include("test-mpl-functional/project.gbs")
+--project "test-mpl-functional"
+--    include("test-mpl-functional/project.gbs")
+
+project "test-mpl-kvcontainer"
+    include("test-mpl-kvcontainer/project.gbs")

@@ -25,8 +25,9 @@ template <typename StringT>
 class uri
 {
 public:
-    typedef traits::string<StringT> string_type;
-    
+    typedef StringT string_type;
+    typedef traits::string<StringT> string_traits;
+
     struct data_rep
     {
         data_rep ()
@@ -36,16 +37,15 @@ public:
         
         void clear ();
 
-        string_type scheme;
-        /*string_type m_schemeSpecificPart;*/
-        string_type authority;
-        string_type userinfo;
-        string_type host;
-        uint16_t    port;
-        string_type path;
-        string_type query;
-        string_type fragment;
-        bool        is_raw_host;
+        string_traits scheme;
+        string_traits authority;
+        string_traits userinfo;
+        string_traits host;
+        uint16_t      port;
+        string_traits path;
+        string_traits query;
+        string_traits fragment;
+        bool          is_raw_host;
     };
 
 private:
@@ -191,49 +191,11 @@ void uri<StringT>::data_rep::clear()
 	is_raw_host = false;
 }
 
-
-//template <typename Foundation, typename CharT>
-//typename uri<Foundation, CharT>::items_map_type
-//uri<Foundation, CharT>::query_items (
-//		  string_type const & value_delim
-//		, string_type const & pair_delim)
-//{
-//    typedef traits::vector<Foundation, string_type> stringlist_type;
-//	items_map_type r;
-//
-//	stringlist_type pairs;
-//	split(this->query().cbegin(), this->query().cend()
-//            , pair_delim.cbegin(), pair_delim.cend()
-//            , pfs::keep_empty
-//            , & pairs);
-//
-//	typename stringlist_type::const_iterator it = pairs.cbegin();
-//	typename stringlist_type::const_iterator it_end = pairs.cend();
-//
-//	while (it != it_end) {
-//		stringlist_type pair;
-//        
-//        split(it->cbegin(), it->cend()
-//                , value_delim.cbegin(), value_delim.cend()
-//                , pfs::keep_empty
-//                , & pair);
-//
-//		if (!pair.empty()) {
-//			r.insert(items_map_type::value_type(pair[0], pair.size() > 1 
-//                    ? pair[1]
-//                    : string_type()));
-//		}
-//		++it;
-//	}
-//
-//	return r;
-//}
-
 template <typename StringT>
 typename uri<StringT>::string_type 
 uri<StringT>::to_string () const
 {
-	string_type r;
+	string_traits r;
 
 	// userinfo without host is an error
 	//
@@ -243,15 +205,15 @@ uri<StringT>::to_string () const
 
 	if (!_d.scheme.empty()) {
 		r.append(_d.scheme);
-		r.append(string_type(":"));
+		r.append(string_traits(":"));
 	}
 
 	if (!_d.userinfo.empty() || !_d.host.empty()) {
-		r.append(string_type("//"));
+		r.append(string_traits("//"));
 
 		if (!_d.userinfo.empty()) {
 			r.append(_d.userinfo);
-			r.append(string_type("@"));
+			r.append(string_traits("@"));
 		}
 
 		if (!_d.host.empty()) {
@@ -259,7 +221,7 @@ uri<StringT>::to_string () const
 		}
 
 		if (_d.port > 0) {
-			r.append(string_type(":"));
+			r.append(string_traits(":"));
 			r.append(to_string(_d.port));
 		}
 
@@ -268,12 +230,12 @@ uri<StringT>::to_string () const
 		}
 
 		if (!_d.query.empty()) {
-			r.append(string_type("?"));
+			r.append(string_traits("?"));
 			r.append(_d.query);
 		}
 
 		if (!_d.fragment.empty()) {
-			r.append(string_type("#"));
+			r.append(string_traits("#"));
 			r.append(_d.fragment);
 		}
 	}

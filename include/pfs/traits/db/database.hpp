@@ -22,14 +22,6 @@ struct database_rep
     typedef db::exception<StringT>    exception;
 };
 
-//template <typename StringT, typename DatabaseTag>
-//struct database_traits
-//{
-//    
-//    static bool xopen (rep_type & d, string_type const & uri);
-//    static void xclose (rep_type & d);
-//};
-
 template <typename DatabaseRep>
 class database
 {
