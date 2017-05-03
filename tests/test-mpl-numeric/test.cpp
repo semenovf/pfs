@@ -3,14 +3,13 @@
  * @author
  * @date
  *
- * @brief testing ...
+ * @brief Testing numeric features
  */
 
 #include <pfs/test/test.hpp>
-
 #include "iota.hpp"
 
-int main(int argc, char *argv[])
+int main (int argc, char * argv[])
 {
     PFS_UNUSED(argc);
     PFS_UNUSED(argv);
