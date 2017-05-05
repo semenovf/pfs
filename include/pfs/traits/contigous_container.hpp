@@ -8,6 +8,9 @@
 #ifndef __PFS_TRAITS_CONTIGOUS_CONTAINER_HPP__
 #define __PFS_TRAITS_CONTIGOUS_CONTAINER_HPP__
 
+#include <pfs/cxxlang.hpp>
+#include <pfs/exception.hpp>
+
 namespace pfs {
 namespace traits {
 
@@ -20,11 +23,10 @@ struct contigous_container_traits
     typedef typename RepType::const_native_reference const_native_reference;
     typedef typename RepType::pointer                pointer;
     typedef typename RepType::const_pointer          const_pointer;
-    
 };
 
 template <typename T, template <typename> class RepType>
-class contigous_container
+class contigous_container : public container
 {
 public:
     typedef contigous_container_traits<T, RepType>       traits_type;
@@ -75,6 +77,38 @@ public:
     size_type size () const
     {
         return _p->size();
+    }
+    
+ 	size_type max_size () const
+    {
+        return _p->max_size();
+    }
+
+    size_type capacity () const
+    {
+        return _p->capacity();
+    }
+
+    void resize (size_type count)
+    {
+        _p->resize(count);
+    }
+    
+    void resize (size_type count, value_type const & value)
+    {
+        _p->resize(count, value);
+    }
+
+    void reserve (size_type new_cap)
+    {
+        if (new_cap > max_size())
+            throw pfs::length_error("contigous_container::reserve()");
+        _p->reserve(new_cap);
+    }
+    
+    void shrink_to_fit ()
+    {
+        _p->shrink_to_fit();
     }
 };
 
