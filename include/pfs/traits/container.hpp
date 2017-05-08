@@ -33,7 +33,7 @@ public:
     typedef typename ref_type::difference_type        difference_type;
     typedef typename ref_type::size_type              size_type;
     
-private:
+protected:
     ref_type _p;
 
 public:

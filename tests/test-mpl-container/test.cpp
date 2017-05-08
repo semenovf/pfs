@@ -10,6 +10,8 @@
 #include "pfs/utility.hpp"
 
 #include "pfs/traits/container.hpp"
+#include "pfs/traits/sequence_container.hpp"
+
 #include "pfs/traits/stdcxx/vector.hpp"
 #include "pfs/traits/stdcxx/deque.hpp"
 #include "pfs/traits/stdcxx/list.hpp"
@@ -31,6 +33,7 @@
 #endif
 
 #include "test_container_basic.hpp"
+#include "test_sequence_container_basic.hpp"
 
 int main (int argc, char *argv[])
 {
