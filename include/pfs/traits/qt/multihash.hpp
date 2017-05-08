@@ -1,14 +1,14 @@
 /* 
- * File:   multimap.hpp
+ * File:   multihash.hpp
  * Author: wladt
  *
  * Created on May 8, 2017
  */
 
-#ifndef __PFS_TRAITS_QT_MULTIMAP_HPP__
-#define __PFS_TRAITS_QT_MULTIMAP_HPP__
+#ifndef __PFS_TRAITS_QT_MULTIHASH_HPP__
+#define __PFS_TRAITS_QT_MULTIHASH_HPP__
 
-#include <QMultiMap>
+#include <QHash>
 #include <pfs/traits/qt/container.hpp>
 
 namespace pfs {
@@ -16,15 +16,15 @@ namespace traits {
 namespace qt {
 
 template <typename T>
-struct multimap_wrapper
+struct multihash_wrapper
 {
-    typedef QMultiMap<typename T::first_type, typename T::second_type> type;
+    typedef QMultiHash<typename T::first_type, typename T::second_type> type;
 };
 
 template <typename T>
-class multimap : public container<T, multimap_wrapper>
+class multihash : public container<T, multihash_wrapper>
 {
-    typedef container<T, multimap_wrapper> base_class;
+    typedef container<T, multihash_wrapper> base_class;
     
 public:
     typedef typename base_class::native_type      native_type;
@@ -37,7 +37,7 @@ public:
     typedef typename native_type::mapped_type const & const_reference;
 
 public:
-    multimap (native_reference rhs)
+    multihash (native_reference rhs)
         : base_class(rhs)
     {}
         
@@ -128,5 +128,5 @@ struct multimap_rep<Key, T, QMultiMap> : public QMultiMap<Key, T>
 
 #endif
 
-#endif /* __PFS_TRAITS_QT_MULTIMAP_HPP__ */
+#endif /* __PFS_TRAITS_QT_MULTIHASH_HPP__ */
 

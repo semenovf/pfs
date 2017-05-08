@@ -9,8 +9,35 @@
 #define __PFS_TRAITS_STDCXX_MULTIMAP_HPP__
 
 #include <map>
-#include <pfs/traits/multimap.hpp>
+#include <pfs/traits/stdcxx/container.hpp>
 
+namespace pfs {
+namespace traits {
+namespace stdcxx {
+
+template <typename T>
+struct multimap_wrapper
+{
+    typedef std::multimap<typename T::first_type, typename T::second_type> type;
+};
+
+template <typename T>
+class multimap : public container<T, multimap_wrapper>
+{
+    typedef container<T, multimap_wrapper> base_class;
+    
+public:
+    typedef typename base_class::native_reference native_reference;
+
+public:
+    multimap (native_reference rhs)
+        : base_class(rhs)
+    {}
+};
+
+}}} // pfs::traits::stdcxx
+
+#if __COMMENT__
 namespace stdcxx {
 
 template <typename Key, typename T>
@@ -23,50 +50,6 @@ struct multimap
 
 namespace pfs {
 namespace traits {
-
-//namespace stdcxx {
-//
-//template <typename Key, typename T>
-//struct multimap_iterator : public ::stdcxx::multimap<Key, T>::type::iterator
-//{
-//    typedef typename ::stdcxx::multimap<Key, T>::type::iterator base_type;
-//
-//    multimap_iterator (base_type lhs) pfs_noexcept
-//        : base_type(lhs)
-//    {}
-//    
-//    Key const & key () const
-//    {
-//        return base_type::operator->()->first;
-//    }
-//    
-//    T &	value () const
-//    {
-//        return base_type::operator->()->second;
-//    }
-//};
-//
-//template <typename Key, typename T>
-//struct multimap_const_iterator : public ::stdcxx::multimap<Key, T>::type::const_iterator
-//{
-//    typedef typename ::stdcxx::multimap<Key, T>::type::const_iterator base_type;
-//
-//    multimap_const_iterator (base_type lhs) pfs_noexcept
-//        : base_type(lhs)
-//    {}
-//    
-//    Key const & key () const
-//    {
-//        return base_type::operator->()->first;
-//    }
-//    
-//    T const & value () const
-//    {
-//        return base_type::operator->()->second;
-//    }
-//};
-//
-//} // stdcxx
 
 template <typename Key, typename T>
 struct multimap_rep<Key, T, ::stdcxx::multimap> : public ::stdcxx::multimap<Key, T>::type
@@ -113,5 +96,7 @@ struct multimap_rep<Key, T, ::stdcxx::multimap> : public ::stdcxx::multimap<Key,
 };
 
 }} // pfs::traits
+
+#endif
 
 #endif /* __PFS_TRAITS_STDCXX_MULTIMAP_HPP__ */

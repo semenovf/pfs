@@ -8,6 +8,8 @@
 #ifndef __PFS_TRAITS_VECTOR_HPP__
 #define __PFS_TRAITS_VECTOR_HPP__
 
+#if __OBSOLETE__
+
 #include <pfs/exception.hpp>
 #include <pfs/cxxlang.hpp>
 
@@ -419,5 +421,7 @@ operator >= (vector<T, VectorT> const & lhs
 }
 
 }} // pfs::traits
+
+#endif
 
 #endif /* __PFS_TRAITS_VECTOR_HPP__ */

@@ -9,6 +9,36 @@
 #define __PFS_TRAITS_STDCXX_MAP_HPP__
 
 #include <map>
+#include <pfs/traits/stdcxx/container.hpp>
+
+namespace pfs {
+namespace traits {
+namespace stdcxx {
+
+template <typename T>
+struct map_wrapper
+{
+    typedef std::map<typename T::first_type, typename T::second_type> type;
+};
+
+template <typename T>
+class map : public container<T, map_wrapper>
+{
+    typedef container<T, map_wrapper> base_class;
+    
+public:
+    typedef typename base_class::native_reference native_reference;
+
+public:
+    map (native_reference rhs)
+        : base_class(rhs)
+    {}
+};
+
+}}} // pfs::traits::stdcxx
+
+#if __OBSOLETE__
+
 #include <pfs/traits/map.hpp>
 
 namespace stdcxx {
@@ -159,5 +189,7 @@ struct map_rep<Key, T, ::stdcxx::map> : public ::stdcxx::map<Key, T>::type
 //};
 //
 //}} // pfs::traits
+
+#endif
 
 #endif /* __PFS_TRAITS_STDCXX_MAP_HPP__ */

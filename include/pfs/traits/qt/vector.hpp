@@ -9,6 +9,47 @@
 #define __PFS_TRAITS_QT_VECTOR_HPP__
 
 #include <QVector>
+#include <pfs/traits/qt/container.hpp>
+
+namespace pfs {
+namespace traits {
+namespace qt {
+
+template <typename T>
+struct vector_wrapper
+{
+    typedef QVector<T> type;
+};
+
+template <typename T>
+class vector : public container<T, vector_wrapper>
+{
+    typedef container<T, vector_wrapper> base_class;
+    
+public:
+    typedef typename base_class::native_type      native_type;
+    typedef typename base_class::native_reference native_reference;
+    typedef typename base_class::size_type        size_type;
+    typedef typename native_type::value_type      value_type;
+    typedef typename native_type::reference       reference;
+    typedef typename native_type::const_reference const_reference;
+
+public:
+    vector (native_reference rhs)
+        : base_class(rhs)
+    {}
+
+    size_type max_size () const pfs_noexcept
+    {
+        return (INT_MAX)/sizeof(T) - sizeof(native_type);
+    }
+};
+
+}}} // pfs::traits::qt
+
+#if __OBSOLETE__
+
+#include <QVector>
 #include <pfs/algo/compare.hpp>
 #include <pfs/traits/vector.hpp>
 
@@ -32,10 +73,6 @@ struct vector_rep<T, QVector> : public QVector<T>
     typedef typename std::reverse_iterator<iterator>       reverse_iterator;
     typedef typename std::reverse_iterator<const_iterator> const_reverse_iterator;
 
-    size_type max_size ()
-    {
-        return (INT_MAX)/sizeof(T) - sizeof(native_type);
-    }
     
     reverse_iterator rbegin ()
     {
@@ -69,5 +106,7 @@ struct vector_rep<T, QVector> : public QVector<T>
 };
 
 }} // pfs::traits
+
+#endif
 
 #endif /* __PFS_TRAITS_QT_VECTOR_HPP__ */

@@ -1,14 +1,14 @@
 /* 
- * File:   list.hpp
+ * File:   linked_list.hpp
  * Author: wladt
  *
- * Created on Map 8, 2017
+ * Created on May 8, 2017
  */
 
-#ifndef __PFS_TRAITS_QT_LIST_HPP__
-#define __PFS_TRAITS_QT_LIST_HPP__
+#ifndef __PFS_TRAITS_QT_LINKED_LIST_HPP__
+#define __PFS_TRAITS_QT_LINKED_LIST_HPP__
 
-#include <QList>
+#include <QLinkedList>
 #include <pfs/traits/qt/container.hpp>
 
 namespace pfs {
@@ -16,15 +16,15 @@ namespace traits {
 namespace qt {
 
 template <typename T>
-struct list_wrapper
+struct linked_list_wrapper
 {
-    typedef QList<T> type;
+    typedef QLinkedList<T> type;
 };
 
 template <typename T>
-class list : public container<T, list_wrapper>
+class linked_list : public container<T, linked_list_wrapper>
 {
-    typedef container<T, list_wrapper> base_class;
+    typedef container<T, linked_list_wrapper> base_class;
     
 public:
     typedef typename base_class::native_type      native_type;
@@ -35,7 +35,7 @@ public:
     typedef typename native_type::const_reference const_reference;
 
 public:
-    list (native_reference rhs)
+    linked_list (native_reference rhs)
         : base_class(rhs)
     {}
 
@@ -136,5 +136,5 @@ void list_rep<T, QLinkedList>::resize (size_type count
 
 #endif
 
-#endif /* __PFS_TRAITS_QT_LIST_HPP__ */
+#endif /* __PFS_TRAITS_QT_LINKED_LIST_HPP__ */
 

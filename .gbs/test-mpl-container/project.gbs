@@ -1,18 +1,16 @@
 --************************************************************
 --* Generated automatically by `gbs'
---* Command: `gbs prj --create --type=test --name=test-mpl-map'
---* Date:    Mon Jan 16 15:08:41 2017
+--* Command: `gbs prj --create --type=test --name=test-mpl-container'
+--* Date:    Sun May  7 12:37:45 2017
 --************************************************************
 
 kind          "ConsoleApp"
 language      "C++"
-targetname    "test-mpl-map"
+targetname    "test-mpl-container"
 defines       {  }
-includedirs   {   "../../include"
-                , "../../../pfs/include"
-              }
+includedirs   { "../../include" }
 libdirs       { "../../../.build" }
-files         { "../../tests/test-mpl-map/*.cpp" }
+files         { "../../tests/test-mpl-container/*.cpp" }
 
 -- Special for Qt projects
 require("../../../.gbs/qt_enable")
@@ -26,7 +24,7 @@ qtmodules     { "core" }
 configuration "debug"
     flags        { "FatalWarnings", "Symbols" }
     defines      { "DEBUG" }
-    objdir       "../../../.build/pfs/test-mpl-map/debug"
+    objdir       "../../../.build/pfs-mpl/test-mpl-container/debug"
     targetdir    "../../../.build/tests"
     targetsuffix "-d"
     links        { "pfs-test-d" }
@@ -34,9 +32,19 @@ configuration "debug"
 configuration "release"
     flags        { "FatalWarnings" }
     defines      { "NDEBUG" }
-    objdir       "../../../.build/pfs/test-mpl-map/release"
+    objdir       "../../../.build/pfs-mpl/test-mpl-container/release"
     targetdir    "../../../.build/tests"
     links        { "pfs-test" }
+
+
+filter "action:gmake"
+    buildoptions {}
+    linkoptions  {}
+
+include(os.getenv("GBS_HOME") .. "/premake/filter_action_gmake_install")
+
+filter { "debug", "action:gmake" }
+    linkoptions  { "-rdynamic" }
 
 -- Special for Qt projects
 package.loaded["../../../.gbs/qt_enable"] = nil

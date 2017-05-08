@@ -9,7 +9,35 @@
 #define __PFS_TRAITS_STDCXX_LIST_HPP__
 
 #include <list>
-#include <pfs/traits/list.hpp>
+#include <pfs/traits/stdcxx/container.hpp>
+
+namespace pfs {
+namespace traits {
+namespace stdcxx {
+
+template <typename T>
+struct list_wrapper
+{
+    typedef std::list<T> type;
+};
+
+template <typename T>
+class list : public container<T, list_wrapper>
+{
+    typedef container<T, list_wrapper> base_class;
+    
+public:
+    typedef typename base_class::native_reference native_reference;
+
+public:
+    list (native_reference rhs)
+        : base_class(rhs)
+    {}
+};
+
+}}} // pfs::traits::stdcxx
+
+#if __OBSOLETE__
 
 namespace stdcxx {
 
@@ -74,5 +102,7 @@ struct list_rep<T, ::stdcxx::list> : public ::stdcxx::list<T>::type
 };
 
 }} // pfs::traits
+
+#endif
 
 #endif /* __PFS_TRAITS_STDCXX_LIST_HPP__ */

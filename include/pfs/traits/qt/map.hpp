@@ -2,13 +2,56 @@
  * File:   map.hpp
  * Author: wladt
  *
- * Created on January 16, 2017, 3:12 PM
+ * Created on May 8, 2017
  */
 
 #ifndef __PFS_TRAITS_QT_MAP_HPP__
 #define __PFS_TRAITS_QT_MAP_HPP__
 
 #include <QMap>
+#include <pfs/traits/qt/container.hpp>
+
+namespace pfs {
+namespace traits {
+namespace qt {
+
+template <typename T>
+struct map_wrapper
+{
+    typedef QMap<typename T::first_type, typename T::second_type> type;
+};
+
+template <typename T>
+class map : public container<T, map_wrapper>
+{
+    typedef container<T, map_wrapper> base_class;
+    
+public:
+    typedef typename base_class::native_type      native_type;
+    typedef typename base_class::native_reference native_reference;
+    typedef typename base_class::size_type        size_type;
+    
+    typedef typename pfs::pair<typename T::first_type
+            , typename T::second_type>                value_type;
+    typedef typename native_type::mapped_type &       reference;
+    typedef typename native_type::mapped_type const & const_reference;
+
+public:
+    map (native_reference rhs)
+        : base_class(rhs)
+    {}
+        
+    size_type max_size () const pfs_noexcept
+    {
+        return ((INT_MAX)/sizeof(T) - sizeof(native_type)) / 2; // FIXME
+    }
+};
+
+}}} // pfs::traits::qt
+
+
+#if __OBSOLETE__
+
 #include <pfs/cxxlang.hpp>
 #include <pfs/traits/map.hpp>
 
@@ -106,83 +149,6 @@ struct map_rep<Key, T, QMap> : public QMap<Key, T>
         return it.value();
     }
 };
-
-
-//template <typename Key, typename T>
-//class basic_map<Key, T, ::qt::map>
-//    : public details::basic_map<Key, T, ::qt::map>
-//{
-//    
-//protected:
-//    virtual iterator xbegin ()
-//    {
-//        return iterator(this->_d.begin());
-//    }
-//    
-//    virtual const_iterator xbegin () const
-//    {
-//        return const_iterator(this->_d.begin());
-//    }
-//    
-//    virtual iterator xend ()
-//    {
-//        return iterator(this->_d.end());
-//    }
-//    
-//    virtual const_iterator xend () const
-//    {
-//        return const_iterator(this->_d.end());
-//    }
-//    
-//    virtual reverse_iterator xrbegin ()
-//    {
-//        return reverse_iterator(this->xend());
-//    }
-//    
-//    virtual const_reverse_iterator xrbegin () const
-//    {
-//        return const_reverse_iterator(this->xend());
-//    }
-//    
-//    virtual reverse_iterator xrend ()
-//    {
-//        return reverse_iterator(this->xbegin());
-//    }
-//    
-//    virtual const_reverse_iterator xrend () const
-//    {
-//        return const_reverse_iterator(this->xbegin());
-//    }
-//    
-//    virtual size_type xsize () const
-//    {
-//        return this->_d.size();
-//    }
-//    
-//    virtual iterator xerase (iterator position)
-//    {
-//        return iterator(this->_d.erase(position));
-//    }
-//    
-//    virtual void xswap (base_type & rhs)
-//    {
-//        this->_d.swap(rhs._d);
-//    }
-//
-//    virtual size_type xcount (Key const & key) const
-//    {
-//        return this->_d.count(key);
-//    }
-//    
-//    virtual iterator xfind (Key const & key)
-//    {
-//        return iterator(this->_d.find(key));
-//    }
-//		
-//    virtual const_iterator xfind (Key const & key) const
-//    {
-//        return const_iterator(this->_d.find(key));
-//    }
 //    
 //    virtual pfs::pair<iterator, bool> xinsert (Key const & key, T const & value)
 //    {
@@ -192,5 +158,7 @@ struct map_rep<Key, T, QMap> : public QMap<Key, T>
 //};
 
 }} // pfs::traits
+
+#endif
 
 #endif /* __PFS_TRAITS_QT_MAP_HPP__ */

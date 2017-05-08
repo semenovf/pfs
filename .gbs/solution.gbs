@@ -21,14 +21,8 @@ project "test-mpl-iterator"
 project "test-mpl-string"
     include("test-mpl-string/project.gbs")
 
-project "test-mpl-list"
-    include("test-mpl-list/project.gbs")
-
-project "test-mpl-map"
-    include("test-mpl-map/project.gbs")
-
---project "test-mpl-fs-path"
---    include("test-mpl-fs-path/project.gbs")
+project "test-mpl-container"
+    include("test-mpl-container/project.gbs")
 
 --project "test-mpl-cli"
 --    include("test-mpl-cli/project.gbs")
@@ -48,11 +42,8 @@ project "test-mpl-fsm"
 --project "test-mpl-json"
 --    include("test-mpl-json/project.gbs")
 
-project "test-mpl-vector"
-    include("test-mpl-vector/project.gbs")
-
-project "test-mpl-uri"
-    include("test-mpl-uri/project.gbs")
+--project "test-mpl-uri"
+--    include("test-mpl-uri/project.gbs")
 
 --project "test-mpl-lexical_cast"
 --    include("test-mpl-lexical_cast/project.gbs")
@@ -60,8 +51,8 @@ project "test-mpl-uri"
 project "test-mpl-utf8"
     include("test-mpl-utf8/project.gbs")
 
-project "test-mpl-treap"
-    include("test-mpl-treap/project.gbs")
+--project "test-mpl-treap"
+--    include("test-mpl-treap/project.gbs")
 
 project "test-mpl-numeric"
     include("test-mpl-numeric/project.gbs")
@@ -69,5 +60,6 @@ project "test-mpl-numeric"
 --project "test-mpl-functional"
 --    include("test-mpl-functional/project.gbs")
 
-project "test-mpl-kvcontainer"
-    include("test-mpl-kvcontainer/project.gbs")
+--project "test-mpl-fs-path"
+--    include("test-mpl-fs-path/project.gbs")
+
