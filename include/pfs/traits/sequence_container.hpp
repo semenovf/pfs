@@ -63,15 +63,15 @@ public:
 
     // *** ELEMENT ACCESS ***
     //
-//    reference back ()
-//    {
-//        return _p.back();
-//    }
-//		
-//    const_reference back () const
-//    {
-//        return _p.back();
-//    }
+    reference back ()
+    {
+        return base_class::_p.back();
+    }
+		
+    const_reference back () const
+    {
+        return base_class::_p.back();
+    }
 	
     reference front ()
     {
@@ -151,18 +151,23 @@ public:
     }
 #endif
     
-//    void push_front (const_reference value)
-//    {
-//        _p.push_front(value);
-//    }
-//    
+    void push_front (const_reference value)
+    {
+        base_class::_p.push_front(value);
+    }
+    
 //#if __cplusplus >= 201103L
 //    void push_front (T && value)
 //    {
 //        _p.push_front(value);
 //    }
 //#endif
-//
+
+    void push_back (const_reference value)
+    {
+        base_class::_p.push_back(value);
+    }
+
 //    void pop_back ()
 //    {
 //        _p.pop_back();
