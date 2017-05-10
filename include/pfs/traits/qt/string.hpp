@@ -9,6 +9,77 @@
 #define __PFS_TRAITS_QT_STRING_HPP__
 
 #include <QString>
+#include <pfs/iterator.hpp>
+
+namespace pfs {
+namespace traits {
+namespace qt {
+
+class string
+{
+public:
+    typedef QString                      native_type;
+    
+    typedef native_type &                native_reference;
+    typedef native_type const &          const_native_reference;
+    typedef native_type::value_type      value_type;
+    typedef QChar const *                const_pointer;
+    typedef typename native_type::reference       reference;
+    typedef native_type::const_reference          const_reference;
+    typedef native_type::iterator                 iterator;
+    typedef native_type::const_iterator           const_iterator;
+    typedef std::reverse_iterator<iterator>       reverse_iterator;
+    typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
+//    typedef native_type::difference_type          difference_type;
+    typedef int                                   size_type; // no native_type::size_type found, but documentation mentions.
+
+protected:
+    native_type * _p;
+    
+public:
+    string (native_reference rhs)
+        : _p(& rhs)
+    {}
+        
+    string & operator = (native_reference rhs)
+    {
+        *_p = rhs;
+        return *this;
+    }
+
+    operator const_native_reference () const
+    {
+        return *_p;
+    }
+
+    /**
+     * Casts to native container reference
+     */
+    operator native_reference ()
+    {
+        return *_p;
+    }
+    
+    void erase (size_type index, size_type count)
+    {
+        _p->remove(static_cast<int>(index), static_cast<int>(count));
+    }
+    
+    iterator erase (const_iterator first, const_iterator last)
+    {
+        const_iterator begin = _p->begin();
+        size_type index = pfs::distance(begin, first);
+        size_type count = pfs::distance(first, last);
+        _p->remove(index, count);
+        return _p->begin() + index;
+    }
+};
+
+}}} // pfs::traits::qt
+
+#if __OBSOLETE__
+
+#include <QString>
 #include <pfs/limits.hpp>
 #include <pfs/traits/string.hpp>
 
@@ -133,20 +204,7 @@ struct string_rep<QString> : public QString
 //        return i < 0 ? size_type(-1) : size_type(i);
 //    }
     
-    void erase (size_type index, size_type count)
-    {
-        d.remove(static_cast<int>(index), static_cast<int>(count));
-    }
-    
-    iterator erase (const_iterator first, const_iterator last)
-    {
-        const_iterator begin = d.begin();
-        size_type index = pfs::distance(begin, first);
-        size_type count = pfs::distance(first, last);
-        d.remove(index, count);
-        return d.begin() + index;
-    }
-    
+   
 //    static void xclear (data_type & d)
 //    {
 //        d.clear();
@@ -239,6 +297,8 @@ public:
 };
 
 }} // pfs::traits
+
+#endif
 
 #endif /* __PFS_TRAITS_QT_STRING_HPP__ */
 

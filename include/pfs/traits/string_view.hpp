@@ -8,6 +8,8 @@
 #ifndef __PFS_TRAITS_STRING_VIEW_HPP__
 #define __PFS_TRAITS_STRING_VIEW_HPP__
 
+#if __OBSOLETE__
+
 #include <pfs/cxxlang.hpp>
 #include <pfs/exception.hpp>
 
@@ -390,6 +392,8 @@ basic_ostream<CharT> & operator << (basic_ostream<CharT> & os
         , pfs::traits::string_view<CharT> v);
 
 } // std
+
+#endif
 
 #endif /* __PFS_TRAITS_STRING_VIEW_HPP__ */
 

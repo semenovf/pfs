@@ -8,6 +8,8 @@
 #ifndef __PFS_TRAITS_LIST_HPP__
 #define __PFS_TRAITS_LIST_HPP__
 
+#if __OBSOLETE__
+
 #include <pfs/exception.hpp>
 #include <pfs/cxxlang.hpp>
 
@@ -329,5 +331,7 @@ inline void swap (list<T, ListT> const & lhs
 }
 
 }} // pfs::traits
+
+#endif
 
 #endif /* __PFS_TRAITS_LIST_HPP__ */

@@ -7,12 +7,14 @@
  */
 
 #include <pfs/test/test.hpp>
-#include <pfs/traits/stdcxx/string.hpp>
 #include <pfs/fsm/fsm.hpp>
+#include <pfs/fsm/traits.hpp>
+#include <pfs/iterator.hpp>
 
-typedef pfs::traits::string<std::string> sequence_type;
-typedef pfs::fsm::fsm<sequence_type>     fsm_type;
-typedef fsm_type::char_type              char_type;
+typedef std::string                              sequence_type;
+typedef pfs::fsm::sequence_traits<sequence_type> sequence_traits;
+typedef pfs::fsm::fsm<sequence_type> fsm_type;
+typedef fsm_type::char_type          char_type;
 
 /* DIGIT / "A" / "B" / "C" / "D" / "E" / "F" */
 static sequence_type const _DIGITS("0123456789");
@@ -26,31 +28,31 @@ static fsm_type::transition_type hexdig_tr[] = {
 static void test_alternatives_simple ()
 {
     ADD_TESTS(4);
-            
+    
 	sequence_type const hexdig("F");
 	sequence_type const digit("9");
 	sequence_type const notdigit("w");
     
 	fsm_type fsm(hexdig_tr);
-
-    fsm_type::result_type r = fsm.exec(0, hexdig.cbegin(), hexdig.cbegin());
+    fsm_type::result_type r = fsm.exec(0, hexdig.begin()
+            , hexdig.begin());
 	TEST_FAIL(r.first == false);
 
 	sequence_type::const_iterator it_end;
 	
-	it_end = hexdig.cbegin();
+	it_end = hexdig.begin();
 	pfs::advance(it_end, 1);
-	r = fsm.exec(0, hexdig.cbegin(), it_end);
-	TEST_FAIL(r.first && pfs::distance(hexdig.cbegin(), r.second) == 1);
+	r = fsm.exec(0, hexdig.begin(), it_end);
+	TEST_FAIL(r.first && pfs::distance(hexdig.begin(), r.second) == 1);
 
-	it_end = digit.cbegin();
+	it_end = digit.begin();
 	pfs::advance(it_end, 1);
-	r = fsm.exec(0, digit.cbegin(), it_end);
-	TEST_FAIL(r.first && pfs::distance(digit.cbegin(), r.second) == 1);
+	r = fsm.exec(0, digit.begin(), it_end);
+	TEST_FAIL(r.first && pfs::distance(digit.begin(), r.second) == 1);
 
-	it_end = notdigit.cbegin();
+	it_end = notdigit.begin();
 	pfs::advance(it_end, 1);
-	r = fsm.exec(0, notdigit.cbegin(), it_end);
+	r = fsm.exec(0, notdigit.begin(), it_end);
 	TEST_FAIL(!r.first && r.second == it_end);
 }
 
@@ -88,7 +90,7 @@ void test_length ()
 			== fsm_type::result_type(true, alphabet.end()));
 
 	TEST_OK(fsm2.exec(0, alphabet.begin(), alphabet.end())
-			== fsm_type::result_type(true, alphabet.cend()));
+			== fsm_type::result_type(true, alphabet.end()));
 }
 
 static fsm_type::transition_type subseq_tr[] = {
@@ -180,49 +182,49 @@ static void test_repetition_0more ()
 	sequence_type::const_iterator it_end;
 	fsm_type::result_type r;
 
-	it_end = dec.cbegin();
-	r = fsm.exec(0, dec.cbegin(), it_end);
-	TEST_FAIL(r.first && pfs::distance(dec.cbegin(), r.second) == 0);
+	it_end = dec.begin();
+	r = fsm.exec(0, dec.begin(), it_end);
+	TEST_FAIL(r.first && pfs::distance(dec.begin(), r.second) == 0);
 
 	pfs::advance(it_end, 1);
-	r = fsm.exec(0, dec.cbegin(), it_end);
-	TEST_FAIL(r.first && pfs::distance(dec.cbegin(), r.second) == 1);
+	r = fsm.exec(0, dec.begin(), it_end);
+	TEST_FAIL(r.first && pfs::distance(dec.begin(), r.second) == 1);
 
 	pfs::advance(it_end, 1);
-	r = fsm.exec(0, dec.cbegin(), it_end);
-	TEST_FAIL(r.first && pfs::distance(dec.cbegin(), r.second) == 2);
+	r = fsm.exec(0, dec.begin(), it_end);
+	TEST_FAIL(r.first && pfs::distance(dec.begin(), r.second) == 2);
 
 	pfs::advance(it_end, 1);
-	r = fsm.exec(0, dec.cbegin(), it_end);
-	TEST_FAIL(r.first && pfs::distance(dec.cbegin(), r.second) == 3);
+	r = fsm.exec(0, dec.begin(), it_end);
+	TEST_FAIL(r.first && pfs::distance(dec.begin(), r.second) == 3);
 
 	pfs::advance(it_end, 1);
-	r = fsm.exec(0, dec.cbegin(), it_end);
-	TEST_FAIL(r.first && pfs::distance(dec.cbegin(), r.second) == 4);
+	r = fsm.exec(0, dec.begin(), it_end);
+	TEST_FAIL(r.first && pfs::distance(dec.begin(), r.second) == 4);
 
-	it_end = notdec.cbegin();
-	r = fsm.exec(0, notdec.cbegin(), it_end);
-	TEST_FAIL(r.first && pfs::distance(notdec.cbegin(), r.second) == 0);
-
-	pfs::advance(it_end, 1);
-	r = fsm.exec(0, notdec.cbegin(), it_end);
-	TEST_FAIL(r.first && pfs::distance(notdec.cbegin(), r.second) == 0);
+	it_end = notdec.begin();
+	r = fsm.exec(0, notdec.begin(), it_end);
+	TEST_FAIL(r.first && pfs::distance(notdec.begin(), r.second) == 0);
 
 	pfs::advance(it_end, 1);
-	r = fsm.exec(0, notdec.cbegin(), it_end);
-	TEST_FAIL(r.first && pfs::distance(notdec.cbegin(), r.second) == 0);
+	r = fsm.exec(0, notdec.begin(), it_end);
+	TEST_FAIL(r.first && pfs::distance(notdec.begin(), r.second) == 0);
 
 	pfs::advance(it_end, 1);
-	r = fsm.exec(0, notdec.cbegin(), it_end);
-	TEST_FAIL(r.first && pfs::distance(notdec.cbegin(), r.second) == 0);
+	r = fsm.exec(0, notdec.begin(), it_end);
+	TEST_FAIL(r.first && pfs::distance(notdec.begin(), r.second) == 0);
 
 	pfs::advance(it_end, 1);
-	r = fsm.exec(0, notdec.cbegin(), it_end);
-	TEST_FAIL(r.first && pfs::distance(notdec.cbegin(), r.second) == 0);
+	r = fsm.exec(0, notdec.begin(), it_end);
+	TEST_FAIL(r.first && pfs::distance(notdec.begin(), r.second) == 0);
 
 	pfs::advance(it_end, 1);
-	r = fsm.exec(0, notdec.cbegin(), it_end);
-	TEST_FAIL(r.first && pfs::distance(notdec.cbegin(), r.second) == 0);
+	r = fsm.exec(0, notdec.begin(), it_end);
+	TEST_FAIL(r.first && pfs::distance(notdec.begin(), r.second) == 0);
+
+	pfs::advance(it_end, 1);
+	r = fsm.exec(0, notdec.begin(), it_end);
+	TEST_FAIL(r.first && pfs::distance(notdec.begin(), r.second) == 0);
 }
 
 /* 1*DIGIT */
@@ -255,101 +257,101 @@ static void test_repetition_1or2more ()
 	sequence_type::const_iterator it_end;
 	fsm_type::result_type r;
 
-	it_end = dec.cbegin();
-	r = fsm.exec(0, dec.cbegin(), it_end);
+	it_end = dec.begin();
+	r = fsm.exec(0, dec.begin(), it_end);
 	TEST_FAIL(!r.first && r.second == it_end);
 
 	pfs::advance(it_end, 1);
-	r = fsm.exec(0, dec.cbegin(), it_end);
-	TEST_FAIL(r.first && pfs::distance(dec.cbegin(), r.second) == 1);
+	r = fsm.exec(0, dec.begin(), it_end);
+	TEST_FAIL(r.first && pfs::distance(dec.begin(), r.second) == 1);
 
 	pfs::advance(it_end, 1);
-	r = fsm.exec(0, dec.cbegin(), it_end);
-	TEST_FAIL(r.first && pfs::distance(dec.cbegin(), r.second) == 2);
+	r = fsm.exec(0, dec.begin(), it_end);
+	TEST_FAIL(r.first && pfs::distance(dec.begin(), r.second) == 2);
 
 	pfs::advance(it_end, 1);
-	r = fsm.exec(0, dec.cbegin(), it_end);
-	TEST_FAIL(r.first && pfs::distance(dec.cbegin(), r.second) == 3);
+	r = fsm.exec(0, dec.begin(), it_end);
+	TEST_FAIL(r.first && pfs::distance(dec.begin(), r.second) == 3);
 
 	pfs::advance(it_end, 1);
-	r = fsm.exec(0, dec.cbegin(), it_end);
-	TEST_FAIL(r.first && pfs::distance(dec.cbegin(), r.second) == 4);
+	r = fsm.exec(0, dec.begin(), it_end);
+	TEST_FAIL(r.first && pfs::distance(dec.begin(), r.second) == 4);
 
-	it_end = notdec.cbegin();
-	r = fsm.exec(0, notdec.cbegin(), it_end);
+	it_end = notdec.begin();
+	r = fsm.exec(0, notdec.begin(), it_end);
 	TEST_FAIL(!r.first);
 
 	pfs::advance(it_end, 1);
-	r = fsm.exec(0, notdec.cbegin(), it_end);
+	r = fsm.exec(0, notdec.begin(), it_end);
 	TEST_FAIL(!r.first);
 
 	pfs::advance(it_end, 1);
-	r = fsm.exec(0, notdec.cbegin(), it_end);
+	r = fsm.exec(0, notdec.begin(), it_end);
 	TEST_FAIL(!r.first);
 
 	fsm.set_transition_table(decimal2more_tr);
 
-	it_end = dec.cbegin();
-	r = fsm.exec(0, dec.cbegin(), it_end);
+	it_end = dec.begin();
+	r = fsm.exec(0, dec.begin(), it_end);
 	TEST_FAIL(!r.first);
 
 	pfs::advance(it_end, 1);
-	r = fsm.exec(0, dec.cbegin(), it_end);
+	r = fsm.exec(0, dec.begin(), it_end);
 	TEST_FAIL(!r.first);
 
 	pfs::advance(it_end, 1);
-	r = fsm.exec(0, dec.cbegin(), it_end);
-	TEST_FAIL(r.first && pfs::distance(dec.cbegin(), r.second) == 2);
+	r = fsm.exec(0, dec.begin(), it_end);
+	TEST_FAIL(r.first && pfs::distance(dec.begin(), r.second) == 2);
 
 	pfs::advance(it_end, 1);
-	r = fsm.exec(0, dec.cbegin(), it_end);
-	TEST_FAIL(r.first && pfs::distance(dec.cbegin(), r.second) == 3);
+	r = fsm.exec(0, dec.begin(), it_end);
+	TEST_FAIL(r.first && pfs::distance(dec.begin(), r.second) == 3);
 
 	pfs::advance(it_end, 1);
-	r = fsm.exec(0, dec.cbegin(), it_end);
-	TEST_FAIL(r.first && pfs::distance(dec.cbegin(), r.second) == 4);
+	r = fsm.exec(0, dec.begin(), it_end);
+	TEST_FAIL(r.first && pfs::distance(dec.begin(), r.second) == 4);
 
 	fsm.set_transition_table(hex_tr);
 
-	it_end = hex.cbegin();
-	r = fsm.exec(0, hex.cbegin(), it_end);
+	it_end = hex.begin();
+	r = fsm.exec(0, hex.begin(), it_end);
 	TEST_FAIL(!r.first);
 
 	pfs::advance(it_end, 1);
-	r = fsm.exec(0, hex.cbegin(), it_end);
-	TEST_FAIL(r.first && pfs::distance(hex.cbegin(), r.second) == 1);
+	r = fsm.exec(0, hex.begin(), it_end);
+	TEST_FAIL(r.first && pfs::distance(hex.begin(), r.second) == 1);
 
 	pfs::advance(it_end, 1);
-	r = fsm.exec(0, hex.cbegin(), it_end);
-	TEST_FAIL(r.first && pfs::distance(hex.cbegin(), r.second) == 2);
+	r = fsm.exec(0, hex.begin(), it_end);
+	TEST_FAIL(r.first && pfs::distance(hex.begin(), r.second) == 2);
 
 	pfs::advance(it_end, 1);
-	r = fsm.exec(0, hex.cbegin(), it_end);
-	TEST_FAIL(r.first && pfs::distance(hex.cbegin(), r.second) == 3);
+	r = fsm.exec(0, hex.begin(), it_end);
+	TEST_FAIL(r.first && pfs::distance(hex.begin(), r.second) == 3);
 
 	pfs::advance(it_end, 1);
-	r = fsm.exec(0, hex.cbegin(), it_end);
-	TEST_FAIL(r.first && pfs::distance(hex.cbegin(), r.second) == 4);
+	r = fsm.exec(0, hex.begin(), it_end);
+	TEST_FAIL(r.first && pfs::distance(hex.begin(), r.second) == 4);
 
-	it_end = nothex.cbegin();
-	r = fsm.exec(0, nothex.cbegin(), it_end);
+	it_end = nothex.begin();
+	r = fsm.exec(0, nothex.begin(), it_end);
 	TEST_FAIL(!r.first);
 
 	pfs::advance(it_end, 1);
-	r = fsm.exec(0, nothex.cbegin(), it_end);
-	TEST_FAIL(r.first && pfs::distance(nothex.cbegin(), r.second) == 1);
+	r = fsm.exec(0, nothex.begin(), it_end);
+	TEST_FAIL(r.first && pfs::distance(nothex.begin(), r.second) == 1);
 
 	pfs::advance(it_end, 1);
-	r = fsm.exec(0, nothex.cbegin(), it_end);
-	TEST_FAIL(r.first && pfs::distance(nothex.cbegin(), r.second) == 2);
+	r = fsm.exec(0, nothex.begin(), it_end);
+	TEST_FAIL(r.first && pfs::distance(nothex.begin(), r.second) == 2);
 
 	pfs::advance(it_end, 1);
-	r = fsm.exec(0, nothex.cbegin(), it_end);
-	TEST_FAIL(r.first && pfs::distance(nothex.cbegin(), r.second) == 3);
+	r = fsm.exec(0, nothex.begin(), it_end);
+	TEST_FAIL(r.first && pfs::distance(nothex.begin(), r.second) == 3);
 
 	pfs::advance(it_end, 1);
-	r = fsm.exec(0, nothex.cbegin(), it_end);
-	TEST_FAIL(r.first && pfs::distance(nothex.cbegin(), r.second) == 3);
+	r = fsm.exec(0, nothex.begin(), it_end);
+	TEST_FAIL(r.first && pfs::distance(nothex.begin(), r.second) == 3);
 }
 
 /* NON-ZERO_DIGIT *DIGIT */
@@ -380,69 +382,69 @@ static void test_alternatives ()
 	sequence_type::const_iterator it_end;
 	fsm_type::result_type r;
 
-	it_end = hex.cbegin();
-	TEST_FAIL(fsm.exec(0, hex.cbegin(), it_end) 
+	it_end = hex.begin();
+	TEST_FAIL(fsm.exec(0, hex.begin(), it_end) 
             == fsm_type::result_type(false, it_end));
 
 	pfs::advance(it_end, 1);
-	TEST_FAIL(fsm.exec(0, hex.cbegin(), it_end) 
+	TEST_FAIL(fsm.exec(0, hex.begin(), it_end) 
             == fsm_type::result_type(false, it_end));
 
 	pfs::advance(it_end, 1);
-	TEST_FAIL(fsm.exec(0, hex.cbegin(), it_end)
+	TEST_FAIL(fsm.exec(0, hex.begin(), it_end)
             == fsm_type::result_type(false, it_end));
 
 	pfs::advance(it_end, 1);
-	r = fsm.exec(0, hex.cbegin(), it_end);
-	TEST_FAIL(r.first && pfs::distance(hex.cbegin(), r.second) == 3);
+	r = fsm.exec(0, hex.begin(), it_end);
+	TEST_FAIL(r.first && pfs::distance(hex.begin(), r.second) == 3);
 
 	pfs::advance(it_end, 1);
-	r = fsm.exec(0, hex.cbegin(), it_end);
-	TEST_FAIL(r.first && pfs::distance(hex.cbegin(), r.second) == 4);
+	r = fsm.exec(0, hex.begin(), it_end);
+	TEST_FAIL(r.first && pfs::distance(hex.begin(), r.second) == 4);
 
 	pfs::advance(it_end, 1);
-	r = fsm.exec(0, hex.cbegin(), it_end);
-	TEST_FAIL(r.first && pfs::distance(hex.cbegin(), r.second) == 5);
+	r = fsm.exec(0, hex.begin(), it_end);
+	TEST_FAIL(r.first && pfs::distance(hex.begin(), r.second) == 5);
 
 	pfs::advance(it_end, 1);
-	r = fsm.exec(0, hex.cbegin(), it_end);
-	TEST_FAIL(r.first && pfs::distance(hex.cbegin(), r.second) == 6);
+	r = fsm.exec(0, hex.begin(), it_end);
+	TEST_FAIL(r.first && pfs::distance(hex.begin(), r.second) == 6);
 
-	it_end = decimal.cbegin();
-	TEST_FAIL(fsm.exec(0, decimal.cbegin(), it_end) 
+	it_end = decimal.begin();
+	TEST_FAIL(fsm.exec(0, decimal.begin(), it_end) 
             == fsm_type::result_type(false, it_end));
 
 	pfs::advance(it_end, 1);
-	r = fsm.exec(0, decimal.cbegin(), it_end);
-	TEST_FAIL(r.first && pfs::distance(decimal.cbegin(), r.second) == 1);
+	r = fsm.exec(0, decimal.begin(), it_end);
+	TEST_FAIL(r.first && pfs::distance(decimal.begin(), r.second) == 1);
 
 	pfs::advance(it_end, 1);
-	r = fsm.exec(0, decimal.cbegin(), it_end);
-	TEST_FAIL(r.first && pfs::distance(decimal.cbegin(), r.second) == 2);
+	r = fsm.exec(0, decimal.begin(), it_end);
+	TEST_FAIL(r.first && pfs::distance(decimal.begin(), r.second) == 2);
 
 	pfs::advance(it_end, 1);
-	r = fsm.exec(0, decimal.cbegin(), it_end);
-	TEST_FAIL(r.first && pfs::distance(decimal.cbegin(), r.second) == 3);
+	r = fsm.exec(0, decimal.begin(), it_end);
+	TEST_FAIL(r.first && pfs::distance(decimal.begin(), r.second) == 3);
 
 	pfs::advance(it_end, 1);
-	r = fsm.exec(0, decimal.cbegin(), it_end);
-	TEST_FAIL(r.first && pfs::distance(decimal.cbegin(), r.second) == 4);
+	r = fsm.exec(0, decimal.begin(), it_end);
+	TEST_FAIL(r.first && pfs::distance(decimal.begin(), r.second) == 4);
 
-	it_end = notnumber.cbegin();
+	it_end = notnumber.begin();
 	pfs::advance(it_end, 1);
-	TEST_FAIL(fsm.exec(0, notnumber.cbegin(), it_end)
+	TEST_FAIL(fsm.exec(0, notnumber.begin(), it_end)
             == fsm_type::result_type(false, it_end));
 
 	pfs::advance(it_end, 1);
-	TEST_FAIL(fsm.exec(0, notnumber.cbegin(), it_end) 
+	TEST_FAIL(fsm.exec(0, notnumber.begin(), it_end) 
             == fsm_type::result_type(false, it_end));
 
 	pfs::advance(it_end, 1);
-	TEST_FAIL(fsm.exec(0, notnumber.cbegin(), it_end)
+	TEST_FAIL(fsm.exec(0, notnumber.begin(), it_end)
             == fsm_type::result_type(false, it_end));
 
 	pfs::advance(it_end, 5);
-	TEST_FAIL(fsm.exec(0, notnumber.cbegin(), it_end) 
+	TEST_FAIL(fsm.exec(0, notnumber.begin(), it_end) 
             == fsm_type::result_type(false, it_end));
 }
 

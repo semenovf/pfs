@@ -5,7 +5,7 @@
  * Created on January 20, 2017, 3:54 PM
  */
 
-// XXX DEPRECATED, use kmvcontainer.hpp
+#if __OBSOLETE__
 
 #ifndef __PFS_TRAITS_MULTIMAP_HPP__
 #define __PFS_TRAITS_MULTIMAP_HPP__
@@ -278,6 +278,7 @@ inline void swap (multimap<Key, T, MultiMapT> const & lhs, multimap<Key, T, Mult
 }
 
 }} // pfs::traits
+#endif
 
 #endif /* __PFS_TRAITS_MULTIMAP_HPP__ */
 

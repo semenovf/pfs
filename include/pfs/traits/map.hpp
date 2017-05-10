@@ -8,6 +8,8 @@
 #ifndef __PFS_MAP_HPP__
 #define __PFS_MAP_HPP__
 
+#if __OBSOLETE__
+
 #include <pfs/cxxlang.hpp>
 #include <pfs/iterator.hpp>
 #include <pfs/exception.hpp>
@@ -284,5 +286,7 @@ inline void swap (map<Key, T, MapT> const & lhs
 }
 
 }} // pfs::traits
+
+#endif
 
 #endif /* __PFS_MAP_HPP__ */

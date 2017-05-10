@@ -23,16 +23,11 @@ class sequence_container : public container<T, ContainerRef>
     
 public:
     typedef ContainerRef<T>                           ref_type;
-//    typedef typename ref_type::native_type            native_type;
     typedef typename ref_type::native_reference       native_reference;
-//    typedef typename ref_type::const_native_reference const_native_reference;
-//
-//    typedef typename ref_type::value_type             value_type;
     typedef typename ref_type::reference              reference;
     typedef typename ref_type::const_reference        const_reference;
     typedef typename ref_type::iterator               iterator;
     typedef typename ref_type::const_iterator         const_iterator;
-//    typedef typename ref_type::difference_type        difference_type;
     typedef typename ref_type::size_type              size_type;
     
 public:

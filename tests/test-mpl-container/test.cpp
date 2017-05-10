@@ -3,7 +3,7 @@
  * @author
  * @date
  *
- * @brief testing ...
+ * @brief Testing container traits
  */
 
 #include "pfs/test/test.hpp"

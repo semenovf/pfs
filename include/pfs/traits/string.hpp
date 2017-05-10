@@ -8,122 +8,67 @@
 #ifndef __PFS_TRAITS_STRING_HPP__
 #define __PFS_TRAITS_STRING_HPP__
 
-#include <ostream>
-#include <pfs/exception.hpp>
-#include <pfs/iterator.hpp>
-#include <pfs/algo/find.hpp>
-#include <pfs/type_traits.hpp>
-
 namespace pfs {
 namespace traits {
 
-template <typename StringT>
-struct string_rep
-{
-    typedef StringT                                      native_type;
-    typedef native_type const &                          const_native_reference;
-    typedef typename native_type::size_type              size_type;
-    typedef typename native_type::value_type             value_type;
-    typedef typename native_type::reference              reference;
-    typedef typename native_type::const_reference        const_reference;
-    typedef typename native_type::pointer                pointer;
-    typedef typename native_type::const_pointer          const_pointer;
-    typedef typename native_type::iterator               iterator;
-    typedef typename native_type::const_iterator         const_iterator;
-    typedef typename native_type::reverse_iterator       reverse_iterator;
-    typedef typename native_type::const_reverse_iterator const_reverse_iterator;
-    
-    native_type d;
-};
-
-template <typename StringT>
+template <typename StringRef>
 class string
 {
 public:
-    typedef traits::string_rep<StringT>               rep_type;
-    typedef typename rep_type::native_type            native_type;
-    typedef typename rep_type::const_native_reference const_native_reference;
-    typedef typename rep_type::size_type              size_type;
-    typedef typename rep_type::value_type             value_type;
-    typedef typename rep_type::reference              reference;
-    typedef typename rep_type::const_reference        const_reference;
-    typedef typename rep_type::pointer                pointer;
-    typedef typename rep_type::const_pointer          const_pointer;
-    typedef typename rep_type::iterator               iterator;
-    typedef typename rep_type::const_iterator         const_iterator;
-    typedef typename rep_type::reverse_iterator       reverse_iterator;
-    typedef typename rep_type::const_reverse_iterator const_reverse_iterator;
+    typedef StringRef                                 ref_type;
+    typedef typename ref_type::native_type            native_type;
+    typedef typename ref_type::native_reference       native_reference;
+    typedef typename ref_type::const_native_reference const_native_reference;
 
-    static size_type const npos = size_type(-1);
-
-private:
-    rep_type _d;
+    typedef typename ref_type::value_type             value_type;
+    typedef typename ref_type::reference              reference;
+    typedef typename ref_type::const_reference        const_reference;
+    typedef typename ref_type::const_pointer          const_pointer;
+    typedef typename ref_type::iterator               iterator;
+    typedef typename ref_type::const_iterator         const_iterator;
+    typedef typename ref_type::reverse_iterator       reverse_iterator;
+    typedef typename ref_type::const_reverse_iterator const_reverse_iterator;
+    typedef typename ref_type::difference_type        difference_type;
+    typedef typename ref_type::size_type              size_type;
     
+protected:
+    ref_type _p;
+
 public:
-    string ()
-        : _d()
-    {}
-    
-    explicit string (const_native_reference s)
-        : _d(s)
-    {}
-
-    explicit string (const_pointer str, size_type n)
-        : _d(str, n)
+    /**
+     * Initializes with reference to native container
+     */
+    string (native_reference rhs)
+        : _p(rhs)
     {}
 
-    explicit string (const_pointer str)
-        : _d(str)
-    {}
-    
-    string (const_iterator begin, const_iterator end)
-        : _d(begin, end)
-    {}
-
-    string (string const & rhs)
-        : _d(rhs._d)
-    {}
-    
-    string & operator = (string const & rhs)
-    {
-        _d = rhs._d;
-        return *this;
-    }
-
-    string & operator = (const_native_reference rhs)
-    {
-        _d = rhs;
-        return *this;
-    }
-
-    string & operator = (const_pointer rhs)
-    {
-        string s(rhs);
-        this->swap(s);
-        return *this;
-    }
-    
-    const_pointer data () const
-    {
-        return _d.data();
-    }
-    
+    /**
+     * Casts to const native container reference
+     */
     operator const_native_reference () const
     {
-        return _d;
+        return _p;
     }
 
+    /**
+     * Casts to native container reference
+     */
+    operator native_reference ()
+    {
+        return _p;
+    }
+    
     size_type size () const
     {
-        return _d.size();
+        return _p.size();
     }
     
     size_type length () const
     {
-        return this->size();
+        return _p.size();
     }
-    
-    /**
+
+        /**
      * @details Returns the maximum number of elements the string is able to 
      *          hold due to system or library implementation limitations, 
      *          i.e. ​std::distance(begin(), end())​ for the largest string. 
@@ -142,7 +87,12 @@ public:
         // * QString (has no max_size) so formula will look like:
         //   INT_MAX/sizeof(QChar) - 1;
 
-        return _d.max_size();
+        return _p.max_size();
+    }
+    
+    const_pointer data () const
+    {
+        return _p.data();
     }
     
   	/**
@@ -156,12 +106,12 @@ public:
     
     const_iterator begin () const
     {
-        return _d.begin();
+        return _p.begin();
     }
 
     const_iterator end () const
     {
-        return _d.end();
+        return _p.end();
     }
 
     const_iterator cbegin () const
@@ -176,12 +126,12 @@ public:
 
     const_reverse_iterator rbegin () const
     {
-        return _d.rbegin();
+        return _p.rbegin();
     }
 
     const_reverse_iterator rend () const
     {
-        return _d.rend();
+        return _p.rend();
     }
 
     const_reverse_iterator crbegin () const
@@ -208,7 +158,7 @@ public:
     {
         if (pos >= this->size())
             throw out_of_range("string::at");
-        return _d.at(pos);
+        return _p.at(pos);
     }
     
     value_type operator [] (size_type pos) const
@@ -219,17 +169,17 @@ public:
     int compare (size_type pos1, size_type count1
         , string const & rhs, size_type pos2, size_type count2) const
     {
-        return _d.compare(pos1, count1, rhs._d, pos2, count2) ;
+        return _p.compare(pos1, count1, rhs._p, pos2, count2) ;
     }
     
     int compare (size_type pos1, size_type count1, string const & rhs) const
     {
-        return _d.compare(pos1, count1, rhs._d, 0, rhs.size());
+        return this->compare(pos1, count1, rhs._p, 0, rhs.size());
     }
     
     int compare (string const & rhs) const
     {
-        return _d.compare(0, this->size(), rhs._d, 0, rhs.size());
+        return this->compare(0, this->size(), rhs._p, 0, rhs.size());
     }
     
     bool starts_with (string const & rhs) const
@@ -253,20 +203,20 @@ public:
         return this->compare(this->size() - rhs.size(), rhs.size(), rhs) == 0;
     }
     
-    bool contains (string const & rhs, size_type pos = 0) const
-	{
-		return _d.find(rhs._d, pos) != size_type(-1);
-	}
-
-    bool contains (const_native_reference rhs, size_type pos = 0)
-    {
-        return _d.find(rhs._d, pos) != size_type(-1);
-    }
-    
-	bool contains (value_type c, size_type pos = 0) const
-	{
-        return _d.find(c, pos) != size_type(-1);
-	}
+//    bool contains (string const & rhs, size_type pos = 0) const
+//	{
+//		return this->find(rhs._p, pos) != size_type(-1);
+//	}
+//
+//    bool contains (const_native_reference rhs, size_type pos = 0)
+//    {
+//        return this->find(rhs._p, pos) != size_type(-1);
+//    }
+//    
+//	bool contains (value_type c, size_type pos = 0) const
+//	{
+//        return this->find(c, pos) != size_type(-1);
+//	}
    
     /**
      * @brief Find position of a string.
@@ -281,36 +231,36 @@ public:
      * @return Index of start of first occurrence.
      *
      */
-    size_type find (string const & rhs, size_type pos = 0) const
-    {
-        return _d.find(rhs._d, pos);
-    }
-    
-    size_type find (const_native_reference rhs, size_type pos = 0) const
-    {
-        return _d.find(rhs._d, pos);
-    }
-    
-    size_type find (value_type c, size_type pos = 0) const
-    {
-        return _d.find(c, pos);
-    }
-    
-    size_type rfind (string const & rhs, size_type pos = size_type(-1)) const
-    {
-        return _d.rfind(rhs._d, pos);
-    }
-    
-    size_type rfind (const_native_reference rhs, size_type pos = size_type(-1)) const
-    {
-        return _d.find(rhs._d, pos);
-    }
-    
-    size_type rfind (value_type c, size_type pos = size_type(-1)) const
-    {
-        return _d.rfind(c, pos);
-    }
-    
+//    size_type find (string const & rhs, size_type pos = 0) const
+//    {
+//        return _p.find(rhs._p, pos);
+//    }
+//    
+//    size_type find (const_native_reference rhs, size_type pos = 0) const
+//    {
+//        return _p.find(rhs._p, pos);
+//    }
+//    
+//    size_type find (value_type c, size_type pos = 0) const
+//    {
+//        return _p.find(c, pos);
+//    }
+//    
+//    size_type rfind (string const & rhs, size_type pos = size_type(-1)) const
+//    {
+//        return _p.rfind(rhs._p, pos);
+//    }
+//    
+//    size_type rfind (const_native_reference rhs, size_type pos = size_type(-1)) const
+//    {
+//        return _p.find(rhs._p, pos);
+//    }
+//    
+//    size_type rfind (value_type c, size_type pos = size_type(-1)) const
+//    {
+//        return _p.rfind(c, pos);
+//    }
+//    
     /**
      * @function string substr (size_type pos, size_type count) const;
      * @brief  Get a substring.
@@ -339,28 +289,28 @@ public:
     {
         if (index > size())
             throw out_of_range("string::erase()");
-        _d.erase(index, count);
+        _p.erase(index, count);
         return *this;
     }
     
     iterator erase (const_iterator position)
     {
-        return _d.erase(position, position + 1);
+        return this->erase(position, position + 1);
     }
     
     iterator erase (const_iterator first, const_iterator last)
     {
-        return _d.erase(first, last);
+        return _p.erase(first, last);
     }
   
     void clear ()
     {
-        _d.clear();
+        _p.clear();
     }
     
     string & append (size_type count, const_reference ch)
     {
-        _d.append(count, ch);
+        _p.append(count, ch);
         return *this;
     }
     
@@ -384,13 +334,13 @@ public:
     
     string & append (const_pointer s, size_type count)
     {
-        _d.append(s, count);
+        _p.append(s, count);
         return *this;
     }
     
     string & append (const_pointer s)
     {
-        return append(s, rep_type::length(s));
+        return append(s, ref_type::length(s));
     }
     
     string & insert (size_type index, size_type count, value_type ch);
@@ -424,14 +374,57 @@ public:
     
     void push_back (value_type ch)
     {
-        _d.push_back(ch);
+        _p.push_back(ch);
     }
 
     void swap (string & rhs)
     {
-        _d.swap(rhs._d);
+        _p.swap(rhs._p);
+    }
+    
+    friend inline bool operator == (string const & lhs, string const & rhs)
+    {
+        return lhs._p == rhs._p;
+    }
+
+    friend inline bool operator != (string const & lhs, string const & rhs)
+    {
+        return lhs._p != rhs._p;
+    }
+
+    friend inline bool operator < (string const & lhs, string const & rhs)
+    {
+        return lhs._p < rhs._p;
+    }
+
+    friend inline bool operator <= (string const & lhs, string const & rhs)
+    {
+        return lhs._p <= rhs._p;
+    }
+
+    friend inline bool operator > (string const & lhs, string const & rhs)
+    {
+        return lhs._p > rhs._p;
+    }
+
+    friend inline bool operator >= (string const & lhs, string const & rhs)
+    {
+        return lhs._p >= rhs._p;
     }
 };
+
+}} // pfs::traits
+
+#if __OBSOLETE__
+
+#include <ostream>
+#include <pfs/exception.hpp>
+#include <pfs/iterator.hpp>
+#include <pfs/algo/find.hpp>
+#include <pfs/type_traits.hpp>
+
+namespace pfs {
+namespace traits {
 
 template <typename StringT>
 string<StringT> 
@@ -499,126 +492,6 @@ string<StringT>::insert (size_type index
 }
 
 template <typename StringT>
-inline int compare (string<StringT> const & lhs, char const * rhs)
-{
-    return lhs.compare(string<StringT>(rhs));
-}
-
-template <typename StringT>
-inline int compare (string<StringT> const & lhs, wchar_t const * rhs)
-{
-    return lhs.compare(string<StringT>(rhs));
-}
-
-template <typename StringT>
-inline bool operator == (string<StringT> const & lhs, string<StringT> const & rhs)
-{
-    return lhs.compare(rhs) == 0;
-}
-
-template <typename StringT>
-inline bool operator != (string<StringT> const & lhs, string<StringT> const & rhs)
-{
-    return lhs.compare(rhs) != 0;
-}
-
-template <typename StringT>
-inline bool operator < (string<StringT> const & lhs, string<StringT> const & rhs)
-{
-    return lhs.compare(rhs) < 0;
-}
-
-template <typename StringT>
-inline bool operator <= (string<StringT> const & lhs, string<StringT> const & rhs)
-{
-    return lhs.compare(rhs) <= 0;
-}
-
-template <typename StringT>
-inline bool operator > (string<StringT> const & lhs, string<StringT> const & rhs)
-{
-    return lhs.compare(rhs) > 0;
-}
-
-template <typename StringT>
-inline bool operator >= (string<StringT> const & lhs, string<StringT> const & rhs)
-{
-    return lhs.compare(rhs) >= 0;
-}
-
-template <typename StringT>
-inline bool operator == (string<StringT> const & lhs, char const * rhs)
-{
-    return compare(lhs, rhs) == 0;
-}
-
-template <typename StringT>
-inline bool operator == (char const * lhs, string<StringT> const & rhs)
-{
-    return compare(rhs, lhs) == 0;
-}
-
-template <typename StringT>
-inline bool operator != (string<StringT> const & lhs, char const * rhs)
-{
-    return compare(lhs, rhs) != 0;
-}
-
-template <typename StringT>
-inline bool operator != (char const * lhs, string<StringT> const & rhs)
-{
-    return compare(rhs, lhs) != 0;
-}
-
-template <typename StringT>
-inline bool operator < (string<StringT> const & lhs, char const * rhs)
-{
-    return compare(lhs, rhs) < 0;
-}
-
-template <typename StringT>
-inline bool operator < (char const * lhs, string<StringT> const & rhs)
-{
-    return compare(rhs, lhs) > 0;
-}
-
-template <typename StringT>
-inline bool operator <= (string<StringT> const & lhs, char const * rhs)
-{
-    return compare(lhs, rhs) <= 0;
-}
-
-template <typename StringT>
-inline bool operator <= (char const * lhs, string<StringT> const & rhs)
-{
-    return compare(rhs, lhs) >= 0;
-}
-
-template <typename StringT>
-inline bool operator > (string<StringT> const & lhs, char const * rhs)
-{
-    return compare(lhs, rhs) > 0;
-}
-
-template <typename StringT>
-inline bool operator > (char const * lhs, string<StringT> const & rhs)
-{
-    return compare(rhs, lhs) < 0;
-}
-
-template <typename StringT>
-inline bool operator >= (string<StringT> const & lhs, char const * rhs)
-{
-    return compare(lhs, rhs) >= 0;
-}
-
-template <typename StringT>
-inline bool operator >= (char const * lhs, string<StringT> const & rhs)
-{
-    return compare(rhs, lhs) <= 0;
-}
-
-template <typename StringT>
 class c_str;
 
 template <typename StringT>
@@ -641,6 +514,8 @@ wostream & operator << (wostream & out, pfs::traits::string<StringT> const & s)
 }
 
 } // std
+
+#endif
 
 #endif /* __PFS_TRAITS_STRING_HPP__ */
 

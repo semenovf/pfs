@@ -5,8 +5,8 @@
  * Created on February 8, 2017, 4:02 PM
  */
 
-#ifndef __PFS_TRAITS_DB_DATABASE_HPP__
-#define __PFS_TRAITS_DB_DATABASE_HPP__
+#ifndef __PFS_DB_DATABASE_HPP__
+#define __PFS_DB_DATABASE_HPP__
 
 #include <pfs/traits/string.hpp>
 #include <pfs/traits/db/exception.hpp>
@@ -17,7 +17,7 @@ namespace db {
 template <typename StringT, typename DatabaseTag>
 struct database_rep
 {
-    typedef traits::string<StringT>   string_type;
+    typedef StringT                   string_type;
     typedef traits::c_str<StringT>    c_str;
     typedef db::exception<StringT>    exception;
 };
@@ -56,5 +56,5 @@ public:
 
 }} // pfs::db
 
-#endif /* __PFS_TRAITS_DB_DATABASE_HPP__ */
+#endif /* __PFS_DB_DATABASE_HPP__ */
 
