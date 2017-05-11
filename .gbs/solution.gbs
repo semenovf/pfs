@@ -12,8 +12,8 @@ solution "pfs-mpl"
     filter "platforms:*64"
         architecture "x64"
 
---project "pfs-test"
---    include("pfs-test/project.gbs")
+project "pfs-test"
+    include("pfs-test/project.gbs")
 
 project "test-mpl-iterator"
     include("test-mpl-iterator/project.gbs")

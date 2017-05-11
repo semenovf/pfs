@@ -11,8 +11,7 @@
 #include <pfs/fsm/traits.hpp>
 #include <pfs/iterator.hpp>
 
-typedef std::string                              sequence_type;
-typedef pfs::fsm::sequence_traits<sequence_type> sequence_traits;
+typedef std::string                  sequence_type;
 typedef pfs::fsm::fsm<sequence_type> fsm_type;
 typedef fsm_type::char_type          char_type;
 
