@@ -8,38 +8,60 @@
 #ifndef __PFS_TRAITS_STRING_HPP__
 #define __PFS_TRAITS_STRING_HPP__
 
+#include <pfs/exception.hpp>
+#include <pfs/iterator.hpp>
+
 namespace pfs {
 namespace traits {
 
-template <typename StringRef>
+template <typename StringSpecificTraits>
 class string
 {
+    typedef StringSpecificTraits                           internal_type;
 public:
-    typedef StringRef                                 ref_type;
-    typedef typename ref_type::native_type            native_type;
-    typedef typename ref_type::native_reference       native_reference;
-    typedef typename ref_type::const_native_reference const_native_reference;
+    typedef string<typename internal_type::string_value_type>      string_value_type;
+    typedef string<typename internal_type::string_reference_type>  string_reference_type;
 
-    typedef typename ref_type::value_type             value_type;
-    typedef typename ref_type::reference              reference;
-    typedef typename ref_type::const_reference        const_reference;
-    typedef typename ref_type::const_pointer          const_pointer;
-    typedef typename ref_type::iterator               iterator;
-    typedef typename ref_type::const_iterator         const_iterator;
-    typedef typename ref_type::reverse_iterator       reverse_iterator;
-    typedef typename ref_type::const_reverse_iterator const_reverse_iterator;
-    typedef typename ref_type::difference_type        difference_type;
-    typedef typename ref_type::size_type              size_type;
+    typedef typename internal_type::native_type            native_type;
+    typedef typename internal_type::native_reference       native_reference;
+    typedef typename internal_type::const_native_reference const_native_reference;
+
+    typedef typename internal_type::value_type             value_type;
+    typedef typename internal_type::reference              reference;
+    typedef typename internal_type::const_reference        const_reference;
+    typedef typename internal_type::const_pointer          const_pointer;
+    typedef typename internal_type::iterator               iterator;
+    typedef typename internal_type::const_iterator         const_iterator;
+    typedef typename internal_type::reverse_iterator       reverse_iterator;
+    typedef typename internal_type::const_reverse_iterator const_reverse_iterator;
+//    typedef typename internal_type::difference_type        difference_type;
+    typedef typename internal_type::size_type              size_type;
     
 protected:
-    ref_type _p;
+    internal_type _p;
 
 public:
+    string ()
+    {}
+
     /**
      * Initializes with reference to native container
      */
     string (native_reference rhs)
         : _p(rhs)
+    {}
+
+    string (const_native_reference rhs)
+        : _p(rhs)
+    {}
+
+    string (const_pointer s)
+        : _p(s)
+    {}
+    
+    template <typename InputIt>
+    string (InputIt first, InputIt last)
+        : _p(first, last)
     {}
 
     /**
@@ -273,14 +295,14 @@ public:
      * @return The new string.
      * @throw out_of_range  If pos > size().
      */
-    string substr (size_type pos, size_type count = size_type(-1)) const;
+    string_value_type substr (size_type pos, size_type count = size_type(-1)) const;
     
-	string left (size_t count) const
+	string_value_type left (size_t count) const
 	{
 		return substr(0, count);
 	}
 
-	string right (size_t count) const
+	string_value_type right (size_t count) const
 	{
 		return substr(this->size() - count, count);
 	}
@@ -340,7 +362,7 @@ public:
     
     string & append (const_pointer s)
     {
-        return append(s, ref_type::length(s));
+        return append(s, internal_type::length(s));
     }
     
     string & insert (size_type index, size_type count, value_type ch);
@@ -377,10 +399,11 @@ public:
         _p.push_back(ch);
     }
 
-    void swap (string & rhs)
-    {
-        _p.swap(rhs._p);
-    }
+    // TODO
+//    void swap (string & rhs)
+//    {
+//        _p.swap(rhs._p);
+//    }
     
     friend inline bool operator == (string const & lhs, string const & rhs)
     {
@@ -413,22 +436,9 @@ public:
     }
 };
 
-}} // pfs::traits
-
-#if __OBSOLETE__
-
-#include <ostream>
-#include <pfs/exception.hpp>
-#include <pfs/iterator.hpp>
-#include <pfs/algo/find.hpp>
-#include <pfs/type_traits.hpp>
-
-namespace pfs {
-namespace traits {
-
-template <typename StringT>
-string<StringT> 
-string<StringT>::substr (size_type pos, size_type count) const
+template <typename StringSpecificTraits>
+typename string<StringSpecificTraits>::string_value_type
+string<StringSpecificTraits>::substr (size_type pos, size_type count) const
 {
     if (pos >= this->size())
         throw out_of_range("string::substr()");
@@ -442,8 +452,21 @@ string<StringT>::substr (size_type pos, size_type count) const
     pfs::advance(b, pos);
     pfs::advance(e, pos + n);
 
-    return string(b, e);
+    return string_value_type(b, e);
 }
+
+}} // pfs::traits
+
+#if __OBSOLETE__
+
+#include <ostream>
+#include <pfs/exception.hpp>
+#include <pfs/iterator.hpp>
+#include <pfs/algo/find.hpp>
+#include <pfs/type_traits.hpp>
+
+namespace pfs {
+namespace traits {
 
 template <typename StringT>
 string<StringT> & 

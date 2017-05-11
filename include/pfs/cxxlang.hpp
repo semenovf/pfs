@@ -96,7 +96,7 @@
 /* These can't be used after statements in c89. */
 #   ifdef __COUNTER__
 #       define static_assert(e,m) \
-            ;enum { ASSERT_CONCAT(static_assert_, __COUNTER__) = 1/(int)(!!(e)) }
+            ;enum { PFS_ASSERT_CONCAT(static_assert_, __COUNTER__) = 1/(int)(!!(e)) }
 #   else
   /* This can't be used twice on the same line so ensure if using in headers
    * that the headers are not included twice (by wrapping in #ifndef...#endif)

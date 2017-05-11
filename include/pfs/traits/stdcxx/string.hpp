@@ -10,19 +10,130 @@
 
 #include <string>
 #include <pfs/iterator.hpp>
+#include <pfs/cxxlang.hpp>
 
 namespace pfs {
 namespace traits {
 namespace stdcxx {
 
 template <typename CharT>
+struct string_value
+{
+    typedef typename std::basic_string<CharT> native_type;
+    typedef native_type &                     native_reference;
+    typedef native_type const &               const_native_reference;
+    
+    native_type v;
+
+    string_value ()
+    {}
+
+    string_value (CharT const * s)
+        : v(s)
+    {}
+
+    string_value (native_reference rhs)
+        : v(rhs)
+    {}
+
+    string_value (const_native_reference rhs)
+        : v(rhs)
+    {}
+
+    template <typename InputIt>
+    string_value (InputIt first, InputIt last)
+        : v(first, last)
+    {}
+    
+    native_reference operator * ()
+    {
+        return v;
+    }
+    
+    const_native_reference operator * () const
+    {
+        return v;
+    }
+    
+    native_type * operator -> ()
+    {
+        return & v;
+    }
+    
+    native_type const * operator -> () const
+    {
+        return & v;
+    }
+};
+
+template <typename CharT>
+struct string_ref
+{
+    typedef typename std::basic_string<CharT> native_type;
+    typedef native_type &                     native_reference;
+    typedef native_type const &               const_native_reference;
+
+    native_type * p;
+    
+    string_ref ()
+    {
+        static_assert(false, "Constructor denied");
+    }
+
+    string_ref (CharT const * s)
+    {
+        static_assert(false, "Constructor denied");
+    }
+    
+    string_ref (native_reference rhs)
+        : p(& rhs)
+    {}
+
+    string_ref (const_native_reference rhs)
+    {
+        static_assert(false, "Constructor denied");
+    }
+    
+    template <typename InputIt>
+    string_ref (InputIt first, InputIt last)
+    {
+        static_assert(false, "Constructor denied");
+    }
+
+    native_reference operator * ()
+    {
+        return *p;
+    }
+    
+    const_native_reference operator * () const
+    {
+        return *p;
+    }
+
+    native_type * operator -> ()
+    {
+        return p;
+    }
+    
+    native_type const * operator -> () const
+    {
+        return p;
+    }
+};
+
+template <typename CharT, template <typename> class StringValueOrRef>
 class basic_string
 {
+    typedef StringValueOrRef<CharT>                internal_type;
+
 public:
-    typedef typename std::basic_string<CharT>      native_type;
+    typedef basic_string<CharT, string_value>      string_value_type;
+    typedef basic_string<CharT, string_ref>        string_reference_type;
     
-    typedef native_type &                          native_reference;
-    typedef native_type const &                    const_native_reference;
+    typedef typename internal_type::native_type            native_type;
+    typedef typename internal_type::native_reference       native_reference;
+    typedef typename internal_type::const_native_reference const_native_reference;
+    
     typedef typename native_type::value_type       value_type;
     typedef typename native_type::const_pointer    const_pointer;
     typedef typename native_type::reference        reference;
@@ -31,17 +142,33 @@ public:
     typedef typename native_type::const_iterator   const_iterator;
     typedef typename native_type::reverse_iterator reverse_iterator;
     typedef typename native_type::const_reverse_iterator const_reverse_iterator;
-    typedef typename native_type::difference_type difference_type;
-    typedef typename native_type::size_type       size_type;
+    typedef typename native_type::difference_type  difference_type;
+    typedef typename native_type::size_type        size_type;
 
 protected:
-    native_type * _p;
+    internal_type _p;
     
 public:
-    basic_string (native_reference rhs)
-        : _p(& rhs)
+    basic_string ()
     {}
-        
+
+    basic_string (native_reference rhs)
+        : _p(rhs)
+    {}
+
+    basic_string (const_native_reference rhs)
+        : _p(rhs)
+    {}
+    
+    basic_string (const_pointer s)
+        : _p(s)
+    {}
+
+    template <typename InputIt>
+    basic_string (InputIt first, InputIt last)
+        : _p(first, last)
+    {}
+    
     basic_string & operator = (native_reference rhs)
     {
         *_p = rhs;
@@ -123,14 +250,48 @@ public:
         return _p->begin() + index;
 #endif
     }
+    
+    friend inline bool operator == (basic_string const & lhs, basic_string const & rhs)
+    {
+        return *lhs._p == *rhs._p;
+    }
+
+    friend inline bool operator != (basic_string const & lhs, basic_string const & rhs)
+    {
+        return *lhs._p != *rhs._p;
+    }
+
+    friend inline bool operator < (basic_string const & lhs, basic_string const & rhs)
+    {
+        return *lhs._p < *rhs._p;
+    }
+
+    friend inline bool operator <= (basic_string const & lhs, basic_string const & rhs)
+    {
+        return *lhs._p <= *rhs._p;
+    }
+
+    friend inline bool operator > (basic_string const & lhs, basic_string const & rhs)
+    {
+        return *lhs._p > *rhs._p;
+    }
+
+    friend inline bool operator >= (basic_string const & lhs, basic_string const & rhs)
+    {
+        return *lhs._p >= *rhs._p;
+    }
 };
 
-typedef basic_string<char> string;
-typedef basic_string<wchar_t> wstring;
+typedef basic_string<char, string_value>    string;
+typedef basic_string<wchar_t, string_value> wstring;
+typedef basic_string<char, string_ref>      string_reference;
+typedef basic_string<wchar_t, string_ref>   wstring_reference;
 
 #if __cplusplus >= 201103L
-typedef basic_string<char16_t> u16string;
-typedef basic_string<char32_t> u32string;
+typedef basic_string<char16_t, string_value> u16string;
+typedef basic_string<char32_t, string_value> u32string;
+typedef basic_string<char16_t, string_ref>   u16string_reference;
+typedef basic_string<char32_t, string_ref>   u32string_reference;
 #endif
 
 }}} // pfs::traits::stdcxx

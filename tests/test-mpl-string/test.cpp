@@ -13,6 +13,7 @@
 #include <cwchar>
 #include <iostream>
 #include <sstream>
+#include <pfs/traits/string.hpp>
 #include <pfs/traits/stdcxx/string.hpp>
 
 // Enabled by `qt_enable`
@@ -114,13 +115,13 @@ QChar const * string_samples<QChar> (int i)
 }
 #endif
 
-//#include "test_basic.hpp"
-//#include "test_compare.hpp"
-//#include "test_find.hpp"
-//#include "test_substr.hpp"
+#include "test_basic.hpp"
+#include "test_find.hpp"
+#include "test_substr.hpp"
 //#include "test_cast.hpp"
 //#include "test_erase.hpp"
 //#include "test_append.hpp"
+//#include "test_compare.hpp"
 
 int main (int argc, char *argv[])
 {
@@ -129,12 +130,12 @@ int main (int argc, char *argv[])
 
     BEGIN_TESTS(0);
 
-//    test_basic<std::string>();
-//    test_basic<std::wstring>();
-//    test_find<std::string>();
-//    test_find<std::wstring>();
-//    test_substr<std::string>();
-//    test_substr<std::wstring>();
+    test_basic<pfs::traits::stdcxx::string>();
+    test_basic<pfs::traits::stdcxx::wstring>();
+//    test_find<pfs::traits::stdcxx::string>();
+//    test_find<pfs::traits::stdcxx::wstring>();
+    test_substr<pfs::traits::stdcxx::string>();
+    test_substr<pfs::traits::stdcxx::wstring>();
 //    test_c_str_cast<std::string>();
 ////    test_c_str_cast<std::wstring>();    // TODO
 //    test_compare<std::string>();
@@ -149,9 +150,9 @@ int main (int argc, char *argv[])
 //    test_append<std::wstring>();
 
 #ifdef QT_CORE_LIB
-//    test_basic<QString>();
-//    test_find<QString>();
-//    test_substr<QString>();
+    test_basic<pfs::traits::qt::string>();
+//    test_find<pfs::traits::qt::string>();
+    test_substr<pfs::traits::qt::string>();
 //    test_c_str_cast<QString>();
 //    
 //    test_compare<QString>();

@@ -24,13 +24,13 @@ void test_substr ()
     string_type tail(string_samples<value_type>(STR_TAIL));
     string_type mid(string_samples<value_type>(STR_MID));
     
-    TEST_OK(orig.substr(0) == orig);
-    TEST_OK(orig.substr(0) == same);
-    TEST_OK(orig.substr(1, 4) == mid);
-    TEST_OK(orig.left(head.size()) == head);
-    TEST_OK(orig.right(tail.size()) == tail);
-    TEST_OK(orig.substr(1) == tail);
-    TEST_OK(orig.substr(1, 100) == tail);
+    TEST_OK(orig.substr(0)          == string_type(orig));
+    TEST_OK(orig.substr(0)          == string_type(same));
+    TEST_OK(orig.substr(1, 4)       == string_type(mid));
+    TEST_OK(orig.left(head.size())  == string_type(head));
+    TEST_OK(orig.right(tail.size()) == string_type(tail));
+    TEST_OK(orig.substr(1)          == string_type(tail));
+    TEST_OK(orig.substr(1, 100)     == string_type(tail));
 }
 
 #endif /* __PFS_TEST_SUBSTR_HPP__ */

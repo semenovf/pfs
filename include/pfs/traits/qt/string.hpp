@@ -10,38 +10,166 @@
 
 #include <QString>
 #include <pfs/iterator.hpp>
+#include <pfs/cxxlang.hpp>
 
 namespace pfs {
 namespace traits {
 namespace qt {
 
-class string
+template <typename CharT>
+struct string_value
 {
-public:
-    typedef QString                      native_type;
+    typedef QString             native_type;
+    typedef native_type &       native_reference;
+    typedef native_type const & const_native_reference;
     
-    typedef native_type &                native_reference;
-    typedef native_type const &          const_native_reference;
-    typedef native_type::value_type      value_type;
-    typedef QChar const *                const_pointer;
+    native_type v;
+
+    string_value ()
+    {}
+
+    string_value (CharT const * s)
+        : v(s)
+    {}
+
+    string_value (native_reference rhs)
+        : v(rhs)
+    {}
+
+    string_value (const_native_reference rhs)
+        : v(rhs)
+    {}
+    
+    template <typename InputIt>
+    string_value (InputIt first, InputIt last)
+        : v(first, pfs::distance(first, last))
+    {}
+
+    native_reference operator * ()
+    {
+        return v;
+    }
+    
+    const_native_reference operator * () const
+    {
+        return v;
+    }
+    
+    native_type * operator -> ()
+    {
+        return & v;
+    }
+    
+    native_type const * operator -> () const
+    {
+        return & v;
+    }
+};
+
+template <typename CharT>
+struct string_ref
+{
+    typedef QString             native_type;
+    typedef native_type &       native_reference;
+    typedef native_type const & const_native_reference;
+
+    native_type * p;
+    
+    string_ref ()
+    {
+        static_assert(false, "Constructor denied");
+    }
+
+    string_ref (CharT const * s)
+    {
+        static_assert(false, "Constructor denied");
+    }
+    
+    string_ref (native_reference rhs)
+        : p(& rhs)
+    {}
+
+    string_ref (const_native_reference rhs)
+    {
+        static_assert(false, "Constructor denied");
+    }
+
+    template <typename InputIt>
+    string_ref (InputIt first, InputIt last)
+    {
+        static_assert(false, "Constructor denied");
+    }
+
+    native_reference operator * ()
+    {
+        return *p;
+    }
+    
+    const_native_reference operator * () const
+    {
+        return *p;
+    }
+
+    native_type * operator -> ()
+    {
+        return p;
+    }
+    
+    native_type const * operator -> () const
+    {
+        return p;
+    }
+};
+
+template <typename StringValueOrRef>
+class basic_string
+{
+    typedef StringValueOrRef internal_type;
+    
+public:
+    typedef basic_string<string_value<QChar> > string_value_type;
+    typedef basic_string<string_ref<QChar> >   string_reference_type;
+
+    typedef typename internal_type::native_type            native_type;
+    typedef typename internal_type::native_reference       native_reference;
+    typedef typename internal_type::const_native_reference const_native_reference;
+    
+    typedef QChar                                 value_type;
+    typedef QChar const *                         const_pointer;
     typedef typename native_type::reference       reference;
-    typedef native_type::const_reference          const_reference;
-    typedef native_type::iterator                 iterator;
-    typedef native_type::const_iterator           const_iterator;
+    typedef typename native_type::const_reference const_reference;
+    typedef typename native_type::iterator        iterator;
+    typedef typename native_type::const_iterator  const_iterator;
     typedef std::reverse_iterator<iterator>       reverse_iterator;
     typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
 //    typedef native_type::difference_type          difference_type;
     typedef int                                   size_type; // no native_type::size_type found, but documentation mentions.
 
 protected:
-    native_type * _p;
+    internal_type _p;
     
 public:
-    string (native_reference rhs)
-        : _p(& rhs)
+    basic_string ()
     {}
-        
-    string & operator = (native_reference rhs)
+
+    basic_string (native_reference rhs)
+        : _p(rhs)
+    {}
+
+    basic_string (const_native_reference rhs)
+        : _p(rhs)
+    {}
+    
+    basic_string (const_pointer s)
+        : _p(s)
+    {}
+
+    template <typename InputIt>
+    basic_string (InputIt first, InputIt last)
+        : _p(first, last)
+    {}
+    
+    basic_string & operator = (native_reference rhs)
     {
         *_p = rhs;
         return *this;
@@ -60,6 +188,53 @@ public:
         return *_p;
     }
     
+        size_type size () const
+    {
+        return _p->size();
+    }
+    
+    size_type max_size () const
+    {
+       //return (INT_MAX)/sizeof(QChar) - 1;
+        return pfs::numeric_limits<int>::max()/sizeof(QChar) - sizeof(native_type);
+    }
+    
+    const_pointer data () const
+    {
+        return _p->data();
+    }
+    
+    const_iterator begin () const
+    {
+        return _p->begin();
+    }
+
+    const_iterator end () const
+    {
+        return _p->end();
+    }
+
+    const_reverse_iterator rbegin () const
+    {
+        return const_reverse_iterator(_p->end());
+    }
+
+    const_reverse_iterator rend () const
+    {
+        return const_reverse_iterator(_p->begin());
+    }
+
+    value_type at (size_type pos) const
+    {
+        return _p->at(pos);
+    }
+
+//    int compare (size_type pos1, size_type count1
+//            , basic_string const & rhs, size_type pos2, size_type count2) const
+//    {
+//        return _p->compare(pos1, count1, rhs._p, pos2, count2) ;
+//    }
+    
     void erase (size_type index, size_type count)
     {
         _p->remove(static_cast<int>(index), static_cast<int>(count));
@@ -73,7 +248,40 @@ public:
         _p->remove(index, count);
         return _p->begin() + index;
     }
+    
+    friend inline bool operator == (basic_string const & lhs, basic_string const & rhs)
+    {
+        return *lhs._p == *rhs._p;
+    }
+
+    friend inline bool operator != (basic_string const & lhs, basic_string const & rhs)
+    {
+        return *lhs._p != *rhs._p;
+    }
+
+    friend inline bool operator < (basic_string const & lhs, basic_string const & rhs)
+    {
+        return *lhs._p < *rhs._p;
+    }
+
+    friend inline bool operator <= (basic_string const & lhs, basic_string const & rhs)
+    {
+        return *lhs._p <= *rhs._p;
+    }
+
+    friend inline bool operator > (basic_string const & lhs, basic_string const & rhs)
+    {
+        return *lhs._p > *rhs._p;
+    }
+
+    friend inline bool operator >= (basic_string const & lhs, basic_string const & rhs)
+    {
+        return *lhs._p >= *rhs._p;
+    }    
 };
+
+typedef basic_string<string_value<QChar> > string;
+typedef basic_string<string_ref<QChar> >   string_reference;
 
 }}} // pfs::traits::qt
 
@@ -143,28 +351,7 @@ struct string_rep<QString> : public QString
 //                ? data_type(lhs)
 //                : data_type(lhs, int(n));
 //    }
-//    
-//    static size_type xmax_size (data_type const &)
-//    {
-//        //return (INT_MAX)/sizeof(QChar) - 1;
-//        return pfs::numeric_limits<int>::max()/sizeof(QChar) - sizeof(native_type);
-//    }
-//    
-    const_reverse_iterator rbegin () const
-    {
-        return const_reverse_iterator(d.end());
-    }
-    
-    const_reverse_iterator rend () const
-    {
-        return const_reverse_iterator(d.begin());
-    }
-    
-//    static value_type xat (data_type const & d, size_type pos)
-//    {
-//        return d.at(int(pos));
-//    }
-//
+
     int compare (size_type pos1, size_type count1
             , native_type const & rhs
             , size_type pos2, size_type count2) const
