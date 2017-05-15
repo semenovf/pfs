@@ -17,7 +17,8 @@ namespace traits {
 template <typename StringSpecificTraits>
 class string
 {
-    typedef StringSpecificTraits                           internal_type;
+    typedef StringSpecificTraits internal_type;
+    
 public:
     typedef string<typename internal_type::string_value_type>      string_value_type;
     typedef string<typename internal_type::string_reference_type>  string_reference_type;

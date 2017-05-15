@@ -16,25 +16,25 @@ namespace traits {
 // Container traits.
 // Based on [C++ concepts: Container](http://en.cppreference.com/w/cpp/concept/Container)
 
-template <typename T, template <typename> class ContainerRef>
+template <typename T, template <typename> class InternalType>
 class container
 {
+    typedef InternalType<T> internal_type;
 public:
-    typedef ContainerRef<T>                           ref_type;
-    typedef typename ref_type::native_type            native_type;
-    typedef typename ref_type::native_reference       native_reference;
-    typedef typename ref_type::const_native_reference const_native_reference;
+    typedef typename internal_type::native_type            native_type;
+    typedef typename internal_type::native_reference       native_reference;
+    typedef typename internal_type::const_native_reference const_native_reference;
 
-    typedef typename ref_type::value_type             value_type;
-    typedef typename ref_type::reference              reference;
-    typedef typename ref_type::const_reference        const_reference;
-    typedef typename ref_type::iterator               iterator;
-    typedef typename ref_type::const_iterator         const_iterator;
-    typedef typename ref_type::difference_type        difference_type;
-    typedef typename ref_type::size_type              size_type;
+    typedef typename internal_type::value_type             value_type;
+    typedef typename internal_type::reference              reference;
+    typedef typename internal_type::const_reference        const_reference;
+    typedef typename internal_type::iterator               iterator;
+    typedef typename internal_type::const_iterator         const_iterator;
+    typedef typename internal_type::difference_type        difference_type;
+    typedef typename internal_type::size_type              size_type;
     
 protected:
-    ref_type _p;
+    internal_type _p;
 
 public:
     /**
@@ -113,10 +113,11 @@ public:
         
     // *** MODIFIERS ***
     //
-    void swap (container & rhs)
-    {
-        _p.swap(rhs._p);
-    }
+    // FIXME
+//    void swap (container & rhs)
+//    {
+//        _p->swap(rhs._p);
+//    }
     
     // *** NON-MEMBER FUNCTIONS (OPERATORS)***
     //
@@ -124,7 +125,7 @@ public:
     friend inline bool operator == (container const & lhs
         , container const & rhs)
     {
-        return lhs._p == rhs._p;
+        return lhs._p == lhs._p;
     }
 
     friend inline bool operator != (container const & lhs

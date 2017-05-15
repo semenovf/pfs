@@ -41,7 +41,8 @@ void test_container_basic ()
     TEST_OK(traits1.begin() == traits1.end());
     TEST_OK(traits1.cbegin() == traits1.cend());
     
-    traits1.swap(traits2);
+    // TODO
+    //traits1.swap(traits2);
 }
 
 #endif /* __PFS_TEST_CONSTRUCTOR_HPP__ */

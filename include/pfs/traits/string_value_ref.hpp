@@ -11,13 +11,19 @@
 namespace pfs {
 namespace traits {
 
-template <typename CharT, typename NativeStringT>
+template <typename CharT, typename NativeString>
+struct string_ref;
+
+template <typename CharT, typename NativeString>
 struct string_value
 {
-    typedef NativeStringT       native_type;
+    typedef NativeString        native_type;
     typedef native_type &       native_reference;
     typedef native_type const & const_native_reference;
     typedef CharT const *       const_pointer;
+    
+    typedef string_value<CharT, NativeString> string_value_type;
+    typedef string_ref<CharT, NativeString>   string_reference_type;
     
     native_type v;
 
@@ -62,13 +68,16 @@ struct string_value
     }
 };
 
-template <typename CharT, typename NativeStringT>
+template <typename CharT, typename NativeString>
 struct string_ref
 {
-    typedef NativeStringT       native_type;
+    typedef NativeString        native_type;
     typedef native_type &       native_reference;
     typedef native_type const & const_native_reference;
     typedef CharT const *       const_pointer;
+
+    typedef string_value<CharT, NativeString> string_value_type;
+    typedef string_ref<CharT, NativeString>   string_reference_type;
 
     native_type * p;
     

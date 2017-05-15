@@ -24,122 +24,14 @@ string_value<QChar, QString>::string_value (InputIt first, InputIt last)
 
 namespace qt {
 
-//template <typename CharT>
-//struct string_value
-//{
-//    typedef QString             native_type;
-//    typedef native_type &       native_reference;
-//    typedef native_type const & const_native_reference;
-//    
-//    native_type v;
-//
-//    string_value ()
-//    {}
-//
-//    string_value (CharT const * s)
-//        : v(s)
-//    {}
-//
-//    string_value (native_reference rhs)
-//        : v(rhs)
-//    {}
-//
-//    string_value (const_native_reference rhs)
-//        : v(rhs)
-//    {}
-//    
-//    template <typename InputIt>
-//    string_value (InputIt first, InputIt last)
-//        : v(first, pfs::distance(first, last))
-//    {}
-//
-//    native_reference operator * ()
-//    {
-//        return v;
-//    }
-//    
-//    const_native_reference operator * () const
-//    {
-//        return v;
-//    }
-//    
-//    native_type * operator -> ()
-//    {
-//        return & v;
-//    }
-//    
-//    native_type const * operator -> () const
-//    {
-//        return & v;
-//    }
-//};
-//
-//template <typename CharT>
-//struct string_ref
-//{
-//    typedef QString             native_type;
-//    typedef native_type &       native_reference;
-//    typedef native_type const & const_native_reference;
-//
-//    native_type * p;
-//    
-//    string_ref ()
-//    {
-//        static_assert(false, "Constructor denied");
-//    }
-//
-//    string_ref (CharT const * s)
-//    {
-//        static_assert(false, "Constructor denied");
-//    }
-//    
-//    string_ref (native_reference rhs)
-//        : p(& rhs)
-//    {}
-//
-//    string_ref (const_native_reference rhs)
-//    {
-//        static_assert(false, "Constructor denied");
-//    }
-//
-//    template <typename InputIt>
-//    string_ref (InputIt first, InputIt last)
-//    {
-//        static_assert(false, "Constructor denied");
-//    }
-//
-//    native_reference operator * ()
-//    {
-//        return *p;
-//    }
-//    
-//    const_native_reference operator * () const
-//    {
-//        return *p;
-//    }
-//
-//    native_type * operator -> ()
-//    {
-//        return p;
-//    }
-//    
-//    native_type const * operator -> () const
-//    {
-//        return p;
-//    }
-//};
-
-template <typename CharT, typename ValueOrReference>
+template <typename ValueOrReference>
 class basic_string
 {
     typedef ValueOrReference internal_type;
     
 public:
-    typedef basic_string<CharT, string_value<CharT, typename internal_type::native_type> > string_value_type;
-    typedef basic_string<CharT, string_ref<CharT, typename internal_type::native_type> >   string_reference_type;
-
-//    typedef basic_string<string_value<QChar> > string_value_type;
-//    typedef basic_string<string_ref<QChar> >   string_reference_type;
+    typedef basic_string<typename internal_type::string_value_type>     string_value_type;
+    typedef basic_string<typename internal_type::string_reference_type> string_reference_type;
 
     typedef typename internal_type::native_type            native_type;
     typedef typename internal_type::native_reference       native_reference;
@@ -291,8 +183,8 @@ public:
     }    
 };
 
-typedef basic_string<QChar, string_value<QChar, QString> > string;
-typedef basic_string<QChar, string_ref<QChar, QString> >   string_reference;
+typedef basic_string<string_value<QChar, QString> > string;
+typedef basic_string<string_ref<QChar, QString> >   string_reference;
 
 }}} // pfs::traits::qt
 

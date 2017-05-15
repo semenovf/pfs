@@ -1,0 +1,122 @@
+/* 
+ * File:   value_ref.hpp
+ * Author: wladt
+ *
+ * Created on May 15, 2017, 7:09 PM
+ */
+
+#ifndef __PFS_TRAITS_VALUE_REF_HPP__
+#define __PFS_TRAITS_VALUE_REF_HPP__
+
+namespace pfs {
+namespace traits {
+
+template <typename T, template <typename> class NativeContainerWrapper>
+struct container_ref;
+
+template <typename T, template <typename> class NativeContainerWrapper>
+struct container_value
+{
+    typedef typename NativeContainerWrapper<T>::type native_type;
+    typedef native_type &       native_reference;
+    typedef native_type const & const_native_reference;
+    
+    typedef container_value<T, NativeContainerWrapper> container_value_type;
+    typedef container_ref<T, NativeContainerWrapper>   container_reference_type;
+    
+    native_type v;
+
+    container_value ()
+    {}
+
+    container_value (native_reference rhs)
+        : v(rhs)
+    {}
+
+    container_value (const_native_reference rhs)
+        : v(rhs)
+    {}
+
+//    template <typename InputIt>
+//    container_value (InputIt first, InputIt last)
+//        : v(first, last)
+//    {}
+    
+    native_reference operator * ()
+    {
+        return v;
+    }
+    
+    const_native_reference operator * () const
+    {
+        return v;
+    }
+    
+    native_type * operator -> ()
+    {
+        return & v;
+    }
+    
+    native_type const * operator -> () const
+    {
+        return & v;
+    }
+};
+
+template <typename T, template <typename> class NativeContainerWrapper>
+struct container_ref
+{
+    typedef typename NativeContainerWrapper<T>::type native_type;
+    typedef native_type &       native_reference;
+    typedef native_type const & const_native_reference;
+
+    typedef container_value<T, NativeContainerWrapper> container_value_type;
+    typedef container_ref<T, NativeContainerWrapper>   container_reference_type;
+
+    native_type * p;
+    
+    container_ref ()
+    {
+        static_assert(false, "Constructor denied");
+    }
+
+    container_ref (native_reference rhs)
+        : p(& rhs)
+    {}
+
+    container_ref (const_native_reference rhs)
+    {
+        static_assert(false, "Constructor denied");
+    }
+    
+//    template <typename InputIt>
+//    container_ref (InputIt first, InputIt last)
+//    {
+//        static_assert(false, "Constructor denied");
+//    }
+
+    native_reference operator * ()
+    {
+        return *p;
+    }
+    
+    const_native_reference operator * () const
+    {
+        return *p;
+    }
+
+    native_type * operator -> ()
+    {
+        return p;
+    }
+    
+    native_type const * operator -> () const
+    {
+        return p;
+    }
+};
+
+}} // pfs::traits
+
+#endif /* __PFS_TRAITS_VALUE_REF_HPP__ */
+

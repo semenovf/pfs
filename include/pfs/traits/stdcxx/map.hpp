@@ -21,16 +21,213 @@ struct map_wrapper
     typedef std::map<typename T::first_type, typename T::second_type> type;
 };
 
-template <typename T>
-class map : public container<T, map_wrapper>
+template <typename T, typename ValueOrReference>
+class map_basic
 {
-    typedef container<T, map_wrapper> base_class;
-    
-public:
-    typedef typename base_class::native_reference native_reference;
+    typedef ValueOrReference internal_type;
 
 public:
+    typedef map_basic<T, container_value<T, map_wrapper> > container_value_type;
+    typedef map_basic<T, container_ref<T, map_wrapper> >   container_reference_type;
+    
+    typedef typename internal_type::native_type            native_type;
+    typedef typename internal_type::native_reference       native_reference;
+    typedef typename internal_type::const_native_reference const_native_reference;
+    
+    typedef typename native_type::value_type       value_type;
+    typedef typename native_type::const_pointer    const_pointer;
+    typedef typename native_type::reference        reference;
+    typedef typename native_type::const_reference  const_reference;
+    typedef typename native_type::iterator         iterator;
+    typedef typename native_type::const_iterator   const_iterator;
+    typedef typename native_type::reverse_iterator reverse_iterator;
+    typedef typename native_type::const_reverse_iterator const_reverse_iterator;
+    typedef typename native_type::difference_type  difference_type;
+    typedef typename native_type::size_type        size_type;
+
+protected:
+    internal_type _p;
+    
+public:
+    map_basic ()
+    {}
+
+    map_basic (native_reference rhs)
+        : _p(rhs)
+    {}
+
+    map_basic (const_native_reference rhs)
+        : _p(rhs)
+    {}
+    
+//    map (const_pointer s)
+//        : _p(s)
+//    {}
+//
+//    template <typename InputIt>
+//    basic_string (InputIt first, InputIt last)
+//        : _p(first, last)
+//    {}
+    
+    map_basic & operator = (native_reference rhs)
+    {
+        *_p = rhs;
+        return *this;
+    }
+
+    operator const_native_reference () const
+    {
+        return *_p;
+    }
+
+    /**
+     * Casts to native container reference
+     */
+    operator native_reference ()
+    {
+        return *_p;
+    }
+
+    // *************************************************************************
+    // BEGIN Requirements for container traits
+    // Based on [C++ concepts: Container](http://en.cppreference.com/w/cpp/concept/Container)
+    // *************************************************************************
+
+    // *** ITERATORS ***
+    //
+    iterator begin ()
+    {
+        return _p->begin();
+    }
+    
+    const_iterator begin () const
+    {
+        return _p->begin();
+    }
+    
+    iterator end ()
+    {
+        return _p->end();
+    }
+    
+    const_iterator end () const
+    {
+        return _p->end();
+    }
+    
+#if __cplusplus >= 201103L
+    const_iterator cbegin () const
+    {
+        return _p->cbegin();
+    }
+    
+    const_iterator cend () const
+    {
+        return _p->cbegin();
+    }
+#else
+    const_iterator cbegin () const
+    {
+        return _p->begin();
+    }
+    
+    const_iterator cend () const
+    {
+        return _p->begin();
+    }
+#endif    
+
+    // *** CAPACITY ***
+    // 
+
+    size_type size () const pfs_noexcept
+    {
+        return _p->size();
+    }
+    
+    size_type max_size () const pfs_noexcept
+    {
+        return _p->max_size();
+    }
+    
+    bool empty () const pfs_noexcept
+    {
+        return _p->empty();
+    }
+    
+    // *** MODIFIERS ***
+    //
+    
+    // FIXME
+//    void swap (container & rhs)
+//    {
+//        _p->swap(*rhs._p);
+//    }
+    
+    // *** NON-MEMBER FUNCTIONS (OPERATORS) ***
+    //
+    
+    friend inline bool operator == (map_basic const & lhs
+        , map_basic const & rhs)
+    {
+        return *lhs._p == *rhs._p;
+    }
+
+    friend inline bool operator != (map_basic const & lhs
+        , map_basic const & rhs)
+    {
+        return *lhs._p != *rhs._p;
+    }
+
+    // *************************************************************************
+    // } END Requirements for container traits
+    // *************************************************************************
+};
+
+template <typename T>
+class map : public map_basic<T, container_value<T, map_wrapper> >
+{
+    typedef map_basic<T, container_value<T, map_wrapper> > base_class;
+
+public:
+    typedef typename base_class::native_type            native_type;
+    typedef typename base_class::native_reference       native_reference;
+    typedef typename base_class::const_native_reference const_native_reference;
+    
+public:
+    map ()
+        : base_class()
+    {}
+
     map (native_reference rhs)
+        : base_class(rhs)
+    {}
+
+    map (const_native_reference rhs)
+        : base_class(rhs)
+    {}
+};
+
+template <typename T>
+class map_reference : public map_basic<T, container_ref<T, map_wrapper> >
+{
+    typedef map_basic<T, container_ref<T, map_wrapper> > base_class;
+
+public:
+    typedef typename base_class::native_type            native_type;
+    typedef typename base_class::native_reference       native_reference;
+    typedef typename base_class::const_native_reference const_native_reference;
+    
+public:
+    map_reference ()
+        : base_class()
+    {}
+
+    map_reference (native_reference rhs)
+        : base_class(rhs)
+    {}
+
+    map_reference (const_native_reference rhs)
         : base_class(rhs)
     {}
 };

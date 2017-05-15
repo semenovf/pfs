@@ -9,37 +9,62 @@
 #define __PFS_TRAITS_QT_CONTAINER_HPP__
 
 #include <pfs/cxxlang.hpp>
+#include <pfs/traits/value_ref.hpp>
 
 namespace pfs {
 namespace traits {
 namespace qt {
 
-template <typename T, template <typename> class NativeTypeWrapperT>
-class container
+template <typename T, typename ValueOrReference>
+class container_basic
 {
+    typedef ValueOrReference internal_type;
+
 public:
-    typedef typename NativeTypeWrapperT<T>::type  native_type;
+    typedef typename internal_type::container_value_type     container_value_type;
+    typedef typename internal_type::container_reference_type container_reference_type;
     
-    // BEGIN Requirement typedefs for container traits
-    //
-    typedef native_type &                         native_reference;
-    typedef native_type const &                   const_native_reference;
-    typedef typename native_type::iterator        iterator;
-    typedef typename native_type::const_iterator  const_iterator;
-    typedef typename native_type::difference_type difference_type;
-    typedef typename native_type::size_type       size_type;
-    //
-    // END Requirement typedefs for container traits
+    typedef typename internal_type::native_type            native_type;
+    typedef typename internal_type::native_reference       native_reference;
+    typedef typename internal_type::const_native_reference const_native_reference;
+    
+    typedef typename native_type::value_type       value_type;
+    typedef typename native_type::const_pointer    const_pointer;
+    typedef typename native_type::reference        reference;
+    typedef typename native_type::const_reference  const_reference;
+    typedef typename native_type::iterator         iterator;
+    typedef typename native_type::const_iterator   const_iterator;
+    typedef typename native_type::reverse_iterator reverse_iterator;
+    typedef typename native_type::const_reverse_iterator const_reverse_iterator;
+    typedef typename native_type::difference_type  difference_type;
+    typedef typename native_type::size_type        size_type;
 
 protected:
-    native_type * _p;
+    internal_type _p;
     
+//public:
+//    typedef typename NativeTypeWrapperT<T>::type  native_type;
+//    
+//    // BEGIN Requirement typedefs for container traits
+//    //
+//    typedef native_type &                         native_reference;
+//    typedef native_type const &                   const_native_reference;
+//    typedef typename native_type::iterator        iterator;
+//    typedef typename native_type::const_iterator  const_iterator;
+//    typedef typename native_type::difference_type difference_type;
+//    typedef typename native_type::size_type       size_type;
+//    //
+//    // END Requirement typedefs for container traits
+//
+//protected:
+//    native_type * _p;
+//    
 public:
-    container (native_reference rhs)
+    container_basic (native_reference rhs)
         : _p(& rhs)
     {}
         
-    container & operator = (native_reference rhs)
+    container_basic & operator = (native_reference rhs)
     {
         *_p = rhs;
         return *this;
@@ -115,22 +140,23 @@ public:
     
     // *** MODIFIERS ***
     //
-    void swap (container & rhs)
-    {
-        _p->swap(*rhs._p);
-    }
+    // TODO
+//    void swap (container & rhs)
+//    {
+//        _p->swap(*rhs._p);
+//    }
     
     // *** NON-MEMBER FUNCTIONS (OPERATORS) ***
     //
     
-    friend inline bool operator == (container const & lhs
-        , container const & rhs)
+    friend inline bool operator == (container_basic const & lhs
+        , container_basic const & rhs)
     {
         return *lhs._p == *rhs._p;
     }
 
-    friend inline bool operator != (container const & lhs
-        , container const & rhs)
+    friend inline bool operator != (container_basic const & lhs
+        , container_basic const & rhs)
     {
         return *lhs._p != *rhs._p;
     }

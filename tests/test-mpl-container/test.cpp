@@ -43,12 +43,19 @@ int main (int argc, char *argv[])
 	BEGIN_TESTS(0);
 
     test_container_basic<int, pfs::traits::stdcxx::vector>();
+    test_container_basic<int, pfs::traits::stdcxx::vector_reference>();
     test_container_basic<int, pfs::traits::stdcxx::deque>();
+    test_container_basic<int, pfs::traits::stdcxx::deque_reference>();
     test_container_basic<int, pfs::traits::stdcxx::list>();
+    test_container_basic<int, pfs::traits::stdcxx::list_reference>();
     test_container_basic<int, pfs::traits::stdcxx::set>();
+    test_container_basic<int, pfs::traits::stdcxx::set_reference>();
     test_container_basic<int, pfs::traits::stdcxx::multiset>();
+    test_container_basic<int, pfs::traits::stdcxx::multiset_reference>();
     test_container_basic<pfs::pair<int, int>, pfs::traits::stdcxx::map>();
+    test_container_basic<pfs::pair<int, int>, pfs::traits::stdcxx::map_reference>();
     test_container_basic<pfs::pair<int, int>, pfs::traits::stdcxx::multimap>();
+    test_container_basic<pfs::pair<int, int>, pfs::traits::stdcxx::multimap_reference>();
     
 #if __cplusplus >= 201103L    
 //    test_container_basic<int, pfs::traits::stdcxx::array>();
