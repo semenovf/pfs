@@ -38,40 +38,43 @@ public:
     typedef typename base_class::const_pointer const_pointer;
     
 public:
+    contigous_container ()
+    {}
+    
     contigous_container (native_reference rhs)
-        : _p(rhs)
+        : base_class(rhs)
     {}
 
     pointer data ()
     {
-        return _p.data();
+        return base_class::_p.data();
     }
     
     const_pointer data () const
     {
-        return _p->data();
+        return base_class::_p.data();
     }
     
     void resize (size_type count)
     {
-        _p.resize(count);
+        base_class::_p.resize(count);
     }
     
     void resize (size_type count, value_type const & value)
     {
-        _p.resize(count, value);
+        base_class::_p.resize(count, value);
     }
 
     void reserve (size_type new_cap)
     {
         if (new_cap > max_size())
             throw pfs::length_error("contigous_container::reserve()");
-        _preserve(new_cap);
+        base_class::_p.reserve(new_cap);
     }
     
     void shrink_to_fit ()
     {
-        _p.shrink_to_fit();
+        base_class::_p.shrink_to_fit();
     }
 };
 

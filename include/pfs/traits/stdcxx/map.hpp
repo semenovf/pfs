@@ -9,7 +9,6 @@
 #define __PFS_TRAITS_STDCXX_MAP_HPP__
 
 #include <map>
-#include <pfs/traits/stdcxx/container.hpp>
 
 namespace pfs {
 namespace traits {
@@ -28,7 +27,7 @@ class map_basic
 
 public:
     typedef map_basic<T, container_value<T, map_wrapper> > container_value_type;
-    typedef map_basic<T, container_ref<T, map_wrapper> >   container_reference_type;
+    typedef map_basic<T, container_reference<T, map_wrapper> >   container_reference_type;
     
     typedef typename internal_type::native_type            native_type;
     typedef typename internal_type::native_reference       native_reference;
@@ -209,9 +208,9 @@ public:
 };
 
 template <typename T>
-class map_reference : public map_basic<T, container_ref<T, map_wrapper> >
+class map_reference : public map_basic<T, container_reference<T, map_wrapper> >
 {
-    typedef map_basic<T, container_ref<T, map_wrapper> > base_class;
+    typedef map_basic<T, container_reference<T, map_wrapper> > base_class;
 
 public:
     typedef typename base_class::native_type            native_type;

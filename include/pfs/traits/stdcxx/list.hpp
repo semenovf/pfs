@@ -28,7 +28,7 @@ class list_basic
 
 public:
     typedef list_basic<T, container_value<T, list_wrapper> > container_value_type;
-    typedef list_basic<T, container_ref<T, list_wrapper> >   container_reference_type;
+    typedef list_basic<T, container_reference<T, list_wrapper> >   container_reference_type;
     
     typedef typename internal_type::native_type            native_type;
     typedef typename internal_type::native_reference       native_reference;
@@ -182,6 +182,124 @@ public:
     // *************************************************************************
     // } END Requirements for container traits
     // *************************************************************************
+
+    // *************************************************************************
+    // BEGIN Requirements for sequence container traits {
+    // *************************************************************************
+
+    // *** ELEMENT ACCESS ***
+    //
+    reference back ()
+    {
+        return _p->back();
+    }
+		
+    const_reference back () const
+    {
+        return _p->back();
+    }
+	
+    reference front ()
+    {
+        return _p->front();
+    }
+		
+    const_reference front () const
+    {
+        return _p->front();
+    }
+	
+    // *** MODIFIERS ***
+    //
+        
+    void clear () pfs_noexcept
+    {
+        _p->clear();
+    }
+    
+#if __cplusplus >= 201103L
+    template <typename... Args>
+    iterator emplace (const_iterator pos, Args &&... args)
+    {
+        return _p->emplace(pos, args);
+    }
+
+//    template <typename... Args>
+//    reference emplace_back (Args &&... args)
+//    {
+//        return _p->emplace_back<Args>(args);
+//    }
+//    
+//    template <typename... Args>
+//    reference emplace_front (Args &&... args )
+//    {
+//        return _p->emplace_front<Args>(args);
+//    }
+#endif    
+
+    iterator erase (const_iterator pos)
+    {
+        return _p->erase(pos);
+    }
+    
+    iterator erase (const_iterator first, const_iterator last)
+    {
+        return _p->erase(first, last);
+    }
+
+    iterator insert (const_iterator pos, const_reference value)
+    {
+        return _p->insert(pos, value);
+    }
+    
+#if __cplusplus >= 201103L
+    iterator insert (const_iterator pos, T && value )
+    {
+        return _p->insert(pos, value);
+    }
+#endif
+
+    iterator insert (const_iterator pos, size_type count, const_reference value)
+    {
+        return _p->insert(pos, count, value);
+    }
+    
+    template <typename InputIt>
+    iterator insert (const_iterator pos, InputIt first, InputIt last)
+    {
+        return _p->insert<InputIt>(pos, first, last);
+    }
+    
+#if __cplusplus >= 201103L
+    iterator insert (const_iterator pos, std::initializer_list<T> ilist)
+    {
+        return _p->insert(pos, ilist);
+    }
+#endif
+    
+    void push_front (const_reference value)
+    {
+        _p->push_front(value);
+    }
+    
+    void push_back (const_reference value)
+    {
+        _p->push_back(value);
+    }
+
+    void pop_front ()
+    {
+        _p->pop_front();
+    }
+    
+    void pop_back ()
+    {
+        _p->pop_back();
+    }
+    
+    // *************************************************************************
+    // } END Requirements for sequence container traits
+    // *************************************************************************
 };
 
 template <typename T>
@@ -209,9 +327,9 @@ public:
 };
 
 template <typename T>
-class list_reference : public list_basic<T, container_ref<T, list_wrapper> >
+class list_reference : public list_basic<T, container_reference<T, list_wrapper> >
 {
-    typedef list_basic<T, container_ref<T, list_wrapper> > base_class;
+    typedef list_basic<T, container_reference<T, list_wrapper> > base_class;
 
 public:
     typedef typename base_class::native_type            native_type;
@@ -236,45 +354,10 @@ public:
 
 #if __OBSOLETE__
 
-namespace stdcxx {
-
-template <typename T>
-struct list
-{
-    typedef std::list<T> type;
-};
-
-} // stdcxx
-
-namespace pfs {
-namespace traits {
 
 template <typename T>
 struct list_rep<T, ::stdcxx::list> : public ::stdcxx::list<T>::type
 {
-    typedef typename ::stdcxx::list<T>::type           base_class;
-    typedef typename ::stdcxx::list<T>::type           native_type;
-    typedef native_type const &                          const_native_reference;
-    typedef typename native_type::size_type              size_type;
-    typedef typename native_type::value_type             value_type;
-    typedef typename native_type::reference              reference;
-    typedef typename native_type::const_reference        const_reference;
-    typedef typename native_type::iterator               iterator;
-    typedef typename native_type::const_iterator         const_iterator;
-    typedef typename native_type::reverse_iterator       reverse_iterator;
-    typedef typename native_type::const_reverse_iterator const_reverse_iterator;
-
-    explicit list_rep ()
-        : base_class()
-    {}
-
-    list_rep (size_type count, T const & value)
-        : base_class(count, value)
-    {}
-    
-    explicit list_rep (size_type count)
-        : base_class(count)
-    {}
 
     iterator erase (iterator first
             , iterator last)

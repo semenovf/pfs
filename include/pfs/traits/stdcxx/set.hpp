@@ -9,7 +9,6 @@
 #define __PFS_TRAITS_STDCXX_SET_HPP__
 
 #include <set>
-#include <pfs/traits/stdcxx/container.hpp>
 
 namespace pfs {
 namespace traits {
@@ -28,7 +27,7 @@ class set_basic
 
 public:
     typedef set_basic<T, container_value<T, set_wrapper> > container_value_type;
-    typedef set_basic<T, container_ref<T, set_wrapper> >   container_reference_type;
+    typedef set_basic<T, container_reference<T, set_wrapper> >   container_reference_type;
     
     typedef typename internal_type::native_type            native_type;
     typedef typename internal_type::native_reference       native_reference;
@@ -209,9 +208,9 @@ public:
 };
 
 template <typename T>
-class set_reference : public set_basic<T, container_ref<T, set_wrapper> >
+class set_reference : public set_basic<T, container_reference<T, set_wrapper> >
 {
-    typedef set_basic<T, container_ref<T, set_wrapper> > base_class;
+    typedef set_basic<T, container_reference<T, set_wrapper> > base_class;
 
 public:
     typedef typename base_class::native_type            native_type;

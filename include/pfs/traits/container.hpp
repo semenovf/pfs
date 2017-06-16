@@ -37,6 +37,10 @@ protected:
     internal_type _p;
 
 public:
+    // Acceptable for container_value only (as opposite to container_reference)
+    container ()
+    {}
+    
     /**
      * Initializes with reference to native container
      */

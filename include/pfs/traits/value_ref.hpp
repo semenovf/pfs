@@ -8,11 +8,107 @@
 #ifndef __PFS_TRAITS_VALUE_REF_HPP__
 #define __PFS_TRAITS_VALUE_REF_HPP__
 
+#include <pfs/cxxlang.hpp>
+
 namespace pfs {
 namespace traits {
 
+template <typename NativeType>
+struct reference;
+
+template <typename NativeType>
+struct value
+{
+    typedef NativeType          native_type;
+    typedef native_type &       native_reference;
+    typedef native_type const & const_native_reference;
+    
+    typedef value<NativeType>     value_type;
+    typedef reference<NativeType> reference_type;
+    
+    native_type v;
+
+    value ()
+    {}
+
+    value (native_reference rhs)
+        : v(rhs)
+    {}
+
+    value (const_native_reference rhs)
+        : v(rhs)
+    {}
+
+    native_reference operator * ()
+    {
+        return v;
+    }
+    
+    const_native_reference operator * () const
+    {
+        return v;
+    }
+    
+    native_type * operator -> ()
+    {
+        return & v;
+    }
+    
+    native_type const * operator -> () const
+    {
+        return & v;
+    }
+};
+
+template <typename NativeType>
+struct reference
+{
+    typedef NativeType          native_type;
+    typedef native_type &       native_reference;
+    typedef native_type const & const_native_reference;
+
+    typedef value<NativeType>     value_type;
+    typedef reference<NativeType> reference_type;
+
+    native_type * p;
+    
+    reference ()
+    {
+        static_assert(false, "Constructor denied");
+    }
+
+    reference (native_reference rhs)
+        : p(& rhs)
+    {}
+
+    reference (const_native_reference rhs)
+    {
+        static_assert(false, "Constructor denied");
+    }
+    
+    native_reference operator * ()
+    {
+        return *p;
+    }
+    
+    const_native_reference operator * () const
+    {
+        return *p;
+    }
+
+    native_type * operator -> ()
+    {
+        return p;
+    }
+    
+    native_type const * operator -> () const
+    {
+        return p;
+    }
+};
+
 template <typename T, template <typename> class NativeContainerWrapper>
-struct container_ref;
+struct container_reference;
 
 template <typename T, template <typename> class NativeContainerWrapper>
 struct container_value
@@ -22,7 +118,7 @@ struct container_value
     typedef native_type const & const_native_reference;
     
     typedef container_value<T, NativeContainerWrapper> container_value_type;
-    typedef container_ref<T, NativeContainerWrapper>   container_reference_type;
+    typedef container_reference<T, NativeContainerWrapper>   container_reference_type;
     
     native_type v;
 
@@ -36,11 +132,6 @@ struct container_value
     container_value (const_native_reference rhs)
         : v(rhs)
     {}
-
-//    template <typename InputIt>
-//    container_value (InputIt first, InputIt last)
-//        : v(first, last)
-//    {}
     
     native_reference operator * ()
     {
@@ -64,37 +155,31 @@ struct container_value
 };
 
 template <typename T, template <typename> class NativeContainerWrapper>
-struct container_ref
+struct container_reference
 {
     typedef typename NativeContainerWrapper<T>::type native_type;
     typedef native_type &       native_reference;
     typedef native_type const & const_native_reference;
 
-    typedef container_value<T, NativeContainerWrapper> container_value_type;
-    typedef container_ref<T, NativeContainerWrapper>   container_reference_type;
+    typedef container_value<T, NativeContainerWrapper>     container_value_type;
+    typedef container_reference<T, NativeContainerWrapper> container_reference_type;
 
     native_type * p;
     
-    container_ref ()
+    container_reference ()
     {
         static_assert(false, "Constructor denied");
     }
 
-    container_ref (native_reference rhs)
+    container_reference (native_reference rhs)
         : p(& rhs)
     {}
 
-    container_ref (const_native_reference rhs)
+    container_reference (const_native_reference rhs)
     {
         static_assert(false, "Constructor denied");
     }
     
-//    template <typename InputIt>
-//    container_ref (InputIt first, InputIt last)
-//    {
-//        static_assert(false, "Constructor denied");
-//    }
-
     native_reference operator * ()
     {
         return *p;

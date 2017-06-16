@@ -63,3 +63,8 @@ project "test-mpl-numeric"
 --project "test-mpl-fs-path"
 --    include("test-mpl-fs-path/project.gbs")
 
+project "test-mpl-binder"
+    include("test-mpl-binder/project.gbs")
+
+project "test-mpl-active-queue"
+    include("test-mpl-active-queue/project.gbs")

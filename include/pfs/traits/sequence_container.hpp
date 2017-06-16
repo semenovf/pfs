@@ -31,6 +31,10 @@ public:
     typedef typename ref_type::size_type              size_type;
     
 public:
+    sequence_container ()
+        : base_class()
+    {}
+    
     /**
      * Initializes with reference to native container
      */
@@ -93,16 +97,16 @@ public:
         return base_class::_p.emplace(pos, args);
     }
 
-//    template <typename... Args>
-//    reference emplace_back (Args &&... args)
-//    {
-//        return _p.emplace_back<Args>(args);
-//    }
-//    
+    template <typename... Args>
+    void emplace_back (Args &&... args)
+    {
+        return base_class::_p.emplace_back<Args>(args);
+    }
+    
 //    template <typename... Args>
 //    reference emplace_front (Args &&... args )
 //    {
-//        return _p.emplace_front<Args>(args);
+//        return base_class::_p.emplace_front<Args>(args);
 //    }
 #endif    
 
@@ -163,11 +167,16 @@ public:
         base_class::_p.push_back(value);
     }
 
-//    void pop_back ()
-//    {
-//        _p.pop_back();
-//    }
-	
+    void pop_front ()
+    {
+        base_class::_p.pop_front();
+    }
+    
+    void pop_back ()
+    {
+        base_class::_p.pop_back();
+    }
+    
     // *** NON-MEMBER FUNCTIONS (OPERATORS)***
     //
 };

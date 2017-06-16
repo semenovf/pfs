@@ -1,31 +1,31 @@
 --************************************************************
 --* Generated automatically by `gbs'
---* Command: `gbs project --create --name=demo-sfinae --type=console-app'
---* Date:    Fri Feb  3 09:36:40 2017
+--* Command: `gbs prj --create --type=test --name=test-mpl-active-queue'
+--* Date:    Thu Jun 15 2017
 --************************************************************
 
 kind          "ConsoleApp"
 language      "C++"
-targetname    "demo-sfinae"
-defines       {  }
+targetname    "test-mpl-active-queue"
+defines       { "PFS_HAVE_PTHREAD" }
 includedirs   { "../../include" }
 libdirs       { "../../../.build" }
-files         { "../../src/demo-sfinae/*.c", "../../src/demo-sfinae/*.cpp" }
+files         { "../../tests/test-mpl-active-queue/*.cpp" }
 
 configuration "debug"
     flags        { "FatalWarnings", "Symbols" }
     defines      { "DEBUG" }
-    objdir       "../../../.build/pfs-mpl/demo-sfinae/debug"
-    targetdir    "../../../.build"
+    objdir       "../../../.build/pfs/test-mpl-active-queue/debug"
+    targetdir    "../../../.build/tests"
     targetsuffix "-d"
-    links        {  }
+    links        { "pfs-test-d" }
 
 configuration "release"
     flags        { "FatalWarnings" }
     defines      { "NDEBUG" }
-    objdir       "../../../.build/pfs-mpl/demo-sfinae/release"
-    targetdir    "../../../.build"
-    links        {  }
+    objdir       "../../../.build/pfs/test-mpl-active-queue/release"
+    targetdir    "../../../.build/tests"
+    links        { "pfs-test" }
 
 filter { "debug", "action:gmake" }
     linkoptions  { "-rdynamic" }

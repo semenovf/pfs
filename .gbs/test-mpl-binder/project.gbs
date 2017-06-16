@@ -1,21 +1,20 @@
 --************************************************************
 --* Generated automatically by `gbs'
---* Command: `gbs prj --create --type=test --name=test-mpl-treap'
---* Date:    Sun Apr  9 20:38:58 2017
+--* Command: `gbs prj --create --type=test --name=test-mpl-binder'
+--* Date:    Mon Aug 17 21:46:34 2015
 --************************************************************
 
 kind          "ConsoleApp"
 language      "C++"
-targetname    "test-mpl-treap"
-defines       {  }
+targetname    "test-mpl-binder"
 includedirs   { "../../include" }
 libdirs       { "../../../.build" }
-files         { "../../tests/test-mpl-treap/*.c", "../../tests/test-mpl-treap/*.cpp" }
+files         { "../../tests/test-mpl-binder/**.cpp" }
 
 configuration "debug"
     flags        { "FatalWarnings", "Symbols" }
     defines      { "DEBUG" }
-    objdir       "../../../.build/pfs-mpl/test-mpl-treap/debug"
+    objdir       "../../../.build/pfs/test-mpl-binder/debug"
     targetdir    "../../../.build/tests"
     targetsuffix "-d"
     links        { "pfs-test-d" }
@@ -23,10 +22,6 @@ configuration "debug"
 configuration "release"
     flags        { "FatalWarnings" }
     defines      { "NDEBUG" }
-    objdir       "../../../.build/pfs-mpl/test-mpl-treap/release"
+    objdir       "../../../.build/pfs/test-mpl-binder/release"
     targetdir    "../../../.build/tests"
     links        { "pfs-test" }
-
-filter { "debug", "action:gmake" }
-    linkoptions  { "-rdynamic" }
-

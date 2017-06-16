@@ -98,7 +98,7 @@ public:
     
     size_type max_size () const
     {
-       //return (INT_MAX)/sizeof(QChar) - 1;
+        //return (INT_MAX)/sizeof(QChar) - 1;
         return pfs::numeric_limits<int>::max()/sizeof(QChar) - sizeof(native_type);
     }
     
@@ -190,30 +190,9 @@ typedef basic_string<string_ref<QChar, QString> >   string_reference;
 
 #if __OBSOLETE__
 
-#include <QString>
-#include <pfs/limits.hpp>
-#include <pfs/traits/string.hpp>
-
-namespace pfs {
-namespace traits {
-
 template <>
 struct string_rep<QString> : public QString
 {
-    typedef QString                                      native_type;
-    typedef native_type const &                          const_native_reference;
-    typedef size_t                                       size_type;
-    typedef typename native_type::value_type             value_type;
-    typedef typename native_type::reference              reference;
-    typedef typename native_type::const_reference        const_reference;
-    typedef value_type *                                 pointer;
-    typedef value_type const *                           const_pointer;
-    typedef typename native_type::iterator               iterator;
-    typedef typename native_type::const_iterator         const_iterator;
-    typedef std::reverse_iterator<iterator>              reverse_iterator;
-    typedef std::reverse_iterator<const_iterator>        const_reverse_iterator;
-
-    native_type d;
 
     static size_type length (const_pointer p)
     {
@@ -226,34 +205,6 @@ struct string_rep<QString> : public QString
         string_rep ()
         : d()
     {}
-    
-    explicit string_rep (const_native_reference s)
-        : d(s)
-    {}
-
-    explicit string_rep (const_pointer str, size_type n)
-        : d(str, n)
-    {}
-
-    explicit string_rep (const_pointer str)
-        : d(str)
-    {}
-    
-    string_rep (const_iterator begin, const_iterator end)
-        : d(begin, std::distance(begin,end))
-    {}
-    
-//    static void xassign (data_type & d, const_native_reference lhs)
-//    {
-//        d = lhs;
-//    }
-//
-//    static void xassign (data_type & d, const_pointer lhs, size_type n)
-//    {
-//        d = (n == size_type(-1)) 
-//                ? data_type(lhs)
-//                : data_type(lhs, int(n));
-//    }
 
     int compare (size_type pos1, size_type count1
             , native_type const & rhs

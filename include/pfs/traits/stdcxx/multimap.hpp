@@ -9,7 +9,6 @@
 #define __PFS_TRAITS_STDCXX_MULTIMAP_HPP__
 
 #include <map>
-#include <pfs/traits/stdcxx/container.hpp>
 
 namespace pfs {
 namespace traits {
@@ -28,7 +27,7 @@ class multimap_basic
 
 public:
     typedef multimap_basic<T, container_value<T, multimap_wrapper> > container_value_type;
-    typedef multimap_basic<T, container_ref<T, multimap_wrapper> >   container_reference_type;
+    typedef multimap_basic<T, container_reference<T, multimap_wrapper> >   container_reference_type;
     
     typedef typename internal_type::native_type            native_type;
     typedef typename internal_type::native_reference       native_reference;
@@ -209,9 +208,9 @@ public:
 };
 
 template <typename T>
-class multimap_reference : public multimap_basic<T, container_ref<T, multimap_wrapper> >
+class multimap_reference : public multimap_basic<T, container_reference<T, multimap_wrapper> >
 {
-    typedef multimap_basic<T, container_ref<T, multimap_wrapper> > base_class;
+    typedef multimap_basic<T, container_reference<T, multimap_wrapper> > base_class;
 
 public:
     typedef typename base_class::native_type            native_type;

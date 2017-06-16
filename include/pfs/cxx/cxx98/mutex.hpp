@@ -8,9 +8,7 @@
 #ifndef __PFS_CXX_CXX98_MUTEX_HPP__
 #define __PFS_CXX_CXX98_MUTEX_HPP__
 
-#include <pfs/bits/config.h>
-#include <pfs/bits/compiler.h>
-#include <pfs/bits/assert.h>
+#include <pfs/assert.hpp>
 
 #if defined(PFS_CC_MSC)
 #	include <windows.h>
@@ -286,6 +284,9 @@ public:
 	}
 };
 
-}
+} // pfs
+
+#include <pfs/compiler.hpp>
+#include PFS_CC_HEADER(mutex)
 
 #endif /* __PFS_CXX_CXX98_MUTEX_HPP__ */

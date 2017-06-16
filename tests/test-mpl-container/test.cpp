@@ -67,14 +67,15 @@ int main (int argc, char *argv[])
 #endif    
 
 #ifdef QT_CORE_LIB
-    test_container_basic<int, pfs::traits::qt::vector>();                   // QVector<T>
-    test_container_basic<int, pfs::traits::qt::list>();                     // QList<T>
-    test_container_basic<int, pfs::traits::qt::linked_list>();              // QLinkedList<T>
-    test_container_basic<int, pfs::traits::qt::set>();                      // QSet<T>
-    test_container_basic<pfs::pair<int, int>, pfs::traits::qt::map>();      // QMap<Key, T>
-    test_container_basic<pfs::pair<int, int>, pfs::traits::qt::multimap>(); // QMultiMap<Key, T>
-    test_container_basic<pfs::pair<int, int>, pfs::traits::qt::hash>();     // QHash<Key, T>
-    test_container_basic<pfs::pair<int, int>, pfs::traits::qt::multihash>();// QMultiHash<Key, T>
+    // TODO Implement
+//    test_container_basic<int, pfs::traits::qt::vector>();                   // QVector<T>
+//    test_container_basic<int, pfs::traits::qt::list>();                     // QList<T>
+//    test_container_basic<int, pfs::traits::qt::linked_list>();              // QLinkedList<T>
+//    test_container_basic<int, pfs::traits::qt::set>();                      // QSet<T>
+//    test_container_basic<pfs::pair<int, int>, pfs::traits::qt::map>();      // QMap<Key, T>
+//    test_container_basic<pfs::pair<int, int>, pfs::traits::qt::multimap>(); // QMultiMap<Key, T>
+//    test_container_basic<pfs::pair<int, int>, pfs::traits::qt::hash>();     // QHash<Key, T>
+//    test_container_basic<pfs::pair<int, int>, pfs::traits::qt::multihash>();// QMultiHash<Key, T>
 #endif    
 
 	return END_TESTS;
