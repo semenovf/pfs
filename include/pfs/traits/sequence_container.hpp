@@ -94,13 +94,13 @@ public:
     template <typename... Args>
     iterator emplace (const_iterator pos, Args &&... args)
     {
-        return base_class::_p.emplace(pos, args);
+        return base_class::_p.emplace(pos, args...);
     }
 
     template <typename... Args>
     void emplace_back (Args &&... args)
     {
-        return base_class::_p.emplace_back<Args>(args);
+        return base_class::_p.emplace_back(args...);
     }
     
 //    template <typename... Args>

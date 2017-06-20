@@ -12,6 +12,7 @@
 #include <pfs/type_traits.hpp>
 #include <pfs/limits.hpp>
 #include <pfs/math.hpp>
+#include <pfs/assert.hpp>
 
 namespace pfs {
 namespace details {
@@ -19,7 +20,9 @@ namespace details {
 inline intmax_t ratio_num (intmax_t num, intmax_t denom)
 {
     PFS_ASSERT_X(denom != 0, "Denominator cannot be zero");
-    PFS_ASSERT_X(num >= - max_value<intmax_t>() && denom >= - max_value<intmax_t>(), "Out of range");
+    PFS_ASSERT_X(num >= - numeric_limits<intmax_t>::max() 
+            && denom >= - numeric_limits<intmax_t>::max()
+        , "Out of range");
     
     return num * math::details::integral_sign(denom) / math::details::integral_gcd(num, denom);
 }
@@ -174,7 +177,6 @@ struct ratio_less
 
 template <typename R1, typename R2>
 bool const ratio_less<R1, R2>::value = details::ratio_less(R1::num, R1::den, R2::num, R2::den);
-
 
 template <typename R1, typename R2>
 struct ratio_less_equal

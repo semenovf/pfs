@@ -72,20 +72,11 @@ struct reference
 
     native_type * p;
     
-    reference ()
-    {
-        static_assert(false, "Constructor denied");
-    }
 
     reference (native_reference rhs)
         : p(& rhs)
     {}
 
-    reference (const_native_reference rhs)
-    {
-        static_assert(false, "Constructor denied");
-    }
-    
     native_reference operator * ()
     {
         return *p;
@@ -105,6 +96,17 @@ struct reference
     {
         return p;
     }
+    
+private:
+    reference ();
+//    {
+//        static_assert(false, "Default constructor denied");
+//    }
+        
+    reference (const_native_reference rhs);
+//    {
+//        static_assert(false, "Constructor denied");
+//    }
 };
 
 template <typename T, template <typename> class NativeContainerWrapper>
@@ -166,20 +168,11 @@ struct container_reference
 
     native_type * p;
     
-    container_reference ()
-    {
-        static_assert(false, "Constructor denied");
-    }
 
     container_reference (native_reference rhs)
         : p(& rhs)
     {}
 
-    container_reference (const_native_reference rhs)
-    {
-        static_assert(false, "Constructor denied");
-    }
-    
     native_reference operator * ()
     {
         return *p;
@@ -199,6 +192,18 @@ struct container_reference
     {
         return p;
     }
+    
+private:
+    container_reference ();
+//    {
+//        static_assert(false, "Constructor denied");
+//    }
+
+    container_reference (const_native_reference rhs);
+//    {
+//        static_assert(false, "Constructor denied");
+//    }
+
 };
 
 }} // pfs::traits

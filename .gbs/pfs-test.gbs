@@ -1,0 +1,23 @@
+--************************************************************
+--* Generated automatically by `gbs'
+--* Command: `gbs project --create --name=pfs-test --type=shared-lib'
+--* Date:    Mon Aug 17 21:07:10 2015
+--************************************************************
+
+kind          "SharedLib"
+language      "C++"
+targetname    "pfs-test"
+includedirs   { "../include" }
+files         { "../src/pfs-test/*.c", "../src/pfs-test/*.cpp" }
+
+configuration "debug"
+    objdir       ".cache/pfs-test/debug"
+
+configuration "release"
+    objdir       ".cache/pfs-test/release"
+
+filter "platforms:unix*"
+    files { "../src/pfs-test/unix/*.cpp" }
+
+filter "platforms:mswin*"
+    files { "../src/pfs-test/win/*.cpp" }

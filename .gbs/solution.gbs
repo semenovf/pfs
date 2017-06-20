@@ -5,66 +5,92 @@
 --************************************************************
 
 solution "pfs-mpl"
-    configurations {"debug", "release"}
-    platforms {"unix32", "unix64", "mswin32", "mswin64"}
-    filter "platforms:*32"
-        architecture "x32"
-    filter "platforms:*64"
-        architecture "x64"
+    configurations { "debug", "release" }
+    platforms { "unix32", "unix64" }
+
+    flags { "FatalWarnings", "C++11" }
+    targetdir     "../../.build"
+    includedirs   { "../include" }
+    libdirs       { "../../.build" }
+
+--    filter "platforms:*32"
+--        architecture "x32"
+--    filter "platforms:*64"
+--        architecture "x64"
+
+configuration "debug"
+    symbols      "On"
+    defines      { "DEBUG" }
+    targetsuffix "-d"
+
+configuration "release"
+    defines      { "NDEBUG" }
 
 project "pfs-test"
-    include("pfs-test/project.gbs")
+    include("pfs-test.gbs")
 
-project "test-mpl-iterator"
-    include("test-mpl-iterator/project.gbs")
+project "pfs"
+    include("pfs.gbs")
 
-project "test-mpl-string"
-    include("test-mpl-string/project.gbs")
+--project "test-mpl-iterator"
+--    include("test-mpl-iterator/project.gbs")
 
-project "test-mpl-container"
-    include("test-mpl-container/project.gbs")
+--project "test-mpl-string"
+--    include("test-mpl-string/project.gbs")
 
---project "test-mpl-cli"
---    include("test-mpl-cli/project.gbs")
+--project "test-mpl-container"
+--    include("test-mpl-container/project.gbs")
 
---project "demo-sfinae"
---    include("demo-sfinae/project.gbs")
+----project "test-mpl-cli"
+----    include("test-mpl-cli/project.gbs")
 
---project "demo-db"
---    include("demo-db/project.gbs")
+----project "demo-sfinae"
+----    include("demo-sfinae/project.gbs")
 
---project "test-mpl-algo-between"
---    include("test-mpl-algo-between/project.gbs")
+----project "demo-db"
+----    include("demo-db/project.gbs")
 
-project "test-mpl-fsm"
-    include("test-mpl-fsm/project.gbs")
+----project "test-mpl-algo-between"
+----    include("test-mpl-algo-between/project.gbs")
 
---project "test-mpl-json"
---    include("test-mpl-json/project.gbs")
+--project "test-mpl-fsm"
+--    include("test-mpl-fsm/project.gbs")
 
---project "test-mpl-uri"
---    include("test-mpl-uri/project.gbs")
+----project "test-mpl-json"
+----    include("test-mpl-json/project.gbs")
 
---project "test-mpl-lexical_cast"
---    include("test-mpl-lexical_cast/project.gbs")
+----project "test-mpl-uri"
+----    include("test-mpl-uri/project.gbs")
 
-project "test-mpl-utf8"
-    include("test-mpl-utf8/project.gbs")
+----project "test-mpl-lexical_cast"
+----    include("test-mpl-lexical_cast/project.gbs")
 
---project "test-mpl-treap"
---    include("test-mpl-treap/project.gbs")
+--project "test-mpl-utf8"
+--    include("test-mpl-utf8/project.gbs")
 
-project "test-mpl-numeric"
-    include("test-mpl-numeric/project.gbs")
+----project "test-mpl-treap"
+----    include("test-mpl-treap/project.gbs")
 
---project "test-mpl-functional"
---    include("test-mpl-functional/project.gbs")
+--project "test-mpl-numeric"
+--    include("test-mpl-numeric/project.gbs")
 
---project "test-mpl-fs-path"
---    include("test-mpl-fs-path/project.gbs")
+----project "test-mpl-functional"
+----    include("test-mpl-functional/project.gbs")
 
-project "test-mpl-binder"
-    include("test-mpl-binder/project.gbs")
+----project "test-mpl-fs-path"
+----    include("test-mpl-fs-path/project.gbs")
 
-project "test-mpl-active-queue"
-    include("test-mpl-active-queue/project.gbs")
+--project "test-mpl-binder"
+--    include("test-mpl-binder/project.gbs")
+
+--project "test-mpl-active-queue"
+--    include("test-mpl-active-queue/project.gbs")
+
+--project "test-mpl-ratio"
+--    include("test-mpl-ratio/project.gbs")
+
+--project "test-mpl-chrono"
+--    include("test-mpl-chrono/project.gbs")
+
+project "test-mpl-filesystem"
+    include("test-mpl-filesystem.gbs")

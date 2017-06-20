@@ -70,13 +70,10 @@ private:
             gc();
         }
         
-#if __cplusplus >= 201103L
-        _sequence.emplace_back(v);
-#else
         value_type v(ptr);
         _sequence.push_back(v);
         v.p = 0; // Do not destroy 
-#endif
+
         ++_count;
     }
     
@@ -100,8 +97,6 @@ private:
     // Garbage collector
     void gc ()
     {
-        unique_lock<mutex_type> locker(_mutex);
-        
         iterator pos = _sequence.begin();
         iterator end = _sequence.end();
         
@@ -143,9 +138,9 @@ public:
 		return _sequence.size();
 	}
 
-#if __cplusplus >= 201103L
-#   error Implement using variadic templates    
-#else    
+//#if __cplusplus >= 201103L
+//#   error Implement using variadic templates    
+//#else    
 	void push_function (void (* f) ())
 	{
         push_helper(new binder_function0<void>(f));
@@ -252,7 +247,7 @@ public:
 	{
         push_helper(new binder_method8<C, void, Arg1, Arg2, Arg3, Arg4, Arg5, Arg6, Arg7, Arg8>(f, c, a1, a2, a3, a4, a5, a6, a7, a8));
 	}
-#endif    
+//#endif
     
   	void call ()
     {
@@ -264,7 +259,7 @@ public:
             --_count;
             locker.unlock();
 
-            (*pos->p)();
+            (*(pos->p))();
             
             locker.lock();
             

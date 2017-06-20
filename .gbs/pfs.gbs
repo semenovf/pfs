@@ -1,0 +1,21 @@
+--************************************************************
+--* Generated automatically by `gbs'
+--* Command: `gbs prj --create --name=pfs --type=shared-lib'
+--* Date:    Mon Aug 17 20:34:48 2015
+--************************************************************
+
+kind          "StaticLib"
+language      "C++"
+targetname    "pfs-mpl"
+includedirs   { "../include" }
+files         { "../src/pfs/*.cpp" }
+
+configuration "debug"
+    objdir       ".cache/pfs-mpl/debug"
+
+configuration "release"
+    objdir       ".cache/pfs-mpl/release"
+
+filter "platforms:unix*"
+    files { "../src/pfs/gnuc/*.cpp" }
+    links { "dl", "pthread", "rt" }

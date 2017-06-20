@@ -1,0 +1,26 @@
+--************************************************************
+--* Generated automatically by `gbs'
+--* Command: `gbs prj --create --type=test --name=test-mpl-ratio'
+--* Date:    Mon Jun 19 14:48:47 2017
+--************************************************************
+
+kind          "ConsoleApp"
+language      "C++"
+targetname    "test-mpl-filesystem"
+files         { "../tests/test-mpl-filesystem/*.cpp" }
+
+links         { "stdc++fs" } -- need for 11 <= C++ < 17
+
+configuration "debug"
+    objdir       ".cache/test-mpl-filesystem/debug"
+    targetdir    "../../.build/tests"
+    links        { "pfs-test-d", "pfs-mpl-d" }
+
+configuration "release"
+    objdir       ".cache/test-mpl-filesystem/release"
+    targetdir    "../../.build/tests"
+    links        { "pfs-test", "pfs-mpl" }
+
+filter { "debug", "action:gmake" }
+    linkoptions  { "-rdynamic" }
+

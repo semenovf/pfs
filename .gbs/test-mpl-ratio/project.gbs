@@ -1,36 +1,34 @@
 --************************************************************
 --* Generated automatically by `gbs'
---* Command: `gbs prj --create --type=test --name=test-mpl-active-queue'
---* Date:    Thu Jun 15 2017
+--* Command: `gbs prj --create --type=test --name=test-mpl-ratio'
+--* Date:    Mon Jun 19 14:48:47 2017
 --************************************************************
 
 kind          "ConsoleApp"
 language      "C++"
-targetname    "test-mpl-active-queue"
-defines       { "PFS_HAVE_PTHREAD" }
+targetname    "test-mpl-ratio"
+defines       {  }
 includedirs   { "../../include" }
 libdirs       { "../../../.build" }
-files         { "../../tests/test-mpl-active-queue/*.cpp" }
-flags         { "FatalWarnings"
-                , "C++11"
+files         {  "../../tests/test-mpl-ratio/*.cpp"
+                , "../../src/pfs/ratio.cpp"
               }
 
-
 configuration "debug"
+    flags        { "FatalWarnings", "Symbols" }
     defines      { "DEBUG" }
-    symbols      "On"
-    objdir       "../../../.build/pfs/test-mpl-active-queue/debug"
+    objdir       "../../../.build/pfs-mpl/test-mpl-ratio/debug"
     targetdir    "../../../.build/tests"
     targetsuffix "-d"
-    links        { "pfs-test-d" }
+    links        { "pfs-test-d", "pfs-mpl-d" }
 
 configuration "release"
+    flags        { "FatalWarnings" }
     defines      { "NDEBUG" }
-    objdir       "../../../.build/pfs/test-mpl-active-queue/release"
+    objdir       "../../../.build/pfs-mpl/test-mpl-ratio/release"
     targetdir    "../../../.build/tests"
-    links        { "pfs-test" }
+    links        { "pfs-test", "pfs-mpl" }
 
 filter { "debug", "action:gmake" }
-    links        { "pthread" }
     linkoptions  { "-rdynamic" }
 

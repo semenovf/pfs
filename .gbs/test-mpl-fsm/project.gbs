@@ -26,14 +26,14 @@ configuration "debug"
     objdir       "../../../.build/pfs/test-mpl-fsm/debug"
     targetdir    "../../../.build/tests"
     targetsuffix "-d"
-    links        { "pfs-test-d" }
+    links        { "pfs-test-d", "pfs-mpl-d" }
 
 configuration "release"
     flags        { "FatalWarnings" }
     defines      { "NDEBUG" }
     objdir       "../../../.build/pfs/test-mpl-fsm/release"
     targetdir    "../../../.build/tests"
-    links        { "pfs-test" }
+    links        { "pfs-test", "pfs-mpl" }
 
 -- Special for Qt projects
 --package.loaded["../../../.gbs/qt_enable"] = nil

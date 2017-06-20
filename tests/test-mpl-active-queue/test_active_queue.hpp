@@ -171,7 +171,6 @@ void test ()
     
     std::srand(0xACCABEAF);
     size_t limit = random();
-    
     int max = pfs::numeric_limits<uint16_t>::max();
     
     for (int i = 0; i < max; ++i) {
@@ -244,9 +243,9 @@ public:
             q.call_all();
         }
         
-//        // Wait some time to complete producers
-//        pfs::thread::msleep(100);
-//        q.call_all();
+        // Wait some time to complete producers
+        pfs::this_thread::sleep_for(pfs::chrono::milliseconds(5));
+        q.call_all();
 	}
 };
 
@@ -311,7 +310,7 @@ void test ()
     pfs::thread t2(& producer2::run, & prod2);
     pfs::thread t3(& producer3::run, & prod3);
 
-    pfs::thread::msleep(100);
+    pfs::this_thread::sleep_for(pfs::chrono::milliseconds(10));
     
     is_finish = 1;
 
@@ -345,35 +344,31 @@ void test ()
 
 } // test3
 
-#if __NEED_IMPL__
-
 namespace test4 {
 
-typedef pfs::active_queue_mt<void> active_queue_type;
+typedef pfs::active_queue<pfs::traits::stdcxx::deque
+    , pfs::mutex
+    , 256> active_queue_type;
+
 static active_queue_type q;
 
 static pfs::atomic_int is_finish(0);
 static pfs::atomic_int result(0);
 
 void func1 ()
-{
-    //pfs::thread::msleep(10);
-}
+{}
 
 void func2 ()
 {
-    //pfs::thread::msleep(100);
     q.push_function(& func1);
 }
 
-class consumer : public pfs::thread
+class consumer
 {
 public:
-	consumer () 
-        : pfs::thread()
-    {}
+	consumer () {}
 
-	virtual void run()
+	void run()
 	{
 		while (! is_finish) {
             q.call_all();
@@ -381,24 +376,18 @@ public:
 	}
 };
 
-class producer : public pfs::thread
+class producer
 {
 public:
-	producer () 
-        : pfs::thread()
-    {}
+	producer () {}
 
-	virtual void run()
+	void run()
 	{
 		while (! is_finish) {
-            if (! q.push_function(& func2)) {
-                result |= 0x0001;
-                break;
-            }
+            q.push_function(& func2);
         }
 	}
 };
-
 
 void test ()
 {
@@ -406,28 +395,25 @@ void test ()
     
     consumer cons;
     producer prod;
+
+    pfs::thread t(& consumer::run, & cons);
+    pfs::thread t1(& producer::run, & prod);
     
-    cons.start();
-    prod.start();
-    
-    pfs::thread::sleep(3);
+    pfs::this_thread::sleep_for(pfs::chrono::milliseconds(10));
     
     is_finish = 1;
     
-    cons.wait();
-    prod.wait();
+    t1.join();
+    t.join();
     
-    if (result != 0) {
+    if (result != 0)
         cout << "result = 0x" << std::hex << result.load() << endl;
-    }
     
     TEST_OK2(result == 0
             , "test::active_queue::test4 is ok");
 }
 
 } // test4
-
-#endif
 
 }} //test::active_queue
 

@@ -1,11 +1,6 @@
 #include <pfs/test/test.hpp>
 #include "test_active_queue.hpp"
-//#include "test_consumer_producer.hpp"
-//
-//#include <iostream>
-//
-//using std::cout;
-//using std::endl;
+#include "test_consumer_producer.hpp"
 
 int main(int argc, char *argv[])
 {
@@ -18,8 +13,8 @@ int main(int argc, char *argv[])
     test::active_queue::test1::test();
     test::active_queue::test2::test();
     test::active_queue::test3::test();
-//    test::active_queue::test4::test();
-//    test::active_queue::consumer_producer::test();
+    test::active_queue::test4::test();
+    test::active_queue::consumer_producer::test();
 
     return END_TESTS;
 }

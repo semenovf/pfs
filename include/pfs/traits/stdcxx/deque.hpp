@@ -221,19 +221,19 @@ public:
     template <typename... Args>
     iterator emplace (const_iterator pos, Args &&... args)
     {
-        return _p->emplace(pos, args);
+        return _p->emplace(pos, args...);
     }
 
     template <typename... Args>
     void emplace_back (Args &&... args)
     {
-        return _p->emplace_back<Args>(args);
+        return _p->emplace_back(args...);
     }
     
 //    template <typename... Args>
 //    reference emplace_front (Args &&... args )
 //    {
-//        return _p->emplace_front<Args>(args);
+//        return _p->emplace_front(args...);
 //    }
 #endif    
 
