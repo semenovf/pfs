@@ -1,0 +1,18 @@
+kind          "ConsoleApp"
+language      "C++"
+targetname    "test-mpl-active_queue"
+files         { "../tests/test-mpl-active_queue/*.cpp" }
+
+configuration "debug"
+    objdir       ".cache/test-mpl-active_queue/debug"
+    targetdir    "../../.build/tests"
+    links        { "pfs-test-d" }
+
+configuration "release"
+    objdir       ".cache/test-mpl-active_queue/release"
+    targetdir    "../../.build/tests"
+    links        { "pfs-test" }
+
+filter { "debug", "action:gmake" }
+    links        { "pthread" }
+

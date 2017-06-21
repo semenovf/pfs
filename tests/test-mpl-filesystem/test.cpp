@@ -8,6 +8,7 @@
 
 #include <pfs/test/test.hpp>
 #include "test_path.hpp"
+#include "test_directory_entry.hpp"
 
 int main(int argc, char *argv[])
 {
@@ -17,6 +18,7 @@ int main(int argc, char *argv[])
     BEGIN_TESTS(0);
     
     test_path();
+    test_directory_entry();
 
     return END_TESTS;
 }

@@ -5,24 +5,25 @@
  * Created on June 20, 2017
  */
 
-#ifndef TEST_PATH_HPP
-#define TEST_PATH_HPP
+#ifndef TEST_DIRECTORY_ENTRY_HPP
+#define TEST_DIRECTORY_ENTRY_HPP
 
 #include <pfs/filesystem.hpp>
 #include <pfs/operationsystem.hpp>
 #include <iostream>
 
-void test_path ()
+void test_directory_entry ()
 {
     typedef pfs::filesystem::path path;
-    
+    typedef pfs::filesystem::directory_entry directory_entry;
+#if __COMMENT__    
     // Constructors
     {
         ADD_TESTS(3);
         
-        path p1 = "/usr/lib/sendmail.cf"; // portable format
-        path p2 = "C:\\users\\abcdef\\AppData\\Local\\Temp\\"; // native format
-        path p3 = L"D:/猫.txt";           // wide string
+        directory_entry p1 = "/usr/lib"; // portable format
+        directory_entry p2 = "C:\\users\\abcdef\\AppData\\Local\\Temp\\"; // native format
+        directory_entry p3 = L"D:/猫.txt";           // wide string
 
 //        std::cout << "p1 = " << p1 << '\n'
 //                  << "p2 = " << p2 << '\n'
@@ -402,7 +403,8 @@ void test_path ()
         TEST_OK(p3 > p1);
         TEST_OK(p3 >= p1);
     }
+#endif    
 }
 
-#endif /* TEST_PATH_HPP */
+#endif /* TEST_DIRECTORY_ENTRY_HPP */
 

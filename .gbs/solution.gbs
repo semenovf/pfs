@@ -18,6 +18,10 @@ solution "pfs-mpl"
 --    filter "platforms:*64"
 --        architecture "x64"
 
+if os.findlib("pthread") then
+    defines { "PFS_HAVE_PTHREAD" }
+end
+
 configuration "debug"
     symbols      "On"
     defines      { "DEBUG" }
@@ -25,6 +29,11 @@ configuration "debug"
 
 configuration "release"
     defines      { "NDEBUG" }
+
+filter { "debug", "action:gmake" }
+    linkoptions  { "-rdynamic" }
+
+-- Projects
 
 project "pfs-test"
     include("pfs-test.gbs")
@@ -83,8 +92,8 @@ project "pfs"
 --project "test-mpl-binder"
 --    include("test-mpl-binder/project.gbs")
 
---project "test-mpl-active-queue"
---    include("test-mpl-active-queue/project.gbs")
+project "test-mpl-active-queue"
+    include("test-mpl-active_queue.gbs")
 
 --project "test-mpl-ratio"
 --    include("test-mpl-ratio/project.gbs")

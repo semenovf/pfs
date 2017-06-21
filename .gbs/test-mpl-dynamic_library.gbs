@@ -1,20 +1,17 @@
 kind          "ConsoleApp"
 language      "C++"
-targetname    "test-mpl-filesystem"
-files         { "../tests/test-mpl-filesystem/*.cpp" }
+targetname    "test-mpl-dynamic_library"
+files         { "../tests/test-mpl-dynamic_library/*.cpp" }
 
 links         { "stdc++fs" } -- need for 11 <= C++ < 17
 
 configuration "debug"
-    objdir       ".cache/test-mpl-filesystem/debug"
+    objdir       ".cache/test-mpl-dynamic_library/debug"
     targetdir    "../../.build/tests"
     links        { "pfs-test-d", "pfs-mpl-d" }
 
 configuration "release"
-    objdir       ".cache/test-mpl-filesystem/release"
+    objdir       ".cache/test-mpl-dynamic_library/release"
     targetdir    "../../.build/tests"
     links        { "pfs-test", "pfs-mpl" }
-
-filter { "debug", "action:gmake" }
-    linkoptions  { "-rdynamic" }
 
