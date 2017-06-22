@@ -35,6 +35,7 @@ public:
     typedef typename internal_type::const_native_reference const_native_reference;
     
     typedef typename native_type::value_type       value_type;
+    typedef typename native_type::pointer          pointer;
     typedef typename native_type::const_pointer    const_pointer;
     typedef typename native_type::reference        reference;
     typedef typename native_type::const_reference  const_reference;
@@ -221,13 +222,13 @@ public:
     template <typename... Args>
     iterator emplace (const_iterator pos, Args &&... args)
     {
-        return _p->emplace(pos, args);
+        return _p->emplace(pos, args...);
     }
 
     template <typename... Args>
     void emplace_back (Args &&... args)
     {
-        return _p->emplace_back<Args>(args);
+        return _p->emplace_back<Args...>(args...);
     }
 #endif    
 
@@ -305,6 +306,68 @@ public:
     
     // *************************************************************************
     // } END Requirements for sequence container traits
+    // *************************************************************************
+    
+    // *************************************************************************
+    // BEGIN Requirements for contigous container traits {
+    // *************************************************************************
+    
+    pointer data ()
+    {
+        return _p->data();
+    }
+    
+    const_pointer data () const
+    {
+        return _p->data();
+    }
+    
+    void resize (size_type count)
+    {
+        _p->resize(count);
+    }
+    
+    void resize (size_type count, value_type const & value)
+    {
+        _p->resize(count, value);
+    }
+
+    void reserve (size_type new_cap)
+    {
+        _p->reserve(new_cap);
+    }
+    
+    void shrink_to_fit ()
+    {
+        _p->shrink_to_fit();
+    }
+    
+    //
+    // *** ELEMENT ACCESS
+    //
+    
+    reference at (size_type pos)
+    {
+        return _p->at(pos);
+    }
+		
+    const_reference at (size_type pos) const
+    {
+        return _p->at(pos);
+    }
+	
+    reference operator [] (size_type pos)
+    {
+        return _p->operator[](pos);
+    }
+		
+    const_reference operator [] (size_type pos) const
+    {
+        return _p->operator[](pos);
+    }
+    
+    // *************************************************************************
+    // } END Requirements for contigous container traits
     // *************************************************************************
 };
 

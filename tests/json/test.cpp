@@ -8,20 +8,15 @@
 
 #include <pfs/test/test.hpp>
 #include <pfs/json/value.hpp>
-//
-//#include <cstring>
-//#include <cwchar>
-//#include <iostream>
-//#include <sstream>
-#include <pfs/foundation/cxx/stdcxx/string.hpp>
-#include <pfs/foundation/cxx/stdcxx/map.hpp>
-#include <pfs/foundation/cxx/stdcxx/vector.hpp>
+#include <pfs/traits/stdcxx/string.hpp>
+#include <pfs/traits/stdcxx/vector.hpp>
+#include <pfs/traits/stdcxx/map.hpp>
 
 // Enabled by `qt_enable`
 #ifdef QT_CORE_LIB
-#   include <pfs/foundation/cxx/qt/string.hpp>
-#   include <pfs/foundation/cxx/qt/map.hpp>
-#   include <pfs/foundation/cxx/qt/vector.hpp>
+#   include <pfs/traits/qt/string.hpp>
+#   include <pfs/traits/qt/vector.hpp>
+#   include <pfs/traits/qt/map.hpp>
 #endif
 
 #include "test_basic.hpp"
@@ -35,15 +30,17 @@
 namespace stdcxx {
 namespace json {
 
-typedef pfs::json::value<
-          foundation::stdcxx
-        , char
+struct value_traits : pfs::json::value_traits<
+          pfs::traits::stdcxx::string
         , bool
         , intmax_t
         , uintmax_t
         , double
-        , stdcxx::map>
-    value;
+        , pfs::traits::stdcxx::vector
+        , pfs::traits::stdcxx::map>
+{};
+
+typedef pfs::json::value<value_traits> value;
 
 }} //stdcxx::json
 
@@ -53,17 +50,18 @@ namespace qt {
 namespace json {
 
 typedef pfs::json::value<
-          foundation::qt
-        , QChar
+          pfs::traits::qt::string
         , bool
         , intmax_t
-        , uintmax_t, double
-        , qt::map> 
+        , uintmax_t
+        , double
+        , pfs::traits::qt::vector
+        , pfs::traits::qt::map>
     value;
 
-#endif
-
 }} // qt::json
+
+#endif
 
 int main (int argc, char *argv[])
 {

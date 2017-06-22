@@ -221,7 +221,7 @@ public:
     template <typename... Args>
     iterator emplace (const_iterator pos, Args &&... args)
     {
-        return _p->emplace(pos, args);
+        return _p->emplace(pos, args...);
     }
 
 //    template <typename... Args>

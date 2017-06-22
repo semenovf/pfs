@@ -1,6 +1,6 @@
 kind          "ConsoleApp"
 language      "C++"
-targetname    "test-mpl-dynamic_library"
+targetname    "test-dynamic_library"
 files         { "../tests/test-mpl-dynamic_library/*.cpp" }
 
 links         { "stdc++fs" } -- need for 11 <= C++ < 17

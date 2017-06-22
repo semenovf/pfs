@@ -8,39 +8,57 @@
 #ifndef __PFS_JSON_VALUE_HPP__
 #define __PFS_JSON_VALUE_HPP__
 
+#include <pfs/assert.hpp>
+#include <pfs/utility.hpp>
 #include <pfs/traits/string.hpp>
-#include <pfs/traits/map.hpp>
-#include <pfs/traits/vector.hpp>
+#include <pfs/traits/contigous_container.hpp>
+#include <pfs/traits/associative_container.hpp>
+
 #include <pfs/json/constants.hpp>
 #include <pfs/json/iterator.hpp>
 
 namespace pfs {
 namespace json {
 
-template <typename Foundation
-        , typename CharT      // char
+template <typename Traits>
+class value;
+
+template <typename StringT
         , typename BoolT      // bool
         , typename IntegerT   // intmax_t
         , typename UIntegerT  // uintmax_t
         , typename RealT      // double
-        , template <typename, typename> class ObjectT>
+        , template <typename> class ArrayT
+        , template <typename> class ObjectT>
+struct value_traits
+{
+    typedef BoolT                        boolean_type;
+    typedef IntegerT                     integer_type;
+    typedef UIntegerT                    uinteger_type;
+    typedef RealT                        real_type;
+    typedef pfs::traits::string<StringT> string_type;
+    typedef pfs::traits::contigous_container<value<value_traits>, ArrayT> array_type;
+    typedef pfs::traits::associative_container<pfs::pair<string_type, value<value_traits> >, ObjectT> object_type;
+};
+
+template <typename Traits>
 class value
 {
 public:
     typedef ptrdiff_t difference_type;
     typedef size_t    size_type;
 
-    typedef BoolT                      boolean_type;
-    typedef IntegerT                   integer_type;
-    typedef UIntegerT                  uinteger_type;
-    typedef RealT                      real_type;
-    typedef pfs::traits::string<Foundation, CharT>        string_type;
-    typedef pfs::traits::vector<Foundation, value>        array_type;
-    typedef pfs::traits::map<string_type, value, ObjectT> object_type;
+    typedef typename Traits::boolean_type  boolean_type;
+    typedef typename Traits::integer_type  integer_type;
+    typedef typename Traits::uinteger_type uinteger_type;
+    typedef typename Traits::real_type     real_type;
+    typedef typename Traits::string_type   string_type;
+    typedef typename Traits::array_type    array_type;
+    typedef typename Traits::object_type   object_type;
 
     struct value_rep
     {
-        value_type_enum type;
+        data_type_t type;
         
         union {
             boolean_type  boolean;
@@ -52,31 +70,31 @@ public:
         };
 
         value_rep ()
-            : type(null_value)
+            : type(data_type::null)
         {}
 
         value_rep (boolean_type v)
-            : type(boolean_value)
+            : type(data_type::boolean)
             , boolean(v)
         {}
 
         value_rep (integer_type v)
-            : type(integer_value)
+            : type(data_type::integer)
             , integer(v)
         {}
 
         value_rep (uinteger_type v)
-            : type(uinteger_value)
+            : type(data_type::uinteger)
             , integer(v)
         {}
 
         value_rep (real_type v) 
-            : type(real_value)
+            : type(data_type::real)
             , real(v)
         {}
 
         value_rep (string_type const & v)
-            : type(string_value)
+            : type(data_type::string)
         {
             std::allocator<string_type> alloc;
             string = alloc.allocate(1);
@@ -84,7 +102,7 @@ public:
         }
 
         value_rep (array_type const & v)
-            : type(array_value)
+            : type(data_type::array)
         {
             std::allocator<array_type> alloc;
             array = alloc.allocate(1);
@@ -92,7 +110,7 @@ public:
         }
 
         value_rep (object_type const & v)
-            : type(object_value)
+            : type(data_type::object)
         {
             std::allocator<object_type> alloc;
             object = alloc.allocate(1);
@@ -443,29 +461,30 @@ public:
 //
 //    value & operator = (const value & other);
 //
-    value_type_enum type () const
+    data_type_t type () const
     {
         return _d.type;
     }
 
     bool is_null () const
     {
-        return _d.type == null_value;
+        return _d.type == data_type::null;
     }
 
     bool is_boolean () const
     {
-        return _d.type == boolean_value;
+        return _d.type == data_type::boolean;
     }
 
     bool is_integer () const
     {
-        return _d.type == integer_value || _d.type == uinteger_value;
+        return _d.type == data_type::integer 
+                || _d.type == data_type::uinteger;
     }
 
     bool is_real () const
     {
-        return _d.type == real_value;
+        return _d.type == data_type::real;
     }
 
     bool is_number () const
@@ -475,17 +494,17 @@ public:
 
     bool is_string () const
     {
-        return _d.type == string_value;
+        return _d.type == data_type::string;
     }
 
     bool is_array () const
     {
-        return _d.type == array_value;
+        return _d.type == data_type::array;
     }
 
     bool is_object () const
     {
-        return _d.type == object_value;
+        return _d.type == data_type::object;
     }
 
     bool is_scalar () const
@@ -535,15 +554,15 @@ public:
 //        return _value.array->operator[] (index);
 //    }
 //
-//    reference operator[] (const object_type::key_type & key);
-//
-//    const_reference operator[] (const object_type::key_type & key) const
-//    {
-//        // at only works for objects
-//        PFS_ASSERT(_type == type_object);
-//        return _value.object->operator[] (key);
-//    }
-//
+    reference operator [] (typename object_type::key_type const & key);
+
+    const_reference operator [] (typename object_type::key_type const & key) const
+    {
+        // at only works for objects
+        PFS_ASSERT(_d.type == data_type::object);
+        return _d.object->operator[] (key);
+    }
+
 //    reference operator[] (const char * key)
 //    {
 //        return operator[] (object_type::key_type(key));
@@ -957,5 +976,7 @@ namespace pfs {
 //bool unpack (unpack_context & ctx, json::value & v);
 
 } // pfs
+
+#include "value_inc.hpp"
 
 #endif /* __PFS_JSON_VALUE_HPP__ */

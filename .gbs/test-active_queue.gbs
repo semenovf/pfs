@@ -1,15 +1,15 @@
 kind          "ConsoleApp"
 language      "C++"
-targetname    "test-mpl-active_queue"
-files         { "../tests/test-mpl-active_queue/*.cpp" }
+targetname    "test-active_queue"
+files         { "../tests/active_queue/*.cpp" }
 
 configuration "debug"
-    objdir       ".cache/test-mpl-active_queue/debug"
+    objdir       ".cache/tests/active_queue/debug"
     targetdir    "../../.build/tests"
     links        { "pfs-test-d" }
 
 configuration "release"
-    objdir       ".cache/test-mpl-active_queue/release"
+    objdir       ".cache/tests/active_queue/release"
     targetdir    "../../.build/tests"
     links        { "pfs-test" }
 

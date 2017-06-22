@@ -161,11 +161,11 @@ basic_iterator<ValueT>::basic_iterator (basic_iterator const & rhs)
 {
     if (_pvalue) {
         switch (_pvalue->type()) {
-        case object_value:
+        case data_type::object:
             _object_it = rhs._object_it;
             break;
 
-        case array_value:
+        case data_type::array:
             _array_it = rhs._array_it;
             break;
             
@@ -182,11 +182,11 @@ basic_iterator<ValueT>::operator = (basic_iterator const & rhs)
 {
     if (this != & rhs) {
         switch (_pvalue->type()) {
-        case object_value:
+        case data_type::object:
             _object_it = rhs._object_it;
             break;
 
-        case array_value:
+        case data_type::array:
             _array_it = rhs._array_it;
             break;
 
@@ -202,11 +202,11 @@ template <typename ValueT>
 void basic_iterator<ValueT>::set_begin ()
 {
     switch (_pvalue->type()) {
-	case object_value:
+	case data_type::object:
 		_object_it = _pvalue->_d.object->begin();
         break;
 
-	case array_value:
+	case data_type::array:
 		_array_it = _pvalue->_d.array->begin();
         break;
     }
@@ -216,11 +216,11 @@ template <typename ValueT>
 void basic_iterator<ValueT>::set_end ()
 {
     switch (_pvalue->type()) {
-	case object_value:
+	case data_type::object:
 		_object_it = _pvalue->_d.object->end();
         break;
 
-	case array_value:
+	case data_type::array:
 		_array_it = _pvalue->_d.array->end();
         break;
     }
@@ -231,10 +231,10 @@ typename basic_iterator<ValueT>::reference
 basic_iterator<ValueT>::ref (basic_iterator & it)
 {
     switch (it._pvalue->type()) {
-	case object_value:
+	case data_type::object:
 		return *it._object_it;
 
-	case array_value:
+	case data_type::array:
 		return *it._array_it;
     }
 
@@ -246,10 +246,10 @@ typename basic_iterator<ValueT>::pointer
 basic_iterator<ValueT>::ptr (basic_iterator & it)
 {
     switch (it._pvalue->type()) {
-	case object_value:
+	case data_type::object:
 		return & *it._object_it;
 
-	case array_value:
+	case data_type::array:
 		return & *it._array_it;
     }
 
@@ -260,7 +260,7 @@ template <typename ValueT>
 void basic_iterator<ValueT>::increment (basic_iterator & it, difference_type n)
 {
     switch (it._pvalue->type()) {
-	case object_value:
+	case data_type::object:
         if (n == 0)
             ;
         else if (n == 1)
@@ -270,7 +270,7 @@ void basic_iterator<ValueT>::increment (basic_iterator & it, difference_type n)
         else
             throw out_of_range("json::basic_iterator::increment()");
 
-	case array_value:
+	case data_type::array:
 		it._array_it += n;
         
     default:
@@ -283,10 +283,10 @@ bool basic_iterator<ValueT>::equals (basic_iterator const & lhs
         , basic_iterator const & rhs)
 {
     switch (lhs._pvalue->type()) {
-	case object_value:
+	case data_type::object:
         return lhs._object_it == rhs._object_it;
         
-	case array_value:
+	case data_type::array:
 		return lhs._array_it == rhs._array_it;
     }
     
@@ -298,10 +298,10 @@ int basic_iterator<ValueT>::compare (basic_iterator const & lhs
         , basic_iterator const & rhs)
 {
     switch (lhs._pvalue->type()) {
-	case object_value:
+	case data_type::object:
         throw domain_error("json::basic_iterator::compare(): object");
         
-	case array_value:
+	case data_type::array:
 		return lhs._array_it - rhs._array_it;
     }
     
@@ -313,10 +313,10 @@ typename basic_iterator<ValueT>::reference
 basic_iterator<ValueT>::subscript (basic_iterator & it, difference_type n)
 {
     switch (it._pvalue->type()) {
-	case object_value:
+	case data_type::object:
         throw domain_error("json::basic_iterator::subscript(): object");
         
-	case array_value:
+	case data_type::array:
 		return it._array_it[n];
     }
     
@@ -329,10 +329,10 @@ basic_iterator<ValueT>::diff (basic_iterator const & lhs
         , basic_iterator const & rhs)
 {
     switch (lhs._pvalue->type()) {
-	case object_value:
+	case data_type::object:
         throw domain_error("json::basic_iterator::diff(): object");
         
-	case array_value:
+	case data_type::array:
 		return lhs._array_it - rhs._array_it;
     }
     

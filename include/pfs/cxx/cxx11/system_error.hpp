@@ -10,11 +10,16 @@
 
 #include <system_error>
 
+// Creating custom error category:
+// [std::error_category](http://www.cplusplus.com/reference/system_error/error_category/)
+// [Unifying error codes](http://breese.github.io/2016/06/18/unifying-error-codes.html)
+
 namespace pfs {
 
-using error_code = std::error_code;
-using error_category = std::error_category;
-using errc = std::errc;
+using error_code      = std::error_code;
+using error_category  = std::error_category;
+using error_condition = std::error_condition;
+using errc            = std::errc;
 
 inline error_category const & system_category () noexcept
 {

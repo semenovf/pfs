@@ -47,8 +47,8 @@ project "pfs"
 --project "test-mpl-string"
 --    include("test-mpl-string/project.gbs")
 
---project "test-mpl-container"
---    include("test-mpl-container/project.gbs")
+project "test-container"
+    include("test-container.gbs")
 
 ----project "test-mpl-cli"
 ----    include("test-mpl-cli/project.gbs")
@@ -65,8 +65,6 @@ project "pfs"
 --project "test-mpl-fsm"
 --    include("test-mpl-fsm/project.gbs")
 
-----project "test-mpl-json"
-----    include("test-mpl-json/project.gbs")
 
 ----project "test-mpl-uri"
 ----    include("test-mpl-uri/project.gbs")
@@ -92,8 +90,8 @@ project "pfs"
 --project "test-mpl-binder"
 --    include("test-mpl-binder/project.gbs")
 
-project "test-mpl-active-queue"
-    include("test-mpl-active_queue.gbs")
+project "test-active-queue"
+    include("test-active_queue.gbs")
 
 --project "test-mpl-ratio"
 --    include("test-mpl-ratio/project.gbs")
@@ -101,5 +99,8 @@ project "test-mpl-active-queue"
 --project "test-mpl-chrono"
 --    include("test-mpl-chrono/project.gbs")
 
-project "test-mpl-filesystem"
-    include("test-mpl-filesystem.gbs")
+project "test-filesystem"
+    include("test-filesystem.gbs")
+
+project "test-json"
+    include("test-json.gbs")

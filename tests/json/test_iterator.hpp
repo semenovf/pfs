@@ -19,9 +19,8 @@ void test ()
         json_type json; // null value
         typename json_type::iterator it = json.begin();
         typename json_type::const_iterator cit = json.cend();
-        
 
-//        json["Image"]["Width"]               = 800;
+        json["Image"]["Width"]               = 800;
 //        json["Image"]["Height"]              = 600;
 //        json["Image"]["Title"]               = "View from 15th Floor";
 //        json["Image"]["Thumbnail"]["Url"]    = "http://www.example.com/image/481989943";

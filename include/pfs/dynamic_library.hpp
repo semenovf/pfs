@@ -9,13 +9,8 @@
 #define __PFS_DYNAMIC_LIBRARY_HPP__
 
 /* see http://en.wikipedia.org/wiki/Dynamic_loading */
-//#include <pfs/string.hpp>
-//#include <pfs/shared_ptr.hpp>
-//#include <pfs/map.hpp>
-//#include <pfs/vector.hpp>
-//#include <pfs/stringlist.hpp>
-//#include <pfs/pluggable.hpp>
-//#include <pfs/error_code.hpp>
+
+#include <pfs/cxxlang.hpp>
 #include <pfs/compiler.hpp>
 #include <pfs/memory.hpp>
 #include <pfs/filesystem.hpp>
@@ -75,9 +70,15 @@ public:
 	 *
 	 * @return @c invalid_argument if path @a p is empty,
 	 */
-	error_code open (filesystem::path const & p, filesystem::pathlist const & searchdirs);
+  	bool open (filesystem::path const & p
+            , filesystem::pathlist const & searchdirs);
+
+	bool open (filesystem::path const & p
+            , filesystem::pathlist const & searchdirs
+            , error_code & ec) pfs_noexcept;
 
 	symbol_type resolve (char const * symbol_name);
+    symbol_type resolve (char const * symbol_name, error_code & ec) pfs_noexcept;
 };
 
 /**
@@ -85,9 +86,53 @@ public:
  *
  * @param name Base name of dynamic library.
  */
-filesystem::path build_so_filename (filesystem::path const & name) noexcept;
+filesystem::path build_so_filename (filesystem::path const & name) pfs_noexcept;
+
+#if __cplusplus >= 201103L
+enum class dynamic_library_errc 
+{
+#else
+struct dynamic_library_errc 
+{
+    enum {
+#endif
+          success = 0
+        , invalid_argument
+        , file_not_found
+        , open_failed
+        , symbol_not_found
+#if __cplusplus < 201103L                  
+    };
+#endif    
+};
+
+namespace details {
+class dynamic_library_category : public pfs::error_category 
+{
+public:
+    virtual char const * name () const pfs_noexcept pfs_override;
+    virtual std::string message (int ev) const pfs_override;
+};
+} // details
+
+pfs::error_category const & dynamic_library_category ();
+
+inline pfs::error_code make_error_code (dynamic_library_errc e)
+{
+    return std::error_code(static_cast<int>(e), dynamic_library_category());
+}
 
 } // pfs
+
+namespace std {
+
+template<>
+struct is_error_code_enum<pfs::dynamic_library_errc>
+        : public std::true_type 
+{};
+
+} // std
+
 
 #endif /* __PFS_DYNAMIC_LIBRARY_HPP__ */
 

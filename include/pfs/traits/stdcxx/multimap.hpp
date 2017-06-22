@@ -43,6 +43,11 @@ public:
     typedef typename native_type::const_reverse_iterator const_reverse_iterator;
     typedef typename native_type::difference_type  difference_type;
     typedef typename native_type::size_type        size_type;
+    
+    typedef typename native_type::key_type         key_type;
+    
+    typedef typename native_type::key_compare      key_compare;
+    typedef typename native_type::value_compare    value_compare;
 
 protected:
     internal_type _p;
@@ -180,6 +185,27 @@ public:
 
     // *************************************************************************
     // } END Requirements for container traits
+    // *************************************************************************
+    
+    // *************************************************************************
+    // BEGIN Requirements for associative container traits {
+    // *************************************************************************
+
+    // *** LOOKUP ***
+    //
+    
+    iterator find (key_type const & key)
+    {
+        return _p->find(key);
+    }
+    
+    const_iterator find (key_type const & key) const
+    {
+        return _p->find(key);
+    }
+    
+    // *************************************************************************
+    // } END Requirements for associative container traits
     // *************************************************************************
 };
 

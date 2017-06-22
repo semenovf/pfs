@@ -26,8 +26,8 @@ class map_basic
     typedef ValueOrReference internal_type;
 
 public:
-    typedef map_basic<T, container_value<T, map_wrapper> > container_value_type;
-    typedef map_basic<T, container_reference<T, map_wrapper> >   container_reference_type;
+    typedef map_basic<T, container_value<T, map_wrapper> >     container_value_type;
+    typedef map_basic<T, container_reference<T, map_wrapper> > container_reference_type;
     
     typedef typename internal_type::native_type            native_type;
     typedef typename internal_type::native_reference       native_reference;
@@ -43,6 +43,11 @@ public:
     typedef typename native_type::const_reverse_iterator const_reverse_iterator;
     typedef typename native_type::difference_type  difference_type;
     typedef typename native_type::size_type        size_type;
+
+    typedef typename native_type::key_type         key_type;
+    
+    typedef typename native_type::key_compare      key_compare;
+    typedef typename native_type::value_compare    value_compare;
 
 protected:
     internal_type _p;
@@ -181,6 +186,55 @@ public:
     // *************************************************************************
     // } END Requirements for container traits
     // *************************************************************************
+
+    // *************************************************************************
+    // BEGIN Requirements for associative container traits {
+    // *************************************************************************
+
+    // *** LOOKUP ***
+    //
+    
+    iterator find (key_type const & key)
+    {
+        return _p->find(key);
+    }
+    
+    const_iterator find (key_type const & key) const
+    {
+        return _p->find(key);
+    }
+    
+    // *** MODIFIERS
+    //
+    pfs::pair<iterator, bool> insert (value_type const & value)
+    {
+        return _p->insert(value);
+    }
+
+    // *************************************************************************
+    // } END Requirements for associative container traits
+    // *************************************************************************
+
+
+    // *************************************************************************
+    // BEGIN Requirements for ordered associative container traits {
+    // *************************************************************************
+
+    // *** OBSERVERS ***
+    //
+    
+    key_compare key_comp () const
+    {
+        return _p->key_comp();
+    }
+    
+    value_compare value_comp () const
+    {
+        return _p->value_comp();
+    }
+    // *************************************************************************
+    // } END Requirements for ordered associative container traits
+    // *************************************************************************
 };
 
 template <typename T>
@@ -192,6 +246,8 @@ public:
     typedef typename base_class::native_type            native_type;
     typedef typename base_class::native_reference       native_reference;
     typedef typename base_class::const_native_reference const_native_reference;
+
+    typedef typename base_class::key_type               key_type;
     
 public:
     map ()
@@ -216,6 +272,8 @@ public:
     typedef typename base_class::native_type            native_type;
     typedef typename base_class::native_reference       native_reference;
     typedef typename base_class::const_native_reference const_native_reference;
+    
+    typedef typename base_class::key_type               key_type;
     
 public:
     map_reference ()

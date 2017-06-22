@@ -11,17 +11,33 @@
 namespace pfs {
 namespace json {
 
-enum value_type_enum
+#if __cplusplus >= 201103L
+enum class data_type 
 {
-      null_value
-    , boolean_value
-    , integer_value
-    , uinteger_value
-    , real_value
-    , string_value
-    , object_value
-    , array_value
+#else
+struct data_type 
+{
+    enum type {
+#endif
+          null = 0
+        , boolean
+        , integer
+        , uinteger
+        , real
+        , string
+        , object
+        , array
+#if __cplusplus < 201103L
+    };
+#endif    
 };
+
+#if __cplusplus >= 201103L
+    typedef data_type data_type_t;
+#else
+    typedef data_type::type data_type_t;
+#endif
+
 
 }} // pfs::json
 

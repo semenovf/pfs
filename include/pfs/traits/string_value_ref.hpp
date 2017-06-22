@@ -81,6 +81,7 @@ struct string_ref
 
     native_type * p;
     
+#if __cplusplus < 201103L
     string_ref ()
     {
         static_assert(false, "Constructor denied");
@@ -91,10 +92,6 @@ struct string_ref
         static_assert(false, "Constructor denied");
     }
     
-    string_ref (native_reference rhs)
-        : p(& rhs)
-    {}
-
     string_ref (const_native_reference rhs)
     {
         static_assert(false, "Constructor denied");
@@ -105,6 +102,11 @@ struct string_ref
     {
         static_assert(false, "Constructor denied");
     }
+#endif    
+    
+    string_ref (native_reference rhs)
+        : p(& rhs)
+    {}
 
     native_reference operator * ()
     {
