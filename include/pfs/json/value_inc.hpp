@@ -15,36 +15,6 @@
 namespace pfs {
 namespace json {
 
-template <typename Traits>
-typename value<Traits>::reference
-value<Traits>::operator [] (typename object_type::key_type const & key)
-{
-	if (_d.type == json::data_type::null) {
-		_d.type = json::data_type::object;
-        std::allocator<object_type> alloc;
-        _d.object = alloc.allocate(1);
-        alloc.construct(_d.object, object_type());
-	}
-
-	PFS_ASSERT(_d.type == json::data_type::object);
-
-    typename object_type::iterator it = _d.object->find(key);
-    
-    if (it == _d.object->end()) {
-        pfs::pair<typename object_type::iterator, bool> result 
-            = _d.object->insert(make_pair(key, value()));
-        it = result.first;
-        
-        PFS_ASSERT(it == _d.object->end());
-    }
-    
-	return *it;
-}
-
-//no type named ‘key_type’ in 
-//pfs::json::value::object_type 
-//class pfs::traits::associative_container<std::pair<string, pfs::json::value>, pfs::traits::stdcxx::map>
-
 #if __COMMENT__
 
 value::value_rep::value_rep (value::type_enum t)

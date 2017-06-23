@@ -9,25 +9,26 @@
 #define __PFS_TRAITS_STDCXX_MULTIMAP_HPP__
 
 #include <map>
+#include <pfs/utility.hpp>
 
 namespace pfs {
 namespace traits {
 namespace stdcxx {
 
-template <typename T>
+template <typename KvType>
 struct multimap_wrapper
 {
-    typedef std::multimap<typename T::first_type, typename T::second_type> type;
+    typedef std::multimap<typename KvType::key_type, typename KvType::mapped_type> type;
 };
 
-template <typename T, typename ValueOrReference>
+template <typename KvType, typename ValueOrReference>
 class multimap_basic
 {
     typedef ValueOrReference internal_type;
 
 public:
-    typedef multimap_basic<T, container_value<T, multimap_wrapper> > container_value_type;
-    typedef multimap_basic<T, container_reference<T, multimap_wrapper> >   container_reference_type;
+    typedef multimap_basic<KvType, container_value<KvType, multimap_wrapper> > container_value_type;
+    typedef multimap_basic<KvType, container_reference<KvType, multimap_wrapper> >   container_reference_type;
     
     typedef typename internal_type::native_type            native_type;
     typedef typename internal_type::native_reference       native_reference;
@@ -45,6 +46,7 @@ public:
     typedef typename native_type::size_type        size_type;
     
     typedef typename native_type::key_type         key_type;
+    typedef typename native_type::mapped_type      mapped_type;
     
     typedef typename native_type::key_compare      key_compare;
     typedef typename native_type::value_compare    value_compare;
@@ -204,15 +206,22 @@ public:
         return _p->find(key);
     }
     
+    // *** MODIFIERS
+    //
+    pfs::pair<iterator, bool> insert (value_type const & value)
+    {
+        return pfs::make_pair(_p->insert(value), true);
+    }
+    
     // *************************************************************************
     // } END Requirements for associative container traits
     // *************************************************************************
 };
 
-template <typename T>
-class multimap : public multimap_basic<T, container_value<T, multimap_wrapper> >
+template <typename KvType>
+class multimap : public multimap_basic<KvType, container_value<KvType, multimap_wrapper> >
 {
-    typedef multimap_basic<T, container_value<T, multimap_wrapper> > base_class;
+    typedef multimap_basic<KvType, container_value<KvType, multimap_wrapper> > base_class;
 
 public:
     typedef typename base_class::native_type            native_type;
@@ -233,10 +242,10 @@ public:
     {}
 };
 
-template <typename T>
-class multimap_reference : public multimap_basic<T, container_reference<T, multimap_wrapper> >
+template <typename KvType>
+class multimap_reference : public multimap_basic<KvType, container_reference<KvType, multimap_wrapper> >
 {
-    typedef multimap_basic<T, container_reference<T, multimap_wrapper> > base_class;
+    typedef multimap_basic<KvType, container_reference<KvType, multimap_wrapper> > base_class;
 
 public:
     typedef typename base_class::native_type            native_type;

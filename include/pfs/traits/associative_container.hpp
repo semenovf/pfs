@@ -14,24 +14,33 @@
 namespace pfs {
 namespace traits {
 
+template <typename Key, typename T>
+struct kv_type
+{
+    typedef Key key_type;
+    typedef T   mapped_type;
+};
+
 // AssociativeContainer traits.
 // Based on [C++ concepts: AssociativeContainer](http://en.cppreference.com/w/cpp/concept/AssociativeContainer)
 
-template <typename T, template <typename> class ContainerRefValue>
-class associative_container : public container<T, ContainerRefValue>
+template <typename KvType, template <typename> class ContainerValueRef>
+class associative_container : public container<KvType, ContainerValueRef>
 {
-    typedef container<T, ContainerRefValue> base_class;
+protected:    
+    typedef container<KvType, ContainerValueRef> base_class;
+    typedef typename base_class::internal_type internal_type;
     
 public:
-    typedef ContainerRefValue<T>                        refvalue_type;
+    typedef typename base_class::native_type            native_type;
     typedef typename base_class::native_reference       native_reference;
     typedef typename base_class::const_native_reference const_native_reference;
-    
-    typedef typename base_class::value_type     value_type;
-    typedef typename base_class::iterator       iterator;
-    typedef typename base_class::const_iterator const_iterator;
+    typedef typename base_class::iterator               iterator;
+    typedef typename base_class::const_iterator         const_iterator;
 
-    typedef typename refvalue_type::key_type    key_type;
+    typedef typename native_type::key_type    key_type;
+    typedef typename native_type::value_type  value_type;
+    typedef typename native_type::mapped_type mapped_type;
     
 public:
     associative_container ()

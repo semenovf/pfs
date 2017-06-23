@@ -9,9 +9,6 @@
 #include "pfs/test/test.hpp"
 #include "pfs/utility.hpp"
 
-#include "pfs/traits/container.hpp"
-#include "pfs/traits/sequence_container.hpp"
-
 #include "pfs/traits/stdcxx/vector.hpp"
 #include "pfs/traits/stdcxx/deque.hpp"
 #include "pfs/traits/stdcxx/list.hpp"
@@ -32,8 +29,9 @@
 #   include <pfs/traits/qt/multihash.hpp>
 #endif
 
-#include "test_container_basic.hpp"
-#include "test_sequence_container_basic.hpp"
+#include "container.hpp"
+#include "sequence_container.hpp"
+#include "associative_container.hpp"
 
 int main (int argc, char *argv[])
 {
@@ -52,11 +50,16 @@ int main (int argc, char *argv[])
     test_container_basic<int, pfs::traits::stdcxx::set_reference>();
     test_container_basic<int, pfs::traits::stdcxx::multiset>();
     test_container_basic<int, pfs::traits::stdcxx::multiset_reference>();
-    test_container_basic<pfs::pair<int, int>, pfs::traits::stdcxx::map>();
-    test_container_basic<pfs::pair<int, int>, pfs::traits::stdcxx::map_reference>();
-    test_container_basic<pfs::pair<int, int>, pfs::traits::stdcxx::multimap>();
-    test_container_basic<pfs::pair<int, int>, pfs::traits::stdcxx::multimap_reference>();
+    test_container_basic<pfs::traits::kv_type<int, int>, pfs::traits::stdcxx::map>();
+    test_container_basic<pfs::traits::kv_type<int, int>, pfs::traits::stdcxx::map_reference>();
+    test_container_basic<pfs::traits::kv_type<int, int>, pfs::traits::stdcxx::multimap>();
+    test_container_basic<pfs::traits::kv_type<int, int>, pfs::traits::stdcxx::multimap_reference>();
     
+    test_associative_container_coverage<pfs::traits::kv_type<int, int>, pfs::traits::stdcxx::map>();
+    test_associative_container_coverage<pfs::traits::kv_type<int, int>, pfs::traits::stdcxx::map_reference>();
+    test_associative_container_coverage<pfs::traits::kv_type<int, int>, pfs::traits::stdcxx::multimap>();
+    test_associative_container_coverage<pfs::traits::kv_type<int, int>, pfs::traits::stdcxx::multimap_reference>();
+
 #if __cplusplus >= 201103L    
 //    test_container_basic<int, pfs::traits::stdcxx::array>();
 //    test_container_basic<pfs::traits::stdcxx::forward_list>();
@@ -72,10 +75,10 @@ int main (int argc, char *argv[])
 //    test_container_basic<int, pfs::traits::qt::list>();                     // QList<T>
 //    test_container_basic<int, pfs::traits::qt::linked_list>();              // QLinkedList<T>
 //    test_container_basic<int, pfs::traits::qt::set>();                      // QSet<T>
-//    test_container_basic<pfs::pair<int, int>, pfs::traits::qt::map>();      // QMap<Key, T>
-//    test_container_basic<pfs::pair<int, int>, pfs::traits::qt::multimap>(); // QMultiMap<Key, T>
-//    test_container_basic<pfs::pair<int, int>, pfs::traits::qt::hash>();     // QHash<Key, T>
-//    test_container_basic<pfs::pair<int, int>, pfs::traits::qt::multihash>();// QMultiHash<Key, T>
+//    test_container_basic<pfs::traits::kv_type<int, int>, pfs::traits::qt::map>();      // QMap<Key, T>
+//    test_container_basic<pfs::traits::kv_type<int, int>, pfs::traits::qt::multimap>(); // QMultiMap<Key, T>
+//    test_container_basic<pfs::traits::kv_type<int, int>, pfs::traits::qt::hash>();     // QHash<Key, T>
+//    test_container_basic<pfs::traits::kv_type<int, int>, pfs::traits::qt::multihash>();// QMultiHash<Key, T>
 #endif    
 
 	return END_TESTS;

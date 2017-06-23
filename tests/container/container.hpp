@@ -8,12 +8,14 @@
 #ifndef __PFS_TEST_CONSTRUCTOR_HPP__
 #define __PFS_TEST_CONSTRUCTOR_HPP__
 
-template <typename T, template <typename> class ContainerRef>
+#include "pfs/traits/container.hpp"
+
+template <typename T, template <typename> class ContainerValueRef>
 void test_container_basic ()
 {
     ADD_TESTS(7);
     
-    typedef pfs::traits::container<T, ContainerRef> container_traits;
+    typedef pfs::traits::container<T, ContainerValueRef> container_traits;
     
     typename container_traits::native_type c1;
     typename container_traits::native_type c2;

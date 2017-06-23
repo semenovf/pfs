@@ -14,20 +14,20 @@ namespace pfs {
 namespace traits {
 namespace stdcxx {
 
-template <typename T>
+template <typename KvType>
 struct map_wrapper
 {
-    typedef std::map<typename T::first_type, typename T::second_type> type;
+    typedef std::map<typename KvType::key_type, typename KvType::mapped_type> type;
 };
 
-template <typename T, typename ValueOrReference>
+template <typename KvType, typename ValueOrReference>
 class map_basic
 {
     typedef ValueOrReference internal_type;
 
 public:
-    typedef map_basic<T, container_value<T, map_wrapper> >     container_value_type;
-    typedef map_basic<T, container_reference<T, map_wrapper> > container_reference_type;
+    typedef map_basic<KvType, container_value<KvType, map_wrapper> >     container_value_type;
+    typedef map_basic<KvType, container_reference<KvType, map_wrapper> > container_reference_type;
     
     typedef typename internal_type::native_type            native_type;
     typedef typename internal_type::native_reference       native_reference;
@@ -45,6 +45,7 @@ public:
     typedef typename native_type::size_type        size_type;
 
     typedef typename native_type::key_type         key_type;
+    typedef typename native_type::mapped_type      mapped_type;
     
     typedef typename native_type::key_compare      key_compare;
     typedef typename native_type::value_compare    value_compare;
@@ -237,10 +238,10 @@ public:
     // *************************************************************************
 };
 
-template <typename T>
-class map : public map_basic<T, container_value<T, map_wrapper> >
+template <typename KvType>
+class map : public map_basic<KvType, container_value<KvType, map_wrapper> >
 {
-    typedef map_basic<T, container_value<T, map_wrapper> > base_class;
+    typedef map_basic<KvType, container_value<KvType, map_wrapper> > base_class;
 
 public:
     typedef typename base_class::native_type            native_type;
@@ -263,10 +264,10 @@ public:
     {}
 };
 
-template <typename T>
-class map_reference : public map_basic<T, container_reference<T, map_wrapper> >
+template <typename KvType>
+class map_reference : public map_basic<KvType, container_reference<KvType, map_wrapper> >
 {
-    typedef map_basic<T, container_reference<T, map_wrapper> > base_class;
+    typedef map_basic<KvType, container_reference<KvType, map_wrapper> > base_class;
 
 public:
     typedef typename base_class::native_type            native_type;

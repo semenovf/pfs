@@ -30,17 +30,14 @@
 namespace stdcxx {
 namespace json {
 
-struct value_traits : pfs::json::value_traits<
-          pfs::traits::stdcxx::string
-        , bool
+typedef pfs::json::value<
+          bool
         , intmax_t
         , uintmax_t
         , double
+        , pfs::traits::stdcxx::string
         , pfs::traits::stdcxx::vector
-        , pfs::traits::stdcxx::map>
-{};
-
-typedef pfs::json::value<value_traits> value;
+        , pfs::traits::stdcxx::map> value;
 
 }} //stdcxx::json
 

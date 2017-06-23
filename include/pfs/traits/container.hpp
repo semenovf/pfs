@@ -16,10 +16,12 @@ namespace traits {
 // Container traits.
 // Based on [C++ concepts: Container](http://en.cppreference.com/w/cpp/concept/Container)
 
-template <typename T, template <typename> class InternalType>
+template <typename T, template <typename> class ContainerValueRef>
 class container
 {
-    typedef InternalType<T> internal_type;
+protected:
+    typedef ContainerValueRef<T> internal_type;
+    
 public:
     typedef typename internal_type::native_type            native_type;
     typedef typename internal_type::native_reference       native_reference;

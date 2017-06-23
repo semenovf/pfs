@@ -10,6 +10,7 @@
 
 #include <pfs/assert.hpp>
 #include <pfs/utility.hpp>
+#include <pfs/memory.hpp>
 #include <pfs/traits/string.hpp>
 #include <pfs/traits/contigous_container.hpp>
 #include <pfs/traits/associative_container.hpp>
@@ -17,44 +18,36 @@
 #include <pfs/json/constants.hpp>
 #include <pfs/json/iterator.hpp>
 
+#include <map>
+
 namespace pfs {
 namespace json {
 
-template <typename Traits>
-class value;
-
-template <typename StringT
-        , typename BoolT      // bool
-        , typename IntegerT   // intmax_t
-        , typename UIntegerT  // uintmax_t
-        , typename RealT      // double
+template <typename BoolT
+        , typename IntegerT
+        , typename UIntegerT
+        , typename RealT
+        , typename StringT
         , template <typename> class ArrayT
         , template <typename> class ObjectT>
-struct value_traits
-{
-    typedef BoolT                        boolean_type;
-    typedef IntegerT                     integer_type;
-    typedef UIntegerT                    uinteger_type;
-    typedef RealT                        real_type;
-    typedef pfs::traits::string<StringT> string_type;
-    typedef pfs::traits::contigous_container<value<value_traits>, ArrayT> array_type;
-    typedef pfs::traits::associative_container<pfs::pair<string_type, value<value_traits> >, ObjectT> object_type;
-};
-
-template <typename Traits>
 class value
 {
 public:
     typedef ptrdiff_t difference_type;
     typedef size_t    size_type;
 
-    typedef typename Traits::boolean_type  boolean_type;
-    typedef typename Traits::integer_type  integer_type;
-    typedef typename Traits::uinteger_type uinteger_type;
-    typedef typename Traits::real_type     real_type;
-    typedef typename Traits::string_type   string_type;
-    typedef typename Traits::array_type    array_type;
-    typedef typename Traits::object_type   object_type;
+    typedef pfs::traits::string<StringT>    string_type;
+    typedef BoolT                           boolean_type;
+    typedef IntegerT                        integer_type;
+    typedef UIntegerT                       uinteger_type;
+    typedef RealT                           real_type;
+    typedef pfs::traits::contigous_container<value, ArrayT>
+                                            array_type;
+    typedef pfs::traits::associative_container<
+            pfs::traits::kv_type<string_type, value>, ObjectT>
+                                            object_type;
+
+    typedef typename object_type::key_type  key_type;
 
     struct value_rep
     {
@@ -96,7 +89,7 @@ public:
         value_rep (string_type const & v)
             : type(data_type::string)
         {
-            std::allocator<string_type> alloc;
+            pfs::allocator<string_type> alloc;
             string = alloc.allocate(1);
             alloc.construct(string, v);
         }
@@ -104,7 +97,7 @@ public:
         value_rep (array_type const & v)
             : type(data_type::array)
         {
-            std::allocator<array_type> alloc;
+            pfs::allocator<array_type> alloc;
             array = alloc.allocate(1);
             alloc.construct(array, v);
         }
@@ -112,15 +105,13 @@ public:
         value_rep (object_type const & v)
             : type(data_type::object)
         {
-            std::allocator<object_type> alloc;
+            pfs::allocator<object_type> alloc;
             object = alloc.allocate(1);
             alloc.construct(object, v);
         }
-
-        //value_rep (type_enum t);
     };
     
-    typedef value_rep data_type;
+    typedef value_rep rep_type;
    
     typedef value                       value_type;
     typedef value *                     pointer;
@@ -134,7 +125,7 @@ public:
     friend class basic_iterator<value const>;
 
 protected:
-    data_type _d;
+    rep_type _d;
 
 //public:
 //    class iterator;
@@ -545,34 +536,42 @@ public:
 //        PFS_ASSERT(_type == type_object);
 //        return _value.object->at(key);
 //    }
-//
-//    reference operator[] (size_type index);
-//
-//    const_reference operator[] (size_type index) const
-//    {
-//        PFS_ASSERT(_type == type_array);
-//        return _value.array->operator[] (index);
-//    }
-//
-    reference operator [] (typename object_type::key_type const & key);
 
-    const_reference operator [] (typename object_type::key_type const & key) const
+//    reference operator [] (size_type index)
+//    {
+//        
+//    }
+
+    reference operator [] (key_type const & key)
     {
-        // at only works for objects
+        if (_d.type == data_type::null) {
+            pfs::allocator<object_type> alloc;
+
+            _d.type = data_type::object;
+            _d.object = alloc.allocate(1);
+            alloc.construct(_d.object, object_type());
+        }
+
         PFS_ASSERT(_d.type == data_type::object);
-        return _d.object->operator[] (key);
+
+        typename object_type::iterator it = _d.object->find(key);
+
+        if (it == _d.object->end()) {
+            pfs::pair<typename object_type::iterator, bool> result 
+                = _d.object->insert(pfs::make_pair(key, value()));
+            it = result.first;
+
+            PFS_ASSERT(it == _d.object->end());
+        }
+
+        return it->second;
     }
 
-//    reference operator[] (const char * key)
-//    {
-//        return operator[] (object_type::key_type(key));
-//    }
-//
-//    const_reference operator[] (const char * key) const
-//    {
-//        return operator[] (object_type::key_type(key));
-//    }
-//
+    reference operator [] (const char * key)
+    {
+        return operator [] (key_type(key));
+    }
+
 //    void erase (const size_type index)
 //    {
 //        PFS_ASSERT(_type == type_array);
@@ -976,7 +975,5 @@ namespace pfs {
 //bool unpack (unpack_context & ctx, json::value & v);
 
 } // pfs
-
-#include "value_inc.hpp"
 
 #endif /* __PFS_JSON_VALUE_HPP__ */

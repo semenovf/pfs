@@ -16,19 +16,22 @@ namespace traits {
 // SequenceContainer traits.
 // Based on [C++ concepts: SequenceContainer](http://en.cppreference.com/w/cpp/concept/SequenceContainer)
 
-template <typename T, template <typename> class ContainerRef>
-class sequence_container : public container<T, ContainerRef>
+template <typename T, template <typename> class ContainerValueRef>
+class sequence_container : public container<T, ContainerValueRef>
 {
-    typedef container<T, ContainerRef> base_class;
+    typedef container<T, ContainerValueRef> base_class;
     
 public:
-    typedef ContainerRef<T>                           ref_type;
-    typedef typename ref_type::native_reference       native_reference;
-    typedef typename ref_type::reference              reference;
-    typedef typename ref_type::const_reference        const_reference;
-    typedef typename ref_type::iterator               iterator;
-    typedef typename ref_type::const_iterator         const_iterator;
-    typedef typename ref_type::size_type              size_type;
+    typedef typename base_class::native_type            native_type;
+    typedef typename base_class::native_reference       native_reference;
+    typedef typename base_class::const_native_reference const_native_reference;
+
+    typedef typename base_class::size_type       size_type;
+    typedef typename base_class::value_type      value_type;
+    typedef typename base_class::reference       reference;
+    typedef typename base_class::const_reference const_reference;
+    typedef typename base_class::iterator        iterator;
+    typedef typename base_class::const_iterator  const_iterator;
     
 public:
     sequence_container ()

@@ -5,8 +5,10 @@
  * Created on May 08, 2017
  */
 
-#ifndef __PFS_TEST_SEQUENCE_CONSTRUCTOR_HPP__
-#define __PFS_TEST_SEQUENCE_CONSTRUCTOR_HPP__
+#ifndef TEST_SEQUENCE_CONSTRUCTOR_HPP
+#define TEST_SEQUENCE_CONSTRUCTOR_HPP
+
+#include <pfs/traits/sequence_container.hpp>
 
 template <typename T, template <typename> class ContainerRef>
 void test_sequence_container_basic ()
@@ -44,4 +46,4 @@ void test_sequence_container_basic ()
 //    traits1.swap(traits2);
 }
 
-#endif /* __PFS_TEST_SEQUENCE_CONSTRUCTOR_HPP__ */
+#endif /* TEST_SEQUENCE_CONSTRUCTOR_HPP */

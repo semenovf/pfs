@@ -8,17 +8,17 @@
 #ifndef __PFS_TRAITS_CONTIGOUS_CONTAINER_HPP__
 #define __PFS_TRAITS_CONTIGOUS_CONTAINER_HPP__
 
-//#include <pfs/cxxlang.hpp>
-//#include <pfs/exception.hpp>
+#include <pfs/cxxlang.hpp>
+#include <pfs/exception.hpp>
 #include <pfs/traits/container.hpp>
 
 namespace pfs {
 namespace traits {
 
-template <typename T, template <typename> class ContainerRef>
-class contigous_container : public container<T, ContainerRef>
+template <typename T, template <typename> class ContainerValueRef>
+class contigous_container : public container<T, ContainerValueRef>
 {
-    typedef container<T, ContainerRef> base_class;
+    typedef container<T, ContainerValueRef> base_class;
     
 public:
     typedef typename base_class::native_type            native_type;
