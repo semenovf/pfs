@@ -50,15 +50,15 @@ int main (int argc, char *argv[])
     test_container_basic<int, pfs::traits::stdcxx::set_reference>();
     test_container_basic<int, pfs::traits::stdcxx::multiset>();
     test_container_basic<int, pfs::traits::stdcxx::multiset_reference>();
-    test_container_basic<pfs::traits::kv_type<int, int>, pfs::traits::stdcxx::map>();
-    test_container_basic<pfs::traits::kv_type<int, int>, pfs::traits::stdcxx::map_reference>();
-    test_container_basic<pfs::traits::kv_type<int, int>, pfs::traits::stdcxx::multimap>();
-    test_container_basic<pfs::traits::kv_type<int, int>, pfs::traits::stdcxx::multimap_reference>();
+    test_container_basic<pfs::traits::kv<int, int>, pfs::traits::stdcxx::map>();
+    test_container_basic<pfs::traits::kv<int, int>, pfs::traits::stdcxx::map_reference>();
+    test_container_basic<pfs::traits::kv<int, int>, pfs::traits::stdcxx::multimap>();
+    test_container_basic<pfs::traits::kv<int, int>, pfs::traits::stdcxx::multimap_reference>();
     
-    test_associative_container_coverage<pfs::traits::kv_type<int, int>, pfs::traits::stdcxx::map>();
-    test_associative_container_coverage<pfs::traits::kv_type<int, int>, pfs::traits::stdcxx::map_reference>();
-    test_associative_container_coverage<pfs::traits::kv_type<int, int>, pfs::traits::stdcxx::multimap>();
-    test_associative_container_coverage<pfs::traits::kv_type<int, int>, pfs::traits::stdcxx::multimap_reference>();
+    test_associative_container_coverage<pfs::traits::kv<int, int>, pfs::traits::stdcxx::map>();
+    test_associative_container_coverage<pfs::traits::kv<int, int>, pfs::traits::stdcxx::map_reference>();
+    test_associative_container_coverage<pfs::traits::kv<int, int>, pfs::traits::stdcxx::multimap>();
+    test_associative_container_coverage<pfs::traits::kv<int, int>, pfs::traits::stdcxx::multimap_reference>();
 
 #if __cplusplus >= 201103L    
 //    test_container_basic<int, pfs::traits::stdcxx::array>();

@@ -12,13 +12,11 @@
 #include <pfs/utility.hpp>
 #include <pfs/memory.hpp>
 #include <pfs/traits/string.hpp>
-#include <pfs/traits/contigous_container.hpp>
 #include <pfs/traits/associative_container.hpp>
-
+#include <pfs/traits/contigous_container.hpp>
+#include <pfs/traits/sequence_container.hpp>
 #include <pfs/json/constants.hpp>
 #include <pfs/json/iterator.hpp>
-
-#include <map>
 
 namespace pfs {
 namespace json {
@@ -41,10 +39,10 @@ public:
     typedef IntegerT                        integer_type;
     typedef UIntegerT                       uinteger_type;
     typedef RealT                           real_type;
-    typedef pfs::traits::contigous_container<value, ArrayT>
+    typedef pfs::traits::sequence_container<value, ArrayT>
                                             array_type;
     typedef pfs::traits::associative_container<
-            pfs::traits::kv_type<string_type, value>, ObjectT>
+            pfs::traits::kv<string_type, value>, ObjectT>
                                             object_type;
 
     typedef typename object_type::key_type  key_type;
@@ -511,6 +509,17 @@ public:
         return is_array() || is_object();
     }
 
+    size_type size () const
+    {
+        switch (_d.type) {
+        case data_type::null:   return 0;
+        case data_type::array:  return _d.array->size();
+        case data_type::object: return _d.object->size();
+        default: break;
+        }
+        return 1;
+    }
+
 //    reference at (size_t index)
 //    {
 //        PFS_ASSERT(_type == type_array);
@@ -545,11 +554,11 @@ public:
     reference operator [] (key_type const & key)
     {
         if (_d.type == data_type::null) {
-            pfs::allocator<object_type> alloc;
-
-            _d.type = data_type::object;
-            _d.object = alloc.allocate(1);
-            alloc.construct(_d.object, object_type());
+            _d = object_type();
+//            pfs::allocator<object_type> alloc;
+//            _d.type = data_type::object;
+//            _d.object = alloc.allocate(1);
+//            alloc.construct(_d.object, object_type());
         }
 
         PFS_ASSERT(_d.type == data_type::object);
@@ -561,7 +570,7 @@ public:
                 = _d.object->insert(pfs::make_pair(key, value()));
             it = result.first;
 
-            PFS_ASSERT(it == _d.object->end());
+            PFS_ASSERT(it != _d.object->end());
         }
 
         return it->second;
@@ -608,11 +617,17 @@ public:
 //        this->swap(v);
 //    }
 //
-//    /**
-//     * @brief
-//     */
-//    void push_back (const value & v);
-//
+    void push_back (value const & v)
+    {
+        if (_d.type == data_type::null)
+            _d = array_type();
+
+        PFS_ASSERT(_d.type == data_type::array);
+
+        _d.array->push_back(v);
+    }
+
+    
 //    template <typename T>
 //    T get () const;
 //
@@ -622,19 +637,15 @@ public:
 //
 //    template <typename T>
 //    std::pair<bool, T> fetch () const;
-//
+
     iterator begin ()
     {
-        iterator result(this);
-        result.set_begin();
-        return result;
+        return iterator(this, typename iterator::set_begin());
     }
 
     const_iterator begin () const
     {
-        const_iterator result(this);
-        result.set_begin();
-        return result;
+        return const_iterator(this, typename const_iterator::set_begin());
     }
 
     const_iterator cbegin () const
@@ -644,16 +655,12 @@ public:
 
     iterator end ()
     {
-        iterator result(this);
-        result.set_end();
-        return result;
+        return iterator(this, typename iterator::set_end());
     }
 
     const_iterator end () const
     {
-        const_iterator result(this);
-        result.set_end();
-        return result;
+        return const_iterator(this, typename const_iterator::set_end());
     }
 
     const_iterator cend () const
@@ -661,35 +668,55 @@ public:
         return end();
     }
 
-//    iterator find (object_type::key_type const & key);
-//    const_iterator find (object_type::key_type const & key) const;
-//
-//    iterator find (char const * key)
-//    {
-//        return find(object_type::key_type(key));
-//    }
-//
-//    const_iterator find (char const * key) const
-//    {
-//        return find(object_type::key_type(key));
-//    }
-//
-//    bool contains (object_type::key_type const & key) const
-//    {
-//        return find(key) != end();
-//    }
-//
-//    bool contains (char const * key) const
-//    {
-//        return find(key) != end();
-//    }
-//
+    iterator find (key_type const & key)
+    {
+        if (is_object()) {
+            typename object_type::iterator it = _d.object->find(key);
+
+            if (it != _d.object->end())
+                return iterator(this, it);
+        }
+
+        return end();
+    }
+
+    const_iterator find (key_type const & key) const
+    {
+        if (is_object()) {
+            typename object_type::iterator it = _d.object->find(key);
+
+            if (it != _d.object->end())
+                return const_iterator(this, it);
+        }
+
+        return end();
+    }
+    
+    iterator find (char const * key)
+    {
+        return find(key_type(key));
+    }
+
+    const_iterator find (char const * key) const
+    {
+        return find(key_type(key));
+    }
+
+    bool contains (key_type const & key) const
+    {
+        return find(key) != end();
+    }
+
+    bool contains (char const * key) const
+    {
+        return find(key) != end();
+    }
+
 //    void swap (value & other)
 //    {
-//        pfs::swap(_type, other._type);
-//        pfs::swap(_value, other._value);
+//        pfs::swap(_d, other._d);
 //    }
-//
+
     static value make_object ()
     {
         return value(value::object_type());

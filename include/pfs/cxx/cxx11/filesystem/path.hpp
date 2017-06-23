@@ -8,6 +8,18 @@
 #ifndef __PFS_CXX_CXX11_FILESYSTEM_PATH_HPP__
 #define __PFS_CXX_CXX11_FILESYSTEM_PATH_HPP__
 
+//
+// [Experimental Library Extensions](https://gcc.gnu.org/onlinedocs/libstdc++/manual/using_dynamic_or_shared.html#manual.intro.using.linkage.experimental)
+// -----------------------------------------------------------------------------
+// GCC 5.3 includes an implementation of the Filesystem library defined by 
+// the technical specification ISO/IEC TS 18822:2015. Because this is an 
+// experimental library extension, not part of the C++ standard, it is 
+// implemented in a separate library, libstdc++fs.a, and there is no shared 
+// library for it. To use the library you should include 
+// <experimental/filesystem> and link with -lstdc++fs. The library 
+// implementation is incomplete on non-POSIX platforms, specifically 
+// Windows support is rudimentary. 
+//
 #include <experimental/filesystem>
 #include "../system_error.hpp"
 

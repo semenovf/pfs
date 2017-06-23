@@ -8,7 +8,8 @@ solution "pfs-mpl"
     configurations { "debug", "release" }
     platforms { "unix32", "unix64" }
 
-    flags { "FatalWarnings", "C++11" }
+    flags { "FatalWarnings" }
+    cppdialect "C++11"
     targetdir     "../../.build"
     includedirs   { "../include" }
     libdirs       { "../../.build" }

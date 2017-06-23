@@ -15,10 +15,17 @@ namespace pfs {
 namespace traits {
 
 template <typename Key, typename T>
-struct kv_type
+struct kv
 {
     typedef Key key_type;
     typedef T   mapped_type;
+};
+
+template <typename Key>
+struct kv<Key, Key>
+{
+    typedef Key key_type;
+    typedef Key mapped_type;
 };
 
 // AssociativeContainer traits.

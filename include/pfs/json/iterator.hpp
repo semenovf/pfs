@@ -37,7 +37,7 @@ protected:
         : _pvalue(pvalue)
     {}
     
-protected: 
+public: 
     static reference ref (scalar_iterator & it)
     {
         return *it._pvalue;
@@ -123,7 +123,7 @@ protected:
     object_iterator_type _object_it;
     scalar_iterator_type _scalar_it;
 
-protected: 
+public: 
     static reference ref (basic_iterator & it);
     static pointer ptr (basic_iterator & it);
     static void increment (basic_iterator &, difference_type n = 1);
@@ -139,12 +139,38 @@ protected:
     static difference_type diff (basic_iterator const & lhs, basic_iterator const & rhs);
 
 protected:
-    basic_iterator (pointer pvalue)
+    struct set_begin {};
+    struct set_end {};
+    
+    basic_iterator (pointer pvalue, set_begin begin_tag)
         : _pvalue(pvalue)
+    {
+        __set_begin();
+    }
+
+    basic_iterator (pointer pvalue, set_end end_tag)
+        : _pvalue(pvalue)
+    {
+        __set_end();
+    }
+
+    basic_iterator (pointer pvalue, array_iterator_type it)
+        : _pvalue(pvalue)
+        , _array_it(it)
     {}
-            
-    void set_begin ();
-    void set_end ();
+
+    basic_iterator (pointer pvalue, object_iterator_type it)
+        : _pvalue(pvalue)
+        , _object_it(it)
+    {}
+
+    basic_iterator (pointer pvalue, scalar_iterator_type it)
+        : _pvalue(pvalue)
+        , _scalar_it(it)
+    {}
+
+    void __set_begin ();
+    void __set_end ();
 
 public:
     basic_iterator ()
@@ -199,7 +225,7 @@ basic_iterator<ValueT>::operator = (basic_iterator const & rhs)
 }
 
 template <typename ValueT>
-void basic_iterator<ValueT>::set_begin ()
+void basic_iterator<ValueT>::__set_begin ()
 {
     switch (_pvalue->type()) {
 	case data_type::object:
@@ -213,7 +239,7 @@ void basic_iterator<ValueT>::set_begin ()
 }
 
 template <typename ValueT>
-void basic_iterator<ValueT>::set_end ()
+void basic_iterator<ValueT>::__set_end ()
 {
     switch (_pvalue->type()) {
 	case data_type::object:
@@ -232,7 +258,7 @@ basic_iterator<ValueT>::ref (basic_iterator & it)
 {
     switch (it._pvalue->type()) {
 	case data_type::object:
-		return *it._object_it;
+		return it._object_it->second;
 
 	case data_type::array:
 		return *it._array_it;
@@ -245,12 +271,13 @@ template <typename ValueT>
 typename basic_iterator<ValueT>::pointer
 basic_iterator<ValueT>::ptr (basic_iterator & it)
 {
+//    return it._pvalue;
     switch (it._pvalue->type()) {
-	case data_type::object:
-		return & *it._object_it;
+    case data_type::object:
+        return & it._object_it->second;
 
-	case data_type::array:
-		return & *it._array_it;
+    case data_type::array:
+        return & *it._array_it;
     }
 
     return & *it._scalar_it;

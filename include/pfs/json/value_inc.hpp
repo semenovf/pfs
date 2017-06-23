@@ -203,29 +203,6 @@ value::reference value::operator [] (size_type index)
 	return _value.array->operator[](index);
 }
 
-value::size_type value::size () const
-{
-	switch (_type) {
-	case type_null  : return 0;
-	case type_array : return _value.array->size();
-	case type_object: return _value.object->size();
-	default: break;
-    }
-	return 1;
-}
-
-void value::push_back (const value & v)
-{
-    if (_type == type_null) {
-        _type  = type_array;
-        _value = type_array;
-    }
-
-	PFS_ASSERT(_type == type_array);
-
-	_value.array->push_back(v);
-}
-
 template <>
 std::pair<bool,bool> value::fetch<bool> () const
 {
@@ -374,36 +351,6 @@ std::pair<bool,string> value::fetch<string> () const
 	}
 
 	return std::pair<bool,string>(false, string());
-}
-
-value::iterator value::find (object_type::key_type const & key)
-{
-    if (is_object()) {
-        object_type::iterator it = _value.object->find(key);
-        
-        if (it != _value.object->end()) {
-            iterator result(this);
-            result._it.object_it = it;
-            return result;
-        }
-    }
-    
-    return end();
-}
-
-value::const_iterator value::find (object_type::key_type const & key) const
-{
-    if (is_object()) {
-        object_type::iterator it = _value.object->find(key);
-        
-        if (it != _value.object->end()) {
-            iterator result(const_cast<value *>(this));
-            result._it.object_it = it;
-            return result;
-        }
-    }
-    
-    return end();
 }
 
 value::value_rep::value_rep (value::type_enum t)
@@ -617,17 +564,6 @@ value::size_type value::size () const
 	return 1;
 }
 
-void value::push_back (const value & v)
-{
-    if (_type == type_null) {
-        _type  = type_array;
-        _value = type_array;
-    }
-
-	PFS_ASSERT(_type == type_array);
-
-	_value.array->push_back(v);
-}
 
 template <>
 std::pair<bool,bool> value::fetch<bool> () const

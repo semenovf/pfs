@@ -38,7 +38,6 @@ struct data_type
     typedef data_type::type data_type_t;
 #endif
 
-
 }} // pfs::json
 
 #endif /* __PFS_JSON_CONSTANTS_HPP__ */
