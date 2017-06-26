@@ -96,10 +96,10 @@ struct iterator_facade<input_iterator_tag, Derived, T, Pointer, Reference, Dista
     	return Derived::ptr(*const_cast<Derived *>(static_cast<Derived const *>(this)));
     }
 
-    iterator_facade & operator ++ () // prefix increment
+    Derived & operator ++ () // prefix increment
 	{
     	Derived::increment(static_cast<Derived &>(*this), 1);
-    	return *this;
+    	return static_cast<Derived &>(*this);
 	}
 
     Derived operator ++ (int) // postfix increment
@@ -141,10 +141,10 @@ struct iterator_facade<output_iterator_tag, Derived, T, Pointer, Reference, Dist
     	return Derived::ref(*const_cast<Derived *>(static_cast<Derived const *>(this)));
     }
     
-    iterator_facade & operator ++ () // prefix increment
+    Derived & operator ++ () // prefix increment
 	{
     	Derived::increment(static_cast<Derived &>(*this), 1);
-    	return *this;
+    	return static_cast<Derived &>(*this);
 	}
 
     Derived operator ++ (int) // postfix increment
@@ -191,10 +191,10 @@ struct iterator_facade<bidirectional_iterator_tag, Derived, T, Pointer, Referenc
     
     static void decrement (Derived &, difference_type n);
 
-    iterator_facade & operator -- () // prefix decrement
+    Derived & operator -- () // prefix decrement
 	{
     	Derived::decrement(static_cast<Derived &>(*this), 1);
-    	return *this;
+    	return static_cast<Derived &>(*this);
 	}
 
     Derived operator -- (int) // postfix decrement
@@ -226,16 +226,16 @@ struct iterator_facade<random_access_iterator_tag, Derived, T, Pointer, Referenc
         return Derived::compare(lhs, rhs) == 0;
     }
     
-  	iterator_facade & operator += (difference_type n)
+  	Derived & operator += (difference_type n)
 	{
         Derived::increment(static_cast<Derived &>(*this), n);
-    	return *this;
+    	return static_cast<Derived &>(*this);
 	}
 
-   	iterator_facade & operator -= (difference_type n)
+   	Derived & operator -= (difference_type n)
 	{
         Derived::decrement(static_cast<Derived &>(*this), n);
-    	return *this;
+    	return static_cast<Derived &>(*this);
 	}
 
    	reference operator [] (difference_type index)

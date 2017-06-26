@@ -5,6 +5,7 @@
  *      Author: wladt
  */
 
+#include <pfs/type_traits.hpp>
 #include <pfs/iterator.hpp>
 #include <pfs/exception.hpp>
 #include <pfs/json/constants.hpp>
@@ -93,6 +94,19 @@ public:
             _pvalue = rhs._pvalue;
         return *this;
     }
+    
+    template <typename ValueU>
+    friend class scalar_iterator;
+    
+    // Allow iterator to const_iterator assignment
+    template <typename ValueU, typename EnableIf = pfs::enable_if<pfs::is_same<pfs::remove_cv<ValueT>,ValueU>::value> >
+    scalar_iterator & operator = (scalar_iterator<ValueU> const & rhs)
+    {
+        if (_pvalue != rhs._pvalue)
+            _pvalue = rhs._pvalue;
+        return *this;
+    }
+
 };
 
 template <typename ValueT>
@@ -179,13 +193,21 @@ public:
 
     basic_iterator (basic_iterator const & rhs);
     basic_iterator & operator = (basic_iterator const & rhs);
-};
+    
+    template <typename ValueU>
+    friend class basic_iterator;
+    
+    // Allow iterator to const_iterator conversion
+    template <typename ValueU, typename EnableIf = pfs::enable_if<pfs::is_same<pfs::remove_cv<ValueT>,ValueU>::value> >
+    basic_iterator (basic_iterator<ValueU> const & rhs)
+        : _pvalue (rhs._pvalue)
+    {
+        operator = (rhs);
+    }
 
-template <typename ValueT>
-basic_iterator<ValueT>::basic_iterator (basic_iterator const & rhs)
-    : _pvalue (rhs._pvalue)
-{
-    if (_pvalue) {
+    template <typename ValueU, typename EnableIf = pfs::enable_if<pfs::is_same<pfs::remove_cv<ValueT>,ValueU>::value> >
+    basic_iterator & operator = (basic_iterator<ValueU> const & rhs)
+    {
         switch (_pvalue->type()) {
         case data_type::object:
             _object_it = rhs._object_it;
@@ -194,12 +216,21 @@ basic_iterator<ValueT>::basic_iterator (basic_iterator const & rhs)
         case data_type::array:
             _array_it = rhs._array_it;
             break;
-            
+
         default:
             _scalar_it = rhs._scalar_it;
             break;
         }
+        return *this;
     }
+
+};
+
+template <typename ValueT>
+basic_iterator<ValueT>::basic_iterator (basic_iterator const & rhs)
+    : _pvalue (rhs._pvalue)
+{
+    operator = (rhs);
 }
 
 template <typename ValueT>
@@ -296,12 +327,15 @@ void basic_iterator<ValueT>::increment (basic_iterator & it, difference_type n)
             --it._object_it;
         else
             throw out_of_range("json::basic_iterator::increment()");
+        break;
 
 	case data_type::array:
 		it._array_it += n;
+        break;
         
     default:
         it._scalar_it += n;
+        break;
     }
 }
 

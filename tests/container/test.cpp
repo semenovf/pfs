@@ -16,7 +16,8 @@
 #include "pfs/traits/stdcxx/multiset.hpp"
 #include <pfs/traits/stdcxx/map.hpp>
 #include <pfs/traits/stdcxx/multimap.hpp>
-//
+#include <pfs/traits/stdcxx/stack.hpp>
+
 // Enabled by `qt_enable`
 #ifdef QT_CORE_LIB
 #   include <pfs/traits/qt/vector.hpp>
@@ -27,11 +28,13 @@
 #   include <pfs/traits/qt/multimap.hpp>
 #   include <pfs/traits/qt/hash.hpp>
 #   include <pfs/traits/qt/multihash.hpp>
+#   include <pfs/traits/qt/stack.hpp>
 #endif
 
 #include "container.hpp"
 #include "sequence_container.hpp"
 #include "associative_container.hpp"
+#include "stack.hpp"
 
 int main (int argc, char *argv[])
 {
@@ -59,6 +62,9 @@ int main (int argc, char *argv[])
     test_associative_container_coverage<pfs::traits::kv<int, int>, pfs::traits::stdcxx::map_reference>();
     test_associative_container_coverage<pfs::traits::kv<int, int>, pfs::traits::stdcxx::multimap>();
     test_associative_container_coverage<pfs::traits::kv<int, int>, pfs::traits::stdcxx::multimap_reference>();
+    
+    test_stack<int, pfs::traits::stdcxx::stack>();
+    test_stack<int, pfs::traits::stdcxx::stack_reference>();
 
 #if __cplusplus >= 201103L    
 //    test_container_basic<int, pfs::traits::stdcxx::array>();

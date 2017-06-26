@@ -58,37 +58,6 @@ value::value_rep::value_rep (value::type_enum t)
 	}}
 }
 
-value::~value ()
-{
-	switch (_type) {
-	case type_string: {
-		std::allocator<string_type> alloc;
-        alloc.destroy(_value.string);
-        alloc.deallocate(_value.string, 1);
-        _value.string = 0;
-		break;
-	}
-
-	case type_array: {
-		std::allocator<array_type> alloc;
-        alloc.destroy(_value.array);
-        alloc.deallocate(_value.array, 1);
-        _value.array = 0;
-		break;
-	}
-
-	case type_object: {
-		std::allocator<object_type> alloc;
-		alloc.destroy(_value.object);
-		alloc.deallocate(_value.object, 1);
-		_value.object = 0;
-		break;
-	}
-
-	default:
-		break;
-	}
-}
 
 value::value (const value & other)
         : _type(other._type)

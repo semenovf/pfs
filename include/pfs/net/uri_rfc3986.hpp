@@ -107,9 +107,9 @@ template <typename UriT>
 struct uri_grammar
 {
     typedef typename UriT::string_traits           string_traits;
-    typedef typename UriT::data_rep              user_context;
+    typedef typename UriT::data_rep                user_context;
     typedef fsm::fsm<string_traits>                fsm_type;
-    typedef typename fsm_type::transition_type   transition_type;
+    typedef typename fsm_type::transition_type     transition_type;
     typedef typename string_traits::const_iterator const_iterator;
     
     uri_grammar ();
@@ -158,7 +158,7 @@ struct uri_grammar
             , void * context
             , void * action_args);
 
-#if __PFS_TEST__
+#if PFS_TEST
     static string_traits const * p_alpha;
     static string_traits const * p_digit;
     static string_traits const * p_hexdigit; // DIGIT / "A" / "B" / "C" / "D" / "E" / "F"
@@ -234,7 +234,7 @@ struct uri_grammar
     static transition_type const * p_uri_reference_tr;
 };
 
-#if __PFS_TEST__
+#if PFS_TEST
 template <typename UriT>
 typename uri_grammar<UriT>::transition_type const * uri_grammar<UriT>::p_authority_tr = 0;
 #endif
@@ -778,7 +778,7 @@ uri_grammar<UriT>::uri_grammar ()
     p_uri_tr = & uri_tr[0];
     p_uri_reference_tr = & uri_reference_tr[0];
     
-#if __PFS_TEST__
+#if PFS_TEST
     p_authority_tr = & authority_tr[0];
 #endif
 }

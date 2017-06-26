@@ -2,6 +2,7 @@ kind          "ConsoleApp"
 language      "C++"
 targetname    "test-json"
 files         { "../tests/json/*.cpp" }
+defines       { "PFS_TEST" }
 
 ---- Special for Qt projects
 --require("../../../.gbs/qt_enable")

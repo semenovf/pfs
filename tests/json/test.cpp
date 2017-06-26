@@ -21,6 +21,7 @@
 
 #include "test_basic.hpp"
 #include "test_iterator.hpp"
+#include "test_parse.hpp"
 //#include "test_compare.hpp"
 //#include "test_find.hpp"
 //#include "test_substr.hpp"
@@ -69,6 +70,7 @@ int main (int argc, char *argv[])
     
     test_basic::test<stdcxx::json::value>();
     test_iterator::test<stdcxx::json::value>();
+    test_parse::test<stdcxx::json::value>();
 
 #ifdef QT_CORE_LIB
     test_basic::test<qt::json::value>();

@@ -34,16 +34,19 @@ public:
     typedef ptrdiff_t difference_type;
     typedef size_t    size_type;
 
-    typedef pfs::traits::string<StringT>    string_type;
+    typedef pfs::traits::string<StringT>    string_traits;
+    typedef string_traits                   string_type;
     typedef BoolT                           boolean_type;
     typedef IntegerT                        integer_type;
     typedef UIntegerT                       uinteger_type;
     typedef RealT                           real_type;
     typedef pfs::traits::sequence_container<value, ArrayT>
-                                            array_type;
+                                            array_traits;
+    typedef array_traits                    array_type;
     typedef pfs::traits::associative_container<
             pfs::traits::kv<string_type, value>, ObjectT>
-                                            object_type;
+                                            object_traits;
+    typedef object_traits                   object_type;
 
     typedef typename object_type::key_type  key_type;
 
@@ -443,13 +446,42 @@ public:
     {}
 
 //    value (size_type n, const value & v);
-//
 //    value (const value & other);
-//
-//    ~value ();
-//
+
+    ~value ()
+    {
+        switch (_d.type) {
+        case data_type::string: {
+            std::allocator<string_type> alloc;
+            alloc.destroy(_d.string);
+            alloc.deallocate(_d.string, 1);
+            _d.string = 0;
+            break;
+        }
+
+        case data_type::array: {
+            std::allocator<array_type> alloc;
+            alloc.destroy(_d.array);
+            alloc.deallocate(_d.array, 1);
+            _d.array = 0;
+            break;
+        }
+
+        case data_type::object: {
+            std::allocator<object_type> alloc;
+            alloc.destroy(_d.object);
+            alloc.deallocate(_d.object, 1);
+            _d.object = 0;
+            break;
+        }
+
+        default:
+            break;
+        }
+    }    
+
 //    value & operator = (const value & other);
-//
+
     data_type_t type () const
     {
         return _d.type;

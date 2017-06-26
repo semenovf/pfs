@@ -8,8 +8,6 @@
 #ifndef TEST_ASSOCIATIVE_CONTAINER_HPP
 #define TEST_ASSOCIATIVE_CONTAINER_HPP
 
-#include <map>
-
 #include "pfs/utility.hpp"
 #include "pfs/traits/associative_container.hpp"
 

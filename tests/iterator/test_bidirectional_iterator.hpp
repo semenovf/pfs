@@ -44,7 +44,7 @@ struct bidirectional_iterator : public pfs::iterator_facade<
 
 void test_bidirectional_iterator ()
 {
-    ADD_TESTS_X(20, "Test Bidirectional Iterator");
+    ADD_TESTS_X(24, "Test Bidirectional Iterator");
     
     D data[] = { {1}, {2}, {3}, {4} };
 
@@ -88,7 +88,19 @@ void test_bidirectional_iterator ()
         TEST_OK((*--it).x == 1);
     }
     
-    // Test equality and `->` operator
+    // Test prefixed increment, equality and `->` operator
+    {
+        bidirectional_iterator it1(data);
+        bidirectional_iterator it2(data);
+
+        TEST_OK(++it1 == ++it2);
+        TEST_OK(it1 == it2);
+
+        TEST_OK(it1->x == 2);
+        TEST_OK(it2->x == 2);
+    }
+
+    // Test postfix increment, equality and `->` operator
     {
         bidirectional_iterator it1(data);
         bidirectional_iterator it2(data);

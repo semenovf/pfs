@@ -42,8 +42,8 @@ project "pfs-test"
 project "pfs"
     include("pfs.gbs")
 
---project "test-mpl-iterator"
---    include("test-mpl-iterator/project.gbs")
+project "test-iterator"
+    include("test-iterator.gbs")
 
 --project "test-mpl-string"
 --    include("test-mpl-string/project.gbs")

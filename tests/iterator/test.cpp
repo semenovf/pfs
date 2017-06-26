@@ -1,13 +1,5 @@
-/**
- * @file   test.cpp
- * @author
- * @date
- *
- * @brief testing ...
- */
-
 #include <pfs/test/test.hpp>
-#include <pfs.hpp>
+#include <pfs/iterator.hpp>
 
 #include "test_input_iterator.hpp"
 #include "test_output_iterator.hpp"

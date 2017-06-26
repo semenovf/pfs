@@ -18,7 +18,6 @@ void test ()
 
         json_type json; // null value
         typename json_type::iterator it = json.begin();
-//        typename json_type::const_iterator cit = json.cend();
 
         json["Image"]["Width"]               = 800;
         json["Image"]["Height"]              = 600;
@@ -43,21 +42,26 @@ void test ()
 
         TEST_OK(cit->is_object());
         TEST_OK(cit->size() == 5);
+        
         TEST_OK(++cit == json.cend());
         TEST_OK((--cit)->is_object());
 
-//        pfs::json::json::const_iterator it_image = it->cbegin();
-//        TEST_OK(it_image->size() == 1);
+        typename json_type::const_iterator it_image = cit->cbegin();
+        TEST_OK(it_image->size() == 1);
     }
     
     {
         ADD_TESTS(2);
         
         json_type json;
-//        json["id"] = 1;
-//        pfs::json::json::const_iterator it = json.find("id");
-//        TEST_OK(it != json.cend());
-//        TEST_OK(it != json.end());
+        json["id"] = 1;
+        typename json_type::const_iterator it(json.find("id"));
+        typename json_type::const_iterator it1;
+        
+        it1 = json.find("id");
+        
+        TEST_OK(it != json.cend());
+        TEST_OK(it != typename json_type::const_iterator(json.end()));
     }
 }
 

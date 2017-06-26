@@ -22,13 +22,13 @@ struct deque_wrapper
 };
 
 template <typename T, typename ValueOrReference>
-class deque_basic
+class basic_deque
 {
     typedef ValueOrReference internal_type;
 
 public:
-    typedef deque_basic<T, container_value<T, deque_wrapper> > container_value_type;
-    typedef deque_basic<T, container_reference<T, deque_wrapper> >   container_reference_type;
+    typedef basic_deque<T, container_value<T, deque_wrapper> > container_value_type;
+    typedef basic_deque<T, container_reference<T, deque_wrapper> >   container_reference_type;
     
     typedef typename internal_type::native_type            native_type;
     typedef typename internal_type::native_reference       native_reference;
@@ -49,14 +49,14 @@ protected:
     internal_type _p;
     
 public:
-    deque_basic ()
+    basic_deque ()
     {}
 
-    deque_basic (native_reference rhs)
+    basic_deque (native_reference rhs)
         : _p(rhs)
     {}
 
-    deque_basic (const_native_reference rhs)
+    basic_deque (const_native_reference rhs)
         : _p(rhs)
     {}
     
@@ -69,7 +69,7 @@ public:
 //        : _p(first, last)
 //    {}
     
-    deque_basic & operator = (native_reference rhs)
+    basic_deque & operator = (native_reference rhs)
     {
         *_p = rhs;
         return *this;
@@ -167,14 +167,14 @@ public:
     // *** NON-MEMBER FUNCTIONS (OPERATORS) ***
     //
     
-    friend inline bool operator == (deque_basic const & lhs
-        , deque_basic const & rhs)
+    friend inline bool operator == (basic_deque const & lhs
+        , basic_deque const & rhs)
     {
         return *lhs._p == *rhs._p;
     }
 
-    friend inline bool operator != (deque_basic const & lhs
-        , deque_basic const & rhs)
+    friend inline bool operator != (basic_deque const & lhs
+        , basic_deque const & rhs)
     {
         return *lhs._p != *rhs._p;
     }
@@ -325,9 +325,9 @@ public:
 };
 
 template <typename T>
-class deque : public deque_basic<T, container_value<T, deque_wrapper> >
+class deque : public basic_deque<T, container_value<T, deque_wrapper> >
 {
-    typedef deque_basic<T, container_value<T, deque_wrapper> > base_class;
+    typedef basic_deque<T, container_value<T, deque_wrapper> > base_class;
 
 public:
     typedef typename base_class::native_type            native_type;
@@ -349,9 +349,9 @@ public:
 };
 
 template <typename T>
-class deque_reference : public deque_basic<T, container_reference<T, deque_wrapper> >
+class deque_reference : public basic_deque<T, container_reference<T, deque_wrapper> >
 {
-    typedef deque_basic<T, container_reference<T, deque_wrapper> > base_class;
+    typedef basic_deque<T, container_reference<T, deque_wrapper> > base_class;
 
 public:
     typedef typename base_class::native_type            native_type;

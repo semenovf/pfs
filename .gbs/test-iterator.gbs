@@ -1,0 +1,15 @@
+kind          "ConsoleApp"
+language      "C++"
+targetname    "test-iterator"
+files         { "../tests/iterator/*.cpp" }
+
+configuration "debug"
+    objdir       ".cache/tests/iterator/debug"
+    targetdir    "../../.build/tests"
+    links        { "pfs-test-d" }
+
+configuration "release"
+    objdir       ".cache/tests/iterator/release"
+    targetdir    "../../.build/tests"
+    links        { "pfs-test" }
+
