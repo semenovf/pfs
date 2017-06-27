@@ -208,22 +208,25 @@ public:
     template <typename ValueU, typename EnableIf = pfs::enable_if<pfs::is_same<pfs::remove_cv<ValueT>,ValueU>::value> >
     basic_iterator & operator = (basic_iterator<ValueU> const & rhs)
     {
-        switch (_pvalue->type()) {
-        case data_type::object:
-            _object_it = rhs._object_it;
-            break;
+        _pvalue = rhs._pvalue;
+        
+        if (_pvalue) {
+            switch (_pvalue->type()) {
+            case data_type::object:
+                _object_it = rhs._object_it;
+                break;
 
-        case data_type::array:
-            _array_it = rhs._array_it;
-            break;
+            case data_type::array:
+                _array_it = rhs._array_it;
+                break;
 
-        default:
-            _scalar_it = rhs._scalar_it;
-            break;
+            default:
+                _scalar_it = rhs._scalar_it;
+                break;
+            }
+            return *this;
         }
-        return *this;
     }
-
 };
 
 template <typename ValueT>
@@ -238,18 +241,23 @@ basic_iterator<ValueT> &
 basic_iterator<ValueT>::operator = (basic_iterator const & rhs)
 {
     if (this != & rhs) {
-        switch (_pvalue->type()) {
-        case data_type::object:
-            _object_it = rhs._object_it;
-            break;
+        
+        _pvalue = rhs._pvalue;
+        
+        if (_pvalue) {
+            switch (_pvalue->type()) {
+            case data_type::object:
+                _object_it = rhs._object_it;
+                break;
 
-        case data_type::array:
-            _array_it = rhs._array_it;
-            break;
+            case data_type::array:
+                _array_it = rhs._array_it;
+                break;
 
-        default:
-            _scalar_it = rhs._scalar_it;
-            break;
+            default:
+                _scalar_it = rhs._scalar_it;
+                break;
+            }
         }
     }
     return *this;

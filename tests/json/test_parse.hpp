@@ -55,13 +55,15 @@ void test_fsm ()
     typedef typename json_type::string_type string_type;
     typedef pfs::json::grammar<json_type> grammar_type;
 
-    typedef typename grammar_type::string_traits sequence_type;
+    typedef typename grammar_type::sequence_type sequence_type;
     typedef pfs::fsm::test_valid_entry<sequence_type> test_valid_entry;
     typedef pfs::fsm::test_invalid_entry<sequence_type> test_invalid_entry;
     
+    grammar_type grammar;
+    
     // number = [ minus ] int [ frac ] [ exp ]
     //
-    TEST_OK(test_valid_entry()(grammar_type::p_number_tr, 0, sequence_type("987654321")));
+    TEST_OK(test_valid_entry()(grammar.p_number_tr, 0, sequence_type("987654321")));
 //    TEST_OK(test_valid_entry<string_type>(pfs::json::number_fsm, 0, "-12345.6789"));
 //    TEST_OK(test_valid_entry<string_type>(pfs::json::number_fsm, 0, "-123e+543"));
 //    TEST_OK(test_valid_entry<string_type>(pfs::json::number_fsm, 0, "987.2345e+234"));

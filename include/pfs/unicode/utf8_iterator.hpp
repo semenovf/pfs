@@ -26,18 +26,18 @@
 namespace pfs {
 namespace unicode {
 
-template <typename OctetIt>
+template <typename CodePointIter>
 class utf8_iterator : public iterator_facade<bidirectional_iterator_tag
-        , utf8_iterator<OctetIt>
+        , utf8_iterator<CodePointIter>
         , char_t
         , char_t *  // unused pointer
         , char_t &> // unused reference
 {
-    OctetIt _p;
+    CodePointIter _p;
 
 public:
     typedef iterator_facade<bidirectional_iterator_tag
-        , utf8_iterator<OctetIt>
+        , utf8_iterator<CodePointIter>
         , char_t
         , char_t *
         , char_t &> base_class;
@@ -48,7 +48,7 @@ private:
     char_t * operator -> () const; // avoid '->' operator
         
 public:
-    utf8_iterator (OctetIt p)
+    utf8_iterator (CodePointIter p)
         : _p(p)
     {}
 
@@ -58,9 +58,9 @@ public:
     }
 
 protected:
-    static void advance_forward (OctetIt & p, difference_type n);
-    static void advance_backward (OctetIt & p, difference_type n);
-    static char_t decode (OctetIt const & p, OctetIt * pnewpos);
+    static void advance_forward (CodePointIter & p, difference_type n);
+    static void advance_backward (CodePointIter & p, difference_type n);
+    static char_t decode (CodePointIter const & p, CodePointIter * pnewpos);
 
 public:
     static void increment (utf8_iterator & it, difference_type)
@@ -79,7 +79,7 @@ public:
     }
     
 public: // static
-    void advance (OctetIt & p, difference_type n)
+    void advance (CodePointIter & p, difference_type n)
     {
         advance_forward(p, n);
     }
@@ -89,7 +89,7 @@ public: // static
      *
      * @return Unicode code point.
      */
-    static char_t decode (OctetIt & p)
+    static char_t decode (CodePointIter & p)
     {
         return decode(p, & p);
     }
