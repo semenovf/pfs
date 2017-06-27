@@ -8,6 +8,8 @@
 #include <pfs/unicode/unicode_iterator.hpp>
 #include <pfs/json/constants.hpp>
 
+#include "exception.hpp"
+
 //#include <pfs/mpl/algo/find.hpp>
 //#include <pfs/stack.hpp>
 //#include <pfs/fsm.hpp>
@@ -128,52 +130,51 @@ struct sax_context
 template <typename ValueT, template <typename> class StackT = traits::stdcxx::stack>
 struct grammar
 {
-    typedef typename ValueT::string_traits         sequence_type;
-    typedef fsm::fsm<sequence_type>                fsm_type;
-    typedef typename fsm_type::transition_type     transition_type;
-    
+    typedef typename ValueT::string_traits         string_type;
     typedef typename unicode::unicode_iterator_traits<
-            typename sequence_type::const_iterator> const_iterator;
-    typedef typename unicode::char_t                value_type;
+            typename string_type::const_iterator>::iterator iterator;
+
+    typedef fsm::fsm<iterator>                     fsm_type;
+    typedef typename fsm_type::transition_type     transition_type;
+    typedef typename fsm_type::char_type           value_type;
 
     struct parse_context
     {
         void *         user_context;
         bool           is_json_begin;
-        sequence_type  member_name;
-        pfs::traits::stack<sequence_type, StackT> objects;
-        pfs::traits::stack<sequence_type, StackT> arrays;
+        string_type    member_name;
+        pfs::traits::stack<string_type, StackT> objects;
+        pfs::traits::stack<string_type, StackT> arrays;
         sax_context<ValueT> & sax;
     };
     
     grammar ();
     
-    static sequence_type unescape_chars (sequence_type & s)
+    static string_type unescape_chars (iterator first, iterator last)
     {
-        sequence_type r;
+        string_type r;
         bool escaped = false;
-        const_iterator it = s.cbegin();
-        const_iterator end = s.cend();
+        iterator it = first;
 
-        while (it != end) {
+        while (it != last) {
             if (!escaped && *it == value_type('\\')) {
                 escaped = true;
             } else {
                 if (escaped) {
                     if (*it == value_type('b'))
-                        r.append(1, value_type('\b'));
+                        iterator::encode(value_type('\b'), r);
                     else if (*it == value_type('f'))
-                        r.append(1, value_type('\f'));
+                        iterator::encode(value_type('\f'), r);
                     else if (*it == value_type('n'))
-                        r.append(1, value_type('\n'));
+                        iterator::encode(value_type('\n'), r);
                     else if (*it == value_type('r'))
-                        r.append(1, value_type('\r'));
+                        iterator::encode(value_type('\r'), r);
                     else if (*it == value_type('t'))
-                        r.append(1, value_type('\t'));
+                        iterator::encode(value_type('\t'), r);
                     else
-                        r.append(1, *it);
+                        iterator::encode(*it, r);
                 } else {
-                    r.append(1, *it);
+                    iterator::encode(*it, r);
                 }
                 escaped = false;
             }
@@ -188,10 +189,7 @@ struct grammar
         // TODO unescape hexdigits in form: \uXXXX
     }     
     
-    static bool false_value (const_iterator begin
-            , const_iterator end
-            , void * context
-            , void * action_args)
+    static bool false_value (iterator begin, iterator end, void * context, void * action_args)
     {
         if (!context) return true;
 
@@ -201,10 +199,7 @@ struct grammar
         return result;
     }
 
-    static bool null_value (const_iterator begin
-            , const_iterator end
-            , void * context
-            , void * action_args)
+    static bool null_value (iterator begin, iterator end, void * context, void * action_args)
     {
         if (!context) return true;
 
@@ -214,10 +209,7 @@ struct grammar
         return result;
     }
 
-    static bool true_value (const_iterator begin
-            , const_iterator end
-            , void * context
-            , void * action_args)
+    static bool true_value (iterator begin, iterator end, void * context, void * action_args)
     {
         if (!context) return true;
 
@@ -227,54 +219,41 @@ struct grammar
         return result;
     }
 
-    static bool number_value (const_iterator begin
-            , const_iterator end
-            , void * context
-            , void * action_args)
+    static bool number_value (iterator begin, iterator end, void * context, void * action_args)
     {
         if (!context) return true;
         
         parse_context * ctx = static_cast<parse_context *>(context);
 
-        sequence_type number(begin, end);
+        string_type number(begin, end);
         bool result = false;
-
-        real_t d = lexical_cast<real_t>(number, & result);
-
-        if (!result) {
-            // TODO Exception
-//            string errstr(string_traits("invalid number value: "));
-//            errstr.append(string(begin, end));
-//            ctx->nx->append(errstr);
-        } else {
-            result = ctx->sax.on_number_value(ctx->user_context, ctx->member_name, d);
+        
+        try {
+            real_t d = lexical_cast<real_t>(number);
+        } catch (bad_lexical_cast ex) {
+            throw json::exception(json::exception::BAD_NUMBER);
         }
 
+        result = ctx->sax.on_number_value(ctx->user_context, ctx->member_name, d);
         ctx->member_name.clear();
         return result;
     }
     
-    bool string_value (const_iterator begin
-                , const_iterator end
-                , void * context
-                , void * action_args)
+    bool string_value (iterator begin, iterator end, void * context, void * action_args)
     {
         if (!context) return true;
         
         parse_context * ctx = static_cast<parse_context *>(context);
-        sequence_type str(begin, end);
-
-        str = str.substr(1, str.length()-2);
-        str = unescape_chars(str);
+        string_type str(begin, end);
+        ++begin;
+        --end;
+        str = unescape_chars(begin, end);
         bool result = ctx->sax.on_string_value(ctx->user_context, ctx->member_name, str);
         ctx->member_name.clear();
         return result;
     }
     
-    static bool success_end_json (const_iterator begin
-            , const_iterator end
-            , void * context
-            , void * action_args)
+    static bool success_end_json (iterator begin, iterator end, void * context, void * action_args)
     {
         if (!context) return true;
 
@@ -282,10 +261,7 @@ struct grammar
         return ctx->sax.on_end_json(ctx->user_context, true);
     }
 
-    static bool failed_end_json (const_iterator begin
-            , const_iterator end
-            , void * context
-            , void * action_args)
+    static bool failed_end_json (iterator begin, iterator end, void * context, void * action_args)
     {
         if (!context) return true;
 
@@ -293,26 +269,19 @@ struct grammar
         return ctx->sax.on_end_json(ctx->user_context, false);
     }
     
-    static bool begin_member (const_iterator begin
-            , const_iterator end
-            , void * context
-            , void * action_args)
+    static bool begin_member (iterator begin, iterator end, void * context, void * action_args)
     {
         if (context) {
             parse_context * ctx = static_cast<parse_context *>(context);
-            sequence_type str(begin, end);
-
-            ctx->member_name = str.substr(1, str.length()-2);
-            ctx->member_name = unescape_chars(ctx->member_name);
+            ++begin;
+            --end;
+            ctx->member_name = unescape_chars(begin, end);
         }
 
         return true;
     }
 
-    static bool end_member (const_iterator begin
-            , const_iterator end
-            , void * context
-            , void * action_args)
+    static bool end_member (iterator begin, iterator end, void * context, void * action_args)
     {
         if (context) {
             parse_context * ctx = static_cast<parse_context *>(context);
@@ -321,10 +290,7 @@ struct grammar
         return true;
     }
 
-    static bool begin_object (const_iterator begin
-            , const_iterator end
-            , void * context
-            , void * action_args)
+    static bool begin_object (iterator begin, iterator end, void * context, void * action_args)
     {
         if (!context) return true;
 
@@ -341,24 +307,18 @@ struct grammar
         return result;
     }
     
-    static bool end_object (const_iterator begin
-            , const_iterator end
-            , void * context
-            , void * action_args)
+    static bool end_object (iterator begin, iterator end, void * context, void * action_args)
     {
         if (!context) return true;
 
         parse_context * ctx = static_cast<parse_context *>(context);
         PFS_ASSERT(ctx->objects.size() > 0);
-        sequence_type member_name(ctx->objects.top());
+        string_type member_name(ctx->objects.top());
         ctx->objects.pop();
         return ctx->sax.on_end_object(ctx->user_context, member_name);
     }
     
-    static bool begin_array (const_iterator begin
-            , const_iterator end
-            , void * context
-            , void * action_args)
+    static bool begin_array (iterator begin, iterator end, void * context, void * action_args)
     {
         if (!context) return true;
 
@@ -373,16 +333,13 @@ struct grammar
         return result;
     }    
     
-    static bool end_array (const_iterator begin
-            , const_iterator end
-            , void * context
-            , void * action_args)
+    static bool end_array (iterator begin, iterator end, void * context, void * action_args)
     {
         if (!context) return true;
 
         parse_context * ctx = static_cast<parse_context *>(context);
         PFS_ASSERT(ctx->arrays.size() > 0);
-        sequence_type member_name(ctx->arrays.top());
+        string_type member_name(ctx->arrays.top());
         ctx->arrays.pop();
         return ctx->sax.on_end_array(ctx->user_context, member_name);
     }
@@ -396,105 +353,132 @@ struct grammar
 template <typename ValueT, template <typename> class StackT>
 grammar<ValueT, StackT>::grammar ()
 {
-//    static string_traits JSON_ALPHA("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz");
-    static sequence_type const HEXDIGIT("0123456789ABCDEFabcdef"); /* DIGIT / "A" / "B" / "C" / "D" / "E" / "F" */
-    static sequence_type const DIGIT("0123456789");
-    static sequence_type const DECPOINT(".");
-    static sequence_type const DIGIT1_9("123456789");
-    static sequence_type const E("eE");
-    static sequence_type const MINUS("-");
-//    static string_traits JSON_PLUS("+");
-    static sequence_type const MINUSPLUS("-+");
-    static sequence_type const ZERO("0");
-    static sequence_type const WS(" \t\n\r");
-    static sequence_type const ESC("\\");
-    static sequence_type const DQUOTE("\"");
+    static string_type const E("eE");
+    static string_type const MINUSPLUS("-+");
+    static string_type const DIGIT("0123456789");
+    static string_type const HEXDIGIT("0123456789ABCDEFabcdef"); /* DIGIT / "A" / "B" / "C" / "D" / "E" / "F" */
+    static string_type const DECPOINT(".");
+    static string_type const DIGIT1_9("123456789");
+    static string_type const MINUS("-");
+    static string_type const ZERO("0");
+    static string_type const WS(" \t\n\r");
+    static string_type const ESC("\\");
+    static string_type const DQUOTE("\"");
+    static string_type const SPEC_CHARS("\"\\/bfnrt");
+    static string_type const LEFT_SQUARE_BRACKET("[");
+    static string_type const RIGHT_SQUARE_BRACKET("]");
+    static string_type const LEFT_CURLY_BRACKET("{");
+    static string_type const RIGHT_CURLY_BRACKET("}");
+    static string_type const COLON(":");
+    static string_type const COMMA(",");
+    static string_type const FALSE_STR("false");
+    static string_type const NULL_STR("null");
+    static string_type const TRUE_STR("true");
 
+#undef FSM_SEQ
+#undef FSM_ONE_OF
+#undef FSM_OPT_ONE_OF
+#undef FSM_RPT_ONE_OF
+#undef FSM_TR
+#undef FSM_OPT_TR
+#undef FSM_RANGE
+#undef FSM_RPT_TR
+#undef FSM_NOTHING
+#define FSM_SEQ(x)            fsm_type::seq(x.begin(), x.end())
+#define FSM_ONE_OF(x)         fsm_type::one_of(x.begin(), x.end())
+#define FSM_OPT_ONE_OF(x)     fsm_type::opt_one_of(x.begin(), x.end())
+#define FSM_RPT_ONE_OF(x,a,b) fsm_type::rpt_one_of(x.begin(), x.end(), a, b)
+#define FSM_TR(x)             fsm_type::tr(x)
+#define FSM_OPT_TR(x)         fsm_type::opt_tr(x)
+#define FSM_RANGE(a,b)        fsm_type::range(a,b)
+#define FSM_RPT_TR(x,a,b)     fsm_type::rpt_tr(x,a,b)
+#define FSM_NOTHING           fsm_type::nothing()
+    
     /*
      * exp = e [ minus / plus ] 1*DIGIT
      */
     static transition_type const exp_tr[] = {
-          { 1, -1, fsm_type::one_of(E)               , fsm_type::normal, 0, 0}
-        , { 2, -1, fsm_type::opt_one_of(MINUSPLUS)   , fsm_type::normal, 0, 0}
-        , {-1, -1, fsm_type::rpt_one_of(DIGIT, 1, -1), fsm_type::accept, 0, 0}
+          { 1, -1, FSM_ONE_OF(E)               , fsm_type::normal, 0, 0}
+        , { 2, -1, FSM_OPT_ONE_OF(MINUSPLUS)   , fsm_type::normal, 0, 0}
+        , {-1, -1, FSM_RPT_ONE_OF(DIGIT, 1, -1), fsm_type::accept, 0, 0}
     };
 
     /*
      * frac = decimal-point 1*DIGIT
      */
     static transition_type const frac_tr[] = {
-          { 1, -1, fsm_type::one_of(DECPOINT)        , fsm_type::normal, 0, 0}
-        , {-1, -1, fsm_type::rpt_one_of(DIGIT, 1, -1), fsm_type::accept, 0, 0}
+          { 1, -1, FSM_ONE_OF(DECPOINT)        , fsm_type::normal, 0, 0}
+        , {-1, -1, FSM_RPT_ONE_OF(DIGIT, 1, -1), fsm_type::accept, 0, 0}
     };
 
     /*
      * decimal_number_fsm = digit1-9 *DIGIT
      */
     static transition_type const decimal_num_tr[] = {
-          { 1, -1, fsm_type::one_of(DIGIT1_9)         , fsm_type::normal, 0, 0}
-        , {-1, -1, fsm_type::rpt_one_of(DIGIT, -1, -1), fsm_type::accept, 0, 0}
+          { 1, -1, FSM_ONE_OF(DIGIT1_9)         , fsm_type::normal, 0, 0}
+        , {-1, -1, FSM_RPT_ONE_OF(DIGIT, -1, -1), fsm_type::accept, 0, 0}
     };
 
     /*
      * int = zero / ( digit1-9 *DIGIT )
      */
     static transition_type const int_tr[] = {
-          {-1, 1, fsm_type::one_of(ZERO)       , fsm_type::accept, 0, 0}
-        , {-1, -1, fsm_type::tr(decimal_num_tr), fsm_type::accept, 0, 0}
+          {-1,  1, FSM_ONE_OF(ZERO)      , fsm_type::accept, 0, 0}
+        , {-1, -1, FSM_TR(decimal_num_tr), fsm_type::accept, 0, 0}
     };
 
     /*
      * number = [ minus ] int [ frac ] [ exp ]
      */
     static transition_type const number_tr[] = {
-          { 1,  1, fsm_type::opt_one_of(MINUS), fsm_type::normal, 0, 0}
-        , { 2, -1, fsm_type::tr(int_tr)       , fsm_type::normal, 0, 0}
-        , { 3, -1, fsm_type::opt_tr(frac_tr)  , fsm_type::normal, 0, 0}
-        , {-1, -1, fsm_type::opt_tr(exp_tr)   , fsm_type::accept, 0, 0}
+          { 1,  1, FSM_OPT_ONE_OF(MINUS), fsm_type::normal, 0, 0}
+        , { 2, -1, FSM_TR(int_tr)       , fsm_type::normal, 0, 0}
+        , { 3, -1, FSM_OPT_TR(frac_tr)  , fsm_type::normal, 0, 0}
+        , {-1, -1, FSM_OPT_TR(exp_tr)   , fsm_type::accept, 0, 0}
     };
 
     /*
      * begin-array     = ws %x5B ws  ; [ left square bracket
      */
     static transition_type const begin_array_tr[] = {
-          { 1,-1, fsm_type::rpt_one_of(WS, 0,-1)      , fsm_type::normal, 0, 0 }
-        , { 2,-1, fsm_type::one_of(sequence_type("[")), fsm_type::normal, 0, 0 }
-        , {-1,-1, fsm_type::rpt_one_of(WS, 0,-1)      , fsm_type::accept, 0, 0 }
+          { 1,-1, FSM_RPT_ONE_OF(WS, 0,-1)       , fsm_type::normal, 0, 0 }
+        , { 2,-1, FSM_ONE_OF(LEFT_SQUARE_BRACKET), fsm_type::normal, 0, 0 }
+        , {-1,-1, FSM_RPT_ONE_OF(WS, 0,-1)       , fsm_type::accept, 0, 0 }
     };
 
     /* end-array       = ws %x5D ws  ; ] right square bracket */
     static transition_type const end_array_tr[] = {
-          { 1,-1, fsm_type::rpt_one_of(WS, 0,-1)      , fsm_type::normal, 0, 0 }
-        , { 2,-1, fsm_type::one_of(sequence_type("]")), fsm_type::normal, 0, 0 }
-        , {-1,-1, fsm_type::rpt_one_of(WS, 0,-1)      , fsm_type::accept, 0, 0 }
+          { 1,-1, FSM_RPT_ONE_OF(WS, 0,-1)        , fsm_type::normal, 0, 0 }
+        , { 2,-1, FSM_ONE_OF(RIGHT_SQUARE_BRACKET), fsm_type::normal, 0, 0 }
+        , {-1,-1, FSM_RPT_ONE_OF(WS, 0,-1)        , fsm_type::accept, 0, 0 }
     };
 
     /* begin-object    = ws %x7B ws  ; { left curly bracket */
     static transition_type const begin_object_tr[] = {
-          { 1,-1, fsm_type::rpt_one_of(WS, 0,-1)      , fsm_type::normal, 0, 0 }
-        , { 2,-1, fsm_type::one_of(sequence_type("{")), fsm_type::normal, 0, 0 }
-        , {-1,-1, fsm_type::rpt_one_of(WS, 0,-1)      , fsm_type::accept, 0, 0 }
+          { 1,-1, FSM_RPT_ONE_OF(WS, 0,-1)      , fsm_type::normal, 0, 0 }
+        , { 2,-1, FSM_ONE_OF(LEFT_CURLY_BRACKET), fsm_type::normal, 0, 0 }
+        , {-1,-1, FSM_RPT_ONE_OF(WS, 0,-1)      , fsm_type::accept, 0, 0 }
     };
 
     /* end-object      = ws %x7D ws  ; } right curly bracket */
     static transition_type const end_object_tr[] = {
-          { 1,-1, fsm_type::rpt_one_of(WS, 0,-1)      , fsm_type::normal, 0, 0 }
-        , { 2,-1, fsm_type::one_of(sequence_type("}")), fsm_type::normal, 0, 0 }
-        , {-1,-1, fsm_type::rpt_one_of(WS, 0,-1)      , fsm_type::accept, 0, 0 }
+          { 1,-1, FSM_RPT_ONE_OF(WS, 0,-1)       , fsm_type::normal, 0, 0 }
+        , { 2,-1, FSM_ONE_OF(RIGHT_CURLY_BRACKET), fsm_type::normal, 0, 0 }
+        , {-1,-1, FSM_RPT_ONE_OF(WS, 0,-1)       , fsm_type::accept, 0, 0 }
     };
 
     /* name-separator  = ws %x3A ws  ; : colon */
     static transition_type const name_separator_tr[] = {
-          { 1,-1, fsm_type::rpt_one_of(WS, 0,-1)      , fsm_type::normal, 0, 0 }
-        , { 2,-1, fsm_type::one_of(sequence_type(":")), fsm_type::normal, 0, 0 }
-        , {-1,-1, fsm_type::rpt_one_of(WS, 0,-1)      , fsm_type::accept, 0, 0 }
+          { 1,-1, FSM_RPT_ONE_OF(WS, 0,-1), fsm_type::normal, 0, 0 }
+        , { 2,-1, FSM_ONE_OF(COLON)       , fsm_type::normal, 0, 0 }
+        , {-1,-1, FSM_RPT_ONE_OF(WS, 0,-1), fsm_type::accept, 0, 0 }
     };
 
     /* value-separator = ws %x2C ws  ; , comma */
     static transition_type const value_separator_tr[] = {
-          { 1,-1, fsm_type::rpt_one_of(WS, 0,-1)      , fsm_type::normal, 0, 0 }
-        , { 2,-1, fsm_type::one_of(sequence_type(",")), fsm_type::normal, 0, 0 }
-        , {-1,-1, fsm_type::rpt_one_of(WS, 0,-1)      , fsm_type::accept, 0, 0 }
+          { 1,-1, FSM_RPT_ONE_OF(WS, 0,-1), fsm_type::normal, 0, 0 }
+        , { 2,-1, FSM_ONE_OF(COMMA)       , fsm_type::normal, 0, 0 }
+        , {-1,-1, FSM_RPT_ONE_OF(WS, 0,-1), fsm_type::accept, 0, 0 }
     };
 
 
@@ -510,15 +494,17 @@ grammar<ValueT, StackT>::grammar ()
     };
     
     static transition_type const unescaped_char_tr[] = {
-          {-1, 1, fsm_type::range(unescaped_char[0], unescaped_char[1]), fsm_type::accept, 0, 0 }
-        , {-1, 2, fsm_type::range(unescaped_char[2], unescaped_char[3]), fsm_type::accept, 0, 0 }
-        , {-1,-1, fsm_type::range(unescaped_char[4], unescaped_char[5]), fsm_type::accept, 0, 0 }
+          {-1, 1, FSM_RANGE(unescaped_char[0], unescaped_char[1]), fsm_type::accept, 0, 0 }
+        , {-1, 2, FSM_RANGE(unescaped_char[2], unescaped_char[3]), fsm_type::accept, 0, 0 }
+        , {-1,-1, FSM_RANGE(unescaped_char[4], unescaped_char[5]), fsm_type::accept, 0, 0 }
     };
 
     /* %x75 4HEXDIG ; uXXXX */
+    static string_type const uU("uU");
+    
     static transition_type const unicode_char_tr[] = {
-          { 1,-1, fsm_type::one_of(sequence_type("uU")), fsm_type::normal, 0, 0 }
-        , {-1,-1, fsm_type::rpt_one_of(HEXDIGIT, 4, 4) , fsm_type::accept, 0, 0 }
+          { 1,-1, FSM_ONE_OF(uU)                 , fsm_type::normal, 0, 0 }
+        , {-1,-1, FSM_RPT_ONE_OF(HEXDIGIT, 4, 4) , fsm_type::accept, 0, 0 }
     };
 
 
@@ -534,14 +520,14 @@ grammar<ValueT, StackT>::grammar ()
         %x75 4HEXDIG    ; uXXXX                U+XXXX
     */
     static transition_type const escaped_char_tr[] = {
-          {-1, 1, fsm_type::one_of(sequence_type("\"\\/bfnrt")), fsm_type::accept, 0, 0 }
-        , {-1,-1, fsm_type::tr(unicode_char_tr)                , fsm_type::accept, 0, 0 }
+          {-1, 1, FSM_ONE_OF(SPEC_CHARS) , fsm_type::accept, 0, 0 }
+        , {-1,-1, FSM_TR(unicode_char_tr), fsm_type::accept, 0, 0 }
     };
 
     /* escape escaped_char */
     static transition_type const escaped_tr[] = {
-          { 1,-1, fsm_type::one_of(ESC)        , fsm_type::normal, 0, 0 }
-        , {-1,-1, fsm_type::tr(escaped_char_tr), fsm_type::accept, 0, 0 }
+          { 1,-1, FSM_ONE_OF(ESC)        , fsm_type::normal, 0, 0 }
+        , {-1,-1, FSM_TR(escaped_char_tr), fsm_type::accept, 0, 0 }
     };
 
     /*
@@ -558,15 +544,15 @@ grammar<ValueT, StackT>::grammar ()
             %x75 4HEXDIG )  ; uXXXX                U+XXXX
     */
     static transition_type const char_tr[] = {
-          {-1, 1, fsm_type::tr(unescaped_char_tr), fsm_type::accept, 0, 0 }
-        , {-1,-1, fsm_type::tr(escaped_tr)       , fsm_type::accept, 0, 0 }
+          {-1, 1, FSM_TR(unescaped_char_tr), fsm_type::accept, 0, 0 }
+        , {-1,-1, FSM_TR(escaped_tr)       , fsm_type::accept, 0, 0 }
     };
 
     /* string = quotation-mark *char quotation-mark */
     static transition_type const string_tr[] = {
-          { 1,-1, fsm_type::one_of(DQUOTE)       , fsm_type::normal, 0, 0 }
-        , { 2,-1, fsm_type::rpt_tr(char_tr, 0,-1), fsm_type::normal, 0, 0 }
-        , {-1,-1, fsm_type::one_of(DQUOTE)       , fsm_type::accept, 0, 0 }
+          { 1,-1, FSM_ONE_OF(DQUOTE)       , fsm_type::normal, 0, 0 }
+        , { 2,-1, FSM_RPT_TR(char_tr, 0,-1), fsm_type::normal, 0, 0 }
+        , {-1,-1, FSM_ONE_OF(DQUOTE)       , fsm_type::accept, 0, 0 }
     };
 
 
@@ -574,69 +560,69 @@ grammar<ValueT, StackT>::grammar ()
 
     /* member = string name-separator value */
     static transition_type const member_tr[] = {
-          { 1,-1, fsm_type::tr(string_tr)        , fsm_type::normal, begin_member, 0 }
-        , { 2,-1, fsm_type::tr(name_separator_tr), fsm_type::normal, 0, 0 }
-        , {-1,-1, fsm_type::tr(p_value_tr)       , fsm_type::accept, end_member, 0 }
+          { 1,-1, FSM_TR(string_tr)        , fsm_type::normal, begin_member, 0 }
+        , { 2,-1, FSM_TR(name_separator_tr), fsm_type::normal, 0, 0 }
+        , {-1,-1, FSM_TR(p_value_tr)       , fsm_type::accept, end_member, 0 }
     };
 
     /* next-member = value-separator member */
     static transition_type const next_member_tr[] = {
-          { 1,-1, fsm_type::tr(value_separator_tr), fsm_type::normal, 0, 0 }
-        , {-1,-1, fsm_type::tr(member_tr)         , fsm_type::accept, 0, 0 }
+          { 1,-1, FSM_TR(value_separator_tr), fsm_type::normal, 0, 0 }
+        , {-1,-1, FSM_TR(member_tr)         , fsm_type::accept, 0, 0 }
     };
 
     /* object-body = member *next-member */
     static transition_type const object_body_tr[] = {
-          { 1,-1, fsm_type::tr(member_tr)               , fsm_type::normal, 0, 0 }
-        , {-1,-1, fsm_type::rpt_tr(next_member_tr, 0,-1), fsm_type::accept, 0, 0 }
+          { 1,-1, FSM_TR(member_tr)               , fsm_type::normal, 0, 0 }
+        , {-1,-1, FSM_RPT_TR(next_member_tr, 0,-1), fsm_type::accept, 0, 0 }
     };
 
     /* object = begin-object [ member *( value-separator member ) ] end-object */
     /* object = begin-object [ object-body ] end-object */
     static transition_type const object_tr[] = {
-          { 1,-1, fsm_type::tr(begin_object_tr)   , fsm_type::normal, begin_object, 0 }
-        , { 2,-1, fsm_type::opt_tr(object_body_tr), fsm_type::normal, 0, 0 }
-        , {-1,-1, fsm_type::tr(end_object_tr)     , fsm_type::accept, end_object, 0 }
+          { 1,-1, FSM_TR(begin_object_tr)   , fsm_type::normal, begin_object, 0 }
+        , { 2,-1, FSM_OPT_TR(object_body_tr), fsm_type::normal, 0, 0 }
+        , {-1,-1, FSM_TR(end_object_tr)     , fsm_type::accept, end_object, 0 }
     };
 
     /* === Arrays === */
     /* next-value = value-separator value  */
     static transition_type const next_value_tr[] = {
-          { 1,-1, fsm_type::tr(value_separator_tr), fsm_type::normal, 0, 0 }
-        , {-1,-1, fsm_type::tr(p_value_tr)        , fsm_type::accept, 0, 0 }
+          { 1,-1, FSM_TR(value_separator_tr), fsm_type::normal, 0, 0 }
+        , {-1,-1, FSM_TR(p_value_tr)        , fsm_type::accept, 0, 0 }
     };
 
     /* array-body = value *next-value */
     static transition_type const array_body_tr[] = {
-          { 1,-1, fsm_type::tr(p_value_tr)             , fsm_type::normal, 0, 0 }
-        , {-1,-1, fsm_type::rpt_tr(next_value_tr, 0,-1), fsm_type::accept, 0, 0 }
+          { 1,-1, FSM_TR(p_value_tr)             , fsm_type::normal, 0, 0 }
+        , {-1,-1, FSM_RPT_TR(next_value_tr, 0,-1), fsm_type::accept, 0, 0 }
     };
 
     /* array = begin-array [ value *( value-separator value ) ] end-array */
     /* array = begin-array [ array-body ] end-array */
     static transition_type const array_tr[] = {
-          { 1,-1, fsm_type::tr(begin_array_tr)   , fsm_type::normal, begin_array, 0 }
-        , { 2,-1, fsm_type::opt_tr(array_body_tr), fsm_type::normal, 0, 0 }
-        , {-1,-1, fsm_type::tr(end_array_tr)     , fsm_type::accept, end_array, 0 }
+          { 1,-1, FSM_TR(begin_array_tr)   , fsm_type::normal, begin_array, 0 }
+        , { 2,-1, FSM_OPT_TR(array_body_tr), fsm_type::normal, 0, 0 }
+        , {-1,-1, FSM_TR(end_array_tr)     , fsm_type::accept, end_array, 0 }
     };
 
     /* value = false / null / true / object / array / number / string */
     static transition_type const value_tr[] = {
-          {-1, 1, fsm_type::seq("false") , fsm_type::accept, false_value, 0 }
-        , {-1, 2, fsm_type::seq("null")  , fsm_type::accept, null_value , 0 }
-        , {-1, 3, fsm_type::seq("true")  , fsm_type::accept, true_value , 0 }
-        , {-1, 4, fsm_type::tr(number_tr), fsm_type::accept, number_value, 0 }
-        , {-1, 5, fsm_type::tr(string_tr), fsm_type::accept, string_value, 0 }
-        , {-1, 6, fsm_type::tr(object_tr), fsm_type::accept, 0, 0 }
-        , {-1,-1, fsm_type::tr(array_tr) , fsm_type::accept, 0, 0 }
+          {-1, 1, FSM_SEQ(FALSE_STR), fsm_type::accept, false_value, 0 }
+        , {-1, 2, FSM_SEQ(NULL_STR) , fsm_type::accept, null_value , 0 }
+        , {-1, 3, FSM_SEQ(TRUE_STR) , fsm_type::accept, true_value , 0 }
+        , {-1, 4, FSM_TR(number_tr) , fsm_type::accept, number_value, 0 }
+        , {-1, 5, FSM_TR(string_tr) , fsm_type::accept, string_value, 0 }
+        , {-1, 6, FSM_TR(object_tr) , fsm_type::accept, 0, 0 }
+        , {-1,-1, FSM_TR(array_tr)  , fsm_type::accept, 0, 0 }
     };
     
     /* JSON-text = object / array */
     static transition_type const json_tr[] = {
-          { 2, 1, fsm_type::tr(object_tr) , fsm_type::normal, 0, 0 }
-        , { 2, 3, fsm_type::tr(array_tr)  , fsm_type::normal, 0, 0 }
-        , {-1,-1, fsm_type::nothing()     , fsm_type::accept, success_end_json, 0 }
-        , {-1,-1, fsm_type::nothing()     , fsm_type::reject, failed_end_json, 0 }
+          { 2, 1, FSM_TR(object_tr), fsm_type::normal, 0, 0 }
+        , { 2, 3, FSM_TR(array_tr) , fsm_type::normal, 0, 0 }
+        , {-1,-1, FSM_NOTHING      , fsm_type::accept, success_end_json, 0 }
+        , {-1,-1, FSM_NOTHING      , fsm_type::reject, failed_end_json, 0 }
     };
     
 #if PFS_TEST

@@ -9,6 +9,7 @@
 #define __PFS_LEXICAL_CAST_HPP__
 
 #include <string>
+#include <pfs/exception.hpp>
 #include <pfs/traits/string.hpp>
 #include <pfs/limits.hpp>
 #include <pfs/types.hpp>
@@ -18,85 +19,19 @@
 
 namespace pfs {
 
-template <typename StringT>
-class bad_lexical_cast
+class bad_lexical_cast : public logic_error
 {
-    StringT _msg;
-    
 public:
-    explicit bad_lexical_cast (StringT const & m)
-        : _msg(m)
+    explicit bad_lexical_cast ()
+        : logic_error("")
     {}
 
-    explicit bad_lexical_cast (char const * s)
-        : _msg(s)
+    explicit bad_lexical_cast (char const * what)
+        : logic_error(what)
     {}
+        
+    virtual ~bad_lexical_cast() {}
 };
-
-//namespace lexical_cast_ns {
-//        
-//template <typename CharIteratorT>
-//class checked_iterator
-//{
-//public:
-//    typedef typename CharIteratorT::value_type value_type;
-//    
-//private:
-//    CharIteratorT & _pos;
-//    CharIteratorT & _endpos;
-//    value_type      _badval;
-//    
-//public:
-//    checked_iterator (CharIteratorT & beginpos
-//            , CharIteratorT & endpos
-//            , value_type badval = 0)
-//        : _pos(beginpos)
-//        , _endpos(endpos)
-//        , _badval(badval)
-//    {}
-//    
-//    checked_iterator & operator ++ () // prefix increment
-//	{
-//        if (_pos != _endpos)
-//            ++_pos;
-//        return this;
-//	}
-//
-//    value_type operator * () const
-//    {
-//        return _pos == _endpos ? _badval : *_pos;
-//    }
-//
-//    bool operator == (CharIteratorT)
-//    
-//    CharIteratorT & pos ()
-//    {
-//        return _pos;
-//    }
-//    
-//    value_type value () const
-//    {
-//        return _pos == _endpos ? _badval : *_pos;
-//    }
-//
-//    value_type next_value ()
-//    {
-//        if (_pos != _endpos) {
-//            CharIteratorT p(_pos);
-//            ++p;
-//            return p == _endpos ? _badval : *p;
-//        }
-//        
-//        return _badval;
-//    }
-//    
-//    bool at_end () const
-//    {
-//        return _pos == _endpos;
-//    }
-//};
-//
-//} // lexical_cast_ns
 
 //
 // Grammar (case radix = 0)
@@ -297,6 +232,7 @@ intmax_t string_to_intmax (CharIteratorT beginpos
     , CharIteratorT * badpos
     , int radix)
 {
+    // FIXME
     return 0;
 }
 
@@ -316,7 +252,7 @@ lexical_cast (StringT const & s, int radix = 10)
             , & overflow);
     
     if (badpos != s.cend())
-        throw bad_lexical_cast<StringT>("lexical_cast(): bad cast from string to numeric");
+        throw bad_lexical_cast("lexical_cast(): bad cast from string to numeric");
     
     return result;
 }
@@ -335,9 +271,36 @@ lexical_cast (StringT const & s, int radix = 10)
             , radix);
     
     if (badpos != s.cend())
-        throw bad_lexical_cast<StringT>("lexical_cast(): bad cast from string to numeric");
+        throw bad_lexical_cast("lexical_cast(): bad cast from string to numeric");
     
     return result;
+}
+
+
+template <typename StringT, typename Float>
+typename pfs::enable_if<pfs::is_floating_point<Float>::value, Float>::type
+lexical_cast (StringT const & s, typename StringT::value_type decimal_point = '.')
+{
+    typedef typename StringT::const_iterator const_iterator;
+    const_iterator badpos;
+    
+    intmax_t result = string_to_real<const_iterator>(s.cbegin()
+            , s.cend()
+            , & badpos
+            , decimal_point);
+    
+    if (badpos != s.cend())
+        throw bad_lexical_cast("lexical_cast(): bad cast from string to numeric");
+    
+#if PFS_HAVE_LONG_DOUBLE
+	if (! (fabsl(result) <= fabsl(numeric_limits<Float>::max())))
+        throw bad_lexical_cast("lexical_cast(): bad cast from string to numeric");
+#else
+	if (! (fabs(r) <= fabs(max_value<Float>())))
+		throw bad_lexical_cast("lexical_cast(): bad cast from string to numeric");
+#endif
+
+    return static_cast<Float>(result);
 }
 
 } // pfs
