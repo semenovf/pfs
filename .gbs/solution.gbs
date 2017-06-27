@@ -63,9 +63,8 @@ project "test-container"
 ----project "test-mpl-algo-between"
 ----    include("test-mpl-algo-between/project.gbs")
 
---project "test-mpl-fsm"
---    include("test-mpl-fsm/project.gbs")
-
+project "test-fsm"
+    include("test-fsm.gbs")
 
 ----project "test-mpl-uri"
 ----    include("test-mpl-uri/project.gbs")

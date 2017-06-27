@@ -1,0 +1,14 @@
+kind          "ConsoleApp"
+language      "C++"
+targetname    "test-fsm"
+files         { "../tests/fsm/*.cpp" }
+
+configuration "debug"
+    objdir       ".cache/tests/fsm/debug"
+    targetdir    "../../.build/tests"
+    links        { "pfs-test-d" }
+
+configuration "release"
+    objdir       ".cache/tests/fsm/release"
+    targetdir    "../../.build/tests"
+    links        { "pfs-test" }

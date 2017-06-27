@@ -13,22 +13,21 @@
 namespace pfs {
 namespace fsm {
 
-template <typename Sequence, typename Atomic>
+template <typename Iterator, typename AtomicInt>
 struct transition;
 
-template <typename Sequence, typename Atomic>
+template <typename Iterator, typename AtomicInt>
 struct context;
 
-template <typename Sequence, typename Atomic = size_t>
+template <typename Iterator, typename AtomicInt = size_t>
 class match
 {
 public:
-    typedef match_traits<Sequence, Atomic>             match_traits_type;
+    typedef match_traits<Iterator, AtomicInt>          match_traits_type;
     typedef typename match_traits_type::atomic_type    atomic_type;
-    typedef typename match_traits_type::sequence_type  sequence_type;
     typedef typename match_traits_type::char_type      char_type;
     typedef typename match_traits_type::size_type      size_type;
-    typedef typename match_traits_type::const_iterator const_iterator;
+    typedef typename match_traits_type::iterator       iterator;
     typedef typename match_traits_type::result_type    result_type;
     typedef typename match_traits_type::func_type      func_type;
 
@@ -42,9 +41,9 @@ protected:
         {}
         
         virtual ~match_base () {}
-        virtual result_type do_match (context<Sequence, Atomic> * ctx
-                , const_iterator begin
-                , const_iterator end) const = 0;
+        virtual result_type do_match (context<Iterator, AtomicInt> * ctx
+                , iterator begin
+                , iterator end) const = 0;
     };
 
     match_base * _p;
@@ -74,9 +73,9 @@ public:
         ++_p.ref;
     }
 
-    result_type operator () (context<Sequence, Atomic> * ctx
-            , const_iterator begin
-            , const_iterator end) const
+    result_type operator () (context<Iterator, AtomicInt> * ctx
+            , iterator begin
+            , iterator end) const
     {
         return _p->do_match(ctx, begin, end);
     }
@@ -90,9 +89,9 @@ public:
         virtual ~match_nothing ()
         {}
 
-        virtual result_type do_match (context<Sequence, Atomic> *
-                , const_iterator begin
-                , const_iterator) const
+        virtual result_type do_match (context<Iterator, AtomicInt> *
+                , iterator begin
+                , iterator) const
         {
             return result_type(true, begin);
         }
@@ -102,9 +101,9 @@ public:
     {
         size_type _len;
 
-        virtual result_type do_match (context<Sequence, Atomic> * ctx
-                , const_iterator begin
-                , const_iterator end) const
+        virtual result_type do_match (context<Iterator, AtomicInt> * ctx
+                , iterator begin
+                , iterator end) const
         {
             return match_traits_type::xmatch_length(begin, end, _len);
         }
@@ -117,35 +116,39 @@ public:
 
     class match_seq : public match_base
     {
-        sequence_type _seq;
+        iterator _seq_begin;
+        iterator _seq_end;
 
-        virtual result_type do_match (context<Sequence, Atomic> * ctx
-                , const_iterator begin
-                , const_iterator end) const
+        virtual result_type do_match (context<Iterator, AtomicInt> * ctx
+                , iterator begin
+                , iterator end) const
         {
-            return match_traits_type::xmatch_seq(begin, end, _seq);
+            return match_traits_type::xmatch_seq(begin, end, _seq_begin, _seq_end);
         }
 
     public:
-        match_seq (sequence_type const & seq)
-                : _seq(seq)
+        match_seq (iterator first, iterator last)
+            : _seq_begin(first)
+            , _seq_end(last)
         {}
     };
 
     class match_one_of : public match_base
     {
-        sequence_type _seq;
+        iterator _seq_begin;
+        iterator _seq_end;
 
-        virtual result_type do_match (context<Sequence, Atomic> * ctx
-                , const_iterator begin
-                , const_iterator end) const
+        virtual result_type do_match (context<Iterator, AtomicInt> * ctx
+                , iterator begin
+                , iterator end) const
         {
-            return match_traits_type::xmatch_one_of(begin, end, _seq);
+            return match_traits_type::xmatch_one_of(begin, end, _seq_begin, _seq_end);
         }
 
     public:
-        match_one_of (sequence_type const & seq)
-                : _seq(seq)
+        match_one_of (iterator first, iterator last)
+            : _seq_begin(first)
+            , _seq_end(last)
         {}
     };
 
@@ -154,9 +157,9 @@ public:
         char_type _min;
         char_type _max;
 
-        virtual result_type do_match (context<Sequence, Atomic> * ctx
-                , const_iterator begin
-                , const_iterator end) const
+        virtual result_type do_match (context<Iterator, AtomicInt> * ctx
+                , iterator begin
+                , iterator end) const
         {
             return match_traits_type::xmatch_range(begin, end, _min, _max);
         }
@@ -173,9 +176,9 @@ public:
         func_type _fn;
         void *    _fn_context;
 
-        virtual result_type do_match (context<Sequence, Atomic> * ctx
-                , const_iterator begin
-                , const_iterator end) const
+        virtual result_type do_match (context<Iterator, AtomicInt> * ctx
+                , iterator begin
+                , iterator end) const
         {
             return _fn(begin, end, ctx->user_context, _fn_context);
         }
@@ -189,30 +192,30 @@ public:
 
     class match_tr : public match_base
     {
-        transition<Sequence, Atomic> const * _tr;
+        transition<Iterator, AtomicInt> const * _tr;
         
-        virtual result_type do_match (context<Sequence, Atomic> * ctx
-                , const_iterator begin
-                , const_iterator end) const;
+        virtual result_type do_match (context<Iterator, AtomicInt> * ctx
+                , iterator begin
+                , iterator end) const;
 
     public:
-        match_tr (transition<Sequence, Atomic> const * tr)
+        match_tr (transition<Iterator, AtomicInt> const * tr)
                 : _tr(tr)
         {}
     };
 
     class match_rpt : public match_base
     {
-        match<Sequence, Atomic> _match;
+        match<Iterator, AtomicInt> _match;
         size_type       _from;
         size_type       _to;
         
-        virtual result_type do_match (context<Sequence, Atomic> * ctx
-                , const_iterator begin
-                , const_iterator end) const;
+        virtual result_type do_match (context<Iterator, AtomicInt> * ctx
+                , iterator begin
+                , iterator end) const;
 
     public:
-        match_rpt (match<Sequence, Atomic> const & m, size_type from, size_type to)
+        match_rpt (match<Iterator, AtomicInt> const & m, size_type from, size_type to)
                 : _match(m)
                 , _from(from)
                 , _to(to)

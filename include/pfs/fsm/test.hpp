@@ -15,57 +15,57 @@
 
 namespace pfs { namespace fsm {
 
-template <typename Sequence, typename Atomic = size_t>
+template <typename Iterator, typename AtomicInt = size_t>
 struct test_valid_entry
 {
     test_valid_entry () {}
     
-    bool operator () (transition<Sequence, Atomic> const * trans_tab
+    bool operator () (transition<Iterator, AtomicInt> const * trans_tab
         , void * user_context
-        , Sequence const & s);
+        , Iterator const & s);
 };
 
-template <typename Sequence, typename Atomic = size_t>
+template <typename Iterator, typename AtomicInt = size_t>
 struct test_invalid_entry
 {
     test_invalid_entry () {}
     
-    bool operator () (transition<Sequence, Atomic> const * trans_tab
+    bool operator () (transition<Iterator, AtomicInt> const * trans_tab
         , void * user_context
-        , Sequence const & s
+        , Iterator const & s
         , ssize_t offset);
 };
 
-template <typename Sequence, typename Atomic>
-bool test_valid_entry<Sequence, Atomic>::operator () (
-          transition<Sequence, Atomic> const * trans_tab
+template <typename Iterator, typename AtomicInt>
+bool test_valid_entry<Iterator, AtomicInt>::operator () (
+          transition<Iterator, AtomicInt> const * trans_tab
         , void * user_context
-        , Sequence const & s)
+        , Iterator const & s)
 {
-	fsm<Sequence, Atomic> f;
+	fsm<Iterator, AtomicInt> f;
 	f.set_transition_table(trans_tab);
 	f.set_user_context(user_context);
 
-	typename fsm<Sequence, Atomic>::result_type result = f.exec(s.cbegin(), s.cend());
+	typename fsm<Iterator, AtomicInt>::result_type result = f.exec(s.cbegin(), s.cend());
 
 	return result.first && result.second == s.cend();
 }
 
-template <typename Sequence, typename Atomic>
-bool test_invalid_entry<Sequence, Atomic>::operator () (
-          transition<Sequence, Atomic> const * trans_tab
+template <typename Iterator, typename AtomicInt>
+bool test_invalid_entry<Iterator, AtomicInt>::operator () (
+          transition<Iterator, AtomicInt> const * trans_tab
         , void * user_context
-        , Sequence const & s
+        , Iterator const & s
         , ssize_t offset)
 {
-	fsm<Sequence, Atomic> f;
+	fsm<Iterator, AtomicInt> f;
 	f.set_transition_table(trans_tab);
 	f.set_user_context(user_context);
 
-	typename fsm<Sequence, Atomic>::result_type result = f.exec(s.cbegin(), s.cend());
+	typename fsm<Iterator, AtomicInt>::result_type result = f.exec(s.cbegin(), s.cend());
 
 	if (offset >= 0) {
-		typename Sequence::const_iterator it(s.cbegin());
+		typename Iterator::const_iterator it(s.cbegin());
 		std::advance(it, offset);
 		return result.first && result.second == it;
 	}

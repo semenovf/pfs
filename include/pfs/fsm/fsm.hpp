@@ -16,27 +16,27 @@
 
 namespace pfs { namespace fsm {
 
-template <typename Sequence, typename Atomic = size_t>
+template <typename Iterator, typename AtomicInt = size_t>
 struct transition
 {
-    typedef match<Sequence, Atomic>             match_type;
-    typedef typename match_type::const_iterator const_iterator;
+    typedef match<Iterator, AtomicInt>    match_type;
+    typedef typename match_type::iterator iterator;
     
     int        state_next;
     int        state_fail;
     match_type m;
     int        status;
-    bool       (* action)(const_iterator begin
-                    , const_iterator end
+    bool       (* action)(iterator begin
+                    , iterator end
                     , void * context
                     , void * action_args);
     void *     action_args;
 };
 
-template <typename Sequence, typename Atomic = size_t>
+template <typename Iterator, typename AtomicInt = size_t>
 struct context
 {
-    typedef transition<Sequence, Atomic> transition_type;
+    typedef transition<Iterator, AtomicInt> transition_type;
     
     transition_type const * trans_tab;
     void * user_context;
@@ -47,19 +47,18 @@ struct context
     {}
 };
 
-template <typename Sequence, typename Atomic = size_t>
+template <typename Iterator, typename AtomicInt = size_t>
 class fsm
 {
 public:
-    typedef match<Sequence, Atomic>             match_type;
-    typedef typename match_type::sequence_type  sequence_type;
-    typedef typename match_type::char_type      char_type;
-    typedef typename match_type::size_type      size_type;
-    typedef typename match_type::const_iterator const_iterator;
-    typedef typename match_type::result_type    result_type;
-    typedef typename match_type::func_type      func_type;
-    typedef transition<Sequence, Atomic>        transition_type;
-    typedef context<Sequence, Atomic>           context_type;
+    typedef match<Iterator, AtomicInt>       match_type;
+    typedef typename match_type::iterator    iterator;
+    typedef typename match_type::char_type   char_type;
+    typedef typename match_type::size_type   size_type;
+    typedef typename match_type::result_type result_type;
+    typedef typename match_type::func_type   func_type;
+    typedef transition<Iterator, AtomicInt>  transition_type;
+    typedef context<Iterator, AtomicInt>     context_type;
     
     enum status_enum {
           normal = 0
@@ -92,9 +91,9 @@ public:
 		_pcontext->user_context = user_context;
 	}
 
-    result_type exec (int state_cur, const_iterator begin, const_iterator end);
+    result_type exec (int state_cur, iterator begin, iterator end);
 
-	result_type exec (const_iterator begin, const_iterator end)
+	result_type exec (iterator begin, iterator end)
 	{
 		return exec(0, begin, end);
 	}
@@ -110,16 +109,16 @@ public:
                 , size_type>(n);
     }
 
-    static match_type seq (sequence_type const & seq)
+    static match_type seq (iterator first, iterator last)
     {
         return match_type::template make<typename match_type::match_seq
-                , sequence_type const &>(seq);
+                , iterator, iterator>(first, last);
     }
     
-    static match_type one_of (sequence_type const & seq)
+    static match_type one_of (iterator first, iterator last)
     {
         return match_type::template make<typename match_type::match_one_of
-                , sequence_type const &>(seq);
+                , iterator, iterator>(first, last);
     }
 
     static match_type range (char_type min, char_type max)
@@ -140,30 +139,30 @@ public:
                 , transition_type const *>(t);
     }
 
-    static match_type rpt_one_of (sequence_type const & seq
+    static match_type rpt_one_of (iterator first, iterator last
             , size_type from
             , size_type to)
 	{
         return match_type::template make_rpt<typename match_type::match_one_of
-                , sequence_type const &>(seq, from, to);
+                , iterator, iterator>(first, last, from, to);
 	};
 
-  	static match_type opt_one_of (sequence_type const & seq)
+  	static match_type opt_one_of (iterator first, iterator last)
 	{
-        return rpt_one_of(seq, 0, 1);
+        return rpt_one_of(first, last, 0, 1);
 	};
     
-    static match_type rpt_seq (sequence_type const & seq
+    static match_type rpt_seq (iterator first, iterator last
             , size_type from
             , size_type to)
 	{
         return match_type::template make_rpt<typename match_type::match_seq
-                , sequence_type const &>(seq, from, to);
+                , iterator, iterator>(first, last, from, to);
 	};
 
-  	static match_type opt_seq (sequence_type const & seq)
+  	static match_type opt_seq (iterator first, iterator last)
 	{
-        return rpt_seq(seq, 0, 1);
+        return rpt_seq(first, last, 0, 1);
 	};
 
  	static match_type rpt_range (
@@ -215,14 +214,14 @@ public:
 
 };
 
-template <typename Sequence, typename Atomic>
-typename fsm<Sequence, Atomic>::result_type
-fsm<Sequence, Atomic>::exec (int state_cur
-        , const_iterator begin
-        , const_iterator end)
+template <typename Iterator, typename AtomicInt>
+typename fsm<Iterator, AtomicInt>::result_type
+fsm<Iterator, AtomicInt>::exec (int state_cur
+        , iterator begin
+        , iterator end)
 {
-	const_iterator ptr = begin;
-	const_iterator ptr_accepted = begin;
+	iterator ptr = begin;
+	iterator ptr_accepted = begin;
 	
 	bool accepted = false;
 
@@ -299,25 +298,25 @@ fsm<Sequence, Atomic>::exec (int state_cur
 			: result_type(false, end);
 }
 
-template <typename Sequence, typename Atomic>
-inline typename match<Sequence, Atomic>::result_type
-match<Sequence, Atomic>::match_tr::do_match (context<Sequence, Atomic> * ctx
-        , const_iterator begin
-        , const_iterator end) const
+template <typename Iterator, typename AtomicInt>
+inline typename match<Iterator, AtomicInt>::result_type
+match<Iterator, AtomicInt>::match_tr::do_match (context<Iterator, AtomicInt> * ctx
+        , iterator begin
+        , iterator end) const
 {
-    fsm<Sequence, Atomic> f(_tr, ctx->user_context);
-    return f.template exec(fsm<Sequence, Atomic>::normal, begin, end);
+    fsm<Iterator, AtomicInt> f(_tr, ctx->user_context);
+    return f.template exec(fsm<Iterator, AtomicInt>::normal, begin, end);
 }
 
-template <typename Sequence, typename Atomic>
-typename match<Sequence, Atomic>::result_type
-match<Sequence, Atomic>::match_rpt::do_match (context<Sequence, Atomic> * ctx
-        , const_iterator begin
-        , const_iterator end) const
+template <typename Iterator, typename AtomicInt>
+typename match<Iterator, AtomicInt>::result_type
+match<Iterator, AtomicInt>::match_rpt::do_match (context<Iterator, AtomicInt> * ctx
+        , iterator begin
+        , iterator end) const
 {
     int from = 0;
-	int to = pfs::numeric_limits<size_type>::max();
-	const_iterator ptr(begin);
+	int to = pfs::numeric_limits<int>::max();
+	iterator ptr(begin);
 
 	if (_from >= 0)
 		from = _from;
