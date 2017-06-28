@@ -70,7 +70,7 @@ namespace pfs {
  * taken as 10 (decimal) unless the next character is '0', in which case 
  * it is taken as 8 (octal).
  */
-template <typename CharIteratorT>
+template <typename UintmaxT, typename CharIteratorT>
 uintmax_t __string_to_uintmax (CharIteratorT beginpos
     , CharIteratorT endpos
     , CharIteratorT * badpos
@@ -81,7 +81,7 @@ uintmax_t __string_to_uintmax (CharIteratorT beginpos
     typedef typename iterator_traits<CharIteratorT>::value_type value_type;
     
     CharIteratorT pos = beginpos;
-    uintmax_t result = 0;
+    UintmaxT result = 0;
     bool ok   = true;
     bool over = false;
     int sign  = 1;
@@ -158,8 +158,8 @@ uintmax_t __string_to_uintmax (CharIteratorT beginpos
             }
         }
 
-        uintmax_t cutoff_value = numeric_limits<uintmax_t>::max() / static_cast<uintmax_t>(radix);
-        uintmax_t cutoff_limit = numeric_limits<uintmax_t>::max() % static_cast<uintmax_t>(radix);
+        UintmaxT cutoff_value = numeric_limits<UintmaxT>::max() / static_cast<UintmaxT>(radix);
+        UintmaxT cutoff_limit = numeric_limits<UintmaxT>::max() % static_cast<UintmaxT>(radix);
 
         for (; ok && pos != endpos; ++pos) {
 
@@ -175,9 +175,9 @@ uintmax_t __string_to_uintmax (CharIteratorT beginpos
             if (pfs::is_digit(c))
                 digit = c - value_type('0');
             else if (pfs::is_lower(c))
-                digit = c - value_type('a') - 10;
+                digit = c - value_type('a') + 10;
             else if (pfs::is_upper(c))
-                digit = c - value_type('A') - 10;
+                digit = c - value_type('A') + 10;
             else
                 break;
 
@@ -189,7 +189,7 @@ uintmax_t __string_to_uintmax (CharIteratorT beginpos
 
             if (result < cutoff_value
                     || (result == cutoff_value && digit <= cutoff_limit)) {
-                result *= static_cast<uintmax_t>(radix);
+                result *= static_cast<UintmaxT>(radix);
                 result += digit;
             } else {
                 ok = false;
@@ -216,8 +216,8 @@ uintmax_t __string_to_uintmax (CharIteratorT beginpos
     return result;
 }
 
-template <typename CharIteratorT>
-uintmax_t string_to_uintmax (CharIteratorT beginpos
+template <typename UintmaxT, typename CharIteratorT>
+UintmaxT string_to_uintmax (CharIteratorT beginpos
     , CharIteratorT endpos
     , CharIteratorT * badpos
     , int radix
@@ -226,7 +226,7 @@ uintmax_t string_to_uintmax (CharIteratorT beginpos
     int sign = 0;
     int overflow = 0;
     
-    uintmax_t result = __string_to_uintmax(beginpos
+    UintmaxT result = __string_to_uintmax<UintmaxT, CharIteratorT>(beginpos
             , endpos
             , badpos
             , radix
@@ -241,6 +241,8 @@ uintmax_t string_to_uintmax (CharIteratorT beginpos
     
     return result;    
 }
+
+#if __FIXME__
 
 template <typename CharIteratorT>
 intmax_t string_to_intmax (CharIteratorT beginpos
@@ -346,6 +348,8 @@ intmax_t string_to_intmax (CharIteratorT beginpos
 //
 //    return result;
 }
+
+#endif
 
 } // pfs
 

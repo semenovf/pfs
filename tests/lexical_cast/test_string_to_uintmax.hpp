@@ -8,73 +8,141 @@
 #ifndef TEST_STRING_TO_UINTMAX_HPP
 #define TEST_STRING_TO_UINTMAX_HPP
 
+#include <iostream>
+#include <cstdlib> // strtoul, strtoull
+#include <cerrno>
+
+template <typename UintmaxT>
+inline UintmaxT std_string_to_uintmax (char const * nptr
+        , char ** endptr
+        , int base);
+
+template <>
+inline uint32_t std_string_to_uintmax<uint32_t> (char const * nptr
+        , char ** endptr
+        , int base)
+{
+    errno = 0;
+    return strtoul(nptr, endptr, base);
+}
+
+#if PFS_HAVE_INT64
+
+template <>
+inline uint64_t std_string_to_uintmax<uint64_t> (char const * nptr
+        , char ** endptr
+        , int base)
+{
+    errno = 0;
+    return strtoull(nptr, endptr, base);
+}
+
+#endif
+
+template <typename UintmaxT, typename StringT>
+static bool __test_string_to_uintmax (char const * s, int radix
+    , UintmaxT result_sample
+    , int overflow_sample
+    , ptrdiff_t badpos_increment)
+{
+    typedef typename StringT::const_iterator char_iterator_type;
+    
+    bool r = true;
+    char_iterator_type badpos;
+    int overflow = 0;
+    StringT str(s);
+    
+    UintmaxT result = pfs::string_to_uintmax<UintmaxT, char_iterator_type>(str.cbegin(), str.cend()
+        , & badpos
+        , radix
+        , & overflow);
+    
+    UintmaxT std_result = std_string_to_uintmax<UintmaxT>(s, 0, radix);
+    
+    if (result != std_result) {
+        // Ignore result with overflow
+        if (!(errno == ERANGE && (std_result == 0 || std_result == pfs::numeric_limits<UintmaxT>::max()))) {
+            std::cout << "***ERROR: result = " << result << " does not math result of strtoul[l](): " << std_result << std::endl;
+            r = false;
+        }
+    }
+    
+    if (result != result_sample) {
+        std::cout << "***ERROR: result = " << result << ", but expected " << result_sample << std::endl;
+        r = false;
+    }
+    
+    if (overflow != overflow_sample) {
+        std::cout << "***ERROR: overflow = " << overflow << ", but expected " << overflow_sample << std::endl;
+        r = false;
+    }
+    
+    if (badpos + badpos_increment != str.cend()) {
+        std::cout << "***ERROR: badpos does not match" << std::endl;
+        r = false;
+    }
+    
+    return r;
+}
+
+
 template <typename StringT>
 void test_string_to_uintmax ()
 {
-    ADD_TESTS(9);
+    ADD_TESTS(16);
     
-    StringT zero_str("0");
-    StringT max_uintmax_str;
-    StringT max_uintmax_overflow_1_str;
-    
-    uintmax_t max_uintmax = 0;
-    uintmax_t max_uintmax_cutoff = 0;
-    uintmax_t result = 0;
-    typename StringT::const_iterator badpos;
-    int overflow = 0;
-    int sign = 0;
-    
-    if (sizeof(uintmax_t) == 8) {
-        max_uintmax = 18446744073709551615ULL;
-        max_uintmax_cutoff = 1844674407370955161ULL;
-        max_uintmax_str = StringT("18446744073709551615");
-        max_uintmax_overflow_1_str = StringT("18446744073709551616");
-    } else if (sizeof(uintmax_t) == 4) {
-        max_uintmax = 4294967295UL;
-        max_uintmax_cutoff = 429496729UL;
-        max_uintmax_str = StringT("4294967295");
-        max_uintmax_overflow_1_str = StringT("4294967296");
-    } else if (sizeof(uintmax_t) == 2) {
-        max_uintmax = 65535;
-        max_uintmax_cutoff = 6553;
-        max_uintmax_str = StringT("65535");
-        max_uintmax_overflow_1_str = StringT("65536");
-    } else {
-        TEST_FAIL2(false, "sizeof(uintmax_t) ?");
-    }
+    TEST_OK((__test_string_to_uintmax<uint32_t, StringT>("0", 10, 0, 0, 0)));
 
-    result = pfs::string_to_uintmax(zero_str.cbegin()
-        , zero_str.cend()
-        , & badpos
-        , 10
-        , & sign
-        , & overflow);
-    
-    TEST_OK(result == 0);
-    TEST_OK(overflow == 0);
-    TEST_OK(badpos == zero_str.cend());
-    
-    result = pfs::string_to_uintmax(max_uintmax_str.cbegin()
-        , max_uintmax_str.cend()
-        , & badpos
-        , 10
-        , & sign
-        , & overflow);
-    
-    TEST_OK(result == max_uintmax);
-    TEST_OK(overflow == 0);
-    TEST_OK(badpos == max_uintmax_str.cend());
+    TEST_OK((__test_string_to_uintmax<uint32_t, StringT>( "4294967295", 10, 4294967295UL, 0, 0)));
+    TEST_OK((__test_string_to_uintmax<uint32_t, StringT>("-4294967295", 10, 1, 0, 0)));
+    TEST_OK((__test_string_to_uintmax<uint32_t, StringT>("-4294967294", 10, 2, 0, 0)));
+    TEST_OK((__test_string_to_uintmax<uint32_t, StringT>("-429496729" , 10, 3865470567UL, 0, 0)));
+    TEST_OK((__test_string_to_uintmax<uint32_t, StringT>("-42949672"  , 10, 4252017624UL, 0, 0)));
 
-    result = pfs::string_to_uintmax(max_uintmax_overflow_1_str.cbegin()
-        , max_uintmax_overflow_1_str.cend()
-        , & badpos
-        , 10
-        , & sign
-        , & overflow);
+    // strtoul() returns 0 and do not set errno into ERANGE, see analogous test for uint64_t below (marked by [!])
+    TEST_OK((__test_string_to_uintmax<uint32_t, StringT>( "4294967296" , 10, 429496729UL, 1, 1)));
     
-    TEST_OK(result == max_uintmax_cutoff);
-    TEST_OK(overflow > 0);
-    TEST_OK(badpos + 1 == max_uintmax_overflow_1_str.cend());
+    // strtoul() returns 1 and do not set errno into ERANGE, see analogous test for uint64_t below (marked by [!])
+    TEST_OK((__test_string_to_uintmax<uint32_t, StringT>( "4294967297" , 10, 429496729UL, 1, 1)));
+    
+    // strtoul() returns 0 and do not set errno into ERANGE, see analogous test for uint64_t below (marked by [!])
+    TEST_OK((__test_string_to_uintmax<uint32_t, StringT>("-4294967296" , 10, 3865470567UL, -1, 1)));
+    
+    // strtoul() returns 4294967295 and do not set errno into ERANGE, see analogous test for uint64_t below (marked by [!])  
+    TEST_OK((__test_string_to_uintmax<uint32_t, StringT>("-4294967297" , 10, 3865470567UL, -1, 1)));
+    
+    TEST_OK((__test_string_to_uintmax<uint32_t, StringT>( "FFFFFFFF", 16, 4294967295UL, 0, 0)));
+    TEST_OK((__test_string_to_uintmax<uint32_t, StringT>("-FFFFFFFF", 16, 1, 0, 0)));
+    TEST_OK((__test_string_to_uintmax<uint32_t, StringT>("-FFFFFFFE", 16, 2, 0, 0)));
+    TEST_OK((__test_string_to_uintmax<uint32_t, StringT>("-FFFFFFF" , 16, 4026531841UL, 0, 0)));
+    TEST_OK((__test_string_to_uintmax<uint32_t, StringT>("-FFFFFF"  , 16, 4278190081UL, 0, 0)));
+    
+    // strtoul() returns 0 and do not set errno into ERANGE, see analogous test for uint64_t below (marked by [!!])  
+    TEST_OK((__test_string_to_uintmax<uint32_t, StringT>( "100000000", 16, 268435456UL, 1, 1)));
+    
+#if PFS_HAVE_INT64
+    ADD_TESTS(15);
+
+    TEST_OK((__test_string_to_uintmax<uint64_t, StringT>( "18446744073709551615", 10, 18446744073709551615ULL, 0, 0)));
+    TEST_OK((__test_string_to_uintmax<uint64_t, StringT>("-18446744073709551615", 10, 1, 0, 0)));
+    TEST_OK((__test_string_to_uintmax<uint64_t, StringT>("-18446744073709551614", 10, 2, 0, 0)));
+    TEST_OK((__test_string_to_uintmax<uint64_t, StringT>("-1844674407370955161" , 10, 16602069666338596455ULL, 0, 0)));
+    TEST_OK((__test_string_to_uintmax<uint64_t, StringT>("-184467440737095516"  , 10, 18262276632972456100ULL, 0, 0)));
+
+    TEST_OK((__test_string_to_uintmax<uint64_t, StringT>( "18446744073709551616", 10, 1844674407370955161ULL, 1, 1)));   // [!]
+    TEST_OK((__test_string_to_uintmax<uint64_t, StringT>( "18446744073709551617", 10, 1844674407370955161ULL, 1, 1)));   // [!]
+    TEST_OK((__test_string_to_uintmax<uint64_t, StringT>("-18446744073709551616", 10, 16602069666338596455ULL, -1, 1))); // [!]
+    TEST_OK((__test_string_to_uintmax<uint64_t, StringT>("-18446744073709551617", 10, 16602069666338596455ULL, -1, 1))); // [!]
+    
+    TEST_OK((__test_string_to_uintmax<uint64_t, StringT>( "FFFFFFFFFFFFFFFF", 16, 18446744073709551615ULL, 0, 0)));
+    TEST_OK((__test_string_to_uintmax<uint64_t, StringT>("-FFFFFFFFFFFFFFFF", 16, 1, 0, 0)));
+    TEST_OK((__test_string_to_uintmax<uint64_t, StringT>("-FFFFFFFFFFFFFFFE", 16, 2, 0, 0)));
+    TEST_OK((__test_string_to_uintmax<uint64_t, StringT>("-FFFFFFFFFFFFFFF" , 16, 17293822569102704641ULL, 0, 0)));
+    TEST_OK((__test_string_to_uintmax<uint64_t, StringT>("-FFFFFFFFFFFFFF"  , 16, 18374686479671623681ULL, 0, 0)));
+    
+    TEST_OK((__test_string_to_uintmax<uint64_t, StringT>( "10000000000000000", 16, 1152921504606846976ULL, 1, 1))); // [!!]
+
+#endif
 }
 
 #endif /* TEST_STRING_TO_UINTMAX_HPP */

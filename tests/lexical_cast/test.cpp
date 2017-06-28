@@ -15,7 +15,7 @@
 #endif
 
 #include "test_string_to_uintmax.hpp"
-#include "test_string_to_intmax.hpp"
+//#include "test_string_to_intmax.hpp"
 
 int main(int argc, char *argv[])
 {
@@ -27,8 +27,8 @@ int main(int argc, char *argv[])
     {
         typedef pfs::traits::string<pfs::traits::stdcxx::string> string_type;
 
-//        test_string_to_uintmax<string_type>();
-        test_string_to_intmax<string_type>();
+        test_string_to_uintmax<string_type>();
+//        test_string_to_intmax<string_type>();
     }
             
 #ifdef QT_CORE_LIB
