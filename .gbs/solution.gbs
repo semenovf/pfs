@@ -69,8 +69,8 @@ project "test-fsm"
 ----project "test-mpl-uri"
 ----    include("test-mpl-uri/project.gbs")
 
-----project "test-mpl-lexical_cast"
-----    include("test-mpl-lexical_cast/project.gbs")
+project "test-lexical_cast"
+    include("test-lexical_cast.gbs")
 
 --project "test-mpl-utf8"
 --    include("test-mpl-utf8/project.gbs")
@@ -102,5 +102,5 @@ project "test-active-queue"
 project "test-filesystem"
     include("test-filesystem.gbs")
 
-project "test-json"
-    include("test-json.gbs")
+--project "test-json"
+--    include("test-json.gbs")

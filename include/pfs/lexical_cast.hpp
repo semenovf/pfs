@@ -9,253 +9,47 @@
 #define __PFS_LEXICAL_CAST_HPP__
 
 #include <string>
-#include <pfs/exception.hpp>
-#include <pfs/traits/string.hpp>
-#include <pfs/limits.hpp>
-#include <pfs/types.hpp>
+#include <pfs/type_traits.hpp>
+#include <pfs/unicode/unicode_iterator.hpp>
+#include <pfs/lexical_cast/bad_lexical_cast.hpp>
+#include <pfs/lexical_cast/strtoint.hpp>
+//#include <pfs/lexical_cast/strtoreal.hpp>
+
+
+//#include <pfs/traits/string.hpp>
+//#include <pfs/limits.hpp>
+//#include <pfs/types.hpp>
 
 #include <pfs/compiler.hpp>
 #include PFS_CC_HEADER(ctype)
 
 namespace pfs {
 
-class bad_lexical_cast : public logic_error
-{
-public:
-    explicit bad_lexical_cast ()
-        : logic_error("")
-    {}
-
-    explicit bad_lexical_cast (char const * what)
-        : logic_error(what)
-    {}
-        
-    virtual ~bad_lexical_cast() {}
-};
-
-//
-// Grammar (case radix = 0)
-// 
-// result =   *ws ["+"] NON_ZERO_DIGIT *DIGIT
-//          / *ws ["+"] "0" "x" 1*HEXDIGIT
-//          / *ws ["+"] "0" 1*OCTALDIGIT
-// NON_ZERO_DIGIT = "1" / "2" / ... / "9"
-// DIGIT          = "0" / 1" / "2" / ... / "9"
-// HEXDIGIT       = "0" / 1" / ... / "9" / "A" / ... / "F" / "a" / ... / "f"
-// OCTALDIGIT     = "0" / 1" / ... / "7"
-// ws             = <whitespace>
-//
-// Grammar (case radix > 1)
-//
-// result =   *ws ["+"] NON_ZERO_DIGIT *DIGIT
-//
-
-/**
- * @brief Convert a string to an unsigned integer.
- * 
- * @param beginpos Begin position of the string to parse.
- * @param endpos End position of the string to parse.
- * @param badpos If @a badpos is not null pointer, @c string_to_uintmax()
- *               stores the address of the first invalid character 
- *               in @c *badpos.
- * @param radix Radix (must be between 2 and 36 inclusive, or be the special
-                value 0)
- * @param overflow If @a overflow is not null pointer, @c string_to_uintmax()
- *               stores the @c -1 if string started with @c '-' sign,
- *               @c 0 if no errors occurred and @c 1 if result is overflow.
- * @return @arg unsigned integer number in range [0, numeric_limits<uintmax_t>::max()]
- *         and @a *overflow set to 0 on success;
- *         @arg unsigned integer number in range [0, numeric_limits<uintmax_t>::max()]
- *         and @a *overflow set to -1 if character sequence begin with @c '-' sign;
- *         @arg @c numeric_limits<uintmax_t>::max() and @a *overflow set to 1 if 
- *         character sequence represented number greater than 
- *         @c numeric_limits<uintmax_t>::max();
- * 
- * @throws pfs::invalid_argument if @a radix is not equal to 0 or 
- *         is out of bounds of range [2,36].
- * 
- * @note The string may begin with an arbitrary amount of white space
- * (as determined by pfs::is_space()) followed by a single 
- * optional @c '+' or @c '-' sign.
- * 
- * @note If base is zero or 16, the string may then include a "0x" prefix, 
- * and the number will be read in base 16; otherwise, a zero base is 
- * taken as 10 (decimal) unless the next character is '0', in which case 
- * it is taken as 8 (octal).
- */
-template <typename CharIteratorT>
-uintmax_t string_to_uintmax (CharIteratorT beginpos
-    , CharIteratorT endpos
-    , CharIteratorT * badpos
-    , int radix
-    , int * overflow)
-{
-    typedef typename CharIteratorT::value_type value_type;
-    
-    CharIteratorT pos = beginpos;
-    uintmax_t result = 0;
-    bool ok   = true;
-    bool over = false;
-    int sign  = 1;
-    
-    if (overflow)
-        *overflow = 0;
-    
-    if (radix != 0 && (radix < 2 || radix > 36))
-        throw pfs::invalid_argument("string_to_uintmax(): bad radix");
-
-    // Skip white spaces
-    while (pos != endpos && pfs::is_space(*pos))
-        ++pos;
-
-    do {
-        value_type c;
-                
-        // Finish
-        if (pos == endpos) {
-            ok = false;
-            break;
-        }
-
-        c = *pos;
-
-        if (c == '+' || c == '-') {
-            ++pos;
-            
-            // Finish
-            if (pos == endpos) {
-                ok = false;
-                break;
-            }
-            
-            if (c == '-')
-                sign = -1;
-        }
-
-        // Determine radix
-        //
-        if (radix == 0 || radix == 16) {
-            CharIteratorT nextpos = pos;
-            ++nextpos;
-
-            if (nextpos != endpos) {
-                if (*pos == '0' && (*nextpos == 'x' || *nextpos == 'X')) {
-                    radix = 16;
-                    ++pos;
-                    ++pos;
-
-                    // Finish
-                    if (pos == endpos) {
-                        ok = false;
-                        break;
-                    }
-                }
-            }
-        }
-
-        if (radix == 0) {
-            if (*pos == '0') {
-                radix = 8;
-                ++pos;
-                
-                // Finish
-                if (pos == endpos) {
-                    ok = false;
-                    break;
-                }
-            } else {
-                radix = 10;
-            }
-        }
-
-        uintmax_t cutoff_value = numeric_limits<uintmax_t>::max() / static_cast<uintmax_t>(radix);
-        uintmax_t cutoff_limit = numeric_limits<uintmax_t>::max() % static_cast<uintmax_t>(radix);
-
-        for (; ok && pos != endpos; ++pos) {
-
-            value_type c = *pos;
-            int digit = 0;
-            
-            // Finish
-            if (!pfs::is_print(c)) {
-                ok = false;
-                break;
-            }
-
-            if (pfs::is_digit(c))
-                digit = c - '0';
-            else if (pfs::is_lower(c))
-                digit = c - 'a' - 10;
-            else if (pfs::is_upper(c))
-                digit = c - 'A' - 10;
-            else
-                break;
-
-            // Finish
-            if (digit >= radix) {
-                ok = false;
-                break;
-            }
-
-            if (result < cutoff_value
-                    || (result == cutoff_value && digit <= cutoff_limit)) {
-                result *= static_cast<uintmax_t>(radix);
-                result += digit;
-            } else {
-                ok = false;
-                over = true;
-                break;
-            }
-        }
-    } while (ok);
-    
-    if (badpos != 0)
-        *badpos = pos;
-
-    if (sign < 0)
-        result *= sign;
-
-    if (over && overflow) {
-        if (sign < 0) {
-            *overflow = -1;
-        } else {
-            *overflow = 1;
-        }
-    }
-    
-    return result;
-}
-
-template <typename CharIteratorT>
-intmax_t string_to_intmax (CharIteratorT beginpos
-    , CharIteratorT endpos
-    , CharIteratorT * badpos
-    , int radix)
-{
-    // FIXME
-    return 0;
-}
-
 template <typename StringT, typename Integer>
 typename pfs::enable_if<pfs::is_integral<Integer>::value 
         && pfs::is_unsigned<Integer>::value, Integer>::type
 lexical_cast (StringT const & s, int radix = 10)
 {
-    typedef typename StringT::const_iterator const_iterator;
-    const_iterator badpos;
+    typedef typename unicode::unicode_iterator_traits<
+        typename StringT::const_iterator>::iterator iterator;
+    iterator badpos;
     int overflow = 0;
+    int sign = 0;
     
-    uintmax_t result = string_to_uintmax<const_iterator>(s.cbegin()
-            , s.cend()
+    uintmax_t result = string_to_uintmax<iterator>(iterator(s.cbegin())
+            , iterator(s.cend())
             , & badpos
             , radix
+            , & sign
             , & overflow);
     
-    if (badpos != s.cend())
+    if (badpos != iterator(s.cend()))
         throw bad_lexical_cast("lexical_cast(): bad cast from string to numeric");
     
     return result;
 }
+
+#if __FIXME__
 
 template <typename StringT, typename Integer>
 typename pfs::enable_if<pfs::is_integral<Integer>::value 
@@ -276,7 +70,6 @@ lexical_cast (StringT const & s, int radix = 10)
     return result;
 }
 
-
 template <typename StringT, typename Float>
 typename pfs::enable_if<pfs::is_floating_point<Float>::value, Float>::type
 lexical_cast (StringT const & s, typename StringT::value_type decimal_point = '.')
@@ -286,8 +79,8 @@ lexical_cast (StringT const & s, typename StringT::value_type decimal_point = '.
     
     intmax_t result = string_to_real<const_iterator>(s.cbegin()
             , s.cend()
-            , & badpos
-            , decimal_point);
+            , decimal_point
+            , & badpos);
     
     if (badpos != s.cend())
         throw bad_lexical_cast("lexical_cast(): bad cast from string to numeric");
@@ -302,6 +95,8 @@ lexical_cast (StringT const & s, typename StringT::value_type decimal_point = '.
 
     return static_cast<Float>(result);
 }
+
+#endif
 
 } // pfs
 

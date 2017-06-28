@@ -7,6 +7,7 @@
  */
 #include <pfs/test/test.hpp>
 #include <pfs/lexical_cast.hpp>
+#include <pfs/traits/string.hpp>
 #include <pfs/traits/stdcxx/string.hpp>
 
 #ifdef QT_CORE_LIB
@@ -14,7 +15,7 @@
 #endif
 
 #include "test_string_to_uintmax.hpp"
-#include "test_integer.hpp"
+#include "test_string_to_intmax.hpp"
 
 int main(int argc, char *argv[])
 {
@@ -24,18 +25,18 @@ int main(int argc, char *argv[])
 	BEGIN_TESTS(0);
 
     {
-        typedef pfs::traits::string<std::string> string_type;
+        typedef pfs::traits::string<pfs::traits::stdcxx::string> string_type;
 
-        test_string_to_uintmax<string_type>();
-//        test_integer<string_type>();
+//        test_string_to_uintmax<string_type>();
+        test_string_to_intmax<string_type>();
     }
             
 #ifdef QT_CORE_LIB
     {
-        typedef pfs::traits::string<QString> string_type;
+        typedef pfs::traits::string<pfs::traits::qt::string> string_type;
 
-        test_string_to_uintmax<string_type>();
-        test_integer<string_type>();
+//        test_string_to_uintmax<string_type>();
+//        test_string_to_intmax<string_type>();
     }
 #endif
 	

@@ -10,6 +10,9 @@
 
 #include <pfs/types.hpp>
 
+#include <pfs/compiler.hpp>
+#include PFS_CC_HEADER(ctype)
+
 namespace pfs {
 namespace unicode {
 
@@ -127,6 +130,7 @@ inline bool is_surrogate (char_t c)
 	return (c.value - hi_surrogate_start < 2048u);
 }
 
+#if __OBSOLETE__
 /**
  * @return @c true if @a c is decimal digit character.
  * @note Decimal digits are any of: 0 1 2 3 4 5 6 7 8 9.
@@ -140,8 +144,81 @@ inline bool is_space (char_t c)
 {
 	return c.value <= 127 && isspace(static_cast<char>(c.value));
 }
+#endif
 
 }} // pfs::unicode
+
+namespace pfs {
+
+// TODO Need to support locale
+
+template <>
+inline bool is_alnum<unicode::char_t> (unicode::char_t c)
+{
+    return c.value <= 127 && is_alnum(static_cast<char>(c.value));
+}
+
+template <>
+inline bool is_alpha<unicode::char_t> (unicode::char_t c)
+{
+    return c.value <= 127 && is_alpha(static_cast<char>(c.value));
+}
+
+template <>
+inline bool is_cntrl<unicode::char_t> (unicode::char_t c)
+{
+    return c.value <= 127 && is_cntrl(static_cast<char>(c.value));
+}
+
+template <>
+inline bool is_digit<unicode::char_t>(unicode::char_t c)
+{
+    return c.value <= 127 && is_digit(static_cast<char>(c.value));
+}
+
+template <>
+inline bool is_graph<unicode::char_t> (unicode::char_t c)
+{
+    return c.value <= 127 && is_graph(static_cast<char>(c.value));
+}
+
+template <>
+inline bool is_lower<unicode::char_t> (unicode::char_t c)
+{
+    return c.value <= 127 && is_lower(static_cast<char>(c.value));
+}
+
+template <>
+inline bool is_print<unicode::char_t> (unicode::char_t c)
+{
+    return c.value <= 127 && is_print(static_cast<char>(c.value));
+}
+
+template <>
+inline bool is_punct<unicode::char_t> (unicode::char_t c)
+{
+    return c.value <= 127 && is_punct(static_cast<char>(c.value));
+}
+
+template <>
+inline bool is_space<unicode::char_t> (unicode::char_t c)
+{
+    return c.value <= 127 && is_space(static_cast<char>(c.value));
+}
+
+template <>
+inline bool is_upper<unicode::char_t> (unicode::char_t c)
+{
+    return c.value <= 127 && is_upper(static_cast<char>(c.value));
+}
+
+template <>
+inline bool is_xdigit<unicode::char_t> (unicode::char_t c)
+{
+    return c.value <= 127 && is_xdigit(static_cast<char>(c.value));
+}
+
+} // pfs
 
 #endif /* __PFS_UNICODE_CHAR_HPP__ */
 

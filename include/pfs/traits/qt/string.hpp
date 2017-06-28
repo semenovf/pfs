@@ -38,6 +38,7 @@ public:
     typedef typename internal_type::const_native_reference const_native_reference;
     
     typedef QChar                                 value_type;
+    typedef QChar *                               pointer;
     typedef QChar const *                         const_pointer;
     typedef typename native_type::reference       reference;
     typedef typename native_type::const_reference const_reference;
@@ -45,7 +46,7 @@ public:
     typedef typename native_type::const_iterator  const_iterator;
     typedef std::reverse_iterator<iterator>       reverse_iterator;
     typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
-//    typedef native_type::difference_type          difference_type;
+    typedef ptrdiff_t                             difference_type;
     typedef int                                   size_type; // no native_type::size_type found, but documentation mentions.
 
 protected:
@@ -187,6 +188,110 @@ typedef basic_string<string_value<QChar, QString> > string;
 typedef basic_string<string_ref<QChar, QString> >   string_reference;
 
 }}} // pfs::traits::qt
+
+namespace pfs {
+
+template <>
+struct iterator_traits<traits::qt::string::const_iterator> 
+{
+    typedef bidirectional_iterator_tag                   iterator_category;
+    typedef typename traits::qt::string::value_type      value_type;
+    typedef typename traits::qt::string::difference_type difference_type;
+    typedef typename traits::qt::string::const_pointer   pointer;
+    typedef typename traits::qt::string::const_reference reference;
+};
+
+template <>
+struct iterator_traits<traits::qt::string::iterator>
+{
+    typedef bidirectional_iterator_tag                   iterator_category;
+    typedef typename traits::qt::string::value_type      value_type;
+    typedef typename traits::qt::string::difference_type difference_type;
+    typedef typename traits::qt::string::pointer         pointer;
+    typedef typename traits::qt::string::reference       reference;
+};
+
+
+inline int operator - (QChar a, QChar b)
+{
+    return a.unicode() - b.unicode();
+}
+
+inline int operator + (QChar a, QChar b)
+{
+    return a.unicode() + b.unicode();
+}
+
+template <>
+inline bool is_alnum<QChar> (QChar c)
+{
+    return c.isLetterOrNumber();
+}
+
+template <>
+inline bool is_alpha<QChar> (QChar c)
+{
+    return c.isLetter();
+}
+
+template <>
+inline bool is_cntrl<QChar> (QChar c)
+{
+    return is_cntrl(c.toAscii());
+}
+
+template <>
+inline bool is_digit<QChar>(QChar c)
+{
+    return c.isDigit();
+}
+
+/* checks for any printable character except space */
+template <>
+inline bool is_graph<QChar> (QChar c)
+{
+    return c.isPrint() && ! c.isSpace();
+}
+
+template <>
+inline bool is_lower<QChar> (QChar c)
+{
+    return c.isLower();
+}
+
+template <>
+inline bool is_print<QChar> (QChar c)
+{
+    return c.isPrint();
+}
+
+template <>
+inline bool is_punct<QChar> (QChar c)
+{
+    return c.isPunct();
+}
+
+template <>
+inline bool is_space<QChar> (QChar c)
+{
+    return c.isSpace();
+}
+
+template <>
+inline bool is_upper<QChar> (QChar c)
+{
+    return c.isUpper();
+}
+
+template <>
+inline bool is_xdigit<QChar> (QChar c)
+{
+    return c.isDigit() 
+            || (c.unicode() >= 'a' && c.unicode() <= 'f')
+            || (c.unicode() >= 'A' && c.unicode() <= 'F');
+}
+
+} // pfs
 
 #if __OBSOLETE__
 

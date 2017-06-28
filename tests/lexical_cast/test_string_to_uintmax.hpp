@@ -22,6 +22,7 @@ void test_string_to_uintmax ()
     uintmax_t result = 0;
     typename StringT::const_iterator badpos;
     int overflow = 0;
+    int sign = 0;
     
     if (sizeof(uintmax_t) == 8) {
         max_uintmax = 18446744073709551615ULL;
@@ -46,6 +47,7 @@ void test_string_to_uintmax ()
         , zero_str.cend()
         , & badpos
         , 10
+        , & sign
         , & overflow);
     
     TEST_OK(result == 0);
@@ -56,6 +58,7 @@ void test_string_to_uintmax ()
         , max_uintmax_str.cend()
         , & badpos
         , 10
+        , & sign
         , & overflow);
     
     TEST_OK(result == max_uintmax);
@@ -66,6 +69,7 @@ void test_string_to_uintmax ()
         , max_uintmax_overflow_1_str.cend()
         , & badpos
         , 10
+        , & sign
         , & overflow);
     
     TEST_OK(result == max_uintmax_cutoff);
