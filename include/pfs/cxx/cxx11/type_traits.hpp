@@ -47,6 +47,12 @@ using is_unsigned = std::is_unsigned<T>;
 template <typename T>
 using is_floating_point = std::is_floating_point<T>;
 
+template <typename T>
+using make_unsigned = std::make_unsigned<T>;
+
+template <typename T>
+using make_signed = std::make_signed<T>;
+
 }
 
 #endif /* __PFS_CXX11_TYPE_TRAITS_HPP__ */

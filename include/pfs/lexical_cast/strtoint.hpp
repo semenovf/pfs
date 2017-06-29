@@ -242,62 +242,34 @@ UintmaxT string_to_uintmax (CharIteratorT beginpos
     return result;    
 }
 
-#if __FIXME__
-
-template <typename CharIteratorT>
+template <typename IntmaxT, typename CharIteratorT>
 intmax_t string_to_intmax (CharIteratorT beginpos
     , CharIteratorT endpos
     , CharIteratorT * badpos
     , int radix
     , int * poverflow)
 {
+    typedef typename make_unsigned<IntmaxT>::type uintmax_type;
     int sign = 0;
     int overflow = 0;
     
     intmax_t result = 0;
     
-    uintmax_t unsigned_result = __string_to_uintmax(beginpos
+    uintmax_type unsigned_result
+        = __string_to_uintmax<uintmax_type, CharIteratorT>(beginpos
             , endpos
             , badpos
             , radix
             , & sign
             , & overflow);
 
-    uintmax_t abs_min = static_cast<uintmax_t>(-1 * (numeric_limits<intmax_t>::min() + 1) + 1);
-    uintmax_t abs_max = static_cast<uintmax_t>(numeric_limits<intmax_t>::max());
+    uintmax_type abs_min = static_cast<uintmax_type>(-1 * numeric_limits<IntmaxT>::min());
+    uintmax_type abs_max = static_cast<uintmax_type>(numeric_limits<IntmaxT>::max());
 
-    if (sign < 0) {
-        if (unsigned_result >= abs_min) {
-            result = static_cast<intmax_t>(unsigned_result);
-        } else {
-            result = static_cast<intmax_t>(unsigned_result);
-        }
-    } else {
-        
-    }
-    
-    if (sign > 0 && unsigned_result >= abs_min) {
-        result = static_cast<intmax_t>(unsigned_result);
-    } else if (sign < 0 && unsigned_result <= abs_max) {
-        result = -1 * static_cast<intmax_t>(unsigned_result);
-    }
-    
-    if (! overflow) {
-        
-        if (sign > 0 && unsigned_result >= abs_min) {
-            result
-        }
-        
-        
-        if (radix != 10 && sign > 0 
-                && unsigned_result >= max_abs 
-                && unsigned_result <= numeric_limits<uintmax_t>::max()) {
-            result = -1 * unsigned_result;
-        } else if (sign > 0 && unsigned_result > numeric_limits<intmax_t>::max()) {
-            overflow = 1;
-        } else if (sign < 0 && unsigned_result > max_abs) {
-            overflow = -1;
-        }
+    if (sign > 0 && unsigned_result > abs_max) {
+        overflow = 1;
+    } else if (sign < 0 && unsigned_result > abs_min) {
+        overflow = -1;
     }
     
     if (overflow != 0) {
@@ -307,11 +279,46 @@ intmax_t string_to_intmax (CharIteratorT beginpos
             --*badpos;
     }
 
+    
     if (sign < 0)
-        result = -1 * unsigned_result;
+        result = -1 * static_cast<IntmaxT>(unsigned_result);
     else
-        result = static_cast<intmax_t>(unsigned_result);
-
+        result = static_cast<IntmaxT>(unsigned_result);
+    
+//    if (sign < 0) {
+//        if (unsigned_result >= abs_min) {
+//            result = static_cast<intmax_t>(unsigned_result);
+//        } else {
+//            result = static_cast<intmax_t>(unsigned_result);
+//        }
+//    } else {
+//        
+//    }
+//    
+//    if (sign > 0 && unsigned_result >= abs_min) {
+//        result = static_cast<intmax_t>(unsigned_result);
+//    } else if (sign < 0 && unsigned_result <= abs_max) {
+//        result = -1 * static_cast<intmax_t>(unsigned_result);
+//    }
+//    
+//    if (! overflow) {
+//        
+//        if (sign > 0 && unsigned_result >= abs_min) {
+//            result
+//        }
+//        
+//        
+//        if (radix != 10 && sign > 0 
+//                && unsigned_result >= max_abs 
+//                && unsigned_result <= numeric_limits<uintmax_t>::max()) {
+//            result = -1 * unsigned_result;
+//        } else if (sign > 0 && unsigned_result > numeric_limits<intmax_t>::max()) {
+//            overflow = 1;
+//        } else if (sign < 0 && unsigned_result > max_abs) {
+//            overflow = -1;
+//        }
+//    }
+//    
     if (poverflow)
         *poverflow = overflow;
 
@@ -348,8 +355,6 @@ intmax_t string_to_intmax (CharIteratorT beginpos
 //
 //    return result;
 }
-
-#endif
 
 } // pfs
 

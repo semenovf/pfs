@@ -13,7 +13,7 @@
 #include <cerrno>
 
 template <typename UintmaxT>
-inline UintmaxT std_string_to_uintmax (char const * nptr
+UintmaxT std_string_to_uintmax (char const * nptr
         , char ** endptr
         , int base);
 
