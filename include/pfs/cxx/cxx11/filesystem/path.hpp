@@ -8,6 +8,8 @@
 #ifndef __PFS_CXX_CXX11_FILESYSTEM_PATH_HPP__
 #define __PFS_CXX_CXX11_FILESYSTEM_PATH_HPP__
 
+#if PFS_CC_GCC_VERSION >= 50300
+
 //
 // [Experimental Library Extensions](https://gcc.gnu.org/onlinedocs/libstdc++/manual/using_dynamic_or_shared.html#manual.intro.using.linkage.experimental)
 // -----------------------------------------------------------------------------
@@ -690,6 +692,10 @@ inline bool exists (path const & p, pfs::error_code & ec) noexcept
 }
 
 }} // pfs::filesystem
+
+#else
+#   include <pfs/cxx/cxx98/filesystem/path.hpp>
+#endif
 
 #endif /* __PFS_CXX_CXX11_FILESYSTEM_PATH_HPP__ */
 

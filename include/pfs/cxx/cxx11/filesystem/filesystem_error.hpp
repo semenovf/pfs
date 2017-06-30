@@ -8,6 +8,8 @@
 #ifndef __PFS_CXX_CXX11_FILESYSTEM_FILESYSTEM_ERROR_HPP__
 #define __PFS_CXX_CXX11_FILESYSTEM_FILESYSTEM_ERROR_HPP__
 
+#if PFS_CC_GCC_VERSION >= 50300
+
 #include <experimental/filesystem>
 
 namespace pfs {
@@ -33,6 +35,12 @@ using filesystem_error = std::experimental::filesystem::filesystem_error;
  */
 
 }} // pfs::filesystem
+
+#else
+
+#   include <pfs/cxx/cxx98/filesystem/filesystem_error.hpp>
+
+#endif
 
 #endif /* __PFS_CXX_CXX11_FILESYSTEM_FILESYSTEM_ERROR_HPP__ */
 

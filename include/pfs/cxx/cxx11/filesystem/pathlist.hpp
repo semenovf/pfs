@@ -8,17 +8,19 @@
 #ifndef __PFS_CXX_CXX11_FILESYSTEM_PATHLIST_HPP__
 #define __PFS_CXX_CXX11_FILESYSTEM_PATHLIST_HPP__
 
-#include <list>
-#include "path.hpp"
+#include <pfs/cxx/cxx98/filesystem/pathlist.hpp>
 
-namespace pfs {
-namespace filesystem {
-
-using pathlist = std::list<filesystem::path>;
-
-path search_path (path const & p, pathlist const & searchdirs);
-
-}} // pfs::filesystem
+//#include <list>
+//#include "path.hpp"
+//
+//namespace pfs {
+//namespace filesystem {
+//
+//using pathlist = std::list<filesystem::path>;
+//
+//path search_path (path const & p, pathlist const & searchdirs);
+//
+//}} // pfs::filesystem
 
 #endif /* __PFS_CXX_CXX11_FILESYSTEM_PATHLIST_HPP__ */
 

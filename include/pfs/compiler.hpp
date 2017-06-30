@@ -41,8 +41,8 @@
 
 /* Symantec C++ is now Digital Mars */
 #if defined(_MSC_VER)
-#	define PFS_CC_MSVC
-#	define PFS_CC_MSC
+#	define PFS_CC_MSVC 1
+#	define PFS_CC_MSC 1
 // see http://stackoverflow.com/questions/70013/how-to-detect-if-im-compiling-code-with-visual-studio-2008
 //MSVC++ 12.0 _MSC_VER == 1800 (Visual Studio 2013)
 //MSVC++ 11.0 _MSC_VER == 1700 (Visual Studio 2012)
@@ -57,7 +57,7 @@
 #	define PFS_CC_MSC_VERSION  _MSC_VER
 /* Intel C++ disguising as Visual C++: the `using' keyword avoids warnings */
 #	if defined(__INTEL_COMPILER)
-#		define PFS_CC_INTEL
+#		define PFS_CC_INTEL 1
 #		define PFS_CC_INTEL_VERSION _MSC_VER
 #		define PFS_CC_INTEL_VERSION _MSC_VER
 #       define __PFS_CC_HPREFIX__ intel
@@ -65,16 +65,21 @@
 #       define __PFS_CC_HPREFIX__ msc
 #	endif
 #elif defined(__GNUC__)
-#  	define PFS_CC_GNUC
-#	define PFS_CC_GCC
+#  	define PFS_CC_GNUC 1
+#	define PFS_CC_GCC 1
+
+// [Common Predefined Macros](https://gcc.gnu.org/onlinedocs/gcc-4.0.1/cpp/Common-Predefined-Macros.html)
+#   define PFS_CC_GCC_VERSION \
+        (__GNUC__ * 10000 + __GNUC_MINOR__ * 100 + __GNUC_PATCHLEVEL__)
+#   define PFS_CC_GNUC_VERSION PFS_CC_GCC_VERSION
 
 #	if defined(__INTEL_COMPILER)
     	/* Intel C++ also masquerades as GCC 3.2.0 */
-#		define PFS_CC_INTEL
+#		define PFS_CC_INTEL 1
 #       define __PFS_CC_HPREFIX__ intel
 #	elif defined(__clang__)
 /* Clang also masquerades as GCC 4.2.1 */
-#		define PFS_CC_CLANG
+#		define PFS_CC_CLANG 1
 #       define __PFS_CC_HPREFIX__ clang
 #   else
 #       define __PFS_CC_HPREFIX__ gnuc
