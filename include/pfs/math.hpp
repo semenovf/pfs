@@ -9,8 +9,88 @@
 #define __PFS_MATH_HPP__
 
 #include <pfs/types.hpp>
+#include <cmath>
 
-namespace pfs { namespace math {
+namespace pfs {
+
+#if __cplusplus >= 201103L
+
+inline bool isnan (float x)
+{
+    return std::isnan(x);
+}
+
+inline bool isnan (double x)
+{
+    return std::isnan(x);
+}
+
+inline bool isinf (float x)
+{
+    return std::isinf(x);
+}
+
+inline bool isinf (double x)
+{
+    return std::isinf(x);
+}
+
+#if PFS_HAVE_LONG_DOUBLE
+
+inline bool isnan (long double x)
+{
+    return std::isnan(x);
+}
+
+inline bool isinf (long double x)
+{
+    return std::isinf(x);
+}
+
+#endif
+
+#endif
+
+inline float pow (float x, float y)
+{
+    return ::powf(x, y);
+}
+
+inline double pow (double x, double y)
+{
+    return ::pow(x, y);
+}
+
+#if PFS_HAVE_LONG_DOUBLE
+
+inline long double pow (long double x, long double y)
+{
+    return ::powl(x, y);
+}
+
+#endif
+
+inline double fabs (double x)
+{
+    return ::fabs(x);
+}
+       
+inline float fabs (float x)
+{
+    return ::fabsf(x);
+}
+
+#if PFS_HAVE_LONG_DOUBLE
+inline long double fabs (long double x)
+{
+    return ::fabsl(x);
+}
+#endif
+
+} // pfs
+
+namespace pfs {
+namespace math {
 
 // Integer Division (Floor function)
 // http://mathworld.wolfram.com/IntegerDivision.html

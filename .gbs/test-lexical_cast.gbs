@@ -15,15 +15,17 @@ qtmodules     { "core" }
 configuration "debug"
     objdir       ".cache/tests/lexical_cast/debug"
     targetdir    "../../.build/tests"
-    links        { "pfs-test-d" }
+    links        { "pfs-test-d", "pfs-mpl-d" }
 
 configuration "release"
     objdir       ".cache/tests/lexical_cast/release"
     targetdir    "../../.build/tests"
-    links        { "pfs-test" }
+    links        { "pfs-test", "pfs-mpl" }
 
 filter { "debug", "action:gmake" }
     linkoptions  { "-rdynamic" }
+
+dependson { "pfs" }
 
 -- Special for Qt projects
 package.loaded["../../.gbs/qt_enable"] = nil

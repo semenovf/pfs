@@ -119,7 +119,7 @@ pfs::error_category const & dynamic_library_category ();
 
 inline pfs::error_code make_error_code (dynamic_library_errc e)
 {
-    return std::error_code(static_cast<int>(e), dynamic_library_category());
+    return pfs::error_code(static_cast<int>(e), dynamic_library_category());
 }
 
 } // pfs

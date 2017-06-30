@@ -14,8 +14,10 @@
 #   include <pfs/traits/qt/string.hpp>
 #endif
 
-#include "test_string_to_uintmax.hpp"
-#include "test_string_to_intmax.hpp"
+#include "test_string_to_uint.hpp"
+#include "test_string_to_int.hpp"
+#include "test_string_to_float.hpp"
+#include "test_integer.hpp"
 
 int main(int argc, char *argv[])
 {
@@ -27,16 +29,19 @@ int main(int argc, char *argv[])
     {
         typedef pfs::traits::string<pfs::traits::stdcxx::string> string_type;
 
-//        test_string_to_uintmax<string_type>();
-        test_string_to_intmax<string_type>();
+        test_string_to_uint<string_type>();
+        test_string_to_int<string_type>();
+        test_string_to_float<string_type>();
+        test_integer<string_type>();
     }
             
 #ifdef QT_CORE_LIB
     {
         typedef pfs::traits::string<pfs::traits::qt::string> string_type;
 
-//        test_string_to_uintmax<string_type>();
-//        test_string_to_intmax<string_type>();
+//        test_string_to_uint<string_type>();
+//        test_string_to_int<string_type>();
+//        test_string_to_float<string_type>();
     }
 #endif
 	

@@ -8,10 +8,6 @@
 #ifndef __PFS_LEXICAL_CAST_STRTOINT_HPP__
 #define __PFS_LEXICAL_CAST_STRTOINT_HPP__
 
-//#include <string>
-//#include <pfs/exception.hpp>
-//#include <pfs/type_traits.hpp>
-//#include <pfs/traits/string.hpp>
 #include <pfs/limits.hpp>
 #include <pfs/types.hpp>
 
@@ -70,8 +66,8 @@ namespace pfs {
  * taken as 10 (decimal) unless the next character is '0', in which case 
  * it is taken as 8 (octal).
  */
-template <typename UintmaxT, typename CharIteratorT>
-uintmax_t __string_to_uintmax (CharIteratorT beginpos
+template <typename UintT, typename CharIteratorT>
+uintmax_t __string_to_uint (CharIteratorT beginpos
     , CharIteratorT endpos
     , CharIteratorT * badpos
     , int radix
@@ -81,7 +77,7 @@ uintmax_t __string_to_uintmax (CharIteratorT beginpos
     typedef typename iterator_traits<CharIteratorT>::value_type value_type;
     
     CharIteratorT pos = beginpos;
-    UintmaxT result = 0;
+    UintT result = 0;
     bool ok   = true;
     bool over = false;
     int sign  = 1;
@@ -158,8 +154,8 @@ uintmax_t __string_to_uintmax (CharIteratorT beginpos
             }
         }
 
-        UintmaxT cutoff_value = numeric_limits<UintmaxT>::max() / static_cast<UintmaxT>(radix);
-        UintmaxT cutoff_limit = numeric_limits<UintmaxT>::max() % static_cast<UintmaxT>(radix);
+        UintT cutoff_value = numeric_limits<UintT>::max() / static_cast<UintT>(radix);
+        UintT cutoff_limit = numeric_limits<UintT>::max() % static_cast<UintT>(radix);
 
         for (; ok && pos != endpos; ++pos) {
 
@@ -189,7 +185,7 @@ uintmax_t __string_to_uintmax (CharIteratorT beginpos
 
             if (result < cutoff_value
                     || (result == cutoff_value && digit <= cutoff_limit)) {
-                result *= static_cast<UintmaxT>(radix);
+                result *= static_cast<UintT>(radix);
                 result += digit;
             } else {
                 ok = false;
@@ -216,17 +212,17 @@ uintmax_t __string_to_uintmax (CharIteratorT beginpos
     return result;
 }
 
-template <typename UintmaxT, typename CharIteratorT>
-UintmaxT string_to_uintmax (CharIteratorT beginpos
+template <typename UintT, typename CharIteratorT>
+UintT string_to_uint (CharIteratorT beginpos
     , CharIteratorT endpos
     , CharIteratorT * badpos
     , int radix
-    , int * poverflow)
+    , int * poverflow = 0)
 {
     int sign = 0;
     int overflow = 0;
     
-    UintmaxT result = __string_to_uintmax<UintmaxT, CharIteratorT>(beginpos
+    UintT result = __string_to_uint<UintT, CharIteratorT>(beginpos
             , endpos
             , badpos
             , radix
@@ -242,29 +238,29 @@ UintmaxT string_to_uintmax (CharIteratorT beginpos
     return result;    
 }
 
-template <typename IntmaxT, typename CharIteratorT>
-intmax_t string_to_intmax (CharIteratorT beginpos
+template <typename IntT, typename CharIteratorT>
+IntT string_to_int (CharIteratorT beginpos
     , CharIteratorT endpos
     , CharIteratorT * badpos
     , int radix
-    , int * poverflow)
+    , int * poverflow = 0)
 {
-    typedef typename make_unsigned<IntmaxT>::type uintmax_type;
+    typedef typename make_unsigned<IntT>::type uintmax_type;
     int sign = 0;
     int overflow = 0;
     
-    intmax_t result = 0;
+    IntT result = 0;
     
     uintmax_type unsigned_result
-        = __string_to_uintmax<uintmax_type, CharIteratorT>(beginpos
+        = __string_to_uint<uintmax_type, CharIteratorT>(beginpos
             , endpos
             , badpos
             , radix
             , & sign
             , & overflow);
 
-    uintmax_type abs_min = static_cast<uintmax_type>(-1 * numeric_limits<IntmaxT>::min());
-    uintmax_type abs_max = static_cast<uintmax_type>(numeric_limits<IntmaxT>::max());
+    uintmax_type abs_min = static_cast<uintmax_type>(-1 * numeric_limits<IntT>::min());
+    uintmax_type abs_max = static_cast<uintmax_type>(numeric_limits<IntT>::max());
 
     if (sign > 0 && unsigned_result > abs_max) {
         overflow = 1;
@@ -279,81 +275,15 @@ intmax_t string_to_intmax (CharIteratorT beginpos
             --*badpos;
     }
 
-    
     if (sign < 0)
-        result = -1 * static_cast<IntmaxT>(unsigned_result);
+        result = -1 * static_cast<IntT>(unsigned_result);
     else
-        result = static_cast<IntmaxT>(unsigned_result);
-    
-//    if (sign < 0) {
-//        if (unsigned_result >= abs_min) {
-//            result = static_cast<intmax_t>(unsigned_result);
-//        } else {
-//            result = static_cast<intmax_t>(unsigned_result);
-//        }
-//    } else {
-//        
-//    }
-//    
-//    if (sign > 0 && unsigned_result >= abs_min) {
-//        result = static_cast<intmax_t>(unsigned_result);
-//    } else if (sign < 0 && unsigned_result <= abs_max) {
-//        result = -1 * static_cast<intmax_t>(unsigned_result);
-//    }
-//    
-//    if (! overflow) {
-//        
-//        if (sign > 0 && unsigned_result >= abs_min) {
-//            result
-//        }
-//        
-//        
-//        if (radix != 10 && sign > 0 
-//                && unsigned_result >= max_abs 
-//                && unsigned_result <= numeric_limits<uintmax_t>::max()) {
-//            result = -1 * unsigned_result;
-//        } else if (sign > 0 && unsigned_result > numeric_limits<intmax_t>::max()) {
-//            overflow = 1;
-//        } else if (sign < 0 && unsigned_result > max_abs) {
-//            overflow = -1;
-//        }
-//    }
-//    
+        result = static_cast<IntT>(unsigned_result);
+
     if (poverflow)
         *poverflow = overflow;
 
     return result;    
-    
-//    if (! overflow) {
-//        uintmax_t max_abs = static_cast<uintmax_t>(numeric_limits<intmax_t>::max()) + 1;
-//        
-//        if (radix != 10 && sign > 0 
-//                && unsigned_result >= max_abs 
-//                && unsigned_result <= numeric_limits<uintmax_t>::max()) {
-//            result = -1 * unsigned_result;
-//        } else if (sign > 0 && unsigned_result > numeric_limits<intmax_t>::max()) {
-//            overflow = 1;
-//        } else if (sign < 0 && unsigned_result > max_abs) {
-//            overflow = -1;
-//        }
-//    }
-//    
-//    if (overflow != 0) {
-//        unsigned_result /= radix;
-//        
-//        if (badpos && *badpos != beginpos)
-//            --*badpos;
-//    }
-//
-//    if (sign < 0)
-//        result = -1 * unsigned_result;
-//    else
-//        result = static_cast<intmax_t>(unsigned_result);
-//
-//    if (poverflow)
-//        *poverflow = overflow;
-//
-//    return result;
 }
 
 } // pfs
