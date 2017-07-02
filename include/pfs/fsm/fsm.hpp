@@ -16,7 +16,7 @@
 
 namespace pfs { namespace fsm {
 
-template <typename Iterator, typename AtomicInt = size_t>
+template <typename Iterator, typename AtomicInt>
 struct transition
 {
     typedef match<Iterator, AtomicInt>    match_type;
@@ -33,7 +33,7 @@ struct transition
     void *     action_args;
 };
 
-template <typename Iterator, typename AtomicInt = size_t>
+template <typename Iterator, typename AtomicInt>
 struct context
 {
     typedef transition<Iterator, AtomicInt> transition_type;
@@ -47,7 +47,7 @@ struct context
     {}
 };
 
-template <typename Iterator, typename AtomicInt = size_t>
+template <typename Iterator, typename AtomicInt = int>
 class fsm
 {
 public:

@@ -7,16 +7,7 @@
 #include <pfs/traits/stdcxx/stack.hpp>
 #include <pfs/unicode/unicode_iterator.hpp>
 #include <pfs/json/constants.hpp>
-
 #include "exception.hpp"
-
-//#include <pfs/mpl/algo/find.hpp>
-//#include <pfs/stack.hpp>
-//#include <pfs/fsm.hpp>
-//#include <pfs/fsm/aliases.hpp>
-//#include <pfs/string.hpp>
-//#include <pfs/notification.hpp>
-//#include "pfs/json/value.hpp"
 
 namespace pfs { namespace json {
 
@@ -109,13 +100,13 @@ namespace pfs { namespace json {
 	unescaped = %x20-21 / %x23-5B / %x5D-10FFFF
 */
 
-template <typename ValueT>
+template <typename JsonValueT>
 struct sax_context
 {
-    typedef typename ValueT::string_traits sequence_type;
+    typedef typename JsonValueT::string_traits sequence_type;
     
     virtual bool on_begin_json   (void * user_context, data_type_t) = 0;
-    virtual bool on_end_json     (void * user_context, data_type_t) = 0;
+    virtual bool on_end_json     (void * user_context, bool) = 0;
     virtual bool on_begin_object (void * user_context, sequence_type const &) = 0;
     virtual bool on_end_object   (void * user_context, sequence_type const &) = 0;
     virtual bool on_begin_array  (void * user_context, sequence_type const &) = 0;
@@ -125,16 +116,16 @@ struct sax_context
     virtual bool on_number_value (void * user_context, sequence_type const &, real_t) = 0;
     virtual bool on_string_value (void * user_context, sequence_type const &, sequence_type const &) = 0;
 };
-    
 
-template <typename ValueT, template <typename> class StackT = traits::stdcxx::stack>
+template <typename JsonValueT, template <typename> class StackT = traits::stdcxx::stack>
 struct grammar
 {
-    typedef typename ValueT::string_traits         string_type;
+    typedef typename JsonValueT::string_traits     string_type;
+    typedef typename string_type::const_iterator   native_iterator;
     typedef typename unicode::unicode_iterator_traits<
-            typename string_type::const_iterator>::iterator iterator;
+            native_iterator>::iterator             unicode_iterator;
 
-    typedef fsm::fsm<iterator>                     fsm_type;
+    typedef fsm::fsm<unicode_iterator>             fsm_type;
     typedef typename fsm_type::transition_type     transition_type;
     typedef typename fsm_type::char_type           value_type;
 
@@ -145,16 +136,16 @@ struct grammar
         string_type    member_name;
         pfs::traits::stack<string_type, StackT> objects;
         pfs::traits::stack<string_type, StackT> arrays;
-        sax_context<ValueT> & sax;
+        sax_context<JsonValueT> & sax;
     };
     
     grammar ();
     
-    static string_type unescape_chars (iterator first, iterator last)
+    static string_type unescape_chars (unicode_iterator first, unicode_iterator last)
     {
         string_type r;
         bool escaped = false;
-        iterator it = first;
+        unicode_iterator it = first;
 
         while (it != last) {
             if (!escaped && *it == value_type('\\')) {
@@ -162,19 +153,19 @@ struct grammar
             } else {
                 if (escaped) {
                     if (*it == value_type('b'))
-                        iterator::encode(value_type('\b'), r);
+                        unicode_iterator::encode(value_type('\b'), pfs::back_inserter(r));
                     else if (*it == value_type('f'))
-                        iterator::encode(value_type('\f'), r);
+                        unicode_iterator::encode(value_type('\f'), pfs::back_inserter(r));
                     else if (*it == value_type('n'))
-                        iterator::encode(value_type('\n'), r);
+                        unicode_iterator::encode(value_type('\n'), pfs::back_inserter(r));
                     else if (*it == value_type('r'))
-                        iterator::encode(value_type('\r'), r);
+                        unicode_iterator::encode(value_type('\r'), pfs::back_inserter(r));
                     else if (*it == value_type('t'))
-                        iterator::encode(value_type('\t'), r);
+                        unicode_iterator::encode(value_type('\t'), pfs::back_inserter(r));
                     else
-                        iterator::encode(*it, r);
+                        unicode_iterator::encode(*it, pfs::back_inserter(r));
                 } else {
-                    iterator::encode(*it, r);
+                    unicode_iterator::encode(*it, pfs::back_inserter(r));
                 }
                 escaped = false;
             }
@@ -189,7 +180,7 @@ struct grammar
         // TODO unescape hexdigits in form: \uXXXX
     }     
     
-    static bool false_value (iterator begin, iterator end, void * context, void * action_args)
+    static bool false_value (unicode_iterator begin, unicode_iterator end, void * context, void * action_args)
     {
         if (!context) return true;
 
@@ -199,7 +190,7 @@ struct grammar
         return result;
     }
 
-    static bool null_value (iterator begin, iterator end, void * context, void * action_args)
+    static bool null_value (unicode_iterator begin, unicode_iterator end, void * context, void * action_args)
     {
         if (!context) return true;
 
@@ -209,7 +200,7 @@ struct grammar
         return result;
     }
 
-    static bool true_value (iterator begin, iterator end, void * context, void * action_args)
+    static bool true_value (unicode_iterator begin, unicode_iterator end, void * context, void * action_args)
     {
         if (!context) return true;
 
@@ -219,19 +210,20 @@ struct grammar
         return result;
     }
 
-    static bool number_value (iterator begin, iterator end, void * context, void * action_args)
+    static bool number_value (unicode_iterator begin, unicode_iterator end, void * context, void * action_args)
     {
         if (!context) return true;
         
         parse_context * ctx = static_cast<parse_context *>(context);
 
-        string_type number(begin, end);
+        string_type number_str = string_type(native_iterator(begin), native_iterator(end));
         bool result = false;
+        real_t d;
         
         try {
-            real_t d = lexical_cast<real_t>(number);
+            real_t d = lexical_cast<real_t, string_type>(number_str);
         } catch (bad_lexical_cast ex) {
-            throw json::exception(json::exception::BAD_NUMBER);
+            throw json_exception(json_errc::bad_number);
         }
 
         result = ctx->sax.on_number_value(ctx->user_context, ctx->member_name, d);
@@ -239,21 +231,20 @@ struct grammar
         return result;
     }
     
-    bool string_value (iterator begin, iterator end, void * context, void * action_args)
+    static bool string_value (unicode_iterator begin, unicode_iterator end, void * context, void * action_args)
     {
         if (!context) return true;
         
         parse_context * ctx = static_cast<parse_context *>(context);
-        string_type str(begin, end);
         ++begin;
         --end;
-        str = unescape_chars(begin, end);
+        string_type str = unescape_chars(begin, end);
         bool result = ctx->sax.on_string_value(ctx->user_context, ctx->member_name, str);
         ctx->member_name.clear();
         return result;
     }
     
-    static bool success_end_json (iterator begin, iterator end, void * context, void * action_args)
+    static bool success_end_json (unicode_iterator begin, unicode_iterator end, void * context, void * action_args)
     {
         if (!context) return true;
 
@@ -261,7 +252,7 @@ struct grammar
         return ctx->sax.on_end_json(ctx->user_context, true);
     }
 
-    static bool failed_end_json (iterator begin, iterator end, void * context, void * action_args)
+    static bool failed_end_json (unicode_iterator begin, unicode_iterator end, void * context, void * action_args)
     {
         if (!context) return true;
 
@@ -269,7 +260,7 @@ struct grammar
         return ctx->sax.on_end_json(ctx->user_context, false);
     }
     
-    static bool begin_member (iterator begin, iterator end, void * context, void * action_args)
+    static bool begin_member (unicode_iterator begin, unicode_iterator end, void * context, void * action_args)
     {
         if (context) {
             parse_context * ctx = static_cast<parse_context *>(context);
@@ -281,7 +272,7 @@ struct grammar
         return true;
     }
 
-    static bool end_member (iterator begin, iterator end, void * context, void * action_args)
+    static bool end_member (unicode_iterator begin, unicode_iterator end, void * context, void * action_args)
     {
         if (context) {
             parse_context * ctx = static_cast<parse_context *>(context);
@@ -290,7 +281,7 @@ struct grammar
         return true;
     }
 
-    static bool begin_object (iterator begin, iterator end, void * context, void * action_args)
+    static bool begin_object (unicode_iterator begin, unicode_iterator end, void * context, void * action_args)
     {
         if (!context) return true;
 
@@ -307,7 +298,7 @@ struct grammar
         return result;
     }
     
-    static bool end_object (iterator begin, iterator end, void * context, void * action_args)
+    static bool end_object (unicode_iterator begin, unicode_iterator end, void * context, void * action_args)
     {
         if (!context) return true;
 
@@ -318,7 +309,7 @@ struct grammar
         return ctx->sax.on_end_object(ctx->user_context, member_name);
     }
     
-    static bool begin_array (iterator begin, iterator end, void * context, void * action_args)
+    static bool begin_array (unicode_iterator begin, unicode_iterator end, void * context, void * action_args)
     {
         if (!context) return true;
 
@@ -333,7 +324,7 @@ struct grammar
         return result;
     }    
     
-    static bool end_array (iterator begin, iterator end, void * context, void * action_args)
+    static bool end_array (unicode_iterator begin, unicode_iterator end, void * context, void * action_args)
     {
         if (!context) return true;
 
@@ -345,9 +336,10 @@ struct grammar
     }
     
 #if PFS_TEST
+    transition_type const * p_decimal_num_tr;
     transition_type const * p_number_tr;
 #endif
-    transition_type const * p_value_tr;
+//    transition_type const * p_value_tr;
 };
 
 template <typename ValueT, template <typename> class StackT>
@@ -484,9 +476,7 @@ grammar<ValueT, StackT>::grammar ()
 
     /* === Strings === */
 
-    //
-    // unescaped = %x20-21 / %x23-5B / %x5D-10FFFF
-    //
+    /* unescaped = %x20-21 / %x23-5B / %x5D-10FFFF */
     static value_type const unescaped_char[] = {
           0x20u, 0x21u
         , 0x23u, 0x5Bu
@@ -558,11 +548,23 @@ grammar<ValueT, StackT>::grammar ()
 
     /* === Objects ===*/
 
+    /* value = false / null / true / object / array / number / string */
+    static transition_type value_tr[] = {
+          {-1, 1, FSM_SEQ(FALSE_STR), fsm_type::accept, false_value, 0 }
+        , {-1, 2, FSM_SEQ(NULL_STR) , fsm_type::accept, null_value , 0 }
+        , {-1, 3, FSM_SEQ(TRUE_STR) , fsm_type::accept, true_value , 0 }
+        , {-1, 4, FSM_TR(number_tr) , fsm_type::accept, number_value, 0 }
+        , {-1, 5, FSM_TR(string_tr) , fsm_type::accept, string_value, 0 }
+        // Bellow data will be replaced partially (`match_type m` member)
+        , {-1, 6, FSM_NOTHING       , fsm_type::accept, 0, 0 }
+        , {-1,-1, FSM_NOTHING       , fsm_type::accept, 0, 0 }
+    };
+    
     /* member = string name-separator value */
     static transition_type const member_tr[] = {
           { 1,-1, FSM_TR(string_tr)        , fsm_type::normal, begin_member, 0 }
         , { 2,-1, FSM_TR(name_separator_tr), fsm_type::normal, 0, 0 }
-        , {-1,-1, FSM_TR(p_value_tr)       , fsm_type::accept, end_member, 0 }
+        , {-1,-1, FSM_TR(value_tr)         , fsm_type::accept, end_member, 0 }
     };
 
     /* next-member = value-separator member */
@@ -589,12 +591,12 @@ grammar<ValueT, StackT>::grammar ()
     /* next-value = value-separator value  */
     static transition_type const next_value_tr[] = {
           { 1,-1, FSM_TR(value_separator_tr), fsm_type::normal, 0, 0 }
-        , {-1,-1, FSM_TR(p_value_tr)        , fsm_type::accept, 0, 0 }
+        , {-1,-1, FSM_TR(value_tr)          , fsm_type::accept, 0, 0 }
     };
 
     /* array-body = value *next-value */
     static transition_type const array_body_tr[] = {
-          { 1,-1, FSM_TR(p_value_tr)             , fsm_type::normal, 0, 0 }
+          { 1,-1, FSM_TR(value_tr)               , fsm_type::normal, 0, 0 }
         , {-1,-1, FSM_RPT_TR(next_value_tr, 0,-1), fsm_type::accept, 0, 0 }
     };
 
@@ -607,16 +609,9 @@ grammar<ValueT, StackT>::grammar ()
     };
 
     /* value = false / null / true / object / array / number / string */
-    static transition_type const value_tr[] = {
-          {-1, 1, FSM_SEQ(FALSE_STR), fsm_type::accept, false_value, 0 }
-        , {-1, 2, FSM_SEQ(NULL_STR) , fsm_type::accept, null_value , 0 }
-        , {-1, 3, FSM_SEQ(TRUE_STR) , fsm_type::accept, true_value , 0 }
-        , {-1, 4, FSM_TR(number_tr) , fsm_type::accept, number_value, 0 }
-        , {-1, 5, FSM_TR(string_tr) , fsm_type::accept, string_value, 0 }
-        , {-1, 6, FSM_TR(object_tr) , fsm_type::accept, 0, 0 }
-        , {-1,-1, FSM_TR(array_tr)  , fsm_type::accept, 0, 0 }
-    };
-    
+    value_tr[5].m = FSM_TR(object_tr);
+    value_tr[6].m = FSM_TR(array_tr);
+
     /* JSON-text = object / array */
     static transition_type const json_tr[] = {
           { 2, 1, FSM_TR(object_tr), fsm_type::normal, 0, 0 }
@@ -626,10 +621,10 @@ grammar<ValueT, StackT>::grammar ()
     };
     
 #if PFS_TEST
-    p_number_tr = number_tr;
+    p_decimal_num_tr = decimal_num_tr;
+    p_number_tr      = number_tr;
 #endif
-    
-    p_value_tr = value_tr;
+
 } // grammar
 
 }} // pfs::json

@@ -466,7 +466,7 @@ FloatT string_to_float (CharIteratorT beginpos
     FloatT result = string_to_float<FloatT, CharIteratorT>(beginpos, endpos, decimalPoint, badpos, ec);
             
     if (ec.value() != static_cast<int>(lexical_cast_errc::success))
-        throw bad_lexical_cast(lexical_cast_category().message(ec.value()));
+        throw bad_lexical_cast(ec);
     
     return result;
 }

@@ -55,17 +55,20 @@ void test_fsm ()
     typedef typename json_type::string_type string_type;
     typedef pfs::json::grammar<json_type> grammar_type;
 
-    typedef typename grammar_type::iterator iterator;
-    typedef pfs::fsm::test_valid_entry<typename grammar_type::iterator> test_valid_entry;
-    typedef pfs::fsm::test_invalid_entry<typename grammar_type::iterator> test_invalid_entry;
+    typedef typename grammar_type::unicode_iterator iterator;
+    typedef pfs::fsm::test_valid_entry<typename grammar_type::unicode_iterator> test_valid_entry;
+    typedef pfs::fsm::test_invalid_entry<typename grammar_type::unicode_iterator> test_invalid_entry;
     
     grammar_type grammar;
     
     static string_type const DIGIT9_1("987654321");
     
+    TEST_OK(test_valid_entry()(grammar.p_decimal_num_tr
+        , 0
+        , iterator(DIGIT9_1.begin())
+        , iterator(DIGIT9_1.end())));
     
     // number = [ minus ] int [ frac ] [ exp ]
-    //
     TEST_OK(test_valid_entry()(grammar.p_number_tr
             , 0
             , iterator(DIGIT9_1.begin())

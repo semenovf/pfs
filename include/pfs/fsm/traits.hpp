@@ -12,7 +12,7 @@
 
 namespace pfs { namespace fsm {
 
-template <typename Iterator, typename AtomicInt = size_t>
+template <typename Iterator, typename AtomicInt = int>
 struct match_traits
 {
     typedef Iterator                      iterator;

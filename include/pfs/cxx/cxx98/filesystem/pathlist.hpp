@@ -14,12 +14,11 @@
 namespace pfs {
 namespace filesystem {
 
-using pathlist = std::list<filesystem::path>;
+typedef std::list<filesystem::path> pathlist;
 
 path search_path (path const & p, pathlist const & searchdirs);
 
 }} // pfs::filesystem
-
 
 #endif /* __PFS_CXX_CXX98_FILESYSTEM_PATHLIST_HPP__ */
 

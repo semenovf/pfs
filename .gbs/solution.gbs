@@ -102,5 +102,5 @@ project "test-active-queue"
 project "test-filesystem"
     include("test-filesystem.gbs")
 
---project "test-json"
---    include("test-json.gbs")
+project "test-json"
+    include("test-json.gbs")

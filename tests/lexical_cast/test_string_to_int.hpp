@@ -49,13 +49,13 @@ static bool __test_string_to_int (char const * s, int radix
     
     bool r = true;
     char_iterator_type badpos;
-    int overflow = 0;
+    pfs::error_code ec;
     StringT str(s);
     
     IntT result = pfs::string_to_int<IntT, char_iterator_type>(str.cbegin(), str.cend()
         , & badpos
         , radix
-        , & overflow);
+        , ec);
     
     IntT std_result = std_string_to_int<IntT>(s, 0, radix);
     
@@ -73,8 +73,13 @@ static bool __test_string_to_int (char const * s, int radix
         r = false;
     }
     
-    if (overflow != overflow_sample) {
-        std::cout << "***ERROR: overflow = " << overflow << ", but expected " << overflow_sample << std::endl;
+    if (ec.value() == static_cast<int>(pfs::lexical_cast_errc::underflow) && overflow_sample >= 0) {
+        std::cout << "***ERROR: underflow (-1), but expected " << overflow_sample << std::endl;
+        r = false;
+    }
+
+    if (ec.value() == static_cast<int>(pfs::lexical_cast_errc::overflow) && overflow_sample <= 0) {
+        std::cout << "***ERROR: overflow (1), but expected " << overflow_sample << std::endl;
         r = false;
     }
     

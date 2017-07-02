@@ -1,35 +1,18 @@
 /* 
- * File:   bad_lexical_cast.hpp
+ * File:   exception.hpp
  * Author: wladt
  *
  * Created on June 28, 2017, 8:28 AM
  */
 
-#ifndef __PFS_LEXICAL_CAST_BAD_LEXICAL_CAST_HPP__
-#define __PFS_LEXICAL_CAST_BAD_LEXICAL_CAST_HPP__
+#ifndef __PFS_LEXICAL_CAST_EXCEPTION_HPP__
+#define __PFS_LEXICAL_CAST_EXCEPTION_HPP__
 
+#include <pfs/cxxlang.hpp>
+#include <pfs/system_error.hpp>
 #include <pfs/exception.hpp>
 
 namespace pfs {
-
-class bad_lexical_cast : public logic_error
-{
-public:
-    explicit bad_lexical_cast ()
-        : logic_error("")
-    {}
-
-    explicit bad_lexical_cast (char const * what)
-        : logic_error(what)
-    {}
-
-    explicit bad_lexical_cast (std::string const & what)
-        : logic_error(what)
-    {}
-
-    virtual ~bad_lexical_cast() {}
-};
-
 
 #if __cplusplus >= 201103L
 enum class lexical_cast_errc 
@@ -40,9 +23,10 @@ struct lexical_cast_errc
     enum {
 #endif
           success = 0
-        , invalid_argument
+        , bad_radix // bad radix
         , underflow
         , overflow
+        , invalid_string
 #if __cplusplus < 201103L                  
     };
 #endif    
@@ -64,6 +48,26 @@ inline pfs::error_code make_error_code (lexical_cast_errc e)
     return pfs::error_code(static_cast<int>(e), lexical_cast_category());
 }
 
+class bad_lexical_cast : public logic_error
+{
+public:
+    bad_lexical_cast (pfs::error_code ec)
+        : logic_error(lexical_cast_category().message(ec.value()))
+    {}
+
+    bad_lexical_cast (pfs::error_code ec, char const * what)
+        : logic_error(lexical_cast_category().message(ec.value())
+            + ": " + what)
+    {}
+
+    bad_lexical_cast (pfs::error_code ec, std::string const & what)
+        : logic_error(lexical_cast_category().message(ec.value())
+            + ": " + what)
+    {}
+
+    virtual ~bad_lexical_cast() {}
+};
+
 } // pfs
 
 namespace std {
@@ -75,5 +79,5 @@ struct is_error_code_enum<pfs::lexical_cast_errc>
 
 } // std
 
-#endif /* __PFS_LEXICAL_CAST_BAD_LEXICAL_CAST_HPP__ */
+#endif /* __PFS_LEXICAL_CAST_EXCEPTION_HPP__ */
 

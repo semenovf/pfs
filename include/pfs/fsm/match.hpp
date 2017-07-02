@@ -19,7 +19,7 @@ struct transition;
 template <typename Iterator, typename AtomicInt>
 struct context;
 
-template <typename Iterator, typename AtomicInt = size_t>
+template <typename Iterator, typename AtomicInt = int>
 class match
 {
 public:
@@ -70,7 +70,7 @@ public:
     match operator = (match const & m)
     {
         _p = m._p;
-        ++_p.ref;
+        ++_p->ref;
     }
 
     result_type operator () (context<Iterator, AtomicInt> * ctx
@@ -207,8 +207,8 @@ public:
     class match_rpt : public match_base
     {
         match<Iterator, AtomicInt> _match;
-        size_type       _from;
-        size_type       _to;
+        int _from;
+        int _to;
         
         virtual result_type do_match (context<Iterator, AtomicInt> * ctx
                 , iterator begin

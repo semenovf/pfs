@@ -8,6 +8,7 @@
 #ifndef __PFS_FILESYSTEM_HPP__
 #define __PFS_FILESYSTEM_HPP__
 
+#include <pfs/compiler.hpp> // Implementation may depends on compiler version.
 #include <pfs/cxxversion.hpp>
 #include PFS_CXX_HEADER(filesystem)
 

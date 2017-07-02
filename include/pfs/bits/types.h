@@ -149,11 +149,11 @@
 
 typedef uint8_t byte_t;
 
-#if PFS_HAVE_LONG_DOUBLE
-    typedef long double    real_t;
-#else
-    typedef double         real_t;
-#endif
+//#if PFS_HAVE_LONG_DOUBLE
+//    typedef long double    real_t;
+//#else
+typedef double         real_t;
+//#endif
 
 typedef float real32_t;
 typedef double real64_t;

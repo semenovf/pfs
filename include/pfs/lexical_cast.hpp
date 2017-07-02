@@ -10,7 +10,6 @@
 
 //#include <string>
 #include <pfs/cxxlang.hpp>
-#include <pfs/system_error.hpp>
 #include <pfs/type_traits.hpp>
 #include <pfs/unicode/unicode_iterator.hpp>
 #include <pfs/lexical_cast/exception.hpp>
@@ -29,17 +28,14 @@ lexical_cast (StringT const & s, int radix = 10)
 {
     typedef typename StringT::const_iterator iterator;
     iterator badpos;
-    int overflow = 0;
-    int sign = 0;
     
     UintT result = string_to_uint<UintT, iterator>(s.cbegin()
             , s.cend()
             , & badpos
-            , radix
-            , & overflow);
+            , radix);
     
     if (badpos != s.cend())
-        throw bad_lexical_cast("lexical_cast(): bad cast from string to numeric");
+        throw bad_lexical_cast(pfs::make_error_code(lexical_cast_errc::invalid_string));
     
     return result;
 }
@@ -58,7 +54,7 @@ lexical_cast (StringT const & s, int radix = 10)
             , radix);
     
     if (badpos != s.cend())
-        throw bad_lexical_cast("lexical_cast(): bad cast from string to numeric");
+        throw bad_lexical_cast(pfs::make_error_code(lexical_cast_errc::invalid_string));
     
     return result;
 }
@@ -76,11 +72,8 @@ lexical_cast (StringT const & s, typename StringT::value_type decimal_point = '.
             , & badpos);
     
     if (badpos != s.cend())
-        throw bad_lexical_cast("lexical_cast(): bad cast from string to numeric");
+        throw bad_lexical_cast(pfs::make_error_code(lexical_cast_errc::invalid_string));
     
-//	if (! (fabs(result) <= fabs(numeric_limits<Float>::max())))
-//        throw bad_lexical_cast("lexical_cast(): bad cast from string to numeric");
-
     return static_cast<FloatT>(result);
 }
 

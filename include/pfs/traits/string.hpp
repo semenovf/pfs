@@ -64,7 +64,7 @@ public:
     string (InputIt first, InputIt last)
         : _p(first, last)
     {}
-
+    
     /**
      * Casts to const native container reference
      */

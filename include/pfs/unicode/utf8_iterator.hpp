@@ -56,6 +56,11 @@ public:
     {
         return decode(_p, 0);
     }
+    
+    operator CodePointIter ()
+    {
+        return _p;
+    }
 
 protected:
     static void advance_forward (CodePointIter & p, difference_type n);

@@ -130,6 +130,12 @@ public:
         return _p->compare(pos1, count1, rhs._p, pos2, count2) ;
     }
     
+    
+    void clear ()
+    {
+        _p->clear();
+    }
+    
     iterator erase (const_iterator first, const_iterator last)
     {
 #if __cplusplus >= 201103L
@@ -145,6 +151,11 @@ public:
         native_type::erase(index, count);
         return _p->begin() + index;
 #endif
+    }
+    
+    void push_back (value_type ch)
+    {
+        _p->push_back(ch);
     }
     
     friend inline bool operator == (basic_string const & lhs, basic_string const & rhs)

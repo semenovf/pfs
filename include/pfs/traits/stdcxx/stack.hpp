@@ -76,36 +76,42 @@ public:
 
     reference top ()
     {
-        return _p->back();
+        //return _p->back();
+        return _p->top();
     }
 
     const_reference top () const
     {
-        return _p->back();
+        //return _p->back();
+        return _p->top();
     }
 
     void push (value_type const & x)
     {
-        _p->push_back(x);
+        //_p->push_back(x);
+        _p->push(x);
     }
 
 #if __cplusplus >= 201103L
 
     void push (value_type && x)
     {
-        _p->push_back(std::forward(x));
+        //_p->push_back(std::forward(x));
+        _p->push(std::forward(x));
     }
 
     template <typename... Args>
     void emplace (Args &&... args)
     {
-        _p->emplace_back(std::forward<Args>(args)...);
+        //_p->emplace_back(std::forward<Args>(args)...);
+        _p->emplace(std::forward<Args>(args)...);
     }
 #endif
 
     void pop ()
     {
-        _p->pop_back();
+        //_p->pop_back();
+        _p->pop();
     }
 
 //    void swap (stack & s) noexcept

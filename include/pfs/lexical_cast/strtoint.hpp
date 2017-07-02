@@ -14,6 +14,8 @@
 #include <pfs/compiler.hpp>
 #include PFS_CC_HEADER(ctype)
 
+#include "exception.hpp"
+
 namespace pfs {
 
 //
@@ -67,7 +69,7 @@ namespace pfs {
  * it is taken as 8 (octal).
  */
 template <typename UintT, typename CharIteratorT>
-uintmax_t __string_to_uint (CharIteratorT beginpos
+UintT __string_to_uint (CharIteratorT beginpos
     , CharIteratorT endpos
     , CharIteratorT * badpos
     , int radix
@@ -85,9 +87,6 @@ uintmax_t __string_to_uint (CharIteratorT beginpos
     if (poverflow)
         *poverflow = 0;
     
-    if (radix != 0 && (radix < 2 || radix > 36))
-        throw pfs::invalid_argument("string_to_uintmax(): bad radix");
-
     // Skip white spaces
     while (pos != endpos && pfs::is_space(*pos))
         ++pos;
@@ -217,10 +216,15 @@ UintT string_to_uint (CharIteratorT beginpos
     , CharIteratorT endpos
     , CharIteratorT * badpos
     , int radix
-    , int * poverflow = 0)
+    , error_code & ec)
 {
     int sign = 0;
     int overflow = 0;
+
+    if (radix != 0 && (radix < 2 || radix > 36)) {
+        ec = pfs::make_error_code(lexical_cast_errc::bad_radix); // bad radix
+        return 0;
+    }
     
     UintT result = __string_to_uint<UintT, CharIteratorT>(beginpos
             , endpos
@@ -229,8 +233,11 @@ UintT string_to_uint (CharIteratorT beginpos
             , & sign
             , & overflow);
     
-    if (poverflow)
-        *poverflow = overflow;
+    if (overflow) {
+        ec = overflow < 0
+                ? pfs::make_error_code(lexical_cast_errc::underflow)
+                : pfs::make_error_code(lexical_cast_errc::overflow);
+    }
 
     if (sign < 0)
         result *= sign;
@@ -243,13 +250,18 @@ IntT string_to_int (CharIteratorT beginpos
     , CharIteratorT endpos
     , CharIteratorT * badpos
     , int radix
-    , int * poverflow = 0)
+    , error_code & ec)
 {
     typedef typename make_unsigned<IntT>::type uintmax_type;
     int sign = 0;
     int overflow = 0;
     
     IntT result = 0;
+    
+    if (radix != 0 && (radix < 2 || radix > 36)) {
+        ec = pfs::make_error_code(lexical_cast_errc::bad_radix); // bad radix
+        return 0;
+    }
     
     uintmax_type unsigned_result
         = __string_to_uint<uintmax_type, CharIteratorT>(beginpos
@@ -280,10 +292,53 @@ IntT string_to_int (CharIteratorT beginpos
     else
         result = static_cast<IntT>(unsigned_result);
 
-    if (poverflow)
-        *poverflow = overflow;
+    if (overflow) {
+        ec = overflow < 0
+                ? pfs::make_error_code(lexical_cast_errc::underflow)
+                : pfs::make_error_code(lexical_cast_errc::overflow);
+    }
 
     return result;    
+}
+
+template <typename UintT, typename CharIteratorT>
+UintT string_to_uint (CharIteratorT beginpos
+    , CharIteratorT endpos
+    , CharIteratorT * badpos
+    , int radix = 10)
+{
+    error_code ec;
+    
+    UintT result = string_to_uint<UintT, CharIteratorT>(beginpos
+            , endpos
+            , badpos
+            , radix
+            , ec);
+    
+    if (ec.value() != static_cast<int>(lexical_cast_errc::success))
+        throw bad_lexical_cast(ec);
+        
+    return result;
+}
+
+template <typename IntT, typename CharIteratorT>
+IntT string_to_int (CharIteratorT beginpos
+    , CharIteratorT endpos
+    , CharIteratorT * badpos
+    , int radix = 10)
+{
+    error_code ec;
+    
+    IntT result = string_to_int<IntT, CharIteratorT>(beginpos
+            , endpos
+            , badpos
+            , radix
+            , ec);
+    
+    if (ec.value() != static_cast<int>(lexical_cast_errc::success))
+        throw bad_lexical_cast(ec);
+        
+    return result;
 }
 
 } // pfs
