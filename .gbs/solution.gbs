@@ -34,6 +34,9 @@ configuration "release"
 filter { "debug", "action:gmake" }
     linkoptions  { "-rdynamic" }
 
+filter "action:gmake"
+    buildoptions { "-Wunused", "-Wno-long-long", "-pedantic" }
+
 -- Projects
 
 project "pfs-test"
@@ -99,8 +102,24 @@ project "test-active-queue"
 --project "test-mpl-chrono"
 --    include("test-mpl-chrono/project.gbs")
 
+project "test-regex"
+    include("test-regex.gbs")
+
 project "test-filesystem"
     include("test-filesystem.gbs")
 
 project "test-json"
     include("test-json.gbs")
+
+project "test-io-buffer"
+    include("test-io-buffer.gbs")
+
+project "test-io-file"
+    include("test-io-file.gbs")
+
+project "test-io-server"
+    include("test-io-server.gbs")
+
+project "test-net-inet4_addr"
+    include("test-net-inet4_addr.gbs")
+

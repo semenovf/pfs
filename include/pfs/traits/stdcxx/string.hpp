@@ -9,6 +9,7 @@
 #define __PFS_TRAITS_STDCXX_STRING_HPP__
 
 #include <string>
+#include <cstring>
 #include <pfs/iterator.hpp>
 #include <pfs/cxxlang.hpp>
 #include <pfs/traits/string_value_ref.hpp>
@@ -63,6 +64,10 @@ public:
     template <typename InputIt>
     basic_string (InputIt first, InputIt last)
         : _p(first, last)
+    {}
+    
+    basic_string (size_type count, value_type ch)
+        : _p(count, ch)
     {}
     
     basic_string & operator = (native_reference rhs)
@@ -127,9 +132,26 @@ public:
     int compare (size_type pos1, size_type count1
             , basic_string const & rhs, size_type pos2, size_type count2) const
     {
-        return _p->compare(pos1, count1, rhs._p, pos2, count2) ;
+        return _p->compare(pos1, count1, *rhs._p, pos2, count2) ;
     }
     
+    basic_string & append (size_type count, value_type ch)
+    {
+        _p->append(count, ch);
+        return *this;
+    }
+    
+    basic_string & append (const_pointer str, size_type count)
+    {
+        _p->append(str, count);
+        return *this;
+    }
+    
+    basic_string & append (const_native_reference s)
+    {
+        _p->append(s);
+        return *this;
+    }
     
     void clear ()
     {
@@ -187,6 +209,43 @@ public:
     {
         return *lhs._p >= *rhs._p;
     }
+    
+    friend inline string_value_type operator + (basic_string const & lhs, basic_string const & rhs)
+    {
+        string_value_type result;
+        *result._p = *lhs._p + *rhs._p;
+        return result;
+    }
+
+    friend inline string_value_type operator + (const_pointer lhs, basic_string const & rhs)
+    {
+        string_value_type result;
+        *result._p = lhs + *rhs._p;
+        return result;
+    }
+
+    friend inline string_value_type operator + (value_type lhs, basic_string const & rhs)
+    {
+        string_value_type result;
+        *result._p = lhs + *rhs._p;
+        return result;
+    }
+
+    friend inline string_value_type operator + (basic_string const & lhs, const_pointer rhs)
+    {
+        string_value_type result;
+        *result._p = *lhs._p + rhs;
+        return result;
+    }
+
+    friend inline string_value_type operator + (basic_string const & lhs, value_type rhs)
+    {
+        string_value_type result;
+        *result._p = *lhs._p + rhs;
+        return result;
+    }
+    
+    static size_type length (const_pointer str);
 };
 
 typedef basic_string<string_value<char, std::string> >     string;
@@ -200,6 +259,18 @@ typedef basic_string<string_value<char32_t, std::u32string> > u32string;
 typedef basic_string<string_ref<char16_t, std::u16string> >   u16string_reference;
 typedef basic_string<string_ref<char32_t, std::u32string> >   u32string_reference;
 #endif
+
+template <>
+inline string::size_type string::length (const_pointer str)
+{
+    return ::strlen(str);
+}
+
+template <>
+inline wstring::size_type wstring::length (const_pointer str)
+{
+    return ::wcslen(str);
+}
 
 }}} // pfs::traits::stdcxx
 

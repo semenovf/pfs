@@ -9,8 +9,6 @@
 #define __PFS_MEMORY_HPP__
 
 #include <pfs/cxxversion.hpp>
-#include PFS_CXX_HEADER(shared_ptr)
-#include PFS_CXX_HEADER(unique_ptr)
 #include PFS_CXX_HEADER(memory)
 
 #endif /* __PFS_MEMORY_HPP__ */

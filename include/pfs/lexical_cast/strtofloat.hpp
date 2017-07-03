@@ -191,7 +191,7 @@ CharIteratorT __parse_exp (CharIteratorT beginpos
 		, int & expSign
 		, int & exp)
 {
-    typedef typename iterator_traits<CharIteratorT>::value_type value_type;
+    //typedef typename iterator_traits<CharIteratorT>::value_type value_type;
 
 	CharIteratorT pos(beginpos);
 	exp = 0;
@@ -252,7 +252,7 @@ FloatT string_to_float (CharIteratorT beginpos
 		, CharIteratorT * badpos
         , error_code & ec) // badpos
 {
-	typedef typename iterator_traits<CharIteratorT>::value_type value_type;
+	//typedef typename iterator_traits<CharIteratorT>::value_type value_type;
 
 	CharIteratorT pos(beginpos);
 	FloatT r = FloatT(0.0f);

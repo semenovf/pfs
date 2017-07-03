@@ -65,6 +65,10 @@ public:
         : _p(first, last)
     {}
     
+    string (size_type count, value_type ch)
+        : _p(count, ch)
+    {}
+    
     /**
      * Casts to const native container reference
      */
@@ -197,7 +201,7 @@ public:
     
     int compare (size_type pos1, size_type count1, string const & rhs) const
     {
-        return this->compare(pos1, count1, rhs._p, 0, rhs.size());
+        return this->compare(pos1, count1, rhs, 0, rhs.size());
     }
     
     int compare (string const & rhs) const
@@ -331,39 +335,45 @@ public:
         _p.clear();
     }
     
-    string & append (size_type count, const_reference ch)
+    string & append (size_type count, value_type ch)
     {
         _p.append(count, ch);
         return *this;
     }
     
-    string & append (string const & str)
+    string & append (string const & s)
     {
-        return append(str, 0, str.size());
+        return append(s, 0, s.size());
     }
     
-    string & append (string const & str
+    string & append (string const & s
                 , size_type pos
                 , size_type count)
     {
-        if (pos >= str.size())
+        if (pos >= s.size())
             throw out_of_range("string::append()");
         
-        if (count == size_type(-1) || pos + count > str.size())
-            count = str.size() - pos;
+        if (count == size_type(-1) || pos + count > s.size())
+            count = s.size() - pos;
         
-        return append(str.data() + pos, count);
+        return append(s.data() + pos, count);
     }
     
-    string & append (const_pointer s, size_type count)
+    string & append (const_pointer str, size_type count)
     {
-        _p.append(s, count);
+        _p.append(str, count);
         return *this;
     }
     
-    string & append (const_pointer s)
+    string & append (const_pointer str)    
     {
-        return append(s, internal_type::length(s));
+        return append(str, internal_type::length(str));
+    }
+    
+    string & append (const_native_reference s)
+    {
+        _p.append(s);
+        return *this;
     }
     
     string & insert (size_type index, size_type count, value_type ch);
@@ -435,6 +445,41 @@ public:
     {
         return lhs._p >= rhs._p;
     }
+    
+    friend inline string_value_type operator + (string const & lhs, string const & rhs)
+    {
+        string_value_type result;
+        result._p = lhs._p + rhs._p;
+        return result;
+    }
+
+    friend inline string_value_type operator + (const_pointer lhs, string const & rhs)
+    {
+        string_value_type result;
+        result._p = lhs + rhs._p;
+        return result;
+    }
+
+    friend inline string_value_type operator + (value_type lhs, string const & rhs)
+    {
+        string_value_type result;
+        result._p = lhs + rhs._p;
+        return result;
+    }
+
+    friend inline string_value_type operator + (string const & lhs, const_pointer rhs)
+    {
+        string_value_type result;
+        result._p = lhs._p + rhs;
+        return result;
+    }
+
+    friend inline string_value_type operator + (string const & lhs, value_type rhs)
+    {
+        string_value_type result;
+        result._p = lhs._p + rhs;
+        return result;
+    }
 };
 
 template <typename StringSpecificTraits>
@@ -457,6 +502,80 @@ string<StringSpecificTraits>::substr (size_type pos, size_type count) const
 }
 
 }} // pfs::traits
+
+namespace pfs {
+
+template <typename StringT>
+StringT to_string (char a
+        , int field_width = 0
+        , typename StringT::value_type fill_char = typename StringT::value_type(' '));
+
+template <typename StringT>
+StringT to_string (short a
+        , int field_width = 0
+        , int radix = 10
+        , typename StringT::value_type fill_char = typename StringT::value_type(' '));
+
+template <typename StringT>
+StringT to_string (unsigned short a
+        , int field_width = 0
+        , int radix = 10
+        , typename StringT::value_type fill_char = typename StringT::value_type(' '));
+
+template <typename StringT>
+StringT to_string (int a
+        , int field_width = 0
+        , int radix = 10
+        , typename StringT::value_type fill_char = typename StringT::value_type(' '));
+
+template <typename StringT>
+StringT to_string (unsigned int a
+        , int field_width = 0
+        , int radix = 10
+        , typename StringT::value_type fill_char = typename StringT::value_type(' '));
+
+template <typename StringT>
+StringT to_string (long a
+        , int field_width = 0
+        , int radix = 10
+        , typename StringT::value_type fill_char = typename StringT::value_type(' '));
+
+template <typename StringT>
+StringT to_string (unsigned long a
+        , int field_width = 0
+        , int radix = 10
+        , typename StringT::value_type fill_char = typename StringT::value_type(' '));
+
+#if PFS_HAVE_LONGLONG
+
+template <typename StringT>
+StringT to_string (long long a
+        , int field_width = 0
+        , int radix = 10
+        , typename StringT::value_type fill_char = typename StringT::value_type(' '));
+
+template <typename StringT>
+StringT to_string (unsigned long long a
+        , int field_width = 0
+        , int radix = 10
+        , typename StringT::value_type fill_char = typename StringT::value_type(' '));
+#endif
+
+template <typename StringT>
+StringT to_string (float a
+        , int field_width = 0
+        , char format = 'g'
+        , int precision = -1
+        , typename StringT::value_type fill_char = typename StringT::value_type(' '));
+
+template <typename StringT>
+StringT to_string (double a
+        , int field_width = 0
+        , char format = 'g'
+        , int precision = -1
+        , typename StringT::value_type fill_char = typename StringT::value_type(' '));
+}
+
 
 #endif /* __PFS_TRAITS_STRING_HPP__ */
 

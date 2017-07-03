@@ -8,6 +8,7 @@
 #ifndef __PFS_CXX_CXX11_UTILITY_HPP__
 #define __PFS_CXX_CXX11_UTILITY_HPP__
 
+#include <pfs/types.hpp>
 #include <utility>
 
 namespace pfs {

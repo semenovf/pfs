@@ -5,22 +5,36 @@
 
 namespace pfs { namespace json {
 
-typedef value json;
+#if __cplusplus >= 201103L
 
-bool parse (json & result, string const & s);
+template <typename BoolT
+        , typename IntT
+        , typename RealT
+        , typename StringT
+        , template <typename> class ArrayT
+        , template <typename> class ObjectT>
+using json = value<BoolT, IntT, RealT, StringT, ArrayT, ObjectT>;
 
-inline json parse (string const & s)
-{
-    json result;
-    parse(result, s);
-    return result;
-}
+#else
+#   error "Implement json for C++ prior to C++11"
+#endif
 
-template <typename T>
-pfs::json::value to_json (T const & v, bool plain = false)
-{
-    return pfs::json::value(); // default is null value
-}
+//typedef value json;
+//
+//bool parse (json & result, string const & s);
+//
+//inline json parse (string const & s)
+//{
+//    json result;
+//    parse(result, s);
+//    return result;
+//}
+//
+//template <typename T>
+//pfs::json::value to_json (T const & v, bool plain = false)
+//{
+//    return pfs::json::value(); // default is null value
+//}
 
 }} // pfs
 

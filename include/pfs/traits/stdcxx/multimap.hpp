@@ -9,7 +9,7 @@
 #define __PFS_TRAITS_STDCXX_MULTIMAP_HPP__
 
 #include <map>
-#include <pfs/utility.hpp>
+#include <pfs/traits/value_ref.hpp>
 
 namespace pfs {
 namespace traits {

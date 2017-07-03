@@ -34,7 +34,6 @@ namespace json {
 typedef pfs::json::value<
           bool
         , intmax_t
-        , uintmax_t
         , double
         , pfs::traits::stdcxx::string
         , pfs::traits::stdcxx::vector

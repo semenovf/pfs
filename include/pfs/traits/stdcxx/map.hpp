@@ -9,6 +9,7 @@
 #define __PFS_TRAITS_STDCXX_MAP_HPP__
 
 #include <map>
+#include <pfs/traits/value_ref.hpp>
 
 namespace pfs {
 namespace traits {
@@ -210,6 +211,11 @@ public:
     pfs::pair<iterator, bool> insert (value_type const & value)
     {
         return _p->insert(value);
+    }
+
+    pfs::pair<iterator, bool> insert2 (key_type const & key, mapped_type const & value)
+    {
+        return _p->insert(pfs::make_pair(key, value));
     }
 
     // *************************************************************************

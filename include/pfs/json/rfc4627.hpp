@@ -221,7 +221,7 @@ struct grammar
         real_t d;
         
         try {
-            real_t d = lexical_cast<real_t, string_type>(number_str);
+            d = lexical_cast<real_t, string_type>(number_str);
         } catch (bad_lexical_cast ex) {
             throw json_exception(json_errc::bad_number);
         }

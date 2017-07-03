@@ -41,7 +41,7 @@ int main(int argc, char *argv[])
             
 #ifdef QT_CORE_LIB
     {
-        typedef pfs::traits::string<pfs::traits::qt::string> string_type;
+        //typedef pfs::traits::string<pfs::traits::qt::string> string_type;
 
 //        test_string_to_uint<string_type>();
 //        test_string_to_int<string_type>();

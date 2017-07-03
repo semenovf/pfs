@@ -9,6 +9,8 @@
 #define __PFS_CXX98_MEMORY_HPP__
 
 #include <pfs/cxxlang.hpp>
+#include "shared_ptr.hpp"
+#include "unique_ptr.hpp"
 
 namespace pfs {
 

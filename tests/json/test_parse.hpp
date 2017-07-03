@@ -7,6 +7,8 @@
 
 namespace test_parse {
 
+#if __UNCOMMENT__
+
 static const char * empty_object_str = "{}";
 static const char * empty_array_str = "[]";
 
@@ -47,6 +49,8 @@ static const char * array_str = "   [       \
 		  }                                      \
 	   ]";
 
+#endif
+
 template <typename json_type>
 void test_fsm ()
 {
@@ -57,7 +61,7 @@ void test_fsm ()
 
     typedef typename grammar_type::unicode_iterator iterator;
     typedef pfs::fsm::test_valid_entry<typename grammar_type::unicode_iterator> test_valid_entry;
-    typedef pfs::fsm::test_invalid_entry<typename grammar_type::unicode_iterator> test_invalid_entry;
+    //typedef pfs::fsm::test_invalid_entry<typename grammar_type::unicode_iterator> test_invalid_entry;
     
     grammar_type grammar;
     

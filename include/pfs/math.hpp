@@ -117,7 +117,7 @@ inline int integral_sign (intmax_t Pn)
 inline intmax_t integral_abs (intmax_t Pn)
 { 
     return Pn * integral_sign(Pn);
-};
+}
 
 inline intmax_t integral_gcd (intmax_t IntegralConstant1, intmax_t IntegralConstant2)
 { 
@@ -127,9 +127,9 @@ inline intmax_t integral_gcd (intmax_t IntegralConstant1, intmax_t IntegralConst
         return integral_abs(IntegralConstant2);
     
     return integral_gcd(IntegralConstant2, IntegralConstant1 % IntegralConstant2);
-};
-
 }
+
+} // details
 
 template <intmax_t IntegralConstant>
 struct integral_sign

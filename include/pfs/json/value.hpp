@@ -22,8 +22,7 @@ namespace pfs {
 namespace json {
 
 template <typename BoolT
-        , typename IntegerT
-        , typename UIntegerT
+        , typename IntT
         , typename RealT
         , typename StringT
         , template <typename> class ArrayT
@@ -34,21 +33,19 @@ public:
     typedef ptrdiff_t difference_type;
     typedef size_t    size_type;
 
-    typedef pfs::traits::string<StringT>    string_traits;
-    typedef string_traits                   string_type;
-    typedef BoolT                           boolean_type;
-    typedef IntegerT                        integer_type;
-    typedef UIntegerT                       uinteger_type;
-    typedef RealT                           real_type;
-    typedef pfs::traits::sequence_container<value, ArrayT>
-                                            array_traits;
-    typedef array_traits                    array_type;
+    typedef pfs::traits::string<StringT>                   string_traits;
+    typedef string_traits                                  string_type;
+    typedef BoolT                                          boolean_type;
+    typedef IntT                                           integer_type;
+    typedef typename make_unsigned<IntT>::type             uinteger_type;
+    typedef RealT                                          real_type;
+    typedef pfs::traits::sequence_container<value, ArrayT> array_traits;
+    typedef array_traits                                   array_type;
     typedef pfs::traits::associative_container<
-            pfs::traits::kv<string_type, value>, ObjectT>
-                                            object_traits;
-    typedef object_traits                   object_type;
+            pfs::traits::kv<string_type, value>, ObjectT>  object_traits;
+    typedef object_traits                                  object_type;
 
-    typedef typename object_type::key_type  key_type;
+    typedef typename object_type::key_type                 key_type;
 
     struct value_rep
     {

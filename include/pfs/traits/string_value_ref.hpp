@@ -20,6 +20,7 @@ struct string_value
     typedef NativeString        native_type;
     typedef native_type &       native_reference;
     typedef native_type const & const_native_reference;
+    typedef CharT               value_type;
     typedef CharT const *       const_pointer;
     
     typedef string_value<CharT, NativeString> string_value_type;
@@ -47,6 +48,10 @@ struct string_value
         : v(first, last)
     {}
     
+    string_value (size_t count, value_type ch)
+        : v(count, ch)
+    {}
+
     native_reference operator * ()
     {
         return v;
