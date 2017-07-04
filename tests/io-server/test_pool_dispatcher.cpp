@@ -6,17 +6,19 @@
  */
 
 #include <pfs/test/test.hpp>
-#include <pfs/vector.hpp>
 #include <pfs/thread.hpp>
 #include <pfs/byte_string.hpp>
 #include <pfs/io/device.hpp>
 #include <pfs/io/inet_server.hpp>
 #include <pfs/io/pool.hpp>
+#include <pfs/traits/stdcxx/vector.hpp>
+#include <pfs/traits/stdcxx/map.hpp>
+#include <pfs/system_string.hpp>
 #include <iostream>
 
 #define BUFFER_SIZE 1
 #define NCLIENTS    10
-#define SERVER_ADDR _u8("127.0.0.1")
+#define SERVER_ADDR pfs::system_string("127.0.0.1")
 #define SERVER_PORT 10299
 #define SERVER_BACKLOG 10
 
@@ -72,7 +74,12 @@ static const char * loremipsum [] = {
 	, "40.videntur parum clari, fiant sollemnes in futurum."
 };
 
-struct dispatcher_context : public pfs::io::pool::dispatcher_context
+typedef pfs::io::pool<
+          pfs::traits::stdcxx::vector
+        , pfs::traits::stdcxx::vector
+        , pfs::traits::stdcxx::map> poll_type;
+
+struct dispatcher_context : public poll_type::dispatcher_context2
 {
 	int n1;
 
@@ -88,7 +95,7 @@ struct dispatcher_context : public pfs::io::pool::dispatcher_context
 	virtual void ready_read (pfs::io::device & d)
 	{
 		pfs::byte_string bytes;
-		pfs::error_code ex = d.read(bytes, d.available());
+		/*pfs::error_code ex = */ d.read(bytes, d.available());
 
 		std::cout << "Ready read: " << bytes.size() << " bytes" << std::endl;
 	}
@@ -104,9 +111,9 @@ struct dispatcher_context : public pfs::io::pool::dispatcher_context
 		std::cout << "Socket can write" << std::endl;
 	}
 
-	virtual void on_error (const pfs::error_code & ex)
+	virtual void on_error (pfs::error_code const & ex)
 	{
-		std::cerr << "ERROR: " << pfs::to_string(ex) << std::endl;
+		std::cerr << "ERROR: " << ex.message() << std::endl;
 	}
 
 //	pfs::io::pool & pool;
@@ -135,13 +142,12 @@ struct dispatcher_context : public pfs::io::pool::dispatcher_context
 //	}
 };
 
-class ServerThread : public pfs::thread
+class ServerThread
 {
 	pfs::io::server _server;
 
 public:
 	ServerThread ()
-		: pfs::thread()
 	{
 		ADD_TESTS(1);
 
@@ -153,7 +159,7 @@ public:
 				, ex);
 
 		if (ex) {
-			std::cerr << "ERROR (server): open failed:" << pfs::to_string(ex) << std::endl;
+			std::cerr << "ERROR (server): open failed:" << ex.message() << std::endl;
 		}
 
 		TEST_FAIL2(!ex, "Open server socket");
@@ -164,20 +170,19 @@ public:
 		if (!_server.opened())
 			return;
 
-		pfs::io::pool pool;
+		poll_type pool;
 		pool.push_back(_server);
 
 		dispatcher_context ctx;
 
-		pool.dispatch(ctx, pfs::io::poll_all, 100);
+		pool.dispatch(ctx);//, pfs::io::poll_all, 100);
 	}
 };
 
-class ClientThread : public pfs::thread
+class ClientThread
 {
 public:
 	ClientThread ()
-		: pfs::thread()
 	{}
 
 	virtual void run ()
@@ -193,7 +198,7 @@ public:
 		TEST_OK2(!ex, "Open client socket");
 
 		if (ex) {
-			std::cerr << "ERROR (client): " << pfs::to_string(ex) << std::endl;
+			std::cerr << "ERROR (client): " << ex.message() << std::endl;
 			return;
 		}
 
@@ -214,7 +219,7 @@ public:
 			if (!ex) {
 				++n1;
 			} else {
-				std::cerr << "ERROR (client): " << pfs::to_string(ex) << std::endl;
+				std::cerr << "ERROR (client): " << ex.message() << std::endl;
 			}
 		}
 
@@ -231,15 +236,20 @@ void test_pool_dispatcher ()
 	ServerThread server;
 	ClientThread clients[NCLIENTS];
 
-	server.start();
+    pfs::unique_ptr<pfs::thread> server_thread;
+    pfs::unique_ptr<pfs::thread> client_threads[NCLIENTS];
+    
+    server_thread = pfs::make_unique<pfs::thread>(& ServerThread::run, & server);
 
 	for (int i = 0; i < NCLIENTS; ++i) {
-		clients[i].start();
+        client_threads[i] = pfs::make_unique<pfs::thread>(& ClientThread::run, & clients[i]);
 	}
 
+    server_thread->join();
+    
 	for (int i = 0; i < NCLIENTS; ++i) {
-		clients[i].wait();
+		client_threads[i]->join();
 	}
 
-	server.wait(5000);
+    pfs::this_thread::sleep_for(pfs::chrono::seconds(5));
 }

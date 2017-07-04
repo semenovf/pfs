@@ -73,6 +73,11 @@ public:
         base_class::_p.shrink_to_fit();
     }
     
+    void push_back (const_reference value)
+    {
+        base_class::_p.push_back(value);
+    }
+
     //
     // *** ELEMENT ACCESS
     //

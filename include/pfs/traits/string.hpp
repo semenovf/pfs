@@ -10,6 +10,7 @@
 
 #include <pfs/exception.hpp>
 #include <pfs/iterator.hpp>
+#include <ostream>
 
 namespace pfs {
 namespace traits {
@@ -81,6 +82,16 @@ public:
      * Casts to native container reference
      */
     operator native_reference ()
+    {
+        return _p;
+    }
+    
+    const_native_reference native () const
+    {
+        return _p;
+    }
+
+    native_reference native ()
     {
         return _p;
     }
@@ -479,6 +490,12 @@ public:
         string_value_type result;
         result._p = lhs._p + rhs;
         return result;
+    }
+    
+    friend inline std::ostream & operator << (std::ostream & os, string const & s)
+    {
+        os << s.native();
+        return os;
     }
 };
 

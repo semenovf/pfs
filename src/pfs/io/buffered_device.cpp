@@ -48,7 +48,7 @@ ssize_t buffered_device::upload_bytes (size_t max_size, error_code & ex)
     
 bool buffered_device::can_read (size_t count, error_code & ex)
 {
-	ex.reset();
+	ex.clear();
 
 	if (_cursor + count < _count) {
 		return true;

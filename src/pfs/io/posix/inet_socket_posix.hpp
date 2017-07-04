@@ -58,7 +58,7 @@ public:
     virtual error_code close ()
     {
         error_code ex = close_socket(_fd) != 0 
-                ? error_code(errno) 
+                ? error_code(errno, pfs::generic_category()) 
                 : error_code();
         _fd = -1;
         return ex;
@@ -89,7 +89,7 @@ public:
 
     virtual device_type type () const = 0;
     
-    virtual string url () const = 0;
+    virtual system_string url () const = 0;
     
     error_code set_socket_options (uint32_t sso);
 };
@@ -103,7 +103,9 @@ public:
 	virtual error_code open (bool non_blocking)
     {
         _fd = create_tcp_socket(non_blocking);
-        return _fd < 0 ? error_code(errno) : error_code();
+        return _fd < 0 
+                ? error_code(errno, pfs::generic_category())
+                : error_code();
     }
 
 public:
@@ -116,9 +118,9 @@ public:
         return device_tcp_socket;
     }
         
-    virtual string url () const
+    virtual system_string url () const
     {
-        return inet_socket_url("tcp", _sockaddr);
+        return inet_socket_url<system_string>("tcp", _sockaddr);
     }
 };
 
@@ -150,7 +152,9 @@ public:
 	virtual error_code open (bool non_blocking)
     {
         _fd = create_udp_socket(non_blocking);
-        return _fd < 0 ? error_code(errno) : error_code();
+        return _fd < 0 
+                ? error_code(errno, pfs::generic_category())
+                : error_code();
     }
 
 public:
@@ -163,9 +167,9 @@ public:
         return device_udp_socket;
     }
 
-    virtual string url () const
+    virtual system_string url () const
     {
-        return inet_socket_url("udp", _sockaddr);
+        return inet_socket_url<system_string>("udp", _sockaddr);
     }
 };
 
@@ -205,8 +209,6 @@ public:
 
 };
 
-
 }}}
-
 
 #endif /* __PFS_INET_SOCKET_POSIX_HPP__ */

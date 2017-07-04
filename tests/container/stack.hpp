@@ -16,8 +16,8 @@ void test_stack ()
 {
     ADD_TESTS(0);
     
-    typedef pfs::traits::stack<T, ContainerValueRef> stack_traits;
-    typedef typename stack_traits::value_type        value_type;
+//    typedef pfs::traits::stack<T, ContainerValueRef> stack_traits;
+//    typedef typename stack_traits::value_type        value_type;
     
 //    typename container_traits::native_type c1;
 //    

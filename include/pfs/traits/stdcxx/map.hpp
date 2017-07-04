@@ -163,6 +163,17 @@ public:
     
     // *** MODIFIERS ***
     //
+    iterator erase (const_iterator pos)
+    {
+        return _p->erase(pos);
+    }
+    
+    size_type erase (key_type const & key)
+    {
+        return _p->erase(key);
+    }
+
+
     
     // FIXME
 //    void swap (container & rhs)

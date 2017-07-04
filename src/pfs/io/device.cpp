@@ -4,8 +4,6 @@
  * @date Apr 28, 2014
  */
 
-#include <pfs/scoped_ptr.hpp>
-#include <pfs/zlib.hpp>
 #include "pfs/io/file.hpp"
 
 namespace pfs { namespace io {
@@ -59,16 +57,16 @@ error_code device::close ()
  *         @li -1 and @a *ex == 0 if size of written data is not equals to size of read data;
  *         @li >=0 if data is succesfull.
  */
-ssize_t copy (device & dest, device & src, size_t chunkSize, error_code * ex)
+ssize_t copy (device & dest, device & src, size_t chunkSize, error_code * ec)
 {
     byte_t buffer[DEFAULT_READ_BUFSZ];
     ssize_t r = 0;
 
-    if (ex)
-    	*ex = 0;
+    if (ec)
+    	ec->clear();
 
     while (r < chunkSize) {
-    	ssize_t r1 = src.read(buffer, DEFAULT_READ_BUFSZ, ex);
+    	ssize_t r1 = src.read(buffer, DEFAULT_READ_BUFSZ, ec);
 
     	if (r1 < 0)
     		return -1;
@@ -76,7 +74,7 @@ ssize_t copy (device & dest, device & src, size_t chunkSize, error_code * ex)
     	if (r1 == 0)
     		break;
 
-    	ssize_t r2 = dest.write(buffer, static_cast<size_t>(r1), ex);
+    	ssize_t r2 = dest.write(buffer, static_cast<size_t>(r1), ec);
 
     	if (r2 <= 0)
     		return -1;
@@ -90,7 +88,7 @@ ssize_t copy (device & dest, device & src, size_t chunkSize, error_code * ex)
     return r;
 }
 
-// TODO Move functions below (complress/uncomress) to another place
+// TODO Move functions below (compress/uncompress) to another place
 #if __TODO__
 bool compress (device & dest, device & src, zlib::compression_level level, size_t chunkSize, error_code * pex)
 {

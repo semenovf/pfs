@@ -33,6 +33,7 @@ void test_associative_container_coverage ()
     pfs::pair<iterator, bool> result = traits1.insert(value);
     
     mapped_type & ref = result.first->second;
+    PFS_UNUSED(ref);
 }
 
 #endif /* TEST_ASSOCIATIVE_CONTAINER_HPP */

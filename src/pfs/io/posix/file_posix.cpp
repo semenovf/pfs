@@ -10,6 +10,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <sys/stat.h>
+#include "pfs/compiler.hpp"
 #include "pfs/io/file.hpp"
 #include "posix_utils.hpp"
 
@@ -18,7 +19,7 @@ namespace pfs { namespace io { namespace details {
 struct file : public bits::device
 {
 	bits::device::native_handle_type _fd;
-	fs::path path;
+	filesystem::path path;
 	int      oflags;
 	mode_t   omode;
 
@@ -40,7 +41,7 @@ struct file : public bits::device
 		close();
 	}
 
-	error_code open (const fs::path & path, int native_oflags, mode_t native_mode);
+	error_code open (filesystem::path const & path, int native_oflags, mode_t native_mode);
 
     virtual error_code reopen ()
     {
@@ -65,7 +66,7 @@ struct file : public bits::device
 
     virtual void flush ()
     {
-#ifdef PFS_HAVE_FSYNC
+#if PFS_CC_GCC
     	::fsync(_fd);
 #else
 #   error "Don't know how to sync file"
@@ -97,20 +98,20 @@ struct file : public bits::device
     	return device_file;
     }
     
-    virtual string url () const
+    virtual system_string url () const
     {
-        string r("file:/");
-        r.append(to_string(path));
+        system_string r("file:/");
+        r.append(path.native());
         return r;
     }
 };
 
-error_code file::open (const fs::path & path, int oflags, mode_t omode)
+error_code file::open (filesystem::path const & path, int oflags, mode_t omode)
 {
 	int fd = ::open(path.native().c_str(), oflags, omode);
 
 	if (fd < 0) {
-		return error_code(errno);
+        return error_code(errno, pfs::generic_category());
 	}
 
 	this->_fd    = fd;
@@ -157,7 +158,7 @@ ssize_t file::read (byte_t * bytes, size_t n, error_code * pex)
     ssize_t sz = ::read(_fd, bytes, n);
     
     if (sz < 0 && pex) {
-        *pex = errno;
+        *pex = error_code(errno, pfs::generic_category());
     }
     
     return sz;
@@ -168,7 +169,7 @@ ssize_t file::write (const byte_t * bytes, size_t n, error_code * pex)
     ssize_t sz = ::write(_fd, bytes, n);
     
     if( sz < 0 && pex) {
-        *pex = errno;
+        *pex = error_code(errno, pfs::generic_category());
     }
     
     return sz;
@@ -176,35 +177,35 @@ ssize_t file::write (const byte_t * bytes, size_t n, error_code * pex)
 
 error_code file::close ()
 {
-    error_code ex;
+    error_code ec;
 
     if (_fd > 0) {
         if (::close(_fd) < 0) {
-        	ex = errno;
+        	ec = error_code(errno, pfs::generic_category());
         }
     }
 
     _fd = -1;
-    return ex;
+    return ec;
 }
 
 }}} // cwt::io::details
 
 namespace pfs { namespace io {
 
-static int __convert_to_native_perms (int perms)
+static int __convert_to_native_perms (filesystem::perms perms)
 {
 	int r = 0;
 
-	if (perms & fs::perm_user_read)   r |= S_IRUSR;
-	if (perms & fs::perm_user_write)  r |= S_IWUSR;
-	if (perms & fs::perm_user_exec)   r |= S_IXUSR;
-	if (perms & fs::perm_group_read)  r |= S_IRGRP;
-	if (perms & fs::perm_group_write) r |= S_IWGRP;
-	if (perms & fs::perm_group_exec)  r |= S_IXGRP;
-	if (perms & fs::perm_other_read)  r |= S_IROTH;
-	if (perms & fs::perm_other_write) r |= S_IWOTH;
-	if (perms & fs::perm_other_exec)  r |= S_IXOTH;
+	if ((perms & filesystem::perms::owner_read)   != filesystem::perms::none) r |= S_IRUSR;
+	if ((perms & filesystem::perms::owner_write)  != filesystem::perms::none) r |= S_IWUSR;
+	if ((perms & filesystem::perms::owner_exec)   != filesystem::perms::none) r |= S_IXUSR;
+	if ((perms & filesystem::perms::group_read)   != filesystem::perms::none) r |= S_IRGRP;
+	if ((perms & filesystem::perms::group_write)  != filesystem::perms::none) r |= S_IWGRP;
+	if ((perms & filesystem::perms::group_exec)   != filesystem::perms::none) r |= S_IXGRP;
+	if ((perms & filesystem::perms::others_read)  != filesystem::perms::none) r |= S_IROTH;
+	if ((perms & filesystem::perms::others_write) != filesystem::perms::none) r |= S_IWOTH;
+	if ((perms & filesystem::perms::others_exec)  != filesystem::perms::none) r |= S_IXOTH;
 
 	return r;
 }
@@ -213,7 +214,6 @@ template <>
 device open_device<file> (const open_params<file> & op, error_code & ex)
 {
 	device result;
-	int fd;
 	int native_oflags = 0;
 	mode_t native_mode = 0;
 

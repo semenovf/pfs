@@ -1,9 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 /* 
  * File:   device_manager.hpp
  * Author: wladt
@@ -16,7 +10,7 @@
 
 #include <ctime>
 #include <pfs/sigslot.hpp>
-#include <pfs/set.hpp>
+#include <pfs/traits/stdcxx/set.hpp>
 #include <pfs/io/pool.hpp>
 
 namespace pfs {
@@ -24,8 +18,15 @@ namespace io {
 
 // All devices must be in non-blocking mode.
 
+template <template <typename> class SequenceContainer
+        , template <typename> class ContigousContainer
+        , template <typename> class AssociativeContainer>
 class device_manager : has_slots<>
 {
+    typedef pool<SequenceContainer
+                , ContigousContainer
+                , AssociativeContainer> pool_type;
+    
     struct reopen_item
     {
         device d;
@@ -38,20 +39,20 @@ class device_manager : has_slots<>
         }
     };
     
-    typedef pfs::set<reopen_item> reopen_queue_type;
+    typedef traits::stdcxx::set<reopen_item> reopen_queue_type;
     
-    class dispatcher_context1 : public pool::dispatcher_context2
+    class dispatcher_context1 : public pool_type::dispatcher_context2
     {
         friend class device_manager;
         
         device_manager * _m;
-        pool * _p1;
-        pool * _p2;
+        pool_type * _p1;
+        pool_type * _p2;
 
     private:
         dispatcher_context1 (int millis, short filter_events
-                , device_manager * m, pool * p1, pool * p2)
-            : pool::dispatcher_context2(millis, filter_events)
+                , device_manager * m, pool_type * p1, pool_type * p2)
+            : pool_type::dispatcher_context2(millis, filter_events)
             , _m(m)
             , _p1(p1)
             , _p2(p2)
@@ -79,19 +80,19 @@ class device_manager : has_slots<>
         }
     };
 
-    class dispatcher_context2 : public pool::dispatcher_context2
+    class dispatcher_context2 : public pool_type::dispatcher_context2
     {
         friend class device_manager;
         
         static int const default_millis = 1; // TODO Need it configurable ?!
         
         device_manager * _m;
-        pool * _p1;
-        pool * _p2;
+        pool_type * _p1;
+        pool_type * _p2;
 
     private:
-        dispatcher_context2 (device_manager * m, pool * p1, pool * p2)
-            : pool::dispatcher_context2(default_millis, io::poll_all) // TODO Need to reduce number of events according to specialization of this pool
+        dispatcher_context2 (device_manager * m, pool_type * p1, pool_type * p2)
+            : pool_type::dispatcher_context2(default_millis, io::poll_all) // TODO Need to reduce number of events according to specialization of this pool
             , _m(m)
             , _p1(p1)
             , _p2(p2)
@@ -118,10 +119,10 @@ class device_manager : has_slots<>
     };
     
     // Main device pool (for valid (operational) devices)
-    pool _p1;
+    pool_type _p1;
     
     // Device pool for partially-operational devices: usually in 'connection in progress...' state)
-    pool _p2;
+    pool_type _p2;
     
     // Reconnection queue, contains devices waiting reconnection by timeout
     reopen_queue_type _rq;
@@ -134,34 +135,138 @@ private:
     device_manager & operator = (device_manager const &);
     
 private:
-    void push_device (device d, pfs::error_code const & ex);
-    void push_server (server s, pfs::error_code const & ex);
+    void push_device (device d, pfs::error_code const & ec)
+    {
+        if (!ec) {
+            _p1.push_back(d);
+            opened(d);
+        } else {
+            if (ec == io_errc::operation_in_progress) {
+                _p2.push_back(d);
+                opening(d);
+            } else {
+                open_failed(d, ec);
+            }
+        }
+    }
+    
+    void push_server (server s, pfs::error_code const & ec)
+    {
+        if (!ex) {
+            _p1.push_back(s);
+            server_opened(s);
+        } else {
+            if (ex == io_errc::operation_in_progress) {
+                _p2.push_back(s);
+                server_opening(s);
+            } else {
+                server_open_failed(s, ex);
+            }
+        }
+    }    
     
 public:
-    device_manager (int millis, short filter_events = io::poll_all)
+    device_manager (int millis, int filter_events = io::poll_all)
         : _ctx1(millis, filter_events, this, & _p1, & _p2)
         , _ctx2(this, & _p1, & _p2)
     {}
         
     template <typename DeviceTag>
-    device new_device (open_params<DeviceTag> const & op, pfs::error_code * ex = 0);
+    device new_device (open_params<DeviceTag> const & op, pfs::error_code * pec = 0)
+    {
+        pfs::error_code ec;
+        device d = pfs::io::open_device(op, ec);
+        push_device(d, ec);
+
+        if (pec)
+            *pec = ec;
+
+        return d;
+    }    
 
     template <typename ServerTag>
-    server new_server (open_params<ServerTag> const & op, pfs::error_code * ex = 0);
+    server new_server (open_params<ServerTag> const & op, pfs::error_code * pec = 0)
+    {
+        pfs::error_code ec;
+        server s = pfs::io::open_server(op, ec);
+        push_server(s, ec);
+
+        if (pec)
+            *pec = ec;
+
+        return s;
+    }
+
     
-    void push_deferred (device d, time_t reconn_timeout);
+    void push_deferred (device d, time_t reconn_timeout)
+    {
+        PFS_ASSERT(d.set_nonblocking(true));
+        reopen_item item;
+        item.d = d;
+        item.timeout = reconn_timeout;
+        item.start = time(0); // TODO may be need to use monotonic clock
+
+        _rq.insert(item);
+    }
+    
 
     /**
      * @brief Checks if reopen timeout is exceeded for one or more devices.
      */
-    bool ready_deferred () const;
+    bool ready_deferred () const
+    {
+        if (_rq.empty())
+            return false;
+
+        // Create temporary item to compare (device field does not matter in comparison)
+        reopen_item item;
+        item.timeout = 0;
+        item.start = time(0); // TODO may be need to use monotonic clock
+
+        // Checking first item will be enough.
+        return (*_rq.begin() < item) ? true : false;
+    }
+    
 
     /**
      * @brief Reopen 'ready' devices.
      */
-    void reopen_deferred ();
+    void reopen_deferred ()
+    {
+        if (_rq.empty())
+            return;
+
+        // Create temporary item to compare (device field does not matter in comparison)
+        reopen_item item;
+        item.timeout = 0;
+        item.start = time(0); // TODO may be need to use monotonic clock
+
+        reopen_queue_type::const_iterator it = _rq.begin();
+        reopen_queue_type::const_iterator it_end = _rq.end();
+
+        while (*it < item && it != it_end) {
+            device d = it->d;
+            pfs::error_code ec = d.reopen();
+            push_device(d, ec);
+
+            ++it;
+        }
+
+        _rq.erase(_rq.cbegin(), it);
+    }
     
-    void dispatch ();
+    void dispatch ()
+    {
+        //if (_p1.server_count() > 0 || _p1.device_count())
+        _p1.dispatch(_ctx1);
+
+        if (_p2.device_count() > 0)
+            _p2.dispatch(_ctx2);
+
+        if (ready_deferred())
+            reopen_deferred();
+    }
+
     
 public: // signals
     signal2<device, server>     accepted;           // accept connection (for connection based server devices)
@@ -175,32 +280,6 @@ public: // signals
     signal2<server, error_code> server_open_failed;
 	signal1<error_code>         error;
 };
-
-template <typename DeviceTag>
-device device_manager::new_device (open_params<DeviceTag> const & op, pfs::error_code * pex)
-{
-    pfs::error_code ex;
-    device d = pfs::io::open_device(op, ex);
-    push_device(d, ex);
-    
-    if (pex)
-        *pex = ex;
-    
-    return d;
-}
-
-template <typename ServerTag>
-server device_manager::new_server (open_params<ServerTag> const & op, pfs::error_code * pex)
-{
-    pfs::error_code ex;
-    server s = pfs::io::open_server(op, ex);
-    push_server(s, ex);
-    
-    if (pex)
-        *pex = ex;
-    
-    return s;
-}
 
 }} // pfs::io
 

@@ -5,6 +5,7 @@
  *      Author: wladt
  */
 
+#include "pfs/algorithm.hpp"
 #include "pfs/traits/stdcxx/vector.hpp"
 #include "pfs/io/buffer.hpp"
 
@@ -20,14 +21,17 @@ struct buffer : public bits::device
     size_t      _pos;
 
     buffer (byte_t a[], size_t n)
-        : _buffer(a, n)
-        , _pos(0)
-    {}
+        : _pos(0)
+    {
+        _buffer.resize(n);
+        pfs::copy(a, a + n, & _buffer[0]);
+    }
 
-    buffer (size_t sz)
-        : _buffer(sz, true)
-        , _pos(0)
-    {}
+    buffer (size_t n)
+        : _pos(0)
+    {
+        _buffer.resize(n);
+    }
 
     virtual error_code reopen ()
     {
@@ -81,9 +85,9 @@ struct buffer : public bits::device
     	return device_buffer;
     }
     
-    virtual std::string url () const
+    virtual system_string url () const
     {
-        return std::string("buffer");
+        return system_string("buffer");
     }
 };
 
@@ -112,7 +116,7 @@ ssize_t buffer::write (const byte_t * bytes, size_t n, error_code *)
     }
 
     //buffer_type::copy(_buffer, bytes, _pos, n);
-    memcpy(& _buffer[0] + _pos, bytes, n);
+    pfs::copy(bytes, bytes + n, & _buffer[0] + _pos);
 
     return integral_cast_check<ssize_t>(n);
 }
@@ -139,7 +143,7 @@ device open_device<buffer> (const open_params<buffer> & op, error_code & ex)
 	shared_ptr<bits::device> d(p);
     result._d.swap(d);
 
-    ex.reset();
+    ex.clear();
 
     return result;
 }

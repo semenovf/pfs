@@ -8,7 +8,7 @@
 #ifndef __PFS_IO_BITS_SERVER_HPP__
 #define __PFS_IO_BITS_SERVER_HPP__
 
-#include <pfs/error_code.hpp>
+#include <pfs/io/exception.hpp>
 #include <pfs/io/bits/device.hpp>
 
 

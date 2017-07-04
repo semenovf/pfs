@@ -119,6 +119,16 @@ public:
         
     // *** MODIFIERS ***
     //
+    void clear ()
+    {
+        _p.clear();
+    }
+    
+    iterator erase (const_iterator pos)
+    {
+        _p.erase(pos);
+    }
+    
     // FIXME
 //    void swap (container & rhs)
 //    {

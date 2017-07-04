@@ -691,6 +691,16 @@ inline bool exists (path const & p, pfs::error_code & ec) noexcept
     return std::experimental::filesystem::exists(p, ec);
 }
 
+inline bool remove (path const & p)
+{
+    return std::experimental::filesystem::remove(p);
+}
+    
+inline bool remove (path const & p, error_code & ec)
+{
+    return std::experimental::filesystem::remove(p, ec);
+}
+
 }} // pfs::filesystem
 
 #else

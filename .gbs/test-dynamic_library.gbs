@@ -3,8 +3,6 @@ language      "C++"
 targetname    "test-dynamic_library"
 files         { "../tests/test-mpl-dynamic_library/*.cpp" }
 
-links         { "stdc++fs" } -- need for 11 <= C++ < 17
-
 configuration "debug"
     objdir       ".cache/test-mpl-dynamic_library/debug"
     targetdir    "../../.build/tests"

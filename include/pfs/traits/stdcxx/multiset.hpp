@@ -164,6 +164,11 @@ public:
     // *** MODIFIERS ***
     //
     
+    iterator erase (const_iterator pos)
+    {
+        return _p->erase(pos);
+    }
+
     // FIXME
 //    void swap (container & rhs)
 //    {

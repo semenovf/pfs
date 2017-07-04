@@ -31,18 +31,6 @@ bool set_nonblocking (int fd, bool on)
     return ::fcntl(fd, F_SETFL, flags) >= 0;
 }
 
-pfs::string inet_socket_url (char const * proto, sockaddr_in const & sin)
-{
-    char str[INET_ADDRSTRLEN];
-    inet_ntop(AF_INET, & sin.sin_addr, str, INET_ADDRSTRLEN);
-    string r(proto);
-    r.append("://");
-    r.append(str);
-    r.append(":");
-    r.append(to_string(ntohs(sin.sin_port), 10));
-    return r;
-}
-
 int create_tcp_socket (bool non_blocking)
 {
   	int socktype = SOCK_STREAM;

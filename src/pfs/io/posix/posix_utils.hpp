@@ -1,9 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 /* 
  * File:   inet_posix_utils.hpp
  * Author: wladt
@@ -15,14 +9,37 @@
 #define __PFS_IO_INET_POSIX_UTILS_HPP__
 
 #include <netinet/in.h>
-#include <pfs/string.hpp>
+#include <pfs/compiler.hpp>
+#include <pfs/lexical_cast.hpp>
+#include <pfs/traits/string.hpp>
+
+#if PFS_CC_GCC
+#   include <arpa/inet.h>
+#endif
 
 namespace pfs {
 namespace io {
 
 bool is_nonblocking (int fd);
 bool set_nonblocking (int fd, bool on);
-pfs::string inet_socket_url (char const * proto, sockaddr_in const & sin);
+
+template <typename StringT>
+StringT inet_socket_url (char const * proto, sockaddr_in const & sin)
+{
+#if PFS_CC_MSC
+#   error "Implement inet_socket_url() for MSC"
+#else    
+    char str[INET_ADDRSTRLEN];
+    inet_ntop(AF_INET, & sin.sin_addr, str, INET_ADDRSTRLEN);
+    StringT r(proto);
+    r.append("://");
+    r.append(str);
+    r.append(":");
+    r.append(to_string<StringT>(ntohs(sin.sin_port), 10));
+    return r;
+#endif
+}
+
 int create_tcp_socket (bool non_blocking);
 int create_udp_socket (bool non_blocking);
 int close_socket (int fd);

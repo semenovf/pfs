@@ -27,15 +27,13 @@ struct null : public bits::device
     	 return 0;
     }
 
-    virtual ssize_t read (byte_t * bytes, size_t n, error_code * ex) override
+    virtual ssize_t read (byte_t * bytes, size_t n, error_code *) pfs_override
     {
-        PFS_UNUSED(ex);
         return 0;
     }
 
-    virtual ssize_t write (const byte_t * bytes, size_t n, error_code * ex) override
+    virtual ssize_t write (const byte_t * bytes, size_t n, error_code *) pfs_override
     {
-        PFS_UNUSED(ex);
         return integral_cast_check<ssize_t>(n);
     }
 
@@ -57,9 +55,8 @@ struct null : public bits::device
         return true;
     }
     
-    virtual bool set_nonblocking (bool on)
+    virtual bool set_nonblocking (bool)
     {
-    	PFS_UNUSED(on);
     	return true;
     }
 
@@ -73,9 +70,9 @@ struct null : public bits::device
     	return device_null;
     }
     
-    virtual string url () const override
+    virtual system_string url () const override
     {
-        return _u8("null");
+        return system_string("null");
     }
 };
 
@@ -84,10 +81,9 @@ struct null : public bits::device
 namespace pfs { namespace io {
 
 template <>
-device open_device<null> (open_params<null> const & op, error_code & ex)
+device open_device<null> (open_params<null> const &, error_code & ec)
 {
-    PFS_UNUSED(op);
-    ex.reset();
+    ec.clear();
     return device(new details::null);
 }
 

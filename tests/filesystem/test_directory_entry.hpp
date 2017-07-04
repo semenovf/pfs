@@ -14,8 +14,8 @@
 
 void test_directory_entry ()
 {
-    typedef pfs::filesystem::path path;
-    typedef pfs::filesystem::directory_entry directory_entry;
+//    typedef pfs::filesystem::path path;
+//    typedef pfs::filesystem::directory_entry directory_entry;
 #if __COMMENT__    
     // Constructors
     {

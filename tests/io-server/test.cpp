@@ -7,7 +7,6 @@
  */
 
 #include <pfs/test/test.hpp>
-#include <pfs.hpp>
 
 extern void test_pool_dispatcher ();
 

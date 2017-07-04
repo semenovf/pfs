@@ -157,7 +157,6 @@ public:
     
     // *** MODIFIERS ***
     //
-    
     // FIXME
 //    void swap (container & rhs)
 //    {

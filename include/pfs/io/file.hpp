@@ -8,8 +8,8 @@
 #ifndef __PFS_IO_FILE_HPP__
 #define __PFS_IO_FILE_HPP__
 
-#include <pfs/logger.hpp>
-#include <pfs/fs/path.hpp>
+//#include <pfs/logger.hpp>
+#include <pfs/filesystem.hpp>
 #include <pfs/io/device.hpp>
 
 namespace pfs { namespace io {
@@ -24,28 +24,28 @@ struct file {};
 template <>
 struct open_params<file>
 {
-	static const int default_create_perms = fs::perm_user_read
-			| fs::perm_user_write
-			| fs::perm_group_read
-			| fs::perm_other_read;
+	static filesystem::perms const default_create_perms = filesystem::perms::owner_read
+			| filesystem::perms::owner_write
+			| filesystem::perms::group_read
+			| filesystem::perms::others_read;
 
-	fs::path path;
+	filesystem::path path;
 	device::open_mode_flags oflags;
-	int permissions;
+	filesystem::perms permissions;
 
-	open_params (const fs::path & s, device::open_mode_flags of, int perms)
+	open_params (filesystem::path const & s, device::open_mode_flags of, filesystem::perms perms)
 		: path(s)
 		, oflags(of)
 		, permissions(perms)
 	{}
 
-	open_params (const fs::path & s, device::open_mode_flags of)
+	open_params (filesystem::path const & s, device::open_mode_flags of)
 		: path(s)
 		, oflags(of)
 		, permissions(default_create_perms)
 	{}
 
-	open_params (const fs::path & s)
+	open_params (filesystem::path const & s)
 		: path(s)
 		, oflags(read_write)
 		, permissions(default_create_perms)
@@ -68,32 +68,32 @@ struct open_params<file>
  *         (i.e. file device is already opened).
  */
 template <>
-device open_device<file> (const open_params<file> & op, error_code & ex);
+device open_device<file> (const open_params<file> & op, error_code & ec);
 
 }} // pfs::io
 
-namespace pfs {
-
-class file_appender : public pfs::logger_appender
-{
-	io::device _d;
-
-public:
-	file_appender (fs::path const & path);
-
-	file_appender (io::device d)
-		: _d(d)
-	{}
-
-	~file_appender ()
-	{
-		_d.close();
-	}
-
-protected:
-	virtual void print (string const & msg);
-};
-
-}
+//namespace pfs {
+//
+//class file_appender : public pfs::logger_appender
+//{
+//	io::device _d;
+//
+//public:
+//	file_appender (fs::path const & path);
+//
+//	file_appender (io::device d)
+//		: _d(d)
+//	{}
+//
+//	~file_appender ()
+//	{
+//		_d.close();
+//	}
+//
+//protected:
+//	virtual void print (string const & msg);
+//};
+//
+//}
 
 #endif /* __PFS_IO_FILE_HPP__ */

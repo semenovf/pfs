@@ -14,6 +14,10 @@ solution "pfs-mpl"
     includedirs   { "../include" }
     libdirs       { "../../.build" }
 
+    -- TODO Must be conditionally setup (based on cppdialect)
+    -- need for 11 <= C++ < 17
+    links        { "stdc++fs" }
+
 --    filter "platforms:*32"
 --        architecture "x32"
 --    filter "platforms:*64"
@@ -31,11 +35,15 @@ configuration "debug"
 configuration "release"
     defines      { "NDEBUG" }
 
+
 filter { "debug", "action:gmake" }
     linkoptions  { "-rdynamic" }
 
 filter "action:gmake"
     buildoptions { "-Wunused", "-Wno-long-long", "-pedantic" }
+
+filter "platforms:unix*"
+    links { "pthread" }
 
 -- Projects
 
@@ -122,4 +130,5 @@ project "test-io-server"
 
 project "test-net-inet4_addr"
     include("test-net-inet4_addr.gbs")
+
 

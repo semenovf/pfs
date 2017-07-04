@@ -8,7 +8,7 @@
 #ifndef __PFS_IO_SERVER_HPP__
 #define __PFS_IO_SERVER_HPP__
 
-#include <pfs/shared_ptr.hpp>
+#include <pfs/memory.hpp>
 #include <pfs/io/bits/server.hpp>
 #include <pfs/io/device.hpp>
 
@@ -51,7 +51,7 @@ public:
 
     bool is_null () const
     {
-    	return _d.is_null();
+    	return !_d;
     }
 
 	bool opened () const
@@ -110,7 +110,7 @@ public:
 		return _d->context();
 	}
     
-    string url () const
+    std::string url () const
     {
         return _d->url();
     }

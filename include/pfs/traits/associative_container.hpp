@@ -45,6 +45,7 @@ public:
     typedef typename base_class::iterator               iterator;
     typedef typename base_class::const_iterator         const_iterator;
 
+    typedef typename native_type::size_type   size_type;
     typedef typename native_type::key_type    key_type;
     typedef typename native_type::value_type  value_type;
     typedef typename native_type::mapped_type mapped_type;
@@ -79,6 +80,11 @@ public:
     pfs::pair<iterator, bool> insert (value_type const & value)
     {
         return base_class::_p.insert(value);
+    }
+    
+    size_type erase (key_type const & key)
+    {
+        return base_class::_p.erase(key);
     }
 };
 

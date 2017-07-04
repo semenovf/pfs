@@ -3,8 +3,6 @@ language      "C++"
 targetname    "test-filesystem"
 files         { "../tests/filesystem/*.cpp" }
 
-links         { "stdc++fs" } -- need for 11 <= C++ < 17
-
 configuration "debug"
     objdir       ".cache/tests/filesystem/debug"
     targetdir    "../../.build/tests"

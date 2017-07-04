@@ -9,6 +9,7 @@
 #define __PFS_TRAITS_STDCXX_SET_HPP__
 
 #include <set>
+#include <pfs/traits/value_ref.hpp>
 
 namespace pfs {
 namespace traits {
@@ -21,13 +22,13 @@ struct set_wrapper
 };
 
 template <typename T, typename ValueOrReference>
-class set_basic
+class basic_set
 {
     typedef ValueOrReference internal_type;
 
 public:
-    typedef set_basic<T, container_value<T, set_wrapper> > container_value_type;
-    typedef set_basic<T, container_reference<T, set_wrapper> >   container_reference_type;
+    typedef basic_set<T, container_value<T, set_wrapper> >     container_value_type;
+    typedef basic_set<T, container_reference<T, set_wrapper> > container_reference_type;
     
     typedef typename internal_type::native_type            native_type;
     typedef typename internal_type::native_reference       native_reference;
@@ -53,14 +54,14 @@ protected:
     internal_type _p;
     
 public:
-    set_basic ()
+    basic_set ()
     {}
 
-    set_basic (native_reference rhs)
+    basic_set (native_reference rhs)
         : _p(rhs)
     {}
 
-    set_basic (const_native_reference rhs)
+    basic_set (const_native_reference rhs)
         : _p(rhs)
     {}
     
@@ -73,7 +74,7 @@ public:
 //        : _p(first, last)
 //    {}
     
-    set_basic & operator = (native_reference rhs)
+    basic_set & operator = (native_reference rhs)
     {
         *_p = rhs;
         return *this;
@@ -162,6 +163,31 @@ public:
     // *** MODIFIERS ***
     //
     
+    void clear() pfs_noexcept
+    {
+        _p->clear();
+    }
+    
+    std::pair<iterator,bool> insert (value_type const & value)
+    {
+        return _p->insert(value);
+    }
+    
+    iterator erase (const_iterator pos)
+    {
+        return _p->erase(pos);
+    }
+    
+//    iterator erase (iterator pos)
+//    {
+//        return _p->erase(pos);
+//    }
+    
+    iterator erase (const_iterator first, const_iterator last)
+    {
+        return _p->erase(first, last);
+    }
+    
     // FIXME
 //    void swap (container & rhs)
 //    {
@@ -171,14 +197,14 @@ public:
     // *** NON-MEMBER FUNCTIONS (OPERATORS) ***
     //
     
-    friend inline bool operator == (set_basic const & lhs
-        , set_basic const & rhs)
+    friend inline bool operator == (basic_set const & lhs
+        , basic_set const & rhs)
     {
         return *lhs._p == *rhs._p;
     }
 
-    friend inline bool operator != (set_basic const & lhs
-        , set_basic const & rhs)
+    friend inline bool operator != (basic_set const & lhs
+        , basic_set const & rhs)
     {
         return *lhs._p != *rhs._p;
     }
@@ -210,9 +236,9 @@ public:
 };
 
 template <typename T>
-class set : public set_basic<T, container_value<T, set_wrapper> >
+class set : public basic_set<T, container_value<T, set_wrapper> >
 {
-    typedef set_basic<T, container_value<T, set_wrapper> > base_class;
+    typedef basic_set<T, container_value<T, set_wrapper> > base_class;
 
 public:
     typedef typename base_class::native_type            native_type;
@@ -234,9 +260,9 @@ public:
 };
 
 template <typename T>
-class set_reference : public set_basic<T, container_reference<T, set_wrapper> >
+class set_reference : public basic_set<T, container_reference<T, set_wrapper> >
 {
-    typedef set_basic<T, container_reference<T, set_wrapper> > base_class;
+    typedef basic_set<T, container_reference<T, set_wrapper> > base_class;
 
 public:
     typedef typename base_class::native_type            native_type;

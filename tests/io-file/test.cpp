@@ -1,6 +1,6 @@
 #include <cstring>
-#include <pfs/test/test.hpp>
-#include <pfs/fs/path.hpp>
+#include "pfs/test/test.hpp"
+#include "pfs/filesystem.hpp"
 #include "pfs/io/file.hpp"
 
 #include <iostream>
@@ -205,7 +205,7 @@ void test_open_absent_file ()
 {
 	ADD_TESTS(2);
     device d;
-    pfs::fs::path unknownPath("!@#$%");
+    pfs::filesystem::path unknownPath("!@#$%");
 
 	TEST_OK(! (d = open_device(open_params<file>(unknownPath, pfs::io::read_only))));
     TEST_OK(!d.opened());
@@ -215,11 +215,11 @@ void test_write_read ()
 {
 	ADD_TESTS(8);
 	// FIXME Use pfs::fs::unique() call to generate temporary file
-    pfs::fs::path file_path("/tmp/test_io_file.tmp");
+    pfs::filesystem::path file_path("/tmp/test_io_file.tmp");
     TEST_FAIL2(!file_path.empty(), "Build temporary file name");
 
-    if (pfs::fs::exists(file_path))
-    	pfs::fs::unlink(file_path);
+    if (pfs::filesystem::exists(file_path))
+    	pfs::filesystem::remove(file_path);
 
     device d;
     pfs::error_code ex;
@@ -236,7 +236,7 @@ void test_write_read ()
     TEST_OK(d.close() == pfs::error_code());
     TEST_OK(bs == loremipsum);
 
-    TEST_FAIL2(pfs::fs::unlink(file_path), "Temporary file unlink");
+    TEST_FAIL2(pfs::filesystem::remove(file_path), "Temporary file unlink");
 }
 
 //void test_bytes_available ()

@@ -1,12 +1,11 @@
 #include <cstdio>
+#include <cstdlib>
 #include <pfs/test/test.hpp>
-#include <pfs/string.hpp>
-#include <pfs/random.hpp>
+#include <pfs/system_string.hpp>
 #include <pfs/net/inet4_addr.hpp>
 
 #include <iostream>
 
-using pfs::string;
 using pfs::net::inet4_addr;
 using std::cout;
 using std::cerr;
@@ -14,14 +13,14 @@ using std::endl;
 
 #define UINT24_MAX 0x00FFFFFF
 
-static const char * prefix (uint32_t x, int base)
-{
-    return x == 0 ? ""
-           : base == 16
-                  ? "0x" : base == 8 ? "0" : "";
-}
+//static const char * prefix (uint32_t x, int base)
+//{
+//    return x == 0 ? ""
+//           : base == 16
+//                  ? "0x" : base == 8 ? "0" : "";
+//}
 
-static string build_inet_addr_str (int addrClass
+static pfs::system_string build_inet_addr_str (int addrClass
         , uint32_t a
         , uint32_t b
         , uint32_t c
@@ -80,39 +79,38 @@ static string build_inet_addr_str (int addrClass
     	}
     }
 
-    return string(buffer);
+    return pfs::system_string(buffer);
 }
 
 
 bool test_check_valid (int addrClass, int ntests)
 {
     bool ok = true;
-    pfs::random rnd;
 
     for (int i = 0; ok && i < ntests; ++i) {
         uint32_t  a, b, c, d;
 
         if (addrClass == 4) {
-            a = rnd.rand() % pfs::max_value<uint8_t>();
-            b = rnd.rand() % pfs::max_value<uint8_t>();
-            c = rnd.rand() % pfs::max_value<uint8_t>();
-            d = rnd.rand() % pfs::max_value<uint8_t>();
+            a = random() % pfs::numeric_limits<uint8_t>::max();
+            b = random() % pfs::numeric_limits<uint8_t>::max();
+            c = random() % pfs::numeric_limits<uint8_t>::max();
+            d = random() % pfs::numeric_limits<uint8_t>::max();
         } else if (addrClass == 3) {
-            a = rnd.rand() % pfs::max_value<uint8_t>();
-            b = rnd.rand() % pfs::max_value<uint8_t>();
-            c = rnd.rand() % pfs::max_value<uint16_t>();
+            a = random() % pfs::numeric_limits<uint8_t>::max();
+            b = random() % pfs::numeric_limits<uint8_t>::max();
+            c = random() % pfs::numeric_limits<uint16_t>::max();
         } else if (addrClass == 2) {
-            a = rnd.rand() % pfs::max_value<uint8_t>();
-            b = rnd.rand() % UINT24_MAX;
+            a = random() % pfs::numeric_limits<uint8_t>::max();
+            b = random() % UINT24_MAX;
         } else if (addrClass == 1) {
-            a = rnd.rand();
+            a = random();
         } else {
             return false;
         }
 
-        pfs::string addrDecStr = build_inet_addr_str(addrClass, a, b, c, d, 10);
-        pfs::string addrOctStr = build_inet_addr_str(addrClass, a, b, c, d, 8);
-        pfs::string addrHexStr = build_inet_addr_str(addrClass, a, b, c, d, 16);
+        pfs::system_string addrDecStr = build_inet_addr_str(addrClass, a, b, c, d, 10);
+        pfs::system_string addrOctStr = build_inet_addr_str(addrClass, a, b, c, d, 8);
+        pfs::system_string addrHexStr = build_inet_addr_str(addrClass, a, b, c, d, 16);
 
         inet4_addr addrDec(addrDecStr);
         inet4_addr addrOct(addrOctStr);
@@ -139,53 +137,52 @@ bool test_check_valid (int addrClass, int ntests)
 }
 
 
-bool test_check_to_string (const string & format, int ntests)
+bool test_check_to_string (pfs::system_string const & format, int ntests)
 {
     bool ok = true;
-    pfs::random rnd;
 
-    int addrClass = format.starts_with(_u8("%a.%b.%c.%d"))
+    int addrClass = format.starts_with(pfs::system_string("%a.%b.%c.%d"))
             ? 4
-            : format.starts_with(_u8("%a.%b.%C"))
+            : format.starts_with(pfs::system_string("%a.%b.%C"))
                   ? 3
-                  : format.starts_with(_u8("%a.%B"))
+                  : format.starts_with(pfs::system_string("%a.%B"))
                         ? 2
-                        : format.starts_with(_u8("%A"))
+                        : format.starts_with(pfs::system_string("%A"))
                               ? 1 : 0;
 
 
     for (int i = 0; ok && i < ntests; ++i) {
-        uint32_t  a, b, c, d, p;
+        uint32_t  a, b, c, d;
 
         if (addrClass == 4) {
-            a = rnd.rand() % pfs::max_value<uint8_t>();
-            b = rnd.rand() % pfs::max_value<uint8_t>();
-            c = rnd.rand() % pfs::max_value<uint8_t>();
-            d = rnd.rand() % pfs::max_value<uint8_t>();
+            a = random() % pfs::numeric_limits<uint8_t>::max();
+            b = random() % pfs::numeric_limits<uint8_t>::max();
+            c = random() % pfs::numeric_limits<uint8_t>::max();
+            d = random() % pfs::numeric_limits<uint8_t>::max();
         } else if (addrClass == 3) {
-            a = rnd.rand() % pfs::max_value<uint8_t>();
-            b = rnd.rand() % pfs::max_value<uint8_t>();
-            c = rnd.rand() % pfs::max_value<uint16_t>();
+            a = random() % pfs::numeric_limits<uint8_t>::max();
+            b = random() % pfs::numeric_limits<uint8_t>::max();
+            c = random() % pfs::numeric_limits<uint16_t>::max();
         } else if (addrClass == 2) {
-            a = rnd.rand() % pfs::max_value<uint8_t>();
-            b = rnd.rand() % UINT24_MAX;
+            a = random() % pfs::numeric_limits<uint8_t>::max();
+            b = random() % UINT24_MAX;
         } else if (addrClass == 1) {
-            a = rnd.rand();
+            a = random();
         } else {
             return false;
         }
 
-        pfs::string addrDecStr = build_inet_addr_str(addrClass, a, b, c, d, 10);
-        pfs::string addrOctStr = build_inet_addr_str(addrClass, a, b, c, d, 8);
-        pfs::string addrHexStr = build_inet_addr_str(addrClass, a, b, c, d, 16);
+        pfs::system_string addrDecStr = build_inet_addr_str(addrClass, a, b, c, d, 10);
+        pfs::system_string addrOctStr = build_inet_addr_str(addrClass, a, b, c, d, 8);
+        pfs::system_string addrHexStr = build_inet_addr_str(addrClass, a, b, c, d, 16);
 
         inet4_addr addrDec(addrDecStr);
         inet4_addr addrOct(addrOctStr);
         inet4_addr addrHex(addrHexStr);
 
-        string addrDecStr1 = pfs::to_string(addrDec, format, 10);
-        string addrOctStr1 = pfs::to_string(addrOct, format, 8);
-        string addrHexStr1 = pfs::to_string(addrHex, format, 16);
+        pfs::system_string addrDecStr1 = pfs::to_string(addrDec, format, 10);
+        pfs::system_string addrOctStr1 = pfs::to_string(addrOct, format, 8);
+        pfs::system_string addrHexStr1 = pfs::to_string(addrHex, format, 16);
 
 //        cout << addrDecStr << ' ' << addrOctStr << ' ' << addrHexStr << endl;
 //        cout << addrDec.addrData() << endl;
@@ -219,23 +216,23 @@ int main(int argc, char *argv[])
     static const int CHECK_VALID_NTESTS  = 10000;
     static const int CHECK_STRING_NTESTS = 10000;
     static const char * addrClassesStr[] = { "", "%A", "%a.%B", "%a.%b.%C", "%a.%b.%c.%d" };
-    string msg;
+    pfs::system_string msg;
 
     for (int i = 1; i < 5; ++i) {
         msg.clear();
 
-        msg.append(pfs::to_string(CHECK_VALID_NTESTS));
+        msg.append(pfs::to_string<pfs::system_string>(CHECK_VALID_NTESTS));
         msg.append(" random IP addresses (");
         msg.append(addrClassesStr[i]);
         msg.append(" format)");
 
-        TEST_OK2(test_check_valid(i, CHECK_VALID_NTESTS), msg.c_str());
+        TEST_OK2(test_check_valid(i, CHECK_VALID_NTESTS), msg.native().c_str());
     }
 
-    TEST_OK(test_check_to_string(_u8("%a.%b.%c.%d") , CHECK_STRING_NTESTS));
-    TEST_OK(test_check_to_string(_u8("%a.%b.%C")    , CHECK_STRING_NTESTS));
-    TEST_OK(test_check_to_string(_u8("%a.%B")       , CHECK_STRING_NTESTS));
-    TEST_OK(test_check_to_string(_u8("%A")          , CHECK_STRING_NTESTS));
+    TEST_OK(test_check_to_string(pfs::system_string("%a.%b.%c.%d") , CHECK_STRING_NTESTS));
+    TEST_OK(test_check_to_string(pfs::system_string("%a.%b.%C")    , CHECK_STRING_NTESTS));
+    TEST_OK(test_check_to_string(pfs::system_string("%a.%B")       , CHECK_STRING_NTESTS));
+    TEST_OK(test_check_to_string(pfs::system_string("%A")          , CHECK_STRING_NTESTS));
 
     return END_TESTS;
 }

@@ -44,7 +44,7 @@ public:
     virtual error_code close ()
     {
         error_code ex = pfs::io::close_socket(_fd) != 0 
-                ? error_code(errno) 
+                ? error_code(errno, pfs::generic_category())
                 : error_code();
         _fd = -1;
         return ex;
@@ -83,13 +83,15 @@ public:
     error_code open (bool non_blocking)
     {
         _fd = pfs::io::create_tcp_socket(non_blocking);
-        return _fd < 0 ? error_code(errno) : error_code();
+        return _fd < 0 
+                ? error_code(errno, pfs::generic_category())
+                : error_code();
     }
 
 	error_code listen (int backlog)
 	{
 		return (::listen(_fd, backlog) != 0) 
-                ? error_code(errno) 
+                ? error_code(errno, pfs::generic_category())
                 : error_code();
 	}
 
@@ -103,9 +105,9 @@ public:
     	return server_tcp;
     }
     
-    virtual string url () const
+    virtual system_string url () const
     {
-        return pfs::io::inet_socket_url("tcp", _sockaddr);
+        return pfs::io::inet_socket_url<system_string>("tcp", _sockaddr);
     }
   
     virtual error_code accept (bits::device ** peer, bool non_blocking);
@@ -120,12 +122,13 @@ public:
     error_code open (bool non_blocking)
     {
         _fd = pfs::io::create_udp_socket(non_blocking);
-        return _fd < 0 ? error_code(errno) : error_code();
+        return _fd < 0 
+                ? error_code(errno, pfs::generic_category())
+                : error_code();
     }
 
-    error_code listen (int backlog)
+    error_code listen (int/* backlog */)
 	{
-        PFS_UNUSED(backlog);
 		return error_code();
 	}
 
@@ -139,9 +142,9 @@ public:
     	return server_udp;
     }
     
-    virtual string url () const
+    virtual system_string url () const
     {
-        return pfs::io::inet_socket_url("udp", _sockaddr);
+        return pfs::io::inet_socket_url<system_string>("udp", _sockaddr);
     }
 
     error_code accept (bits::device ** peer, bool non_blocking);

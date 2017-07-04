@@ -8,7 +8,7 @@
 #ifndef __PFS_IO_DEVICE_HPP__
 #define __PFS_IO_DEVICE_HPP__
 
-#include <string>
+#include <pfs/system_string.hpp>
 #include <pfs/memory.hpp>
 #include <pfs/byte_string.hpp>
 #include <pfs/utility.hpp>
@@ -37,6 +37,7 @@ public:
 
 protected:
     shared_ptr<bits::device> _d;
+    //unique_ptr<bits::device> _d;
 
 protected:
     device (bits::device * p)
@@ -48,6 +49,10 @@ public:
 
     ~device ()
     {}
+    
+#if __cplusplus >= 201103L
+    device (device const & rhs) = default;
+#endif
 
     native_handle_type native_handle () const
     {
@@ -66,7 +71,7 @@ public:
 
     bool is_null () const
     {
-    	return _d.is_null();
+    	return !_d;
     }
 
 	bool is_readable () const
@@ -154,14 +159,14 @@ public:
         return write(reinterpret_cast<const byte_t *>(chars), n, ex);
     }
 
-    error_code write (const byte_string & bytes, size_t n)
+    error_code write (byte_string const & bytes, size_t n)
 	{
     	error_code ex;
     	this->write(bytes.data(), pfs::min(n, bytes.size()), & ex);
     	return ex;
 	}
 
-	error_code write (const byte_string & bytes)
+	error_code write (byte_string const & bytes)
 	{
     	error_code ex;
     	this->write(bytes.data(), bytes.size(), & ex);
@@ -188,7 +193,7 @@ public:
 		return _d->context();
 	}
 
-    std::string url () const
+    system_string url () const
     {
         return _d->url();
     }

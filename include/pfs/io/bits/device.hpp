@@ -8,6 +8,7 @@
 #ifndef __PFS_IO_BITS_DEVICE_HPP__
 #define __PFS_IO_BITS_DEVICE_HPP__
 
+#include <pfs/system_string.hpp>
 #include <pfs/io/exception.hpp>
 
 namespace pfs { namespace io {
@@ -85,7 +86,7 @@ public:
     	_ctx = context;
     }
     
-    virtual std::string url () const = 0;
+    virtual system_string url () const = 0;
 };
 
 class device : public basic_device

@@ -58,26 +58,26 @@ error_code inet_socket::connect (uint32_t addr, uint16_t port)
 
         case ECONNREFUSED:
         case EINVAL:
-            ex = error_code(ConnectionRefusedError);
+            ex = make_error_code(io_errc::connection_refused);
 //            sock._state = bits::unconnected_state;
             break;
 
         case ETIMEDOUT:
-        	ex = error_code(errno);
+        	ex = error_code(errno, pfs::generic_category());
             break;
 
         case EHOSTUNREACH:
-        	ex = error_code(errno);
+        	ex = error_code(errno, pfs::generic_category());
 //        	sock._state = bits::unconnected_state;
             break;
 
         case ENETUNREACH:
-        	ex = error_code(errno);
+        	ex = error_code(errno, pfs::generic_category());
 //        	sock._state = bits::unconnected_state;
             break;
 
         case EADDRINUSE:
-        	ex = error_code(errno);
+        	ex = error_code(errno, pfs::generic_category());
             break;
 
 		/* TODO
@@ -92,17 +92,17 @@ error_code inet_socket::connect (uint32_t addr, uint16_t port)
 		 */
         case EINPROGRESS:
         case EALREADY:
-        	ex = error_code(errno);
+        	ex = error_code(errno, pfs::generic_category());
 //        	sock._state = bits::connecting_state;
             break;
 
         case EAGAIN:
-        	ex = error_code(errno);
+        	ex = error_code(errno, pfs::generic_category());
             break;
 
         case EACCES:
         case EPERM:
-            ex = error_code(errno);
+            ex = error_code(errno, pfs::generic_category());
 //            sock._state = bits::unconnected_state;
             break;
 
@@ -157,7 +157,7 @@ size_t inet_socket::bytes_available () const
 	int rc = 0;
 	rc = ioctl(_fd, FIONREAD, & n);
 
-	PFS_ASSERT_X(rc == 0, to_string(error_code(errno)).c_str());
+	PFS_ASSERT_X(rc == 0, error_code(errno, pfs::generic_category()).message().c_str());
 	PFS_ASSERT(n >= 0);
 
 	return static_cast<size_t>(n);
@@ -172,7 +172,7 @@ error_code inet_socket::set_socket_options (uint32_t sso)
 		if (sso & sso_keep_alive) {
 			int r = setsockopt(_fd, SOL_SOCKET, SO_KEEPALIVE, & optval, optlen);
 			if (r < 0)
-				return error_code(errno);
+				return error_code(errno, pfs::generic_category());
 		}
 	}
 
@@ -195,7 +195,7 @@ ssize_t inet_socket::read (byte_t * bytes, size_t n, error_code * pex)
 
 		if (r < 0) {
 			if (pex)
-				*pex = errno;
+				*pex = error_code(errno, pfs::generic_category());
 		}
 
 //		break;
@@ -232,7 +232,7 @@ ssize_t inet_socket::write (const byte_t * bytes, size_t nbytes, error_code * ex
 
 	if (r < 0) {
 		if (ex)
-			*ex = errno;
+			*ex = error_code(errno, pfs::generic_category());
 	}
 
 	return r;
@@ -256,7 +256,7 @@ device open_device<tcp_socket> (const open_params<tcp_socket> & op, error_code &
 
     if (!ex) ex = d->connect(op.addr.native(), op.port);
 
-    if (ex and ex != OperationInProgressError) {
+    if (ex and ex != io_errc::operation_in_progress) {
     	delete d;
     	return device();
     }
@@ -277,7 +277,7 @@ device open_device<udp_socket> (const open_params<udp_socket> & op, error_code &
 
     if (!ex) ex = d->connect(op.addr.native(), op.port);
 
-    if (ex and ex != OperationInProgressError) {
+    if (ex and ex != io_errc::operation_in_progress) {
     	delete d;
     	return device();
     }

@@ -61,10 +61,10 @@ public:
         : _p(rhs)
     {}
     
-//    vector (const_pointer s)
-//        : _p(s)
+//    vector_basic (size_type count, T const & value)
+//        : _p(count, value)
 //    {}
-//
+
 //    template <typename InputIt>
 //    basic_string (InputIt first, InputIt last)
 //        : _p(first, last)
@@ -380,6 +380,7 @@ public:
     typedef typename base_class::native_type            native_type;
     typedef typename base_class::native_reference       native_reference;
     typedef typename base_class::const_native_reference const_native_reference;
+    typedef typename base_class::size_type              size_type;
     
 public:
     vector ()
@@ -393,6 +394,10 @@ public:
     vector (const_native_reference rhs)
         : base_class(rhs)
     {}
+
+//    vector (size_type count, T const & value)
+//        : base_class(count, value)
+//    {}
 };
 
 template <typename T>

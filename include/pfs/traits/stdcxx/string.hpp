@@ -124,6 +124,11 @@ public:
         return _p->rend();
     }
 
+    bool empty () const
+    {
+        return _p->empty();
+    }
+    
     value_type at (size_type pos) const
     {
         return _p->at(pos);

@@ -8,6 +8,7 @@
 #ifndef __PFS_CXX_CXX11_FILESYSTEM_HPP__
 #define __PFS_CXX_CXX11_FILESYSTEM_HPP__
 
+#include "filesystem/constants.hpp"
 #include "filesystem/path.hpp"
 #include "filesystem/pathlist.hpp"
 #include "filesystem/filesystem_error.hpp"
