@@ -8,16 +8,14 @@
 #ifndef __PFS_LEXICAL_CAST_HPP__
 #define __PFS_LEXICAL_CAST_HPP__
 
-//#include <string>
 #include <pfs/cxxlang.hpp>
 #include <pfs/type_traits.hpp>
+#include <pfs/ctype.hpp>
 #include <pfs/unicode/unicode_iterator.hpp>
 #include <pfs/lexical_cast/exception.hpp>
 #include <pfs/lexical_cast/strtoint.hpp>
 #include <pfs/lexical_cast/strtofloat.hpp>
 
-#include <pfs/compiler.hpp>
-#include PFS_CC_HEADER(ctype)
 
 namespace pfs {
 

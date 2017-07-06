@@ -9,7 +9,10 @@
 #define __PFS_TRAITS_QT_STRING_HPP__
 
 #include <QString>
+#include <ostream>
 #include <pfs/cxxlang.hpp>
+#include <pfs/limits.hpp>
+#include <pfs/ctype.hpp>
 #include <pfs/iterator.hpp>
 #include <pfs/traits/string_value_ref.hpp>
 
@@ -66,6 +69,10 @@ public:
     
     basic_string (const_pointer s)
         : _p(s)
+    {}
+
+    basic_string (size_type count, value_type ch)
+        : _p(count, ch)
     {}
 
     template <typename InputIt>
@@ -292,6 +299,16 @@ inline bool is_xdigit<QChar> (QChar c)
 }
 
 } // pfs
+
+namespace std {
+
+inline ostream & operator << (ostream & os, QString const & s)
+{
+    os << s.toStdString();
+    return os;
+}
+
+} // std
 
 #if __OBSOLETE__
 

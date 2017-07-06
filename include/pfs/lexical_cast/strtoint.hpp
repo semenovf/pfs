@@ -10,10 +10,7 @@
 
 #include <pfs/limits.hpp>
 #include <pfs/types.hpp>
-
-#include <pfs/compiler.hpp>
-#include PFS_CC_HEADER(ctype)
-
+#include <pfs/ctype.hpp>
 #include "exception.hpp"
 
 namespace pfs {

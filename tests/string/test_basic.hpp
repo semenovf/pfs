@@ -12,8 +12,8 @@ template <typename StringT>
 void test_assign ()
 {
     typedef pfs::traits::string<StringT>                 string_type;
-    typedef typename string_type::const_iterator         const_iterator;
-    typedef typename string_type::const_reverse_iterator const_reverse_iterator;
+//    typedef typename string_type::const_iterator         const_iterator;
+//    typedef typename string_type::const_reverse_iterator const_reverse_iterator;
     typedef typename string_type::value_type             value_type;
 
     test_description<value_type>(__PRETTY_FUNCTION__);

@@ -256,8 +256,13 @@ typedef atomic<int>                atomic_int;
 typedef atomic<unsigned int>       atomic_uint;
 typedef atomic<long>               atomic_long;
 typedef atomic<unsigned long>      atomic_ulong;
+
+#if PGS_HAVE_LONG_LONG
+
 typedef atomic<long long>          atomic_llong;
 typedef atomic<unsigned long long> atomic_ullong;
+
+#endif
 
 typedef atomic<int8_t>             atomic_int8_t;
 typedef atomic<uint8_t>            atomic_uint8_t;

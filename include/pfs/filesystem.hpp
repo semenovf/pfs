@@ -27,4 +27,15 @@ namespace filesystem {
 
 }} // pfs::filesystem
 
+namespace pfs {
+
+template <typename StringT>
+inline StringT to_string (filesystem::path const & p)
+{
+    return StringT(p.native());
+}
+
+
+}
+
 #endif /* __PFS_FILESYSTEM_HPP__ */

@@ -52,6 +52,18 @@ typedef std::atomic_ptrdiff_t       atomic_ptrdiff_t;
 typedef std::atomic_intmax_t        atomic_intmax_t;
 typedef std::atomic_uintmax_t       atomic_uintmax_t;
 
+typedef atomic<int8_t>              atomic_int8_t;
+typedef atomic<uint8_t>             atomic_uint8_t;
+typedef atomic<int16_t>             atomic_int16_t;
+typedef atomic<uint16_t>            atomic_uint16_t;
+typedef atomic<int32_t>             atomic_int32_t;
+typedef atomic<uint32_t>            atomic_uint32_t;
+
+#if PFS_HAVE_INT64
+typedef atomic<int64_t>             atomic_int64_t;
+typedef atomic<uint64_t>            atomic_uint64_t;
+#endif
+
 } // pfs
 
 #endif /* __PFS_CXX11_ATOMIC_HPP__ */

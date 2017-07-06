@@ -56,8 +56,8 @@ project "pfs"
 project "test-iterator"
     include("test-iterator.gbs")
 
---project "test-mpl-string"
---    include("test-mpl-string/project.gbs")
+project "test-string"
+    include("test-string.gbs")
 
 project "test-container"
     include("test-container.gbs")
@@ -115,6 +115,9 @@ project "test-regex"
 
 project "test-filesystem"
     include("test-filesystem.gbs")
+
+project "test-time"
+    include("test-time.gbs")
 
 project "test-json"
     include("test-json.gbs")

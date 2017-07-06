@@ -29,9 +29,9 @@ using json = value<BoolT, IntT, RealT, StringT, ArrayT, ObjectT>;
 //    parse(result, s);
 //    return result;
 //}
-//
-//template <typename T>
-//pfs::json::value to_json (T const & v, bool plain = false)
+
+template <typename JsonValueT, typename T>
+JsonValueT to_json (T const & v, bool plain = false);
 //{
 //    return pfs::json::value(); // default is null value
 //}

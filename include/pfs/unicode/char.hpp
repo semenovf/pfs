@@ -9,9 +9,7 @@
 #define __PFS_UNICODE_CHAR_HPP__
 
 #include <pfs/types.hpp>
-
-#include <pfs/compiler.hpp>
-#include PFS_CC_HEADER(ctype)
+#include <pfs/ctype.hpp>
 
 namespace pfs {
 namespace unicode {

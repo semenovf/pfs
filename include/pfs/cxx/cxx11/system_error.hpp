@@ -35,7 +35,13 @@ inline pfs::error_code make_error_code (pfs::errc e) noexcept
 {
     return std::make_error_code(e);
 }
-  
+
+template <typename StringT>
+inline StringT to_string (error_code const & ec)
+{
+    return StringT(ec.message());
+}
+
 } // pfs
 
 #endif /* __PFS_CXX_CXX11_SYSTEM_ERROR_HPP__ */

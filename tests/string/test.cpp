@@ -6,13 +6,11 @@
  * @brief Testing pfs::mpl::string.hpp.
  */
 
-#include <pfs/test/test.hpp>
-#include <pfs.hpp>
-
 #include <cstring>
 #include <cwchar>
 #include <iostream>
 #include <sstream>
+#include <pfs/test/test.hpp>
 #include <pfs/traits/string.hpp>
 #include <pfs/traits/stdcxx/string.hpp>
 
@@ -44,11 +42,11 @@ inline char const * stringify_string_impl<QChar> ()
 template <typename CharT>
 void test_description (char const * title)
 {
-    
-    std::cout << "=== "
+    std::cout << "================================================================================\n"
             << title << ": string implemented using <" 
             << stringify_string_impl<CharT>() << "> ==="
-            << std::endl;
+            << std::endl
+            << "================================================================================\n";
 }
 
 #define STR_ORIG    0
@@ -122,6 +120,7 @@ QChar const * string_samples<QChar> (int i)
 //#include "test_erase.hpp"
 //#include "test_append.hpp"
 //#include "test_compare.hpp"
+#include "test_to_string.hpp"
 
 int main (int argc, char *argv[])
 {
@@ -148,6 +147,7 @@ int main (int argc, char *argv[])
 //
 //    test_append<std::string>();
 //    test_append<std::wstring>();
+    test_to_string<pfs::traits::stdcxx::string>();
 
 #ifdef QT_CORE_LIB
     test_basic<pfs::traits::qt::string>();
@@ -160,6 +160,7 @@ int main (int argc, char *argv[])
 //    
 //    test_erase<QString>();
 //    test_append<QString>();
+    test_to_string<pfs::traits::qt::string>();
 #endif
 
     return END_TESTS;
