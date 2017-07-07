@@ -216,6 +216,14 @@ inline bool is_xdigit<unicode::char_t> (unicode::char_t c)
     return c.value <= 127 && is_xdigit(static_cast<char>(c.value));
 }
 
+template <>
+inline char to_ascii<unicode::char_t> (unicode::char_t c)
+{
+    return c.value <= 127 
+            ? static_cast<char>(c.value)
+            : -1;
+}
+
 } // pfs
 
 #endif /* __PFS_UNICODE_CHAR_HPP__ */

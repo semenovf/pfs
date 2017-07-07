@@ -13,7 +13,7 @@
 #include <pfs/memory.hpp>
 #include <pfs/traits/string.hpp>
 #include <pfs/traits/associative_container.hpp>
-#include <pfs/traits/contigous_container.hpp>
+//#include <pfs/traits/contigous_container.hpp>
 #include <pfs/traits/sequence_container.hpp>
 #include <pfs/json/constants.hpp>
 #include <pfs/json/iterator.hpp>
@@ -39,12 +39,9 @@ public:
     typedef IntT                                           integer_type;
     typedef typename make_unsigned<IntT>::type             uinteger_type;
     typedef RealT                                          real_type;
-    typedef pfs::traits::sequence_container<value, ArrayT> array_traits;
-    typedef array_traits                                   array_type;
+    typedef pfs::traits::sequence_container<value, ArrayT> array_type;
     typedef pfs::traits::associative_container<
-            pfs::traits::kv<string_type, value>, ObjectT>  object_traits;
-    typedef object_traits                                  object_type;
-
+            pfs::traits::kv<string_type, value>, ObjectT>  object_type;
     typedef typename object_type::key_type                 key_type;
 
     struct value_rep
@@ -124,175 +121,6 @@ public:
 
 protected:
     rep_type _d;
-
-//public:
-//    class iterator;
-//
-//    class const_iterator 
-//        : iterator_facade<random_access_iterator_tag
-//                , const_iterator
-//                , value const
-//                , value const *    // Pointer
-//                , value const &    // Reference
-//                , difference_type> // Distance
-////        : public std::iterator<std::random_access_iterator_tag, const value>
-//    {
-//        friend class value;
-////
-////    public:
-////        typedef value::value_type value_type;
-////        typedef value::difference_type difference_type;
-////        typedef value::const_pointer pointer;
-////        typedef value::const_reference reference;
-////        typedef std::random_access_iterator_tag iterator_category;
-////
-//    private:
-//        pointer         _pvalue;
-//        helper_iterator _it;
-//
-//    private:
-//        void set_begin ();
-//        void set_end ();
-//
-//        static reference ref (const_iterator &);
-//        static pointer   ptr (const_iterator &);
-//        static void increment (const_iterator &, difference_type n = 1);
-//        
-//        static void decrement (const_iterator & it, difference_type n = 1)
-//        {
-//            increment(it, -n);
-//        }
-//        
-//        static bool equals (Derived const & lhs, Derived const & rhs);
-//        static int compare (const_iterator const & lhs, const_iterator const & rhs);
-//        static reference subscript (const_iterator &, difference_type n);
-//        static difference_type diff (const_iterator const & lhs, const_iterator const & rhs);
-//
-//    public:
-//        const_iterator ()
-//            : _pvalue (0)
-//            , _it ()
-//        {}
-//
-//        const_iterator (pointer ptr);
-//
-//        const_iterator (const value::iterator & other);
-//
-//        const_iterator (const const_iterator & other)
-//            : _pvalue (other._pvalue)
-//            , _it (other._it)
-//        {}
-//
-//        const_iterator & operator= (const_iterator other)
-//        {
-//            pfs::swap(_pvalue, other._pvalue);
-//            pfs::swap(_it, other._it);
-//            return *this;
-//        }
-//
-//        object_type::key_type key () const;
-//    };
-//
-//    class iterator : public const_iterator
-//    {
-////    public:
-////        typedef const_iterator base_class;
-////        typedef value::pointer pointer;
-////        typedef value::reference reference;
-////
-////        iterator ()
-////        : base_class ()
-////        {
-////        }
-////
-////        iterator (pointer object)
-////        : base_class (object)
-////        {
-////        }
-////
-////        iterator (const iterator & other)
-////        : base_class (other)
-////        {
-////        }
-////
-////        iterator & operator= (iterator other)
-////        {
-////            base_class::operator= (other);
-////            return *this;
-////        }
-////
-////        reference operator* ()
-////        {
-////            return const_cast<reference> (base_class::operator* ());
-////        }
-////
-////        pointer operator-> ()
-////        {
-////            return const_cast<pointer> (base_class::operator-> ());
-////        }
-////
-////        iterator operator++ (int)
-////        {
-////            iterator result = *this;
-////            base_class::operator++ ();
-////            return result;
-////        }
-////
-////        iterator & operator++ ()
-////        {
-////            base_class::operator++ ();
-////            return *this;
-////        }
-////
-////        iterator operator-- (int)
-////        {
-////            iterator result = *this;
-////            base_class::operator-- ();
-////            return result;
-////        }
-////
-////        iterator & operator-- ()
-////        {
-////            base_class::operator-- ();
-////            return *this;
-////        }
-////
-////        iterator & operator+= (difference_type i)
-////        {
-////            base_class::operator+= (i);
-////            return *this;
-////        }
-////
-////        iterator & operator-= (difference_type i)
-////        {
-////            base_class::operator-= (i);
-////            return *this;
-////        }
-////
-////        iterator operator+ (difference_type i)
-////        {
-////            iterator result = *this;
-////            result += i;
-////            return result;
-////        }
-////
-////        iterator operator- (difference_type i)
-////        {
-////            iterator result = *this;
-////            result -= i;
-////            return result;
-////        }
-////
-////        difference_type operator- (const iterator & other) const
-////        {
-////            return base_class::operator- (other);
-////        }
-////
-////        reference operator[] (difference_type n) const
-////        {
-////            return const_cast<reference> (base_class::operator[] (n));
-////        }
-//    };
 
 public:
 
@@ -575,11 +403,28 @@ public:
 //        return _value.object->at(key);
 //    }
 
-//    reference operator [] (size_type index)
-//    {
-//        
-//    }
+    reference operator [] (size_type index)
+    {
+        // implicitly convert null to object
+        if (_d.type == data_type::null) {
+            _d = array_type();
+//            std::allocator<array_type> alloc;
+//            _value.array = alloc.allocate(1);
+//            alloc.construct(_value.array, array_type());
+        }
 
+        PFS_ASSERT(_d.type == data_type::array);
+
+        for (size_t i = _d.array->size(); i <= index; ++i) {
+            _d.array->push_back(value());
+        }
+
+        typename array_type::iterator it = _d.array->begin();
+        pfs::advance(it, index);
+        return *it;
+    }
+
+    
     reference operator [] (key_type const & key)
     {
         if (_d.type == data_type::null) {

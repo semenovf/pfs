@@ -19,17 +19,17 @@ class time
 	int32_t _millis; // milliseconds from midnight
 
 public:
-	static const int NullTime         = -1;
-	static const int SecondsPerMinute = 60;
-	static const int SecondsPerHour   = 3600;
-	static const int SecondsPerDay    = 86400;
-    static const int MillisPerMinute  = 60000;
-    static const int MillisPerHour    = 3600000;
-    static const int MillisPerDay     = 86400000;
+	static const int NULL_TIME          = -1;
+	static const int SECONDS_PER_MINUTE = 60;
+	static const int SECONDS_PER_HOUR   = 3600;
+	static const int SECONDS_PER_DAY    = 86400;
+    static const int MILLIS_PER_MINUTE  = 60000;
+    static const int MILLIS_PER_HOUR    = 3600000;
+    static const int MILLIS_PER_DAY     = 86400000;
 
 public:
 	time ()
-		: _millis(NullTime)
+		: _millis(NULL_TIME)
 	{}
 
 	time (int hour, int min, int sec = 0, int millis = 0)
@@ -47,27 +47,27 @@ public:
 
 	int	hour () const
 	{
-		return valid() ? _millis / MillisPerHour : NullTime;
+		return valid() ? _millis / MILLIS_PER_HOUR : NULL_TIME;
 	}
 
 	int	minute () const
 	{
-		return valid() ? (_millis % MillisPerHour) / MillisPerMinute : NullTime;
+		return valid() ? (_millis % MILLIS_PER_HOUR) / MILLIS_PER_MINUTE : NULL_TIME;
 	}
 
 	int	second () const
 	{
-		return valid() ? (_millis / 1000) % SecondsPerMinute : NullTime;
+		return valid() ? (_millis / 1000) % SECONDS_PER_MINUTE : NULL_TIME;
 	}
 
 	int	millis () const
 	{
-		return valid() ? _millis % 1000 : NullTime;
+		return valid() ? _millis % 1000 : NULL_TIME;
 	}
 
 	bool valid () const
 	{
-		return _millis > NullTime && _millis < MillisPerDay;
+		return _millis > NULL_TIME && _millis < MILLIS_PER_DAY;
 	}
 
 	int	millis_to (const time & t) const
@@ -126,7 +126,7 @@ public:
 
 	static int millis (int hour, int min, int sec, int millis = 0)
 	{
-		return MillisPerHour * hour + MillisPerMinute * min + 1000 * sec + millis;
+		return MILLIS_PER_HOUR * hour + MILLIS_PER_MINUTE * min + 1000 * sec + millis;
 	}
 };
 
@@ -135,14 +135,14 @@ namespace details {
 namespace time {
 
 template <typename StringT>
-inline void append_prefixed2 (StringT & s, char fill_char, int i2)
+inline void append_prefixed2 (StringT & s, typename StringT::value_type fill_char, int i2)
 {
 	if (i2 >= 0 && i2 < 10) s.push_back(fill_char);
 	s.append(to_string<StringT>(i2));
 }
 
 template <typename StringT>
-inline void append_prefixed3 (StringT & s, char fill_char, int i3)
+inline void append_prefixed3 (StringT & s, typename StringT::value_type fill_char, int i3)
 {
 	if (i3 >= 0) {
 		if (i3 < 100) s.push_back(fill_char);
@@ -177,8 +177,8 @@ StringT to_string (time const & t, StringT const & format)
 {
 	StringT r;
 
-	typename StringT::const_iterator p = format.begin();
-	typename StringT::const_iterator end = format.end();
+	typename StringT::const_iterator p = format.cbegin();
+	typename StringT::const_iterator end = format.cend();
 
 	bool need_spec = false; // true if conversion specifier character expected
 
@@ -194,7 +194,7 @@ StringT to_string (time const & t, StringT const & format)
 			if (!need_spec) {
 				r.push_back(*p);
 			} else {
-				switch (lexical_cast<char>(*p)) {
+				switch (to_ascii(*p)) {
 				case 'n':
 					r.push_back('\n');
 					break;
@@ -204,23 +204,23 @@ StringT to_string (time const & t, StringT const & format)
 					break;
                     
 				case 'H':
-					append_prefixed2(r, '0', t.hour());
+					details::time::append_prefixed2(r, '0', t.hour());
 					break;
                     
 				case 'I':
-					append_prefixed2(r, '0', t.hour() % 12);
+					details::time::append_prefixed2(r, '0', t.hour() % 12);
 					break;
                     
 				case 'k':
-					append_prefixed2(r, ' ', t.hour());
+					details::time::append_prefixed2(r, ' ', t.hour());
 					break;
                     
 				case 'l':
-					append_prefixed2(r, ' ', t.hour() % 12);
+					details::time::append_prefixed2(r, ' ', t.hour() % 12);
 					break;
                     
 				case 'M':
-					append_prefixed2(r, '0', t.minute());
+					details::time::append_prefixed2(r, '0', t.minute());
 					break;
                     
 				case 'q':
@@ -228,35 +228,35 @@ StringT to_string (time const & t, StringT const & format)
 					break;
                     
 				case 'Q':
-					append_prefixed3(r, '0', t.millis());
+					details::time::append_prefixed3(r, '0', t.millis());
 					break;
                     
 				case 'S':
-					append_prefixed2(r, '0', t.second());
+					details::time::append_prefixed2(r, '0', t.second());
 					break;
                     
 				case 'R':
-					append_prefixed2(r, '0', t.hour());
+					details::time::append_prefixed2(r, '0', t.hour());
 					r.push_back(':');
-					append_prefixed2(r, '0', t.minute());
+					details::time::append_prefixed2(r, '0', t.minute());
 					break;
                     
 				case 'T':
-					append_prefixed2(r, '0', t.hour());
+					details::time::append_prefixed2(r, '0', t.hour());
 					r.push_back(':');
-					append_prefixed2(r, '0', t.minute());
+					details::time::append_prefixed2(r, '0', t.minute());
 					r.push_back(':');
-					append_prefixed2(r, '0', t.second());
+					details::time::append_prefixed2(r, '0', t.second());
 					break;
                     
 				case 'J':
-					append_prefixed2(r, '0', t.hour());
+					details::time::append_prefixed2(r, '0', t.hour());
 					r.push_back(':');
-					append_prefixed2(r, '0', t.minute());
+					details::time::append_prefixed2(r, '0', t.minute());
 					r.push_back(':');
-					append_prefixed2(r, '0', t.second());
+					details::time::append_prefixed2(r, '0', t.second());
 					r.push_back('.');
-					append_prefixed3(r, '0', t.millis());
+					details::time::append_prefixed3(r, '0', t.millis());
 					break;
                     
 				case 'p':

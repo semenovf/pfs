@@ -44,7 +44,18 @@ bool is_upper (CharT c);
 template <typename CharT>
 bool is_xdigit (CharT c);
 
+template <typename CharT>
+char to_ascii (CharT c);
+
+template <>
+inline char to_ascii<char> (char c)
+{
+    return c >= 0 && c <= 127 
+            ? c
+            : -1;
 }
+
+} // pfs
 
 #include <pfs/compiler.hpp>
 #include PFS_CC_HEADER(ctype)

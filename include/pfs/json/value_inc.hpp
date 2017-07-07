@@ -153,25 +153,6 @@ value & value::operator = (const value & other)
 
 }
 
-value::reference value::operator [] (size_type index)
-{
-	// implicitly convert null to object
-	if (_type == type_null) {
-		_type = type_array;
-		std::allocator<array_type> alloc;
-		_value.array = alloc.allocate(1);
-		alloc.construct(_value.array, array_type());
-	}
-
-	PFS_ASSERT(_type == type_array);
-
-	for (size_t i = _value.array->size(); i <= index; ++i) {
-		_value.array->push_back(value());
-	}
-
-	return _value.array->operator[](index);
-}
-
 template <>
 std::pair<bool,bool> value::fetch<bool> () const
 {

@@ -40,7 +40,7 @@ filter { "debug", "action:gmake" }
     linkoptions  { "-rdynamic" }
 
 filter "action:gmake"
-    buildoptions { "-Wunused", "-Wno-long-long", "-pedantic" }
+    buildoptions { "-Wunused", "-Wno-long-long", "-pedantic", "-fPIC" }
 
 filter "platforms:unix*"
     links { "pthread" }
@@ -119,6 +119,9 @@ project "test-filesystem"
 project "test-time"
     include("test-time.gbs")
 
+project "test-date"
+    include("test-date.gbs")
+
 project "test-json"
     include("test-json.gbs")
 
@@ -134,4 +137,8 @@ project "test-io-server"
 project "test-net-inet4_addr"
     include("test-net-inet4_addr.gbs")
 
+project "test-application"
+    include("test-application.gbs")
 
+project "test-application-module"
+    include("test-application-module.gbs")

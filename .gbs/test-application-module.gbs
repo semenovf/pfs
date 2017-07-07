@@ -1,0 +1,16 @@
+kind          "SharedLib"
+language      "C++"
+targetname    "test-application-module"
+files         { "../tests/application-module/module.cpp" }
+
+configuration "debug"
+    objdir       ".cache/tests/application-module/debug"
+    targetdir    "../../.build/tests"
+    links        { "pfs-test-d", "pfs-mpl-d" }
+
+configuration "release"
+    objdir       ".cache/tests/application-module/release"
+    targetdir    "../../.build/tests"
+    links        { "pfs-test", "pfs-mpl" }
+
+dependson { "pfs" }

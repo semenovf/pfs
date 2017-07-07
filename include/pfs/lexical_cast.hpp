@@ -16,7 +16,6 @@
 #include <pfs/lexical_cast/strtoint.hpp>
 #include <pfs/lexical_cast/strtofloat.hpp>
 
-
 namespace pfs {
 
 template <typename UintT, typename StringT>

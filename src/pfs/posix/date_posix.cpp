@@ -1,26 +1,23 @@
 /*
- * time_posix.cpp
+ * date_unix.cpp
  *
  *  Created on: Sep 13, 2013
  *      Author: wladt
  */
 
 #include <ctime>
-#include <sys/time.h> // gettimeofday
-#include "pfs/assert.hpp"
-#include "pfs/time.hpp"
+#include "pfs/date.hpp"
 
 //#if ! PFS_HAVE_LOCALTIME_R
-//#	include "pfs/mutex.hpp"
+//#	include <pfs/mutex.hpp>
 //#endif
 
 namespace pfs {
 
-pfs::time current_time ()
+date current_date ()
 {
-    struct timeval tv;
-    gettimeofday(& tv, 0);
-    time_t t = tv.tv_sec;
+    time_t t;
+    ::time(& t);
 
     struct tm * tmPtr = 0;
 
@@ -35,9 +32,7 @@ pfs::time current_time ()
 //#endif
 
     PFS_ASSERT(tmPtr);
-
-    return pfs::time(tmPtr->tm_hour, tmPtr->tm_min, tmPtr->tm_sec, tv.tv_usec/1000);
+    return date(tmPtr->tm_year + 1900, tmPtr->tm_mon + 1, tmPtr->tm_mday);
 }
 
-} // pfs::platform
-
+} // pfs

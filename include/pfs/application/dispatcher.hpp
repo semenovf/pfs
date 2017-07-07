@@ -10,16 +10,18 @@
 #ifndef __PFS_APPLICATION_DISPATCHER_HPP__
 #define __PFS_APPLICATION_DISPATCHER_HPP__
 
-#include <pfs/map.hpp>
-#include <pfs/vector.hpp>
-#include <pfs/filesystem.hpp>
-#include <pfs/mutex.hpp>
-#include <pfs/thread.hpp>
-#include <pfs/dl.hpp>
-#include <pfs/memory.hpp>
-#include <pfs/sigslotmapping.hpp>
-#include <pfs/utility.hpp>
-#include <pfs/json/json.hpp>
+#include <pfs/traits/associative_container.hpp>
+#include <pfs/traits/sequence_container.hpp>
+#include <pfs/dynamic_library.hpp>
+//#include <pfs/map.hpp>
+//#include <pfs/vector.hpp>
+//#include <pfs/filesystem.hpp>
+//#include <pfs/mutex.hpp>
+//#include <pfs/thread.hpp>
+//#include <pfs/memory.hpp>
+//#include <pfs/sigslotmapping.hpp>
+//#include <pfs/utility.hpp>
+//#include <pfs/json/json.hpp>
 
 namespace pfs {
 
@@ -36,6 +38,9 @@ struct module_spec
 	}
 };
 
+template <typename StringT
+        , typename SequenceContainerT
+        , typename AssociativeContainerT>
 class dispatcher : public has_slots<>
 {
 public:
@@ -46,14 +51,21 @@ public:
 		string desc;
 	} api_item_type;
 
-	typedef map<int, api_item_type *> api_type;
-	typedef map<string, module_spec> module_spec_map_type;
+    typedef StringT string_type;
+	typedef traits::associative_container<traits::kv<int, api_item_type *>
+        ,  AssociativeContainerT> api_map;
+    
+	typedef traits::associative_container<traits::kv<string_type, module_spec>
+        , AssociativeContainerT>  module_spec_map;
+    
+    typedef traits::sequence_container<thread *
+        , SequenceContainerT>     thread_sequence;
 
 private:
 	filesystem::pathlist _searchdirs;
-	api_type             _api;
-	module_spec_map_type _module_spec_map;
-	vector<thread *>     _threads;
+	api_map              _api;
+	module_spec_map      _module_spec_map;
+	thread_sequence      _threads;
 	shared_ptr<module>   _master_module;
 
 private:
