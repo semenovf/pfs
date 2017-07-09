@@ -8,7 +8,7 @@
 #ifndef __PFS_NET_URI_QUERY_HPP__
 #define __PFS_NET_URI_QUERY_HPP__
 
-#include <pfs/traits/string.hpp>
+#include <pfs/string.hpp>
 #include <pfs/traits/stdcxx/multimap.hpp>
 #include <pfs/traits/stdcxx/vector.hpp>
 #include <pfs/net/uri.hpp>

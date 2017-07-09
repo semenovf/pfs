@@ -11,7 +11,7 @@
 template <typename StringT>
 void test_append ()
 {
-    typedef pfs::traits::string<StringT> string;
+    typedef pfs::string<StringT> string;
     typedef typename string::value_type  value_type;
     
     test_description<value_type>(__PRETTY_FUNCTION__);

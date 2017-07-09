@@ -11,7 +11,7 @@
 template <typename StringT>
 void test_substr ()
 {
-    typedef pfs::traits::string<StringT>     string_type;
+    typedef pfs::string<StringT>     string_type;
     typedef typename string_type::value_type value_type;
 
     test_description<value_type>(__PRETTY_FUNCTION__);

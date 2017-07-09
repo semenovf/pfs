@@ -5,8 +5,8 @@
  * Created on January 9, 2017, 10:49 AM
  */
 
-#ifndef __PFS_TRAITS_STRING_HPP__
-#define __PFS_TRAITS_STRING_HPP__
+#ifndef __PFS_STRING_HPP__
+#define __PFS_STRING_HPP__
 
 #include <ostream>
 #include <pfs/assert.hpp>
@@ -16,7 +16,6 @@
 #include <pfs/iterator.hpp>
 
 namespace pfs {
-namespace traits {
 
 template <typename StringSpecificTraits>
 class string
@@ -521,10 +520,6 @@ string<StringSpecificTraits>::substr (size_type pos, size_type count) const
     return string_value_type(b, e);
 }
 
-}} // pfs::traits
-
-namespace pfs {
-
 namespace details {
 namespace integral {
 
@@ -860,5 +855,5 @@ inline StringT to_string (double a
 
 } // pfs
 
-#endif /* __PFS_TRAITS_STRING_HPP__ */
+#endif /* __PFS_STRING_HPP__ */
 

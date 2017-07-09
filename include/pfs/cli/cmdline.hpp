@@ -67,7 +67,7 @@
 #ifndef __PFS_CLI_CMDLINE_HPP__
 #define __PFS_CLI_CMDLINE_HPP__
 
-#include <pfs/traits/string.hpp>
+#include <pfs/string.hpp>
 
 namespace pfs {
 namespace cli {

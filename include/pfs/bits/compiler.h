@@ -88,5 +88,28 @@
 #   error "Unsupported C/C++ compiler"
 #endif
 
+
+/* http://support.microsoft.com/default.aspx?scid=KB;EN-US;168958 */
+#ifdef PFS_DLL_API
+#   undef PFS_DLL_API
+#endif
+
+#if defined(_MSC_VER)
+#   define PFS_DLL_API_EXPORT __declspec(dllexport)
+#   define PFS_DLL_API_IMPORT __declspec(dllimport)
+#   ifdef PFS_DLL_EXPORTS
+#       define PFS_DLL_API PFS_DLL_API_EXPORT
+#       define PFS_DLL_TEMPLATE
+#   else
+#       define PFS_DLL_API PFS_DLL_API_IMPORT
+#       define PFS_DLL_TEMPLATE extern
+#   endif
+#else
+#   define PFS_DLL_API_EXPORT
+#   define PFS_DLL_API_IMPORT
+#   define PFS_DLL_API
+#   define PFS_DLL_TEMPLATE
+#endif
+
 #endif /* __PFS_BITS_COMPILER_H__ */
 

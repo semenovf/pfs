@@ -9,7 +9,7 @@
 #define __PFS_CXX11_REGEX_HPP__
 
 #include <regex>
-//#include <pfs/traits/string.hpp>
+//#include <pfs/string.hpp>
 
 namespace pfs {
 
@@ -98,7 +98,7 @@ inline bool regex_match (StringT  const & s
     return std::regex_match(s, e, flags);
 }
 
-// TODO Implement regex_match versions for pfs::traits::string.
+// TODO Implement regex_match versions for pfs::string.
 
 } // namespace pfs
 

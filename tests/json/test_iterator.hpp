@@ -17,7 +17,7 @@ void test ()
         ADD_TESTS(11);
 
         json_type json; // null value
-        typename json_type::iterator it = json.begin();
+        //typename json_type::iterator it = json.begin();
 
         json["Image"]["Width"]               = 800;
         json["Image"]["Height"]              = 600;

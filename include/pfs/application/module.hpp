@@ -8,19 +8,18 @@
 #ifndef __PFS_MODULE_HPP__
 #define __PFS_MODULE_HPP__
 
-#include <pfs/string.hpp>
+#include <pfs/system_string.hpp>
 #include <pfs/sigslot.hpp>
 #include <pfs/atomic.hpp>
 
-#ifdef PFS_CC_MSVC
-#	pragma warning(push)
-#	pragma warning(disable:4251)
-#endif
+#define PFS_DETECTOR_CAST(slot) reinterpret_cast<pfs::application::detector>(& slot)
+#define PFS_EMITTER_CAST(e)     reinterpret_cast<void *>(& e)
+#define PFS_MODULE_API extern "C" DLL_API
+#define PFS_MODULE_CTOR_NAME "__module_ctor__"
+#define PFS_MODULE_DTOR_NAME "__module_dtor__"
 
 namespace pfs {
-
-#define DETECTOR_CAST(slot) reinterpret_cast<pfs::detector>(& slot)
-#define EMITTER_CAST(e)     reinterpret_cast<void *>(& e)
+namespace application {
 
 class dispatcher;
 class module;
@@ -29,63 +28,62 @@ typedef void (module::* detector)(void *);
 typedef struct { int _id; void * _emitter; } emitter_mapping;
 typedef struct { int _id; detector _detector; } detector_mapping;
 
-#define PFS_MODULE_API extern "C" DLL_API
-#define PFS_MODULE_CTOR_NAME "__module_ctor__"
-#define PFS_MODULE_DTOR_NAME "__module_dtor__"
-typedef module * (* module_ctor_t)(const char * name, void *);
+typedef module * (* module_ctor_t)(char const * name, void *);
 typedef void  (* module_dtor_t)(module *);
 
-class DLL_API module : public has_slots<>
+class module : public has_slots<>
 {
 	friend class dispatcher;
 
 public:
+    typedef system_string string_type;
+    
 	struct log_consumer : public has_slots<>
 	{
 		friend class module;
-		virtual void on_info  (const module *, const string &) = 0; // {}
-		virtual void on_debug (const module *, const string &) = 0; // {}
-		virtual void on_warn  (const module *, const string &) = 0; // {}
-		virtual void on_error (const module *, const string &) = 0; // {}
+		virtual void on_info  (module const *, string_type const &) = 0; // {}
+		virtual void on_debug (module const *, string_type const &) = 0; // {}
+		virtual void on_warn  (module const *, string_type const &) = 0; // {}
+		virtual void on_error (module const *, string_type const &) = 0; // {}
 
 	private:
-		void _on_info  (const module * m, const string & s)
+		void _on_info  (module const * m, string_type const & s)
 		{
 			this->on_info(m, s);
 		}
 
-		void _on_debug (const module * m, const string & s)
+		void _on_debug (module const * m, string_type const & s)
 		{
 			this->on_debug(m, s);
 		}
 
-		void _on_warn  (const module * m, const string & s)
+		void _on_warn  (module const * m, string_type const & s)
 		{
 			this->on_warn(m, s);
 		}
 
-		void _on_error (const module * m, const string & s)
+		void _on_error (module const * m, string_type const & s)
 		{
 			this->on_error(m, s);
 		}
 	};
 
 public: // signals
-	signal2<const string &, bool &> emit_module_registered;
+	signal2<string_type const &, bool &> emit_module_registered;
 
-	signal0<>                               emit_quit;
-	signal2<const module *, const string &> emit_info;
-	signal2<const module *, const string &> emit_debug;
-	signal2<const module *, const string &> emit_warn;
-	signal2<const module *, const string &> emit_error;
+	signal0<>                                      emit_quit;
+	signal2<module const *, string_type const &> emit_info;
+	signal2<module const *, string_type const &> emit_debug;
+	signal2<module const *, string_type const &> emit_warn;
+	signal2<module const *, string_type const &> emit_error;
     
 private:
-	string       _name;
-	dispatcher * _pdispatcher;
-	atomic_int   _quitfl; // quit flag
+	string_type _name;
+	dispatcher *  _pdispatcher;
+	atomic_int    _quitfl; // quit flag
 
 public:
-	int (* run) (module *); // TODO declare it as `int (module::*) ()'
+	int (* run) (module *);
 
 protected:
 	module ()
@@ -94,7 +92,7 @@ protected:
 		, run(0)
 	{}
 
-	void set_name (const string & name)
+	void set_name (string_type const & name)
 	{
 		_name = name;
 	}
@@ -102,7 +100,7 @@ protected:
 public:
 	virtual ~module () {}
 
-	const string & name() const
+	string_type const & name() const
 	{
 		return _name;
 	}
@@ -122,7 +120,7 @@ public:
 		return _pdispatcher;
 	}
 
-	const dispatcher * get_dispatcher () const
+	dispatcher const * get_dispatcher () const
 	{
 		return _pdispatcher;
 	}
@@ -132,23 +130,21 @@ public:
 	void connect_warn  (log_consumer * p);
 	void connect_error (log_consumer * p);
 
-	virtual const emitter_mapping * get_emitters (int * count)
+	virtual emitter_mapping const * get_emitters (int & count)
 	{
-		PFS_ASSERT(count);
-		*count = 0;
+		count = 0;
 		return 0;
 	}
 
-	virtual const detector_mapping * get_detectors (int * count)
+	virtual detector_mapping const * get_detectors (int & count)
 	{
-		PFS_ASSERT(count);
-		*count = 0;
+		count = 0;
 		return 0;
 	}
 
 	bool is_quit () const
 	{
-		return _quitfl.load() == 0 ? false : true;
+		return _quitfl == 0 ? false : true;
 	}
 
 	/**
@@ -167,7 +163,7 @@ public:
 public: // slots
 	void on_quit ()
 	{
-		_quitfl.store(1);
+		_quitfl = 1;
 	}
 };
 
@@ -179,35 +175,31 @@ struct detector_pair
 	detector _detector;
 };
 
-} // pfs
+}} // pfs::application
 
-#define PFS_MODULE_EMITTER(id, em) { id , EMITTER_CAST(em) }
-#define PFS_MODULE_DETECTOR(id, dt) { id , DETECTOR_CAST(dt) }
+#define PFS_MODULE_EMITTER(id, em) { id , PFS_EMITTER_CAST(em) }
+#define PFS_MODULE_DETECTOR(id, dt) { id , PFS_DETECTOR_CAST(dt) }
 
 #define PFS_MODULE_EMITTERS_BEGIN                                       \
-const pfs::emitter_mapping * get_emitters (int *count)                  \
+const pfs::application::emitter_mapping * get_emitters (int & count)    \
 {                                                                       \
-	static pfs::emitter_mapping __emitter_mapping[] = {
+	static pfs::application::emitter_mapping __emitter_mapping[] = {
 
 #define PFS_MODULE_EMITTERS_END                                         \
 	};                                                                  \
-	*count = sizeof(__emitter_mapping)/sizeof(__emitter_mapping[0]) ;   \
+	count = sizeof(__emitter_mapping)/sizeof(__emitter_mapping[0]) ;    \
 	return & __emitter_mapping[0];                                      \
 }
 
 #define PFS_MODULE_DETECTORS_BEGIN                                      \
-const pfs::detector_mapping * get_detectors(int *count)                 \
+const pfs::application::detector_mapping * get_detectors (int & count)  \
 {                                                                       \
-	static pfs::detector_mapping __detector_mapping[] = {
+	static pfs::application::detector_mapping __detector_mapping[] = {
 
 #define PFS_MODULE_DETECTORS_END		                                \
 	};                                                                  \
-	*count = sizeof(__detector_mapping)/sizeof(__detector_mapping[0]) ; \
+	count = sizeof(__detector_mapping)/sizeof(__detector_mapping[0]);   \
 	return & __detector_mapping[0];                                     \
 }
-
-#ifdef PFS_CC_MSVC
-#	pragma warning(pop)
-#endif
 
 #endif /* __PFS_MODULE_HPP__ */

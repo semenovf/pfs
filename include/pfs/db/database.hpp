@@ -8,7 +8,7 @@
 #ifndef __PFS_DB_DATABASE_HPP__
 #define __PFS_DB_DATABASE_HPP__
 
-#include <pfs/traits/string.hpp>
+#include <pfs/string.hpp>
 #include <pfs/traits/db/exception.hpp>
 
 namespace pfs {

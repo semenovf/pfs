@@ -13,6 +13,7 @@ solution "pfs-mpl"
     targetdir     "../../.build"
     includedirs   { "../include" }
     libdirs       { "../../.build" }
+    defines       { "PFS_SYSTEM_STRING=1" } -- std::string is a native implementation of system_string
 
     -- TODO Must be conditionally setup (based on cppdialect)
     -- need for 11 <= C++ < 17
@@ -34,7 +35,6 @@ configuration "debug"
 
 configuration "release"
     defines      { "NDEBUG" }
-
 
 filter { "debug", "action:gmake" }
     linkoptions  { "-rdynamic" }
@@ -137,8 +137,11 @@ project "test-io-server"
 project "test-net-inet4_addr"
     include("test-net-inet4_addr.gbs")
 
-project "test-application"
-    include("test-application.gbs")
+--project "test-application"
+--    include("test-application.gbs")
 
-project "test-application-module"
-    include("test-application-module.gbs")
+--project "test-application-module"
+--    include("test-application-module.gbs")
+
+project "demo-logger"
+    include("demo-logger.gbs")

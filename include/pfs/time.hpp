@@ -9,7 +9,7 @@
 #define __PFS_TIME_HPP__
 
 #include <pfs/types.hpp>
-#include <pfs/traits/string.hpp>
+#include <pfs/string.hpp>
 #include <pfs/lexical_cast.hpp>
 
 namespace pfs {

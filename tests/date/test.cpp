@@ -16,11 +16,11 @@
 //typedef pfs::date date_type;
 
 #include <pfs/test/test.hpp>
-#include <pfs/traits/string.hpp>
+#include <pfs/string.hpp>
 #include <pfs/traits/stdcxx/string.hpp>
 #include <pfs/date.hpp>
 
-typedef pfs::traits::string<pfs::traits::stdcxx::string> string_type;
+typedef pfs::string<pfs::traits::stdcxx::string> string_type;
 typedef std::stringstream stringstream_type;
 typedef pfs::date date_type;
 

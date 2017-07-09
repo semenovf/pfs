@@ -8,7 +8,7 @@
 #ifndef __PFS_TRAITS_DB_STATEMENT_HPP__
 #define __PFS_TRAITS_DB_STATEMENT_HPP__
 
-#include <pfs/traits/string.hpp>
+#include <pfs/string.hpp>
 #include <pfs/traits/db/exception.hpp>
 
 namespace pfs {

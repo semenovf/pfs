@@ -9,7 +9,6 @@
 #define __PFS_DATETIME_HPP__
 
 #include <pfs/types.hpp>
-#include <pfs/traits/string.hpp>
 #include <pfs/lexical_cast.hpp>
 #include <pfs/system_string.hpp>
 #include <pfs/date.hpp>

@@ -11,7 +11,7 @@
 #include <pfs/assert.hpp>
 #include <pfs/utility.hpp>
 #include <pfs/memory.hpp>
-#include <pfs/traits/string.hpp>
+#include <pfs/string.hpp>
 #include <pfs/traits/associative_container.hpp>
 //#include <pfs/traits/contigous_container.hpp>
 #include <pfs/traits/sequence_container.hpp>
@@ -33,7 +33,7 @@ public:
     typedef ptrdiff_t difference_type;
     typedef size_t    size_type;
 
-    typedef pfs::traits::string<StringT>                   string_traits;
+    typedef pfs::string<StringT>                   string_traits;
     typedef string_traits                                  string_type;
     typedef BoolT                                          boolean_type;
     typedef IntT                                           integer_type;

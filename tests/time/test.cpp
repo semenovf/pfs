@@ -6,11 +6,11 @@
  */
 
 #include <pfs/test/test.hpp>
-#include <pfs/traits/string.hpp>
+#include <pfs/string.hpp>
 #include <pfs/traits/stdcxx/string.hpp>
 #include <pfs/time.hpp>
 
-typedef pfs::traits::string<pfs::traits::stdcxx::string> string_type;
+typedef pfs::string<pfs::traits::stdcxx::string> string_type;
 typedef pfs::time time_type;
 
 void test_base (void)

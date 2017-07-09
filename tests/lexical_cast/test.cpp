@@ -7,7 +7,7 @@
  */
 #include <pfs/test/test.hpp>
 #include <pfs/lexical_cast.hpp>
-#include <pfs/traits/string.hpp>
+#include <pfs/string.hpp>
 #include <pfs/traits/stdcxx/string.hpp>
 
 #ifdef QT_CORE_LIB
@@ -29,7 +29,7 @@ int main(int argc, char *argv[])
 	BEGIN_TESTS(0);
 
     {
-        typedef pfs::traits::string<pfs::traits::stdcxx::string> string_type;
+        typedef pfs::string<pfs::traits::stdcxx::string> string_type;
 
         test_string_to_uint<string_type>();
         test_string_to_int<string_type>();
@@ -41,7 +41,7 @@ int main(int argc, char *argv[])
             
 #ifdef QT_CORE_LIB
     {
-        //typedef pfs::traits::string<pfs::traits::qt::string> string_type;
+        //typedef pfs::string<pfs::traits::qt::string> string_type;
 
 //        test_string_to_uint<string_type>();
 //        test_string_to_int<string_type>();

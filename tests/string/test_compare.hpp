@@ -11,7 +11,7 @@
 template <typename StringT>
 void test_compare_basic ()
 {
-    typedef pfs::traits::string<StringT> string;
+    typedef pfs::string<StringT> string;
     typedef typename string::value_type  value_type;
     
     test_description<value_type>(__PRETTY_FUNCTION__);
@@ -51,7 +51,7 @@ struct test_compare_empty_data
 template <typename StringT>
 void test_compare_empty ()
 {
-    typedef pfs::traits::string<StringT> string;
+    typedef pfs::string<StringT> string;
     typedef typename string::value_type  value_type;
 
     test_description<value_type>(__PRETTY_FUNCTION__);
@@ -106,7 +106,7 @@ void test_compare ()
 template <typename StringT>
 void test_compare_cstr ()
 {
-    typedef pfs::traits::string<StringT> string;
+    typedef pfs::string<StringT> string;
     typedef typename string::value_type  value_type;
     
     test_description<value_type>(__PRETTY_FUNCTION__);

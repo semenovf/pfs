@@ -8,7 +8,7 @@
 #ifndef __PFS_DB_EXCEPTION_HPP__
 #define __PFS_DB_EXCEPTION_HPP__
 
-#include <pfs/traits/string.hpp>
+#include <pfs/string.hpp>
 
 namespace pfs {
 namespace db {
@@ -17,7 +17,7 @@ template <typename StringT>
 class exception
 {
 public:
-    typedef pfs::traits::string<StringT>        string_type;
+    typedef pfs::string<StringT>        string_type;
     typedef typename string_type::const_pointer const_pointer;
         
 protected:

@@ -2,7 +2,7 @@
 #include <pfs/test/test.hpp>
 #include <pfs/logger.hpp>
 #include <pfs/safeformat.hpp>
-#include <pfs/app.hpp>
+#include <pfs/application/app.hpp>
 
 class module : public pfs::module
 {
@@ -118,13 +118,13 @@ inline void module::onSixArgs (bool ok, char, short, int, long, const char *hell
 //}
 
 static pfs::dispatcher::api_item_type API[] = {
-	  { 0 , new pfs::sigslot_mapping0_t, _u8("ZeroArg()") }
-	, { 1 , new pfs::sigslot_mapping1_t<bool>, _u8("OneArg(bool b)\n\t boolean value") }
-	, { 2 , new pfs::sigslot_mapping2_t<bool, char>, _u8("TwoArgs(bool b, char ch)") }
-	, { 3 , new pfs::sigslot_mapping3_t<bool, char, short>, _u8("ThreeArgs(bool b, char ch, short n)") }
-	, { 4 , new pfs::sigslot_mapping4_t<bool, char, short, int>, _u8("FourArgs description") }
-	, { 5 , new pfs::sigslot_mapping5_t<bool, char, short, int, long>, _u8("FiveArgs description") }
-	, { 6 , new pfs::sigslot_mapping6_t<bool, char, short, int, long, const char*>, _u8("SixArgs description") }
+	  { 0 , new pfs::sigslot_mapping0_t, "ZeroArg()" }
+	, { 1 , new pfs::sigslot_mapping1_t<bool>, "OneArg(bool b)\n\t boolean value" }
+	, { 2 , new pfs::sigslot_mapping2_t<bool, char>, "TwoArgs(bool b, char ch)" }
+	, { 3 , new pfs::sigslot_mapping3_t<bool, char, short>, "ThreeArgs(bool b, char ch, short n)" }
+	, { 4 , new pfs::sigslot_mapping4_t<bool, char, short, int>, "FourArgs description" }
+	, { 5 , new pfs::sigslot_mapping5_t<bool, char, short, int, long>, "FiveArgs description" }
+	, { 6 , new pfs::sigslot_mapping6_t<bool, char, short, int, long, const char*>, "SixArgs description" }
 //	, { 7 , new pfs::sigslot_mapping7_t<bool, char, short, int, long, const char*, const pfs::string &>, _u8("SevenArgs description") }
 //	, { 8 , new pfs::sigslot_mapping8_t<bool, char, short, int, long, long long, const char*, const pfs::string &>, _u8("EightArgs description") }
 };
@@ -135,11 +135,11 @@ int main (int argc, char *argv[])
     BEGIN_TESTS(12);
 
     pfs::dispatcher dispatcher(API, sizeof(API)/sizeof(API[0]));
-    dispatcher.add_search_path(pfs::fs::path("."));
+    dispatcher.add_search_path(pfs::filesystem::path("."));
 
-    TEST_OK(dispatcher.register_module_for_name(_u8("module-for-test-app")));
-    TEST_OK(dispatcher.register_local_module(new module, _u8("mod-local-for-test-app")));
-    TEST_OK(!dispatcher.register_module_for_name(_u8("module-for-test-app-nonexistence")));
+    TEST_OK(dispatcher.register_module_for_name("module-for-test-app"));
+    TEST_OK(dispatcher.register_local_module(new module, "mod-local-for-test-app"));
+    TEST_OK(!dispatcher.register_module_for_name("module-for-test-app-nonexistence"));
 
     TEST_OK(dispatcher.count() == 2);
 

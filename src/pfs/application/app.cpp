@@ -5,14 +5,14 @@
  *      Author: wladt
  */
 
-#include "pfs/application/instance.hpp"
+#include "pfs/application/app.hpp"
 
 namespace pfs {
 namespace application {
 
 int app::exec (dispatcher & d)
 {
-	int r = exit_status::failure;
+	int r = static_cast<int>(exit_status::failure);
 
     d.connect_all();
 

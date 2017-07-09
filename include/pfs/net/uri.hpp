@@ -8,7 +8,7 @@
 #ifndef __PFS_NET_URI_HPP__
 #define __PFS_NET_URI_HPP__
 
-#include <pfs/traits/string.hpp>
+#include <pfs/string.hpp>
 #include <pfs/traits/map.hpp>
 #include <pfs/traits/vector.hpp>
 #include <pfs/algo/split.hpp>

@@ -11,6 +11,7 @@ includedirs   { "../include" }
 files         {
                   "../src/pfs/*.cpp"
                 , "../src/pfs/io/*.cpp"
+                , "../src/pfs/application/*.cpp"
               }
 
 configuration "debug"
@@ -24,5 +25,6 @@ filter "platforms:unix*"
               "../src/pfs/gnuc/*.cpp"
             , "../src/pfs/posix/*.cpp"
             , "../src/pfs/io/posix/*.cpp"
+            , "../src/pfs/application/posix/*.cpp"
           }
     links { "dl", "pthread", "rt" }

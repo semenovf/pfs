@@ -11,7 +11,7 @@
 #include <netinet/in.h>
 #include <pfs/compiler.hpp>
 #include <pfs/lexical_cast.hpp>
-#include <pfs/traits/string.hpp>
+#include <pfs/string.hpp>
 
 #if PFS_CC_GCC
 #   include <arpa/inet.h>

@@ -13,7 +13,7 @@
 template <typename StringT>
 void test_c_str_cast ()
 {
-    typedef pfs::traits::string<StringT> string;
+    typedef pfs::string<StringT> string;
     typedef typename string::value_type  value_type;
     
     test_description<value_type>(__PRETTY_FUNCTION__);

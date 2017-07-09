@@ -18,7 +18,7 @@ typedef std::string string_type;
 typedef pfs::net::uri<string_type> uri_type;
 typedef pfs::net::uri_grammar<uri_type> uri_grammar_type;
 
-typedef pfs::traits::string<string_type> sequence_type;
+typedef pfs::string<string_type> sequence_type;
 typedef pfs::fsm::test_valid_entry<sequence_type> test_valid_entry;
 typedef pfs::fsm::test_invalid_entry<sequence_type> test_invalid_entry;
 

@@ -10,7 +10,7 @@
 
 #include <pfs/traits/list.hpp>
 #include <pfs/traits/multimap.hpp>
-#include <pfs/traits/string.hpp>
+#include <pfs/string.hpp>
 
 namespace pfs {
 namespace cli {

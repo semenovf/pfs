@@ -9,6 +9,8 @@
 #ifndef __PFS_SAFEFORMAT_HPP__
 #define __PFS_SAFEFORMAT_HPP__
 
+#include <pfs/ctype.hpp>
+
 namespace pfs {
 
 template <typename StringT>

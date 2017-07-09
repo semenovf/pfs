@@ -8,7 +8,7 @@
 #ifndef __PFS_APPLICATION_APP_HPP__
 #define __PFS_APPLICATION_APP_HPP__
 
-#include <pfs/dispatcher.hpp>
+#include <pfs/application/dispatcher.hpp>
 
 namespace pfs {
 namespace application {
@@ -28,7 +28,6 @@ struct exit_status
 #endif    
 };
 
-
 struct main_proc
 {
     main_proc() {}
@@ -36,20 +35,22 @@ struct main_proc
     virtual int operator () () { return 0; }
 };
 
-class instance
+class app
 {
 //	string _program;
 
 private:
 #if __cplusplus >= 201103L
-    instance (instance const & other) = delete;
-    instance & operator = (instance const & other) = delete;
+    app (app const & other) = delete;
+    app & operator = (app const & other) = delete;
 #else    
-    instance (instance const & other);
-    instance & operator = (instance const & other);
+    app (app const & other);
+    app & operator = (app const & other);
 #endif
     
 public:
+    app () {}
+    
 	int exec ()
 	{
 		return main_proc()();
@@ -65,9 +66,9 @@ public:
     friend app & instance ();
 };
 
-inline instance & app ()
+inline app & instance ()
 {
-    static instance a;
+    static app a;
     return a;
 }
 

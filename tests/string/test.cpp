@@ -11,7 +11,7 @@
 #include <iostream>
 #include <sstream>
 #include <pfs/test/test.hpp>
-#include <pfs/traits/string.hpp>
+#include <pfs/string.hpp>
 #include <pfs/traits/stdcxx/string.hpp>
 
 // Enabled by `qt_enable`
