@@ -41,33 +41,33 @@ struct priority
 template <typename Logger>
 class appender;
 
-template <typename String
-    , template <typename> class SequenceContainer>
+template <typename StringImplType
+    , template <typename> class SequenceContainerImplType>
 class logger
 {
 public:
-    typedef String                                   string_type;
+    typedef string<StringImplType>                   string_type;
 
 private:    
     typedef appender<logger>                         appender_type;
 	typedef traits::sequence_container<
               unique_ptr<appender_type>
-            , SequenceContainer>                     appender_sequence;
+            , SequenceContainerImplType>             appender_sequence;
 	typedef signal2<priority, string_type const &>   emitter_type;
 
 private:
-	struct data
+	struct data_t
 	{
 		priority          _priority;
 		appender_sequence _appenders;
 		emitter_type      _emitters[static_cast<size_t>(priority::count)];
 	};
 
-	data * _d;
+	unique_ptr<data_t> _d;
 
 public:
 	logger ()
-		: _d(new data)
+		: _d(make_unique<data_t>())
 	{
 		_d->_priority = priority::trace;
 	}
@@ -82,21 +82,9 @@ public:
 
 	void clear ();
 
-    // TODO DEPRECATED, see swap()
-    //
-//	void move (logger & other)
-//	{
-//		if (_d) {
-//			clear();
-//			delete _d;
-//		}
-//		_d = other._d;
-//		other._d = 0;
-//	}
-    
     void swap (logger & other)
     {
-        pfs::swap(_d, other._d);
+        _d.swap(other._d);
     }
 
 	template <typename Appender>

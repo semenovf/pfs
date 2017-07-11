@@ -17,10 +17,10 @@
 
 namespace pfs {
 
-template <typename StringSpecificTraits>
+template <typename StringImplType>
 class string
 {
-    typedef StringSpecificTraits internal_type;
+    typedef StringImplType internal_type;
     
 public:
     typedef string<typename internal_type::string_value_type>      string_value_type;
@@ -501,9 +501,9 @@ public:
     }
 };
 
-template <typename StringSpecificTraits>
-typename string<StringSpecificTraits>::string_value_type
-string<StringSpecificTraits>::substr (size_type pos, size_type count) const
+template <typename StringImplType>
+typename string<StringImplType>::string_value_type
+string<StringImplType>::substr (size_type pos, size_type count) const
 {
     if (pos >= this->size())
         throw out_of_range("string::substr()");
@@ -547,56 +547,54 @@ char * intmax_to_cstr (intmax_t num
  * @param fill_char
  * @return 
  */
-template <typename UintT, typename StringT>
-StringT to_string (typename pfs::enable_if<pfs::is_unsigned<UintT>::value, UintT>::type value
+template <typename UintType, typename StringType>
+StringType to_string (typename pfs::enable_if<pfs::is_unsigned<UintType>::value, UintType>::type value
         , int field_width
 		, int radix
 		, bool uppercase
-        , typename StringT::value_type fill_char)
+        , typename StringType::value_type fill_char)
 {
-	char buf[sizeof(UintT) * 8 + 1]; // char buf[BITS_SIZE(UintT) + 1];
+	char buf[sizeof(UintType) * 8 + 1]; // char buf[BITS_SIZE(UintType) + 1];
 	char * str = uintmax_to_cstr(static_cast<uintmax_t>(value)
 			, radix
 			, uppercase
 			, buf
 			, sizeof(buf));
     
-    StringT s(str);
+    StringType s(str);
     
     // TODO Implement left-aligned text (field_width is negative)
     if (field_width > 0 && s.size() < static_cast<size_t>(field_width)) {
-        return StringT(static_cast<size_t>(field_width) - s.size(), fill_char) + s;
+        return StringType(static_cast<size_t>(field_width) - s.size(), fill_char) + s;
     }
     
 	return s;
 }
 
-template <typename IntT, typename StringT>
-StringT to_string (typename enable_if<is_signed<IntT>::value, IntT>::type value
+template <typename IntType, typename StringType>
+StringType to_string (typename enable_if<is_signed<IntType>::value, IntType>::type value
         , int field_width
 		, int radix
 		, bool uppercase
-        , typename StringT::value_type fill_char)
+        , typename StringType::value_type fill_char)
 {
-    //typedef typename StringT::value_type char_type;
-    
-	char buf[sizeof(IntT) * 8 + 1]; // char buf[BITS_SIZE(UintT) + 1];
+	char buf[sizeof(IntType) * 8 + 1];
 	char * str = intmax_to_cstr(static_cast<intmax_t>(value)
 			, radix
 			, uppercase
             , buf
 			, sizeof(buf));
     
-    StringT s(str);
+    StringType s(str);
 
     // TODO Implement left-aligned text (field_width is negative)
     if (field_width > 0 && s.size() < static_cast<size_t>(field_width)) {
         if (value < 0 && !pfs::is_space(fill_char)) { // -000000123
-            return StringT(1, '-') 
-                    + StringT(static_cast<size_t>(field_width) - s.size() - 1, fill_char)
-                    + StringT(s.cbegin() + 1, s.cend()); // ignore sign
+            return StringType(1, '-') 
+                    + StringType(static_cast<size_t>(field_width) - s.size() - 1, fill_char)
+                    + StringType(s.cbegin() + 1, s.cend()); // ignore sign
         } else { // -123, 123, _______-123, ________123
-            return StringT(static_cast<size_t>(field_width) - s.size(), fill_char) + s;
+            return StringType(static_cast<size_t>(field_width) - s.size(), fill_char) + s;
         }
     }
     
@@ -605,132 +603,132 @@ StringT to_string (typename enable_if<is_signed<IntT>::value, IntT>::type value
 
 }} // details::integral
 
-template <typename StringT>
-inline StringT to_string (bool value)
+template <typename StringType>
+inline StringType to_string (bool value)
 {
-	return value ? StringT("true") : StringT("false");
+	return value ? StringType("true") : StringType("false");
 }
 
-template <typename StringT>
-inline StringT to_string (char a
+template <typename StringType>
+inline StringType to_string (char a
         , int field_width = 0
-        , typename StringT::value_type fill_char = typename StringT::value_type(' '))
+        , typename StringType::value_type fill_char = typename StringType::value_type(' '))
 {
-    StringT s(1, typename StringT::value_type(a));
+    StringType s(1, typename StringType::value_type(a));
     
     if (field_width > 0 && s.size() < static_cast<size_t>(field_width)) {
-        return StringT(static_cast<size_t>(field_width) - s.size(), fill_char) + s;
+        return StringType(static_cast<size_t>(field_width) - s.size(), fill_char) + s;
     }
     
     return s;
 }
 
-template <typename StringT>
-inline StringT to_string (signed char a
+template <typename StringType>
+inline StringType to_string (signed char a
         , int field_width = 0
         , int radix = 10
         , bool uppercase = false
-        , typename StringT::value_type fill_char = typename StringT::value_type(' '))
+        , typename StringType::value_type fill_char = typename StringType::value_type(' '))
 {
-    return details::integral::to_string<signed char, StringT>(a
+    return details::integral::to_string<signed char, StringType>(a
             , field_width
             , radix
             , uppercase
             , fill_char);
 }
 
-template <typename StringT>
-inline StringT to_string (unsigned char a
+template <typename StringType>
+inline StringType to_string (unsigned char a
         , int field_width = 0
         , int radix = 10
         , bool uppercase = false
-        , typename StringT::value_type fill_char = typename StringT::value_type(' '))
+        , typename StringType::value_type fill_char = typename StringType::value_type(' '))
 {
-    return details::integral::to_string<unsigned char, StringT>(a
+    return details::integral::to_string<unsigned char, StringType>(a
             , field_width
             , radix
             , uppercase
             , fill_char);
 }
 
-template <typename StringT>
-inline StringT to_string (short a
+template <typename StringType>
+inline StringType to_string (short a
         , int field_width = 0
         , int radix = 10
         , bool uppercase = false
-        , typename StringT::value_type fill_char = typename StringT::value_type(' '))
+        , typename StringType::value_type fill_char = typename StringType::value_type(' '))
 {
-    return details::integral::to_string<short, StringT>(a
+    return details::integral::to_string<short, StringType>(a
             , field_width
             , radix
             , uppercase
             , fill_char);
 }
 
-template <typename StringT>
-inline StringT to_string (unsigned short a
+template <typename StringType>
+inline StringType to_string (unsigned short a
         , int field_width = 0
         , int radix = 10
         , bool uppercase = false
-        , typename StringT::value_type fill_char = typename StringT::value_type(' '))
+        , typename StringType::value_type fill_char = typename StringType::value_type(' '))
 {
-    return details::integral::to_string<unsigned short, StringT>(a
+    return details::integral::to_string<unsigned short, StringType>(a
             , field_width
             , radix
             , uppercase
             , fill_char);
 }
 
-template <typename StringT>
-inline StringT to_string (int a
+template <typename StringType>
+inline StringType to_string (int a
         , int field_width = 0
         , int radix = 10
         , bool uppercase = false
-        , typename StringT::value_type fill_char = typename StringT::value_type(' '))
+        , typename StringType::value_type fill_char = typename StringType::value_type(' '))
 {
-    return details::integral::to_string<int, StringT>(a
+    return details::integral::to_string<int, StringType>(a
             , field_width
             , radix
             , uppercase
             , fill_char);
 }
 
-template <typename StringT>
-inline StringT to_string (unsigned int a
+template <typename StringType>
+inline StringType to_string (unsigned int a
         , int field_width = 0
         , int radix = 10
         , bool uppercase = false
-        , typename StringT::value_type fill_char = typename StringT::value_type(' '))
+        , typename StringType::value_type fill_char = typename StringType::value_type(' '))
 {
-    return details::integral::to_string<unsigned int, StringT>(a
+    return details::integral::to_string<unsigned int, StringType>(a
             , field_width
             , radix
             , uppercase
             , fill_char);
 }
 
-template <typename StringT>
-inline StringT to_string (long a
+template <typename StringType>
+inline StringType to_string (long a
         , int field_width = 0
         , int radix = 10
         , bool uppercase = false
-        , typename StringT::value_type fill_char = typename StringT::value_type(' '))
+        , typename StringType::value_type fill_char = typename StringType::value_type(' '))
 {
-    return details::integral::to_string<long, StringT>(a
+    return details::integral::to_string<long, StringType>(a
             , field_width
             , radix
             , uppercase
             , fill_char);
 }
 
-template <typename StringT>
-inline StringT to_string (unsigned long a
+template <typename StringType>
+inline StringType to_string (unsigned long a
         , int field_width = 0
         , int radix = 10
         , bool uppercase = false
-        , typename StringT::value_type fill_char = typename StringT::value_type(' '))
+        , typename StringType::value_type fill_char = typename StringType::value_type(' '))
 {
-    return details::integral::to_string<unsigned long, StringT>(a
+    return details::integral::to_string<unsigned long, StringType>(a
             , field_width
             , radix
             , uppercase
@@ -739,28 +737,28 @@ inline StringT to_string (unsigned long a
 
 #if PFS_HAVE_LONGLONG
 
-template <typename StringT>
-inline StringT to_string (long long a
+template <typename StringType>
+inline StringType to_string (long long a
         , int field_width = 0
         , int radix = 10
         , bool uppercase = false
-        , typename StringT::value_type fill_char = typename StringT::value_type(' '))
+        , typename StringType::value_type fill_char = typename StringType::value_type(' '))
 {
-    return details::integral::to_string<long long, StringT>(a
+    return details::integral::to_string<long long, StringType>(a
             , field_width
             , radix
             , uppercase
             , fill_char);
 }
 
-template <typename StringT>
-inline StringT to_string (unsigned long long a
+template <typename StringType>
+inline StringType to_string (unsigned long long a
         , int field_width = 0
         , int radix = 10
         , bool uppercase = false
-        , typename StringT::value_type fill_char = typename StringT::value_type(' '))
+        , typename StringType::value_type fill_char = typename StringType::value_type(' '))
 {
-    return details::integral::to_string<unsigned long long, StringT>(a
+    return details::integral::to_string<unsigned long long, StringType>(a
             , field_width
             , radix
             , uppercase
@@ -779,16 +777,16 @@ char * double_to_cstr (double num
 
 // 1.18973e+4932 with 'f' flag has length 4940
 //
-template <typename Float, typename StringT>
-StringT to_string (typename pfs::enable_if<pfs::is_floating_point<Float>::value, Float>::type value
+template <typename Float, typename StringType>
+StringType to_string (typename pfs::enable_if<pfs::is_floating_point<Float>::value, Float>::type value
 		, char f
 		, int prec
         , int field_width
-        , typename StringT::value_type fill_char = typename StringT::value_type(' '))
+        , typename StringType::value_type fill_char = typename StringType::value_type(' '))
 {
 	static const size_t FP_BUFSZ = 128;
 
-	StringT s;
+	StringType s;
 
 	size_t sz = FP_BUFSZ;
 	char buf[FP_BUFSZ];
@@ -801,21 +799,21 @@ StringT to_string (typename pfs::enable_if<pfs::is_floating_point<Float>::value,
 		pbuf = new char [sz];
 		str = double_to_cstr(value, f, prec, pbuf, & sz);
 		PFS_ASSERT(str);
-		s = StringT(str);
+		s = StringType(str);
 		delete [] pbuf;
 	} else {
-		s = StringT(str);
+		s = StringType(str);
 	}
     
     
     // TODO Implement left-aligned text (field_width is negative)
     if (field_width > 0 && s.size() < static_cast<size_t>(field_width)) {
         if (value < 0 && !pfs::is_space(fill_char)) { // -000000123
-            return StringT(1, '-') 
-                    + StringT(static_cast<size_t>(field_width) - s.size() - 1, fill_char)
-                    + StringT(s.cbegin() + 1, s.cend()); // ignore sign
+            return StringType(1, '-') 
+                    + StringType(static_cast<size_t>(field_width) - s.size() - 1, fill_char)
+                    + StringType(s.cbegin() + 1, s.cend()); // ignore sign
         } else { // -123, 123, _______-123, ________123
-            return StringT(static_cast<size_t>(field_width) - s.size(), fill_char) + s;
+            return StringType(static_cast<size_t>(field_width) - s.size(), fill_char) + s;
         }
     }
 
@@ -824,33 +822,32 @@ StringT to_string (typename pfs::enable_if<pfs::is_floating_point<Float>::value,
 
 }} // details::fp
 
-template <typename StringT>
-inline StringT to_string (float a
+template <typename StringType>
+inline StringType to_string (float a
         , char format = 'f'
         , int precision = -1
         , int field_width = 0
-        , typename StringT::value_type fill_char = typename StringT::value_type(' '))
+        , typename StringType::value_type fill_char = typename StringType::value_type(' '))
 {
-    return details::fp::to_string<float, StringT>(a
+    return details::fp::to_string<float, StringType>(a
             , format
             , precision
             , field_width
             , fill_char);
 }
 
-template <typename StringT>
-inline StringT to_string (double a
+template <typename StringType>
+inline StringType to_string (double a
         , char format = 'g'
         , int precision = -1
         , int field_width = 0
-        , typename StringT::value_type fill_char = typename StringT::value_type(' '))
+        , typename StringType::value_type fill_char = typename StringType::value_type(' '))
 {
-    return details::fp::to_string<double, StringT>(a
+    return details::fp::to_string<double, StringType>(a
             , format
             , precision
             , field_width
             , fill_char);
-    
 }
 
 } // pfs

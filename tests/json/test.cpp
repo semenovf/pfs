@@ -7,7 +7,7 @@
  */
 
 #include <pfs/test/test.hpp>
-#include <pfs/json/value.hpp>
+#include <pfs/json/json.hpp>
 #include <pfs/traits/stdcxx/string.hpp>
 #include <pfs/traits/stdcxx/vector.hpp>
 #include <pfs/traits/stdcxx/map.hpp>
@@ -31,7 +31,7 @@
 namespace stdcxx {
 namespace json {
 
-typedef pfs::json::value<
+typedef pfs::json::json<
           bool
         , intmax_t
         , double
@@ -46,7 +46,7 @@ typedef pfs::json::value<
 namespace qt {
 namespace json {
 
-typedef pfs::json::value<
+typedef pfs::json::json<
           pfs::traits::qt::string
         , bool
         , intmax_t

@@ -1,15 +1,16 @@
 #include <iostream>
-#include <pfs/string.hpp>
-#include <pfs/safeformat.hpp>
+#include "pfs/string.hpp"
+#include "pfs/traits/stdcxx/string.hpp"
+#include "pfs/safeformat.hpp"
 #include "pfs/logger.hpp"
 
-int main (int argc, char *argv[])
-{
-    PFS_UNUSED2(argc, argv);
+typedef pfs::safeformat<pfs::traits::stdcxx::string> fmt;
 
-    pfs::log_trace(_Sf("%s, %s!")("Hello")("World").str());
-    pfs::string s(_Sf("%s, %s!")("Hello")("World").str());
-    pfs::log_trace(_Sf("%s")(s).str());
+int main (int, char * [])
+{
+    pfs::log_trace(fmt("%s, %s!") % "Hello" % "World".str());
+    pfs::string s(fmt("%s, %s!") % "Hello" % "World".str());
+    pfs::log_trace(fmt("%s")(s).str());
 
 //    pfs::stdout_appender stdout_appender;
 //    pfs::stderr_appender stderr_appender;

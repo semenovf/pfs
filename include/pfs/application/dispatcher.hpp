@@ -224,7 +224,7 @@ protected:
 };
 
 
-template <typename Json>
+template <typename JsonType>
 bool dispatcher::register_modules (filesystem::path const & path)
 {
     byte_string content;
@@ -253,11 +253,13 @@ bool dispatcher::register_modules (filesystem::path const & path)
     	return false;
     }
 
-    Json conf;
-    bool rc = Json::parse(conf, string(reinterpret_cast<const char *>(content.data())));
+    JsonType conf;
+    ec = conf.read(content.data());
     
-    if (not rc) {
-    	print_error(0, fmt("%s: File is not JSON")(to_string<string_type>(path)).str());
+    if (ec) {
+    	print_error(0, fmt("%s: Invalid JSON: %s")
+                (to_string<string_type>(path))
+                (to_string<string_type>(ec)).str());
     	return false;
     }
 
@@ -265,10 +267,10 @@ bool dispatcher::register_modules (filesystem::path const & path)
 }
 
 
-template <typename Json>
-bool dispatcher::register_modules (Json const & conf)
+template <typename JsonType>
+bool dispatcher::register_modules (JsonType const & conf)
 {
-    Json disp = conf["dispatcher"];
+    JsonType disp = conf["dispatcher"];
 
     if (not disp.is_null()) {
     	if (not disp.is_object()) {
@@ -276,16 +278,16 @@ bool dispatcher::register_modules (Json const & conf)
     		return false;
     	}
 
-    	Json dlog = disp["log"];
+    	JsonType dlog = disp["log"];
 
     	if (dlog.is_object()) {
     		pfs::logger logger;
-    		pfs::json::value::const_iterator it = dlog.cbegin();
-    		pfs::json::value::const_iterator itEnd = dlog.cend();
+    		pfs::json::json::const_iterator it = dlog.cbegin();
+    		pfs::json::json::const_iterator itEnd = dlog.cend();
 
     		for (; it != itEnd; ++it) {
     			string_type name = it.key();
-    			Json priority = *it;
+    			JsonType priority = *it;
     			stringlist priorities;
     			logger::appender * pappender = 0;
 
@@ -347,9 +349,9 @@ bool dispatcher::register_modules (Json const & conf)
     	}
     }
 
-    Json modules = conf["modules"];
-    typename Json::iterator it = modules.begin();
-    typename Json::iterator it_end = modules.end();
+    JsonType modules = conf["modules"];
+    typename JsonType::iterator it = modules.begin();
+    typename JsonType::iterator it_end = modules.end();
 
     bool result = true;
 
@@ -357,8 +359,8 @@ bool dispatcher::register_modules (Json const & conf)
     	if (it->is_object()) {
     		string name_str = (*it)["name"].get<string>();
     		string path_str = (*it)["path"].get<string>();
-    		bool is_active       = (*it)["active"].get<bool>();
-    		bool is_master       = (*it)["master-module"].get<bool>();
+    		bool is_active  = (*it)["active"].get<bool>();
+    		bool is_master  = (*it)["master-module"].get<bool>();
 
     		if (name_str.empty()) {
     	    	print_error(0, "Found anonymous module");

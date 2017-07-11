@@ -10,16 +10,51 @@
 #define __PFS_SAFEFORMAT_HPP__
 
 #include <pfs/ctype.hpp>
+#include <pfs/string.hpp>
+#include <pfs/limits.hpp>
+
+/*
+ * conversion_specification := '%' *flag [ field_width ] [ prec ] conversion_specifier
+ * flag := '0' ; the value should be zero padded (ignored when 'prec' is specified)
+ * 		 / '-' ; the value is left-justified
+ * 		 / ' ' ; the value should be padded whith spaces (ignored when 'prec' is specified)
+ * 		 / '+'
+ *
+ * field_width := 1*DIGIT
+ * prec := '.' [ '-' ] *DIGIT
+ * conversion_specifier := 'd' / 'i' / 'o' / 'u' / 'x' / 'X'
+ * 		 / 'e' / 'E' / 'f' / 'F' / 'g' / 'G'
+ * 		 / 'c' / 's'
+ * 		 / 'p'
+ * */
+
+/*
+ * flag := '0' ; the value should be zero padded (ignored when 'prec' is specified)
+ * 	 / '-' ; the value is left-justified
+ * 	 / ' ' ; the value should be padded whith spaces (ignored when 'prec' is specified)
+ * 	 / '+'
+ */
 
 namespace pfs {
 
-template <typename StringT>
+/*       Value     сompat_gcc         compat_msc
+ * 	%p   123ABC     0x123abc           00123ABC
+ *  %+o	  -2875        -5473        37777772305
+ */
+enum safeformat_compat {
+      safeformat_compat_gcc = 0
+    , safeformat_compat_msc
+    , safeformat_compat_msvc = safeformat_compat_msc
+};
+
+template <typename StringImplType
+    , int Compat = safeformat_compat_gcc>
 class safeformat
 {
 public:
-    typedef StringT string_type;
-	typedef typename string_type::const_iterator iterator;
-	typedef typename string_type::value_type char_type;
+    typedef string<StringImplType>               string_type;
+	typedef typename string_type::const_iterator const_iterator;
+	typedef typename string_type::value_type     char_type;
 
 public:
 	enum Flag {
@@ -51,31 +86,20 @@ public:
         								// result as they would otherwise be.  For other conversions, the result is undefined.
 	};
 
-	/*       Value     сompat_gcc         compat_msc
-	 * 	%p   123ABC     0x123abc           00123ABC
-	 *  %+o	  -2875        -5473        37777772305
-	 */
-	enum compat_enum {
-		  compat_gcc = 0
-		, compat_msc
-		, compat_msvc = compat_msc
-	};
-
 	struct conversion_spec
 	{
-		int    flags;
-		int    width;
-		int    prec; // The default precision is 1
+		int       flags;
+		int       width;
+		int       prec; // The default precision is 1
 		char_type spec_char;
 	};
 
 	struct context
 	{
 		string_type     format;
-		iterator        pos; // current position in format string
+		const_iterator  pos; // current position in format string
 		string_type     result;
 		conversion_spec spec;
-		compat_enum     compat;
 	};
 
 private:
@@ -87,7 +111,18 @@ private:
 	safeformat & operator = (const safeformat & sf);
 
 private:
-	void advance ();
+	void advance ()
+    {
+        const_iterator pos(_ctx.pos);
+        const_iterator end(_ctx.format.cend());
+
+        while (pos < end && *pos != '%') {
+            _ctx.result.push_back(*pos);
+            ++pos;
+        }
+        _ctx.pos = pos;
+    }
+    
 	void clear_spec ()
 	{
 		_ctx.spec.flags     = safeformat::NoFlag;
@@ -106,12 +141,194 @@ private:
 		return (is_digit(v) && v != '0');
 	}
 
-	bool parse_percent_char ();
-	bool parse_flags ();
-	bool parse_field_width ();
-	bool parse_precision ();
-	bool parse_conv_spec ();
-	bool parse_spec ();
+	bool parse_percent_char ()
+    {
+        const_iterator pos(_ctx.pos);
+        const_iterator end(_ctx.format.cend());
+
+        if (pos < end && *pos == '%') {
+            ++pos;
+            if (pos < end && *pos == '%') {
+                _ctx.result.append(1, '%');
+                ++pos;
+                _ctx.pos = pos;
+                return true;
+            }
+        }
+        return false;        
+    }
+    
+	bool parse_flags ()
+    {
+        const_iterator pos(_ctx.pos);
+        const_iterator end(_ctx.format.cend());
+
+        if (pos == end)
+            return false;
+
+        if (*pos != '%')
+            return false;
+
+        ++pos;
+
+        while (pos < end) {
+            if (*pos == '0') {
+                set_zero_padding();
+            } else if (*pos == '-') {
+                set_left_justify();
+            } else if (*pos == ' ') {
+                set_space_before_positive();
+            } else if (*pos == '+') {
+                set_need_sign();
+            } else if (*pos == '#') {
+                set_alternate();
+            } else {
+                break;
+            }
+            ++pos;
+        }
+
+        _ctx.pos = pos;
+        return true;        
+    }
+    
+	bool parse_field_width ()
+    {
+        const_iterator pos(_ctx.pos);
+        const_iterator end(_ctx.format.cend());
+
+        if (is_digit_exclude_zero(*pos)) {
+            intmax_t width = strtointmax(pos, end
+                    , 10
+                    , numeric_limits<intmax_t>::min()
+                    , numeric_limits<uintmax_t>::max()
+                    , & pos);
+
+            PFS_ASSERT(!errno && width >= 0 && width <= numeric_limits<int>::max()); // TODO need warning only instead of assertion
+
+            _ctx.pos = pos;
+            set_field_width(int(width));
+        }
+        return true;        
+    }
+
+    /*
+     * prec := '.' [ '-' ] *DIGIT
+     *
+     * If the precision is given as just '.', the precision is taken to be zero.
+     * A negative precision is taken as if the precision were omitted.
+     */
+	bool parse_precision ()
+    {
+        const_iterator pos(_ctx.pos);
+        const_iterator end(_ctx.format.cend());
+        int sign = 1;
+        intmax_t prec = -1;
+
+        if (pos < end && *pos == '.')
+            ++pos;
+
+        if (pos < end && *pos == '-') {
+            sign = -1;
+            ++pos;
+        }
+
+        if (is_digit(*pos)) {
+            prec = strtointmax(pos, end
+                    , 10
+                    , min_value<intmax_t>()
+                    , max_value<uintmax_t>()
+                    , & pos);
+            PFS_ASSERT(!errno && prec >= 0 && prec <= max_value<int>()); // TODO need warning only instead of assertion
+        }
+
+        if (sign > 0)
+            set_precision(int(prec));
+
+        _ctx.pos = pos;
+        return true;        
+    }
+
+    /*
+     * conversion_specifier := 'd' / 'i' / 'o' / 'u' / 'x' / 'X'
+     * 		 / 'e' / 'E' / 'f' / 'F' / 'g' / 'G'
+     * 		 / 'c' / 's'
+     * 		 / 'p'
+     */    
+	bool parse_conv_spec ()
+    {
+        const_iterator pos(_ctx.pos);
+        const_iterator end(_ctx.format.cend());
+
+        if (pos < end) {
+            string convSpecifiers("diouxXeEfFgGcsp");
+
+            PFS_ASSERT(convSpecifiers.contains(*pos)); // Expected conversion specifier: one of 'diouxXeEfFgGcsp';
+            set_conv_specifier(char_type(*pos));
+            ++pos;
+        }
+
+        _ctx.pos = pos;
+        return true;        
+    }
+
+    /*
+     * conversion_specification := '%' *flag [ field_width ] [ prec ] conversion_specifier
+     */
+	bool parse_spec ()
+    {
+        if (!parse_percent_char()) {
+            if (parse_flags()
+                    && parse_field_width()
+                    && parse_precision()
+                    && parse_conv_spec()) {
+                ;
+            }
+        }
+
+        if (_ctx.spec.spec_char != char_type(char(0))) {
+            if (_ctx.spec.flags & safeformat::ZeroPadding) {
+
+                // If the 0 and - flags both appear, the 0 flag is ignored.
+                if (_ctx.spec.flags & safeformat::LeftJustify)
+                    _ctx.spec.flags &= ~safeformat::ZeroPadding;
+
+                // If a precision is given with a numeric conversion (d, i, o, u, x, and X), the 0 flag is ignored.
+                if (_ctx.spec.prec > -1
+                        && (_ctx.spec.spec_char == 'd'
+                        || _ctx.spec.spec_char == 'i'
+                        || _ctx.spec.spec_char == 'o'
+                        || _ctx.spec.spec_char == 'u'
+                        || _ctx.spec.spec_char == 'x'
+                        || _ctx.spec.spec_char == 'X')) {
+                    _ctx.spec.flags &= ~safeformat::ZeroPadding;
+                }
+
+                // '0' flag used with ‘%c’ or '%s' specifier in format string
+                if (_ctx.spec.spec_char == 'c'
+                        || _ctx.spec.spec_char == 's') {
+                    _ctx.spec.flags &= ~safeformat::ZeroPadding;
+                }
+
+            }
+
+            // A + overrides a space if both are used
+            if ((_ctx.spec.flags & safeformat::NeedSign)
+                    && (_ctx.spec.flags & safeformat::SpaceBeforePositive))
+                _ctx.spec.flags &= ~safeformat::SpaceBeforePositive;
+
+            // '+' flag used with '%c' or '%s' specifier in format string
+            if ((_ctx.spec.flags & safeformat::NeedSign)
+                    && (_ctx.spec.spec_char == 'c'
+                    || _ctx.spec.spec_char == 's')) {
+                _ctx.spec.flags &= ~safeformat::NeedSign;
+            }
+
+
+            return true;
+        }
+        return false;        
+    }
 
 	void set_zero_padding ()              { _ctx.spec.flags |= ZeroPadding; }
 	void set_left_justify ()              { _ctx.spec.flags |= LeftJustify; }
@@ -123,8 +340,44 @@ private:
 	void set_precision (int p)            { _ctx.spec.prec = p; }
 	void set_conv_specifier (char_type c) { _ctx.spec.spec_char = c; }
 
-	void prepend_sign (string_type & r);
-	void do_padding (string_type & r);
+	void prepend_sign (string_type & r)
+    {
+        bool isNegative = r.starts_with("-");
+
+        // When 0 is printed with an explicit precision 0, the output is empty.
+        if (_ctx.spec.prec == 0 && r == string_type("0"))
+            r.clear();
+
+        // The precision, if any, gives the minimum number of digits that must appear;
+        // if the converted value requires fewer digits, it is padded on the left with zeros.
+        if (_ctx.spec.prec > 0 && r.length() < size_t(_ctx.spec.prec))
+            r.prepend(string_type(_ctx.spec.prec - r.length(), '0'));
+
+        if (!isNegative) {
+            // A sign (+ or -) should always be placed before a number produced by a signed conversion
+            if (_ctx.spec.flags & NeedSign) {
+                r.prepend(1, '+');
+            }                // A blank should be left before a positive number
+            else if (_ctx.spec.flags & SpaceBeforePositive) {
+                r.prepend(1, ' ');
+            }
+        }        
+    }
+    
+	void do_padding (string_type & r)
+    {
+        PFS_ASSERT(_ctx.spec.width >= 0);
+
+        if (r.length() < size_t(_ctx.spec.width)) {
+            size_t count = size_t(_ctx.spec.width) - r.length();
+            char paddingChar = (_ctx.spec.flags & safeformat::ZeroPadding) ? '0' : ' ';
+
+            if (_ctx.spec.flags & safeformat::LeftJustify)
+                r.append(string(count, paddingChar));
+            else
+                r.prepend(count, paddingChar);
+        }        
+    }
 
 	//safeformat & arg (const __sf_base_traits * v);
 
@@ -136,7 +389,6 @@ public:
 	{
 		_ctx.format = format;
 		_ctx.pos = _ctx.format.cbegin();
-		set_compat((compat_enum)global_compat());
 		clear_spec();
 	}
 
@@ -144,31 +396,8 @@ public:
 	{
 		_ctx.format = string_type(latin1Format);
 		_ctx.pos = _ctx.format.cbegin();
-		set_compat((compat_enum)global_compat());
 		clear_spec();
 	}
-
-	/**
-	 * @brief Set compatibility flag.
-	 *
-	 * @param c Compatibility flag to set.
-	 * @return Instance itself.
-	 */
-	safeformat & set_compat (compat_enum c) { _ctx.compat = c; return *this; }
-
-	/**
-	 * @brief Set compatibility flag globally
-	 *
-	 * @param c Compatibility flag to set.
-	 */
-	static void set_global_compat (compat_enum c);
-
-	/**
-	 * @brief Set global compatibility flag.
-	 *
-	 * @return Compatibility flag.
-	 */
-	static int global_compat ();
 
 //	template <typename T>
 //	safeformat & operator () (T const & v)

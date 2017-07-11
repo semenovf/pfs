@@ -100,10 +100,10 @@ namespace pfs { namespace json {
 	unescaped = %x20-21 / %x23-5B / %x5D-10FFFF
 */
 
-template <typename JsonValueT>
+template <typename JsonType>
 struct sax_context
 {
-    typedef typename JsonValueT::string_traits sequence_type;
+    typedef typename JsonType::string_type sequence_type;
     
     virtual bool on_begin_json   (void * user_context, data_type_t) = 0;
     virtual bool on_end_json     (void * user_context, bool) = 0;
@@ -117,10 +117,10 @@ struct sax_context
     virtual bool on_string_value (void * user_context, sequence_type const &, sequence_type const &) = 0;
 };
 
-template <typename JsonValueT, template <typename> class StackT = traits::stdcxx::stack>
+template <typename JsonType, template <typename> class StackT = traits::stdcxx::stack>
 struct grammar
 {
-    typedef typename JsonValueT::string_traits     string_type;
+    typedef typename JsonType::string_type       string_type;
     typedef typename string_type::const_iterator   native_iterator;
     typedef typename unicode::unicode_iterator_traits<
             native_iterator>::iterator             unicode_iterator;
@@ -136,7 +136,7 @@ struct grammar
         string_type    member_name;
         pfs::traits::stack<string_type, StackT> objects;
         pfs::traits::stack<string_type, StackT> arrays;
-        sax_context<JsonValueT> & sax;
+        sax_context<JsonType> & sax;
     };
     
     grammar ();

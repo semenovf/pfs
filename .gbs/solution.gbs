@@ -137,6 +137,9 @@ project "test-io-server"
 project "test-net-inet4_addr"
     include("test-net-inet4_addr.gbs")
 
+project "test-safeformat"
+    include("test-safeformat.gbs")
+
 --project "test-application"
 --    include("test-application.gbs")
 
