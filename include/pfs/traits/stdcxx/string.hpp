@@ -32,6 +32,7 @@ public:
     typedef typename internal_type::const_native_reference const_native_reference;
     
     typedef typename native_type::value_type       value_type;
+    typedef typename native_type::pointer          pointer;
     typedef typename native_type::const_pointer    const_pointer;
     typedef typename native_type::reference        reference;
     typedef typename native_type::const_reference  const_reference;

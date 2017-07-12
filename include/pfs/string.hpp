@@ -33,6 +33,7 @@ public:
     typedef typename internal_type::value_type             value_type;
     typedef typename internal_type::reference              reference;
     typedef typename internal_type::const_reference        const_reference;
+    typedef typename internal_type::pointer                pointer;
     typedef typename internal_type::const_pointer          const_pointer;
     typedef typename internal_type::iterator               iterator;
     typedef typename internal_type::const_iterator         const_iterator;

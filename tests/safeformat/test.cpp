@@ -2,19 +2,22 @@
  * This tests based on loki::SafeFormat tests
  */
 
-#include "pfs/test/test.hpp"
-#include "pfs/test/profiler.hpp"
-#include "pfs/compiler.hpp"
-#include "pfs/safeformat.hpp"
-#include "pfs/string.hpp"
-#include "pfs/typeinfo.hpp"
-#include "pfs/limits.hpp"
-#include "pfs/traits/stdcxx/string.hpp"
+//#include <iostream>
+//#include <sstream>
+//#include <utility>
+//#include <cstdio>
 
-#include <iostream>
-#include <sstream>
-#include <utility>
-#include <cstdio>
+#include "pfs/test/test.hpp"
+//#include "pfs/test/profiler.hpp"
+//#include "pfs/compiler.hpp"
+//#include "pfs/string.hpp"
+//#include "pfs/typeinfo.hpp"
+//#include "pfs/limits.hpp"
+#include "pfs/traits/stdcxx/string.hpp"
+#include "pfs/safeformat.hpp"
+
+#include "test_iterator.hpp"
+
 
 //#ifdef PFS_HAVE_QT
 //#include <QString>
@@ -23,9 +26,11 @@
 using std::cout;
 using std::endl;
 
-typedef pfs::traits::stdcxx::string  string_impl;
-typedef pfs::string<string_impl>     string;
-typedef pfs::safeformat<string_impl> safeformat;
+//typedef pfs::traits::stdcxx::string  string_impl;
+//typedef pfs::string<string_impl>     string;
+//typedef pfs::safeformat<string_impl> safeformat;
+
+#if __TODO__
 
 template <class Integral1, class Integral2>
 Integral2 randomInt (Integral1 low, Integral2 up)
@@ -426,20 +431,26 @@ void test3 ()
     TEST_FAIL(testCase<double *>("%p", "%p", (double *)0xabcd));
 }
 
-int main(int argc, char** argv)
-{
-	PFS_UNUSED2(argc, argv);
-	BEGIN_TESTS(0);
-
-#ifdef PFS_CC_MSC
-	safeformat::set_global_compat(safeformat::compat_msc);
-#else
-	safeformat::set_global_compat(safeformat::compat_gcc);
 #endif
 
+int main (int , char * [])
+{
+	BEGIN_TESTS(0);
+    
+//#
+//#ifdef PFS_CC_MSC
+//	safeformat::set_global_compat(safeformat::compat_msc);
+//#else
+//	safeformat::set_global_compat(safeformat::compat_gcc);
+//#endif
+
+    test_iterator<pfs::traits::stdcxx::string>();
+    
+#if __TODO__
 	test0();
 	test2();
     test3();
+#endif    
 
 //	if (argc > 1) {
 //		if (1) test2();
