@@ -10,6 +10,14 @@
 
 1. [Compose function to measure function call times](https://a4z.bitbucket.io/blog/2017/07/11/Compose-function-to-measure-function-call-times.html)
 
+### std::iterator
+
+1. [Iterators are also part of the C++ zero cost abstractions](https://blog.galowicz.de/2017/07/02/order2_iterator/)
+
+### rvalue
+
+1. [C++ Rvalue References Explained](http://thbecker.net/articles/rvalue_references/section_01.html)
+
 ### STL
 
 1. [STL & Generic Programming: Writing Your Own Iterators](http://www.drdobbs.com/stl-generic-programming-writing-your-ow/184401417)
@@ -50,6 +58,7 @@
 2. [How to use nan and inf in C?](http://stackoverflow.com/questions/1923837/how-to-use-nan-and-inf-in-c)
 3. [IEEE 754 - Standard binary arithmetic float](http://www.softelectro.ru/teoriy_en.html)
 4. [Comparing Floating Point Numbers, 2012 Edition](https://randomascii.wordpress.com/2012/02/25/comparing-floating-point-numbers-2012-edition/)
+5. [How do I handle byte order differences when reading/writing floating-point types in C?](https://stackoverflow.com/questions/14954088/how-do-i-handle-byte-order-differences-when-reading-writing-floating-point-types/14955046#14955046)
 
 ### Endianness
 
@@ -67,6 +76,15 @@
 ### SFINAE
 
 1. [Compiler Tricks: SFINAE and nice messages](https://gracicot.github.io/tricks/2017/07/01/deleted-function-diagnostic.html)
+
+### Functor
+
+1. [Functors in C++ - Part I](https://mayankj08.github.io/2017/07/02/Functors-In-C++/)
+2. [Functors in C++ - Part II](https://mayankj08.github.io/2017/07/06/Functors-In-C++-II/)
+
+### Undefined Behavior (UB)
+
+1. [Undefined Behavior in 2017](https://blog.regehr.org/archives/1520)
 
 ### Logger libraries
 
