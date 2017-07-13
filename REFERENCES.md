@@ -3,10 +3,20 @@
 ### C++
 
 1. [Prototypes of member access operators](http://en.cppreference.com/w/cpp/language/operator_member_access)
+2. [Your own error code](https://akrzemi1.wordpress.com/2017/07/12/your-own-error-code/)
+3. [C++17 features](http://www.bfilipek.com/2017/07/cpp17-in-details-attributes.html)
+
+### std::chrono
+
+1. [Compose function to measure function call times](https://a4z.bitbucket.io/blog/2017/07/11/Compose-function-to-measure-function-call-times.html)
 
 ### STL
 
 1. [STL & Generic Programming: Writing Your Own Iterators](http://www.drdobbs.com/stl-generic-programming-writing-your-ow/184401417)
+
+### Exceptions, handling
+
+1. [Exception handling in constructors](https://medium.com/cpp-station/exception-handling-in-constructors-26bf4c811b46)
 
 ### 32/64-bits
 
@@ -39,6 +49,7 @@
 1. [How to Define NaN (Not-a-Number) on Windows](http://tdistler.com/2011/03/24/how-to-define-nan-not-a-number-on-windows)
 2. [How to use nan and inf in C?](http://stackoverflow.com/questions/1923837/how-to-use-nan-and-inf-in-c)
 3. [IEEE 754 - Standard binary arithmetic float](http://www.softelectro.ru/teoriy_en.html)
+4. [Comparing Floating Point Numbers, 2012 Edition](https://randomascii.wordpress.com/2012/02/25/comparing-floating-point-numbers-2012-edition/)
 
 ### Endianness
 
@@ -52,6 +63,10 @@
 
 1. [The Fast Pimpl Idiom](http://www.gotw.ca/gotw/028.htm)
 2. [Why every C++ developer should know about the pimpl idiom pattern](https://tonka2013.wordpress.com/2013/08/31/why-every-c-developer-should-know-about-the-pimpl-idiom-pattern/)
+
+### SFINAE
+
+1. [Compiler Tricks: SFINAE and nice messages](https://gracicot.github.io/tricks/2017/07/01/deleted-function-diagnostic.html)
 
 ### Logger libraries
 
