@@ -14,26 +14,20 @@
 #include <pfs/limits.hpp>
 #include <pfs/iterator.hpp>
 
-/*
+/* Conversion specification grammar
+ *==============================================================================
  * conversion_specification := '%' *flag [ field_width ] [ prec ] conversion_specifier
- * flag := '0' ; the value should be zero padded (ignored when 'prec' is specified)
- * 		 / '-' ; the value is left-justified
- * 		 / ' ' ; the value should be padded whith spaces (ignored when 'prec' is specified)
- * 		 / '+'
+ * 
+ * flag := / '-' / '+' / ' ' / '#' / '0'
  *
- * field_width := 1*DIGIT
- * prec := '.' [ '-' ] *DIGIT
+ * field_width := ?( '*' / 1*DIGIT )
+ * 
+ * prec := '.' ?( '*' / 1*DIGIT )
+ * 
  * conversion_specifier := 'd' / 'i' / 'o' / 'u' / 'x' / 'X'
- * 		 / 'e' / 'E' / 'f' / 'F' / 'g' / 'G'
- * 		 / 'c' / 's'
- * 		 / 'p'
- * */
-
-/*
- * flag := '0' ; the value should be zero padded (ignored when 'prec' is specified)
- * 	 / '-' ; the value is left-justified
- * 	 / ' ' ; the value should be padded whith spaces (ignored when 'prec' is specified)
- * 	 / '+'
+ *                       / 'f' / 'F' / 'e' / 'E' / 'g', 'G'
+ *                       / 'a' / 'A' / 'c' / 's' / 'p' / 'n'
+ * 
  */
 
 namespace pfs {
@@ -60,6 +54,10 @@ class safeformat_iterator : public iterator_facade<
 public:
     typedef string<StringImplType> string_type;
     
+    static int const STATUS_SUCCESS    = 0;
+    static int const STATUS_INCOMPLETE = 1;
+    static int const STATUS_FAIL       = 2;
+
 private:
     typedef iterator_facade<
           pfs::forward_iterator_tag
@@ -127,6 +125,9 @@ private:
     // ignored. For other conversions, the behavior is undefined.
     static int const FL_ZERO_PADDING = 0x0010;
 
+    // 
+    static int const FL_PREC_HYPHEN = 0x0020;
+    
     //
     // Length modifiers
     //==========================================================================
@@ -170,7 +171,7 @@ private:
     //--------------------------------------------------------------------------
     static int const LM_APPLY_LONGDOUBLE = 8;
 
-
+    int  _status;
     int  _flags;
     int  _width;
     
@@ -206,7 +207,44 @@ public:
         reset();
     }
 
-private:
+    safeformat_iterator (safeformat_iterator const & rhs)
+    {
+        *this = rhs;
+    }
+
+    safeformat_iterator & operator = (safeformat_iterator const & rhs)
+    {
+        _status     = rhs._status;
+        _flags      = rhs._flags;
+        _width      = rhs._width;
+        _prec       = rhs._prec;
+        _length_mod = rhs._length_mod;
+        _is_spec    = rhs._is_spec; 
+        _p          = rhs._p;
+        _pend       = rhs._pend;
+        
+        return *this;
+    }
+    
+    safeformat_iterator end () const
+    {
+        safeformat_iterator result(*this);
+        result.reset();
+        result._p = result._pend;
+        return result;
+    }
+    
+    int status () const
+    {
+        return _status;
+    }
+    
+    bool success () const
+    {
+        return _status == STATUS_SUCCESS;
+    }
+    
+public:
     static reference ref (safeformat_iterator & it)
     {
         return *it._p;
@@ -224,11 +262,13 @@ private:
     
     static bool equals (safeformat_iterator const & it1, safeformat_iterator const & it2)
     {
-        return it1._p == it2._p;
+        return it1._p == it2._p && it1._pend == it2._pend;
     }
 
+private:
     void reset ()
     {
+        _status     = STATUS_SUCCESS;
         _flags      = NO_FLAG;
         _width      = 0;
         _prec       = 0;
@@ -238,14 +278,21 @@ private:
     
     void increment ()
     {
-        static int const STATE_START             =  0;
-        static int const STATE_FLAG              =  1;
-        static int const STATE_LENGTH_MOD        =  2;
-        static int const STATE_FIELD_WIDTH_BEGIN =  3;
-        static int const STATE_FIELD_WIDTH       =  4;
-        static int const STATE_SUCCESS           = -1;
-        static int const STATE_INVALID           = -2;
-        static int const STATE_INCOMPLETE        = -3;
+        enum { 
+              STATE_START
+            , STATE_FLAG
+            , STATE_FIELD_WIDTH_BEGIN
+            , STATE_FIELD_WIDTH
+            , STATE_PRECISION
+            , STATE_PRECISION_VALUE_BEGIN
+            //static int const STATE_LENGTH_MOD        =  2;
+            , STATE_SUCCESS    = -1
+            , STATE_INVALID    = -2
+            , STATE_INCOMPLETE = -3
+        };
+        
+        if (_status != STATUS_SUCCESS)
+            return;
         
         reset();
 
@@ -288,6 +335,9 @@ private:
                 break;
             }
             
+            //
+            // flag := / '-' / '+' / ' ' / '#' / '0'
+            //
             case STATE_FLAG: {
                 switch (to_ascii<char_type>(*_p)) {
                 case '-':
@@ -310,32 +360,39 @@ private:
                 }
                 break;
             }
-            
-//            case STATE_FIELD_WIDTH_BEGIN: {
-//                if (is_digit(*it)) {
-//                    if (to_ascii<char_type>(*it) != '0') {
-//                        
-//                    } else {
-//                        // ERROR: Invalid specifier: 'field width' starts with zero. 
-//                        state = STATE_INVALID;
-//                    }
-//                } else {
-//                    state = 
-//                }
-//                break;
-//            }
-//            
-//            //
-//            // OPTIONAL
-//            // field_width := 1*DIGIT
-//            //
-//            case STATE_FIELD_WIDTH: {
+
+            //
+            // field_width := DIGIT1_9 *DIGIT
+            //
+            case STATE_FIELD_WIDTH_BEGIN: {
+                if (is_digit(*_p)) {
+                    if (to_ascii<char_type>(*_p) != '0') {
+                        state = STATE_FIELD_WIDTH;      
+                    } else {
+                        // ERROR: Invalid specifier: 'field-width' starts with zero. 
+                        state = STATE_INVALID;
+                    }
+                } else {
+                    state = STATE_PRECISION;
+                }
+                break;
+            }
+
+            case STATE_FIELD_WIDTH: {
 //                
 //                if ()
-//                break;
-//            }
-//
-//            
+                break;
+            }
+            
+            //
+            // prec := '.' *DIGIT
+            //
+            case STATE_PRECISION: {
+                if (to_ascii<char_type>(*_p) != '.')
+                    state = STATE_PRECISION_VALUE_BEGIN;
+                break;
+            }
+                
 //            case STATE_LENGTH_MOD: {
 //                switch (to_ascii<char_type>(*it)) {
 //                case 'h':
@@ -382,8 +439,17 @@ private:
             
             ++_p;
         }
+        
+        switch (state) {
+        case STATE_SUCCESS    : _status = STATUS_SUCCESS; break;
+        case STATE_INVALID    : _status = STATUS_FAIL; break;
+        default               : _status = STATUS_INCOMPLETE; break; 
+        }
     }
 };
+
+
+#if __TODO__
 
 template <typename StringImplType
         , int Compat = safeformat_compat_gcc>
@@ -988,6 +1054,8 @@ public:
         return operator() (p);
     }
 };
+
+#endif
 
 } // pfs
 

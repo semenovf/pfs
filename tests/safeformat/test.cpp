@@ -23,8 +23,8 @@
 //#include <QString>
 //#endif
 
-using std::cout;
-using std::endl;
+//using std::cout;
+//using std::endl;
 
 //typedef pfs::traits::stdcxx::string  string_impl;
 //typedef pfs::string<string_impl>     string;

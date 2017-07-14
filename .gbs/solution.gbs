@@ -146,5 +146,5 @@ project "test-safeformat"
 --project "test-application-module"
 --    include("test-application-module.gbs")
 
-project "demo-logger"
-    include("demo-logger.gbs")
+--project "demo-logger"
+--    include("demo-logger.gbs")
