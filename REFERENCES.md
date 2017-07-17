@@ -14,6 +14,10 @@
 
 1. [Iterators are also part of the C++ zero cost abstractions](https://blog.galowicz.de/2017/07/02/order2_iterator/)
 
+### Smart pointer (std::shared_ptr, std::unique_ptr)
+
+1. [Using C++11’s Smart Pointers](http://umich.edu/~eecs381/handouts/C++11_smart_ptrs.pdf)
+
 ### rvalue
 
 1. [C++ Rvalue References Explained](http://thbecker.net/articles/rvalue_references/section_01.html)
