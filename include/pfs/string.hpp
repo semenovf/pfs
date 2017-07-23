@@ -390,6 +390,13 @@ public:
         return *this;
     }
     
+    template <typename InputIt>
+    string & append (InputIt first, InputIt last)
+    {
+        _p.append<InputIt>(first, last);
+        return *this;
+    }
+    
     string & insert (size_type index, size_type count, value_type ch);
     
     string & insert (size_type index, const_pointer s);

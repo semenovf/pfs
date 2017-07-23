@@ -13,20 +13,24 @@
 #include <pfs/string.hpp>
 #include <pfs/limits.hpp>
 #include <pfs/iterator.hpp>
+#include <pfs/lexical_cast/strtoint.hpp>
 
 /* Conversion specification grammar
  *==============================================================================
- * conversion_specification := '%' *flag [ field_width ] [ prec ] conversion_specifier
+ * conversion_specification := '%' flags [ field_width ] [ prec ] [length_mod] conversion_specifier
  * 
- * flag := / '-' / '+' / ' ' / '#' / '0'
+ * flags = *flag
+ * flag  = / '-' / '+' / ' ' / '#' / '0'
  *
- * field_width := ?( '*' / 1*DIGIT )
+ * field_width = '*' / 1*DIGIT
  * 
- * prec := '.' ?( '*' / 1*DIGIT )
+ * prec = '.' ?( '*' / ['-'] 1*DIGIT )
  * 
- * conversion_specifier := 'd' / 'i' / 'o' / 'u' / 'x' / 'X'
- *                       / 'f' / 'F' / 'e' / 'E' / 'g', 'G'
- *                       / 'a' / 'A' / 'c' / 's' / 'p' / 'n'
+ * length_mod = 'hh' / 'h' / 'll' / 'l' / 'j' / 'z' / 't' / 'L'
+ * 
+ * conversion_specifier = 'd' / 'i' / 'o' / 'u' / 'x' / 'X'
+ *                      / 'f' / 'F' / 'e' / 'E' / 'g' / 'G'
+ *                      / 'a' / 'A' / 'c' / 's' / 'p' / 'n'
  * 
  */
 
@@ -43,40 +47,89 @@ enum safeformat_compat
     , safeformat_compat_msvc = safeformat_compat_msc
 };
 
-template <typename StringImplType>
-class safeformat_iterator : public iterator_facade<
-          pfs::forward_iterator_tag
-        , safeformat_iterator<StringImplType>
-        , typename string<StringImplType>::value_type
-        , typename string<StringImplType>::const_pointer
-        , typename string<StringImplType>::const_reference>
+template <typename StringImplType, int Compat = safeformat_compat_gcc>
+class safeformat
 {
-public:
-    typedef string<StringImplType> string_type;
+    typedef string<StringImplType>               string_type;
+    typedef typename string_type::const_iterator const_iterator;
+    typedef typename string_type::value_type     value_type;
     
-    static int const STATUS_SUCCESS    = 0;
-    static int const STATUS_INCOMPLETE = 1;
-    static int const STATUS_FAIL       = 2;
+    struct conversion_specification
+    {
+        bool       good;
+        value_type spec_char;
+        int        flags;
+        
+        bool field_width_asterisk;
+        int  field_width;
+        
+        bool prec_asterisk;
+        int  prec;
+        int  prec_sign;
+        
+        int length_mod;
+        
+        conversion_specification ()
+            : good(true)
+            , spec_char(0)
+            , flags(0)
+            , field_width_asterisk(false)
+            , field_width(0)
+            , prec_asterisk(false)
+            , prec(0)
+            , prec_sign(1)
+        {}
+    };
+    
+    
+    // Stores intermediate result (and complete at the ends)
+    string_type    _result;
+    
+    // Current position at format string
+    const_iterator _p;
+    
+    // End position at format string
+    const_iterator _end;
+    
+public:
+    safeformat (string_type const & format)
+        : _p(format.cbegin())
+        , _end(format.cend())
+    {}
 
 private:
-    typedef iterator_facade<
-          pfs::forward_iterator_tag
-        , safeformat_iterator<StringImplType>
-        , typename string<StringImplType>::value_type
-        , typename string<StringImplType>::const_pointer
-        , typename string<StringImplType>::const_reference> base_class;
-
-    typedef typename base_class::reference       reference;
-    typedef typename base_class::pointer         pointer;
-    typedef typename base_class::difference_type difference_type;
-    typedef typename string_type::const_iterator char_iterator;
-    typedef typename string_type::value_type     char_type;
-
+    void advance ()
+    {
+        parse_regular_chars();
+        
+        if (_p != _end && to_ascii<value_type>(*_p) != '%') {
+            conversion_specification conv_spec;
+            parse_conversion_specification(& conv_spec);
+            
+            if (conv_spec.good) {
+                process_conversion_specification(conv_spec);
+            }
+        }
+    }
+    
+    void parse_regular_chars ()
+    {
+        while (_p != _end && to_ascii<value_type>(*_p) != '%')
+            _result.push_back(*_p++);
+    }
+    
+    void finalize ()
+    {
+        // TODO replace by string::append(_p, _end) after implementing according method
+        
+        while (_p != _end)
+            _result.push_back(*_p++);
+    }
+    
     //
     // Flags
     //==========================================================================
     //
-
     static int const NO_FLAG = 0;
 
     // '-'
@@ -123,11 +176,115 @@ private:
     // flags both appear, the '0' flag is ignored. For 'd', 'i', 'o', 'u', 'x',
     // and 'X' conversions, if a precision is specified, the '0' flag is 
     // ignored. For other conversions, the behavior is undefined.
-    static int const FL_ZERO_PADDING = 0x0010;
-
-    // 
-    static int const FL_PREC_HYPHEN = 0x0020;
+    static int const FL_ZERO_PADDING = 0x0010;    
     
+    // flags = *flag
+    // flag  = / '-' / '+' / ' ' / '#' / '0'
+    void parse_spec_flags (conversion_specification * conv_spec)
+    {
+        if (! conv_spec->good)
+            return;
+
+        while (_p != _end) {
+            switch (to_ascii<value_type>(*_p)) {
+            case '-':
+                conv_spec->flags |= FL_LEFT_JUSTIFIED;
+                break;
+            case '+':
+                conv_spec->flags |= FL_NEED_SIGN;
+                break;
+            case ' ':
+                conv_spec->flags |= FL_SPACE_PADDING;
+                break;
+            case '#':
+                conv_spec->flags |= FL_ALTERN_FORM;
+                break;
+            case '0':
+                conv_spec->flags |= FL_ZERO_PADDING;
+                break;
+            default:
+                return;
+            }
+            
+            ++_p;
+        }
+    }
+    
+    void parse_spec_field_width (conversion_specification * conv_spec)
+    {
+        if (! conv_spec->good)
+            return;
+            
+        if (to_ascii<value_type>(*_p) == '*') {
+            conv_spec->field_width_asterisk = true;
+            ++_p;
+            return;
+        }
+        
+        if (is_digit(*_p) && to_ascii<value_type>(*_p) != '0') {
+            const_iterator first = _p;
+            ++_p;
+            
+            while (_p != _end && is_digit(*_p))
+                ++_p;
+            
+            if (_p != first) {
+                const_iterator badpos;
+                conv_spec->field_width = string_to_int<int, const_iterator>(first, _p, & badpos, 10);
+
+                // bad value for field_width
+                if (badpos != _p)
+                    conv_spec->good = false;
+            }
+        }
+    }
+    
+    void parse_spec_precision (conversion_specification * conv_spec)
+    {
+        if (! conv_spec->good)
+            return;
+        
+        if (to_ascii<value_type>(*_p) != '.')
+            return;
+        
+        ++_p;
+        
+        if (_p == _end)
+            return;
+        
+        if (to_ascii<value_type>(*_p) == '*') {
+            conv_spec->prec_asterisk = true;
+            ++_p;
+            return;
+        }
+        
+        if (to_ascii<value_type>(*_p) != '-') {
+            conv_spec->prec_sign = -1;
+            ++_p;
+
+            if (_p == _end)
+                return;
+        }
+        
+        
+        if (is_digit(*_p) && to_ascii<value_type>(*_p) != '0') {
+            const_iterator first = _p;
+            ++_p;
+            
+            while (_p != _end && is_digit(*_p))
+                ++_p;
+            
+            if (_p != first) {
+                const_iterator badpos;
+                conv_spec->prec = string_to_int<int, const_iterator>(first, _p, & badpos, 10);
+
+                // bad value for precision
+                if (badpos != _p)
+                    conv_spec->good = false;
+            }
+        }
+    }
+
     //
     // Length modifiers
     //==========================================================================
@@ -170,284 +327,339 @@ private:
     // 'L'
     //--------------------------------------------------------------------------
     static int const LM_APPLY_LONGDOUBLE = 8;
-
-    int  _status;
-    int  _flags;
-    int  _width;
     
-    // The default precision is 0
-    int  _prec;       
-    int  _length_mod; // length modifier
-    
-    // One of:
-    // 'd', 'i'
-    // 'o', 'u', 'x', 'X'
-    // 'f', 'F'
-    // 'e', 'E'
-    // 'g', 'G'
-    // 'a', 'A'
-    // 'c'
-    // 's'
-    // 'p'
-    // 'n'
-    // '%'
-    //char_type _spec_char; // a conversion specifier or '\0' if '_p' points to a regular character
-    
-    // true if the current position '_p' points to a conversion specifier character
-    bool _is_spec; 
-    
-    char_iterator _p;
-    char_iterator _pend;
-    
-public:
-    safeformat_iterator (char_iterator begin, char_iterator end)
-        : _p(begin)
-        , _pend(end)
+    void parse_spec_length_modifier (conversion_specification * conv_spec)
     {
-        reset();
-    }
-
-    safeformat_iterator (safeformat_iterator const & rhs)
-    {
-        *this = rhs;
-    }
-
-    safeformat_iterator & operator = (safeformat_iterator const & rhs)
-    {
-        _status     = rhs._status;
-        _flags      = rhs._flags;
-        _width      = rhs._width;
-        _prec       = rhs._prec;
-        _length_mod = rhs._length_mod;
-        _is_spec    = rhs._is_spec; 
-        _p          = rhs._p;
-        _pend       = rhs._pend;
-        
-        return *this;
-    }
-    
-    safeformat_iterator end () const
-    {
-        safeformat_iterator result(*this);
-        result.reset();
-        result._p = result._pend;
-        return result;
-    }
-    
-    int status () const
-    {
-        return _status;
-    }
-    
-    bool success () const
-    {
-        return _status == STATUS_SUCCESS;
-    }
-    
-public:
-    static reference ref (safeformat_iterator & it)
-    {
-        return *it._p;
-    }
-    
-    static pointer ptr (safeformat_iterator & it)
-    {
-        return & *it._p;
-    }
-    
-    static void increment (safeformat_iterator & it, difference_type)
-    {
-        it.increment();
-    }
-    
-    static bool equals (safeformat_iterator const & it1, safeformat_iterator const & it2)
-    {
-        return it1._p == it2._p && it1._pend == it2._pend;
-    }
-
-private:
-    void reset ()
-    {
-        _status     = STATUS_SUCCESS;
-        _flags      = NO_FLAG;
-        _width      = 0;
-        _prec       = 0;
-        _length_mod = 0;
-        _is_spec    = false;
-    }
-    
-    void increment ()
-    {
-        enum { 
-              STATE_START
-            , STATE_FLAG
-            , STATE_FIELD_WIDTH_BEGIN
-            , STATE_FIELD_WIDTH
-            , STATE_PRECISION
-            , STATE_PRECISION_VALUE_BEGIN
-            //static int const STATE_LENGTH_MOD        =  2;
-            , STATE_SUCCESS    = -1
-            , STATE_INVALID    = -2
-            , STATE_INCOMPLETE = -3
-        };
-        
-        if (_status != STATUS_SUCCESS)
+        if (! conv_spec->good)
             return;
-        
-        reset();
 
-        if (_p == _pend)
-            return;
-        
-        //
-        // Parse regular characters
-        //
-        if (*_p != char_type('%')) {
-            while (_p != _pend && *_p != char_type('%'))
-                ++_p;
-            return;
-        }
-
-        //
-        // Below parse conversion specifier
-        //
-        
-        int state = STATE_START;
-        _is_spec = true;
-        
-        while (_p != _pend && state >= 0) {
-            switch (state) {
-            case STATE_START: {
-
-                char_iterator p(_p);
-                ++p;
-                    
-                if (p == _pend) {
-                    state = STATE_INCOMPLETE;
-                } else if (*p == char_type('%')) { // '%%'
-                    state = STATE_SUCCESS;
-                    _p = p;
-                    _is_spec = false;
-                } else {
-                    state = STATE_FLAG;
-                }
-                
-                break;
-            }
-            
-            //
-            // flag := / '-' / '+' / ' ' / '#' / '0'
-            //
-            case STATE_FLAG: {
-                switch (to_ascii<char_type>(*_p)) {
-                case '-':
-                    _flags |= FL_LEFT_JUSTIFIED;
-                    break;
-                case '+':
-                    _flags |= FL_NEED_SIGN;
-                    break;
-                case ' ':
-                    _flags |= FL_SPACE_PADDING;
-                    break;
-                case '#':
-                    _flags |= FL_ALTERN_FORM;
-                    break;
-                case '0':
-                    _flags |= FL_ZERO_PADDING;
-                    break;
-                default:
-                    state = STATE_FIELD_WIDTH_BEGIN;
-                }
-                break;
-            }
-
-            //
-            // field_width := DIGIT1_9 *DIGIT
-            //
-            case STATE_FIELD_WIDTH_BEGIN: {
-                if (is_digit(*_p)) {
-                    if (to_ascii<char_type>(*_p) != '0') {
-                        state = STATE_FIELD_WIDTH;      
-                    } else {
-                        // ERROR: Invalid specifier: 'field-width' starts with zero. 
-                        state = STATE_INVALID;
-                    }
-                } else {
-                    state = STATE_PRECISION;
-                }
-                break;
-            }
-
-            case STATE_FIELD_WIDTH: {
-//                
-//                if ()
-                break;
-            }
-            
-            //
-            // prec := '.' *DIGIT
-            //
-            case STATE_PRECISION: {
-                if (to_ascii<char_type>(*_p) != '.')
-                    state = STATE_PRECISION_VALUE_BEGIN;
-                break;
-            }
-                
-//            case STATE_LENGTH_MOD: {
-//                switch (to_ascii<char_type>(*it)) {
-//                case 'h':
-//                    _length_mod = LM_APPLY_SHORT;
-//                    ++it;
-//                    
-//                    if (it != _pend && *it == char_type('h'))
-//                        _length_mod = LM_APPLY_CHAR;
-//                    else
-//                        --it;
-//                    break;
-//                    
-//                case 'l':
-//                    _length_mod = LM_APPLY_LONG;
-//                    ++it;
-//                    
-//                    if (it != _pend && *it == char_type('l'))
-//                        _length_mod = LM_APPLY_LONGLONG;
-//                    else
-//                        --it;
-//                    break;
-//                    
-//                case 'j':
-//                    _length_mod = LM_APPLY_INTMAX;
-//                    break;
-//                    
-//                case 'z':
-//                    _length_mod = LM_APPLY_SIZE_T;
-//                    break;
-//                    
-//                case 't':
-//                    _length_mod = LM_APPLY_PTRDIFF;
-//                    break;
-//
-//                case 'L':
-//                    _length_mod = LM_APPLY_LONGDOUBLE;
-//                    break;
-//                }
-//                
-//                state = STATE_FIELD_WIDTH_BEGIN;
-//                break;
-//            }
-            } // switch
-            
+        switch (to_ascii<value_type>(*_p)) {
+        case 'h':
+            conv_spec->length_mod = LM_APPLY_SHORT;
             ++_p;
+            
+            if (_p != _end && *_p == value_type('h')) {
+                conv_spec->length_mod = LM_APPLY_CHAR;
+                ++_p;
+            }
+
+            break;
+
+            case 'l':
+                conv_spec->length_mod = LM_APPLY_LONG;
+                ++_p;
+
+                if (_p != _end && *_p == value_type('l')) {
+                    conv_spec->length_mod = LM_APPLY_LONGLONG;
+                    ++_p;
+                }
+
+                break;
+                    
+            case 'j':
+                conv_spec->length_mod = LM_APPLY_INTMAX;
+                ++_p;
+                break;
+                   
+            case 'z':
+                conv_spec->length_mod = LM_APPLY_SIZE_T;
+                ++_p;
+                break;
+
+            case 't':
+                conv_spec->length_mod = LM_APPLY_PTRDIFF;
+                ++_p;
+                break;
+
+            case 'L':
+                conv_spec->length_mod = LM_APPLY_LONGDOUBLE;
+                ++_p;
+                break;
         }
-        
-        switch (state) {
-        case STATE_SUCCESS    : _status = STATUS_SUCCESS; break;
-        case STATE_INVALID    : _status = STATUS_FAIL; break;
-        default               : _status = STATUS_INCOMPLETE; break; 
+    }
+    
+    void parse_spec_conversion_specifier (conversion_specification * conv_spec)
+    {
+        if (! conv_spec->good)
+            return;
+
+        switch (to_ascii<value_type>(*_p)) {
+        case 'd': case 'i': case 'o': case 'u': case 'x': case 'X':
+        case 'f': case 'F': case 'e': case 'E': case 'g': case 'G':
+        case 'a': case 'A': case 'c': case 's': case 'p': case 'n':
+            conv_spec->spec_char = *_p;
+            ++_p;
+            break;
+            
+        default:
+            conv_spec->good = false;
+            break;
         }
+    }
+   
+    void parse_conversion_specification (conversion_specification * conv_spec)
+    {
+        if (! conv_spec->good)
+            return;
+
+        if (to_ascii<value_type>(*_p) != '%') {
+            conv_spec->good = true;
+            conv_spec->spec_char = *_p;
+            ++_p;
+        } else {
+            parse_spec_flags(conv_spec);
+            parse_spec_field_width(conv_spec);
+            parse_spec_precision(conv_spec);
+            parse_spec_length_modifier(conv_spec);
+            parse_spec_conversion_specifier(conv_spec);
+        }
+    }
+    
+    void process_conversion_specification (conversion_specification const & conv_spec)
+    {
+        if (conv_spec.spec_char == value_type('%')) {
+            _result.push_back(conv_spec.spec_char);
+        } else {
+            switch (to_ascii<value_type>(conv_spec.spec_char)) {
+            case 'd': case 'i': case 'o': case 'u': case 'x': case 'X':
+            case 'f': case 'F': case 'e': case 'E': case 'g': case 'G':
+            case 'a': case 'A': case 'c': case 's': case 'p': case 'n':
+                break;
+            }
+        }
+    }
+
+public:
+    safeformat & operator() (char c);
+    safeformat & operator() (signed char n);
+    safeformat & operator() (unsigned char n);
+    safeformat & operator() (short n);
+    safeformat & operator() (unsigned short n);
+    safeformat & operator() (int n);
+    safeformat & operator() (unsigned int n);
+    safeformat & operator() (long n);
+    safeformat & operator() (unsigned long n);
+
+#ifdef PFS_HAVE_LONG_LONG
+    safeformat & operator() (long long n);
+    safeformat & operator() (unsigned long long n);
+#endif
+
+    safeformat & operator() (float n);
+    safeformat & operator() (double n);
+
+#ifdef PFS_HAVE_LONG_DOUBLE
+    safeformat & operator() (long double n);
+#endif
+
+    //	safeformat & operator () (typename string_type::value_type c);
+    safeformat & operator() (string_type const & s);
+
+    safeformat & operator() (char const * s)
+    {
+        string_type ss(s);
+        return operator() (ss);
+    }
+
+    safeformat & operator() (void const * p);
+
+    string_type const & operator() ()
+    {
+        return str();
+    }
+
+
+    //--- boost-like operators
+    //	safeformat & operator % (char c)               { return operator () (c); }
+
+    safeformat & operator% (signed char n)
+    {
+        return operator() (n);
+    }
+
+    safeformat & operator% (unsigned char n)
+    {
+        return operator() (n);
+    }
+
+    safeformat & operator% (short n)
+    {
+        return operator() (n);
+    }
+
+    safeformat & operator% (unsigned short n)
+    {
+        return operator() (n);
+    }
+
+    safeformat & operator% (int n)
+    {
+        return operator() (n);
+    }
+
+    safeformat & operator% (unsigned int n)
+    {
+        return operator() (n);
+    }
+
+    safeformat & operator% (long n)
+    {
+        return operator() (n);
+    }
+
+    safeformat & operator% (unsigned long n)
+    {
+        return operator() (n);
+    }
+
+#ifdef PFS_HAVE_LONG_LONG
+
+    safeformat & operator% (long long n)
+    {
+        return operator() (n);
+    }
+
+    safeformat & operator% (unsigned long long n)
+    {
+        return operator() (n);
+    }
+#endif
+
+    safeformat & operator% (float n)
+    {
+        return operator() (n);
+    }
+
+    safeformat & operator% (double n)
+    {
+        return operator() (n);
+    }
+
+#ifdef PFS_HAVE_LONG_DOUBLE
+
+    safeformat & operator% (long double n)
+    {
+        return operator() (n);
+    }
+#endif
+
+    //	safeformat & operator % (typename string_type::value_type c) { return operator () (c); }
+
+    safeformat & operator% (string_type const & s)
+    {
+        return operator() (s);
+    }
+
+    safeformat & operator% (const char * s)
+    {
+        return operator() (s);
+    }
+
+    safeformat & operator% (void const * p)
+    {
+        return operator() (p);
+    }
+    
+    //
+    //--- Qt-like methods
+    //
+    safeformat & arg (char c)
+    {
+        return operator() (c);
+    }
+
+    safeformat & arg (signed char n)
+    {
+        return operator() (n);
+    }
+
+    safeformat & arg (unsigned char n)
+    {
+        return operator() (n);
+    }
+
+    safeformat & arg (short n)
+    {
+        return operator() (n);
+    }
+
+    safeformat & arg (unsigned short n)
+    {
+        return operator() (n);
+    }
+
+    safeformat & arg (int n)
+    {
+        return operator() (n);
+    }
+
+    safeformat & arg (unsigned int n)
+    {
+        return operator() (n);
+    }
+
+    safeformat & arg (long n)
+    {
+        return operator() (n);
+    }
+
+    safeformat & arg (unsigned long n)
+    {
+        return operator() (n);
+    }
+
+#ifdef PFS_HAVE_LONG_LONG
+
+    safeformat & arg (long long n)
+    {
+        return operator() (n);
+    }
+
+    safeformat & arg (unsigned long long n)
+    {
+        return operator() (n);
+    }
+#endif
+
+    safeformat & arg (float n)
+    {
+        return operator() (n);
+    }
+
+    safeformat & arg (double n)
+    {
+        return operator() (n);
+    }
+
+#ifdef PFS_HAVE_LONG_DOUBLE
+
+    safeformat & arg (long double n)
+    {
+        return operator() (n);
+    }
+#endif
+
+    safeformat & arg (string_type const & s)
+    {
+        return operator() (s);
+    }
+
+    safeformat & arg (const char * s)
+    {
+        return operator() (s);
+    }
+
+    safeformat & arg (void const * p)
+    {
+        return operator() (p);
+    }
+    
+    string_type const & str ()
+    {
+        finalize();
+        return _result;
     }
 };
-
 
 #if __TODO__
 
@@ -824,235 +1036,6 @@ public:
     //        return operator () (static_cast<void const *>(p));
     //    }
 
-    safeformat & operator() (char c);
-    safeformat & operator() (signed char n);
-    safeformat & operator() (unsigned char n);
-    safeformat & operator() (short n);
-    safeformat & operator() (unsigned short n);
-    safeformat & operator() (int n);
-    safeformat & operator() (unsigned int n);
-    safeformat & operator() (long n);
-    safeformat & operator() (unsigned long n);
-
-#ifdef PFS_HAVE_LONGLONG
-    safeformat & operator() (long long n);
-    safeformat & operator() (unsigned long long n);
-#endif
-
-    safeformat & operator() (float n);
-    safeformat & operator() (double n);
-
-#ifdef PFS_HAVE_LONG_DOUBLE
-    safeformat & operator() (long double n);
-#endif
-
-    //	safeformat & operator () (typename string_type::value_type c);
-    safeformat & operator() (string_type const & s);
-
-    safeformat & operator() (char const * s)
-    {
-        string_type ss(s);
-        return operator() (ss);
-    }
-
-    safeformat & operator() (void const * p);
-
-    string_type const & operator() ()
-    {
-        return str();
-    }
-
-    string_type const & str ()
-    {
-        advance();
-        return _ctx.result;
-    }
-
-    //--- boost-like operators
-    //	safeformat & operator % (char c)               { return operator () (c); }
-
-    safeformat & operator% (signed char n)
-    {
-        return operator() (n);
-    }
-
-    safeformat & operator% (unsigned char n)
-    {
-        return operator() (n);
-    }
-
-    safeformat & operator% (short n)
-    {
-        return operator() (n);
-    }
-
-    safeformat & operator% (unsigned short n)
-    {
-        return operator() (n);
-    }
-
-    safeformat & operator% (int n)
-    {
-        return operator() (n);
-    }
-
-    safeformat & operator% (unsigned int n)
-    {
-        return operator() (n);
-    }
-
-    safeformat & operator% (long n)
-    {
-        return operator() (n);
-    }
-
-    safeformat & operator% (unsigned long n)
-    {
-        return operator() (n);
-    }
-
-#ifdef PFS_HAVE_LONGLONG
-
-    safeformat & operator% (long long n)
-    {
-        return operator() (n);
-    }
-
-    safeformat & operator% (unsigned long long n)
-    {
-        return operator() (n);
-    }
-#endif
-
-    safeformat & operator% (float n)
-    {
-        return operator() (n);
-    }
-
-    safeformat & operator% (double n)
-    {
-        return operator() (n);
-    }
-
-#ifdef PFS_HAVE_LONG_DOUBLE
-
-    safeformat & operator% (long double n)
-    {
-        return operator() (n);
-    }
-#endif
-
-    //	safeformat & operator % (typename string_type::value_type c) { return operator () (c); }
-
-    safeformat & operator% (string_type const & s)
-    {
-        return operator() (s);
-    }
-
-    safeformat & operator% (const char * s)
-    {
-        return operator() (s);
-    }
-
-    safeformat & operator% (void const * p)
-    {
-        return operator() (p);
-    }
-
-    //--- Qt-like methods
-
-    safeformat & arg (char c)
-    {
-        return operator() (c);
-    }
-
-    safeformat & arg (signed char n)
-    {
-        return operator() (n);
-    }
-
-    safeformat & arg (unsigned char n)
-    {
-        return operator() (n);
-    }
-
-    safeformat & arg (short n)
-    {
-        return operator() (n);
-    }
-
-    safeformat & arg (unsigned short n)
-    {
-        return operator() (n);
-    }
-
-    safeformat & arg (int n)
-    {
-        return operator() (n);
-    }
-
-    safeformat & arg (unsigned int n)
-    {
-        return operator() (n);
-    }
-
-    safeformat & arg (long n)
-    {
-        return operator() (n);
-    }
-
-    safeformat & arg (unsigned long n)
-    {
-        return operator() (n);
-    }
-
-#ifdef PFS_HAVE_LONGLONG
-
-    safeformat & arg (long long n)
-    {
-        return operator() (n);
-    }
-
-    safeformat & arg (unsigned long long n)
-    {
-        return operator() (n);
-    }
-#endif
-
-    safeformat & arg (float n)
-    {
-        return operator() (n);
-    }
-
-    safeformat & arg (double n)
-    {
-        return operator() (n);
-    }
-
-#ifdef PFS_HAVE_LONG_DOUBLE
-
-    safeformat & arg (long double n)
-    {
-        return operator() (n);
-    }
-#endif
-
-    //	safeformat & arg (typename string_type::value_type c) { return operator () (c); }
-
-    safeformat & arg (string_type const & s)
-    {
-        return operator() (s);
-    }
-
-    safeformat & arg (const char * s)
-    {
-        return operator() (s);
-    }
-
-    safeformat & arg (void const * p)
-    {
-        return operator() (p);
-    }
 };
 
 #endif
