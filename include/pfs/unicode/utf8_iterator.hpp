@@ -84,7 +84,7 @@ public:
     }
     
 public: // static
-    void advance (CodePointIter & p, difference_type n)
+    static void advance (CodePointIter & p, difference_type n)
     {
         advance_forward(p, n);
     }
@@ -184,7 +184,6 @@ char_t utf8_iterator<OctetIt>::decode (OctetIt const & p, OctetIt * pnewpos)
 	uint8_t b = static_cast<uint8_t>(*newpos);
 	char_t::value_type result;
     int nunits = 0;
-    
 
     if (b < 128) {
     	result = b;

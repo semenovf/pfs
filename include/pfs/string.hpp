@@ -14,6 +14,11 @@
 #include <pfs/ctype.hpp>
 #include <pfs/exception.hpp>
 #include <pfs/iterator.hpp>
+#include <pfs/unicode/unicode_iterator.hpp>
+
+//
+// Unicode string
+//
 
 namespace pfs {
 
@@ -41,6 +46,9 @@ public:
     typedef typename internal_type::const_reverse_iterator const_reverse_iterator;
 //    typedef typename internal_type::difference_type        difference_type;
     typedef typename internal_type::size_type              size_type;
+    
+    typedef unicode::unicode_iterator_traits<iterator>       unicode_iterator;
+    typedef unicode::unicode_iterator_traits<const_iterator> const_unicode_iterator;
     
 protected:
     internal_type _p;
@@ -99,17 +107,25 @@ public:
         return _p;
     }
     
+    // 
+    /**
+     * @return Size in code units
+     */
     size_type size () const
     {
         return _p.size();
     }
-    
+
+    /**
+     * @return Length in code points
+     */    
     size_type length () const
     {
-        return _p.size();
+        return distance(const_unicode_iterator(cbegin())
+                , const_unicode_iterator(cend()));
     }
 
-        /**
+    /**
      * @details Returns the maximum number of elements the string is able to 
      *          hold due to system or library implementation limitations, 
      *          i.e. ​std::distance(begin(), end())​ for the largest string. 
@@ -557,10 +573,8 @@ char * intmax_to_cstr (intmax_t num
  */
 template <typename UintType, typename StringType>
 StringType to_string (typename pfs::enable_if<pfs::is_unsigned<UintType>::value, UintType>::type value
-        , int field_width
 		, int radix
-		, bool uppercase
-        , typename StringType::value_type fill_char)
+		, bool uppercase)
 {
 	char buf[sizeof(UintType) * 8 + 1]; // char buf[BITS_SIZE(UintType) + 1];
 	char * str = uintmax_to_cstr(static_cast<uintmax_t>(value)
@@ -569,22 +583,13 @@ StringType to_string (typename pfs::enable_if<pfs::is_unsigned<UintType>::value,
 			, buf
 			, sizeof(buf));
     
-    StringType s(str);
-    
-    // TODO Implement left-aligned text (field_width is negative)
-    if (field_width > 0 && s.size() < static_cast<size_t>(field_width)) {
-        return StringType(static_cast<size_t>(field_width) - s.size(), fill_char) + s;
-    }
-    
-	return s;
+    return StringType(str);
 }
 
 template <typename IntType, typename StringType>
 StringType to_string (typename enable_if<is_signed<IntType>::value, IntType>::type value
-        , int field_width
 		, int radix
-		, bool uppercase
-        , typename StringType::value_type fill_char)
+		, bool uppercase)
 {
 	char buf[sizeof(IntType) * 8 + 1];
 	char * str = intmax_to_cstr(static_cast<intmax_t>(value)
@@ -593,20 +598,7 @@ StringType to_string (typename enable_if<is_signed<IntType>::value, IntType>::ty
             , buf
 			, sizeof(buf));
     
-    StringType s(str);
-
-    // TODO Implement left-aligned text (field_width is negative)
-    if (field_width > 0 && s.size() < static_cast<size_t>(field_width)) {
-        if (value < 0 && !pfs::is_space(fill_char)) { // -000000123
-            return StringType(1, '-') 
-                    + StringType(static_cast<size_t>(field_width) - s.size() - 1, fill_char)
-                    + StringType(s.cbegin() + 1, s.cend()); // ignore sign
-        } else { // -123, 123, _______-123, ________123
-            return StringType(static_cast<size_t>(field_width) - s.size(), fill_char) + s;
-        }
-    }
-    
-	return s;
+    return StringType(str);
 }
 
 }} // details::integral
@@ -618,159 +610,111 @@ inline StringType to_string (bool value)
 }
 
 template <typename StringType>
-inline StringType to_string (char a
-        , int field_width = 0
-        , typename StringType::value_type fill_char = typename StringType::value_type(' '))
+inline StringType to_string (char a)
 {
-    StringType s(1, typename StringType::value_type(a));
-    
-    if (field_width > 0 && s.size() < static_cast<size_t>(field_width)) {
-        return StringType(static_cast<size_t>(field_width) - s.size(), fill_char) + s;
-    }
-    
-    return s;
+    return StringType(1, typename StringType::value_type(a));
 }
 
 template <typename StringType>
 inline StringType to_string (signed char a
-        , int field_width = 0
         , int radix = 10
-        , bool uppercase = false
-        , typename StringType::value_type fill_char = typename StringType::value_type(' '))
+        , bool uppercase = false)
 {
     return details::integral::to_string<signed char, StringType>(a
-            , field_width
             , radix
-            , uppercase
-            , fill_char);
+            , uppercase);
 }
 
 template <typename StringType>
 inline StringType to_string (unsigned char a
-        , int field_width = 0
         , int radix = 10
-        , bool uppercase = false
-        , typename StringType::value_type fill_char = typename StringType::value_type(' '))
+        , bool uppercase = false)
 {
     return details::integral::to_string<unsigned char, StringType>(a
-            , field_width
             , radix
-            , uppercase
-            , fill_char);
+            , uppercase);
 }
 
 template <typename StringType>
 inline StringType to_string (short a
-        , int field_width = 0
         , int radix = 10
-        , bool uppercase = false
-        , typename StringType::value_type fill_char = typename StringType::value_type(' '))
+        , bool uppercase = false)
 {
     return details::integral::to_string<short, StringType>(a
-            , field_width
             , radix
-            , uppercase
-            , fill_char);
+            , uppercase);
 }
 
 template <typename StringType>
 inline StringType to_string (unsigned short a
-        , int field_width = 0
         , int radix = 10
-        , bool uppercase = false
-        , typename StringType::value_type fill_char = typename StringType::value_type(' '))
+        , bool uppercase = false)
 {
     return details::integral::to_string<unsigned short, StringType>(a
-            , field_width
             , radix
-            , uppercase
-            , fill_char);
+            , uppercase);
 }
 
 template <typename StringType>
 inline StringType to_string (int a
-        , int field_width = 0
         , int radix = 10
-        , bool uppercase = false
-        , typename StringType::value_type fill_char = typename StringType::value_type(' '))
+        , bool uppercase = false)
 {
     return details::integral::to_string<int, StringType>(a
-            , field_width
             , radix
-            , uppercase
-            , fill_char);
+            , uppercase);
 }
 
 template <typename StringType>
 inline StringType to_string (unsigned int a
-        , int field_width = 0
         , int radix = 10
-        , bool uppercase = false
-        , typename StringType::value_type fill_char = typename StringType::value_type(' '))
+        , bool uppercase = false)
 {
     return details::integral::to_string<unsigned int, StringType>(a
-            , field_width
             , radix
-            , uppercase
-            , fill_char);
+            , uppercase);
 }
 
 template <typename StringType>
 inline StringType to_string (long a
-        , int field_width = 0
         , int radix = 10
-        , bool uppercase = false
-        , typename StringType::value_type fill_char = typename StringType::value_type(' '))
+        , bool uppercase = false)
 {
     return details::integral::to_string<long, StringType>(a
-            , field_width
             , radix
-            , uppercase
-            , fill_char);
+            , uppercase);
 }
 
 template <typename StringType>
 inline StringType to_string (unsigned long a
-        , int field_width = 0
         , int radix = 10
-        , bool uppercase = false
-        , typename StringType::value_type fill_char = typename StringType::value_type(' '))
+        , bool uppercase = false)
 {
     return details::integral::to_string<unsigned long, StringType>(a
-            , field_width
             , radix
-            , uppercase
-            , fill_char);
+            , uppercase);
 }
 
 #if PFS_HAVE_LONGLONG
 
 template <typename StringType>
 inline StringType to_string (long long a
-        , int field_width = 0
         , int radix = 10
-        , bool uppercase = false
-        , typename StringType::value_type fill_char = typename StringType::value_type(' '))
+        , bool uppercase = false)
 {
     return details::integral::to_string<long long, StringType>(a
-            , field_width
             , radix
-            , uppercase
-            , fill_char);
+            , uppercase);
 }
 
 template <typename StringType>
 inline StringType to_string (unsigned long long a
-        , int field_width = 0
         , int radix = 10
-        , bool uppercase = false
-        , typename StringType::value_type fill_char = typename StringType::value_type(' '))
+        , bool uppercase = false)
 {
     return details::integral::to_string<unsigned long long, StringType>(a
-            , field_width
             , radix
-            , uppercase
-            , fill_char);
+            , uppercase);
 }
 #endif
 
@@ -788,9 +732,7 @@ char * double_to_cstr (double num
 template <typename Float, typename StringType>
 StringType to_string (typename pfs::enable_if<pfs::is_floating_point<Float>::value, Float>::type value
 		, char f
-		, int prec
-        , int field_width
-        , typename StringType::value_type fill_char = typename StringType::value_type(' '))
+		, int prec)
 {
 	static const size_t FP_BUFSZ = 128;
 
@@ -812,18 +754,6 @@ StringType to_string (typename pfs::enable_if<pfs::is_floating_point<Float>::val
 	} else {
 		s = StringType(str);
 	}
-    
-    
-    // TODO Implement left-aligned text (field_width is negative)
-    if (field_width > 0 && s.size() < static_cast<size_t>(field_width)) {
-        if (value < 0 && !pfs::is_space(fill_char)) { // -000000123
-            return StringType(1, '-') 
-                    + StringType(static_cast<size_t>(field_width) - s.size() - 1, fill_char)
-                    + StringType(s.cbegin() + 1, s.cend()); // ignore sign
-        } else { // -123, 123, _______-123, ________123
-            return StringType(static_cast<size_t>(field_width) - s.size(), fill_char) + s;
-        }
-    }
 
 	return s;
 }
@@ -833,86 +763,79 @@ StringType to_string (typename pfs::enable_if<pfs::is_floating_point<Float>::val
 template <typename StringType>
 inline StringType to_string (float a
         , char format = 'f'
-        , int precision = -1
-        , int field_width = 0
-        , typename StringType::value_type fill_char = typename StringType::value_type(' '))
+        , int precision = -1)
 {
     return details::fp::to_string<float, StringType>(a
             , format
-            , precision
-            , field_width
-            , fill_char);
+            , precision);
 }
 
 template <typename StringType>
 inline StringType to_string (double a
         , char format = 'g'
-        , int precision = -1
-        , int field_width = 0
-        , typename StringType::value_type fill_char = typename StringType::value_type(' '))
+        , int precision = -1)
 {
     return details::fp::to_string<double, StringType>(a
             , format
-            , precision
-            , field_width
-            , fill_char);
+            , precision);
 }
 
-template <typename StringType>
-inline StringType left_justified (StringType const & s
-        , int width
-        , typename StringType::value_type fill_char = typename StringType::value_type(' ')
-        , bool trancate = false)
-{
-    if (width < 0)
-        return right_justified(s, -1 * width, fill_char, trancate);
-        
-    // TODO Implement left-aligned text (field_width is negative)
-    if (width > 0 && s.size() < static_cast<size_t>(width)) {
-        if (value < 0 && !pfs::is_space(fill_char)) { // -000000123
-            return StringType(1, '-') 
-                    + StringType(static_cast<size_t>(field_width) - s.size() - 1, fill_char)
-                    + StringType(s.cbegin() + 1, s.cend()); // ignore sign
-        } else { // -123, 123, _______-123, ________123
-            return StringType(static_cast<size_t>(field_width) - s.size(), fill_char) + s;
-        }
-    }
-}
-
-template <typename StringType>
-inline StringType right_justified (StringType const & s
-        , int width
-        , typename StringType::value_type fill_char = typename StringType::value_type(' ')
-        , bool trancate = false)
-{
-    if (width < 0)
-        return left_justified(s, -1 * width, fill_char, trancate);
-
-    // TODO Implement left-aligned text (field_width is negative)
-    if (width > 0 && s.size() < static_cast<size_t>(width)) {
-        if (value < 0 && !pfs::is_space(fill_char)) { // -000000123
-            return StringType(1, '-') 
-                    + StringType(static_cast<size_t>(field_width) - s.size() - 1, fill_char)
-                    + StringType(s.cbegin() + 1, s.cend()); // ignore sign
-        } else { // -123, 123, _______-123, ________123
-            return StringType(static_cast<size_t>(field_width) - s.size(), fill_char) + s;
-        }
-    }
-    
-    return s;
-}
-
-template <typename StringType>
-inline StringType justified (StringType const & s
-        , int width
-        , typename StringType::value_type fill_char = typename StringType::value_type(' ')
-        , bool trancate = false)
-{
-    if (width < 0)
-        return left_justified(s, -1 * width, fill_char, trancate);
-    
-    return right_justified(s, width, fill_char, trancate);
-}
+//template <typename StringType>
+//inline StringType left_justified (StringType const & s
+//        , int width
+//        , typename StringType::value_type fill_char = typename StringType::value_type(' ')
+//        , bool trancate = false)
+//{
+//    if (width < 0)
+//        return right_justified(s, -1 * width, fill_char, trancate);
+//
+//    if (s.size())
+//    // TODO Implement left-aligned text (field_width is negative)
+//    if (width > 0 && s.size() < static_cast<size_t>(width)) {
+//        if (value < 0 && !pfs::is_space(fill_char)) { // -000000123
+//            return StringType(1, '-') 
+//                    + StringType(static_cast<size_t>(field_width) - s.size() - 1, fill_char)
+//                    + StringType(s.cbegin() + 1, s.cend()); // ignore sign
+//        } else { // -123, 123, _______-123, ________123
+//            return StringType(static_cast<size_t>(field_width) - s.size(), fill_char) + s;
+//        }
+//    }
+//}
+//
+//template <typename StringType>
+//inline StringType right_justified (StringType const & s
+//        , int width
+//        , typename StringType::value_type fill_char = typename StringType::value_type(' ')
+//        , bool trancate = false)
+//{
+//    if (width < 0)
+//        return left_justified(s, -1 * width, fill_char, trancate);
+//
+//    // TODO Implement left-aligned text (field_width is negative)
+//    if (width > 0 && s.size() < static_cast<size_t>(width)) {
+//        if (value < 0 && !pfs::is_space(fill_char)) { // -000000123
+//            return StringType(1, '-') 
+//                    + StringType(static_cast<size_t>(field_width) - s.size() - 1, fill_char)
+//                    + StringType(s.cbegin() + 1, s.cend()); // ignore sign
+//        } else { // -123, 123, _______-123, ________123
+//            return StringType(static_cast<size_t>(field_width) - s.size(), fill_char) + s;
+//        }
+//    }
+//    
+//    return s;
+//}
+//
+//template <typename StringType>
+//inline StringType justified (StringType const & s
+//        , int width
+//        , typename StringType::value_type fill_char = typename StringType::value_type(' ')
+//        , bool trancate = false)
+//{
+//    if (width < 0)
+//        return left_justified(s, -1 * width, fill_char, trancate);
+//    
+//    return right_justified(s, width, fill_char, trancate);
+//}
 
 } // pfs
 
