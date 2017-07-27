@@ -20,6 +20,7 @@ class inet_socket : public bits::device
 {
 public:
 	typedef bits::device::native_handle_type native_handle_type;
+    typedef bits::device::system_string      system_string;
 
 protected:
 	native_handle_type _fd;
@@ -98,6 +99,7 @@ class tcp_socket : public inet_socket
 {
 public:
 	typedef inet_socket::native_handle_type native_handle_type;
+    typedef inet_socket::system_string      system_string;
 
 public:
 	virtual error_code open (bool non_blocking)
@@ -147,6 +149,7 @@ class udp_socket : public inet_socket
 {
 public:
 	typedef inet_socket::native_handle_type native_handle_type;
+    typedef inet_socket::system_string      system_string;
 
 public:
 	virtual error_code open (bool non_blocking)

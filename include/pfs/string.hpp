@@ -12,12 +12,14 @@
 #include <pfs/assert.hpp>
 #include <pfs/type_traits.hpp>
 #include <pfs/ctype.hpp>
+#include <pfs/limits.hpp>
 #include <pfs/exception.hpp>
 #include <pfs/iterator.hpp>
+#include <pfs/unicode/char.hpp>
 #include <pfs/unicode/unicode_iterator.hpp>
 
 //
-// Unicode string
+// Unicode string (utf8/16/32-encoded string)
 //
 
 namespace pfs {
@@ -35,23 +37,48 @@ public:
     typedef typename internal_type::native_reference       native_reference;
     typedef typename internal_type::const_native_reference const_native_reference;
 
-    typedef typename internal_type::value_type             value_type;
-    typedef typename internal_type::reference              reference;
-    typedef typename internal_type::const_reference        const_reference;
-    typedef typename internal_type::pointer                pointer;
+//    typedef typename internal_type::value_type             value_type;
+    typedef typename unicode::char_t                      value_type;
+//    typedef typename internal_type::reference              reference;
+//    typedef typename internal_type::const_reference        const_reference;
+//    typedef typename internal_type::pointer                pointer;
     typedef typename internal_type::const_pointer          const_pointer;
-    typedef typename internal_type::iterator               iterator;
-    typedef typename internal_type::const_iterator         const_iterator;
-    typedef typename internal_type::reverse_iterator       reverse_iterator;
-    typedef typename internal_type::const_reverse_iterator const_reverse_iterator;
-//    typedef typename internal_type::difference_type        difference_type;
-    typedef typename internal_type::size_type              size_type;
     
-    typedef unicode::unicode_iterator_traits<iterator>       unicode_iterator;
-    typedef unicode::unicode_iterator_traits<const_iterator> const_unicode_iterator;
+    typedef typename unicode::unicode_iterator_traits<
+            typename internal_type::iterator>::iterator       iterator;
+    typedef typename unicode::unicode_iterator_traits<
+            typename internal_type::const_iterator>::iterator const_iterator;
+    typedef pfs::reverse_iterator<iterator>         reverse_iterator;
+    typedef pfs::reverse_iterator<const_iterator>   const_reverse_iterator;
+    
+    typedef typename internal_type::difference_type difference_type;
+    typedef typename internal_type::size_type       size_type;
+    
+    static size_type const npos = size_type(-1);
     
 protected:
     internal_type _p;
+
+protected:
+    string (typename internal_type::const_pointer first
+            , typename internal_type::const_pointer last)
+        : _p(first, last)
+    {}
+
+    string (typename internal_type::pointer first
+            , typename internal_type::pointer last)
+        : _p(first, last)
+    {}
+
+    string (typename internal_type::iterator first
+            , typename internal_type::iterator last)
+        : _p(first, last)
+    {}
+
+    string (typename internal_type::const_iterator first
+            , typename internal_type::const_iterator last)
+        : _p(first, last)
+    {}
 
 public:
     string ()
@@ -72,10 +99,10 @@ public:
         : _p(s)
     {}
     
-    template <typename InputIt>
-    string (InputIt first, InputIt last)
-        : _p(first, last)
-    {}
+//    template <typename InputIt>
+//    string (InputIt first, InputIt last)
+//        : _p(first, last)
+//    {}
     
     string (size_type count, value_type ch)
         : _p(count, ch)
@@ -121,8 +148,7 @@ public:
      */    
     size_type length () const
     {
-        return distance(const_unicode_iterator(cbegin())
-                , const_unicode_iterator(cend()));
+        return distance(cbegin(), cend());
     }
 
     /**
@@ -163,12 +189,12 @@ public:
     
     const_iterator begin () const
     {
-        return _p.begin();
+        return const_iterator(_p.begin());
     }
 
     const_iterator end () const
     {
-        return _p.end();
+        return const_iterator(_p.end());
     }
 
     const_iterator cbegin () const
@@ -183,12 +209,12 @@ public:
 
     const_reverse_iterator rbegin () const
     {
-        return _p.rbegin();
+        return const_reverse_iterator(_p.rbegin());
     }
 
     const_reverse_iterator rend () const
     {
-        return _p.rend();
+        return const_reverse_iterator(_p.rend());
     }
 
     const_reverse_iterator crbegin () const
@@ -206,6 +232,7 @@ public:
     // TODO reference back ();
     // TODO const_reference back () const;
 
+#if __DEPRECATED__
     /**
      * @brief
      * @param pos Position of the character to return.
@@ -222,7 +249,23 @@ public:
     {
     	return this->at(pos);
     }
+#endif
     
+    /**
+     * @function string substr (size_type pos, size_type count) const;
+     * @brief  Get a substring.
+     * @details Construct and return a new string using the @a n
+     *          characters starting at @a pos.  If the string is too
+     *          short, use the remainder of the characters.  If @a pos is
+     *          beyond the end of the string, out_of_range is thrown. 
+     * @param pos  Index of first character (default 0).
+     * @param n  Number of characters in substring (default remainder).
+     * @return The new string.
+     * @throw out_of_range  If pos > size().
+     */
+    string_value_type substr (const_iterator pos, size_type count = npos) const;
+    
+#if __TODO__   
     int compare (size_type pos1, size_type count1
         , string const & rhs, size_type pos2, size_type count2) const
     {
@@ -318,19 +361,6 @@ public:
 //        return _p.rfind(c, pos);
 //    }
 //    
-    /**
-     * @function string substr (size_type pos, size_type count) const;
-     * @brief  Get a substring.
-     * @details Construct and return a new string using the @a n
-     *          characters starting at @a pos.  If the string is too
-     *          short, use the remainder of the characters.  If @a pos is
-     *          beyond the end of the string, out_of_range is thrown. 
-     * @param pos  Index of first character (default 0).
-     * @param n  Number of characters in substring (default remainder).
-     * @return The new string.
-     * @throw out_of_range  If pos > size().
-     */
-    string_value_type substr (size_type pos, size_type count = size_type(-1)) const;
     
 	string_value_type left (size_t count) const
 	{
@@ -452,6 +482,7 @@ public:
 //    {
 //        _p.swap(rhs._p);
 //    }
+#endif // __TODO__
     
     friend inline bool operator == (string const & lhs, string const & rhs)
     {
@@ -527,21 +558,31 @@ public:
 
 template <typename StringImplType>
 typename string<StringImplType>::string_value_type
-string<StringImplType>::substr (size_type pos, size_type count) const
+string<StringImplType>::substr (const_iterator pos, size_type count) const
 {
-    if (pos >= this->size())
+    if (pos >= cend() || pos < cbegin())
         throw out_of_range("string::substr()");
-    size_type n = this->size() - pos;
+    
+    // This rough condition guarantees need to return the tail
+    if (count > size())
+        return string_value_type(pos, cend());
 
-    if (n > count)
-        n = count;
+    const_iterator epos(pos);
+    difference_type n = integral_cast_check<difference_type, size_type>(count);
+    epos.advance_safe(cend(), n);
+    
+    
+//    size_type n = this->size() - pos;
+//
+//    if (n > count)
+//        n = count;
+//
+//    const_iterator b(this->begin());
+//    const_iterator e(this->begin());
+//    pfs::advance(b, pos);
+//    pfs::advance(e, pos + n);
 
-    const_iterator b(this->begin());
-    const_iterator e(this->begin());
-    pfs::advance(b, pos);
-    pfs::advance(e, pos + n);
-
-    return string_value_type(b, e);
+    return string_value_type(pos, epos);
 }
 
 namespace details {

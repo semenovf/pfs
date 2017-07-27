@@ -8,7 +8,6 @@
 #ifndef __PFS_IO_DEVICE_HPP__
 #define __PFS_IO_DEVICE_HPP__
 
-#include <pfs/system_string.hpp>
 #include <pfs/memory.hpp>
 #include <pfs/byte_string.hpp>
 #include <pfs/utility.hpp>
@@ -34,6 +33,7 @@ public:
 	typedef bits::device::open_mode_flags    open_mode_flags;
 	typedef bits::device::open_mode_type     open_mode_type;
 	typedef bits::device::context_type       context_type;
+    typedef bits::device::system_string      system_string;
 
 protected:
     shared_ptr<bits::device> _d;
@@ -183,7 +183,7 @@ public:
 		_d->set_context(ctx);
 	}
 
-	const context_type * context () const
+	context_type const * context () const
 	{
 		return _d->context();
 	}

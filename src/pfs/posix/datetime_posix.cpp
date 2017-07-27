@@ -8,6 +8,7 @@
 #include <ctime>
 #include <cstring>
 #include <sys/time.h> // gettimeofday
+#include "pfs/traits/stdcxx/string.hpp"
 #include "pfs/datetime.hpp"
 
 //#if ! PFS_HAVE_LOCALTIME_R
@@ -53,13 +54,14 @@ datetime current_datetime ()
     return pfs::datetime(date, time);
 }
 
-system_string timezone_name ()
+template <>
+string<traits::stdcxx::string> timezone_name ()
 {
     struct tm buf;
     time_t t = ::time(0);
     struct tm * ptm = __localtime(& t, & buf);
     
-    return system_string(ptm->tm_zone);
+    return string<traits::stdcxx::string>(ptm->tm_zone);
 }
 
 long int offset_utc ()

@@ -12,6 +12,9 @@
 
 namespace pfs {
 
+template <typename Iterator>
+using reverse_iterator = std::reverse_iterator<Iterator>;
+
 template <typename Container>
 using back_insert_iterator = std::back_insert_iterator<Container>;
 
@@ -22,7 +25,7 @@ back_inserter (Container & c)
     return std::back_insert_iterator<Container>(c);
 }
 
-}
+} // pfs
 
 #endif /* __PFS_CXX11_ITERATOR_HPP__ */
 

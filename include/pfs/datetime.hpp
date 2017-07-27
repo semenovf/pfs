@@ -10,7 +10,6 @@
 
 #include <pfs/types.hpp>
 #include <pfs/lexical_cast.hpp>
-#include <pfs/system_string.hpp>
 #include <pfs/date.hpp>
 #include <pfs/time.hpp>
 
@@ -238,10 +237,15 @@ public:
 	}
 };
 
+template <typename StringType>
 class timezone
 {
-    system_string _tzname;
-    long int      _offset;
+public:
+    typedef StringType string_type;
+    
+private:
+    string_type _tzname;
+    long int    _offset;
     
 public:
     timezone () 
@@ -249,7 +253,7 @@ public:
         , _offset(0) 
     {}
         
-    timezone (system_string const & tzname, long int offset)
+    timezone (string_type const & tzname, long int offset)
         : _tzname(tzname)
         , _offset(offset) 
     {}
@@ -266,7 +270,7 @@ public:
         return *this;
     }
     
-    system_string const & tzname () const 
+    string_type const & tzname () const 
     {
         return _tzname;
     }
@@ -275,22 +279,49 @@ public:
     {
         return _offset;
     }
-    
-    system_string offset_to_string () const
-    {
-        return offset_to_string(_offset);
-    }
-    
-public:
+
     /*
      * @brief Converts UTC offset to string. 
      * @param off UTC offset value.
      * 
      * @return String in format '+hhmm' or '-hhmm' (that is, the hour and minute offset from UTC).
      */
-    static system_string offset_to_string (long int off);
+    static string_type offset_to_string (long int off)
+    {
+        int sign = 1;
+
+        if (off < 0) {
+            off *= -1;
+            sign = -1;
+        }
+
+        int h = off / 3600;
+        int m = (off - h * 3600) / 60;
+
+        StringType result(1, (sign < 0 ? '-' : '+'));
+        StringType hh(to_string<StringType>(h, 10));
+        StringType mm(to_string<StringType>(m, 10));
+
+        if (h < 10)
+            result += '0';
+
+        result += hh;
+
+        if (m < 0)
+            result += '0';
+
+        result += mm;
+
+        return result;
+    }
+    
+    string_type offset_to_string () const
+    {
+        return offset_to_string(_offset);
+    }
 };
 
+   
 /**
  * @brief Converts date and time to string according to @a format.
  * 
@@ -298,18 +329,18 @@ public:
  * @param format Format to convert @a dt.
  * @return String representation of @a dt.
  */
-template <typename StringT>
-StringT to_string (datetime const & dt, timezone const & tz, StringT const & format)
+template <typename StringType>
+StringType to_string (datetime const & dt, timezone<StringType> const & tz, StringType const & format)
 {
-    StringT tmp = to_string<StringT>(dt.get_date(), format);
-    tmp = to_string<StringT>(dt.get_time(), tmp);
+    StringType tmp = to_string<StringType>(dt.get_date(), format);
+    tmp = to_string<StringType>(dt.get_time(), tmp);
 
-	typename StringT::const_iterator p = tmp.cbegin();
-	typename StringT::const_iterator end = tmp.cend();
+	typename StringType::const_iterator p = tmp.cbegin();
+	typename StringType::const_iterator end = tmp.cend();
 
 	bool need_spec = false; // true if conversion specifier character expected
 
-    StringT r;
+    StringType r;
     
 	while (p < end) {
 		if (*p == '%') {
@@ -347,10 +378,10 @@ StringT to_string (datetime const & dt, timezone const & tz, StringT const & for
     return r;    
 }
 
-template <typename StringT>
-inline StringT to_string (datetime const & dt, StringT const & format)
+template <typename StringType>
+inline StringType to_string (datetime const & dt, StringType const & format)
 {
-    return to_string<StringT>(dt, timezone(), format);
+    return to_string<StringType>(dt, timezone<StringType>(), format);
 }
 
 /**
@@ -363,22 +394,25 @@ inline StringT to_string (datetime const & dt, StringT const & format)
  *
  * @return The date and time as string.
  */
-template <typename StringT>
-StringT to_string (datetime const & dt)
+template <typename StringType>
+StringType to_string (datetime const & dt)
 {
-  	StringT r = to_string<StringT>(dt.get_date());
+  	StringType r = to_string<StringType>(dt.get_date());
 	r.push_back('T');
-	r.append(to_string<StringT>(dt.get_time()));
+	r.append(to_string<StringType>(dt.get_time()));
 	return r;
 }
 
 datetime current_datetime ();
-system_string timezone_name ();
 long int offset_utc ();
 
-inline timezone current_timezone ()
+template <typename StringType>
+StringType timezone_name ();
+
+template <typename StringType>
+inline timezone<StringType> current_timezone ()
 {
-    return timezone(timezone_name(), offset_utc());
+    return timezone<StringType>(timezone_name<StringType>(), offset_utc());
 }
 
 } // pfs

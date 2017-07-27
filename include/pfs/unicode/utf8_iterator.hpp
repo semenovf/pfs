@@ -63,9 +63,169 @@ public:
     }
 
 protected:
-    static void advance_forward (CodePointIter & p, difference_type n);
-    static void advance_backward (CodePointIter & p, difference_type n);
-    static char_t decode (CodePointIter const & p, CodePointIter * pnewpos);
+    static void advance_forward (CodePointIter & p, difference_type n)
+    {
+        if (n < 0) {
+            advance_backward(p, -n);
+            return;
+        }
+
+        while (n--) {
+            if ((*p & 0x80) == 0x00) {
+                ++p;
+            } else if ((*p & 0xE0) == 0xC0) {
+                p += 2;
+            } else if ((*p & 0xF0) == 0xE0) {
+                p += 3;
+            } else if ((*p & 0xF8) == 0xF0) {
+                p += 4;
+            } else if ((*p & 0xFC) == 0xF8) {
+                p += 5;
+            } else if ((*p & 0xFE) == 0xFC) {
+                p += 6;
+            } else { // Invalid char
+                ++p;
+            }
+        }
+    }
+    
+    static void advance_forward_safe (CodePointIter & p, CodePointIter end, difference_type & n)
+    {
+        if (n < 0) {
+            difference_type n1 = -n;
+            advance_backward_safe(p, end, n1);
+            n += n1;
+            return;
+        }
+
+        while (n-- && p < end) {
+            if ((*p & 0x80) == 0x00) {
+                ++p;
+            } else if ((*p & 0xE0) == 0xC0) {
+                p += 2;
+            } else if ((*p & 0xF0) == 0xE0) {
+                p += 3;
+            } else if ((*p & 0xF8) == 0xF0) {
+                p += 4;
+            } else if ((*p & 0xFC) == 0xF8) {
+                p += 5;
+            } else if ((*p & 0xFE) == 0xFC) {
+                p += 6;
+            } else { // Invalid char
+                ++p;
+            }
+        }
+        
+        if (p > end)
+            throw out_of_range("utf8_iterator::advance_forward_safe()");
+    }
+
+    static void advance_backward (CodePointIter & p, difference_type n)
+    {
+        if (n < 0) {
+            advance_forward(p, -n);
+            return;
+        }
+
+        while (n--) {
+            if ((*(p - 1) & 0x80) == 0x00) {
+                --p;
+            } else if ((*(p - 2) & 0xE0) == 0xC0) {
+                p -= 2;
+            } else if ((*(p - 3) & 0xF0) == 0xE0) {
+                p -= 3;
+            } else if ((*(p - 4) & 0xF8) == 0xF0) {
+                p -= 4;
+            } else if ((*(p - 5) & 0xFC) == 0xF8) {
+                p -= 5;
+            } else if ((*(p - 6) & 0xFE) == 0xFC) {
+                p -= 6;
+            } else {
+                --p;
+            }
+        }
+    }
+    
+    static void advance_backward_safe (CodePointIter & p, CodePointIter begin, difference_type & n)
+    {
+        if (n < 0) {
+            difference_type n1 = -n;
+            advance_forward_safe(p, begin, n1);
+            n += n1;
+            return;
+        }
+
+        while (n-- && p > begin) {
+            if ((*(p - 1) & 0x80) == 0x00) {
+                --p;
+            } else if ((*(p - 2) & 0xE0) == 0xC0) {
+                p -= 2;
+            } else if ((*(p - 3) & 0xF0) == 0xE0) {
+                p -= 3;
+            } else if ((*(p - 4) & 0xF8) == 0xF0) {
+                p -= 4;
+            } else if ((*(p - 5) & 0xFC) == 0xF8) {
+                p -= 5;
+            } else if ((*(p - 6) & 0xFE) == 0xFC) {
+                p -= 6;
+            } else {
+                --p;
+            }
+        }
+        
+        if (p < begin)
+            throw out_of_range("utf8_iterator::advance_backward_safe()");
+    }    
+    
+    static char_t decode (CodePointIter const & p, CodePointIter * pnewpos)
+    {
+        CodePointIter newpos = p;
+        uint8_t b = static_cast<uint8_t> (*newpos);
+        char_t::value_type result;
+        int nunits = 0;
+
+        if (b < 128) {
+            result = b;
+            nunits = 1;
+        } else if ((b & 0xE0) == 0xC0) {
+            result = b & 0x1F;
+            nunits = 2;
+        } else if ((b & 0xF0) == 0xE0) {
+            result = b & 0x0F;
+            nunits = 3;
+        } else if ((b & 0xF8) == 0xF0) {
+            result = b & 0x07;
+            nunits = 4;
+        } else if ((b & 0xFC) == 0xF8) {
+            result = b & 0x03;
+            nunits = 5;
+        } else if ((b & 0xFE) == 0xFC) {
+            result = b & 0x01;
+            nunits = 6;
+        } else {
+            // Invalid
+            throw range_error("utf8_iterator::decode()");
+        }
+
+        ++newpos;
+
+        while (--nunits) {
+            b = static_cast<uint8_t> (*newpos);
+
+            if ((b & 0xC0) == 0x80) {
+                result = (result << 6) | (b & 0x3F);
+            } else {
+                // Invalid
+                throw range_error("utf8_iterator::decode()");
+            }
+            ++newpos;
+        }
+
+        if (pnewpos)
+            *pnewpos = newpos;
+
+        return result;
+    }    
 
 public:
     static void increment (utf8_iterator & it, difference_type)
@@ -83,12 +243,17 @@ public:
         advance_backward(it._p, 1);
     }
     
-public: // static
+public:
+    void advance_safe (CodePointIter end, difference_type & n)
+    {
+        advance_forward_safe(_p, end, n);
+    }
+        
     static void advance (CodePointIter & p, difference_type n)
     {
         advance_forward(p, n);
     }
-    
+
     /**
      * @brief Decodes UTF-8 octet sequence into Unicode code point.
      *
@@ -123,114 +288,9 @@ public: // static
     }
 };
 
-template <typename OctetIt>
-void utf8_iterator<OctetIt>::advance_forward (OctetIt & p, difference_type n)
-{
-    if (n < 0) {
-        advance_backward(p, -n);
-        return;
-    }
-        
-    while (n--) {
-        if ((*p & 0x80) == 0x00) {
-            ++p;
-        } else if ((*p & 0xE0) == 0xC0) {
-            p += 2;
-        } else if ((*p & 0xF0) == 0xE0) {
-        	p += 3;
-        } else if ((*p & 0xF8) == 0xF0) {
-        	p += 4;
-        } else if ((*p & 0xFC) == 0xF8) {
-        	p += 5;
-        } else if ((*p & 0xFE) == 0xFC) {
-        	p += 6;
-        } else { // Invalid char
-            ++p;
-        }
-    }
-}
-
-template <typename OctetIt>
-void utf8_iterator<OctetIt>::advance_backward (OctetIt & p, difference_type n)
-{
-    if (n < 0) {
-        advance_forward(p, -n);
-        return;
-    }
-
-    while (n--) {
-        if ((*(p - 1) & 0x80) == 0x00) {
-            --p;
-        } else if ((*(p - 2) & 0xE0) == 0xC0) {
-            p -= 2;
-        } else if ((*(p - 3) & 0xF0) == 0xE0) {
-            p -= 3;
-        } else if ((*(p - 4) & 0xF8) == 0xF0) {
-            p -= 4;
-        } else if ((*(p - 5) & 0xFC) == 0xF8) {
-            p -= 5;
-        } else if ((*(p - 6) & 0xFE) == 0xFC) {
-            p -= 6;
-        } else {
-            --p;
-        }
-    }
-}
-
-template <typename OctetIt>
-char_t utf8_iterator<OctetIt>::decode (OctetIt const & p, OctetIt * pnewpos)
-{
-    OctetIt newpos = p;
-	uint8_t b = static_cast<uint8_t>(*newpos);
-	char_t::value_type result;
-    int nunits = 0;
-
-    if (b < 128) {
-    	result = b;
-        nunits = 1;
-    } else if ((b & 0xE0) == 0xC0) {
-    	result = b & 0x1F;
-        nunits = 2;
-    } else if ((b & 0xF0) == 0xE0) {
-    	result = b & 0x0F;
-    	nunits = 3;
-    } else if ((b & 0xF8) == 0xF0) {
-    	result = b & 0x07;
-    	nunits = 4;
-    } else if ((b & 0xFC) == 0xF8) {
-    	result = b & 0x03;
-    	nunits = 5;
-    } else if ((b & 0xFE) == 0xFC) {
-    	result = b & 0x01;
-    	nunits = 6;
-    } else {
-    	// Invalid
-    	throw out_of_range("utf8_iterator::decode()");
-    }
-
-    ++newpos;
-
-    while (--nunits) {
-    	b = static_cast<uint8_t>(*newpos);
-
-        if ((b & 0xC0) == 0x80) {
-        	result = (result << 6) | (b & 0x3F);
-        } else {
-        	// Invalid
-        	throw out_of_range("utf8_iterator::decode()");
-        }
-    	++newpos;
-    }
-
-    if (pnewpos)
-        *pnewpos = newpos;
-    
-    return result;
-}
-
-template <typename OctetIt>
+template <typename CodePointIter>
 template <typename BackInsertIt>
-BackInsertIt utf8_iterator<OctetIt>::encode (char_t uc, BackInsertIt it)
+BackInsertIt utf8_iterator<CodePointIter>::encode (char_t uc, BackInsertIt it)
 {
     if (uc.value < 0x80) {
         *it++ = uint8_t(uc.value);

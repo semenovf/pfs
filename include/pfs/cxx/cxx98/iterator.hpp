@@ -304,6 +304,10 @@ advance (InputIt & it, typename pfs::iterator_traits<InputIt>::difference_type n
 
 #if __cplusplus < 201103L
 
+template <typename Iterator>
+struct reverse_iterator : public std::reverse_iterator<Iterator>
+{};
+
 template <typename Container>
 inline std::back_insert_iterator<Container> 
 back_inserter (Container & c)

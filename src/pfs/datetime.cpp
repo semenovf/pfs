@@ -9,7 +9,7 @@
 
 namespace pfs {
 
-void datetime::set_date (const date & d)
+void datetime::set_date (date const & d)
 {
     _date = d;
 
@@ -92,27 +92,6 @@ intmax_t datetime::to_intmax () const
 			+ intmax_t(10000) * h + intmax_t(100) * m + s;
 
 	return r;
-}
-
-system_string timezone::offset_to_string (long int off)
-{
-    int sign = 1;
-
-    if (off < 0) {
-        off *= -1;
-        sign = -1;
-    }
-
-    int h = off / 3600;
-    int m = (off - h * 3600) / 60;
-
-    system_string sign_str = sign < 0
-            ? system_string(1, '-')
-            : system_string(1, '+');
-
-    return sign_str
-            + to_string<system_string>(h, 2, 10, true, system_string::value_type('0'))
-            + to_string<system_string>(m, 2, 10, true, system_string::value_type('0')); //"-%02u%02u"
 }
 
 } // pfs

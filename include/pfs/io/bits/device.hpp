@@ -8,8 +8,9 @@
 #ifndef __PFS_IO_BITS_DEVICE_HPP__
 #define __PFS_IO_BITS_DEVICE_HPP__
 
-#include <pfs/system_string.hpp>
+#include <pfs/types.hpp>
 #include <pfs/io/exception.hpp>
+#include <pfs/filesystem.hpp>
 
 namespace pfs { namespace io {
 
@@ -53,7 +54,8 @@ struct device_context
 class basic_device
 {
 public:
-	typedef device_context context_type;
+	typedef device_context                context_type;
+    typedef filesystem::path::string_type system_string;
 
 protected:
 	context_type * _ctx;
@@ -74,7 +76,7 @@ public:
     	return _ctx;
     }
 
-    const context_type * context () const
+    context_type * const context () const
     {
     	return _ctx;
     }
@@ -92,10 +94,11 @@ public:
 class device : public basic_device
 {
 public:
-	typedef bits::native_handle_type native_handle_type;
-	typedef uint32_t       open_mode_flags;
-	typedef open_mode_enum open_mode_type;
-	typedef device_context info_type;
+	typedef bits::native_handle_type    native_handle_type;
+	typedef uint32_t                    open_mode_flags;
+	typedef open_mode_enum              open_mode_type;
+	typedef device_context              info_type;
+    typedef basic_device::system_string system_string;
 
 public:
 	device ()

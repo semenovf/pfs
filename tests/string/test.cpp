@@ -12,39 +12,43 @@
 #include <sstream>
 #include <pfs/test/test.hpp>
 #include <pfs/string.hpp>
+#include <pfs/limits.hpp>
 #include <pfs/traits/stdcxx/string.hpp>
+
+// TODO Delete line below
+#undef QT_CORE_LIB
 
 // Enabled by `qt_enable`
 #ifdef QT_CORE_LIB
 #   include <pfs/traits/qt/string.hpp>
 #endif
 
-template <typename CharT>
+template <typename ConstPointer>
 char const * stringify_string_impl ();
 
 template <>
-inline char const * stringify_string_impl<char> ()
+inline char const * stringify_string_impl<char const *> ()
 { return "char"; }
 
 template <>
-inline char const * stringify_string_impl<wchar_t> ()
+inline char const * stringify_string_impl<wchar_t const *> ()
 { return "wchar_t"; }
 
 
 #ifdef QT_CORE_LIB
 
 template <>
-inline char const * stringify_string_impl<QChar> ()
+inline char const * stringify_string_impl<QChar const *> ()
 { return "QChar"; }
 
 #endif
 
-template <typename CharT>
+template <typename ConstPointer>
 void test_description (char const * title)
 {
     std::cout << "================================================================================\n"
             << title << ": string implemented using <" 
-            << stringify_string_impl<CharT>() << "> ==="
+            << stringify_string_impl<ConstPointer>() << "> ==="
             << std::endl
             << "================================================================================\n";
 }
@@ -60,11 +64,14 @@ void test_description (char const * title)
 #define STR_EMPTY   5
 #define STR_CONCAT  6
 
-template <typename CharT>
-CharT const * string_samples (int i);
+template <typename ConstPointer>
+ConstPointer string_samples (int i);
+
+template <typename ConstPointer>
+ConstPointer string_samples_ru (int i);
 
 template <>
-char const * string_samples<char> (int i)
+char const * string_samples<char const *> (int i)
 {
     static char const * s[] = {
           "ABCDEF"
@@ -80,7 +87,23 @@ char const * string_samples<char> (int i)
 }
 
 template <>
-wchar_t const * string_samples<wchar_t> (int i)
+char const * string_samples_ru<char const *> (int i)
+{
+    static char const * s[] = {
+          "АБВГДE"
+        , "АБВГДE"
+        , "АБВГД"
+        , "БВГДE"
+        , "БВГД"
+        , ""
+        , "АБВГДEАБВГДE"
+    };
+    
+    return s[i];
+}
+
+template <>
+wchar_t const * string_samples<wchar_t const *> (int i)
 {
     static wchar_t const * s[] = {
           L"ABCDEF"
@@ -97,7 +120,7 @@ wchar_t const * string_samples<wchar_t> (int i)
 
 #ifdef QT_CORE_LIB
 template <>
-QChar const * string_samples<QChar> (int i)
+QChar const * string_samples<QChar const *> (int i)
 {
     static QString s[] = {
           QString("ABCDEF")
@@ -129,12 +152,12 @@ int main (int argc, char *argv[])
 
     BEGIN_TESTS(0);
 
-    test_basic<pfs::traits::stdcxx::string>();
-    test_basic<pfs::traits::stdcxx::wstring>();
+//    test_basic<pfs::traits::stdcxx::string>();
+//    test_basic<pfs::traits::stdcxx::wstring>();
 //    test_find<pfs::traits::stdcxx::string>();
 //    test_find<pfs::traits::stdcxx::wstring>();
     test_substr<pfs::traits::stdcxx::string>();
-    test_substr<pfs::traits::stdcxx::wstring>();
+//    test_substr<pfs::traits::stdcxx::wstring>();
 //    test_c_str_cast<std::string>();
 ////    test_c_str_cast<std::wstring>();    // TODO
 //    test_compare<std::string>();
@@ -147,12 +170,12 @@ int main (int argc, char *argv[])
 //
 //    test_append<std::string>();
 //    test_append<std::wstring>();
-    test_to_string<pfs::traits::stdcxx::string>();
+//    test_to_string<pfs::traits::stdcxx::string>();
 
 #ifdef QT_CORE_LIB
-    test_basic<pfs::traits::qt::string>();
+//    test_basic<pfs::traits::qt::string>();
 //    test_find<pfs::traits::qt::string>();
-    test_substr<pfs::traits::qt::string>();
+//    test_substr<pfs::traits::qt::string>();
 //    test_c_str_cast<QString>();
 //    
 //    test_compare<QString>();
@@ -160,7 +183,7 @@ int main (int argc, char *argv[])
 //    
 //    test_erase<QString>();
 //    test_append<QString>();
-    test_to_string<pfs::traits::qt::string>();
+//    test_to_string<pfs::traits::qt::string>();
 #endif
 
     return END_TESTS;

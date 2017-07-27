@@ -28,7 +28,7 @@ namespace pfs {
 class dynamic_library
 {
 public:
-    typedef filesystem::path::string_type string_type;
+    typedef filesystem::path::string_type system_string;
     
 #ifdef PFS_CC_MSC
 	typedef HMODULE native_handle_type;

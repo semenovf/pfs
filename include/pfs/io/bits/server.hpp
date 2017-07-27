@@ -28,6 +28,7 @@ namespace pfs { namespace io { namespace bits {
 struct server : public basic_device
 {
 	typedef device::native_handle_type native_handle_type;
+    typedef device::system_string      system_string;
 
     server ()
 		: basic_device()
