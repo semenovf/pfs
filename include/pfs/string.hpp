@@ -858,6 +858,62 @@ inline StringType to_string (double a
             , fill_char);
 }
 
+template <typename StringType>
+inline StringType left_justified (StringType const & s
+        , int width
+        , typename StringType::value_type fill_char = typename StringType::value_type(' ')
+        , bool trancate = false)
+{
+    if (width < 0)
+        return right_justified(s, -1 * width, fill_char, trancate);
+        
+    // TODO Implement left-aligned text (field_width is negative)
+    if (width > 0 && s.size() < static_cast<size_t>(width)) {
+        if (value < 0 && !pfs::is_space(fill_char)) { // -000000123
+            return StringType(1, '-') 
+                    + StringType(static_cast<size_t>(field_width) - s.size() - 1, fill_char)
+                    + StringType(s.cbegin() + 1, s.cend()); // ignore sign
+        } else { // -123, 123, _______-123, ________123
+            return StringType(static_cast<size_t>(field_width) - s.size(), fill_char) + s;
+        }
+    }
+}
+
+template <typename StringType>
+inline StringType right_justified (StringType const & s
+        , int width
+        , typename StringType::value_type fill_char = typename StringType::value_type(' ')
+        , bool trancate = false)
+{
+    if (width < 0)
+        return left_justified(s, -1 * width, fill_char, trancate);
+
+    // TODO Implement left-aligned text (field_width is negative)
+    if (width > 0 && s.size() < static_cast<size_t>(width)) {
+        if (value < 0 && !pfs::is_space(fill_char)) { // -000000123
+            return StringType(1, '-') 
+                    + StringType(static_cast<size_t>(field_width) - s.size() - 1, fill_char)
+                    + StringType(s.cbegin() + 1, s.cend()); // ignore sign
+        } else { // -123, 123, _______-123, ________123
+            return StringType(static_cast<size_t>(field_width) - s.size(), fill_char) + s;
+        }
+    }
+    
+    return s;
+}
+
+template <typename StringType>
+inline StringType justified (StringType const & s
+        , int width
+        , typename StringType::value_type fill_char = typename StringType::value_type(' ')
+        , bool trancate = false)
+{
+    if (width < 0)
+        return left_justified(s, -1 * width, fill_char, trancate);
+    
+    return right_justified(s, width, fill_char, trancate);
+}
+
 } // pfs
 
 #endif /* __PFS_STRING_HPP__ */

@@ -81,6 +81,14 @@ class safeformat
         {}
     };
     
+    struct base_stringifier
+    {
+        virtual string stringify_int (int /*base*/, bool /*uppercase*/, bool /*is_unsigned*/) const = 0;
+        virtual string stringify_float ( char f, int prec) const = 0;
+        virtual string stringify_char () const = 0;
+        virtual string stringify_string () const = 0;
+        virtual ~__sf_base_traits () {}
+    };
     
     // Stores intermediate result (and complete at the ends)
     string_type    _result;
@@ -102,7 +110,7 @@ private:
     {
         parse_regular_chars();
         
-        if (_p != _end && to_ascii<value_type>(*_p) != '%') {
+        if (_p != _end && to_ascii<value_type>(*_p) == '%') {
             conversion_specification conv_spec;
             parse_conversion_specification(& conv_spec);
             
@@ -430,38 +438,42 @@ private:
     }
 
 public:
-    safeformat & operator() (char c);
-    safeformat & operator() (signed char n);
-    safeformat & operator() (unsigned char n);
-    safeformat & operator() (short n);
-    safeformat & operator() (unsigned short n);
-    safeformat & operator() (int n);
-    safeformat & operator() (unsigned int n);
-    safeformat & operator() (long n);
-    safeformat & operator() (unsigned long n);
+    safeformat & operator () (char c)
+    {
+        advance();
+    }
+    
+    safeformat & operator () (signed char n);
+    safeformat & operator () (unsigned char n);
+    safeformat & operator () (short n);
+    safeformat & operator () (unsigned short n);
+    safeformat & operator () (int n);
+    safeformat & operator () (unsigned int n);
+    safeformat & operator () (long n);
+    safeformat & operator () (unsigned long n);
 
 #ifdef PFS_HAVE_LONG_LONG
-    safeformat & operator() (long long n);
-    safeformat & operator() (unsigned long long n);
+    safeformat & operator () (long long n);
+    safeformat & operator () (unsigned long long n);
 #endif
 
-    safeformat & operator() (float n);
-    safeformat & operator() (double n);
+    safeformat & operator () (float n);
+    safeformat & operator () (double n);
 
 #ifdef PFS_HAVE_LONG_DOUBLE
-    safeformat & operator() (long double n);
+    safeformat & operator () (long double n);
 #endif
 
     //	safeformat & operator () (typename string_type::value_type c);
-    safeformat & operator() (string_type const & s);
+    safeformat & operator () (string_type const & s);
 
-    safeformat & operator() (char const * s)
+    safeformat & operator () (char const * s)
     {
         string_type ss(s);
         return operator() (ss);
     }
 
-    safeformat & operator() (void const * p);
+    safeformat & operator () (void const * p);
 
     string_type const & operator() ()
     {
@@ -472,17 +484,17 @@ public:
     //--- boost-like operators
     //	safeformat & operator % (char c)               { return operator () (c); }
 
-    safeformat & operator% (signed char n)
+    safeformat & operator % (signed char n)
     {
         return operator() (n);
     }
 
-    safeformat & operator% (unsigned char n)
+    safeformat & operator % (unsigned char n)
     {
         return operator() (n);
     }
 
-    safeformat & operator% (short n)
+    safeformat & operator % (short n)
     {
         return operator() (n);
     }
@@ -492,17 +504,17 @@ public:
         return operator() (n);
     }
 
-    safeformat & operator% (int n)
+    safeformat & operator % (int n)
     {
         return operator() (n);
     }
 
-    safeformat & operator% (unsigned int n)
+    safeformat & operator % (unsigned int n)
     {
         return operator() (n);
     }
 
-    safeformat & operator% (long n)
+    safeformat & operator % (long n)
     {
         return operator() (n);
     }
@@ -514,30 +526,30 @@ public:
 
 #ifdef PFS_HAVE_LONG_LONG
 
-    safeformat & operator% (long long n)
+    safeformat & operator % (long long n)
     {
         return operator() (n);
     }
 
-    safeformat & operator% (unsigned long long n)
+    safeformat & operator % (unsigned long long n)
     {
         return operator() (n);
     }
 #endif
 
-    safeformat & operator% (float n)
+    safeformat & operator % (float n)
     {
         return operator() (n);
     }
 
-    safeformat & operator% (double n)
+    safeformat & operator % (double n)
     {
         return operator() (n);
     }
 
 #ifdef PFS_HAVE_LONG_DOUBLE
 
-    safeformat & operator% (long double n)
+    safeformat & operator % (long double n)
     {
         return operator() (n);
     }
@@ -545,17 +557,17 @@ public:
 
     //	safeformat & operator % (typename string_type::value_type c) { return operator () (c); }
 
-    safeformat & operator% (string_type const & s)
+    safeformat & operator % (string_type const & s)
     {
         return operator() (s);
     }
 
-    safeformat & operator% (const char * s)
+    safeformat & operator % (const char * s)
     {
         return operator() (s);
     }
 
-    safeformat & operator% (void const * p)
+    safeformat & operator % (void const * p)
     {
         return operator() (p);
     }
