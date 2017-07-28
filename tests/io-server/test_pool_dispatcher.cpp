@@ -13,12 +13,13 @@
 #include <pfs/io/pool.hpp>
 #include <pfs/traits/stdcxx/vector.hpp>
 #include <pfs/traits/stdcxx/map.hpp>
-#include <pfs/system_string.hpp>
 #include <iostream>
+
+typedef pfs::io::device::system_string system_string;
 
 #define BUFFER_SIZE 1
 #define NCLIENTS    10
-#define SERVER_ADDR pfs::system_string("127.0.0.1")
+#define SERVER_ADDR system_string("127.0.0.1")
 #define SERVER_PORT 10299
 #define SERVER_BACKLOG 10
 

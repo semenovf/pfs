@@ -165,11 +165,11 @@ UintT __string_to_uint (CharIteratorT beginpos
             }
 
             if (pfs::is_digit(c))
-                digit = c - value_type('0');
+                digit = pfs::to_ascii(c) - '0';
             else if (pfs::is_lower(c))
-                digit = c - value_type('a') + 10;
+                digit = pfs::to_ascii(c) - 'a' + 10;
             else if (pfs::is_upper(c))
-                digit = c - value_type('A') + 10;
+                digit = pfs::to_ascii(c) - 'A' + 10;
             else
                 break;
 

@@ -26,7 +26,7 @@ void __test_encode (char const * itertype)
 
 		while (it < it_end) {
 			uc = pfs::unicode::utf8_iterator<OctetIt>::decode(it);
-			pfs::unicode::utf8_iterator<OctetIt>::encode(uc, std::back_inserter(result));
+			pfs::unicode::utf8_iterator<OctetIt>::encode(uc, pfs::back_inserter(result));
 		}
 
 		std::ostringstream desc;

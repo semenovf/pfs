@@ -1,7 +1,7 @@
 #include <cstdio>
 #include <cstdlib>
+#include <string>
 #include <pfs/test/test.hpp>
-#include <pfs/system_string.hpp>
 #include <pfs/net/inet4_addr.hpp>
 
 #include <iostream>
@@ -20,7 +20,7 @@ using std::endl;
 //                  ? "0x" : base == 8 ? "0" : "";
 //}
 
-static pfs::system_string build_inet_addr_str (int addrClass
+static std::string build_inet_addr_str (int addrClass
         , uint32_t a
         , uint32_t b
         , uint32_t c
@@ -79,7 +79,7 @@ static pfs::system_string build_inet_addr_str (int addrClass
     	}
     }
 
-    return pfs::system_string(buffer);
+    return std::string(buffer);
 }
 
 
@@ -108,9 +108,9 @@ bool test_check_valid (int addrClass, int ntests)
             return false;
         }
 
-        pfs::system_string addrDecStr = build_inet_addr_str(addrClass, a, b, c, d, 10);
-        pfs::system_string addrOctStr = build_inet_addr_str(addrClass, a, b, c, d, 8);
-        pfs::system_string addrHexStr = build_inet_addr_str(addrClass, a, b, c, d, 16);
+        std::string addrDecStr = build_inet_addr_str(addrClass, a, b, c, d, 10);
+        std::string addrOctStr = build_inet_addr_str(addrClass, a, b, c, d, 8);
+        std::string addrHexStr = build_inet_addr_str(addrClass, a, b, c, d, 16);
 
         inet4_addr addrDec(addrDecStr);
         inet4_addr addrOct(addrOctStr);
@@ -136,18 +136,17 @@ bool test_check_valid (int addrClass, int ntests)
     return ok;
 }
 
-
-bool test_check_to_string (pfs::system_string const & format, int ntests)
+bool test_check_to_string (std::string const & format, int ntests)
 {
     bool ok = true;
 
-    int addrClass = format.starts_with(pfs::system_string("%a.%b.%c.%d"))
+    int addrClass = format.find("%a.%b.%c.%d") == 0
             ? 4
-            : format.starts_with(pfs::system_string("%a.%b.%C"))
+            : format.find("%a.%b.%C") == 0
                   ? 3
-                  : format.starts_with(pfs::system_string("%a.%B"))
+                  : format.find("%a.%B") == 0
                         ? 2
-                        : format.starts_with(pfs::system_string("%A"))
+                        : format.find("%A") == 0
                               ? 1 : 0;
 
 
@@ -172,17 +171,17 @@ bool test_check_to_string (pfs::system_string const & format, int ntests)
             return false;
         }
 
-        pfs::system_string addrDecStr = build_inet_addr_str(addrClass, a, b, c, d, 10);
-        pfs::system_string addrOctStr = build_inet_addr_str(addrClass, a, b, c, d, 8);
-        pfs::system_string addrHexStr = build_inet_addr_str(addrClass, a, b, c, d, 16);
+        std::string addrDecStr = build_inet_addr_str(addrClass, a, b, c, d, 10);
+        std::string addrOctStr = build_inet_addr_str(addrClass, a, b, c, d, 8);
+        std::string addrHexStr = build_inet_addr_str(addrClass, a, b, c, d, 16);
 
         inet4_addr addrDec(addrDecStr);
         inet4_addr addrOct(addrOctStr);
         inet4_addr addrHex(addrHexStr);
 
-        pfs::system_string addrDecStr1 = pfs::to_string(addrDec, format, 10);
-        pfs::system_string addrOctStr1 = pfs::to_string(addrOct, format, 8);
-        pfs::system_string addrHexStr1 = pfs::to_string(addrHex, format, 16);
+        std::string addrDecStr1 = pfs::to_string(addrDec, format, 10);
+        std::string addrOctStr1 = pfs::to_string(addrOct, format, 8);
+        std::string addrHexStr1 = pfs::to_string(addrHex, format, 16);
 
 //        cout << addrDecStr << ' ' << addrOctStr << ' ' << addrHexStr << endl;
 //        cout << addrDec.addrData() << endl;
@@ -216,23 +215,23 @@ int main(int argc, char *argv[])
     static const int CHECK_VALID_NTESTS  = 10000;
     static const int CHECK_STRING_NTESTS = 10000;
     static const char * addrClassesStr[] = { "", "%A", "%a.%B", "%a.%b.%C", "%a.%b.%c.%d" };
-    pfs::system_string msg;
+    std::string msg;
 
     for (int i = 1; i < 5; ++i) {
         msg.clear();
 
-        msg.append(pfs::to_string<pfs::system_string>(CHECK_VALID_NTESTS));
+        msg.append(pfs::to_string<std::string>(CHECK_VALID_NTESTS));
         msg.append(" random IP addresses (");
         msg.append(addrClassesStr[i]);
         msg.append(" format)");
 
-        TEST_OK2(test_check_valid(i, CHECK_VALID_NTESTS), msg.native().c_str());
+        TEST_OK2(test_check_valid(i, CHECK_VALID_NTESTS), msg.c_str());
     }
 
-    TEST_OK(test_check_to_string(pfs::system_string("%a.%b.%c.%d") , CHECK_STRING_NTESTS));
-    TEST_OK(test_check_to_string(pfs::system_string("%a.%b.%C")    , CHECK_STRING_NTESTS));
-    TEST_OK(test_check_to_string(pfs::system_string("%a.%B")       , CHECK_STRING_NTESTS));
-    TEST_OK(test_check_to_string(pfs::system_string("%A")          , CHECK_STRING_NTESTS));
+    TEST_OK(test_check_to_string(std::string("%a.%b.%c.%d") , CHECK_STRING_NTESTS));
+    TEST_OK(test_check_to_string(std::string("%a.%b.%C")    , CHECK_STRING_NTESTS));
+    TEST_OK(test_check_to_string(std::string("%a.%B")       , CHECK_STRING_NTESTS));
+    TEST_OK(test_check_to_string(std::string("%A")          , CHECK_STRING_NTESTS));
 
     return END_TESTS;
 }

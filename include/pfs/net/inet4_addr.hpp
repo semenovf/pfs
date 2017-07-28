@@ -2,6 +2,7 @@
 #define __PFS_NET_INET4_ADDR_HPP__
 
 #include <pfs/utility.hpp>
+#include <pfs/string.hpp>
 #include <pfs/lexical_cast.hpp>
 #include <pfs/algo/split.hpp>
 #include <pfs/traits/stdcxx/list.hpp>
@@ -106,12 +107,12 @@ public:
      *
      * @param s String representing the IPv4 address.
      */
-    template <typename StringT>
-    inet4_addr (StringT const & s)
+    template <typename StringType>
+    inet4_addr (StringType const & s)
         : _addr(invalid_addr_value)
     {
-        typedef traits::stdcxx::list<StringT> stringlist;
-        StringT separator(".");
+        typedef traits::stdcxx::list<StringType> stringlist;
+        StringType separator(".");
         stringlist sl;
 
         if (s.empty())
@@ -128,7 +129,7 @@ public:
 
             typename stringlist::const_iterator it0 = sl.cbegin();
             
-            if (parse_part<StringT>(A, 0xFFFFFFFF, it0->cbegin(), it0->cend())) {
+            if (parse_part<StringType>(A, 0xFFFFFFFF, it0->cbegin(), it0->cend())) {
                 inet4_addr other(A);
                 this->swap(other);
             }
@@ -145,8 +146,8 @@ public:
             
             ++it1;
 
-            if (parse_part<StringT>(a, 0xFF, it0->cbegin(), it0->cend())
-                    && parse_part<StringT>(B, 0x00FFFFFF, it1->cbegin(), it1->cend())) {
+            if (parse_part<StringType>(a, 0xFF, it0->cbegin(), it0->cend())
+                    && parse_part<StringType>(B, 0x00FFFFFF, it1->cbegin(), it1->cend())) {
 
                 inet4_addr other(static_cast<uint8_t>(a), B);
                 this->swap(other);
@@ -167,9 +168,9 @@ public:
             ++it1;
             ++(++it2);
 
-            if (parse_part<StringT>(a, 0xFF, it0->cbegin(), it0->cend())
-                    && parse_part<StringT>(b, 0xFF, it1->cbegin(), it1->cend())
-                    && parse_part<StringT>(C, 0x0000FFFF, it2->cbegin(), it2->cend())) {
+            if (parse_part<StringType>(a, 0xFF, it0->cbegin(), it0->cend())
+                    && parse_part<StringType>(b, 0xFF, it1->cbegin(), it1->cend())
+                    && parse_part<StringType>(C, 0x0000FFFF, it2->cbegin(), it2->cend())) {
 
                 inet4_addr other(static_cast<uint8_t>(a)
                         , static_cast<uint8_t>(b)
@@ -195,10 +196,10 @@ public:
             ++(++it2);
             ++(++(++it3));
 
-            if (parse_part<StringT>(a, 0xFF, it0->cbegin(), it0->cend())
-                    && parse_part<StringT>(b, 0xFF, it1->cbegin(), it1->cend())
-                    && parse_part<StringT>(c, 0xFF, it2->cbegin(), it2->cend())
-                    && parse_part<StringT>(d, 0xFF, it3->cbegin(), it3->cend())) {
+            if (parse_part<StringType>(a, 0xFF, it0->cbegin(), it0->cend())
+                    && parse_part<StringType>(b, 0xFF, it1->cbegin(), it1->cend())
+                    && parse_part<StringType>(c, 0xFF, it2->cbegin(), it2->cend())
+                    && parse_part<StringType>(d, 0xFF, it3->cbegin(), it3->cend())) {
 
                 inet4_addr other(static_cast<uint8_t>(a)
                         , static_cast<uint8_t>(b)
@@ -245,16 +246,16 @@ public:
      * @param port Reference to store resulting port.
      * @return @c true on successful parsing, @c false otherwise.
      */
-    template <typename StringT>
-    static bool parse (StringT const & s
-            , StringT * proto
+    template <typename StringType>
+    static bool parse (StringType const & s
+            , StringType * proto
             , inet4_addr * ip
             , uint16_t * port)
     {
-        typedef traits::stdcxx::list<StringT> stringlist;
+        typedef traits::stdcxx::list<StringType> stringlist;
         
         stringlist sl;
-        pfs::split(s, StringT("://"), true, sl);
+        pfs::split(s, StringType("://"), true, sl);
 
         if (sl.size() != 2)
             return false;
@@ -265,9 +266,9 @@ public:
         if (proto)
             *proto = sl[0];
 
-        StringT tail = sl[1];
+        StringType tail = sl[1];
         sl.clear();
-        pfs::split(tail, StringT(":"), true, sl);
+        pfs::split(tail, StringType(":"), true, sl);
 
         if (sl.size() != 2)
             return false;
@@ -291,16 +292,16 @@ public:
     }
     
 private:
-    template <typename StringT>
+    template <typename StringType>
     static bool parse_part (uint32_t & result
             , uint32_t maxvalue
-            , typename StringT::const_iterator begin
-            , typename StringT::const_iterator end)
+            , typename StringType::const_iterator begin
+            , typename StringType::const_iterator end)
     {
         uint32_t r = 0;
 
         try {
-            r = lexical_cast<uint32_t>(StringT(begin, end));
+            r = lexical_cast<uint32_t>(StringType(begin, end));
         } catch (bad_lexical_cast) {
             return false;
         }
@@ -488,8 +489,8 @@ namespace pfs {
 
 namespace details {
 
-template <typename StringT>
-void append_number_prefix (StringT & r, StringT const & a, int base)
+template <typename StringType>
+void append_number_prefix (StringType & r, StringType const & a, int base)
 {
 	if (base == 16) {
 		size_t len = a.length();
@@ -509,8 +510,8 @@ void append_number_prefix (StringT & r, StringT const & a, int base)
 	}
 }
 
-template <typename StringT>
-void append_number_prefix (StringT & r, int base)
+template <typename StringType>
+void append_number_prefix (StringType & r, int base)
 {
 	if (base == 16)
 		r.append("0x");
@@ -558,20 +559,20 @@ void append_number_prefix (StringT & r, int base)
  *
  *
  */
-template <typename StringT>
-StringT to_string (net::inet4_addr const & addr
-        , StringT const & format
+template <typename StringType>
+StringType to_string (net::inet4_addr const & addr
+        , StringType const & format
         , int base)
 {
-    typedef typename StringT::value_type char_type;
-	static const StringT __default_format("%a.%b.%c.%d");
+    typedef typename StringType::value_type char_type;
+	static const StringType __default_format("%a.%b.%c.%d");
 
-	StringT r;
+	StringType r;
 
 	if (!addr)
-		return StringT();
+		return StringType();
 
-	StringT const * f = 0;
+	StringType const * f = 0;
 
 	if (format.empty()) {
 		f = & __default_format;
@@ -583,19 +584,19 @@ StringT to_string (net::inet4_addr const & addr
 		base = 10;
 	}
 
-	typename StringT::const_iterator it = f->cbegin();
-	typename StringT::const_iterator it_end = f->cend();
+	typename StringType::const_iterator it = f->cbegin();
+	typename StringType::const_iterator it_end = f->cend();
 
 	bool uppercase = true;
 
 	uint32_t native = addr.native();
-	StringT A = to_string<StringT>(native, base, uppercase);
-	StringT B = to_string<StringT>(0x00FFFFFF & native, base, uppercase);
-	StringT C = to_string<StringT>(0x0000FFFF & native, base, uppercase);
-	StringT a = to_string<StringT>(static_cast<uint8_t>(0x000000FF & (native >> 24)), base, uppercase);
-	StringT b = to_string<StringT>(static_cast<uint8_t>(0x000000FF & (native >> 16)), base, uppercase);
-	StringT c = to_string<StringT>(static_cast<uint8_t>(0x000000FF & (native >> 8)), base, uppercase);
-	StringT d = to_string<StringT>(static_cast<uint8_t>(0x000000FF & native), base, uppercase);
+	StringType A = to_string<StringType>(native, base, uppercase);
+	StringType B = to_string<StringType>(0x00FFFFFF & native, base, uppercase);
+	StringType C = to_string<StringType>(0x0000FFFF & native, base, uppercase);
+	StringType a = to_string<StringType>(static_cast<uint8_t>(0x000000FF & (native >> 24)), base, uppercase);
+	StringType b = to_string<StringType>(static_cast<uint8_t>(0x000000FF & (native >> 16)), base, uppercase);
+	StringType c = to_string<StringType>(static_cast<uint8_t>(0x000000FF & (native >> 8)), base, uppercase);
+	StringType d = to_string<StringType>(static_cast<uint8_t>(0x000000FF & native), base, uppercase);
 
 	while (it != it_end) {
 		if (*it == char_type('%')) {
@@ -606,25 +607,25 @@ StringT to_string (net::inet4_addr const & addr
 			}
 
 			if (*it == char_type('a')) {
-				details::append_number_prefix<StringT>(r, a, base);
+				details::append_number_prefix<StringType>(r, a, base);
 				r.append(a);
 			} else if (*it == char_type('b')) {
-				details::append_number_prefix<StringT>(r, b, base);
+				details::append_number_prefix<StringType>(r, b, base);
 				r.append(b);
             } else if (*it == char_type('c')) {
-				details::append_number_prefix<StringT>(r, c, base);
+				details::append_number_prefix<StringType>(r, c, base);
 				r.append(c);
             } else if (*it == char_type('d')) {
-				details::append_number_prefix<StringT>(r, d, base);
+				details::append_number_prefix<StringType>(r, d, base);
 				r.append(d);
             } else if (*it == char_type('A')) {
-				details::append_number_prefix<StringT>(r, base);
+				details::append_number_prefix<StringType>(r, base);
 				r.append(A);
             } else if (*it == char_type('B')) {
-				details::append_number_prefix<StringT>(r, base);
+				details::append_number_prefix<StringType>(r, base);
 				r.append(B);
             } else if (*it == char_type('C')) {
-				details::append_number_prefix<StringT>(r, base);
+				details::append_number_prefix<StringType>(r, base);
 				r.append(C);
             } else {
 				r.push_back(*it);
@@ -647,9 +648,9 @@ StringT to_string (net::inet4_addr const & addr
  * @return String representation of IPv4 address. If @a addr is not valid
  *      result will be an empty string.
  */
-template <typename StringT>
-inline StringT to_string (net::inet4_addr const & addr
-        , StringT const & format)
+template <typename StringType>
+inline StringType to_string (net::inet4_addr const & addr
+        , StringType const & format)
 {
 	return to_string(addr, format, 10);
 }
@@ -661,10 +662,10 @@ inline StringT to_string (net::inet4_addr const & addr
  * @return String representation of IPv4 address. If @a addr is not valid
  *         result will be an empty string.
  */
-template <typename StringT>
-inline StringT to_string (net::inet4_addr const & addr)
+template <typename StringType>
+inline StringType to_string (net::inet4_addr const & addr)
 {
-	return to_string(addr, StringT(), 10);
+	return to_string(addr, StringType(), 10);
 }
 
 } //pfs

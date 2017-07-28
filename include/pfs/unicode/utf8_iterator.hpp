@@ -48,6 +48,10 @@ private:
     char_t * operator -> () const; // avoid '->' operator
         
 public:
+    utf8_iterator ()
+        : _p(0)
+    {}
+    
     utf8_iterator (CodePointIter p)
         : _p(p)
     {}
@@ -58,6 +62,11 @@ public:
     }
     
     operator CodePointIter ()
+    {
+        return _p;
+    }
+    
+    CodePointIter base () const
     {
         return _p;
     }

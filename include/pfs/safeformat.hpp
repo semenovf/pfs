@@ -12,8 +12,11 @@
 #include <pfs/ctype.hpp>
 #include <pfs/string.hpp>
 #include <pfs/limits.hpp>
-#include <pfs/iterator.hpp>
-#include <pfs/lexical_cast/strtoint.hpp>
+#include <pfs/exception.hpp>
+
+//
+// [Formatted Output](http://www.qnx.com/developers/docs/6.5.0/topic/com.qnx.doc.dinkum_en_c99/lib_prin.html)
+//
 
 /* Conversion specification grammar
  *==============================================================================
@@ -45,6 +48,56 @@ enum safeformat_compat
       safeformat_compat_gcc = 0
     , safeformat_compat_msc
     , safeformat_compat_msvc = safeformat_compat_msc
+};
+
+template <typename StringImplType>
+struct base_stringifier
+{
+    typedef string<StringImplType> string_type;
+    
+    virtual string_type stringify_int (int radix, bool uppercase) const = 0;
+//    virtual string_type stringify_float ( char f, int prec) const = 0;
+//    virtual string_type stringify_char () const = 0;
+//    virtual string_type stringify_string () const = 0;
+};
+
+template <typename StringImplType, typename T>
+struct stringifier;
+
+template <typename StringImplType>
+struct stringifier<StringImplType, intmax_t> : public base_stringifier<StringImplType>
+{
+    typedef string<StringImplType> string_type;
+    
+    intmax_t & val;
+    
+    stringifier (intmax_t & v) : val(v) {}
+
+    virtual string_type stringify_int (int radix, bool uppercase)
+    {
+        return to_string<intmax_t, string_type>(val, radix, uppercase);
+    }
+//    virtual string_type stringify_float (char f, int prec) const;
+//    virtual string_type stringify_char () const;
+//    virtual string_type stringify_string () const;
+};
+
+template <typename StringImplType>
+struct stringifier<StringImplType, uintmax_t> : public base_stringifier<StringImplType>
+{
+    typedef string<StringImplType> string_type;
+    
+    uintmax_t & val;
+    
+    stringifier (uintmax_t & v) : val(v) {}
+
+    virtual string_type stringify_int (int radix, bool uppercase)
+    {
+        return to_string<uintmax_t, string_type>(val, radix, uppercase);
+    }
+//    virtual string_type stringify_float (char f, int prec) const;
+//    virtual string_type stringify_char () const;
+//    virtual string_type stringify_string () const;
 };
 
 template <typename StringImplType, int Compat = safeformat_compat_gcc>
@@ -81,15 +134,6 @@ class safeformat
         {}
     };
     
-    struct base_stringifier
-    {
-        virtual string stringify_int (int /*base*/, bool /*uppercase*/, bool /*is_unsigned*/) const = 0;
-        virtual string stringify_float ( char f, int prec) const = 0;
-        virtual string stringify_char () const = 0;
-        virtual string stringify_string () const = 0;
-        virtual ~__sf_base_traits () {}
-    };
-    
     // Stores intermediate result (and complete at the ends)
     string_type    _result;
     
@@ -106,20 +150,6 @@ public:
     {}
 
 private:
-    void advance ()
-    {
-        parse_regular_chars();
-        
-        if (_p != _end && to_ascii<value_type>(*_p) == '%') {
-            conversion_specification conv_spec;
-            parse_conversion_specification(& conv_spec);
-            
-            if (conv_spec.good) {
-                process_conversion_specification(conv_spec);
-            }
-        }
-    }
-    
     void parse_regular_chars ()
     {
         while (_p != _end && to_ascii<value_type>(*_p) != '%')
@@ -215,6 +245,11 @@ private:
             }
             
             ++_p;
+        }
+        
+        // If the '0' and '-' flags both appear, the '0' flag is ignored.
+        if (conv_spec->flags & FL_LEFT_JUSTIFIED) {
+            conv_spec->flags &= ~FL_ZERO_PADDING;
         }
     }
     
@@ -422,21 +457,47 @@ private:
             parse_spec_conversion_specifier(conv_spec);
         }
     }
-    
-    void process_conversion_specification (conversion_specification const & conv_spec)
+
+    void advance (base_stringifier const * stringifier)
     {
-        if (conv_spec.spec_char == value_type('%')) {
-            _result.push_back(conv_spec.spec_char);
-        } else {
-            switch (to_ascii<value_type>(conv_spec.spec_char)) {
-            case 'd': case 'i': case 'o': case 'u': case 'x': case 'X':
-            case 'f': case 'F': case 'e': case 'E': case 'g': case 'G':
-            case 'a': case 'A': case 'c': case 's': case 'p': case 'n':
-                break;
+        parse_regular_chars();
+
+        if (_p != _end) {
+            conversion_specification conv_spec;
+            parse_conversion_specification(& conv_spec);
+
+            if (conv_spec.good) {
+                process_conversion_specification(stringifier, conv_spec);
+            } else {
+                throw invalid_argument("safeformat: bad conversion specification");
             }
         }
     }
 
+    void process_conversion_specification (base_stringifier const * stringifier
+            , conversion_specification const & conv_spec)
+    {
+        string_type s;
+        
+        switch (to_ascii<value_type>(conv_spec.spec_char)) {
+        case '%':
+            _result.push_back(conv_spec.spec_char);
+            break;
+            
+        case 'd':
+        case 'i':
+            s = stringifier->stringify_int(10, false);
+		prepend_sign(r);
+		do_padding(r);
+            break;
+            
+        case 'o': case 'u': case 'x': case 'X':
+        case 'f': case 'F': case 'e': case 'E': case 'g': case 'G':
+        case 'a': case 'A': case 'c': case 's': case 'p': case 'n':
+            break;
+        }
+    }
+    
 public:
     safeformat & operator () (char c)
     {

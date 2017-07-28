@@ -45,6 +45,9 @@ template <typename CharT>
 bool is_xdigit (CharT c);
 
 template <typename CharT>
+bool is_ascii (CharT c);
+
+template <typename CharT>
 char to_ascii (CharT c);
 
 template <>

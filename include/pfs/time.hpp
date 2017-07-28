@@ -134,21 +134,21 @@ public:
 namespace details {
 namespace time {
 
-template <typename StringT>
-inline void append_prefixed2 (StringT & s, typename StringT::value_type fill_char, int i2)
+template <typename StringType>
+inline void append_prefixed2 (StringType & s, typename StringType::value_type fill_char, int i2)
 {
 	if (i2 >= 0 && i2 < 10) s.push_back(fill_char);
-	s.append(to_string<StringT>(i2));
+	s.append(to_string<StringType>(i2));
 }
 
-template <typename StringT>
-inline void append_prefixed3 (StringT & s, typename StringT::value_type fill_char, int i3)
+template <typename StringType>
+inline void append_prefixed3 (StringType & s, typename StringType::value_type fill_char, int i3)
 {
 	if (i3 >= 0) {
 		if (i3 < 100) s.push_back(fill_char);
 		if (i3 < 10) s.push_back(fill_char);
 	}
-	s.append(to_string<StringT>(i3));
+	s.append(to_string<StringType>(i3));
 }
 
 }}
@@ -172,13 +172,13 @@ inline void append_prefixed3 (StringT & s, typename StringT::value_type fill_cha
  * %J     The time in 24-hour notation with milliseconds part (%H:%M:%S.%Q).
  * %p     Either "AM" or "PM" according to the given time value, or the corresponding strings for the current locale.  Noon is treated as "PM" and midnight as "AM".
  */
-template <typename StringT>
-StringT to_string (time const & t, StringT const & format)
+template <typename StringType>
+StringType to_string (time const & t, StringType const & format)
 {
-	StringT r;
+	StringType r;
 
-	typename StringT::const_iterator p = format.cbegin();
-	typename StringT::const_iterator end = format.cend();
+	typename StringType::const_iterator p = format.cbegin();
+	typename StringType::const_iterator end = format.cend();
 
 	bool need_spec = false; // true if conversion specifier character expected
 
@@ -224,7 +224,7 @@ StringT to_string (time const & t, StringT const & format)
 					break;
                     
 				case 'q':
-					r.append(to_string<StringT>(t.millis()));
+					r.append(to_string<StringType>(t.millis()));
 					break;
                     
 				case 'Q':
@@ -260,7 +260,7 @@ StringT to_string (time const & t, StringT const & format)
 					break;
                     
 				case 'p':
-					r.append(t.hour() < 12 ? StringT("AM") : StringT("PM"));
+					r.append(t.hour() < 12 ? StringType("AM") : StringType("PM"));
 					break;
                     
 				default:
@@ -283,10 +283,10 @@ StringT to_string (time const & t, StringT const & format)
  * @param t
  * @return
  */
-template <typename StringT>
-inline StringT to_string (time const & t)
+template <typename StringType>
+inline StringType to_string (time const & t)
 {
-	return to_string<StringT>(t, StringT("%T"));
+	return to_string<StringType>(t, StringType("%T"));
 }
 
 pfs::time current_time ();

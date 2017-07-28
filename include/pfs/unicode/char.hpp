@@ -217,6 +217,12 @@ inline bool is_xdigit<unicode::char_t> (unicode::char_t c)
 }
 
 template <>
+inline bool is_ascii<unicode::char_t> (unicode::char_t c)
+{
+    return c.value <= 127;
+}
+
+template <>
 inline char to_ascii<unicode::char_t> (unicode::char_t c)
 {
     return c.value <= 127 

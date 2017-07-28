@@ -221,7 +221,7 @@ CharIteratorT __parse_exp (CharIteratorT beginpos
 
 		while (pos < endpos) {
 			if (pfs::is_digit(*pos)) {
-				int digit = *pos - '0';
+				int digit = to_ascii(*pos) - '0';
 				exp = exp * 10 + digit;
 				PFS_ASSERT(exp >= 0);
 			} else {
@@ -361,7 +361,7 @@ FloatT string_to_float (CharIteratorT beginpos
     	case parse_mantissa_state:
     		while (pos < endpos) {
 				if (pfs::is_digit(*pos)) {
-					int digit = *pos - '0';
+					int digit = to_ascii(*pos) - '0';
 
 					r = r * 1.e1 + digit;
 

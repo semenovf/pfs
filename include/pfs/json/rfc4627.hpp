@@ -5,7 +5,7 @@
 #include <pfs/lexical_cast.hpp>
 #include <pfs/traits/stack.hpp>
 #include <pfs/traits/stdcxx/stack.hpp>
-#include <pfs/unicode/unicode_iterator.hpp>
+//#include <pfs/unicode/iterator.hpp>
 #include <pfs/json/constants.hpp>
 #include "exception.hpp"
 
@@ -120,12 +120,14 @@ struct sax_context
 template <typename JsonType, template <typename> class StackT = traits::stdcxx::stack>
 struct grammar
 {
-    typedef typename JsonType::string_type       string_type;
-    typedef typename string_type::const_iterator   native_iterator;
-    typedef typename unicode::unicode_iterator_traits<
-            native_iterator>::iterator             unicode_iterator;
+    typedef typename JsonType::string_type         string_type;
+    typedef typename string_type::const_iterator   iterator;
+    //typedef typename string_type::const_iterator   native_iterator;
+    //typedef typename unicode::unicode_iterator_traits<
+    //        native_iterator>::iterator             iterator;
 
-    typedef fsm::fsm<unicode_iterator>             fsm_type;
+    //typedef fsm::fsm<iterator>             fsm_type;
+    typedef fsm::fsm<iterator>                     fsm_type;
     typedef typename fsm_type::transition_type     transition_type;
     typedef typename fsm_type::char_type           value_type;
 
@@ -141,11 +143,11 @@ struct grammar
     
     grammar ();
     
-    static string_type unescape_chars (unicode_iterator first, unicode_iterator last)
+    static string_type unescape_chars (iterator first, iterator last)
     {
         string_type r;
         bool escaped = false;
-        unicode_iterator it = first;
+        iterator it = first;
 
         while (it != last) {
             if (!escaped && *it == value_type('\\')) {
@@ -153,19 +155,19 @@ struct grammar
             } else {
                 if (escaped) {
                     if (*it == value_type('b'))
-                        unicode_iterator::encode(value_type('\b'), pfs::back_inserter(r));
+                        iterator::encode(value_type('\b'), pfs::back_inserter(r));
                     else if (*it == value_type('f'))
-                        unicode_iterator::encode(value_type('\f'), pfs::back_inserter(r));
+                        iterator::encode(value_type('\f'), pfs::back_inserter(r));
                     else if (*it == value_type('n'))
-                        unicode_iterator::encode(value_type('\n'), pfs::back_inserter(r));
+                        iterator::encode(value_type('\n'), pfs::back_inserter(r));
                     else if (*it == value_type('r'))
-                        unicode_iterator::encode(value_type('\r'), pfs::back_inserter(r));
+                        iterator::encode(value_type('\r'), pfs::back_inserter(r));
                     else if (*it == value_type('t'))
-                        unicode_iterator::encode(value_type('\t'), pfs::back_inserter(r));
+                        iterator::encode(value_type('\t'), pfs::back_inserter(r));
                     else
-                        unicode_iterator::encode(*it, pfs::back_inserter(r));
+                        iterator::encode(*it, pfs::back_inserter(r));
                 } else {
-                    unicode_iterator::encode(*it, pfs::back_inserter(r));
+                    iterator::encode(*it, pfs::back_inserter(r));
                 }
                 escaped = false;
             }
@@ -180,7 +182,7 @@ struct grammar
         // TODO unescape hexdigits in form: \uXXXX
     }     
     
-    static bool false_value (unicode_iterator begin, unicode_iterator end, void * context, void * action_args)
+    static bool false_value (iterator begin, iterator end, void * context, void * action_args)
     {
         if (!context) return true;
 
@@ -190,7 +192,7 @@ struct grammar
         return result;
     }
 
-    static bool null_value (unicode_iterator begin, unicode_iterator end, void * context, void * action_args)
+    static bool null_value (iterator begin, iterator end, void * context, void * action_args)
     {
         if (!context) return true;
 
@@ -200,7 +202,7 @@ struct grammar
         return result;
     }
 
-    static bool true_value (unicode_iterator begin, unicode_iterator end, void * context, void * action_args)
+    static bool true_value (iterator begin, iterator end, void * context, void * action_args)
     {
         if (!context) return true;
 
@@ -210,13 +212,13 @@ struct grammar
         return result;
     }
 
-    static bool number_value (unicode_iterator begin, unicode_iterator end, void * context, void * action_args)
+    static bool number_value (iterator begin, iterator end, void * context, void * action_args)
     {
         if (!context) return true;
         
         parse_context * ctx = static_cast<parse_context *>(context);
 
-        string_type number_str = string_type(native_iterator(begin), native_iterator(end));
+        string_type number_str = string_type(begin, end);
         bool result = false;
         real_t d;
         
@@ -231,7 +233,7 @@ struct grammar
         return result;
     }
     
-    static bool string_value (unicode_iterator begin, unicode_iterator end, void * context, void * action_args)
+    static bool string_value (iterator begin, iterator end, void * context, void * action_args)
     {
         if (!context) return true;
         
@@ -244,7 +246,7 @@ struct grammar
         return result;
     }
     
-    static bool success_end_json (unicode_iterator begin, unicode_iterator end, void * context, void * action_args)
+    static bool success_end_json (iterator begin, iterator end, void * context, void * action_args)
     {
         if (!context) return true;
 
@@ -252,7 +254,7 @@ struct grammar
         return ctx->sax.on_end_json(ctx->user_context, true);
     }
 
-    static bool failed_end_json (unicode_iterator begin, unicode_iterator end, void * context, void * action_args)
+    static bool failed_end_json (iterator begin, iterator end, void * context, void * action_args)
     {
         if (!context) return true;
 
@@ -260,7 +262,7 @@ struct grammar
         return ctx->sax.on_end_json(ctx->user_context, false);
     }
     
-    static bool begin_member (unicode_iterator begin, unicode_iterator end, void * context, void * action_args)
+    static bool begin_member (iterator begin, iterator end, void * context, void * action_args)
     {
         if (context) {
             parse_context * ctx = static_cast<parse_context *>(context);
@@ -272,7 +274,7 @@ struct grammar
         return true;
     }
 
-    static bool end_member (unicode_iterator begin, unicode_iterator end, void * context, void * action_args)
+    static bool end_member (iterator begin, iterator end, void * context, void * action_args)
     {
         if (context) {
             parse_context * ctx = static_cast<parse_context *>(context);
@@ -281,7 +283,7 @@ struct grammar
         return true;
     }
 
-    static bool begin_object (unicode_iterator begin, unicode_iterator end, void * context, void * action_args)
+    static bool begin_object (iterator begin, iterator end, void * context, void * action_args)
     {
         if (!context) return true;
 
@@ -298,7 +300,7 @@ struct grammar
         return result;
     }
     
-    static bool end_object (unicode_iterator begin, unicode_iterator end, void * context, void * action_args)
+    static bool end_object (iterator begin, iterator end, void * context, void * action_args)
     {
         if (!context) return true;
 
@@ -309,7 +311,7 @@ struct grammar
         return ctx->sax.on_end_object(ctx->user_context, member_name);
     }
     
-    static bool begin_array (unicode_iterator begin, unicode_iterator end, void * context, void * action_args)
+    static bool begin_array (iterator begin, iterator end, void * context, void * action_args)
     {
         if (!context) return true;
 
@@ -324,7 +326,7 @@ struct grammar
         return result;
     }    
     
-    static bool end_array (unicode_iterator begin, unicode_iterator end, void * context, void * action_args)
+    static bool end_array (iterator begin, iterator end, void * context, void * action_args)
     {
         if (!context) return true;
 

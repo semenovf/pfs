@@ -79,7 +79,9 @@ static bool __test_string_to_float (char const * s
         }
     }
 
-    if (badpos + badpos_increment != str.cend()) {
+    pfs::advance(badpos, badpos_increment);
+    
+    if (badpos != str.cend()) {
         std::cout << "***ERROR: badpos does not match" << std::endl;
         r = false;
     }

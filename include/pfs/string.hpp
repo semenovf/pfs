@@ -99,10 +99,13 @@ public:
         : _p(s)
     {}
     
-//    template <typename InputIt>
-//    string (InputIt first, InputIt last)
-//        : _p(first, last)
-//    {}
+    string (iterator first, iterator last)
+        : _p(first.base(), last.base())
+    {}
+
+    string (const_iterator first, const_iterator last)
+        : _p(first.base(), last.base())
+    {}
     
     string (size_type count, value_type ch)
         : _p(count, ch)
@@ -251,6 +254,97 @@ public:
     }
 #endif
     
+    string & append (size_type count, value_type ch)
+    {
+        while (count--)
+            push_back(ch);
+        return *this;
+    }
+    
+    string & append (string const & s)
+    {
+        _p.append(s._p);
+        return *this;
+    }
+    
+//    string & append (string const & s
+//                , const_iterator pos
+//                , size_type count)
+//    {
+//        if (pos >= s.size())
+//            throw out_of_range("string::append()");
+//        
+//        if (count == size_type(-1) || pos + count > s.size())
+//            count = s.size() - pos;
+//        
+//        return append(s.data() + pos, count);
+//    }
+    
+    string & append (const_pointer str, size_type count)
+    {
+        _p.append(str, count);
+        return *this;
+    }
+    
+    string & append (const_pointer str)    
+    {
+        return append(str, internal_type::length(str));
+    }
+    
+    string & append (const_native_reference s)
+    {
+        _p.append(s);
+        return *this;
+    }
+    
+    string & append (iterator first, iterator last)
+    {
+        _p.append(first, last);
+        return *this;
+    }
+
+    string & append (const_iterator first, const_iterator last)
+    {
+        _p.append(first, last);
+        return *this;
+    }
+    
+    void clear ()
+    {
+        _p.clear();
+    }
+
+    void push_back (value_type ch)
+    {
+        if (is_ascii(ch))
+            _p.push_back(to_ascii(ch));
+        else {
+            iterator::encode(ch, pfs::back_inserter(_p));
+        }
+    }
+    
+    /**
+     * 
+     * @param rhs
+     * @return 
+     */
+  	bool ends_with (string const & rhs) const
+    {
+        if (rhs.size() > this->size())
+            return false;
+        
+        return _p.compare(_p.size() - rhs._p.size()
+                , rhs._p.size(), rhs._p, 0, rhs._p.size()) == 0;
+    }
+    
+    bool starts_with (string const & rhs) const
+    {
+        if (rhs.size() > this->size())
+            return false;
+
+        return _p.compare(0, rhs._p.size(), rhs._p, 0, rhs._p.size()) == 0;
+    }
+    
     /**
      * @function string substr (size_type pos, size_type count) const;
      * @brief  Get a substring.
@@ -280,27 +374,6 @@ public:
     int compare (string const & rhs) const
     {
         return this->compare(0, this->size(), rhs._p, 0, rhs.size());
-    }
-    
-    bool starts_with (string const & rhs) const
-    {
-        if (rhs.size() > this->size())
-            return false;
-        
-        return this->compare(0, rhs.size(), rhs) == 0;
-    }
-    
-    /**
-     * 
-     * @param rhs
-     * @return 
-     */
-  	bool ends_with (string const & rhs) const
-    {
-        if (rhs.size() > this->size())
-            return false;
-        
-        return this->compare(this->size() - rhs.size(), rhs.size(), rhs) == 0;
     }
     
 //    bool contains (string const & rhs, size_type pos = 0) const
@@ -390,59 +463,6 @@ public:
         return _p.erase(first, last);
     }
   
-    void clear ()
-    {
-        _p.clear();
-    }
-    
-    string & append (size_type count, value_type ch)
-    {
-        _p.append(count, ch);
-        return *this;
-    }
-    
-    string & append (string const & s)
-    {
-        return append(s, 0, s.size());
-    }
-    
-    string & append (string const & s
-                , size_type pos
-                , size_type count)
-    {
-        if (pos >= s.size())
-            throw out_of_range("string::append()");
-        
-        if (count == size_type(-1) || pos + count > s.size())
-            count = s.size() - pos;
-        
-        return append(s.data() + pos, count);
-    }
-    
-    string & append (const_pointer str, size_type count)
-    {
-        _p.append(str, count);
-        return *this;
-    }
-    
-    string & append (const_pointer str)    
-    {
-        return append(str, internal_type::length(str));
-    }
-    
-    string & append (const_native_reference s)
-    {
-        _p.append(s);
-        return *this;
-    }
-    
-    template <typename InputIt>
-    string & append (InputIt first, InputIt last)
-    {
-        _p.append<InputIt>(first, last);
-        return *this;
-    }
-    
     string & insert (size_type index, size_type count, value_type ch);
     
     string & insert (size_type index, const_pointer s);
@@ -472,11 +492,6 @@ public:
     // template <typename InputIt>
     // iterator insert (const_iterator i, InputIt first, InputIt last);
     
-    void push_back (value_type ch)
-    {
-        _p.push_back(ch);
-    }
-
     // TODO
 //    void swap (string & rhs)
 //    {
@@ -571,17 +586,6 @@ string<StringImplType>::substr (const_iterator pos, size_type count) const
     difference_type n = integral_cast_check<difference_type, size_type>(count);
     epos.advance_safe(cend(), n);
     
-    
-//    size_type n = this->size() - pos;
-//
-//    if (n > count)
-//        n = count;
-//
-//    const_iterator b(this->begin());
-//    const_iterator e(this->begin());
-//    pfs::advance(b, pos);
-//    pfs::advance(e, pos + n);
-
     return string_value_type(pos, epos);
 }
 

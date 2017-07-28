@@ -39,8 +39,8 @@ void test_substr ()
 //    TEST_OK(orig.substr(1)          == string_type(tail));
 //    TEST_OK(orig.substr(1, 100)     == string_type(tail));
 
-    TEST_OK(orig.substr(orig_ru.cbegin()) == orig_ru);
-    TEST_OK(orig.substr(orig_ru.cbegin()) == same_ru);
+    TEST_OK(orig_ru.substr(orig_ru.cbegin()) == orig_ru);
+    TEST_OK(orig_ru.substr(orig_ru.cbegin()) == same_ru);
 
 }
 
