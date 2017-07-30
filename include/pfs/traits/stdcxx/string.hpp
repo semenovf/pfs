@@ -104,6 +104,11 @@ public:
     {
         return _p->data();
     }
+
+    const_pointer c_str () const
+    {
+        return _p->c_str();
+    }
     
     const_iterator begin () const
     {

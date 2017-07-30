@@ -282,7 +282,7 @@ public:
 
         if (port) {
             try {
-                *port = pfs::lexical_cast<uint16_t>(sl[1]);
+                *port = pfs::lexical_cast<uint16_t>(sl[1], 0);
             } catch (bad_lexical_cast) {
                 return false;
             }
@@ -301,7 +301,7 @@ private:
         uint32_t r = 0;
 
         try {
-            r = lexical_cast<uint32_t>(StringType(begin, end));
+            r = lexical_cast<uint32_t>(StringType(begin, end), 0);
         } catch (bad_lexical_cast) {
             return false;
         }

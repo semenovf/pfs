@@ -37,7 +37,7 @@ public:
     typedef typename internal_type::native_reference       native_reference;
     typedef typename internal_type::const_native_reference const_native_reference;
 
-//    typedef typename internal_type::value_type             value_type;
+    typedef typename internal_type::value_type            code_unit_type;
     typedef typename unicode::char_t                      value_type;
 //    typedef typename internal_type::reference              reference;
 //    typedef typename internal_type::const_reference        const_reference;
@@ -151,7 +151,7 @@ public:
      */    
     size_type length () const
     {
-        return distance(cbegin(), cend());
+        return pfs::distance(cbegin(), cend());
     }
 
     /**
@@ -179,6 +179,11 @@ public:
     const_pointer data () const
     {
         return _p.data();
+    }
+
+    const_pointer c_str () const
+    {
+        return _p.c_str();
     }
     
   	/**
@@ -314,6 +319,56 @@ public:
         _p.clear();
     }
 
+    /**
+     * @brief Find position of a string.
+     * 
+     * @details Starting from @a pos, searches forward for value 
+     *          of @a str within this string. 
+     *          If found, returns the index where it begins.
+     *          If not found, returns size_type(-1).
+     * 
+     * @param rhs  String to locate.
+     * @param pos  Index of character to search from (default 0).
+     * @return Index of start of first occurrence.
+     *
+     */
+    const_iterator find (string const & rhs, const_iterator pos) const
+    {
+        size_type index = _p.find(rhs._p, pfs::distance(pos.base(), this->cend().base()));
+        return index == npos ? this->cend() : const_iterator(this->cbegin().base() + index);
+    }
+
+    const_iterator find (string const & rhs) const
+    {
+        return this->find(rhs, cbegin());
+    }
+    
+//    size_type find (const_native_reference rhs, size_type pos = 0) const
+//    {
+//        return _p.find(rhs._p, pos);
+//    }
+//    
+//    size_type find (value_type c, size_type pos = 0) const
+//    {
+//        return _p.find(c, pos);
+//    }
+//    
+//    size_type rfind (string const & rhs, size_type pos = size_type(-1)) const
+//    {
+//        return _p.rfind(rhs._p, pos);
+//    }
+//    
+//    size_type rfind (const_native_reference rhs, size_type pos = size_type(-1)) const
+//    {
+//        return _p.find(rhs._p, pos);
+//    }
+//    
+//    size_type rfind (value_type c, size_type pos = size_type(-1)) const
+//    {
+//        return _p.rfind(c, pos);
+//    }
+//        
+    
     void push_back (value_type ch)
     {
         if (is_ascii(ch))
@@ -346,7 +401,6 @@ public:
     }
     
     /**
-     * @function string substr (size_type pos, size_type count) const;
      * @brief  Get a substring.
      * @details Construct and return a new string using the @a n
      *          characters starting at @a pos.  If the string is too
@@ -358,6 +412,16 @@ public:
      * @throw out_of_range  If pos > size().
      */
     string_value_type substr (const_iterator pos, size_type count = npos) const;
+    
+	string_value_type left (size_t count) const
+	{
+		return substr(0, count);
+	}
+
+	string_value_type right (size_t count) const
+	{
+		return substr(this->size() - count, count);
+	}
     
 #if __TODO__   
     int compare (size_type pos1, size_type count1
@@ -391,60 +455,7 @@ public:
 //        return this->find(c, pos) != size_type(-1);
 //	}
    
-    /**
-     * @brief Find position of a string.
-     * 
-     * @details Starting from @a pos, searches forward for value 
-     *          of @a str within this string. 
-     *          If found, returns the index where it begins.
-     *          If not found, returns size_type(-1).
-     * 
-     * @param rhs  String to locate.
-     * @param pos  Index of character to search from (default 0).
-     * @return Index of start of first occurrence.
-     *
-     */
-//    size_type find (string const & rhs, size_type pos = 0) const
-//    {
-//        return _p.find(rhs._p, pos);
-//    }
-//    
-//    size_type find (const_native_reference rhs, size_type pos = 0) const
-//    {
-//        return _p.find(rhs._p, pos);
-//    }
-//    
-//    size_type find (value_type c, size_type pos = 0) const
-//    {
-//        return _p.find(c, pos);
-//    }
-//    
-//    size_type rfind (string const & rhs, size_type pos = size_type(-1)) const
-//    {
-//        return _p.rfind(rhs._p, pos);
-//    }
-//    
-//    size_type rfind (const_native_reference rhs, size_type pos = size_type(-1)) const
-//    {
-//        return _p.find(rhs._p, pos);
-//    }
-//    
-//    size_type rfind (value_type c, size_type pos = size_type(-1)) const
-//    {
-//        return _p.rfind(c, pos);
-//    }
-//    
-    
-	string_value_type left (size_t count) const
-	{
-		return substr(0, count);
-	}
-
-	string_value_type right (size_t count) const
-	{
-		return substr(this->size() - count, count);
-	}
-    
+   
     string & erase (size_type index = 0, size_type count = size_type(-1))
     {
         if (index > size())
@@ -593,17 +604,81 @@ namespace details {
 namespace integral {
 
 //#define BITS_SIZE(T) (sizeof(T) * 8)
-char * uintmax_to_cstr (uintmax_t num
+template <typename CharT>
+CharT * uintmax_to_cstr (uintmax_t num
         , int radix
         , bool uppercase
-        , char * buf
-        , size_t n);
+        , CharT * buf
+        , size_t n)
+{
+    static const CharT digits_lower[] = { 
+          CharT('0'), CharT('1'), CharT('2'), CharT('3'), CharT('4')
+        , CharT('5'), CharT('6'), CharT('7'), CharT('8'), CharT('9')
+        , CharT('a'), CharT('b'), CharT('c'), CharT('d'), CharT('e')
+        , CharT('f'), CharT('g'), CharT('h'), CharT('i'), CharT('j')
+        , CharT('k'), CharT('l'), CharT('m'), CharT('n'), CharT('o')
+        , CharT('p'), CharT('q'), CharT('r'), CharT('s'), CharT('t')
+        , CharT('u'), CharT('v'), CharT('w'), CharT('x'), CharT('y')
+        , CharT('z')
+    };
 
-char * intmax_to_cstr (intmax_t num
+    static const CharT digits_upper[] = { 
+          CharT('0'), CharT('1'), CharT('2'), CharT('3'), CharT('4')
+        , CharT('5'), CharT('6'), CharT('7'), CharT('8'), CharT('9')
+        , CharT('A'), CharT('B'), CharT('C'), CharT('D'), CharT('E')
+        , CharT('F'), CharT('G'), CharT('H'), CharT('I'), CharT('J')
+        , CharT('K'), CharT('L'), CharT('M'), CharT('N'), CharT('O')
+        , CharT('P'), CharT('Q'), CharT('R'), CharT('S'), CharT('T')
+        , CharT('U'), CharT('V'), CharT('W'), CharT('X'), CharT('Y')
+        , CharT('Z')
+    };
+
+	CharT * p = & buf[n - 1];
+
+	if (!(radix >= 2 && radix <= 36))
+        throw pfs::invalid_argument("uintmax_to_cstr(): bad radix");
+
+	buf[n - 1] = '\0';
+    const CharT * digits = uppercase ? digits_upper : digits_lower;
+    
+	if (num) {
+		while (num > 0) {
+            *--p = digits[num % radix];
+			num /= radix;
+		}
+	} else { /* num == 0 */
+		*--p = CharT('0');
+	}
+
+	return p;    
+}
+
+template <typename CharT>
+CharT * intmax_to_cstr (intmax_t num
         , int radix
         , bool uppercase
-        , char * buf
-        , size_t n);
+        , CharT * buf
+        , size_t n)
+{
+	CharT * p = 0;
+
+	if (num < 0) {
+		p = uintmax_to_cstr<CharT>(static_cast<uintmax_t>(num * -1)
+                , radix
+                , uppercase
+                , buf
+                , n);
+		*--p = '-';
+	} else {
+		p = uintmax_to_cstr<CharT>(static_cast<uintmax_t>(num)
+                , radix
+                , uppercase
+                , buf
+                , n);
+	}
+
+	return p;    
+}
 
 /**
  * 
@@ -621,8 +696,10 @@ StringType to_string (typename pfs::enable_if<pfs::is_unsigned<UintType>::value,
 		, int radix
 		, bool uppercase)
 {
-	char buf[sizeof(UintType) * 8 + 1]; // char buf[BITS_SIZE(UintType) + 1];
-	char * str = uintmax_to_cstr(static_cast<uintmax_t>(value)
+    typedef typename StringType::code_unit_type char_type;
+    
+	char_type buf[sizeof(UintType) * 8 + 1];
+	char_type * str = uintmax_to_cstr<char_type>(static_cast<uintmax_t>(value)
 			, radix
 			, uppercase
 			, buf
@@ -636,8 +713,10 @@ StringType to_string (typename enable_if<is_signed<IntType>::value, IntType>::ty
 		, int radix
 		, bool uppercase)
 {
-	char buf[sizeof(IntType) * 8 + 1];
-	char * str = intmax_to_cstr(static_cast<intmax_t>(value)
+    typedef typename StringType::code_unit_type char_type;
+    
+	char_type buf[sizeof(IntType) * 8 + 1];
+	char_type * str = intmax_to_cstr<char_type>(static_cast<intmax_t>(value)
 			, radix
 			, uppercase
             , buf

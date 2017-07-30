@@ -10,7 +10,7 @@
 
 #include <pfs/types.hpp>
 #include <pfs/io/exception.hpp>
-#include <pfs/filesystem.hpp>
+#include <pfs/system_string.hpp>
 
 namespace pfs { namespace io {
 
@@ -54,8 +54,8 @@ struct device_context
 class basic_device
 {
 public:
-	typedef device_context                context_type;
-    typedef filesystem::path::string_type system_string;
+	typedef device_context     context_type;
+    typedef pfs::system_string system_string;
 
 protected:
 	context_type * _ctx;

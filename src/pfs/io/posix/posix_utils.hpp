@@ -23,19 +23,19 @@ namespace io {
 bool is_nonblocking (int fd);
 bool set_nonblocking (int fd, bool on);
 
-template <typename StringT>
-StringT inet_socket_url (char const * proto, sockaddr_in const & sin)
+template <typename StringType>
+StringType inet_socket_url (char const * proto, sockaddr_in const & sin)
 {
 #if PFS_CC_MSC
 #   error "Implement inet_socket_url() for MSC"
 #else    
     char str[INET_ADDRSTRLEN];
     inet_ntop(AF_INET, & sin.sin_addr, str, INET_ADDRSTRLEN);
-    StringT r(proto);
+    StringType r(proto);
     r.append("://");
     r.append(str);
     r.append(":");
-    r.append(to_string<StringT>(ntohs(sin.sin_port), 10));
+    r.append(to_string<StringType>(ntohs(sin.sin_port), 10));
     return r;
 #endif
 }

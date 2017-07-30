@@ -50,89 +50,96 @@ enum safeformat_compat
     , safeformat_compat_msvc = safeformat_compat_msc
 };
 
-template <typename StringImplType>
+struct conversion_specification
+{
+    bool good;
+    char spec_char;
+    int  flags;
+
+    bool field_width_asterisk;
+    int field_width;
+
+    bool prec_asterisk;
+    int prec;
+    int prec_sign;
+
+    int length_mod;
+
+    conversion_specification ()
+        : good (true)
+        , spec_char (0)
+        , flags (0)
+        , field_width_asterisk (false)
+        , field_width (0)
+        , prec_asterisk (false)
+        , prec (0)
+        , prec_sign (1)
+    {}
+};
+
+template <typename StringType>
 struct base_stringifier
 {
-    typedef string<StringImplType> string_type;
+    typedef StringType string_type;
     
-    virtual string_type stringify_int (int radix, bool uppercase) const = 0;
+    virtual string_type stringify_int (int radix, bool uppercase
+            , const conversion_specification & conv_spec) const = 0;
 //    virtual string_type stringify_float ( char f, int prec) const = 0;
 //    virtual string_type stringify_char () const = 0;
 //    virtual string_type stringify_string () const = 0;
 };
 
-template <typename StringImplType, typename T>
-struct stringifier;
-
-template <typename StringImplType>
-struct stringifier<StringImplType, intmax_t> : public base_stringifier<StringImplType>
+template <typename StringType, typename T>
+struct stringifier : public base_stringifier<StringType>
 {
-    typedef string<StringImplType> string_type;
-    
-    intmax_t & val;
-    
-    stringifier (intmax_t & v) : val(v) {}
+    typedef StringType string_type;
+    T & val;
+    stringifier (T & v) : val(v) {}
+};
 
-    virtual string_type stringify_int (int radix, bool uppercase)
+template <typename StringType, typename T>
+struct integer_stringifier : public stringifier<StringType, T>
+{
+    typedef stringifier<StringType, T> base_class;
+    typedef typename base_class::string_type string_type;
+    
+    integer_stringifier (T & v) : base_class(v) {}
+
+    virtual string_type stringify_int (int radix, bool uppercase
+        , const conversion_specification & conv_spec)
     {
-        return to_string<intmax_t, string_type>(val, radix, uppercase);
+        string_type result;
+        
+        if (conv_spec.flags & )
+        if (pfs::is_signed<T>::value) {
+            if (val < 0) { // negative value
+                
+            }
+        } else {
+            
+        }
+        
+        string_type s = to_string<T, string_type>(val, radix, uppercase);
+        
+        switch (radix) {
+        case 10:
+        case 16:
+        case 8:
+        case 2:
+        }
     }
 //    virtual string_type stringify_float (char f, int prec) const;
 //    virtual string_type stringify_char () const;
 //    virtual string_type stringify_string () const;
 };
 
-template <typename StringImplType>
-struct stringifier<StringImplType, uintmax_t> : public base_stringifier<StringImplType>
-{
-    typedef string<StringImplType> string_type;
-    
-    uintmax_t & val;
-    
-    stringifier (uintmax_t & v) : val(v) {}
 
-    virtual string_type stringify_int (int radix, bool uppercase)
-    {
-        return to_string<uintmax_t, string_type>(val, radix, uppercase);
-    }
-//    virtual string_type stringify_float (char f, int prec) const;
-//    virtual string_type stringify_char () const;
-//    virtual string_type stringify_string () const;
-};
-
-template <typename StringImplType, int Compat = safeformat_compat_gcc>
+template <typename StringType, int Compat = safeformat_compat_gcc>
 class safeformat
 {
-    typedef string<StringImplType>               string_type;
+    typedef StringType                           string_type;
     typedef typename string_type::const_iterator const_iterator;
     typedef typename string_type::value_type     value_type;
-    
-    struct conversion_specification
-    {
-        bool       good;
-        value_type spec_char;
-        int        flags;
-        
-        bool field_width_asterisk;
-        int  field_width;
-        
-        bool prec_asterisk;
-        int  prec;
-        int  prec_sign;
-        
-        int length_mod;
-        
-        conversion_specification ()
-            : good(true)
-            , spec_char(0)
-            , flags(0)
-            , field_width_asterisk(false)
-            , field_width(0)
-            , prec_asterisk(false)
-            , prec(0)
-            , prec_sign(1)
-        {}
-    };
     
     // Stores intermediate result (and complete at the ends)
     string_type    _result;
@@ -486,9 +493,9 @@ private:
             
         case 'd':
         case 'i':
-            s = stringifier->stringify_int(10, false);
-		prepend_sign(r);
-		do_padding(r);
+            s = stringifier->stringify_int(10, false, conv_spec);
+//            prepend_sign(r);
+//            do_padding(r);
             break;
             
         case 'o': case 'u': case 'x': case 'X':
