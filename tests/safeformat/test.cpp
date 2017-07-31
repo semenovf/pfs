@@ -28,34 +28,32 @@
 //typedef pfs::safeformat<string_impl> safeformat;
 
 template <typename T, typename StringImplType>
-bool testCase (pfs::string<StringImplType> const & fmt1
-    , pfs::string<StringImplType> const & fmt2
-    , T value)
+bool testCase (StringImplType const & fmt1, char const * fmt2, T value)
 {
-    typedef pfs::string<StringImplType> string;
+    typedef pfs::string<StringImplType>  string_type;
 
 #ifdef PFS_CC_MSC
-    typedef pfs::safeformat<StringImplType, pfs::safeformat_compat_msc> fmt;
+    typedef pfs::safeformat<string_type, string_type, pfs::safeformat_compat_msc> fmt;
 #else
-    typedef pfs::safeformat<StringImplType, pfs::safeformat_compat_gcc> fmt;
+    typedef pfs::safeformat<string_type, string_type, pfs::safeformat_compat_gcc> fmt;
 #endif
     
     char buf[5020];
-    string s = fmt(fmt1).arg(value).str();
+    string_type s = fmt(string_type(fmt1)).arg(value).str();
     
 #ifdef PFS_CC_MSC
-    int i2 =_snprintf(buf, sizeof(buf), reinterpret_cast<const char *>(fmt2.c_str()), value);
+    int i2 =_snprintf(buf, sizeof(buf), fmt2, value);
 #else
-    int i2 = snprintf(buf, sizeof(buf), reinterpret_cast<const char *>(fmt2.data()), value);
+    int i2 = snprintf(buf, sizeof(buf), fmt2, value);
 #endif
 
-    if (s.size() != static_cast<size_t>(i2) || s != string(buf)) {
-    	std::cout << "\nReference: " << i2 << "; Actual: " << s.length() << ", Difference = " << i2 - int(s.length())
+    if (s.size() != static_cast<size_t>(i2) || s != string_type(buf)) {
+    	std::cout << "\nReference: " << i2 << "; Actual: " << s.size() << ", Difference = " << i2 - int(s.size())
 				  << "\nV: ["  << value << "]\n"
-				  << "F1: [" << fmt1 << "]\n"
+				  << "F1: [" << string_type(fmt1) << "]\n"
 				  << "F2: [" << fmt2 << "]\n"
 				  << "R: ["  << buf << "]\n"
-				  << "A: ["  << s.data() << "]\n";
+				  << "A: ["  << s << "]\n";
         return false;
     }
     return true;
@@ -68,7 +66,7 @@ void testCaseIntegral()
 	ADD_TESTS(25);
 	std::cout << "\n\nTesting with [T = " << pfs::type_name<T>() << "]\n";
 
-	TEST_FAIL((testCase<T, StringImplType>("%o" , "%o", pfs::numeric_limits<T>::min())));
+	TEST_FAIL((testCase<T, StringImplType>("%o" , "%o" , pfs::numeric_limits<T>::min())));
 	TEST_FAIL((testCase<T, StringImplType>("%+o", "%+o", pfs::numeric_limits<T>::min())));
 	TEST_FAIL((testCase<T, StringImplType>("%o" , "%o" , pfs::numeric_limits<T>::max())));
 	TEST_FAIL((testCase<T, StringImplType>("%+o", "%+o", pfs::numeric_limits<T>::max())));
