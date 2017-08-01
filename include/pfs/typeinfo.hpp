@@ -9,6 +9,7 @@
 #define __PFS_TYPEINFO_HPP__
 
 #include <typeinfo>
+#include <pfs/types.hpp>
 
 namespace pfs {
 
@@ -24,7 +25,7 @@ template <> inline const char * type_name<unsigned int> () { return "unsigned in
 template <> inline const char * type_name<signed long int> () { return "signed long int"; }
 template <> inline const char * type_name<unsigned long int> () { return "unsigned long int"; }
 
-#ifdef PFS_HAVE_LONGLONG
+#ifdef PFS_HAVE_LONG_LONG
 template <> inline const char * type_name<signed long long int> () { return "signed long long int"; }
 template <> inline const char * type_name<unsigned long long int> () { return "unsigned long long int"; }
 #endif

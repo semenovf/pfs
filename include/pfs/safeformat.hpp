@@ -11,6 +11,7 @@
 
 #include <cstdio> // sprintf
 #include <pfs/ctype.hpp>
+#include <pfs/types.hpp>
 #include <pfs/string.hpp>
 #include <pfs/limits.hpp>
 #include <pfs/exception.hpp>
@@ -181,28 +182,31 @@ struct conversion_specification
 };
 
 template <typename T>
-struct printf_length_modifier;
+struct printf_length_modifier
+{
+    static char const * value () { return ""; } 
+};
 
-template <> struct printf_length_modifier<char>               { static char const * value () const { return "hh"; } };
-template <> struct printf_length_modifier<signed char>        { static char const * value () const { return "hh"; } };
-template <> struct printf_length_modifier<unsigned char>      { static char const * value () const { return "hh"; } };
-template <> struct printf_length_modifier<short int>          { static char const * value () const { return "h"; } };
-template <> struct printf_length_modifier<unsigned short int> { static char const * value () const { return "h"; } };
-template <> struct printf_length_modifier<int>                { static char const * value () const { return ""; } };
-template <> struct printf_length_modifier<unsigned int>       { static char const * value () const { return ""; } };
-template <> struct printf_length_modifier<long int>           { static char const * value () const { return "l"; } };
-template <> struct printf_length_modifier<unsigned long int>  { static char const * value () const { return "l"; } };
+template <> struct printf_length_modifier<char>               { static char const * value () { return "hh"; } };
+template <> struct printf_length_modifier<signed char>        { static char const * value () { return "hh"; } };
+template <> struct printf_length_modifier<unsigned char>      { static char const * value () { return "hh"; } };
+template <> struct printf_length_modifier<short int>          { static char const * value () { return "h"; } };
+template <> struct printf_length_modifier<unsigned short int> { static char const * value () { return "h"; } };
+template <> struct printf_length_modifier<int>                { static char const * value () { return ""; } };
+template <> struct printf_length_modifier<unsigned int>       { static char const * value () { return ""; } };
+template <> struct printf_length_modifier<long int>           { static char const * value () { return "l"; } };
+template <> struct printf_length_modifier<unsigned long int>  { static char const * value () { return "l"; } };
 
 #if PFS_HAVE_LONG_LONG
-template <> struct printf_length_modifier<long long int>          { static char const * value () const { return "ll"; } };
-template <> struct printf_length_modifier<unsigned long long int> { static char const * value () const { return "ll"; } };
+template <> struct printf_length_modifier<long long int>          { static char const * value () { return "ll"; } };
+template <> struct printf_length_modifier<unsigned long long int> { static char const * value () { return "ll"; } };
 #endif
 
-template <> struct printf_length_modifier<float>  { static char const * value () const { return ""; } };
-template <> struct printf_length_modifier<double> { static char const * value () const { return ""; } };
+template <> struct printf_length_modifier<float>  { static char const * value () { return ""; } };
+template <> struct printf_length_modifier<double> { static char const * value () { return ""; } };
 
 #if PFS_HAVE_LONG_DOUBLE
-template <> struct printf_length_modifier<long double> { static char const * value () const { return "L"; } };
+template <> struct printf_length_modifier<long double> { static char const * value () { return "L"; } };
 #endif
 
 #define SPRINTF_CONV_SPEC_LENGTH   1                /* '%' */                  \
@@ -212,46 +216,20 @@ template <> struct printf_length_modifier<long double> { static char const * val
                                  + 2                /* length-modifier */      \
                                  + 1                /* conversion-specifier */ \
                                  + 1                /*'\x0' */
-#define SNPRINTF_DEFAULT_BUFLEN 32
+#define SNPRINTF_DEFAULT_BUFSZ 64
 
 template <typename BackInsertIt>
 struct base_stringifier
 {
     typedef BackInsertIt back_insert_iterator;
     
-    virtual void stringify_integer (back_insert_iterator out
-            , int radix
-            , bool uppercase
-            , conversion_specification const & conv_spec) const = 0;
-//    virtual string_type stringify_float ( char f, int prec) const = 0;
-//    virtual string_type stringify_char () const = 0;
-//    virtual string_type stringify_string () const = 0;
-};
-
-template <typename BackInsertIt, typename T>
-struct stringifier : public base_stringifier<BackInsertIt>
-{
-    typedef BackInsertIt back_insert_iterator;
-    T & val;
-    stringifier (T & v) : val(v) {}
-};
-
-template <typename BackInsertIt, typename T>
-struct integer_stringifier : public stringifier<BackInsertIt, T>
-{
-    typedef stringifier<BackInsertIt, T> base_class;
-    typedef typename base_class::back_insert_iterator back_insert_iterator;
-    
-    integer_stringifier (T & v) : base_class(v) {}
-
-    virtual void stringify_integer (back_insert_iterator out
-            , int radix
-            , bool uppercase
-            , conversion_specification const & conv_spec)
+    void prepare_format (char * format
+            , char const * length_modifier
+            , conversion_specification const & conv_spec) const
     {
-        char format[SPRINTF_CONV_SPEC_LENGTH];
         char * p = format;
         
+        *p++ = '%';
         //
         // Flags
         //
@@ -280,7 +258,8 @@ struct integer_stringifier : public stringifier<BackInsertIt, T>
         //
         // Field width
         //
-        p += sprintf(p, "%d", conv_spec.field_width);
+        if (conv_spec.field_width > 0)
+            p += sprintf(p, "%d", conv_spec.field_width);
         
         //
         // Precision
@@ -297,7 +276,7 @@ struct integer_stringifier : public stringifier<BackInsertIt, T>
         //
         // Length modifiers (determine from actual integer type)
         //
-        p += sprintf(p, "%s", printf_length_modifier<T>::value());
+        p += sprintf(p, "%s", length_modifier);
         
         //
         // Conversion specifier
@@ -305,39 +284,146 @@ struct integer_stringifier : public stringifier<BackInsertIt, T>
         *p++ = conv_spec.spec_char;
         
         *p = '\x0';
+    }
+    
+    virtual void stringify (back_insert_iterator out
+            , conversion_specification const & conv_spec) const = 0;
+};
+
+template <typename BackInsertIt, typename T>
+struct stringifier : public base_stringifier<BackInsertIt>
+{
+    typedef BackInsertIt back_insert_iterator;
+    
+    T const & val;
+    
+    stringifier (T const & v) : val(v) {}
+    
+    virtual void stringify (back_insert_iterator out
+            , conversion_specification const & conv_spec) const
+    {
+        char format[SPRINTF_CONV_SPEC_LENGTH];
+        this->prepare_format(format, printf_length_modifier<T>::value(), conv_spec);
+                
+        size_t bufsz = SNPRINTF_DEFAULT_BUFSZ;
+        char buf[SNPRINTF_DEFAULT_BUFSZ];
+        char * pbuf = buf;
         
-        size_t bufsz = SNPRINTF_DEFAULT_BUFLEN;
-        char buf[SNPRINTF_DEFAULT_BUFLEN];
-        int written = snprintf(buf, bufsz, format, val);
+        // The glibc implementation of the functions snprintf() and vsnprintf()
+        // conforms to the C99 standard, that is, behaves as described above, 
+        // since glibc version 2.1. Until glibc 2.0.6 they would return -1 
+        // when the output was truncated.
+
+#if PFS_CC_MSC
+        int written = _snprintf(buf, bufsz, format, this->val);
+#else
+      	// FIXME Need the recognition of GLIBC version.
+    	// Supporting modern behavior only now.
+        int written = snprintf(buf, bufsz, format, this->val);
+#endif
         
         if (written < 0)
             throw pfs::runtime_error("safeformat: snprintf() error (a negative value is returned)");
         
-        // Truncated
+        // A return value of size or more means that the output was truncated.
         //
-        if (written >= SNPRINTF_DEFAULT_BUFLEN) {
-            bufsz = static_cast<size_t>(written);
+        if (written >= SNPRINTF_DEFAULT_BUFSZ) {
+            bufsz = static_cast<size_t>(written) + 1;
+            pbuf = pfs::allocator<char>().allocate(bufsz);
             
-            pfs::allocator<char> alloc;
-            buf = alloc.allocate(bufsz);
+#if PFS_CC_MSC
+            written = _snprintf(pbuf, bufsz, format, this->val);
+#else
+            written = snprintf(pbuf, bufsz, format, this->val);
+#endif
             
-            //...
-            alloc.destroy(buf);
+            if (written < 0)
+                throw pfs::runtime_error("safeformat: snprintf() error (a negative value is returned)");
+
+            PFS_ASSERT(written < bufsz);
         }
 
+        char * p = pbuf;
         
-//        char static_buf[SNPRINTF_DEFAULT_BUF_LEN];
-//        char *pbuf = static_buf;
-
-
+        // Copy chars into container (using back insert iterator)
+        while (*p)
+            *out++ = *p++;
+        
+        // Was dynamically allocated
+        //
+        if (bufsz > SNPRINTF_DEFAULT_BUFSZ)
+            pfs::allocator<char>().destroy(pbuf);
     }
-//    virtual string_type stringify_float (char f, int prec) const;
-//    virtual string_type stringify_char () const;
-//    virtual string_type stringify_string () const;
 };
 
+template <typename BackInsertIt, typename StringType>
+struct string_stringifier : public base_stringifier<BackInsertIt>
+{
+    typedef BackInsertIt back_insert_iterator;
+    typedef StringType string_type;
+    
+    string_type const & val;
+    
+    string_stringifier (string_type const & v) : val(v) {}
+    
+    virtual void stringify (back_insert_iterator out
+            , conversion_specification const & conv_spec) const
+    {
+        switch (conv_spec.spec_char) {
+        case 'd': case 'i': case 'o': case 'u': case 'x': case 'X':
+        case 'f': case 'F': case 'e': case 'E': case 'g': case 'G':
+        case 'a': case 'A': case 'c': case 'p': /*case 'n':*/
+            stringifier<BackInsertIt, void const *>(val.data()).stringify(out, conv_spec);
+            return;
+            
+        case 's':
+            break;
+        }
+        
+        // Do padding
+        //
+        size_t vallen = val.length();
 
-template <typename StringType, typename BackInserterContainer = StringType, int Compat = safeformat_compat_gcc>
+        if (vallen < conv_spec.field_width) {
+            size_t count = size_t(conv_spec.field_width) - vallen;
+            
+            typename string_type::value_type padding_char = ' ';
+                    
+            if (conv_spec.flags & conversion_specification::FL_ZERO_PADDING
+                    && conv_spec.flags & conversion_specification::FL_SPACE_PADDING) {
+                *out++ = ' ';
+                padding_char = '0';
+                --count;
+            } else if (conv_spec.flags & conversion_specification::FL_SPACE_PADDING) {
+                padding_char = ' ';
+            } else if (conv_spec.flags & conversion_specification::FL_ZERO_PADDING) {
+                padding_char = '0';
+            }
+                
+            if (conv_spec.flags & conversion_specification::FL_LEFT_JUSTIFIED) {
+                for (typename string_type::const_iterator it = val.cbegin()
+                        ; it != val.cend(); ++it) {
+                    *out++ = *it;
+                }
+                
+                while (count--)
+                    *out++ = padding_char;
+            } else {
+                while (count--)
+                    *out++ = padding_char;
+
+                for (typename string_type::const_iterator it = val.cbegin()
+                        ; it != val.cend(); ++it) {
+                    *out++ = *it;
+                }
+            }
+        }
+    }
+};
+
+template <typename StringType
+        , typename BackInserterContainer = StringType
+        , int Compat = safeformat_compat_gcc>
 class safeformat
 {
     typedef BackInserterContainer                result_type;
@@ -348,7 +434,7 @@ class safeformat
     
     // Stores intermediate result (and complete at the ends)
     result_type        _result;
-    back_inserter_type _back_inserter;
+    back_inserter_type _out;
     
     // Current position at format string
     const_iterator _p;
@@ -360,14 +446,14 @@ public:
     safeformat (string_type const & format)
         : _p(format.cbegin())
         , _end(format.cend())
-        , _back_inserter(_result)
+        , _out(_result)
     {}
 
 private:
     void parse_regular_chars ()
     {
         while (_p != _end && to_ascii<value_type>(*_p) != '%')
-            *_back_inserter++ = *_p++;
+            *_out++ = *_p++;
     }
     
     void finalize ()
@@ -375,7 +461,7 @@ private:
         // TODO replace by string::append(_p, _end) after implementing according method
         
         while (_p != _end)
-            *_back_inserter++ = *_p++;
+            *_out++ = *_p++;
     }
     
     // flags = *flag
@@ -552,11 +638,12 @@ private:
         switch (to_ascii<value_type>(*_p)) {
         case 'd': case 'i': case 'o': case 'u': case 'x': case 'X':
         case 'f': case 'F': case 'e': case 'E': case 'g': case 'G':
-        case 'a': case 'A': case 'c': case 's': case 'p': case 'n':
-            conv_spec->spec_char = *_p;
+        case 'a': case 'A': case 'c': case 's': case 'p': /*case 'n':*/
+            conv_spec->spec_char = to_ascii<value_type>(*_p);
             ++_p;
             break;
             
+        case 'n': // unsupported yet
         default:
             conv_spec->good = false;
             break;
@@ -568,11 +655,8 @@ private:
         if (! conv_spec->good)
             return;
 
-        if (to_ascii<value_type>(*_p) != '%') {
-            conv_spec->good = true;
-            conv_spec->spec_char = *_p;
+        if (to_ascii<value_type>(*_p) == '%') {
             ++_p;
-        } else {
             parse_spec_flags(conv_spec);
             parse_spec_field_width(conv_spec);
             parse_spec_precision(conv_spec);
@@ -581,7 +665,7 @@ private:
         }
     }
 
-    void advance (base_stringifier<back_inserter_type> const * stringifier)
+    void advance (base_stringifier<back_inserter_type> const & stringifier)
     {
         parse_regular_chars();
 
@@ -597,117 +681,147 @@ private:
         }
     }
 
-    void process_conversion_specification (base_stringifier<back_inserter_type> const * stringifier
+    void process_conversion_specification (
+              base_stringifier<back_inserter_type> const & stringifier
             , conversion_specification const & conv_spec)
     {
-        switch (to_ascii<value_type>(conv_spec.spec_char)) {
-        case '%':
-            *_back_inserter++ = conv_spec.spec_char;
-            break;
-            
-        case 'd':
-        case 'i':
-        case 'u':
-            stringifier->stringify_integer(_back_inserter, 10, false, conv_spec);
-            break;
-            
-        case 'o':
-            stringifier->stringify_integer(_back_inserter, 8, false, conv_spec);
-            break;
+//        switch (to_ascii<value_type>(conv_spec.spec_char)) {
+//        case '%':
+//            *_out++ = conv_spec.spec_char;
+//            break;
+//            
+//        case 'd':
+//        case 'i':
+//        case 'u':
+//            stringifier.stringify_integer(_out, 10, false, conv_spec);
+//            break;
+//            
+//        case 'o':
+//            stringifier.stringify_integer(_out, 8, false, conv_spec);
+//            break;
+//        
+//        case 'x':
+//            stringifier.stringify_integer(_out, 16, false, conv_spec);
+//            break;
+//        case 'X':
+//            stringifier.stringify_integer(_out, 16, true, conv_spec);
+//            break;
+//            
+//        case 'f':
+//        case 'F':
+//        case 'e':
+//        case 'E':
+//        case 'g':
+//        case 'G':
+//            stringifier.stringify_float(_out, true, conv_spec);
+//        
+//        case 'a': case 'A': case 'c': case 's': case 'p': case 'n':
+//            break;
+//        }
         
-        case 'x':
-            stringifier->stringify_integer(_back_inserter, 16, false, conv_spec);
-            break;
-        case 'X':
-            stringifier->stringify_integer(_back_inserter, 16, true, conv_spec);
-            break;
-            
-        case 'f':
-        case 'F':
-        
-        case 'e':
-        case 'E':
-        
-        case 'g':
-        case 'G':
-        
-        case 'a': case 'A': case 'c': case 's': case 'p': case 'n':
-            break;
-        }
+        stringifier.stringify(_out, conv_spec);
     }
     
 public:
     safeformat & operator () (char c)
     {
-        //advance();
+        //advance(char_stringifier<back_inserter_type>(c));
+        advance(stringifier<back_inserter_type, char>(c));
         return *this;
     }
     
     safeformat & operator () (signed char n)
     {
+        //advance(integer_stringifier<back_inserter_type, signed char>(n));
+        advance(stringifier<back_inserter_type, signed char>(n));
         return *this;
     }
     
     safeformat & operator () (unsigned char n)
     {
+        //advance(integer_stringifier<back_inserter_type, unsigned char>(n));
+        advance(stringifier<back_inserter_type, unsigned char>(n));
         return *this;
     }
     
     safeformat & operator () (short n)
     {
+        //advance(integer_stringifier<back_inserter_type, short>(n));
+        advance(stringifier<back_inserter_type, short>(n));
         return *this;
     }
     
     safeformat & operator () (unsigned short n)
     {
+        //advance(integer_stringifier<back_inserter_type, unsigned short>(n));
+        advance(stringifier<back_inserter_type, unsigned short>(n));
         return *this;
     }
     
     safeformat & operator () (int n)
     {
+        //advance(integer_stringifier<back_inserter_type, int>(n));
+        advance(stringifier<back_inserter_type, int>(n));
         return *this;
     }
     
     safeformat & operator () (unsigned int n)
     {
+        //advance(integer_stringifier<back_inserter_type, unsigned int>(n));
+        advance(stringifier<back_inserter_type, unsigned int>(n));
         return *this;
     }
     
     safeformat & operator () (long n)
     {
+        //advance(integer_stringifier<back_inserter_type, long>(n));
+        advance(stringifier<back_inserter_type, long>(n));
         return *this;
     }
     
     safeformat & operator () (unsigned long n)
     {
+        //advance(integer_stringifier<back_inserter_type, unsigned long>(n));
+        advance(stringifier<back_inserter_type, unsigned long>(n));
         return *this;
     }
     
 #ifdef PFS_HAVE_LONG_LONG
     safeformat & operator () (long long n)
     {
+        //advance(integer_stringifier<back_inserter_type, long long>(n));
+        advance(stringifier<back_inserter_type, long long>(n));
         return *this;
     }
     
     safeformat & operator () (unsigned long long n)
     {
+        //advance(integer_stringifier<back_inserter_type, unsigned long long>(n));
+        advance(stringifier<back_inserter_type, unsigned long long>(n));
         return *this;
     }
 #endif
 
     safeformat & operator () (float n)
     {
+//        double d = n;
+//        advance(double_stringifier<back_inserter_type>(d));
+        advance(stringifier<back_inserter_type, float>(n));
         return *this;
     }
     
     safeformat & operator () (double n)
     {
+        //advance(double_stringifier<back_inserter_type>(n));
+        advance(stringifier<back_inserter_type, double>(n));
         return *this;
     }
     
 #ifdef PFS_HAVE_LONG_DOUBLE
     safeformat & operator () (long double n)
     {
+        //advance(long_double_stringifier<back_inserter_type>(n));
+        advance(stringifier<back_inserter_type, long double>(n));
         return *this;
     }
 #endif
@@ -715,6 +829,7 @@ public:
     //	safeformat & operator () (typename string_type::value_type c);
     safeformat & operator () (string_type const & s)
     {
+        advance(string_stringifier<back_inserter_type, string_type>(s));
         return *this;
     }
     
@@ -726,6 +841,7 @@ public:
 
     safeformat & operator () (void const * p)
     {
+        advance(stringifier<back_inserter_type, void const *>(p));
         return *this;
     }
     

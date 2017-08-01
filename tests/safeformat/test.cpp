@@ -3,12 +3,12 @@
  */
 
 #include <iostream>
-//#include <sstream>
+#include <sstream>
 //#include <utility>
 //#include <cstdio>
 
 #include "pfs/test/test.hpp"
-//#include "pfs/test/profiler.hpp"
+#include "pfs/test/profiler.hpp"
 //#include "pfs/compiler.hpp"
 //#include "pfs/string.hpp"
 #include "pfs/typeinfo.hpp"
@@ -20,15 +20,8 @@
 //#include <QString>
 //#endif
 
-//using std::cout;
-//using std::endl;
-
-//typedef pfs::traits::stdcxx::string  string_impl;
-//typedef pfs::string<string_impl>     string;
-//typedef pfs::safeformat<string_impl> safeformat;
-
 template <typename T, typename StringImplType>
-bool testCase (StringImplType const & fmt1, char const * fmt2, T value)
+bool testCase (StringImplType const & fmt1, std::string const & fmt2, T value)
 {
     typedef pfs::string<StringImplType>  string_type;
 
@@ -42,88 +35,121 @@ bool testCase (StringImplType const & fmt1, char const * fmt2, T value)
     string_type s = fmt(string_type(fmt1)).arg(value).str();
     
 #ifdef PFS_CC_MSC
-    int i2 =_snprintf(buf, sizeof(buf), fmt2, value);
+    int i2 =_snprintf(buf, sizeof(buf), fmt2.c_str(), value);
 #else
-    int i2 = snprintf(buf, sizeof(buf), fmt2, value);
+    int i2 = snprintf(buf, sizeof(buf), fmt2.c_str(), value);
 #endif
 
     if (s.size() != static_cast<size_t>(i2) || s != string_type(buf)) {
-    	std::cout << "\nReference: " << i2 << "; Actual: " << s.size() << ", Difference = " << i2 - int(s.size())
-				  << "\nV: ["  << value << "]\n"
-				  << "F1: [" << string_type(fmt1) << "]\n"
-				  << "F2: [" << fmt2 << "]\n"
-				  << "R: ["  << buf << "]\n"
-				  << "A: ["  << s << "]\n";
+    	std::cout << "\nReference : " << i2 << "; Actual: " << s.size() << ", Difference = " << i2 - int(s.size())
+				  << "\nvalue            : [" << value << "]\n"
+				  <<   "safeformat format: [" << string_type(fmt1) << "]\n"
+				  <<   "snprintf format  : [" << fmt2 << "]\n"
+				  <<   "expected result  : [" << buf << "]\n"
+				  <<   "actual result    : [" << s << "]\n";
         return false;
     }
     return true;
 }
 
+template <typename T, typename StringImplType>
+void testCaseIntegral (std::string const & length_modifier)
+{
+	ADD_TESTS(30);
+	std::cout << "\nTesting with [T = " << pfs::type_name<T>() << "]\n";
+
+	TEST_FAIL((testCase<T, StringImplType>("%o" , std::string("%" ) + length_modifier + 'o' , pfs::numeric_limits<T>::min())));
+	TEST_FAIL((testCase<T, StringImplType>("%+o", std::string("%+") + length_modifier + 'o', pfs::numeric_limits<T>::min())));
+	TEST_FAIL((testCase<T, StringImplType>("%o" , std::string("%" ) + length_modifier + 'o' , pfs::numeric_limits<T>::max())));
+	TEST_FAIL((testCase<T, StringImplType>("%+o", std::string("%+") + length_modifier + 'o', pfs::numeric_limits<T>::max())));
+	TEST_FAIL((testCase<T, StringImplType>("%o" , std::string("%" ) + length_modifier + 'o' , 0)));
+	TEST_FAIL((testCase<T, StringImplType>("%+o", std::string("%+") + length_modifier + 'o', 0)));
+
+	TEST_FAIL((testCase<T, StringImplType>("%x" , std::string("%" ) + length_modifier + 'x', pfs::numeric_limits<T>::min())));
+	TEST_FAIL((testCase<T, StringImplType>("%+x", std::string("%+") + length_modifier + 'x', pfs::numeric_limits<T>::min())));
+	TEST_FAIL((testCase<T, StringImplType>("%x" , std::string("%" ) + length_modifier + 'x', pfs::numeric_limits<T>::max())));
+	TEST_FAIL((testCase<T, StringImplType>("%+x", std::string("%+") + length_modifier + 'x', pfs::numeric_limits<T>::max())));
+	TEST_FAIL((testCase<T, StringImplType>("%x" , std::string("%" ) + length_modifier + 'x', 0)));
+	TEST_FAIL((testCase<T, StringImplType>("%+x", std::string("%+") + length_modifier + 'x', 0)));
+
+	TEST_FAIL((testCase<T, StringImplType>("%d" , std::string("%" ) + length_modifier + 'd', pfs::numeric_limits<T>::min())));
+	TEST_FAIL((testCase<T, StringImplType>("%+d", std::string("%+") + length_modifier + 'd', pfs::numeric_limits<T>::min())));
+	TEST_FAIL((testCase<T, StringImplType>("%d" , std::string("%" ) + length_modifier + 'd', pfs::numeric_limits<T>::max())));
+	TEST_FAIL((testCase<T, StringImplType>("%+d", std::string("%+") + length_modifier + 'd', pfs::numeric_limits<T>::max())));
+	TEST_FAIL((testCase<T, StringImplType>("%d" , std::string("%" ) + length_modifier + 'd', 0)));
+	TEST_FAIL((testCase<T, StringImplType>("%+d", std::string("%+") + length_modifier + 'd', 0)));
+
+  	TEST_FAIL((testCase<T, StringImplType>("%i" , std::string("%" ) + length_modifier + 'i', pfs::numeric_limits<T>::min())));
+	TEST_FAIL((testCase<T, StringImplType>("%+i", std::string("%+") + length_modifier + 'i', pfs::numeric_limits<T>::min())));
+	TEST_FAIL((testCase<T, StringImplType>("%i" , std::string("%" ) + length_modifier + 'i', pfs::numeric_limits<T>::max())));
+	TEST_FAIL((testCase<T, StringImplType>("%+i", std::string("%+") + length_modifier + 'i', pfs::numeric_limits<T>::max())));
+	TEST_FAIL((testCase<T, StringImplType>("%i" , std::string("%" ) + length_modifier + 'i', 0)));
+	TEST_FAIL((testCase<T, StringImplType>("%+i", std::string("%+") + length_modifier + 'i', 0)));
+
+	TEST_FAIL((testCase<T, StringImplType>("%u" , std::string("%" ) + length_modifier + 'u', pfs::numeric_limits<T>::min())));
+	TEST_FAIL((testCase<T, StringImplType>("%+u", std::string("%+") + length_modifier + 'u', pfs::numeric_limits<T>::min())));
+	TEST_FAIL((testCase<T, StringImplType>("%u" , std::string("%" ) + length_modifier + 'u', pfs::numeric_limits<T>::max())));
+	TEST_FAIL((testCase<T, StringImplType>("%+u", std::string("%+") + length_modifier + 'u', pfs::numeric_limits<T>::max())));
+	TEST_FAIL((testCase<T, StringImplType>("%u" , std::string("%" ) + length_modifier + 'u', 0)));
+	TEST_FAIL((testCase<T, StringImplType>("%+u", std::string("%+") + length_modifier + 'u', 0)));
+}
 
 template <typename T, typename StringImplType>
-void testCaseIntegral()
+void testCaseFloat (std::string const & length_modifier)
 {
-	ADD_TESTS(25);
-	std::cout << "\n\nTesting with [T = " << pfs::type_name<T>() << "]\n";
+	ADD_TESTS(10);
+	std::cout << "\nTesting with [T = " << pfs::type_name<T>() << "]\n";
+    
+	TEST_FAIL((testCase<T, StringImplType>("%e", std::string("%") + length_modifier + 'e', pfs::numeric_limits<T>::min())));
+	TEST_FAIL((testCase<T, StringImplType>("%e", std::string("%") + length_modifier + 'e', pfs::numeric_limits<T>::max())));
+	TEST_FAIL((testCase<T, StringImplType>("%E", std::string("%") + length_modifier + 'E', pfs::numeric_limits<T>::min())));
+	TEST_FAIL((testCase<T, StringImplType>("%E", std::string("%") + length_modifier + 'E', pfs::numeric_limits<T>::max())));
+	TEST_FAIL((testCase<T, StringImplType>("%f", std::string("%") + length_modifier + 'f', pfs::numeric_limits<T>::min())));
+	TEST_FAIL((testCase<T, StringImplType>("%f", std::string("%") + length_modifier + 'f', pfs::numeric_limits<T>::max())));
+	TEST_FAIL((testCase<T, StringImplType>("%g", std::string("%") + length_modifier + 'g', pfs::numeric_limits<T>::min())));
+	TEST_FAIL((testCase<T, StringImplType>("%g", std::string("%") + length_modifier + 'g', pfs::numeric_limits<T>::max())));
+	TEST_FAIL((testCase<T, StringImplType>("%G", std::string("%") + length_modifier + 'G', pfs::numeric_limits<T>::min())));
+	TEST_FAIL((testCase<T, StringImplType>("%G", std::string("%") + length_modifier + 'G', pfs::numeric_limits<T>::max())));
+}
 
-	TEST_FAIL((testCase<T, StringImplType>("%o" , "%o" , pfs::numeric_limits<T>::min())));
-	TEST_FAIL((testCase<T, StringImplType>("%+o", "%+o", pfs::numeric_limits<T>::min())));
-	TEST_FAIL((testCase<T, StringImplType>("%o" , "%o" , pfs::numeric_limits<T>::max())));
-	TEST_FAIL((testCase<T, StringImplType>("%+o", "%+o", pfs::numeric_limits<T>::max())));
-	TEST_FAIL((testCase<T, StringImplType>("%o" , "%o" , 0)));
-	TEST_FAIL((testCase<T, StringImplType>("%+o", "%+o", 0)));
-
-	TEST_FAIL((testCase<T, StringImplType>("%x" , "%x" , pfs::numeric_limits<T>::min())));
-	TEST_FAIL((testCase<T, StringImplType>("%+x", "%+x", pfs::numeric_limits<T>::min())));
-	TEST_FAIL((testCase<T, StringImplType>("%x" , "%x" , pfs::numeric_limits<T>::max())));
-	TEST_FAIL((testCase<T, StringImplType>("%+x", "%+x", pfs::numeric_limits<T>::max())));
-	TEST_FAIL((testCase<T, StringImplType>("%x" , "%x" , 0)));
-	TEST_FAIL((testCase<T, StringImplType>("%+x", "%+x", 0)));
-
-	TEST_FAIL((testCase<T, StringImplType>("%d" , "%d" , pfs::numeric_limits<T>::min())));
-	TEST_FAIL((testCase<T, StringImplType>("%+d", "%+d", pfs::numeric_limits<T>::min())));
-	TEST_FAIL((testCase<T, StringImplType>("%d" , "%d" , pfs::numeric_limits<T>::max())));
-	TEST_FAIL((testCase<T, StringImplType>("%+d", "%+d", pfs::numeric_limits<T>::max())));
-	TEST_FAIL((testCase<T, StringImplType>("%d" , "%d" , 0)));
-	TEST_FAIL((testCase<T, StringImplType>("%+d", "%+d", 0)));
-
-	TEST_FAIL((testCase<T, StringImplType>("%u" , "%u" , pfs::numeric_limits<T>::min())));
-	TEST_FAIL((testCase<T, StringImplType>("%+u", "%+u", pfs::numeric_limits<T>::min())));
-	TEST_FAIL((testCase<T, StringImplType>("%u" , "%u" , pfs::numeric_limits<T>::max())));
-	TEST_FAIL((testCase<T, StringImplType>("%+u", "%+u", pfs::numeric_limits<T>::max())));
-	TEST_FAIL((testCase<T, StringImplType>("%u" , "%u" , 0)));
-	TEST_FAIL((testCase<T, StringImplType>("%+u", "%+u", 0)));
-
-	TEST_FAIL((testCase<T, StringImplType>("%c" , "%c", T('W'))));
+template <typename StringImplType>
+void testCaseString ()
+{
+    typedef pfs::string<StringImplType>  string_type;
+    
+	ADD_TESTS(10);
+	std::cout << "\nTesting with [T = " << pfs::type_name<string_type>() << "]\n";
+    
+	TEST_FAIL((testCase<string_type, StringImplType>("%s", "%s", string_type("Hello"))));
 }
 
 template <typename StringImplType>
 void test0 ()
 {
-	testCaseIntegral<char          , StringImplType>();
-	testCaseIntegral<signed char   , StringImplType>();
-	testCaseIntegral<unsigned char , StringImplType>();
-	testCaseIntegral<short         , StringImplType>();
-	testCaseIntegral<unsigned short, StringImplType>();
-	testCaseIntegral<int           , StringImplType>();
-	testCaseIntegral<unsigned int  , StringImplType>();
-//	testCaseLongIntegral<long>();
-//	testCaseLongIntegral<unsigned long>();
-//
-//#ifdef PFS_HAVE_LONGLONG
-//	testCaseLongLongIntegral<long long>();
-//	testCaseLongLongIntegral<unsigned long long>();
-//#endif
-//
-//	testCaseFloat<float>();
-//	testCaseFloat<double>();
-//
-//#ifdef PFS_HAVE_LONG_DOUBLE
-//	testCaseLongDouble<long double>();
-//#endif
-}
+	testCaseIntegral<char          , StringImplType>(pfs::printf_length_modifier<char>::value());
+	testCaseIntegral<signed char   , StringImplType>(pfs::printf_length_modifier<signed char>::value());
+	testCaseIntegral<unsigned char , StringImplType>(pfs::printf_length_modifier<unsigned char>::value());
+	testCaseIntegral<short         , StringImplType>(pfs::printf_length_modifier<short>::value());
+	testCaseIntegral<unsigned short, StringImplType>(pfs::printf_length_modifier<unsigned short>::value());
+	testCaseIntegral<int           , StringImplType>(pfs::printf_length_modifier<int>::value());
+	testCaseIntegral<unsigned int  , StringImplType>(pfs::printf_length_modifier<unsigned int>::value());
+	testCaseIntegral<long          , StringImplType>(pfs::printf_length_modifier<long>::value());
+	testCaseIntegral<unsigned long , StringImplType>(pfs::printf_length_modifier<unsigned long>::value());
 
-#if __TODO__
+#ifdef PFS_HAVE_LONG_LONG
+	testCaseIntegral<long long, StringImplType>(pfs::printf_length_modifier<long long>::value());
+	testCaseIntegral<unsigned long long, StringImplType>(pfs::printf_length_modifier<unsigned long long>::value());
+#endif
+
+	testCaseFloat<float, StringImplType>(pfs::printf_length_modifier<float>::value());
+	testCaseFloat<double, StringImplType>(pfs::printf_length_modifier<double>::value());
+
+#ifdef PFS_HAVE_LONG_DOUBLE
+	testCaseFloat<long double, StringImplType>(pfs::printf_length_modifier<long double>::value());
+#endif
+    
+    testCaseString<StringImplType>();
+}
 
 template <class Integral1, class Integral2>
 Integral2 randomInt (Integral1 low, Integral2 up)
@@ -150,36 +176,35 @@ Integral2 randomInt (Integral1 low, Integral2 up)
     return r;
 }
 
-string randomString (unsigned int maxSize)
+std::string randomString (unsigned int maxSize)
 {
     size_t i = 0;
     size_t n = randomInt(0, maxSize);
-    string result;
+    std::string result;
 
     for (; i < n; ++i) {
-        result.append(pfs::to_string<string>(randomInt('a', 'z')));
+        result.push_back(char(randomInt('a', 'z')));
     }
 
     return result;
 }
 
-
-#if __COMMENT__
 void test1 ()
 {
-    //srand(time(0));
+    typedef pfs::traits::stdcxx::string string_impl_type;
     srand(0);
+    
     for (unsigned i = 0; ; ++i) {
         printf("%u\r", i);
 
         // Generate a random string for the head
-        string lead = randomString(100);
+        std::string lead = randomString(100);
 
         // This string will hold a random format specification
-        string formatSpec(lead + "|%");
+        std::string formatSpec(lead + "|%");
 
         // Generate a random set of flags
-        static const string flags("-+0 #");
+        static std::string const flags("-+0 #");
         size_t maxFlags = randomInt(0u, flags.length() - 1);
 
         for (size_t i = 0; i != maxFlags; ++i) {
@@ -204,22 +229,22 @@ void test1 ()
         }
 
         // Generate a random type character
-        static const string type("cdeEfgGiopsuxX");
-        pfs::ucchar typeSpec = type.charAt(randomInt(0u, type.length() - 1));
+        static std::string const type("cdeEfgGiopsuxX");
+        char typeSpec = type.at(randomInt(0u, type.length() - 1));
 
         // Generate an optional type prefix
 //            static const string prefix("hl");
 //            if (typeSpec != 's' && randomInt(0, 1)) {
 //                formatSpec += prefix[randomInt(0u, prefix.size() - 1)];
 //            }
+        
         formatSpec += typeSpec;
         formatSpec += '|';
         formatSpec += randomString(100);
 
-        switch (typeSpec.value()) {
+        switch (typeSpec) {
         case 'c':
-        	TEST_FAIL2(testCase(formatSpec, randomInt(1, 127))
-        			, formatSpec.c_str());
+        	TEST_FAIL2((testCase<int, string_impl_type>(string_impl_type(formatSpec), formatSpec, randomInt(1, 127))), formatSpec.c_str());
             break;
         case 'd':
         case 'i':
@@ -230,7 +255,7 @@ void test1 ()
             //TestCase(formatSpec, RandomInt(-10000, 10000));
             // don't test negative values on 64bit systems, because
             // snprintf does not support 64 Bit values
-            TEST_FAIL2(testCase(formatSpec, randomInt( -10000 * (sizeof(size_t)>4 ? 0 : 1) , 10000))
+            TEST_FAIL2((testCase<int, string_impl_type>(string_impl_type(formatSpec), formatSpec, randomInt(-10000 * (sizeof(size_t) > 4 ? 0 : 1) , 10000)))
             		, formatSpec.c_str());
             break;
         case 'e':
@@ -238,7 +263,9 @@ void test1 ()
         case 'f':
         case 'g':
         case 'G':
-        	TEST_FAIL2(testCase(formatSpec,randomInt(-10000, 10000) / double(randomInt(1, 100)))
+        	TEST_FAIL2((testCase<double, string_impl_type>(string_impl_type(formatSpec)
+                            , formatSpec
+                            , randomInt(-10000, 10000) / double(randomInt(1, 100))))
         			, formatSpec.c_str());
             break;
         case 'n':
@@ -246,13 +273,13 @@ void test1 ()
         case 'p':
             {
                 void * p = malloc(randomInt(1, 1000));
-                TEST_FAIL2(testCase(formatSpec, p)
+                TEST_FAIL2((testCase<void *, string_impl_type>(string_impl_type(formatSpec), formatSpec, p))
                 		, formatSpec.c_str());
                 free(p);
             }
             break;
         case 's':
-        	TEST_FAIL2(testCase(formatSpec, randomString(100).c_str())
+        	TEST_FAIL2((testCase<char const *, string_impl_type>(string_impl_type(formatSpec), formatSpec, randomString(100).c_str()))
         			, formatSpec.c_str());
             break;
         default:
@@ -261,126 +288,13 @@ void test1 ()
         }
     }
 }
-#endif
-
-template <typename T>
-void testCaseLongIntegral()
-{
-	ADD_TESTS(25);
-	cout << "\n\nTesting with [T = " << pfs::type_name<T>() << "]\n";
-
-	TEST_FAIL(testCase<T>("%o" , "%lo" , pfs::numeric_limits<T>::min()));
-	TEST_FAIL(testCase<T>("%+o", "%+lo", pfs::numeric_limits<T>::min()));
-	TEST_FAIL(testCase<T>("%o" , "%lo" , pfs::numeric_limits<T>::max()));
-	TEST_FAIL(testCase<T>("%+o", "%+lo", pfs::numeric_limits<T>::max()));
-	TEST_FAIL(testCase<T>("%o" , "%lo" , 0));
-	TEST_FAIL(testCase<T>("%+o", "%+lo", 0));
-
-	TEST_FAIL(testCase<T>("%x"  , "%lx" , pfs::numeric_limits<T>::min()));
-	TEST_FAIL(testCase<T>("%+x" , "%+lx", pfs::numeric_limits<T>::min()));
-	TEST_FAIL(testCase<T>("%x"  , "%lx" , pfs::numeric_limits<T>::max()));
-	TEST_FAIL(testCase<T>("%+x" , "%+lx", pfs::numeric_limits<T>::max()));
-	TEST_FAIL(testCase<T>("%x"  , "%lx" , 0));
-	TEST_FAIL(testCase<T>("%+x" , "%+lx", 0));
-
-	TEST_FAIL(testCase<T>("%d"  , "%ld" , pfs::numeric_limits<T>::min()));
-	TEST_FAIL(testCase<T>("%+d" , "%+ld", pfs::numeric_limits<T>::min()));
-	TEST_FAIL(testCase<T>("%d"  , "%ld" , pfs::numeric_limits<T>::max()));
-	TEST_FAIL(testCase<T>("%+d" , "%+ld", pfs::numeric_limits<T>::max()));
-	TEST_FAIL(testCase<T>("%d"  , "%ld" , 0));
-	TEST_FAIL(testCase<T>("%+d" , "%+ld", 0));
-
-	TEST_FAIL(testCase<T>("%u" , "%lu" , pfs::numeric_limits<T>::min()));
-	TEST_FAIL(testCase<T>("%+u", "%+lu", pfs::numeric_limits<T>::min()));
-	TEST_FAIL(testCase<T>("%u" , "%lu" , pfs::numeric_limits<T>::max()));
-	TEST_FAIL(testCase<T>("%+u", "%+lu", pfs::numeric_limits<T>::max()));
-	TEST_FAIL(testCase<T>("%u" , "%lu" , 0));
-	TEST_FAIL(testCase<T>("%+u", "%+lu", 0));
-
-	TEST_FAIL(testCase<T>("%c", "%lc", T('W')));
-}
-
-#ifdef PFS_HAVE_LONGLONG
-template <typename T>
-void testCaseLongLongIntegral()
-{
-	ADD_TESTS(25);
-	cout << "\n\nTesting with [T = " << pfs::type_name<T>() << "]\n";
-
-	TEST_FAIL(testCase<T>("%o", "%llo", pfs::numeric_limits<T>::min()));
-	TEST_FAIL(testCase<T>("%+o", "%+llo", pfs::numeric_limits<T>::min()));
-	TEST_FAIL(testCase<T>("%o", "%llo", pfs::numeric_limits<T>::max()));
-	TEST_FAIL(testCase<T>("%+o", "%+llo", pfs::numeric_limits<T>::max()));
-	TEST_FAIL(testCase<T>("%o", "%llo", 0));
-	TEST_FAIL(testCase<T>("%+o", "%+llo", 0));
-
-	TEST_FAIL(testCase<T>("%x", "%llx", pfs::numeric_limits<T>::min()));
-	TEST_FAIL(testCase<T>("%+x", "%+llx", pfs::numeric_limits<T>::min()));
-	TEST_FAIL(testCase<T>("%x", "%llx", pfs::numeric_limits<T>::max()));
-	TEST_FAIL(testCase<T>("%+x", "%+llx", pfs::numeric_limits<T>::max()));
-	TEST_FAIL(testCase<T>("%x", "%llx", 0));
-	TEST_FAIL(testCase<T>("%+x", "%+llx", 0));
-
-	TEST_FAIL(testCase<T>("%d", "%lld", pfs::numeric_limits<T>::min()));
-	TEST_FAIL(testCase<T>("%+d", "%+lld", pfs::numeric_limits<T>::min()));
-	TEST_FAIL(testCase<T>("%d", "%lld", pfs::numeric_limits<T>::max()));
-	TEST_FAIL(testCase<T>("%+d", "%+lld", pfs::numeric_limits<T>::max()));
-	TEST_FAIL(testCase<T>("%d", "%lld", 0));
-	TEST_FAIL(testCase<T>("%+d", "%+lld", 0));
-
-	TEST_FAIL(testCase<T>("%u", "%llu", pfs::numeric_limits<T>::min()));
-	TEST_FAIL(testCase<T>("%+u", "%+llu", pfs::numeric_limits<T>::min()));
-	TEST_FAIL(testCase<T>("%u", "%llu", pfs::numeric_limits<T>::max()));
-	TEST_FAIL(testCase<T>("%+u", "%+llu", pfs::numeric_limits<T>::max()));
-	TEST_FAIL(testCase<T>("%u", "%llu", 0));
-	TEST_FAIL(testCase<T>("%+u", "%+llu", 0));
-
-	TEST_FAIL(testCase<T>("%c", "%llc", T('W')));
-}
-#endif // PFS_HAVE_LONGLONG
-
-template <typename T>
-void testCaseFloat()
-{
-	ADD_TESTS(10);
-	cout << "\n\nTesting with [T = " << pfs::type_name<T>() << "]\n";
-
-	TEST_FAIL(testCase<T>("%e", "%e", pfs::numeric_limits<T>::min()));
-	TEST_FAIL(testCase<T>("%e", "%e", pfs::numeric_limits<T>::max()));
-	TEST_FAIL(testCase<T>("%E", "%E", pfs::numeric_limits<T>::min()));
-	TEST_FAIL(testCase<T>("%E", "%E", pfs::numeric_limits<T>::max()));
-	TEST_FAIL(testCase<T>("%f", "%f", pfs::numeric_limits<T>::min()));
-	TEST_FAIL(testCase<T>("%f", "%f", pfs::numeric_limits<T>::max()));
-	TEST_FAIL(testCase<T>("%g", "%g", pfs::numeric_limits<T>::min()));
-	TEST_FAIL(testCase<T>("%g", "%g", pfs::numeric_limits<T>::max()));
-	TEST_FAIL(testCase<T>("%G", "%G", pfs::numeric_limits<T>::min()));
-	TEST_FAIL(testCase<T>("%G", "%G", pfs::numeric_limits<T>::max()));
-}
-
-template <typename T>
-void testCaseLongDouble ()
-{
-	ADD_TESTS(10);
-	cout << "\n\nTesting with [T = " << pfs::type_name<T>() << "]\n";
-
-	TEST_FAIL(testCase<T>("%e", "%Le", pfs::numeric_limits<T>::min()));
-	TEST_FAIL(testCase<T>("%e", "%Le", pfs::numeric_limits<T>::max()));
-	TEST_FAIL(testCase<T>("%E", "%LE", pfs::numeric_limits<T>::min()));
-	TEST_FAIL(testCase<T>("%E", "%LE", pfs::numeric_limits<T>::max()));
-	TEST_FAIL(testCase<T>("%f", "%Lf", pfs::numeric_limits<T>::min()));
-	TEST_FAIL(testCase<T>("%f", "%Lf", pfs::numeric_limits<T>::max()));
-	TEST_FAIL(testCase<T>("%g", "%Lg", pfs::numeric_limits<T>::min()));
-	TEST_FAIL(testCase<T>("%g", "%Lg", pfs::numeric_limits<T>::max()));
-	TEST_FAIL(testCase<T>("%G", "%LG", pfs::numeric_limits<T>::min()));
-	TEST_FAIL(testCase<T>("%G", "%LG", pfs::numeric_limits<T>::max()));
-}
-
-
 
 // test speed
 //
 void test2 ()
 {
+    typedef pfs::string<pfs::traits::stdcxx::string> string_type;
+    
 	char buf[512];
 	using pfs::test::profiler;
 	profiler sw;
@@ -401,7 +315,7 @@ void test2 ()
 
 	sw.start();
 	for (int i = loop; i > 0; --i)
-		safeformat("Hey, %u frobnicators and %u twiddlicators\n")(i)(i);
+		pfs::safeformat<string_type>("Hey, %u frobnicators and %u twiddlicators\n")(i)(i);
 	ellapsed_safeformat = sw.ellapsed();
 
 	sw.start();
@@ -416,30 +330,28 @@ void test2 ()
 	ellapsed_qstring = sw.ellapsed();
 #endif
 
-	cout << endl << "Elapsed time for " << loop << " outputs:" << endl
-	     << "\tprintf       = " << ellapsed_sprintf    << endl
-	     << "\tsafeformat   = " << ellapsed_safeformat << endl
-		 << "\tstringstream = " << ellapsed_sstream    << endl
+	std::cout << std::endl << "Elapsed time for " << loop << " outputs:" << std::endl
+	     << "\tprintf       = " << ellapsed_sprintf    << std::endl
+	     << "\tsafeformat   = " << ellapsed_safeformat << std::endl
+		 << "\tstringstream = " << ellapsed_sstream    << std::endl
 #ifdef PFS_HAVE_QT
-		 << "\tQString      = " << ellapsed_qstring    << endl
+		 << "\tQString      = " << ellapsed_qstring    << std::endl
 #endif
 		 ;
 }
 
-void test3 ()
-{
-	ADD_TESTS(4);
-	cout << "\n\nTesting with pointer\n";
+//void test3 ()
+//{
+//	ADD_TESTS(4);
+//	std::cout << "\n\nTesting with pointer\n";
+//
+//    TEST_FAIL(testCase<void *>("%p"  , "%p", (void *)0xabcd));
+//    TEST_FAIL(testCase<int *>("%p"   , "%p", (int *)0xabcd));
+//    TEST_FAIL(testCase<long *>("%p"  , "%p", (long *)0xabcd));
+//    TEST_FAIL(testCase<double *>("%p", "%p", (double *)0xabcd));
+//}
 
-    TEST_FAIL(testCase<void *>("%p"  , "%p", (void *)0xabcd));
-    TEST_FAIL(testCase<int *>("%p"   , "%p", (int *)0xabcd));
-    TEST_FAIL(testCase<long *>("%p"  , "%p", (long *)0xabcd));
-    TEST_FAIL(testCase<double *>("%p", "%p", (double *)0xabcd));
-}
-
-#endif
-
-int main (int , char * [])
+int main (int argc, char * [])
 {
 	BEGIN_TESTS(0);
     
@@ -451,16 +363,15 @@ int main (int , char * [])
 //#endif
 
 	test0<pfs::traits::stdcxx::string>();
-#if __TODO__
-	test2();
-    test3();
-#endif    
+    
+//	test2();
+//    test3();
 
-//	if (argc > 1) {
-//		if (1) test2();
-//	} else {
-//		if (1) test1();
-//	}
+	if (argc > 1) {
+		if (1) test2();
+	} else {
+		if (1) test1();
+	}
 
 	return END_TESTS;
 }

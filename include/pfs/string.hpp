@@ -30,26 +30,26 @@ class string
     typedef StringImplType internal_type;
     
 public:
-    typedef string<typename internal_type::string_value_type>      string_value_type;
-    typedef string<typename internal_type::string_reference_type>  string_reference_type;
+    typedef string<typename internal_type::string_value_type>     string_value_type;
+    typedef string<typename internal_type::string_reference_type> string_reference_type;
 
     typedef typename internal_type::native_type            native_type;
     typedef typename internal_type::native_reference       native_reference;
     typedef typename internal_type::const_native_reference const_native_reference;
 
-    typedef typename internal_type::value_type            code_unit_type;
-    typedef typename unicode::char_t                      value_type;
+    typedef typename internal_type::value_type             code_unit_type;
+    typedef typename unicode::char_t                       value_type;
 //    typedef typename internal_type::reference              reference;
 //    typedef typename internal_type::const_reference        const_reference;
 //    typedef typename internal_type::pointer                pointer;
-    typedef typename internal_type::const_pointer          const_pointer;
+    typedef typename internal_type::const_pointer             const_pointer;
     
     typedef typename unicode::unicode_iterator_traits<
             typename internal_type::iterator>::iterator       iterator;
     typedef typename unicode::unicode_iterator_traits<
             typename internal_type::const_iterator>::iterator const_iterator;
-    typedef pfs::reverse_iterator<iterator>         reverse_iterator;
-    typedef pfs::reverse_iterator<const_iterator>   const_reverse_iterator;
+    typedef pfs::reverse_iterator<iterator>                   reverse_iterator;
+    typedef pfs::reverse_iterator<const_iterator>             const_reverse_iterator;
     
     typedef typename internal_type::difference_type difference_type;
     typedef typename internal_type::size_type       size_type;
