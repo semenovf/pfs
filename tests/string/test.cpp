@@ -15,11 +15,8 @@
 #include <pfs/limits.hpp>
 #include <pfs/traits/stdcxx/string.hpp>
 
-// TODO Delete line below
-#undef QT_CORE_LIB
-
 // Enabled by `qt_enable`
-#ifdef QT_CORE_LIB
+#ifdef PFS_HAVE_QT
 #   include <pfs/traits/qt/string.hpp>
 #endif
 
@@ -152,7 +149,7 @@ int main (int argc, char *argv[])
 
     BEGIN_TESTS(0);
 
-//    test_basic<pfs::traits::stdcxx::string>();
+    test_basic<pfs::traits::stdcxx::string>();
 //    test_basic<pfs::traits::stdcxx::wstring>();
 //    test_find<pfs::traits::stdcxx::string>();
 //    test_find<pfs::traits::stdcxx::wstring>();
@@ -173,7 +170,7 @@ int main (int argc, char *argv[])
 //    test_to_string<pfs::traits::stdcxx::string>();
 
 #ifdef QT_CORE_LIB
-//    test_basic<pfs::traits::qt::string>();
+    test_basic<pfs::traits::qt::string>();
 //    test_find<pfs::traits::qt::string>();
 //    test_substr<pfs::traits::qt::string>();
 //    test_c_str_cast<QString>();

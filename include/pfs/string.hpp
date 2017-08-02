@@ -60,15 +60,15 @@ protected:
     internal_type _p;
 
 protected:
-    string (typename internal_type::const_pointer first
-            , typename internal_type::const_pointer last)
-        : _p(first, last)
-    {}
-
-    string (typename internal_type::pointer first
-            , typename internal_type::pointer last)
-        : _p(first, last)
-    {}
+//    string (typename internal_type::const_pointer first
+//            , typename internal_type::const_pointer last)
+//        : _p(first, last)
+//    {}
+//
+//    string (typename internal_type::pointer first
+//            , typename internal_type::pointer last)
+//        : _p(first, last)
+//    {}
 
     string (typename internal_type::iterator first
             , typename internal_type::iterator last)

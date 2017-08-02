@@ -13,8 +13,33 @@
 #include <pfs/cxxlang.hpp>
 #include <pfs/limits.hpp>
 #include <pfs/ctype.hpp>
-#include <pfs/iterator.hpp>
+#include <pfs/unicode/unicode_iterator.hpp>
 #include <pfs/traits/string_value_ref.hpp>
+
+namespace pfs {
+namespace unicode {
+
+template <>
+uint16_t code_point_cast<uint16_t, QChar> (QChar x)
+{
+    return static_cast<uint16_t>(x.unicode());
+}
+
+template <>
+struct unicode_iterator_traits<QChar *>
+    :  unicode_iterator_limits<QChar *, QChar *>
+{
+    typedef utf16_iterator<QChar *> iterator;
+};
+
+template <>
+struct unicode_iterator_traits<QChar const *>
+    :  unicode_iterator_limits<QChar const *, QChar const *>
+{
+    typedef utf16_iterator<QChar const *> iterator;
+};
+
+}}
 
 namespace pfs {
 namespace traits {

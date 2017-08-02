@@ -383,39 +383,39 @@ struct string_stringifier : public base_stringifier<BackInsertIt>
         // Do padding
         //
         size_t vallen = val.length();
+        size_t padding_count = 0;
+        typename string_type::value_type padding_char = ' ';
 
         if (vallen < conv_spec.field_width) {
-            size_t count = size_t(conv_spec.field_width) - vallen;
+            padding_count = size_t(conv_spec.field_width) - vallen;
             
-            typename string_type::value_type padding_char = ' ';
-                    
             if (conv_spec.flags & conversion_specification::FL_ZERO_PADDING
                     && conv_spec.flags & conversion_specification::FL_SPACE_PADDING) {
                 *out++ = ' ';
                 padding_char = '0';
-                --count;
+                --padding_count;
             } else if (conv_spec.flags & conversion_specification::FL_SPACE_PADDING) {
                 padding_char = ' ';
             } else if (conv_spec.flags & conversion_specification::FL_ZERO_PADDING) {
                 padding_char = '0';
             }
-                
-            if (conv_spec.flags & conversion_specification::FL_LEFT_JUSTIFIED) {
-                for (typename string_type::const_iterator it = val.cbegin()
-                        ; it != val.cend(); ++it) {
-                    *out++ = *it;
-                }
-                
-                while (count--)
-                    *out++ = padding_char;
-            } else {
-                while (count--)
-                    *out++ = padding_char;
+        }
 
-                for (typename string_type::const_iterator it = val.cbegin()
-                        ; it != val.cend(); ++it) {
-                    *out++ = *it;
-                }
+        if (conv_spec.flags & conversion_specification::FL_LEFT_JUSTIFIED) {
+            for (typename string_type::const_iterator it = val.cbegin()
+                    ; it != val.cend(); ++it) {
+                *out++ = *it;
+            }
+
+            while (padding_count--)
+                *out++ = padding_char;
+        } else {
+            while (padding_count--)
+                *out++ = padding_char;
+
+            for (typename string_type::const_iterator it = val.cbegin()
+                    ; it != val.cend(); ++it) {
+                *out++ = *it;
             }
         }
     }

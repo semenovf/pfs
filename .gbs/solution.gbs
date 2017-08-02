@@ -28,6 +28,19 @@ if os.findlib("pthread") then
     defines { "PFS_HAVE_PTHREAD" }
 end
 
+qt5_core_lib = os.findlib("Qt5Core")
+qt4_core_lib = os.findlib("QtCore")
+
+if qt5_core_lib then
+    print("Qt5 library found at " .. qt5_core_lib)
+    defines { "PFS_HAVE_QT",  "PFS_HAVE_QT5" }
+end
+
+if qt4_core_lib then
+    print("Qt4 library found at " .. qt4_core_lib)
+    defines { "PFS_HAVE_QT", "PFS_HAVE_QT4" }
+end
+
 configuration "debug"
     symbols      "On"
     defines      { "DEBUG" }

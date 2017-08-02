@@ -27,11 +27,14 @@ namespace pfs {
 namespace unicode {
 
 template <typename CodePointIter>
+struct unicode_iterator_traits;
+
+template <typename CodePointIter>
 class utf8_iterator : public iterator_facade<bidirectional_iterator_tag
         , utf8_iterator<CodePointIter>
         , char_t
         , char_t *  // unused pointer
-        , char_t &> // unused reference
+        , char_t>   // used as reference in 'std::reverse_iterator's operator: reference operator * () const'
 {
     CodePointIter _p;
 
@@ -40,7 +43,7 @@ public:
         , utf8_iterator<CodePointIter>
         , char_t
         , char_t *
-        , char_t &> base_class;
+        , char_t> base_class;
     
     typedef typename base_class::difference_type difference_type;
     
@@ -72,32 +75,6 @@ public:
     }
 
 protected:
-    static void advance_forward (CodePointIter & p, difference_type n)
-    {
-        if (n < 0) {
-            advance_backward(p, -n);
-            return;
-        }
-
-        while (n--) {
-            if ((*p & 0x80) == 0x00) {
-                ++p;
-            } else if ((*p & 0xE0) == 0xC0) {
-                p += 2;
-            } else if ((*p & 0xF0) == 0xE0) {
-                p += 3;
-            } else if ((*p & 0xF8) == 0xF0) {
-                p += 4;
-            } else if ((*p & 0xFC) == 0xF8) {
-                p += 5;
-            } else if ((*p & 0xFE) == 0xFC) {
-                p += 6;
-            } else { // Invalid char
-                ++p;
-            }
-        }
-    }
-    
     static void advance_forward_safe (CodePointIter & p, CodePointIter end, difference_type & n)
     {
         if (n < 0) {
@@ -107,7 +84,13 @@ protected:
             return;
         }
 
+        CodePointIter prev = p;
+        difference_type nprev = n;
+        
         while (n-- && p < end) {
+            prev = p;
+            nprev = n + 1;
+            
             if ((*p & 0x80) == 0x00) {
                 ++p;
             } else if ((*p & 0xE0) == 0xC0) {
@@ -125,36 +108,12 @@ protected:
             }
         }
         
-        if (p > end)
-            throw out_of_range("utf8_iterator::advance_forward_safe()");
-    }
-
-    static void advance_backward (CodePointIter & p, difference_type n)
-    {
-        if (n < 0) {
-            advance_forward(p, -n);
-            return;
-        }
-
-        while (n--) {
-            if ((*(p - 1) & 0x80) == 0x00) {
-                --p;
-            } else if ((*(p - 2) & 0xE0) == 0xC0) {
-                p -= 2;
-            } else if ((*(p - 3) & 0xF0) == 0xE0) {
-                p -= 3;
-            } else if ((*(p - 4) & 0xF8) == 0xF0) {
-                p -= 4;
-            } else if ((*(p - 5) & 0xFC) == 0xF8) {
-                p -= 5;
-            } else if ((*(p - 6) & 0xFE) == 0xFC) {
-                p -= 6;
-            } else {
-                --p;
-            }
+        if (p > end) {
+            p = prev;
+            n = nprev;
         }
     }
-    
+
     static void advance_backward_safe (CodePointIter & p, CodePointIter begin, difference_type & n)
     {
         if (n < 0) {
@@ -164,7 +123,13 @@ protected:
             return;
         }
 
+        CodePointIter prev = p;
+        difference_type nprev = n;
+        
         while (n-- && p > begin) {
+            prev = p;
+            nprev = n + 1;
+            
             if ((*(p - 1) & 0x80) == 0x00) {
                 --p;
             } else if ((*(p - 2) & 0xE0) == 0xC0) {
@@ -182,14 +147,26 @@ protected:
             }
         }
         
-        if (p < begin)
-            throw out_of_range("utf8_iterator::advance_backward_safe()");
+        if (p < begin) {
+            p = prev;
+            n = nprev;
+        }
     }    
+
+    static void advance_forward (CodePointIter & p, difference_type n)
+    {
+        advance_forward_safe(p, unicode_iterator_traits<CodePointIter>::max(), n);
+    }
+    
+    static void advance_backward (CodePointIter & p, difference_type n)
+    {
+        advance_backward_safe(p, unicode_iterator_traits<CodePointIter>::min(), n);
+    }
     
     static char_t decode (CodePointIter const & p, CodePointIter * pnewpos)
     {
         CodePointIter newpos = p;
-        uint8_t b = static_cast<uint8_t> (*newpos);
+        uint8_t b = code_point_cast<uint8_t> (*newpos);
         char_t::value_type result;
         int nunits = 0;
 

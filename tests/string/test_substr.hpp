@@ -8,10 +8,10 @@
 #ifndef __PFS_TEST_SUBSTR_HPP__
 #define __PFS_TEST_SUBSTR_HPP__
 
-template <typename StringT>
+template <typename StringImplType>
 void test_substr ()
 {
-    typedef pfs::string<StringT>                string_type;
+    typedef pfs::string<StringImplType>         string_type;
     typedef typename string_type::const_pointer const_pointer;
 
     test_description<const_pointer>(__PRETTY_FUNCTION__);

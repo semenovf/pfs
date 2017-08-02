@@ -26,6 +26,13 @@ enum {
 	, low_surrogate_end        = 0x0000DFFF
 };
 
+
+template <typename T1, typename T2>
+T1 code_point_cast (T2 x)
+{
+    return static_cast<T1>(x);
+}
+
 struct char_t
 {
 	static uint32_t const replacement_char = default_replacement_char;

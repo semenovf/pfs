@@ -16,9 +16,9 @@
 #include "pfs/traits/stdcxx/string.hpp"
 #include "pfs/safeformat.hpp"
 
-//#ifdef PFS_HAVE_QT
-//#include <QString>
-//#endif
+#ifdef PFS_HAVE_QT
+#   include <QString>
+#endif
 
 template <typename T, typename StringImplType>
 bool testCase (StringImplType const & fmt1, std::string const & fmt2, T value)
@@ -120,7 +120,7 @@ void testCaseString ()
 	ADD_TESTS(10);
 	std::cout << "\nTesting with [T = " << pfs::type_name<string_type>() << "]\n";
     
-	TEST_FAIL((testCase<string_type, StringImplType>("%s", "%s", string_type("Hello"))));
+	TEST_FAIL((testCase<char const *, StringImplType>("%s", "%s", "Hello")));
 }
 
 template <typename StringImplType>

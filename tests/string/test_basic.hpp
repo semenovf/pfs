@@ -8,26 +8,24 @@
 #ifndef __PFS_TEST_BASIC_HPP__
 #define __PFS_TEST_BASIC_HPP__
 
-template <typename StringT>
+template <typename StringImplType>
 void test_assign ()
 {
-    typedef pfs::string<StringT>                 string_type;
-//    typedef typename string_type::const_iterator         const_iterator;
-//    typedef typename string_type::const_reverse_iterator const_reverse_iterator;
-    typedef typename string_type::value_type             value_type;
+    typedef pfs::string<StringImplType>         string_type;
+    typedef typename string_type::const_pointer const_pointer;
 
-    test_description<value_type>(__PRETTY_FUNCTION__);
+    test_description<const_pointer>(__PRETTY_FUNCTION__);
     
     ADD_TESTS(5);
     
-    string_type orig(string_samples<value_type>(STR_ORIG)); // Constructor (StringImpl const &)
-    string_type same(string_samples<value_type>(STR_SAME)); // Constructor (StringImpl const &)
-    string_type diff(string_samples<value_type>(STR_DIFF)); // Constructor (StringImpl const &)
+    string_type orig(string_samples<const_pointer>(STR_ORIG)); // Constructor (StringImpl const &)
+    string_type same(string_samples<const_pointer>(STR_SAME)); // Constructor (StringImpl const &)
+    string_type diff(string_samples<const_pointer>(STR_DIFF)); // Constructor (StringImpl const &)
     string_type dup(orig); // Copy constructor
     string_type orig1;     // Empty string
     orig1 = orig;          // Copy assign operator
     string_type orig2;
-    orig2 = string_samples<value_type>(STR_ORIG); // Assign from string implementation type
+    orig2 = string_samples<const_pointer>(STR_ORIG); // Assign from string implementation type
 
     TEST_OK(orig == same);
     TEST_OK(orig != diff);
@@ -36,19 +34,20 @@ void test_assign ()
     TEST_OK(orig == orig2);
 }
 
-template <typename StringT>
+template <typename StringImplType>
 void test_iterator ()
 {
-    typedef pfs::string<StringT>                         string_type;
+    typedef pfs::string<StringImplType>                  string_type;
     typedef typename string_type::const_iterator         const_iterator;
     typedef typename string_type::const_reverse_iterator const_reverse_iterator;
     typedef typename string_type::value_type             value_type;
+    typedef typename string_type::const_pointer          const_pointer;
 
-    test_description<value_type>(__PRETTY_FUNCTION__);
+    test_description<const_pointer>(__PRETTY_FUNCTION__);
     
     ADD_TESTS(16);
     
-    string_type str(string_samples<value_type>(STR_ORIG));
+    string_type str(string_samples<const_pointer>(STR_ORIG));
 
     const_iterator it = str.cbegin();
     const_iterator end = str.cend();
@@ -69,6 +68,8 @@ void test_iterator ()
 
     TEST_OK(itr != endr);
     
+    *itr;
+    
     TEST_OK(*itr++ == value_type('F'));
     TEST_OK(*itr++ == value_type('E'));
     TEST_OK(*itr++ == value_type('D'));
@@ -79,42 +80,11 @@ void test_iterator ()
     TEST_OK(itr == endr);
 }
 
-
-template <typename StringT>
-void test_subscript ()
-{
-    typedef pfs::string<StringT>     string_type;
-    typedef typename string_type::value_type value_type;
-
-    test_description<value_type>(__PRETTY_FUNCTION__);
-
-    ADD_TESTS(7);
-
-    string_type str(string_samples<value_type>(STR_ORIG)); 
- 
-    TEST_OK(str[0] == value_type('A'));
-    TEST_OK(str[1] == value_type('B'));
-    TEST_OK(str[2] == value_type('C'));
-    TEST_OK(str[3] == value_type('D'));
-    TEST_OK(str[4] == value_type('E'));
-    TEST_OK(str[5] == value_type('F'));
-
-    try {
-        // throw, even if capacity allowed to access element
-        (void)str[6];
-        TEST_FAIL2(false, "expected `out_of_range` exception throw");
-    } catch (pfs::out_of_range const & ex) {
-        TEST_OK2(true, "`out_of_range` exception throw");
-        std::cout << ex.what() << std::endl;
-    }    
-}
-
-template <typename StringT>
+template <typename StringImplType>
 void test_basic ()
 {
-    test_assign<StringT>();
-    test_iterator<StringT>();
-    test_subscript<StringT>();
+    test_assign<StringImplType>();
+    test_iterator<StringImplType>();
 }
 
 #endif /* __PFS_TEST_BASIC_HPP__ */

@@ -1,0 +1,219 @@
+/*
+ * Copyright (c) 2013, Fedor Semenov
+ *
+ * Permission to use, copy, modify, and/or distribute this software
+ * for any purpose with or without fee is hereby granted, provided
+ * that the above copyright notice and this permission notice appear
+ * in all copies.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL
+ * WARRANTIES WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE
+ * AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR
+ * CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
+ * LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT,
+ * NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
+ * CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+ *
+ * uri-rfc4180.hpp
+ *
+ *  Created on: 08.02.2013
+ *      Author: Fedor Semenov
+ */
+
+
+#ifndef __CWT_CSV_RFC4180_HPP__
+#define __CWT_CSV_RFC4180_HPP__
+
+#include <cwt/fsm.hpp>
+#include <cstdio>
+#include "../include/cwt/csv.hpp"
+
+CWT_NS_BEGIN
+
+struct CsvParseContext {
+	CsvReader    * csvReader;
+	String         field;
+	Vector<String> record;
+	bool           quoted; // true if has unclosed quote char
+};
+
+static bool append_char(const String::const_iterator & begin, const String::const_iterator & end, void *context, void *action_args);
+static bool append_quote(const String::const_iterator & begin, const String::const_iterator & end, void *context, void *action_args);
+static bool append_spaces(const String::const_iterator & begin, const String::const_iterator & end, void *context, void *action_args);
+static bool is_quote(const String::const_iterator & begin, const String::const_iterator & end, void *context, void *action_args);
+static bool append_field(const String::const_iterator & begin, const String::const_iterator & end, void *context, void *action_args);
+
+#ifdef __COMMENT__
+static bool CSV_TRACE(const String::const_iterator & /*begin*/, const String::const_iterator & /*end*/, void * /*context*/, void */*action_args*/)
+{
+	//CWT_TRACE(reinterpret_cast<const char *>(action_args));
+	return true;
+}
+#endif
+
+static bool __QUOTE_BEGIN = true;
+static bool __QUOTE_END   = false;
+static bool __WS_LEADING  = true;
+static bool __WS_TRAILING = false;
+
+/*
+	RFC 4180: Common Format and MIME Type for Comma-Separated Values (CSV) Files.
+	URL: http://www.ietf.org/rfc/rfc4180.txt
+	-----------------------------------------------------------------------
+
+	file = [header CRLF] record *(CRLF record) [CRLF]
+
+	header = name *(COMMA name)
+
+	record = field *(COMMA field)
+
+	name = field
+
+	field = (quoted / non-quoted)
+
+	quoted = DQUOTE *(TEXTDATA / COMMA / CR / LF / 2DQUOTE) DQUOTE
+
+	non-quoted = *TEXTDATA
+
+	COMMA = %x2C ; obsolete
+	COMMA = <user-defined-comma-char> *ws ; my comma definition
+
+	CR = %x0D ;as per section 6.1 of RFC 2234 [2]
+
+	DQUOTE =  %x22 ;as per section 6.1 of RFC 2234 [2]
+
+	LF = %x0A ;as per section 6.1 of RFC 2234 [2]
+
+	CRLF = CR LF ;as per section 6.1 of RFC 2234 [2]
+
+	TEXTDATA =  %x20-21 / %x23-2B / %x2D-7E
+*/
+
+
+static int __COMMA_CHAR  = 0;
+static int __QUOTE_CHAR  = 1;
+static int __ESCAPE_CHAR = 2;
+static ssize_t special_char(FsmContext<String> *fsm, void * fn_context, const String::const_iterator & begin, const String::const_iterator & end);
+
+/* escape escaped_char */
+/*
+static FsmTransition<String> escaped_char_fsm[] = {
+	  { 1,-1, FSM_MATCH_FUNC(special_char, & __ESCAPE_CHAR) , FSM_NORMAL, NULL, NULL }
+	, {-1,-1, FSM_MATCH_CHAR("\"\\/bfnrt"), FSM_ACCEPT, NULL, NULL }
+};
+*/
+
+static FsmTransition<String> dquote_char_fsm[] = {
+	  { 1,-1, FSM_MATCH_FUNC(special_char, & __QUOTE_CHAR) , FSM_NORMAL, NULL, NULL }
+	, {-1,-1, FSM_MATCH_FUNC(special_char, & __QUOTE_CHAR) , FSM_ACCEPT, NULL, NULL }
+};
+
+/* TEXTDATA = %x20 - %x5D-10FFFF ; excluding COMMA, QUOTE and ESCPAE chars */
+static FsmTransition<String> texdata_char_fsm[] = {
+	  {-1, 1, FSM_MATCH_FUNC(special_char, & __COMMA_CHAR)  , FSM_REJECT, NULL, NULL }
+    , {-1, 2, FSM_MATCH_FUNC(special_char, & __QUOTE_CHAR)  , FSM_REJECT, NULL, NULL }
+    , {-1, 3, FSM_MATCH_FUNC(special_char, & __ESCAPE_CHAR) , FSM_REJECT, NULL, NULL }
+    , {-1,-1, FSM_MATCH_RANGE(0x20u, 0x10FFFFu)             , FSM_ACCEPT, NULL, NULL }
+};
+
+/* quoted_char = TEXTDATA / COMMA / CR / LF / 2DQUOTE */
+static FsmTransition<String> quoted_char_fsm[] = {
+	  {-1, 1, FSM_MATCH_FSM(dquote_char_fsm)               , FSM_ACCEPT, append_quote, NULL }
+	, {-1, 2, FSM_MATCH_CHAR("\b\n\r\t\f")                 , FSM_ACCEPT, append_char, NULL }
+	, {-1, 3, FSM_MATCH_FUNC(special_char, & __COMMA_CHAR) , FSM_ACCEPT, append_char, NULL }
+	, {-1,-1, FSM_MATCH_FSM(texdata_char_fsm)              , FSM_ACCEPT, append_char, NULL }
+};
+
+/* quoted = DQUOTE *(TEXTDATA / COMMA / CR / LF / 2DQUOTE) DQUOTE*/
+static FsmTransition<String> quoted_text_fsm[] = {
+	  { 1,-1, FSM_MATCH_FUNC(special_char, & __QUOTE_CHAR) , FSM_NORMAL, is_quote, & __QUOTE_BEGIN }
+	, { 2,-1, FSM_MATCH_RPT_FSM(quoted_char_fsm, 0,-1)     , FSM_NORMAL, NULL, NULL }
+	, {-1,-1, FSM_MATCH_FUNC(special_char, & __QUOTE_CHAR) , FSM_ACCEPT, is_quote, & __QUOTE_END }
+};
+
+static FsmTransition<String> core_field_fsm[] = {
+	  {-1, 1, FSM_MATCH_FSM(quoted_text_fsm)            , FSM_ACCEPT, NULL, NULL }
+	, {-1,-1, FSM_MATCH_RPT_FSM(texdata_char_fsm, 0,-1) , FSM_ACCEPT, NULL, NULL }
+};
+
+static FsmTransition<String> field_fsm[] = {
+      { 1,-1, FSM_MATCH_RPT_CHAR(" \t", 0,-1)  , FSM_NORMAL, append_spaces, & __WS_LEADING }
+    , { 2,-1, FSM_MATCH_FSM(core_field_fsm)    , FSM_NORMAL, NULL, NULL }
+    , { 3,-1, FSM_MATCH_RPT_CHAR(" \t", 0,-1)  , FSM_NORMAL, append_spaces, & __WS_TRAILING }
+    , {-1,-1, FSM_MATCH_NOTHING                , FSM_ACCEPT, append_field, NULL }
+};
+
+/* record = field *(COMMA field) */
+static FsmTransition<String> next_field_fsm[] = {
+	  { 1,-1, FSM_MATCH_FUNC(special_char, & __COMMA_CHAR) , FSM_NORMAL, NULL, NULL }
+	, {-1,-1, FSM_MATCH_FSM(field_fsm)                     , FSM_ACCEPT, NULL, NULL }
+};
+
+static FsmTransition<String> record_fsm[] = {
+	  { 1,-1, FSM_MATCH_FSM(field_fsm)                , FSM_NORMAL, NULL, NULL }
+	, {-1,-1, FSM_MATCH_RPT_FSM(next_field_fsm, 0,-1) , FSM_ACCEPT, NULL, NULL }
+};
+
+static ssize_t special_char(FsmContext<String> *fsm, void * fn_context, const String::const_iterator & begin, const String::const_iterator & end)
+{
+	CsvParseContext *ctx = reinterpret_cast<CsvParseContext*>(fsm->context);
+	const int index = * reinterpret_cast<const int *>(fn_context);
+	CWT_ASSERT(index >= 0 && index <= __ESCAPE_CHAR);
+	UChar specialChars[] = {
+		  ctx->csvReader->separator()
+		, ctx->csvReader->quote()
+		, ctx->csvReader->escape()
+	};
+	return begin < end
+			? (*begin == specialChars[index] ? ssize_t(1) : ssize_t(-1))
+			: ssize_t(-1);
+}
+
+static bool append_char(const String::const_iterator & begin, const String::const_iterator & /*end*/, void *context, void */*action_args*/)
+{
+	CsvParseContext *ctx = reinterpret_cast<CsvParseContext*>(context);
+	ctx->field.append(String(1, *begin));
+	return true;
+}
+
+static bool append_quote(const String::const_iterator & /*begin*/, const String::const_iterator & /*end*/, void *context, void */*action_args*/)
+{
+	CsvParseContext *ctx = reinterpret_cast<CsvParseContext*>(context);
+	ctx->field.append(String(1, ctx->csvReader->quote()));
+	return true;
+}
+
+static bool append_spaces(const String::const_iterator & begin, const String::const_iterator & end, void *context, void *action_args)
+{
+	CsvParseContext *ctx = reinterpret_cast<CsvParseContext*>(context);
+	bool ws = *static_cast<bool*>(action_args);
+	if (ws == __WS_LEADING && !ctx->csvReader->ignoreLeadingWS()) {
+		ctx->field.append(String(begin, end));
+	} else if (ws == __WS_TRAILING && !ctx->csvReader->ignoreTrailingWS()) {
+		ctx->field.append(String(begin, end));
+	}
+	return true;
+}
+
+static bool is_quote(const String::const_iterator & /*begin*/, const String::const_iterator & /*end*/, void *context, void *action_args)
+{
+	CsvParseContext *ctx = reinterpret_cast<CsvParseContext*>(context);
+	ctx->quoted = *static_cast<bool*>(action_args);
+	return true;
+}
+
+static bool append_field(const String::const_iterator & /*begin*/, const String::const_iterator & /*end*/, void *context, void */*action_args*/)
+{
+	CsvParseContext *ctx = reinterpret_cast<CsvParseContext*>(context);
+	if (!ctx->quoted) {
+		ctx->record.append(ctx->field);
+		ctx->field.clear();
+	}
+	return true;
+}
+
+
+CWT_NS_END
+
+#endif /* __CWT_CSV_RFC4180_HPP__ */

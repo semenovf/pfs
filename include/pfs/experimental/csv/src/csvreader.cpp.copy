@@ -1,0 +1,123 @@
+/*
+ * csv.cpp
+ *
+ *  Created on: 08.02.2013
+ *      Author: wladt
+ */
+
+#include <cwt/csv.hpp>
+#include <cwt/logger.hpp>
+#include <cwt/safeformat.hpp>
+#include "csv_rfc4180.hpp"
+
+/*
+	RFC 4180: Common Format and MIME Type for Comma-Separated Values (CSV) Files.
+	URL: http://www.ietf.org/rfc/rfc4180.txt
+	-----------------------------------------------------------------------
+
+	file = [header CRLF] record *(CRLF record) [CRLF]
+
+	header = name *(COMMA name)
+
+	record = field *(COMMA field)
+
+	name = field
+
+	field = (quoted / non-quoted)
+
+	quoted = DQUOTE *(TEXTDATA / COMMA / CR / LF / 2DQUOTE) DQUOTE
+
+	non-quoted = *TEXTDATA
+
+	COMMA = %x2C ; obsolete
+
+	CR = %x0D ;as per section 6.1 of RFC 2234 [2]
+
+	DQUOTE =  %x22 ;as per section 6.1 of RFC 2234 [2]
+
+	LF = %x0A ;as per section 6.1 of RFC 2234 [2]
+
+	CRLF = CR LF ;as per section 6.1 of RFC 2234 [2]
+
+	TEXTDATA =  %x20-21 / %x23-2B / %x2D-7E
+*/
+
+CWT_NS_BEGIN
+
+const String Csv::DEFAULT_ENDL(String::EndOfLine);
+const UChar  Csv::DEFAULT_SEPARATOR(',');
+const UChar  Csv::DEFAULT_QUOTE_CHAR('"');
+const UChar  Csv::DEFAULT_ESCAPE_CHAR('\\');
+const bool   Csv::DEFAULT_STRICT_QUOTES = false;
+const bool   Csv::DEFAULT_IGNORE_LEADING_WS = true;
+const bool   Csv::DEFAULT_IGNORE_TRAILING_WS = true;
+
+const int CsvReader::DEFAULT_SKIP_LINES = 0;
+
+void CsvReader::useEndLine(const String & endl)
+{
+	if (endl.isEmpty())
+		m_endLine = Csv::DEFAULT_ENDL;
+	else
+		m_endLine = endl;
+
+}
+
+
+void CsvReader::skipLines(int lines)
+{
+	while (lines > 0) {
+		String line = m_in->readLine(m_endLine, m_maxLineLength);
+		if (line.isEmpty())
+			break;
+		if (line.endsWith(String::EndOfLine))
+			--lines;
+	}
+}
+
+Vector<String> CsvReader::readRecord()
+{
+	CsvParseContext ctx = { this, String(), Vector<String>(), false };
+
+	Fsm<String> fsm(record_fsm, &ctx);
+
+	do {
+		bool ok;
+		String line;
+		if (ctx.quoted) {              // new line in the middle of field
+			ctx.field.append(String::EndOfLine);
+			line.append(String(1, m_quoteChar));
+		}
+		line.append(m_in->readLine(m_endLines.data(), m_endLines.size(), & ok, m_maxLineLength));
+
+		if (!ok) {
+			if (!m_readLinesCount)
+				Logger::error(_Tr("Bad first CSV record"));
+			else
+				Logger::error(_Fr("Bad CSV record after line %d") % m_readLinesCount);
+			break;
+		}
+
+		if (line.isEmpty() ) {
+			if (m_in->atEnd())
+				break;
+			continue; // skip empty line
+		}
+
+		if (fsm.exec(0, line.begin(), line.end()) < 0 /* != ssize_t(line.length())*/) {
+			if (!m_readLinesCount)
+				Logger::error(_Tr("Bad first CSV record"));
+			else
+				Logger::error(_Fr("Bad CSV record after line %d") % m_readLinesCount);
+			ctx.record.clear();
+			break;
+		}
+		++m_readLinesCount;
+	} while (ctx.quoted);
+
+	return ctx.record;
+}
+
+//TODO 	addError("unexpected end of CSV, may be unbalanced quote marks");
+
+CWT_NS_END
