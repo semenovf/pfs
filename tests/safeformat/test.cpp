@@ -117,7 +117,7 @@ void testCaseString ()
 {
     typedef pfs::string<StringImplType>  string_type;
     
-	ADD_TESTS(10);
+	ADD_TESTS(1);
 	std::cout << "\nTesting with [T = " << pfs::type_name<string_type>() << "]\n";
     
 	TEST_FAIL((testCase<char const *, StringImplType>("%s", "%s", "Hello")));
@@ -150,6 +150,19 @@ void test0 ()
     
     testCaseString<StringImplType>();
 }
+
+template <typename StringImplType>
+void test1 ()
+{
+	ADD_TESTS(4);
+	std::cout << "\n\nTesting with pointer\n";
+
+    TEST_FAIL((testCase<void *  , StringImplType>("%p" , "%p", (void *)0xabcd)));
+    TEST_FAIL((testCase<int *   , StringImplType>("%p" , "%p", (int *)0xabcd)));
+    TEST_FAIL((testCase<long *  , StringImplType>("%p" , "%p", (long *)0xabcd)));
+    TEST_FAIL((testCase<double *, StringImplType>("%p" , "%p", (double *)0xabcd)));
+}
+
 
 template <class Integral1, class Integral2>
 Integral2 randomInt (Integral1 low, Integral2 up)
@@ -189,12 +202,15 @@ std::string randomString (unsigned int maxSize)
     return result;
 }
 
-void test1 ()
+void test2 (unsigned limit)
 {
     typedef pfs::traits::stdcxx::string string_impl_type;
     srand(0);
     
-    for (unsigned i = 0; ; ++i) {
+    if (limit != pfs::numeric_limits<unsigned>::max())
+        ADD_TESTS(limit);
+    
+    for (unsigned i = 0; i < limit; ++i) {
         printf("%u\r", i);
 
         // Generate a random string for the head
@@ -289,9 +305,9 @@ void test1 ()
     }
 }
 
-// test speed
+// speed test
 //
-void test2 ()
+void test3 ()
 {
     typedef pfs::string<pfs::traits::stdcxx::string> string_type;
     
@@ -340,17 +356,6 @@ void test2 ()
 		 ;
 }
 
-//void test3 ()
-//{
-//	ADD_TESTS(4);
-//	std::cout << "\n\nTesting with pointer\n";
-//
-//    TEST_FAIL(testCase<void *>("%p"  , "%p", (void *)0xabcd));
-//    TEST_FAIL(testCase<int *>("%p"   , "%p", (int *)0xabcd));
-//    TEST_FAIL(testCase<long *>("%p"  , "%p", (long *)0xabcd));
-//    TEST_FAIL(testCase<double *>("%p", "%p", (double *)0xabcd));
-//}
-
 int main (int argc, char * [])
 {
 	BEGIN_TESTS(0);
@@ -363,15 +368,13 @@ int main (int argc, char * [])
 //#endif
 
 	test0<pfs::traits::stdcxx::string>();
+    test1<pfs::traits::stdcxx::string>();
+    test2(1000);
+    test3();
     
-//	test2();
-//    test3();
-
-	if (argc > 1) {
-		if (1) test2();
-	} else {
-		if (1) test1();
-	}
+    if (argc > 1) {
+        test2(pfs::numeric_limits<unsigned>::max());
+    }
 
 	return END_TESTS;
 }

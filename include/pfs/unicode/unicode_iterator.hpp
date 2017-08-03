@@ -11,8 +11,9 @@
 #include <string>
 #include <pfs/unicode/utf8_iterator.hpp>
 #include <pfs/unicode/utf16_iterator.hpp>
-#include <pfs/limits.hpp>
 //#include <pfs/unicode/utf32_iterator.hpp>
+#include <pfs/limits.hpp>
+#include <pfs/type_traits.hpp>
 
 namespace pfs {
 namespace unicode {
@@ -23,6 +24,8 @@ struct unicode_iterator_traits;
 template <typename CodePointIter, typename Pointer>
 struct unicode_iterator_limits
 {
+//    typedef Pointer pointer;
+//    typedef typename remove_pointer<pointer>::type value_type;
     static CodePointIter max () { return CodePointIter(reinterpret_cast<Pointer>(numeric_limits<uintptr_t>::max())); }
     static CodePointIter min () { return CodePointIter(reinterpret_cast<Pointer>(numeric_limits<uintptr_t>::min())); }
 };
@@ -30,6 +33,8 @@ struct unicode_iterator_limits
 template <typename Pointer>
 struct unicode_iterator_limits<Pointer, Pointer>
 {
+//    typedef Pointer pointer;
+//    typedef typename remove_pointer<pointer>::type value_type;
     static Pointer max () { return reinterpret_cast<Pointer>(numeric_limits<uintptr_t>::max()); }
     static Pointer min () { return reinterpret_cast<Pointer>(numeric_limits<uintptr_t>::min()); }
 };

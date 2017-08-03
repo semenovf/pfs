@@ -833,6 +833,11 @@ public:
         return *this;
     }
     
+    safeformat & operator () (typename string_type::const_native_reference s)
+    {
+        return operator() (string_type(s));
+    }
+    
     safeformat & operator () (char const * s)
     {
         string_type ss(s);
@@ -932,6 +937,11 @@ public:
         return operator() (s);
     }
 
+    safeformat & operator % (typename string_type::const_native_reference s)
+    {
+        return operator() (s);
+    }
+
     safeformat & operator % (const char * s)
     {
         return operator() (s);
@@ -1026,6 +1036,11 @@ public:
         return operator() (s);
     }
 
+    safeformat & arg (typename string_type::const_native_reference s)
+    {
+        return operator() (s);
+    }
+    
     safeformat & arg (const char * s)
     {
         return operator() (s);

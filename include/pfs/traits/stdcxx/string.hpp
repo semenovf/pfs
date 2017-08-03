@@ -191,6 +191,18 @@ public:
         _p->push_back(ch);
     }
     
+    basic_string & operator += (basic_string const & str)
+    {
+        *_p += *str._p;
+        return *this;
+    }
+
+    basic_string & operator += (const_pointer s)
+    {
+        *_p += s;
+        return *this;
+    }
+    
     friend inline bool operator == (basic_string const & lhs, basic_string const & rhs)
     {
         return *lhs._p == *rhs._p;
@@ -235,12 +247,12 @@ public:
         return result;
     }
 
-    friend inline string_value_type operator + (value_type lhs, basic_string const & rhs)
-    {
-        string_value_type result;
-        *result._p = lhs + *rhs._p;
-        return result;
-    }
+//    friend inline string_value_type operator + (value_type lhs, basic_string const & rhs)
+//    {
+//        string_value_type result;
+//        *result._p = lhs + *rhs._p;
+//        return result;
+//    }
 
     friend inline string_value_type operator + (basic_string const & lhs, const_pointer rhs)
     {
@@ -249,12 +261,12 @@ public:
         return result;
     }
 
-    friend inline string_value_type operator + (basic_string const & lhs, value_type rhs)
-    {
-        string_value_type result;
-        *result._p = *lhs._p + rhs;
-        return result;
-    }
+//    friend inline string_value_type operator + (basic_string const & lhs, value_type rhs)
+//    {
+//        string_value_type result;
+//        *result._p = *lhs._p + rhs;
+//        return result;
+//    }
     
     static size_type length (const_pointer str);
 };

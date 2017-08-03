@@ -1,13 +1,9 @@
-/**
- * @file   test.cpp
- * @author
- * @date
- *
- * @brief testing ...
- */
-
 #include <pfs/test/test.hpp>
+#include <pfs/string.hpp>
+#include <pfs/traits/stdcxx/string.hpp>
 #include "test_regex_match.hpp"
+
+typedef pfs::string<pfs::traits::stdcxx::string> string_type;
 
 int main(int argc, char *argv[])
 {
@@ -16,7 +12,7 @@ int main(int argc, char *argv[])
 
     BEGIN_TESTS(0);
     
-    test_regex_match<char>();
+    test_regex_match<string_type>();
 
     return END_TESTS;
 }

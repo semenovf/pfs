@@ -874,8 +874,8 @@ public:
 //
 namespace pfs {
 
-//template <typename JsonType, typename T>
-//JsonType to_json (T const & v, bool plain = false);
+template <typename JsonType, typename T>
+JsonType to_json (T const & v, bool plain = false);
 
 //
 //string to_string (json::value const & v, json::print_style_enum style);

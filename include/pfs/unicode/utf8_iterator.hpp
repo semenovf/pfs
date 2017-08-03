@@ -33,7 +33,7 @@ template <typename CodePointIter>
 class utf8_iterator : public iterator_facade<bidirectional_iterator_tag
         , utf8_iterator<CodePointIter>
         , char_t
-        , char_t *  // unused pointer
+        , char_t *  // unused
         , char_t>   // used as reference in 'std::reverse_iterator's operator: reference operator * () const'
 {
     CodePointIter _p;

@@ -109,12 +109,12 @@ struct iterator_facade<input_iterator_tag, Derived, T, Pointer, Reference, Dista
 		return r;
 	}
     
-    friend bool operator == (Derived const & lhs, Derived const & rhs)
+    friend inline bool operator == (Derived const & lhs, Derived const & rhs)
     {
         return Derived::equals(lhs, rhs);
     }
 
-    friend bool operator != (Derived const & lhs, Derived const & rhs)
+    friend inline bool operator != (Derived const & lhs, Derived const & rhs)
     {
         return ! Derived::equals(lhs, rhs);
     }

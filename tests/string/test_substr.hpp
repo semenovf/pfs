@@ -11,8 +11,9 @@
 template <typename StringImplType>
 void test_substr ()
 {
-    typedef pfs::string<StringImplType>         string_type;
-    typedef typename string_type::const_pointer const_pointer;
+    typedef pfs::string<StringImplType>          string_type;
+    typedef typename string_type::const_iterator const_iterator;
+    typedef typename string_type::const_pointer  const_pointer;
 
     test_description<const_pointer>(__PRETTY_FUNCTION__);
     
@@ -41,6 +42,23 @@ void test_substr ()
 
     TEST_OK(orig_ru.substr(orig_ru.cbegin()) == orig_ru);
     TEST_OK(orig_ru.substr(orig_ru.cbegin()) == same_ru);
+
+    const_iterator first = orig_ru.cbegin();
+    const_iterator last  = orig_ru.cend();
+    
+    pfs::advance(first, 1);
+    pfs::advance(last, -1);
+    
+    TEST_OK(orig_ru.substr(first, last) == mid_ru);
+    
+    first = orig_ru.cbegin();
+    last  = orig_ru.cend();
+    
+    pfs::advance(first, orig_ru.length());
+    TEST_OK(first == orig_ru.cend());
+    
+    pfs::advance(last, -1 * orig_ru.length());
+    TEST_OK(last == orig_ru.cbegin());
 
 }
 

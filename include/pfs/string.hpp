@@ -36,13 +36,15 @@ public:
     typedef typename internal_type::native_type            native_type;
     typedef typename internal_type::native_reference       native_reference;
     typedef typename internal_type::const_native_reference const_native_reference;
+    typedef typename internal_type::iterator               native_iterator;
+    typedef typename internal_type::const_iterator         native_const_iterator;
 
     typedef typename internal_type::value_type             code_unit_type;
     typedef typename unicode::char_t                       value_type;
 //    typedef typename internal_type::reference              reference;
 //    typedef typename internal_type::const_reference        const_reference;
 //    typedef typename internal_type::pointer                pointer;
-    typedef typename internal_type::const_pointer             const_pointer;
+    typedef typename internal_type::const_pointer           const_pointer;
     
     typedef typename unicode::unicode_iterator_traits<
             typename internal_type::iterator>::iterator       iterator;
@@ -108,8 +110,10 @@ public:
     {}
     
     string (size_type count, value_type ch)
-        : _p(count, ch)
-    {}
+    {
+        while (count--)
+            this->push_back(ch);
+    }
     
     /**
      * Casts to const native container reference
@@ -413,6 +417,11 @@ public:
      */
     string_value_type substr (const_iterator pos, size_type count = npos) const;
     
+    string_value_type substr (const_iterator first, const_iterator last) const
+    {
+        return string_value_type(first, last);
+    }
+    
 	string_value_type left (size_t count) const
 	{
 		return substr(0, count);
@@ -556,8 +565,8 @@ public:
 
     friend inline string_value_type operator + (value_type lhs, string const & rhs)
     {
-        string_value_type result;
-        result._p = lhs + rhs._p;
+        string_value_type result(1, lhs);
+        result._p += rhs._p;
         return result;
     }
 
@@ -571,7 +580,8 @@ public:
     friend inline string_value_type operator + (string const & lhs, value_type rhs)
     {
         string_value_type result;
-        result._p = lhs._p + rhs;
+        result._p += lhs._p;
+        result.push_back(rhs);
         return result;
     }
     

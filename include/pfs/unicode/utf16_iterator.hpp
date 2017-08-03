@@ -22,8 +22,8 @@ template <typename CodePointIter>
 class utf16_iterator : public iterator_facade<bidirectional_iterator_tag
         , utf16_iterator<CodePointIter>
         , char_t
-        , char_t *  // unused pointer
-        , char_t>   // used as reference in 'std::reverse_iterator's operator: reference operator * () const'
+        , char_t * // unused
+        , char_t>  // used as reference in 'std::reverse_iterator's operator: reference operator * () const'
 {
     CodePointIter _p;
 

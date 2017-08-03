@@ -24,6 +24,9 @@ using remove_const = std::remove_const<T>;
 template <typename T>
 using remove_volatile = std::remove_volatile<T>;
 
+template <typename T>
+using remove_pointer = std::remove_pointer<T>;
+
 template <bool B, typename T = void>
 using enable_if = std::enable_if<B, T>;
 

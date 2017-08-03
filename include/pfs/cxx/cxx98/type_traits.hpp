@@ -65,7 +65,7 @@ struct not_op
     : public integral_constant<bool, !T::value>
 { };
 
-}
+} // details
 
 template<typename T>
 struct remove_const
