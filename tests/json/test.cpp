@@ -31,11 +31,13 @@
 namespace stdcxx {
 namespace json {
 
+typedef pfs::string<pfs::traits::stdcxx::string> string_type;
+
 typedef pfs::json::json<
           bool
         , intmax_t
         , double
-        , pfs::traits::stdcxx::string
+        , string_type
         , pfs::traits::stdcxx::vector
         , pfs::traits::stdcxx::map> value;
 

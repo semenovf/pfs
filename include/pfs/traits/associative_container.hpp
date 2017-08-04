@@ -81,6 +81,11 @@ public:
     {
         return base_class::_p.insert(value);
     }
+
+    pfs::pair<iterator, bool> insert2 (key_type const & key, mapped_type const & mapped)
+    {
+        return base_class::_p.insert2(key, mapped);
+    }
     
     size_type erase (key_type const & key)
     {

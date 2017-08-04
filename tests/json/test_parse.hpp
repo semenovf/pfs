@@ -51,13 +51,13 @@ static const char * array_str = "   [       \
 
 #endif
 
-template <typename json_type>
+template <typename JsonType>
 void test_fsm ()
 {
     ADD_TESTS(49);
 
-    typedef typename json_type::string_type string_type;
-    typedef pfs::json::grammar<json_type> grammar_type;
+    typedef typename JsonType::string_type string_type;
+    typedef pfs::json::grammar<JsonType> grammar_type;
 
     typedef typename grammar_type::iterator iterator;
     typedef pfs::fsm::test_valid_entry<typename grammar_type::iterator> test_valid_entry;
@@ -305,10 +305,10 @@ void test ()
 #endif
 
 
-template <typename json_type>
+template <typename JsonType>
 void test ()
 {
-    test_fsm<json_type>();
+    test_fsm<JsonType>();
 }
 
 } // test_parse

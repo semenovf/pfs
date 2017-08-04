@@ -16,10 +16,12 @@
 #include <pfs/traits/stdcxx/list.hpp>
 #include <pfs/traits/stdcxx/vector.hpp>
 #include <pfs/system_string.hpp>
+#include <pfs/stringlist.hpp>
 #include <pfs/dynamic_library.hpp>
 #include <pfs/logger.hpp>
 #include <pfs/safeformat.hpp>
 #include <pfs/datetime.hpp>
+#include <pfs/byte_string.hpp>
 #include <pfs/io/file.hpp>
 #include <pfs/application/module.hpp>
 #include <pfs/application/sigslot_mapping.hpp>
@@ -281,35 +283,32 @@ bool dispatcher::register_modules (JsonType const & conf)
     	JsonType dlog = disp["log"];
 
     	if (dlog.is_object()) {
-    		pfs::logger logger;
-    		pfs::json::json::const_iterator it = dlog.cbegin();
-    		pfs::json::json::const_iterator itEnd = dlog.cend();
+    		logger::logger<string_type> logger;
+    		typename JsonType::const_iterator it = dlog.cbegin();
+    		typename JsonType::const_iterator itEnd = dlog.cend();
 
     		for (; it != itEnd; ++it) {
     			string_type name = it.key();
     			JsonType priority = *it;
-    			stringlist priorities;
-    			logger::appender * pappender = 0;
+    			stringlist<string_type> priorities;
+    			logger::appender<typename JsonType::string_type> * pappender = 0;
 
     			if (name == "stdout") {
-    				pappender = & logger.add_appender<stdout_appender>();
+    				pappender = & logger.add_appender<logger::stdout_appender<string_type> >();
     			} else if (name == "stderr") {
-    				pappender = & logger.add_appender<stderr_appender>();
+    				pappender = & logger.add_appender<logger::stderr_appender<string_type> >();
     			} else {
                     // Construct path from pattern
     				filesystem::path path(to_string<string_type>(current_datetime(), name)); // `name` is a pattern here
-
-    				error_code ec;
-    				io::device d = io::open_device(io::open_params<io::file>(path, io::write_only), ec);
-
-    				if (ec) {
+    				pappender = & logger.add_appender<logger::file_appender<string_type> >(path);
+                    
+                    if (! pappender->is_open()) {
+                        pfs::error_code ec = pfs::get_last_system_error();
     					print_error(0, fmt("Failed to create/open log file: %s: %s")
-    							(to_string(path))
-    							(to_string(ex)).str());
+    							(to_string<string_type>(path))
+    							(to_string<string_type>(ec)).str());
     					return false;
-    				}
-
-    				pappender = & logger.add_appender<file_appender, io::device>(d);
+                    }
     			}
 
     			PFS_ASSERT(pappender);

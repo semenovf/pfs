@@ -8,9 +8,12 @@
 #ifndef __PFS_LOGGER_HPP__
 #define __PFS_LOGGER_HPP__
 
+#include <iostream>
+#include <fstream>
 #include <pfs/memory.hpp>
 #include <pfs/sigslot.hpp>
 #include <pfs/traits/sequence_container.hpp>
+#include <pfs/traits/stdcxx/list.hpp>
 //#include <pfs/3dparty/spdlog/spdlog.h>
 
 namespace pfs {
@@ -38,22 +41,22 @@ struct priority
 #endif    
 };
 
-template <typename Logger>
+template <typename StringType>
 class appender;
 
-template <typename StringImplType
-    , template <typename> class SequenceContainerImplType>
+template <typename StringType
+    , template <typename> class SequenceContainerImplType = traits::stdcxx::list>
 class logger
 {
 public:
-    typedef string<StringImplType>                   string_type;
+    typedef StringType string_type;
 
 private:    
-    typedef appender<logger>                         appender_type;
+    typedef appender<logger>                       appender_type;
 	typedef traits::sequence_container<
               unique_ptr<appender_type>
-            , SequenceContainerImplType>             appender_sequence;
-	typedef signal2<priority, string_type const &>   emitter_type;
+            , SequenceContainerImplType>           appender_sequence;
+	typedef signal2<priority, string_type const &> emitter_type;
 
 private:
 	struct data_t
@@ -216,7 +219,7 @@ public:
 //	static logger & default_logger ();
 };
 
-template <typename Logger>
+template <typename StringType>
 class appender : public has_slots<>
 {
 	template <typename String
@@ -224,7 +227,7 @@ class appender : public has_slots<>
     friend class logger;
 
 public:
-    typedef typename Logger::string_type string_type;
+    typedef StringType string_type;
 
 protected:
 	string_type _pattern;
@@ -263,6 +266,8 @@ public:
 	virtual ~appender ()
 	{}
 
+    virtual bool is_open () const = 0;
+    
 	string_type pattern () const
 	{
 		return _pattern;
@@ -284,36 +289,73 @@ public:
     }
 };
 
-#if __COMMENT__
-
-class stdout_appender : public logger_appender
+template <typename StringType>
+class stdout_appender : public appender<StringType>
 {
+    typedef appender<StringType> base_class;
 public:
-	stdout_appender ()
-		: logger_appender()
-	{}
+	stdout_appender () : base_class() {}
+
+    virtual bool is_open () const
+    {
+        return true;
+    }
 
 protected:
-	virtual void print (pfs::string const & msg) override
+	virtual void print (StringType const & msg) override
 	{
 		std::cout << msg << std::endl;
 	}
 };
 
-class stderr_appender : public logger_appender
+template <typename StringType>
+class stderr_appender : public appender<StringType>
 {
+    typedef appender<StringType> base_class;
+    
 public:
-	stderr_appender ()
-		: logger_appender()
-	{}
+	stderr_appender () : base_class() {}
+
+    virtual bool is_open () const
+    {
+        return true;
+    }
 
 protected:
-	virtual void print (string_type const & msg) override
+	virtual void print (StringType const & msg) override
 	{
 		std::cerr << msg << std::endl;
 	}
 };
 
+template <typename StringType>
+class file_appender : public appender<StringType>
+{
+    typedef appender<StringType> base_class;
+    typedef std::basic_fstream<typename StringType::code_unit_type> fstream_type;
+    
+    fstream_type _d;
+
+public:
+	file_appender () : base_class() {}
+
+	file_appender (filesystem::path const & path)
+        : _d(path.native(), std::ios::out)
+    {}
+
+    virtual bool is_open () const
+    {
+        return _d.is_open();
+    }
+    
+protected:
+	virtual void print (StringType const & msg) pfs_override
+	{
+        _d << msg.native() << "\n";
+	}
+};
+
+#if __COMMENT__
 class stringlist_appender : public logger_appender
 {
 	pfs::stringlist _strings;

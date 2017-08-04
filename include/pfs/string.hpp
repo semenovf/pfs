@@ -590,6 +590,12 @@ public:
         os << s.native();
         return os;
     }
+
+    friend inline std::wostream & operator << (std::wostream & os, string const & s)
+    {
+        os << s.native();
+        return os;
+    }
 };
 
 template <typename StringImplType>

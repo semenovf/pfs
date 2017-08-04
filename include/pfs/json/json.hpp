@@ -17,6 +17,7 @@
 #include <pfs/json/constants.hpp>
 #include <pfs/json/iterator.hpp>
 #include <pfs/json/exception.hpp>
+#include <pfs/json/cast.hpp>
 
 namespace pfs {
 namespace json {
@@ -24,7 +25,7 @@ namespace json {
 template <typename BoolType
         , typename IntType
         , typename FloatType
-        , typename StringImplType
+        , typename StringType
         , template <typename> class SequenceContainerImplType
         , template <typename> class AssociativeContainerImplType>
 class json
@@ -33,16 +34,18 @@ public:
     typedef ptrdiff_t difference_type;
     typedef size_t    size_type;
 
-    typedef string<StringImplType>                string_type;
+    typedef StringType                            string_type;
     typedef BoolType                              boolean_type;
     typedef IntType                               integer_type;
     typedef typename make_unsigned<IntType>::type uinteger_type;
     typedef FloatType                             float_type;
     typedef pfs::traits::sequence_container<json
             , SequenceContainerImplType>          array_type;
+
     typedef pfs::traits::associative_container<
               pfs::traits::kv<string_type, json>
             , AssociativeContainerImplType>       object_type;
+
     typedef typename object_type::key_type        key_type;
 
     struct value_rep
@@ -502,17 +505,6 @@ public:
         _d.array->push_back(v);
     }
 
-    
-//    template <typename T>
-//    T get () const;
-//
-//    // TODO Implement
-//    //	template <typename T>
-//    //	T get (const T default_value) const;
-//
-//    template <typename T>
-//    std::pair<bool, T> fetch () const;
-
     iterator begin ()
     {
         return iterator(this, typename iterator::set_begin());
@@ -587,6 +579,47 @@ public:
         return find(key) != end();
     }
 
+//    template <typename T, typename StringType, typename ArrayType, typename ObjectType>
+//struct cast_traits<bool, StringType, ArrayType, ObjectType>
+//{
+//    static bool  cast_null    ()                     { return false; }
+//    static bool  cast_intmax  (intmax_t const & v)   { return v ? true : false; }
+//    static bool  cast_uintmax (uintmax_t const & v)  { return v ? true : false; }
+//    static bool  cast_double  (double const & v)     { return v == double(0.0f) ? true : false; }
+//    static bool  cast_string  (StringType const & v) { return lexical_cast<bool>(v); }
+//    static bool  cast_array   (ArrayType const & v)  { return v.size() ? true : false; }
+//    static bool  cast_object  (ObjectType const & v) { return v.size() ? true : false; }
+    
+    template <typename T>
+    struct cast_traits : public details::cast_traits<T, json>
+    {};
+
+    template <typename T>
+    pfs::pair<bool, T> fetch () const
+    {
+        switch (type()) {
+        case data_type::boolean:  return pfs::make_pair<bool,T>(true, cast_traits<T>::cast(_d.boolean));
+        case data_type::integer:
+        case data_type::uinteger: return std::make_pair<bool,T>(true, cast_traits<T>::cast(_d.integer));
+        case data_type::real:     return std::make_pair<bool,T>(true, cast_traits<T>::cast(_d.real));
+        case data_type::string:   return std::make_pair<bool,T>(true, cast_traits<T>::cast(*_d.string));
+        case data_type::array:    return std::make_pair<bool,T>(true, cast_traits<T>::cast(*_d.array));
+        case data_type::object:   return std::make_pair<bool,T>(true, cast_traits<T>::cast(*_d.object));
+        case data_type::null:
+        default:
+            break;
+        }
+
+        return pfs::make_pair<bool,T>(true, cast_traits<T>::cast());
+    }
+
+    template <typename T>
+    T get (T const & default_value = T()) const
+    {
+        pfs::pair<bool, T> r = fetch<T>();
+        return r.first ? r.second : default_value;
+    }
+    
 //    void swap (value & other)
 //    {
 //        pfs::swap(_d, other._d);
@@ -615,211 +648,7 @@ public:
     
 };
 
-//// Forward declaration
-////
-//template <>
-//std::pair<bool, bool> value::fetch<bool> () const;
-//
-//// Forward declaration
-////
-//template <>
-//std::pair<bool, intmax_t> value::fetch<intmax_t> () const;
-//
-//// Forward declaration
-////
-//template <>
-//std::pair<bool, uintmax_t> value::fetch<uintmax_t> () const;
-//
-//// Forward declaration
-////
-//template <>
-//std::pair<bool, real_t> value::fetch<real_t> () const;
-//
-//// Forward declaration
-////
-//template <>
-//std::pair<bool, string> value::fetch<string> () const;
-//
-//template <>
-//inline std::pair<bool, char> value::fetch<char> () const
-//{
-//    std::pair<bool, intmax_t> r = fetch<intmax_t>();
-//    return std::pair<bool, char>(r.first
-//            , static_cast<char> (r.second));
-//}
-//
-//template <>
-//inline std::pair<bool, unsigned char> value::fetch<unsigned char> () const
-//{
-//    std::pair<bool, uintmax_t> r = fetch<uintmax_t>();
-//    return std::pair<bool, unsigned char>(r.first
-//            , static_cast<unsigned char> (r.second));
-//}
-//
-//template <>
-//inline std::pair<bool, short> value::fetch<short> () const
-//{
-//    std::pair<bool, intmax_t> r = fetch<intmax_t>();
-//    return std::pair<bool, short>(r.first
-//            , static_cast<short> (r.second));
-//}
-//
-//template <>
-//inline std::pair<bool, unsigned short> value::fetch<unsigned short> () const
-//{
-//    std::pair<bool, uintmax_t> r = fetch<uintmax_t>();
-//    return std::pair<bool, unsigned short>(r.first
-//            , static_cast<unsigned short> (r.second));
-//}
-//
-//template <>
-//inline std::pair<bool, int> value::fetch<int> () const
-//{
-//    std::pair<bool, intmax_t> r = fetch<intmax_t>();
-//    return std::pair<bool, int>(r.first
-//            , static_cast<int> (r.second));
-//}
-//
-//template <>
-//inline std::pair<bool, unsigned int> value::fetch<unsigned int> () const
-//{
-//    std::pair<bool, uintmax_t> r = fetch<uintmax_t>();
-//    return std::pair<bool, unsigned int>(r.first
-//            , static_cast<unsigned int> (r.second));
-//}
-//
-//// TODO Need to recognize when 'long' == 'intmax_t' (for 64 bit OS)
-////template <>
-////inline std::pair<bool,long> value::fetch<long> () const
-////{
-////	std::pair<bool,intmax_t> r = fetch<intmax_t>();
-////	return std::pair<bool,long>(r.first
-////			, static_cast<long>(r.second));
-////}
-////
-////
-////template <>
-////inline std::pair<bool,unsigned long> value::fetch<unsigned long> () const
-////{
-////	std::pair<bool,uintmax_t> r = fetch<uintmax_t>();
-////	return std::pair<bool,unsigned long>(r.first
-////			, static_cast<unsigned long>(r.second));
-////}
-//
-//template <>
-//inline std::pair<bool, float> value::fetch<float> () const
-//{
-//    std::pair<bool, real_t> r = fetch<real_t>();
-//    return std::pair<bool, float>(r.first
-//            , static_cast<float> (r.second));
-//}
-//
-//template <>
-//inline std::pair<bool, double> value::fetch<double> () const
-//{
-//    std::pair<bool, real_t> r = fetch<real_t>();
-//    return std::pair<bool, double>(r.first
-//            , static_cast<double> (r.second));
-//}
-//
-//template <>
-//inline bool value::get<bool> () const
-//{
-//    return fetch<bool>().second;
-//}
-//
-//template <>
-//inline char value::get<char> () const
-//{
-//    return fetch<char>().second;
-//}
-//
-//template <>
-//inline unsigned char value::get<unsigned char> () const
-//{
-//    return fetch<unsigned char>().second;
-//}
-//
-//template <>
-//inline short value::get<short> () const
-//{
-//    return fetch<short>().second;
-//}
-//
-//template <>
-//inline unsigned short value::get<unsigned short> () const
-//{
-//    return fetch<unsigned short>().second;
-//}
-//
-//template <>
-//inline int value::get<int> () const
-//{
-//    return fetch<int>().second;
-//}
-//
-//template <>
-//inline unsigned int value::get<unsigned int> () const
-//{
-//    return fetch<unsigned int>().second;
-//}
-//
-//template <>
-//inline long value::get<long> () const
-//{
-//    return fetch<long>().second;
-//}
-//
-//template <>
-//inline unsigned long value::get<unsigned long> () const
-//{
-//    return fetch<unsigned long>().second;
-//}
-//
-//#ifdef PFS_HAVE_LONGLONG
-//
-//template <>
-//inline long long value::get<long long> () const
-//{
-//    return fetch<long long>().second;
-//}
-//
-//template <>
-//inline unsigned long long value::get<unsigned long long> () const
-//{
-//    return fetch<unsigned long long>().second;
-//}
-//
-//#endif
-//
-//template <>
-//inline float value::get<float> () const
-//{
-//    return fetch<float>().second;
-//}
-//
-//template <>
-//inline double value::get<double> () const
-//{
-//    return fetch<double>().second;
-//}
-//
-//#ifdef PFS_HAVE_LONG_DOUBLE
-//
-//template <>
-//inline long double value::get<long double> () const
-//{
-//    return fetch<long double>().second;
-//}
-//
-//#endif
-//
-//template <>
-//inline string value::get<string> () const
-//{
-//    return fetch<string>().second;
-//}
-//
+
 //enum brace_position_enum
 //{
 //    brace_same_line

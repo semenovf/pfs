@@ -172,7 +172,7 @@ public:
     	this->write(bytes.data(), bytes.size(), & ex);
     	return ex;
 	}
-
+    
 	device_type type () const
 	{
 		return _d->type();
