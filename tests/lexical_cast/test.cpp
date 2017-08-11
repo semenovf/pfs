@@ -16,10 +16,10 @@
 
 #include "test_string_to_uint.hpp"
 #include "test_string_to_int.hpp"
-#include "test_string_to_float.hpp"
+#include "test_string_to_real.hpp"
 #include "test_lexical_cast_uint.hpp"
 #include "test_lexical_cast_int.hpp"
-#include "test_lexical_cast_float.hpp"
+#include "test_lexical_cast_real.hpp"
 
 int main(int argc, char *argv[])
 {
@@ -33,7 +33,8 @@ int main(int argc, char *argv[])
 
         test_string_to_uint<string_type>();
         test_string_to_int<string_type>();
-        test_string_to_float<string_type>();
+        test_string_to_real<float, string_type>();
+        test_string_to_real<double, string_type>();
         test_lexical_cast_uint<string_type>();
         test_lexical_cast_int<string_type>();
         test_lexical_cast_float<string_type>();
@@ -54,4 +55,3 @@ int main(int argc, char *argv[])
 	
 	return END_TESTS;
 }
-

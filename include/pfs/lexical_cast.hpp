@@ -14,7 +14,7 @@
 #include <pfs/unicode/unicode_iterator.hpp>
 #include <pfs/lexical_cast/exception.hpp>
 #include <pfs/lexical_cast/strtoint.hpp>
-#include <pfs/lexical_cast/strtofloat.hpp>
+#include <pfs/lexical_cast/strtoreal.hpp>
 
 namespace pfs {
 
@@ -56,14 +56,14 @@ lexical_cast (StringT const & s, int radix = 10)
     return result;
 }
 
-template <typename FloatT, typename StringT>
-typename pfs::enable_if<pfs::is_floating_point<FloatT>::value, FloatT>::type
+template <typename RealType, typename StringT>
+typename pfs::enable_if<pfs::is_floating_point<RealType>::value, RealType>::type
 lexical_cast (StringT const & s, typename StringT::value_type decimal_point = '.')
 {
     typedef typename StringT::const_iterator iterator;
     iterator badpos;
     
-    FloatT result = string_to_float<FloatT, iterator>(s.cbegin()
+    RealType result = string_to_real<RealType, iterator>(s.cbegin()
             , s.cend()
             , decimal_point
             , & badpos);
@@ -71,7 +71,7 @@ lexical_cast (StringT const & s, typename StringT::value_type decimal_point = '.
     if (badpos != s.cend())
         throw bad_lexical_cast(pfs::make_error_code(lexical_cast_errc::invalid_string));
     
-    return static_cast<FloatT>(result);
+    return static_cast<RealType>(result);
 }
 
 } // pfs
