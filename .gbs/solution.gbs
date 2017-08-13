@@ -1,28 +1,17 @@
---************************************************************
---* Generated automatically by `gbs'
---* Command: `gbs solution --create --name=pfs-mpl'
---* Date:    Thu Jan 26 08:18:39 2017
---************************************************************
-
 solution "pfs-mpl"
     configurations { "debug", "release" }
     platforms { "unix32", "unix64" }
 
-    flags { "FatalWarnings" }
-    cppdialect "C++11"
-    targetdir     "../../.build"
-    includedirs   { "../include" }
-    libdirs       { "../../.build" }
-    defines       { "PFS_SYSTEM_STRING=1" } -- std::string is a native implementation of system_string
+    flags       { "FatalWarnings" }
+    cppdialect  "C++11"
+    targetdir   "../../.build"
+    includedirs { "../include" }
+    libdirs     { "../../.build" }
+    defines     { }
 
     -- TODO Must be conditionally setup (based on cppdialect)
     -- need for 11 <= C++ < 17
-    links        { "stdc++fs" }
-
---    filter "platforms:*32"
---        architecture "x32"
---    filter "platforms:*64"
---        architecture "x64"
+    links       { "stdc++fs" }
 
 if os.findlib("pthread") then
     defines { "PFS_HAVE_PTHREAD" }
@@ -41,13 +30,27 @@ if qt4_core_lib then
     defines { "PFS_HAVE_QT", "PFS_HAVE_QT4" }
 end
 
+if qt5_core_lib then
+    require("../../.gbs/qt5_enable")
+elseif qt4_core_lib then
+    require("../../.gbs/qt4_enable")
+end
+
+if qt5_core_lib or qt4_core_lib then
+    --Available modules:
+    --    core, gui, multimedia, network, opengl, positioning, printsupport,
+    --    qml, quick, sensors, sql, svg, testlib, websockets, widgets, xml
+    --
+    qtmodules     { "core" }
+end
+
 configuration "debug"
     symbols      "On"
     defines      { "DEBUG" }
     targetsuffix "-d"
 
 configuration "release"
-    defines      { "NDEBUG" }
+    defines     { "NDEBUG" }
 
 filter { "debug", "action:gmake" }
     linkoptions  { "-rdynamic" }
@@ -66,98 +69,4 @@ project "pfs-test"
 project "pfs"
     include("pfs.gbs")
 
-project "test-iterator"
-    include("test-iterator.gbs")
-
-project "test-string"
-    include("test-string.gbs")
-
-project "test-container"
-    include("test-container.gbs")
-
-----project "test-mpl-cli"
-----    include("test-mpl-cli/project.gbs")
-
-----project "demo-sfinae"
-----    include("demo-sfinae/project.gbs")
-
-----project "demo-db"
-----    include("demo-db/project.gbs")
-
-----project "test-mpl-algo-between"
-----    include("test-mpl-algo-between/project.gbs")
-
-project "test-fsm"
-    include("test-fsm.gbs")
-
-----project "test-mpl-uri"
-----    include("test-mpl-uri/project.gbs")
-
-project "test-lexical_cast"
-    include("test-lexical_cast.gbs")
-
---project "test-mpl-utf8"
---    include("test-mpl-utf8/project.gbs")
-
-----project "test-mpl-treap"
-----    include("test-mpl-treap/project.gbs")
-
---project "test-mpl-numeric"
---    include("test-mpl-numeric/project.gbs")
-
-----project "test-mpl-functional"
-----    include("test-mpl-functional/project.gbs")
-
-----project "test-mpl-fs-path"
-----    include("test-mpl-fs-path/project.gbs")
-
---project "test-mpl-binder"
---    include("test-mpl-binder/project.gbs")
-
-project "test-active-queue"
-    include("test-active_queue.gbs")
-
---project "test-mpl-ratio"
---    include("test-mpl-ratio/project.gbs")
-
---project "test-mpl-chrono"
---    include("test-mpl-chrono/project.gbs")
-
-project "test-regex"
-    include("test-regex.gbs")
-
-project "test-filesystem"
-    include("test-filesystem.gbs")
-
-project "test-time"
-    include("test-time.gbs")
-
-project "test-date"
-    include("test-date.gbs")
-
-project "test-json"
-    include("test-json.gbs")
-
-project "test-io-buffer"
-    include("test-io-buffer.gbs")
-
-project "test-io-file"
-    include("test-io-file.gbs")
-
-project "test-io-server"
-    include("test-io-server.gbs")
-
-project "test-net-inet4_addr"
-    include("test-net-inet4_addr.gbs")
-
-project "test-safeformat"
-    include("test-safeformat.gbs")
-
---project "test-application"
---    include("test-application.gbs")
-
---project "test-application-module"
---    include("test-application-module.gbs")
-
---project "demo-logger"
---    include("demo-logger.gbs")
+include("solution-tests.gbs")

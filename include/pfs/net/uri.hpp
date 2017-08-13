@@ -8,25 +8,22 @@
 #ifndef __PFS_NET_URI_HPP__
 #define __PFS_NET_URI_HPP__
 
-#include <pfs/string.hpp>
-#include <pfs/traits/map.hpp>
-#include <pfs/traits/vector.hpp>
-#include <pfs/algo/split.hpp>
+#include <pfs/types.hpp>
 
 namespace pfs {
 namespace net {
 
-/* C#   System.Uri
+/* 
+ * C#   System.Uri
  * Java java.net.URI
  * Qt   QUrl, QUrlQuery (for query string parsing)
  */
 
-template <typename StringT>
+template <typename StringType>
 class uri
 {
 public:
-    typedef StringT string_type;
-    typedef traits::string<StringT> string_traits;
+    typedef StringType string_type;
 
     struct data_rep
     {
@@ -35,17 +32,28 @@ public:
             , is_raw_host(false)
         {}
         
-        void clear ();
+        void clear ()
+        {
+            scheme.clear();
+            authority.clear();
+            userinfo.clear();
+            host.clear();
+            port = 0;
+            path.clear();
+            query.clear();
+            fragment.clear();
+            is_raw_host = false;
+        }
 
-        string_traits scheme;
-        string_traits authority;
-        string_traits userinfo;
-        string_traits host;
-        uint16_t      port;
-        string_traits path;
-        string_traits query;
-        string_traits fragment;
-        bool          is_raw_host;
+        string_type scheme;
+        string_type authority;
+        string_type userinfo;
+        string_type host;
+        uint16_t    port;
+        string_type path;
+        string_type query;
+        string_type fragment;
+        bool        is_raw_host;
     };
 
 private:
@@ -128,12 +136,6 @@ public:
 		return _d.is_raw_host;
 	}
 
-//	items_map_type query_items (
-//		  string_type const & value_delim = string_type(1, '=')
-//		, string_type const & pair_delim = string_type(1, '&'));
-
-	bool parse (string_type const & str);
-
 	void set_scheme (string_type const & scheme)
 	{
 		_d.scheme = scheme;
@@ -174,74 +176,65 @@ public:
 		_d.fragment = fragment;
 	}
     
-	string_type to_string () const;
+	string_type to_string () const
+    {
+        string_type r;
+
+        // userinfo without host is an error
+        //
+        if (!_d.userinfo.empty() && _d.host.empty()) {
+            return string_type(); // null string
+        }
+
+        if (!_d.scheme.empty()) {
+            r.append(_d.scheme);
+            r.push_back(':');
+        }
+
+        if (!_d.userinfo.empty() || !_d.host.empty()) {
+            r.append("//");
+
+            if (!_d.userinfo.empty()) {
+                r.append(_d.userinfo);
+                r.push_back('@');
+            }
+
+            if (!_d.host.empty()) {
+                r.append(_d.host);
+            }
+
+            if (_d.port > 0) {
+                r.push_back(':');
+                r.append(to_string(_d.port));
+            }
+
+            if (!_d.path.empty()) {
+                r.append(_d.path);
+            }
+
+            if (!_d.query.empty()) {
+                r.push_back('?');
+                r.append(_d.query);
+            }
+
+            if (!_d.fragment.empty()) {
+                r.push_back('#');
+                r.append(_d.fragment);
+            }
+        }
+
+        return r;
+    }    
+
+	bool parse (string_type const & str)
+    {
+        return parse(str.cbegin(), str.cend());
+    }
+    
+    bool parse (typename string_type::const_iterator first
+            , typename string_type::const_iterator last);
+
 };
-
-template <typename StringT>
-void uri<StringT>::data_rep::clear()
-{
-	scheme.clear();
-	authority.clear();
-	userinfo.clear();
-	host.clear();
-	port = 0;
-	path.clear();
-	query.clear();
-	fragment.clear();
-	is_raw_host = false;
-}
-
-template <typename StringT>
-typename uri<StringT>::string_type 
-uri<StringT>::to_string () const
-{
-	string_traits r;
-
-	// userinfo without host is an error
-	//
-	if (!_d.userinfo.empty() && _d.host.empty()) {
-		return string_type(); // null string
-	}
-
-	if (!_d.scheme.empty()) {
-		r.append(_d.scheme);
-		r.append(string_traits(":"));
-	}
-
-	if (!_d.userinfo.empty() || !_d.host.empty()) {
-		r.append(string_traits("//"));
-
-		if (!_d.userinfo.empty()) {
-			r.append(_d.userinfo);
-			r.append(string_traits("@"));
-		}
-
-		if (!_d.host.empty()) {
-			r.append(_d.host);
-		}
-
-		if (_d.port > 0) {
-			r.append(string_traits(":"));
-			r.append(to_string(_d.port));
-		}
-
-		if (!_d.path.empty()) {
-			r.append(_d.path);
-		}
-
-		if (!_d.query.empty()) {
-			r.append(string_traits("?"));
-			r.append(_d.query);
-		}
-
-		if (!_d.fragment.empty()) {
-			r.append(string_traits("#"));
-			r.append(_d.fragment);
-		}
-	}
-
-	return r;
-}
 
 }} // pfs::net
 

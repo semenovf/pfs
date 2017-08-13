@@ -23,11 +23,11 @@
 #   include <pfs/traits/qt/vector.hpp>
 #   include <pfs/traits/qt/list.hpp>
 #   include <pfs/traits/qt/linked_list.hpp>
-#   include <pfs/traits/qt/set.hpp>
-#   include <pfs/traits/qt/map.hpp>
-#   include <pfs/traits/qt/multimap.hpp>
-#   include <pfs/traits/qt/hash.hpp>
-#   include <pfs/traits/qt/multihash.hpp>
+//#   include <pfs/traits/qt/set.hpp>       FIXME
+//#   include <pfs/traits/qt/map.hpp>       FIXME
+//#   include <pfs/traits/qt/multimap.hpp>  FIXME
+//#   include <pfs/traits/qt/hash.hpp>      FIXME
+//#   include <pfs/traits/qt/multihash.hpp> FIXME
 #   include <pfs/traits/qt/stack.hpp>
 #endif
 

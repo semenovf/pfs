@@ -17,8 +17,6 @@ void test_associative_container_coverage ()
     ADD_TESTS(0);
     
     typedef pfs::traits::associative_container<T, ContainerValueRef> container_traits;
-    typedef typename container_traits::key_type    key_type;
-    typedef typename container_traits::value_type  value_type;
     typedef typename container_traits::mapped_type mapped_type;
     typedef typename container_traits::iterator    iterator;
     
@@ -27,10 +25,7 @@ void test_associative_container_coverage ()
     // container (native_reference rhs)
     container_traits traits1(c1);
    
-    key_type key = 1;
-    value_type value = pfs::make_pair(key, 1);
-    
-    pfs::pair<iterator, bool> result = traits1.insert(value);
+    pfs::pair<iterator, bool> result = traits1.insert(1 ,1);
     
     mapped_type & ref = result.first->second;
     PFS_UNUSED(ref);

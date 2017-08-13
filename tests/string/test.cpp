@@ -32,7 +32,7 @@ inline char const * stringify_string_impl<wchar_t const *> ()
 { return "wchar_t"; }
 
 
-#ifdef QT_CORE_LIB
+#ifdef PFS_HAVE_QT
 
 template <>
 inline char const * stringify_string_impl<QChar const *> ()
@@ -115,7 +115,7 @@ wchar_t const * string_samples<wchar_t const *> (int i)
     return s[i];
 }
 
-#ifdef QT_CORE_LIB
+#if PFS_HAVE_QT
 template <>
 QChar const * string_samples<QChar const *> (int i)
 {

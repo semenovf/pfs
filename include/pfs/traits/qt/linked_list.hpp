@@ -21,28 +21,332 @@ struct linked_list_wrapper
     typedef QLinkedList<T> type;
 };
 
-template <typename T>
-class linked_list : public container<T, linked_list_wrapper>
+template <typename T, typename ValueOrReference>
+class linked_list_basic
 {
-    typedef container<T, linked_list_wrapper> base_class;
+    typedef ValueOrReference internal_type;
+
+public:
+    typedef linked_list_basic<T, container_value<T, linked_list_wrapper> > container_value_type;
+    typedef linked_list_basic<T, container_reference<T, linked_list_wrapper> >   container_reference_type;
+    
+    typedef typename internal_type::native_type            native_type;
+    typedef typename internal_type::native_reference       native_reference;
+    typedef typename internal_type::const_native_reference const_native_reference;
+    
+    typedef typename native_type::value_type       value_type;
+    typedef typename native_type::const_pointer    const_pointer;
+    typedef typename native_type::reference        reference;
+    typedef typename native_type::const_reference  const_reference;
+    typedef typename native_type::iterator         iterator;
+    typedef typename native_type::const_iterator   const_iterator;
+    typedef typename native_type::reverse_iterator reverse_iterator;
+    typedef typename native_type::const_reverse_iterator const_reverse_iterator;
+    typedef typename native_type::difference_type  difference_type;
+    typedef typename native_type::size_type        size_type;
+
+protected:
+    internal_type _p;
     
 public:
-    typedef typename base_class::native_type      native_type;
-    typedef typename base_class::native_reference native_reference;
-    typedef typename base_class::size_type        size_type;
-    typedef typename native_type::value_type      value_type;
-    typedef typename native_type::reference       reference;
-    typedef typename native_type::const_reference const_reference;
-
-public:
-    linked_list (native_reference rhs)
-        : base_class(rhs)
+    linked_list_basic ()
     {}
 
+    linked_list_basic (native_reference rhs)
+        : _p(rhs)
+    {}
+
+    linked_list_basic (const_native_reference rhs)
+        : _p(rhs)
+    {}
+    
+//    list (const_pointer s)
+//        : _p(s)
+//    {}
+//
+//    template <typename InputIt>
+//    basic_string (InputIt first, InputIt last)
+//        : _p(first, last)
+//    {}
+    
+    linked_list_basic & operator = (native_reference rhs)
+    {
+        *_p = rhs;
+        return *this;
+    }
+
+    operator const_native_reference () const
+    {
+        return *_p;
+    }
+
+    /**
+     * Casts to native container reference
+     */
+    operator native_reference ()
+    {
+        return *_p;
+    }
+
+    // *************************************************************************
+    // BEGIN Requirements for container traits
+    // Based on [C++ concepts: Container](http://en.cppreference.com/w/cpp/concept/Container)
+    // *************************************************************************
+
+    // *** ITERATORS ***
+    //
+    iterator begin ()
+    {
+        return _p->begin();
+    }
+    
+    const_iterator begin () const
+    {
+        return _p->begin();
+    }
+    
+    iterator end ()
+    {
+        return _p->end();
+    }
+    
+    const_iterator end () const
+    {
+        return _p->end();
+    }
+    
+#if __cplusplus >= 201103L
+    const_iterator cbegin () const
+    {
+        return _p->cbegin();
+    }
+    
+    const_iterator cend () const
+    {
+        return _p->cbegin();
+    }
+#else
+    const_iterator cbegin () const
+    {
+        return _p->begin();
+    }
+    
+    const_iterator cend () const
+    {
+        return _p->begin();
+    }
+#endif    
+
+    // *** CAPACITY ***
+    // 
+
+    size_type size () const pfs_noexcept
+    {
+        return _p->size();
+    }
+    
     size_type max_size () const pfs_noexcept
     {
         return ((INT_MAX)/sizeof(T) - sizeof(native_type)) / 2; // TODO FIXME
     }
+    
+    bool empty () const pfs_noexcept
+    {
+        return _p->empty();
+    }
+    
+    // *** MODIFIERS ***
+    //
+    // FIXME
+//    void swap (container & rhs)
+//    {
+//        _p->swap(*rhs._p);
+//    }
+    
+    // *** NON-MEMBER FUNCTIONS (OPERATORS) ***
+    //
+    
+    friend inline bool operator == (linked_list_basic const & lhs
+        , linked_list_basic const & rhs)
+    {
+        return *lhs._p == *rhs._p;
+    }
+
+    friend inline bool operator != (linked_list_basic const & lhs
+        , linked_list_basic const & rhs)
+    {
+        return *lhs._p != *rhs._p;
+    }
+
+    // *************************************************************************
+    // } END Requirements for container traits
+    // *************************************************************************
+
+    // *************************************************************************
+    // BEGIN Requirements for sequence container traits {
+    // *************************************************************************
+
+    // *** ELEMENT ACCESS ***
+    //
+    reference back ()
+    {
+        return _p->back();
+    }
+		
+    const_reference back () const
+    {
+        return _p->back();
+    }
+	
+    reference front ()
+    {
+        return _p->front();
+    }
+		
+    const_reference front () const
+    {
+        return _p->front();
+    }
+	
+    // *** MODIFIERS ***
+    //
+        
+    void clear () pfs_noexcept
+    {
+        _p->clear();
+    }
+    
+#if __cplusplus >= 201103L
+    template <typename... Args>
+    iterator emplace (const_iterator pos, Args &&... args)
+    {
+        return _p->emplace(pos, args...);
+    }
+
+//    template <typename... Args>
+//    reference emplace_back (Args &&... args)
+//    {
+//        return _p->emplace_back<Args>(args);
+//    }
+//    
+//    template <typename... Args>
+//    reference emplace_front (Args &&... args )
+//    {
+//        return _p->emplace_front<Args>(args);
+//    }
+#endif    
+
+    iterator erase (const_iterator pos)
+    {
+        return _p->erase(pos);
+    }
+    
+    iterator erase (const_iterator first, const_iterator last)
+    {
+        return _p->erase(first, last);
+    }
+
+    iterator insert (const_iterator pos, const_reference value)
+    {
+        return _p->insert(pos, value);
+    }
+    
+#if __cplusplus >= 201103L
+    iterator insert (const_iterator pos, T && value )
+    {
+        return _p->insert(pos, value);
+    }
+#endif
+
+    iterator insert (const_iterator pos, size_type count, const_reference value)
+    {
+        return _p->insert(pos, count, value);
+    }
+    
+    template <typename InputIt>
+    iterator insert (const_iterator pos, InputIt first, InputIt last)
+    {
+        return _p->insert<InputIt>(pos, first, last);
+    }
+    
+#if __cplusplus >= 201103L
+    iterator insert (const_iterator pos, std::initializer_list<T> ilist)
+    {
+        return _p->insert(pos, ilist);
+    }
+#endif
+    
+    void push_front (const_reference value)
+    {
+        _p->push_front(value);
+    }
+    
+    void push_back (const_reference value)
+    {
+        _p->push_back(value);
+    }
+
+    void pop_front ()
+    {
+        _p->pop_front();
+    }
+    
+    void pop_back ()
+    {
+        _p->pop_back();
+    }
+    
+    // *************************************************************************
+    // } END Requirements for sequence container traits
+    // *************************************************************************
+};
+
+template <typename T>
+class linked_list : public linked_list_basic<T, container_value<T, linked_list_wrapper> >
+{
+    typedef linked_list_basic<T, container_value<T, linked_list_wrapper> > base_class;
+
+public:
+    typedef typename base_class::native_type            native_type;
+    typedef typename base_class::native_reference       native_reference;
+    typedef typename base_class::const_native_reference const_native_reference;
+    
+public:
+    linked_list ()
+        : base_class()
+    {}
+
+    linked_list (native_reference rhs)
+        : base_class(rhs)
+    {}
+
+    linked_list (const_native_reference rhs)
+        : base_class(rhs)
+    {}
+};
+
+template <typename T>
+class linked_list_reference : public linked_list_basic<T, container_reference<T, linked_list_wrapper> >
+{
+    typedef linked_list_basic<T, container_reference<T, linked_list_wrapper> > base_class;
+
+public:
+    typedef typename base_class::native_type            native_type;
+    typedef typename base_class::native_reference       native_reference;
+    typedef typename base_class::const_native_reference const_native_reference;
+    
+public:
+    linked_list_reference ()
+        : base_class()
+    {}
+
+    linked_list_reference (native_reference rhs)
+        : base_class(rhs)
+    {}
+
+    linked_list_reference (const_native_reference rhs)
+        : base_class(rhs)
+    {}
 };
 
 }}} // pfs::traits::qt

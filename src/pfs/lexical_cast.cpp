@@ -14,7 +14,7 @@ std::string lexical_cast_category::message (int ev) const
     switch (ev) {
     case static_cast<int>(lexical_cast_errc::success):
         return "No error";
-        
+
     case static_cast<int>(lexical_cast_errc::bad_radix):
         return "Bad radix";
 
@@ -23,7 +23,7 @@ std::string lexical_cast_category::message (int ev) const
 
     case static_cast<int>(lexical_cast_errc::overflow):
         return "Overflow";
-        
+
     case static_cast<int>(lexical_cast_errc::invalid_string):
         return "Invalid representation of number by string";
 

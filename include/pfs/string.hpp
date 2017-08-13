@@ -97,9 +97,22 @@ public:
         : _p(rhs)
     {}
 
-    string (const_pointer s)
+//    template <typename T>
+//    string (typename enable_if<!is_same<typename remove_pointer<T>::type, char>::value
+//            , typename remove_pointer<T>::type const *>::type s)
+//        : _p(s)
+//    {}
+    string (const_pointer s, size_type n)
+        : _p(s, n)
+    {}
+
+    string (char const * s)
         : _p(s)
     {}
+
+//    string (wchar_t const * s)
+//        : _p(s)
+//    {}
     
     string (iterator first, iterator last)
         : _p(first.base(), last.base())
@@ -113,6 +126,12 @@ public:
     {
         while (count--)
             this->push_back(ch);
+    }
+    
+    string & operator = (char const * s)
+    {
+        *this = string(s);
+        return *this;
     }
     
     /**

@@ -6,25 +6,38 @@
  * @brief URI testing
  */
 
-#define __PFS_TEST__ 1
-
-#include <cstdio>
-#include "pfs/traits/stdcxx/string.hpp"
-#include "pfs/fsm/test.hpp"
+#include "pfs/test/test.hpp"
+#include "pfs/string.hpp"
 #include "pfs/net/uri.hpp"
 #include "pfs/net/uri_parse.hpp"
+#include "pfs/traits/stdcxx/string.hpp"
 
-typedef std::string string_type;
-typedef pfs::net::uri<string_type> uri_type;
-typedef pfs::net::uri_grammar<uri_type> uri_grammar_type;
+// Enabled by `qt_enable`
+#if PFS_HAVE_QT
+#   include "pfs/traits/qt/string.hpp"
+#endif
 
-typedef pfs::string<string_type> sequence_type;
-typedef pfs::fsm::test_valid_entry<sequence_type> test_valid_entry;
-typedef pfs::fsm::test_invalid_entry<sequence_type> test_invalid_entry;
+#include "test_grammar.hpp"
 
-static uri_grammar_type grammar; // Initialize static members
+namespace stdcxx {
 
-extern void test_uri_query ();
+typedef pfs::string<pfs::traits::stdcxx::string> string_type;
+typedef pfs::net::uri<string_type> uri;
+typedef pfs::net::uri_grammar<uri> uri_grammar;
+
+} // stdcxx
+
+#if PFS_HAVE_QT
+
+namespace qt {
+
+typedef pfs::string<pfs::traits::qt::string> string_type;
+typedef pfs::net::uri<string_type> uri;
+typedef pfs::net::uri_grammar<uri> uri_grammar;
+
+} // qt
+
+#endif // PFS_HAVE_QT
 
 #if __COMMENT__
 
@@ -250,61 +263,6 @@ static pfs::fsm::test_entry __test_entries[] = {
 
 #endif
 
-void test_uri_tr ()
-{
-	ADD_TESTS(25);
-    
-	TEST_OK(test_valid_entry()(
-              uri_grammar_type::p_authority_tr
-            , 0
-            , sequence_type("192.168.1.1")));
-    
-//	TEST_OK((pfs::fsm::test_valid_entry<string_type>(
-//              uri_grammar_type::p_authority_tr
-//            , 0
-//            , string_type("user@192.168.1.1"))));
-
-//	// ALPHA / DIGIT / "-" / "." / "_" / "~"
-//	//
-//	TEST_OK(test_valid_entry<string_type>(pfs::unreserved_tr, 0, _u8("Z")));
-//	TEST_OK(test_valid_entry<string_type>(pfs::unreserved_tr, 0, _u8("z")));
-//	TEST_OK(test_valid_entry<string_type>(pfs::unreserved_tr, 0, _u8("9")));
-//	TEST_OK(test_valid_entry<string_type>(pfs::unreserved_tr, 0, _u8("~")));
-//
-//	TEST_OK(test_invalid_entry<string_type>(pfs::unreserved_tr, 0, _u8("?"), -1));
-//	TEST_OK(test_invalid_entry<string_type>(pfs::unreserved_tr, 0, _u8("+"), -1));
-//	TEST_OK(test_invalid_entry<string_type>(pfs::unreserved_tr, 0, _u8("/"), -1));
-//
-//	// "%" HEXDIG HEXDIG
-//	//
-//	TEST_OK(test_valid_entry<string_type>(pfs::pct_encoded_tr, 0, _u8("%FF")));
-//	TEST_OK(test_valid_entry<string_type>(pfs::pct_encoded_tr, 0, _u8("%00")));
-//	TEST_OK(test_valid_entry<string_type>(pfs::pct_encoded_tr, 0, _u8("%9F")));
-//	TEST_OK(test_valid_entry<string_type>(pfs::pct_encoded_tr, 0, _u8("%AB")));
-//
-//	TEST_OK(test_invalid_entry<string_type>(pfs::pct_encoded_tr, 0, _u8("%AR"), -1));
-//	TEST_OK(test_invalid_entry<string_type>(pfs::pct_encoded_tr, 0, _u8("}{"), -1));
-//	TEST_OK(test_invalid_entry<string_type>(pfs::pct_encoded_tr, 0, _u8("%%A9"), -1));
-//
-//
-//	// "/" [ segment-nz *( "/" segment ) ]
-//	//
-//	TEST_OK(test_valid_entry<string_type>(pfs::path_absolute_tr, 0, _u8("/")));
-//	TEST_OK(test_valid_entry<string_type>(pfs::path_absolute_tr, 0, _u8("/ABCDE")));
-//	TEST_OK(test_valid_entry<string_type>(pfs::path_absolute_tr, 0, _u8("/name@domain.com/%DE%AD%BE%EF")));
-//	TEST_OK(test_valid_entry<string_type>(pfs::path_absolute_tr, 0, _u8("/name@domain.com/")));
-//
-//	TEST_OK(test_invalid_entry<string_type>(pfs::path_absolute_tr, 0, _u8("/name@{}/"), 6));
-//	TEST_OK(test_invalid_entry<string_type>(pfs::path_absolute_tr, 0, _u8("name@{}/"), -1));
-//
-//
-//	// URI / relative-ref
-//	//
-//	TEST_OK(test_valid_entry<string_type>(pfs::uri_reference_tr, 0, _u8("http://user@host/?query%20string")));
-//	TEST_OK(test_valid_entry<string_type>(pfs::uri_reference_tr, 0, _u8("http://user@host#fragment%20string")));
-//	TEST_OK(test_valid_entry<string_type>(pfs::uri_reference_tr, 0, _u8("ftp://user@host/?query%20string#fragment%20string")));
-}
-
 //void test_uri_parse()
 //{
 //	ADD_TESTS(23);
@@ -370,9 +328,11 @@ int main(int argc, char *argv[])
 
 	BEGIN_TESTS(0);
 
-	test_uri_tr();
-//	test_uri_parse();
-    test_uri_query();
+	test_grammar<stdcxx::uri_grammar>();
+    
+#if PFS_HAVE_QT
+    test_grammar<qt::uri_grammar>();
+#endif
 
 	return END_TESTS;
 }

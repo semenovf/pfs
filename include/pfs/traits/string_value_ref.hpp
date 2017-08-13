@@ -21,7 +21,7 @@ struct string_value
     typedef native_type &       native_reference;
     typedef native_type const & const_native_reference;
     typedef CharT               value_type;
-    typedef CharT const *       const_pointer;
+//    typedef CharT const *       const_pointer;
     
     typedef string_value<CharT, NativeString> string_value_type;
     typedef string_ref<CharT, NativeString>   string_reference_type;
@@ -31,25 +31,12 @@ struct string_value
     string_value ()
     {}
 
-    string_value (const_pointer s)
-        : v(s)
-    {}
-
     string_value (native_reference rhs)
         : v(rhs)
     {}
 
     string_value (const_native_reference rhs)
         : v(rhs)
-    {}
-
-    template <typename InputIt>
-    string_value (InputIt first, InputIt last)
-        : v(first, last)
-    {}
-    
-    string_value (size_t count, value_type ch)
-        : v(count, ch)
     {}
 
     native_reference operator * ()
@@ -79,7 +66,7 @@ struct string_ref
     typedef NativeString        native_type;
     typedef native_type &       native_reference;
     typedef native_type const & const_native_reference;
-    typedef CharT const *       const_pointer;
+//    typedef CharT const *       const_pointer;
 
     typedef string_value<CharT, NativeString> string_value_type;
     typedef string_ref<CharT, NativeString>   string_reference_type;
@@ -92,21 +79,11 @@ struct string_ref
         static_assert(false, "Constructor denied");
     }
 
-    string_ref (const_pointer s)
-    {
-        static_assert(false, "Constructor denied");
-    }
-    
     string_ref (const_native_reference rhs)
     {
         static_assert(false, "Constructor denied");
     }
     
-    template <typename InputIt>
-    string_ref (InputIt first, InputIt last)
-    {
-        static_assert(false, "Constructor denied");
-    }
 #endif    
     
     string_ref (native_reference rhs)

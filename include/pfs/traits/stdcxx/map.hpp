@@ -34,7 +34,6 @@ public:
     typedef typename internal_type::native_reference       native_reference;
     typedef typename internal_type::const_native_reference const_native_reference;
     
-    typedef typename native_type::value_type       value_type;
     typedef typename native_type::const_pointer    const_pointer;
     typedef typename native_type::reference        reference;
     typedef typename native_type::const_reference  const_reference;
@@ -47,9 +46,10 @@ public:
 
     typedef typename native_type::key_type         key_type;
     typedef typename native_type::mapped_type      mapped_type;
+    typedef typename native_type::value_type       value_type;
     
-    typedef typename native_type::key_compare      key_compare;
-    typedef typename native_type::value_compare    value_compare;
+//    typedef typename native_type::key_compare      key_compare;
+//    typedef typename native_type::value_compare    value_compare;
 
 protected:
     internal_type _p;
@@ -219,12 +219,7 @@ public:
     
     // *** MODIFIERS
     //
-    pfs::pair<iterator, bool> insert (value_type const & value)
-    {
-        return _p->insert(value);
-    }
-
-    pfs::pair<iterator, bool> insert2 (key_type const & key, mapped_type const & value)
+    pfs::pair<iterator, bool> insert (key_type const & key, mapped_type const & value)
     {
         return _p->insert(pfs::make_pair(key, value));
     }
@@ -241,15 +236,15 @@ public:
     // *** OBSERVERS ***
     //
     
-    key_compare key_comp () const
-    {
-        return _p->key_comp();
-    }
-    
-    value_compare value_comp () const
-    {
-        return _p->value_comp();
-    }
+//    key_compare key_comp () const
+//    {
+//        return _p->key_comp();
+//    }
+//    
+//    value_compare value_comp () const
+//    {
+//        return _p->value_comp();
+//    }
     // *************************************************************************
     // } END Requirements for ordered associative container traits
     // *************************************************************************

@@ -1,0 +1,110 @@
+-- Projects
+
+project "test-algo-between"
+    include("test-algo-between.gbs")
+
+project "test-iterator"
+    include("test-iterator.gbs")
+
+project "test-string"
+    include("test-string.gbs")
+
+project "test-container"
+    include("test-container.gbs")
+
+----project "test-mpl-cli"
+----    include("test-mpl-cli/project.gbs")
+
+----project "demo-sfinae"
+----    include("demo-sfinae/project.gbs")
+
+----project "demo-db"
+----    include("demo-db/project.gbs")
+
+project "test-fsm"
+    include("test-fsm.gbs")
+
+project "test-net-uri"
+    include("test-net-uri.gbs")
+
+project "test-lexical_cast"
+    include("test-lexical_cast.gbs")
+
+--project "test-mpl-utf8"
+--    include("test-mpl-utf8/project.gbs")
+
+----project "test-mpl-treap"
+----    include("test-mpl-treap/project.gbs")
+
+--project "test-mpl-numeric"
+--    include("test-mpl-numeric/project.gbs")
+
+----project "test-mpl-functional"
+----    include("test-mpl-functional/project.gbs")
+
+----project "test-mpl-fs-path"
+----    include("test-mpl-fs-path/project.gbs")
+
+--project "test-mpl-binder"
+--    include("test-mpl-binder/project.gbs")
+
+project "test-active-queue"
+    include("test-active_queue.gbs")
+
+--project "test-mpl-ratio"
+--    include("test-mpl-ratio/project.gbs")
+
+--project "test-mpl-chrono"
+--    include("test-mpl-chrono/project.gbs")
+
+project "test-regex"
+    include("test-regex.gbs")
+
+project "test-filesystem"
+    include("test-filesystem.gbs")
+
+project "test-time"
+    include("test-time.gbs")
+
+project "test-date"
+    include("test-date.gbs")
+
+project "test-json"
+    include("test-json.gbs")
+
+project "test-io-buffer"
+    include("test-io-buffer.gbs")
+
+project "test-io-file"
+    include("test-io-file.gbs")
+
+project "test-io-server"
+    include("test-io-server.gbs")
+
+project "test-net-inet4_addr"
+    include("test-net-inet4_addr.gbs")
+
+project "test-safeformat"
+    include("test-safeformat.gbs")
+
+--project "test-application"
+--    include("test-application.gbs")
+
+--project "test-application-module"
+--    include("test-application-module.gbs")
+
+--project "demo-logger"
+--    include("demo-logger.gbs")
+
+if qt5_core_lib then
+
+    -- Special for Qt projects
+    package.loaded["../../.gbs/qt5_enable"] = nil
+
+elseif qt4_core_lib then
+
+    -- Special for Qt projects
+    package.loaded["../../.gbs/qt4_enable"] = nil
+
+end
+

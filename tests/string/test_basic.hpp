@@ -18,14 +18,14 @@ void test_assign ()
     
     ADD_TESTS(5);
     
-    string_type orig(string_samples<const_pointer>(STR_ORIG)); // Constructor (StringImpl const &)
-    string_type same(string_samples<const_pointer>(STR_SAME)); // Constructor (StringImpl const &)
-    string_type diff(string_samples<const_pointer>(STR_DIFF)); // Constructor (StringImpl const &)
+    string_type orig(string_samples<const_pointer>(STR_ORIG), string_type::npos); // Constructor (StringImpl const &)
+    string_type same(string_samples<const_pointer>(STR_SAME), string_type::npos); // Constructor (StringImpl const &)
+    string_type diff(string_samples<const_pointer>(STR_DIFF), string_type::npos); // Constructor (StringImpl const &)
     string_type dup(orig); // Copy constructor
     string_type orig1;     // Empty string
     orig1 = orig;          // Copy assign operator
     string_type orig2;
-    orig2 = string_samples<const_pointer>(STR_ORIG); // Assign from string implementation type
+    orig2 = string_samples<char const *>(STR_ORIG); // Assign from `char const *`
 
     TEST_OK(orig == same);
     TEST_OK(orig != diff);
@@ -47,7 +47,7 @@ void test_iterator ()
     
     ADD_TESTS(16);
     
-    string_type str(string_samples<const_pointer>(STR_ORIG));
+    string_type str(string_samples<const_pointer>(STR_ORIG), string_type::npos);
 
     const_iterator it = str.cbegin();
     const_iterator end = str.cend();

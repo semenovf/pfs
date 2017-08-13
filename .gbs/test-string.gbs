@@ -4,13 +4,13 @@ targetname    "test-string"
 files         { "../tests/string/*.cpp" }
 
 -- Special for Qt projects
-require("../../.gbs/qt_enable")
+--require("../../.gbs/qt_enable")
 
 --Available modules:
 --    core, gui, multimedia, network, opengl, positioning, printsupport,
 --    qml, quick, sensors, sql, svg, testlib, websockets, widgets, xml
 --
-qtmodules     { "core" }
+--qtmodules     { "core" }
 
 configuration "debug"
     objdir       ".cache/tests/string/debug"
@@ -25,4 +25,4 @@ configuration "release"
 dependson { "pfs" }
 
 -- Special for Qt projects
-package.loaded["../../.gbs/qt_enable"] = nil
+--package.loaded["../../.gbs/qt_enable"] = nil

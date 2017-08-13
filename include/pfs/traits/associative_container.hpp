@@ -77,14 +77,14 @@ public:
     
     // *** MODIFIERS
     //
-    pfs::pair<iterator, bool> insert (value_type const & value)
-    {
-        return base_class::_p.insert(value);
-    }
+//    pfs::pair<iterator, bool> insert (value_type const & value)
+//    {
+//        return base_class::_p.insert(value);
+//    }
 
-    pfs::pair<iterator, bool> insert2 (key_type const & key, mapped_type const & mapped)
+    pfs::pair<iterator, bool> insert (key_type const & key, mapped_type const & mapped)
     {
-        return base_class::_p.insert2(key, mapped);
+        return base_class::_p.insert(key, mapped);
     }
     
     size_type erase (key_type const & key)

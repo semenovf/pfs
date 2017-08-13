@@ -9,6 +9,7 @@
 #define __PFS_TRAITS_QT_STRING_HPP__
 
 #include <QString>
+#include <QChar>
 #include <ostream>
 #include <pfs/cxxlang.hpp>
 #include <pfs/limits.hpp>
@@ -44,11 +45,13 @@ struct unicode_iterator_traits<QChar const *>
 namespace pfs {
 namespace traits {
 
-template <>
-template <typename InputIt>
-string_value<QChar, QString>::string_value (InputIt first, InputIt last)
-    : v(first, pfs::distance(first, last))
-{}
+//template <>
+//template <typename InputIt>
+//string_value<QChar, QString>::string_value (InputIt first, InputIt last)
+////    : v(first, pfs::distance(first, last))
+//{
+//    v = QString(first, pfs::distance(first, last));
+//}
 
 namespace qt {
 
@@ -76,6 +79,8 @@ public:
     typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
     typedef ptrdiff_t                             difference_type;
     typedef int                                   size_type; // no native_type::size_type found, but documentation mentions.
+    
+    static size_type const npos = size_type(-1);
 
 protected:
     internal_type _p;
@@ -92,18 +97,20 @@ public:
         : _p(rhs)
     {}
     
-    basic_string (const_pointer s)
+    basic_string (char const * s)
         : _p(s)
     {}
 
-    basic_string (size_type count, value_type ch)
-        : _p(count, ch)
-    {}
+    basic_string (const_pointer s, size_type n)
+    {
+        _p.v = native_type(s, n);
+    }
 
     template <typename InputIt>
     basic_string (InputIt first, InputIt last)
-        : _p(first, last)
-    {}
+    {
+        _p.v = native_type(first, pfs::distance(first, last));
+    }
     
     basic_string & operator = (native_reference rhs)
     {
@@ -170,6 +177,11 @@ public:
 //    {
 //        return _p->compare(pos1, count1, rhs._p, pos2, count2) ;
 //    }
+    
+    void clear ()
+    {
+        _p->clear();
+    }
     
     void erase (size_type index, size_type count)
     {
@@ -269,7 +281,11 @@ inline bool is_alpha<QChar> (QChar c)
 template <>
 inline bool is_cntrl<QChar> (QChar c)
 {
-    return is_cntrl(c.toAscii());
+    if (c == QChar())
+        return true;
+    if (c.toLatin1() == 0)
+        return false;
+    return is_cntrl(c.toLatin1());
 }
 
 template <>

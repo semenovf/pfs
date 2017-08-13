@@ -5,7 +5,6 @@
 #include <pfs/lexical_cast.hpp>
 #include <pfs/traits/stack.hpp>
 #include <pfs/traits/stdcxx/stack.hpp>
-//#include <pfs/unicode/iterator.hpp>
 #include <pfs/json/constants.hpp>
 #include "exception.hpp"
 
@@ -122,11 +121,6 @@ struct grammar
 {
     typedef typename JsonType::string_type         string_type;
     typedef typename string_type::const_iterator   iterator;
-    //typedef typename string_type::const_iterator   native_iterator;
-    //typedef typename unicode::unicode_iterator_traits<
-    //        native_iterator>::iterator             iterator;
-
-    //typedef fsm::fsm<iterator>             fsm_type;
     typedef fsm::fsm<iterator>                     fsm_type;
     typedef typename fsm_type::transition_type     transition_type;
     typedef typename fsm_type::char_type           value_type;
@@ -341,7 +335,6 @@ struct grammar
     transition_type const * p_decimal_num_tr;
     transition_type const * p_number_tr;
 #endif
-//    transition_type const * p_value_tr;
 };
 
 template <typename ValueT, template <typename> class StackT>

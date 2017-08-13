@@ -213,9 +213,9 @@ public:
     
     // *** MODIFIERS
     //
-    pfs::pair<iterator, bool> insert (value_type const & value)
+    pfs::pair<iterator, bool> insert (key_type const & key, mapped_type const & value)
     {
-        return pfs::make_pair(_p->insert(value), true);
+        return pfs::make_pair(_p->insert(pfs::make_pair(key, value)), true);
     }
     
     // *************************************************************************

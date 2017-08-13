@@ -42,6 +42,8 @@ public:
     typedef typename native_type::const_reverse_iterator const_reverse_iterator;
     typedef typename native_type::difference_type  difference_type;
     typedef typename native_type::size_type        size_type;
+    
+    static size_type const npos = size_type(-1);
 
 protected:
     internal_type _p;
@@ -58,14 +60,16 @@ public:
         : _p(rhs)
     {}
     
-    basic_string (const_pointer s)
-        : _p(s)
-    {}
+    basic_string (const_pointer s, size_type n)
+    {
+        this->_p.v = native_type(s, n);
+    }
 
     template <typename InputIt>
     basic_string (InputIt first, InputIt last)
-        : _p(first, last)
-    {}
+    {
+        this->_p.v = native_type(first, last);
+    }
     
     basic_string (size_type count, value_type ch)
         : _p(count, ch)
@@ -277,10 +281,10 @@ typedef basic_string<string_ref<char, std::string> >       string_reference;
 typedef basic_string<string_ref<wchar_t, std::wstring> >   wstring_reference;
 
 #if __cplusplus >= 201103L
-typedef basic_string<string_value<char16_t, std::u16string> > u16string;
-typedef basic_string<string_value<char32_t, std::u32string> > u32string;
-typedef basic_string<string_ref<char16_t, std::u16string> >   u16string_reference;
-typedef basic_string<string_ref<char32_t, std::u32string> >   u32string_reference;
+typedef basic_string<string_value<char16_t, std::u16string>> u16string;
+typedef basic_string<string_value<char32_t, std::u32string>> u32string;
+typedef basic_string<string_ref<char16_t, std::u16string>>   u16string_reference;
+typedef basic_string<string_ref<char32_t, std::u32string>>   u32string_reference;
 #endif
 
 template <>

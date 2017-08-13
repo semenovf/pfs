@@ -8,6 +8,7 @@
 #ifndef __PFS_JSON_JSON_HPP__
 #define __PFS_JSON_JSON_HPP__
 
+#include <cstring>
 #include <pfs/assert.hpp>
 #include <pfs/utility.hpp>
 #include <pfs/memory.hpp>
@@ -579,17 +580,6 @@ public:
         return find(key) != end();
     }
 
-//    template <typename T, typename StringType, typename ArrayType, typename ObjectType>
-//struct cast_traits<bool, StringType, ArrayType, ObjectType>
-//{
-//    static bool  cast_null    ()                     { return false; }
-//    static bool  cast_intmax  (intmax_t const & v)   { return v ? true : false; }
-//    static bool  cast_uintmax (uintmax_t const & v)  { return v ? true : false; }
-//    static bool  cast_double  (double const & v)     { return v == double(0.0f) ? true : false; }
-//    static bool  cast_string  (StringType const & v) { return lexical_cast<bool>(v); }
-//    static bool  cast_array   (ArrayType const & v)  { return v.size() ? true : false; }
-//    static bool  cast_object  (ObjectType const & v) { return v.size() ? true : false; }
-    
     template <typename T>
     struct cast_traits : public details::cast_traits<T, json>
     {};
@@ -600,11 +590,11 @@ public:
         switch (type()) {
         case data_type::boolean:  return pfs::make_pair<bool,T>(true, cast_traits<T>::cast(_d.boolean));
         case data_type::integer:
-        case data_type::uinteger: return std::make_pair<bool,T>(true, cast_traits<T>::cast(_d.integer));
-        case data_type::real:     return std::make_pair<bool,T>(true, cast_traits<T>::cast(_d.real));
-        case data_type::string:   return std::make_pair<bool,T>(true, cast_traits<T>::cast(*_d.string));
-        case data_type::array:    return std::make_pair<bool,T>(true, cast_traits<T>::cast(*_d.array));
-        case data_type::object:   return std::make_pair<bool,T>(true, cast_traits<T>::cast(*_d.object));
+        case data_type::uinteger: return pfs::make_pair<bool,T>(true, cast_traits<T>::cast(_d.integer));
+        case data_type::real:     return pfs::make_pair<bool,T>(true, cast_traits<T>::cast(_d.real));
+        case data_type::string:   return pfs::make_pair<bool,T>(true, cast_traits<T>::cast(*_d.string));
+        case data_type::array:    return pfs::make_pair<bool,T>(true, cast_traits<T>::cast(*_d.array));
+        case data_type::object:   return pfs::make_pair<bool,T>(true, cast_traits<T>::cast(*_d.object));
         case data_type::null:
         default:
             break;
@@ -630,11 +620,25 @@ public:
      * @param s
      * @return 
      */
-    error_code read (string_type const & s);
-    error_code read (char const * str);
-    error_code read (wchar_t const * str);
-
-    error_code write (string_type & s);
+//    error_code read (string_type const & s)
+//    {
+//        return read(s.cbegin(), s.cend());
+//    }
+//    
+//    error_code read (char const * str)
+//    {
+//        return read(str, str + ::strlen(str));
+//    }
+//    
+//    error_code read (wchar_t const * str)
+//    {
+//        return read(str, str + ::wcslen(str));
+//    }
+//    
+//    template <typename Iter>
+//    error_code read (Iter first, Iter last);
+//
+//    error_code write (string_type & s);
     
     static json make_object ()
     {

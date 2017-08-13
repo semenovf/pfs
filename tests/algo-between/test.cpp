@@ -1,28 +1,16 @@
-/**
- * @file   test.cpp
- * @author
- * @date
- *
- * @brief testing ...
- */
-
 #include <pfs/test/test.hpp>
 #include <pfs/algo/between.hpp>
-#include <iostream>
-
-using std::cout;
-using std::endl;
 
 static void test_int_defaults ()
 {
     ADD_TESTS(22);
-    
+
     TEST_OK(pfs::between_inclusive( 5, 0, 10));
     TEST_OK(pfs::between_inclusive( 0, 0, 10));
     TEST_OK(pfs::between_inclusive(10, 0, 10));
     TEST_OK(!pfs::between_inclusive(-1, 0, 10));
     TEST_OK(!pfs::between_inclusive(11, 0, 10));
-    
+
     TEST_OK(pfs::between_exclusive( 1, 0, 10));
     TEST_OK(pfs::between_exclusive( 9, 0, 10));
     TEST_OK(!pfs::between_exclusive(0, 0, 10));
@@ -60,10 +48,10 @@ struct IntLess
     }
 };
 
-static void test_int_cunstom ()
+static void test_int_custom ()
 {
     ADD_TESTS(22);
-    
+
     TEST_OK((pfs::between_inclusive<int, IntLessEq>( 5, 0, 10)));
     TEST_OK((pfs::between_inclusive<int, IntLessEq>( 0, 0, 10)));
     TEST_OK((pfs::between_inclusive<int, IntLessEq>(10, 0, 10)));
@@ -76,7 +64,7 @@ static void test_int_cunstom ()
     TEST_OK(!(pfs::between_exclusive<int, IntLess>(10, 0, 10)));
     TEST_OK(!(pfs::between_exclusive<int, IntLess>(-1, 0, 10)));
     TEST_OK(!(pfs::between_exclusive<int, IntLess>(11, 0, 10)));
-    
+
     TEST_OK((pfs::between_exclusive_min<int, IntLess, IntLessEq>(1, 0, 10)));
     TEST_OK((pfs::between_exclusive_min<int, IntLess, IntLessEq>(9, 0, 10)));
     TEST_OK((pfs::between_exclusive_min<int, IntLess, IntLessEq>(10, 0, 10)));
@@ -84,7 +72,6 @@ static void test_int_cunstom ()
     TEST_OK(!(pfs::between_exclusive_min<int, IntLess, IntLessEq>(-1, 0, 10)));
     TEST_OK(!(pfs::between_exclusive_min<int, IntLess, IntLessEq>(11, 0, 10)));
 
-    
     TEST_OK((pfs::between_exclusive_max<int, IntLess, IntLessEq>( 0, 0, 10)));
     TEST_OK((pfs::between_exclusive_max<int, IntLess, IntLessEq>( 1, 0, 10)));
     TEST_OK((pfs::between_exclusive_max<int, IntLess, IntLessEq>( 9, 0, 10)));
@@ -94,14 +81,14 @@ static void test_int_cunstom ()
 
 int main(int argc, char *argv[])
 {
-	(void)argc;
+    (void)argc;
     (void)argv;
 
-	BEGIN_TESTS(0);
+    BEGIN_TESTS(0);
 
     test_int_defaults();
-    test_int_cunstom();
+    test_int_custom();
 
-	return END_TESTS;
+    return END_TESTS;
 }
 

@@ -3,7 +3,7 @@
  * @author
  * @date
  *
- * @brief Testing pfs::mpl::json.
+ * @brief Testing pfs::json.
  */
 
 #include <pfs/test/test.hpp>
@@ -13,7 +13,7 @@
 #include <pfs/traits/stdcxx/map.hpp>
 
 // Enabled by `qt_enable`
-#ifdef QT_CORE_LIB
+#ifdef PFS_HAVE_QT
 #   include <pfs/traits/qt/string.hpp>
 #   include <pfs/traits/qt/vector.hpp>
 #   include <pfs/traits/qt/map.hpp>
@@ -43,17 +43,18 @@ typedef pfs::json::json<
 
 }} //stdcxx::json
 
-#ifdef QT_CORE_LIB
+#ifdef PFS_HAVE_QT
 
 namespace qt {
 namespace json {
 
+typedef pfs::string<pfs::traits::qt::string> string_type;
+
 typedef pfs::json::json<
-          pfs::traits::qt::string
-        , bool
+          bool
         , intmax_t
-        , uintmax_t
         , double
+        , string_type
         , pfs::traits::qt::vector
         , pfs::traits::qt::map>
     value;
@@ -73,13 +74,10 @@ int main (int argc, char *argv[])
     test_iterator::test<stdcxx::json::value>();
     test_parse::test<stdcxx::json::value>();
 
-#ifdef QT_CORE_LIB
+#ifdef PFS_HAVE_QT
     test_basic::test<qt::json::value>();
     test_iterator::test<qt::json::value>();
 #endif
 
 	return END_TESTS;
 }
-
-
-//‘pfs::json::number<pfs::json::value<bool, long int, long unsigned int, double, pfs::traits::stdcxx::basic_string<pfs::string_value<char, std::__cxx11::basic_string<char> > >, pfs::traits::stdcxx::vector, pfs::traits::stdcxx::map>, pfs::traits::stdcxx::stack>’ (type ‘pfs::json::grammar<pfs::json::value<bool, long int, long unsigned int, double, pfs::traits::stdcxx::basic_string<pfs::string_value<char, std::__cxx11::basic_string<char> > >, pfs::traits::stdcxx::vector, pfs::traits::stdcxx::map>, pfs::traits::stdcxx::stack>::string_type(pfs::json::grammar<pfs::json::value<bool, long int, long unsigned int, double, pfs::traits::stdcxx::basic_string<pfs::string_value<char, std::__cxx11::basic_string<char> > >, pfs::traits::stdcxx::vector, pfs::traits::stdcxx::map>, pfs::traits::stdcxx::stack>::native_iterator, pfs::json::grammar<pfs::json::value<bool, long int, long unsigned int, double, pfs::traits::stdcxx::basic_string<pfs::string_value<char, std::__cxx11::basic_string<char> > >, pfs::traits::stdcxx::vector, pfs::traits::stdcxx::map>, pfs::traits::stdcxx::stack>::native_iterator) {aka pfs::string<pfs::traits::stdcxx::basic_string<pfs::string_value<char, std::__cxx11::basic_string<char> > > >(__gnu_cxx::__normal_iterator<const char*, std::__cxx11::basic_string<char> >, __gnu_cxx::__normal_iterator<const char*, std::__cxx11::basic_string<char> >)}’) to type ‘const pfs::string<pfs::traits::stdcxx::basic_string<pfs::string_value<char, std::__cxx11::basic_string<char> > > >&’
