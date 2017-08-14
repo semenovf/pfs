@@ -47,7 +47,7 @@ public:
 
     typedef typename native_type::size_type   size_type;
     typedef typename native_type::key_type    key_type;
-    typedef typename native_type::value_type  value_type;
+    //typedef typename native_type::value_type  value_type;
     typedef typename native_type::mapped_type mapped_type;
     
 public:
@@ -90,6 +90,21 @@ public:
     size_type erase (key_type const & key)
     {
         return base_class::_p.erase(key);
+    }
+
+    static key_type const & key (iterator it)
+    {
+        return internal_type::key(it);
+    }
+    
+    static mapped_type & mapped_reference (iterator it)
+    {
+        return internal_type::mapped_reference(it);
+    }
+    
+    static mapped_type const & mapped_reference (const_iterator it)
+    {
+        return internal_type::mapped_reference(it);
     }
 };
 

@@ -35,13 +35,13 @@ public:
     typedef typename internal_type::native_reference       native_reference;
     typedef typename internal_type::const_native_reference const_native_reference;
     
-    typedef typename native_type::const_pointer    const_pointer;
-    typedef typename native_type::reference        reference;
-    typedef typename native_type::const_reference  const_reference;
+    //typedef typename native_type::const_pointer    const_pointer;
+    //typedef typename native_type::reference        reference;
+    //typedef typename native_type::const_reference  const_reference;
     typedef typename native_type::iterator         iterator;
     typedef typename native_type::const_iterator   const_iterator;
-    typedef typename native_type::reverse_iterator reverse_iterator;
-    typedef typename native_type::const_reverse_iterator const_reverse_iterator;
+    //typedef typename native_type::reverse_iterator reverse_iterator;
+    //typedef typename native_type::const_reverse_iterator const_reverse_iterator;
     typedef typename native_type::difference_type  difference_type;
     typedef typename native_type::size_type        size_type;
 
@@ -227,7 +227,9 @@ public:
 
     pfs::pair<iterator, bool> insert (key_type const & key, mapped_type const & value)
     {
-        return _p->insert(key, value);
+        iterator it = iterator(_p->insert(key, value));
+        return pfs::pair<iterator, bool>(it, true);
+//        return _p->insert(key, value);
     }
 
     // *************************************************************************
@@ -254,6 +256,21 @@ public:
     // *************************************************************************
     // } END Requirements for ordered associative container traits
     // *************************************************************************
+    
+    static key_type const & key (iterator it)
+    {
+        return it.key();
+    }
+
+    static mapped_type & mapped_reference (iterator it)
+    {
+        return it.value();
+    }
+    
+    static mapped_type const & mapped_reference (const_iterator it)
+    {
+        return it.value();
+    }
 };
 
 template <typename KvType>

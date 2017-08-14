@@ -675,7 +675,7 @@ inline path u8path (Source const & source)
 template <typename InputIt>
 inline path u8path (InputIt first, InputIt last)
 {
-    std::experimental::filesystem::u8path(first, last); 
+    return std::experimental::filesystem::u8path(first, last); 
 }
 
 // TODO Implement file_status

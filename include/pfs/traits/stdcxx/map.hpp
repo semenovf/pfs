@@ -34,9 +34,9 @@ public:
     typedef typename internal_type::native_reference       native_reference;
     typedef typename internal_type::const_native_reference const_native_reference;
     
-    typedef typename native_type::const_pointer    const_pointer;
-    typedef typename native_type::reference        reference;
-    typedef typename native_type::const_reference  const_reference;
+    //typedef typename native_type::const_pointer    const_pointer;
+    //typedef typename native_type::reference        reference;
+    //typedef typename native_type::const_reference  const_reference;
     typedef typename native_type::iterator         iterator;
     typedef typename native_type::const_iterator   const_iterator;
     typedef typename native_type::reverse_iterator reverse_iterator;
@@ -248,6 +248,21 @@ public:
     // *************************************************************************
     // } END Requirements for ordered associative container traits
     // *************************************************************************
+    
+    static key_type const & key (iterator it)
+    {
+        return it->first;
+    }
+
+    static mapped_type & mapped_reference (iterator it)
+    {
+        return it->second;
+    }
+    
+    static mapped_type const & mapped_reference (const_iterator it)
+    {
+        return it->second;
+    }
 };
 
 template <typename KvType>

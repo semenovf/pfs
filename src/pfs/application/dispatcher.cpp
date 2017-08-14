@@ -58,7 +58,7 @@ dispatcher::dispatcher (api_item_type * mapping, int n)
     activate_posix_signal_handling();
             
 	for (int i = 0; i < n; ++i) {
-		_api.insert(api_map::value_type(mapping[i].id, & mapping[i]));
+		_api.insert(mapping[i].id, & mapping[i]);
 	}
 }
 
@@ -216,7 +216,7 @@ bool dispatcher::register_module (module_spec const & modspec)
 	pmodule->emit_module_registered.connect(this, & dispatcher::module_registered);
 	pmodule->set_dispatcher(this);
 
-	_module_spec_map.insert(module_spec_map::value_type(pmodule->name(), modspec));
+	_module_spec_map.insert(pmodule->name(), modspec);
 
 	// Module must be run in a separate thread.
 	//
@@ -266,12 +266,12 @@ void dispatcher::disconnect_all ()
 
 void dispatcher::unregister_all ()
 {
-	runnable_sequence::iterator itThread    = _runnable_modules.begin();
-	runnable_sequence::iterator itThreadEnd = _runnable_modules.end();
-
-	for (; itThread != itThreadEnd; ++itThread) {
-		delete *itThread;
-	}
+//	runnable_sequence::iterator itThread    = _runnable_modules.begin();
+//	runnable_sequence::iterator itThreadEnd = _runnable_modules.end();
+//
+//	for (; itThread != itThreadEnd; ++itThread) {
+//		delete *itThread;
+//	}
 	_runnable_modules.clear();
 
 	module_spec_map::iterator it = _module_spec_map.begin();
@@ -300,10 +300,10 @@ bool dispatcher::start ()
 {
 	bool r = true;
 
-	module_spec_map_type::iterator it = _module_spec_map.begin();
-	module_spec_map_type::iterator itEnd = _module_spec_map.end();
+	typename module_spec_map::iterator it   = _module_spec_map.begin();
+	typename module_spec_map::iterator last = _module_spec_map.end();
 
-	for (;it != itEnd; ++it) {
+	for (;it != last; ++it) {
 		module_spec modspec = it->second;
 		shared_ptr<module> pmodule = modspec.pmodule;
 
@@ -326,7 +326,7 @@ int dispatcher::exec ()
 		size_t size = _runnable_modules.size();
 
 		for (size_t i = 0; i < size; ++i) {
-			const thread * th = _runnable_modules[i];
+			thread const * th = _runnable_modules[i];
 			const module_threaded * pt = dynamic_cast<const module_threaded*>(th);
 
 			if (pt->module_ptr() == _master_module.get()) {
@@ -337,11 +337,11 @@ int dispatcher::exec ()
 		}
 	}
 
-	vector<thread *>::iterator itThread = _runnable_modules.begin();
-	vector<thread *>::iterator itThreadEnd = _runnable_modules.end();
+	typename runnable_sequence::iterator ithread      = _runnable_modules.begin();
+	typename runnable_sequence::iterator ithread_last = _runnable_modules.end();
 
-	for (; itThread != itThreadEnd; ++itThread) {
-		thread * t = *itThread;
+	for (; ithread != ithread_last; ++ithread) {
+		thread * t = *ithread;
 		t->start();
 	}
 

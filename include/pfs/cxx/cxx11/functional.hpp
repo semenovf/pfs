@@ -16,10 +16,16 @@ template <typename T>
 using reference_wrapper = std::reference_wrapper<T>;
 
 template <typename T>
-using ref = std::ref<T>;
+inline reference_wrapper<T> ref (T & t) noexcept
+{
+    return std::ref<T>(t);
+}
 
 template <typename T>
-using cref = std::cref<T>;
+reference_wrapper<const T> cref (T const & t) noexcept
+{
+    return std::cref<T>(t);
+}
 
 } // pfs
 

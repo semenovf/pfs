@@ -9,7 +9,8 @@
 #define __PFS_TRAITS_QT_VECTOR_HPP__
 
 #include <QVector>
-#include <pfs/traits/qt/container.hpp>
+#include <pfs/iterator.hpp>
+#include <pfs/traits/value_ref.hpp>
 
 namespace pfs {
 namespace traits {
@@ -41,8 +42,8 @@ public:
     typedef typename native_type::const_reference  const_reference;
     typedef typename native_type::iterator         iterator;
     typedef typename native_type::const_iterator   const_iterator;
-    typedef typename native_type::reverse_iterator reverse_iterator;
-    typedef typename native_type::const_reverse_iterator const_reverse_iterator;
+    typedef typename pfs::reverse_iterator<iterator>       reverse_iterator;
+    typedef typename pfs::reverse_iterator<const_iterator> const_reverse_iterator;
     typedef typename native_type::difference_type  difference_type;
     typedef typename native_type::size_type        size_type;
 

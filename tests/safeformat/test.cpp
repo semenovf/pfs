@@ -21,7 +21,7 @@
 #endif
 
 template <typename T, typename StringImplType>
-bool testCase (StringImplType const & fmt1, std::string const & fmt2, T value)
+bool testCase (char const * fmt1, std::string const & fmt2, T value)
 {
     typedef pfs::string<StringImplType>  string_type;
 
@@ -260,7 +260,7 @@ void test2 (unsigned limit)
 
         switch (typeSpec) {
         case 'c':
-        	TEST_FAIL2((testCase<int, string_impl_type>(string_impl_type(formatSpec), formatSpec, randomInt(1, 127))), formatSpec.c_str());
+        	TEST_FAIL2((testCase<int, string_impl_type>(formatSpec.c_str(), formatSpec, randomInt(1, 127))), formatSpec.c_str());
             break;
         case 'd':
         case 'i':
@@ -271,7 +271,7 @@ void test2 (unsigned limit)
             //TestCase(formatSpec, RandomInt(-10000, 10000));
             // don't test negative values on 64bit systems, because
             // snprintf does not support 64 Bit values
-            TEST_FAIL2((testCase<int, string_impl_type>(string_impl_type(formatSpec), formatSpec, randomInt(-10000 * (sizeof(size_t) > 4 ? 0 : 1) , 10000)))
+            TEST_FAIL2((testCase<int, string_impl_type>(formatSpec.c_str(), formatSpec, randomInt(-10000 * (sizeof(size_t) > 4 ? 0 : 1) , 10000)))
             		, formatSpec.c_str());
             break;
         case 'e':
@@ -279,7 +279,7 @@ void test2 (unsigned limit)
         case 'f':
         case 'g':
         case 'G':
-        	TEST_FAIL2((testCase<double, string_impl_type>(string_impl_type(formatSpec)
+        	TEST_FAIL2((testCase<double, string_impl_type>(formatSpec.c_str()
                             , formatSpec
                             , randomInt(-10000, 10000) / double(randomInt(1, 100))))
         			, formatSpec.c_str());
@@ -289,13 +289,13 @@ void test2 (unsigned limit)
         case 'p':
             {
                 void * p = malloc(randomInt(1, 1000));
-                TEST_FAIL2((testCase<void *, string_impl_type>(string_impl_type(formatSpec), formatSpec, p))
+                TEST_FAIL2((testCase<void *, string_impl_type>(formatSpec.c_str(), formatSpec, p))
                 		, formatSpec.c_str());
                 free(p);
             }
             break;
         case 's':
-        	TEST_FAIL2((testCase<char const *, string_impl_type>(string_impl_type(formatSpec), formatSpec, randomString(100).c_str()))
+        	TEST_FAIL2((testCase<char const *, string_impl_type>(formatSpec.c_str(), formatSpec, randomString(100).c_str()))
         			, formatSpec.c_str());
             break;
         default:

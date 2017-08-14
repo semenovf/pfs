@@ -14,6 +14,7 @@
 // Creating custom error category:
 // [std::error_category](http://www.cplusplus.com/reference/system_error/error_category/)
 // [Unifying error codes](http://breese.github.io/2016/06/18/unifying-error-codes.html)
+// [Your own error condition](https://akrzemi1.wordpress.com/2017/08/12/your-own-error-condition/)
 
 namespace pfs {
 

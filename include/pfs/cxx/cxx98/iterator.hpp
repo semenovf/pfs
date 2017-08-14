@@ -10,6 +10,7 @@
 
 #include <iterator>
 #include <pfs/types.hpp>
+#include <pfs/cxxlang.hpp>
 
 namespace pfs {
 
@@ -316,6 +317,24 @@ back_inserter (Container & c)
 }
 
 #endif
+
+template <typename CharT, typename Traits = std::char_traits<CharT> >
+class istreambuf_iterator : public std::istreambuf_iterator<CharT, Traits>
+{
+    typedef std::istreambuf_iterator<CharT, Traits> base_class;
+public:
+    pfs_constexpr istreambuf_iterator () pfs_noexcept
+        : base_class()
+    {}
+        
+    istreambuf_iterator (std::basic_istream<CharT,Traits> & is) pfs_noexcept
+        : base_class(is)
+    {}
+    
+    istreambuf_iterator (std::basic_streambuf<CharT,Traits> * is) pfs_noexcept
+        : base_class(is)
+    {}
+};
 
 } // pfs
 

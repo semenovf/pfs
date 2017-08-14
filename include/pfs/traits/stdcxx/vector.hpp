@@ -222,13 +222,13 @@ public:
     template <typename... Args>
     iterator emplace (const_iterator pos, Args &&... args)
     {
-        return _p->emplace(pos, args...);
+        return _p->emplace(pos, std::forward<Args>(args)...);
     }
 
     template <typename... Args>
     void emplace_back (Args &&... args)
     {
-        return _p->emplace_back<Args...>(args...);
+        _p->emplace_back(std::forward<Args>(args)...);
     }
 #endif    
 

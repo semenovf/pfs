@@ -27,9 +27,9 @@ public:
     typedef typename base_class::const_native_reference const_native_reference;
 
     typedef typename base_class::size_type       size_type;
-    typedef typename base_class::value_type      value_type;
-    typedef typename base_class::reference       reference;
-    typedef typename base_class::const_reference const_reference;
+    //typedef typename base_class::value_type      value_type;
+    typedef typename base_class::internal_type::reference       reference;
+    typedef typename base_class::internal_type::const_reference const_reference;
     typedef typename base_class::iterator        iterator;
     typedef typename base_class::const_iterator  const_iterator;
     
@@ -103,7 +103,7 @@ public:
     template <typename... Args>
     void emplace_back (Args &&... args)
     {
-        return base_class::_p.emplace_back(args...);
+        base_class::_p.emplace_back(args...);
     }
     
 //    template <typename... Args>

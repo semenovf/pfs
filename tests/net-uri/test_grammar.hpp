@@ -9,46 +9,46 @@ void test_grammar ()
     ADD_TESTS(34);
 
     typedef pfs::fsm::test_valid_entry_seq<GrammarType> test_valid;
-//    typedef pfs::fsm::test_invalid_entry_seq<GrammarType> test_invalid;
+    typedef pfs::fsm::test_invalid_entry_seq<GrammarType> test_invalid;
 
     GrammarType grammar;
 
     TEST_OK(test_valid()(grammar.p_unreserved_tr, "0"));
-//    TEST_OK(test_valid()(grammar.p_unreserved_tr, "9"));
-//    TEST_OK(test_valid()(grammar.p_unreserved_tr, "A"));
-//    TEST_OK(test_valid()(grammar.p_unreserved_tr, "Z"));
-//    TEST_OK(test_valid()(grammar.p_unreserved_tr, "a"));
-//    TEST_OK(test_valid()(grammar.p_unreserved_tr, "z"));
-//    TEST_OK(test_valid()(grammar.p_unreserved_tr, "-"));
-//    TEST_OK(test_valid()(grammar.p_unreserved_tr, "."));
-//    TEST_OK(test_valid()(grammar.p_unreserved_tr, "_"));
-//    TEST_OK(test_valid()(grammar.p_unreserved_tr, "~"));
-//    TEST_OK(test_invalid()(grammar.p_unreserved_tr, "!", 0));
-//    TEST_OK(test_invalid()(grammar.p_unreserved_tr, "+", 0));
-//    
-//    TEST_OK(test_valid()(grammar.p_pct_encoded_tr, "%00"));
-//    TEST_OK(test_valid()(grammar.p_pct_encoded_tr, "%1F"));
-//    TEST_OK(test_valid()(grammar.p_pct_encoded_tr, "%FF"));
-//    TEST_OK(test_invalid()(grammar.p_pct_encoded_tr, "%0", 0));
-//    TEST_OK(test_invalid()(grammar.p_pct_encoded_tr, "%0FA", 3));
-//
-//    TEST_OK(test_valid()(grammar.p_pchar_tr, "0"));
-//    TEST_OK(test_valid()(grammar.p_pchar_tr, "9"));
-//    TEST_OK(test_valid()(grammar.p_pchar_tr, "A"));
-//    TEST_OK(test_valid()(grammar.p_pchar_tr, "Z"));
-//    TEST_OK(test_valid()(grammar.p_pchar_tr, "a"));
-//    TEST_OK(test_valid()(grammar.p_pchar_tr, "z"));
-//    TEST_OK(test_valid()(grammar.p_pchar_tr, "-"));
-//    TEST_OK(test_valid()(grammar.p_pchar_tr, "."));
-//    TEST_OK(test_valid()(grammar.p_pchar_tr, "_"));
-//    TEST_OK(test_valid()(grammar.p_pchar_tr, "~"));
-//    TEST_OK(test_valid()(grammar.p_pchar_tr, "%00"));
-//    TEST_OK(test_valid()(grammar.p_pchar_tr, "%1F"));
-//    TEST_OK(test_valid()(grammar.p_pchar_tr, "%FF"));
-//    TEST_OK(test_valid()(grammar.p_pchar_tr, "!"));
-//    TEST_OK(test_valid()(grammar.p_pchar_tr, "+"));
-//    TEST_OK(test_invalid()(grammar.p_pchar_tr, "%0", 0));
-//    TEST_OK(test_invalid()(grammar.p_pchar_tr, "%0FA", 3));
+    TEST_OK(test_valid()(grammar.p_unreserved_tr, "9"));
+    TEST_OK(test_valid()(grammar.p_unreserved_tr, "A"));
+    TEST_OK(test_valid()(grammar.p_unreserved_tr, "Z"));
+    TEST_OK(test_valid()(grammar.p_unreserved_tr, "a"));
+    TEST_OK(test_valid()(grammar.p_unreserved_tr, "z"));
+    TEST_OK(test_valid()(grammar.p_unreserved_tr, "-"));
+    TEST_OK(test_valid()(grammar.p_unreserved_tr, "."));
+    TEST_OK(test_valid()(grammar.p_unreserved_tr, "_"));
+    TEST_OK(test_valid()(grammar.p_unreserved_tr, "~"));
+    TEST_OK(test_invalid()(grammar.p_unreserved_tr, "!", 0));
+    TEST_OK(test_invalid()(grammar.p_unreserved_tr, "+", 0));
+    
+    TEST_OK(test_valid()(grammar.p_pct_encoded_tr, "%00"));
+    TEST_OK(test_valid()(grammar.p_pct_encoded_tr, "%1F"));
+    TEST_OK(test_valid()(grammar.p_pct_encoded_tr, "%FF"));
+    TEST_OK(test_invalid()(grammar.p_pct_encoded_tr, "%0", 0));
+    TEST_OK(test_invalid()(grammar.p_pct_encoded_tr, "%0FA", 3));
+
+    TEST_OK(test_valid()(grammar.p_pchar_tr, "0"));
+    TEST_OK(test_valid()(grammar.p_pchar_tr, "9"));
+    TEST_OK(test_valid()(grammar.p_pchar_tr, "A"));
+    TEST_OK(test_valid()(grammar.p_pchar_tr, "Z"));
+    TEST_OK(test_valid()(grammar.p_pchar_tr, "a"));
+    TEST_OK(test_valid()(grammar.p_pchar_tr, "z"));
+    TEST_OK(test_valid()(grammar.p_pchar_tr, "-"));
+    TEST_OK(test_valid()(grammar.p_pchar_tr, "."));
+    TEST_OK(test_valid()(grammar.p_pchar_tr, "_"));
+    TEST_OK(test_valid()(grammar.p_pchar_tr, "~"));
+    TEST_OK(test_valid()(grammar.p_pchar_tr, "%00"));
+    TEST_OK(test_valid()(grammar.p_pchar_tr, "%1F"));
+    TEST_OK(test_valid()(grammar.p_pchar_tr, "%FF"));
+    TEST_OK(test_valid()(grammar.p_pchar_tr, "!"));
+    TEST_OK(test_valid()(grammar.p_pchar_tr, "+"));
+    TEST_OK(test_invalid()(grammar.p_pchar_tr, "%0", 0));
+    TEST_OK(test_invalid()(grammar.p_pchar_tr, "%0FA", 3));
             
     // number = [ minus ] int [ frac ] [ exp ]
 //    TEST_OK(test_valid_entry()(grammar.p_number_tr

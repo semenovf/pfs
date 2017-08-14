@@ -137,14 +137,14 @@ struct pool : public bits::pool
 	void push_back (io::device d, short events)
 	{
 		pfs::lock_guard<pfs::mutex> locker(mtx);
-		device_map.insert(make_pair(d.native_handle(), d));
+		device_map.insert(d.native_handle(), d);
 		update = true;
 	}
 
 	void push_back (io::server s, short events)
 	{
 		pfs::lock_guard<pfs::mutex> locker(mtx);
-		server_map.insert(make_pair(s.native_handle(), s));
+		server_map.insert(s.native_handle(), s);
 		update = true;
 	}
 

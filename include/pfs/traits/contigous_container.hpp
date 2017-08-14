@@ -19,16 +19,18 @@ template <typename T, template <typename> class ContainerValueRef>
 class contigous_container : public container<T, ContainerValueRef>
 {
     typedef container<T, ContainerValueRef> base_class;
+protected:    
+    typedef typename base_class::internal_type internal_type;
     
 public:
     typedef typename base_class::native_type            native_type;
     typedef typename base_class::native_reference       native_reference;
     typedef typename base_class::const_native_reference const_native_reference;
 
-    typedef typename base_class::size_type        size_type;
-    typedef typename base_class::value_type       value_type;
-    typedef typename base_class::reference        reference;
-    typedef typename base_class::const_reference  const_reference;
+    typedef typename base_class::size_type          size_type;
+    typedef typename internal_type::value_type      value_type;
+    typedef typename internal_type::reference       reference;
+    typedef typename internal_type::const_reference const_reference;
     
     typedef typename native_type::pointer         pointer;
     typedef typename native_type::const_pointer   const_pointer;

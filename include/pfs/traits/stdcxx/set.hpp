@@ -35,9 +35,9 @@ public:
     typedef typename internal_type::const_native_reference const_native_reference;
     
     typedef typename native_type::value_type       value_type;
-    typedef typename native_type::const_pointer    const_pointer;
-    typedef typename native_type::reference        reference;
-    typedef typename native_type::const_reference  const_reference;
+    //typedef typename native_type::const_pointer    const_pointer;
+    //typedef typename native_type::reference        reference;
+    //typedef typename native_type::const_reference  const_reference;
     typedef typename native_type::iterator         iterator;
     typedef typename native_type::const_iterator   const_iterator;
     typedef typename native_type::reverse_iterator reverse_iterator;

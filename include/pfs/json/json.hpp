@@ -428,7 +428,16 @@ public:
         pfs::advance(it, index);
         return *it;
     }
-
+    
+    json operator [] (size_type index) const
+    {
+        if (_d.type == data_type::array) {
+            typename array_type::iterator it = _d.array->begin();
+            pfs::advance(it, index);
+            return *it;
+        }
+        return json();
+    }
     
     reference operator [] (key_type const & key)
     {
@@ -446,16 +455,31 @@ public:
 
         if (it == _d.object->end()) {
             pfs::pair<typename object_type::iterator, bool> result 
-                = _d.object->insert(pfs::make_pair(key, json()));
+                = _d.object->insert(key, json());
             it = result.first;
 
             PFS_ASSERT(it != _d.object->end());
         }
 
-        return it->second;
+        return object_type::mapped_reference(it);
     }
 
+    json operator [] (key_type const & key) const
+    {
+        if (_d.type == data_type::object) {
+            typename object_type::const_iterator it = _d.object->find(key);
+            if (it != _d.object->cend())
+                return object_type::mapped_reference(it);
+        }
+        return json();
+    }
+    
     reference operator [] (const char * key)
+    {
+        return operator [] (key_type(key));
+    }
+
+    json operator [] (const char * key) const
     {
         return operator [] (key_type(key));
     }
@@ -620,14 +644,14 @@ public:
      * @param s
      * @return 
      */
-//    error_code read (string_type const & s)
+    error_code parse (string_type const & s)
+    {
+        return parse(s.cbegin(), s.cend());
+    }
+    
+//    error_code parse (char const * str)
 //    {
-//        return read(s.cbegin(), s.cend());
-//    }
-//    
-//    error_code read (char const * str)
-//    {
-//        return read(str, str + ::strlen(str));
+//        return parse(str, str + ::strlen(str));
 //    }
 //    
 //    error_code read (wchar_t const * str)
@@ -635,9 +659,9 @@ public:
 //        return read(str, str + ::wcslen(str));
 //    }
 //    
-//    template <typename Iter>
-//    error_code read (Iter first, Iter last);
-//
+    error_code parse (typename string_type::const_iterator first
+            , typename string_type::const_iterator last);
+
 //    error_code write (string_type & s);
     
     static json make_object ()

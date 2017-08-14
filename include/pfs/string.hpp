@@ -62,25 +62,15 @@ protected:
     internal_type _p;
 
 protected:
-//    string (typename internal_type::const_pointer first
-//            , typename internal_type::const_pointer last)
+//    string (typename internal_type::iterator first
+//            , typename internal_type::iterator last)
 //        : _p(first, last)
 //    {}
 //
-//    string (typename internal_type::pointer first
-//            , typename internal_type::pointer last)
+//    string (typename internal_type::const_iterator first
+//            , typename internal_type::const_iterator last)
 //        : _p(first, last)
 //    {}
-
-    string (typename internal_type::iterator first
-            , typename internal_type::iterator last)
-        : _p(first, last)
-    {}
-
-    string (typename internal_type::const_iterator first
-            , typename internal_type::const_iterator last)
-        : _p(first, last)
-    {}
 
 public:
     string ()
@@ -120,6 +110,21 @@ public:
 
     string (const_iterator first, const_iterator last)
         : _p(first.base(), last.base())
+    {}
+    
+    string (typename internal_type::iterator first
+            , typename internal_type::iterator last)
+        : _p(first, last)
+    {}
+
+    string (typename internal_type::const_iterator first
+            , typename internal_type::const_iterator last)
+        : _p(first, last)
+    {}
+
+    template <typename InputIt>
+    string (InputIt first, InputIt last)
+        : _p(first, last)
     {}
     
     string (size_type count, value_type ch)
@@ -287,6 +292,11 @@ public:
         while (count--)
             push_back(ch);
         return *this;
+    }
+
+    string & append (size_type count, char ch)
+    {
+        return this->append(count, value_type(ch));
     }
     
     string & append (string const & s)
@@ -537,6 +547,20 @@ public:
 //        _p.swap(rhs._p);
 //    }
 #endif // __TODO__
+    
+    string & operator += (string const & str)
+    {
+        return this->append(str);
+    }
+    
+    string & operator += (char ch)
+    {
+        return append(1, ch);
+    }
+    
+    // TODO
+    //string & operator += (const char * s);   
+    
     
     friend inline bool operator == (string const & lhs, string const & rhs)
     {
@@ -939,62 +963,16 @@ inline StringType to_string (double a
             , precision);
 }
 
-//template <typename StringType>
-//inline StringType left_justified (StringType const & s
-//        , int width
-//        , typename StringType::value_type fill_char = typename StringType::value_type(' ')
-//        , bool trancate = false)
-//{
-//    if (width < 0)
-//        return right_justified(s, -1 * width, fill_char, trancate);
 //
-//    if (s.size())
-//    // TODO Implement left-aligned text (field_width is negative)
-//    if (width > 0 && s.size() < static_cast<size_t>(width)) {
-//        if (value < 0 && !pfs::is_space(fill_char)) { // -000000123
-//            return StringType(1, '-') 
-//                    + StringType(static_cast<size_t>(field_width) - s.size() - 1, fill_char)
-//                    + StringType(s.cbegin() + 1, s.cend()); // ignore sign
-//        } else { // -123, 123, _______-123, ________123
-//            return StringType(static_cast<size_t>(field_width) - s.size(), fill_char) + s;
-//        }
-//    }
-//}
+// [How to read in a file in C++](http://insanecoding.blogspot.ru/2011/11/how-to-read-in-file-in-c.html)
 //
-//template <typename StringType>
-//inline StringType right_justified (StringType const & s
-//        , int width
-//        , typename StringType::value_type fill_char = typename StringType::value_type(' ')
-//        , bool trancate = false)
-//{
-//    if (width < 0)
-//        return left_justified(s, -1 * width, fill_char, trancate);
-//
-//    // TODO Implement left-aligned text (field_width is negative)
-//    if (width > 0 && s.size() < static_cast<size_t>(width)) {
-//        if (value < 0 && !pfs::is_space(fill_char)) { // -000000123
-//            return StringType(1, '-') 
-//                    + StringType(static_cast<size_t>(field_width) - s.size() - 1, fill_char)
-//                    + StringType(s.cbegin() + 1, s.cend()); // ignore sign
-//        } else { // -123, 123, _______-123, ________123
-//            return StringType(static_cast<size_t>(field_width) - s.size(), fill_char) + s;
-//        }
-//    }
-//    
-//    return s;
-//}
-//
-//template <typename StringType>
-//inline StringType justified (StringType const & s
-//        , int width
-//        , typename StringType::value_type fill_char = typename StringType::value_type(' ')
-//        , bool trancate = false)
-//{
-//    if (width < 0)
-//        return left_justified(s, -1 * width, fill_char, trancate);
-//    
-//    return right_justified(s, width, fill_char, trancate);
-//}
+template <typename StringType, typename Istream>
+StringType read_all (Istream & is)
+{
+    typedef typename StringType::code_unit_type char_type;
+    return StringType(istreambuf_iterator<char_type>(is)
+            , istreambuf_iterator<char_type>());
+}
 
 } // pfs
 

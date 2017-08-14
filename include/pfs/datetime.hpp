@@ -298,9 +298,9 @@ public:
         int h = off / 3600;
         int m = (off - h * 3600) / 60;
 
-        StringType result(1, (sign < 0 ? '-' : '+'));
-        StringType hh(to_string<StringType>(h, 10));
-        StringType mm(to_string<StringType>(m, 10));
+        string_type result(1, (sign < 0 ? '-' : '+'));
+        string_type hh(to_string<string_type>(h, 10));
+        string_type mm(to_string<string_type>(m, 10));
 
         if (h < 10)
             result += '0';

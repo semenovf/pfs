@@ -22,6 +22,7 @@
 
 //
 // [Formatted Output](http://www.qnx.com/developers/docs/6.5.0/topic/com.qnx.doc.dinkum_en_c99/lib_prin.html)
+// [Format Specification Syntax: printf and wprintf Functions](https://msdn.microsoft.com/en-us/en-en/library/56e442dc.aspx)
 //
 
 /* Conversion specification grammar

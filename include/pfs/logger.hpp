@@ -52,9 +52,9 @@ public:
     typedef StringType string_type;
 
 private:    
-    typedef appender<logger>                       appender_type;
+    typedef appender<string_type>                  appender_type;
 	typedef traits::sequence_container<
-              unique_ptr<appender_type>
+              shared_ptr<appender_type>
             , SequenceContainerImplType>           appender_sequence;
 	typedef signal2<priority, string_type const &> emitter_type;
 
@@ -79,7 +79,6 @@ public:
 	{
 		if (_d) {
 			clear();
-			delete _d;
 		}
 	}
 
@@ -93,8 +92,8 @@ public:
 	template <typename Appender>
 	appender_type & add_appender ()
 	{
-		_d->_appenders.emplace_back(make_unique<Appender>());
-		return *_d->_appenders.last();
+		_d->_appenders.emplace_back(make_shared<Appender>());
+		return *_d->_appenders.back();
 	}
 
     // TODO Implement add_appender using C++ variadic templates 
@@ -102,57 +101,57 @@ public:
 	template <typename Appender, typename Arg1>
 	appender_type & add_appender (Arg1 a1)
 	{
-		_d->_appenders.emplace_back(make_unique<Appender>(a1));
-		return *_d->_appenders.last();
+		_d->_appenders.emplace_back(make_shared<Appender>(a1));
+		return *_d->_appenders.back();
 	}
 
 	template <typename Appender, typename Arg1, typename Arg2>
 	appender_type & add_appender (Arg1 a1, Arg2 a2)
 	{
-		_d->_appenders.emplace_back(make_unique<Appender>(a1, a2));
-		return *_d->_appenders.last();
+		_d->_appenders.emplace_back(make_shared<Appender>(a1, a2));
+		return *_d->_appenders.back();
 	}
 
 	template <typename Appender, typename Arg1, typename Arg2, typename Arg3>
 	appender_type & add_appender (Arg1 a1, Arg2 a2, Arg3 a3)
 	{
-		_d->_appenders.emplace_back(make_unique<Appender>(a1, a2, a3));
-		return *_d->_appenders.last();
+		_d->_appenders.emplace_back(make_shared<Appender>(a1, a2, a3));
+		return *_d->_appenders.back();
 	}
 
 	template <typename Appender, typename Arg1, typename Arg2, typename Arg3, typename Arg4>
 	appender_type & add_appender (Arg1 a1, Arg2 a2, Arg3 a3, Arg4 a4)
 	{
-		_d->_appenders.emplace_back(make_unique<Appender>(a1, a2, a3, a4));
-		return *_d->_appenders.last();
+		_d->_appenders.emplace_back(make_shared<Appender>(a1, a2, a3, a4));
+		return *_d->_appenders.back();
 	}
 
 	template <typename Appender, typename Arg1, typename Arg2, typename Arg3, typename Arg4, typename Arg5>
 	appender_type & add_appender (Arg1 a1, Arg2 a2, Arg3 a3, Arg4 a4, Arg5 a5)
 	{
-		_d->_appenders.emplace_back(make_unique<Appender>(a1, a2, a3, a4, a5));
-		return *_d->_appenders.last();
+		_d->_appenders.emplace_back(make_shared<Appender>(a1, a2, a3, a4, a5));
+		return *_d->_appenders.back();
 	}
 
 	template <typename Appender, typename Arg1, typename Arg2, typename Arg3, typename Arg4, typename Arg5, typename Arg6>
 	appender_type & add_appender (Arg1 a1, Arg2 a2, Arg3 a3, Arg4 a4, Arg5 a5, Arg6 a6)
 	{
-		_d->_appenders.emplace_back(make_unique<Appender>(a1, a2, a3, a4, a5, a6));
-		return *_d->_appenders.last();
+		_d->_appenders.emplace_back(make_shared<Appender>(a1, a2, a3, a4, a5, a6));
+		return *_d->_appenders.back();
 	}
 
 	template <typename Appender, typename Arg1, typename Arg2, typename Arg3, typename Arg4, typename Arg5, typename Arg6, typename Arg7>
 	appender_type & add_appender (Arg1 a1, Arg2 a2, Arg3 a3, Arg4 a4, Arg5 a5, Arg6 a6, Arg7 a7)
 	{
-		_d->_appenders.emplace_back(make_unique<Appender>(a1, a2, a3, a4, a5, a6, a7));
-		return *_d->_appenders.last();
+		_d->_appenders.emplace_back(make_shared<Appender>(a1, a2, a3, a4, a5, a6, a7));
+		return *_d->_appenders.back();
 	}
 
 	template <typename Appender, typename Arg1, typename Arg2, typename Arg3, typename Arg4, typename Arg5, typename Arg6, typename Arg7, typename Arg8>
 	appender_type & add_appender (Arg1 a1, Arg2 a2, Arg3 a3, Arg4 a4, Arg5 a5, Arg6 a6, Arg7 a7, Arg8 a8)
 	{
-		_d->_appenders.emplace_back(make_unique<Appender>(a1, a2, a3, a4, a5, a6, a7, a8));
-		return *_d->_appenders.last();
+		_d->_appenders.emplace_back(make_shared<Appender>(a1, a2, a3, a4, a5, a6, a7, a8));
+		return *_d->_appenders.back();
 	}
 //#else
 //#	error "Need to implement `add_appender` using variadic templates"

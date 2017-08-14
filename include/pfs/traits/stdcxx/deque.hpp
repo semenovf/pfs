@@ -220,21 +220,21 @@ public:
     template <typename... Args>
     iterator emplace (const_iterator pos, Args &&... args)
     {
-        return _p->emplace(pos, args...);
+        return _p->emplace(pos, std::forward<Args>(args)...);
     }
 
     template <typename... Args>
     void emplace_back (Args &&... args)
     {
-        return _p->emplace_back(args...);
+        _p->emplace_back(std::forward<Args>(args)...);
     }
     
-//    template <typename... Args>
-//    reference emplace_front (Args &&... args )
-//    {
-//        return _p->emplace_front(args...);
-//    }
-#endif    
+    template <typename... Args>
+    void emplace_front (Args &&... args )
+    {
+        _p->emplace_front(std::forward<Args>(args)...);
+    }
+#endif
 
     iterator erase (const_iterator pos)
     {
