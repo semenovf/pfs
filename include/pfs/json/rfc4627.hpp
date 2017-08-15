@@ -133,6 +133,7 @@ struct grammar
         pfs::traits::stack<string_type, StackImplType> objects;
         pfs::traits::stack<string_type, StackImplType> arrays;
         sax_context<JsonType> & sax;
+        error_code     ec;
     };
     
     grammar ();

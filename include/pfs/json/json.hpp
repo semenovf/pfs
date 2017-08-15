@@ -663,10 +663,14 @@ public:
         fsm_type fsm(grammar.p_json_tr, & context);
         typename fsm_type::result_type r = fsm.exec(0, first, last);
 
+        if (context.ec)
+            return context.ec;
+        
         if (r.first && r.second == last)
-            return true;
+            return error_code();
 
-        return false;
+        // TODO need to return bad string ????
+        return context.ec;
     }
 
 //    error_code write (string_type & s);
