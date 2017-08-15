@@ -8,16 +8,7 @@ solution "pfs-mpl"
     includedirs { "../include" }
     libdirs     { "../../.build" }
     defines     { }
-
     links       { "dl", "m" }
-
-    -- TODO Must be conditionally setup (based on cppdialect)
-    -- need for 11 <= C++ < 17
-    links       { "stdc++fs" }
-
-if os.findlib("pthread") then
-    defines { "PFS_HAVE_PTHREAD" }
-end
 
 qt5_core_lib = os.findlib("Qt5Core")
 qt4_core_lib = os.findlib("QtCore")
@@ -61,7 +52,28 @@ filter "action:gmake"
     buildoptions { "-Wunused", "-Wno-long-long", "-pedantic", "-fPIC" }
 
 filter "platforms:unix*"
-    links { "pthread" }
+    PTHREAD_LIB = os.findlib("pthread")
+    BOOST_FILESYSTEM_LIB = os.findlib("boost_filesystem")
+    STDCXX_FS_LIB = os.findlib("stdc++fs")
+
+    if PTHREAD_LIB then
+        print("`pthread` library found at " .. PTHREAD_LIB)
+        defines { "PFS_HAVE_PTHREAD" }
+        links { "pthread" }
+    end
+
+    if not STDCXX_FS_LIB then
+        if BOOST_FILESYSTEM_LIB then
+            print("`Boost Filesystem` library found at " .. BOOST_FILESYSTEM_LIB)
+            defines { "PFS_HAVE_BOOST_FILESYSTEM" }
+            links { "boost_filesystem" }
+        end
+    else
+        print("`stdc++fs` library found at " .. STDCXX_FS_LIB)
+        -- need for 11 <= C++ < 17
+        defines { "HAVE_STDCXX_FS" }
+        links { "stdc++fs" }
+    end
 
 -- Projects
 
