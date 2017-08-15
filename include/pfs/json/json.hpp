@@ -19,6 +19,7 @@
 #include <pfs/json/iterator.hpp>
 #include <pfs/json/exception.hpp>
 #include <pfs/json/cast.hpp>
+#include <pfs/json/rfc4627.hpp>
 
 namespace pfs {
 namespace json {
@@ -648,19 +649,25 @@ public:
     {
         return parse(s.cbegin(), s.cend());
     }
-    
-//    error_code parse (char const * str)
-//    {
-//        return parse(str, str + ::strlen(str));
-//    }
-//    
-//    error_code read (wchar_t const * str)
-//    {
-//        return read(str, str + ::wcslen(str));
-//    }
-//    
+
     error_code parse (typename string_type::const_iterator first
-            , typename string_type::const_iterator last);
+            , typename string_type::const_iterator last)
+    {
+        typedef grammar<json> grammar_type;
+        typedef typename grammar_type::fsm_type fsm_type;
+
+        // Initialize grammar's static members
+        static grammar_type grammar;
+        typename grammar_type::parse_context context;
+
+        fsm_type fsm(grammar.p_json_tr, & context);
+        typename fsm_type::result_type r = fsm.exec(0, first, last);
+
+        if (r.first && r.second == last)
+            return true;
+
+        return false;
+    }
 
 //    error_code write (string_type & s);
     

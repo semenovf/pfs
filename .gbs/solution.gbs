@@ -9,6 +9,8 @@ solution "pfs-mpl"
     libdirs     { "../../.build" }
     defines     { }
 
+    links       { "dl", "m" }
+
     -- TODO Must be conditionally setup (based on cppdialect)
     -- need for 11 <= C++ < 17
     links       { "stdc++fs" }

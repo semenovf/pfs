@@ -911,17 +911,21 @@ template <typename StringType>
 bool uri<StringType>::parse (typename string_type::const_iterator first
             , typename string_type::const_iterator last)
 {
-    typedef pfs::fsm::fsm<string_type> fsm_type;
+    typedef uri_grammar<uri<StringType> >   grammar_type;
+    typedef typename grammar_type::fsm_type fsm_type;
     
     // Initialize grammar's static members
-    static uri_grammar<string_type> grammar;
+    static grammar_type grammar;
 
     _d.clear();
     
 	fsm_type fsm(*grammar.p_uri_tr, & _d);
 	typename fsm_type::result_type r = fsm.exec(0, first, last);
 
-    return r.first;
+    if (r.first && r.second == last)
+        return true;
+    
+    return false;
 }
 
 }} // pfs::net

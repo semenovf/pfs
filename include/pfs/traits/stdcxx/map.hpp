@@ -163,6 +163,12 @@ public:
     
     // *** MODIFIERS ***
     //
+    
+    void clear ()
+    {
+        _p->clear();
+    }
+    
     iterator erase (const_iterator pos)
     {
         return _p->erase(pos);

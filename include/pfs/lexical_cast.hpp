@@ -18,15 +18,15 @@
 
 namespace pfs {
 
-template <typename UintT, typename StringT>
-typename pfs::enable_if<pfs::is_integral<UintT>::value 
-        && pfs::is_unsigned<UintT>::value, UintT>::type
-lexical_cast (StringT const & s, int radix = 10)
+template <typename UintType, typename StringType>
+typename pfs::enable_if<pfs::is_integral<UintType>::value 
+        && pfs::is_unsigned<UintType>::value, UintType>::type
+lexical_cast (StringType const & s, int radix = 10)
 {
-    typedef typename StringT::const_iterator iterator;
+    typedef typename StringType::const_iterator iterator;
     iterator badpos;
     
-    UintT result = string_to_uint<UintT, iterator>(s.cbegin()
+    UintType result = string_to_uint<UintType, iterator>(s.cbegin()
             , s.cend()
             , & badpos
             , radix);
@@ -37,15 +37,15 @@ lexical_cast (StringT const & s, int radix = 10)
     return result;
 }
 
-template <typename IntT, typename StringT>
-typename pfs::enable_if<pfs::is_integral<IntT>::value 
-        && pfs::is_signed<IntT>::value, IntT>::type
-lexical_cast (StringT const & s, int radix = 10)
+template <typename IntType, typename StringType>
+typename pfs::enable_if<pfs::is_integral<IntType>::value 
+        && pfs::is_signed<IntType>::value, IntType>::type
+lexical_cast (StringType const & s, int radix = 10)
 {
-    typedef typename StringT::const_iterator iterator;
+    typedef typename StringType::const_iterator iterator;
     iterator badpos;
     
-    IntT result = string_to_int<IntT, iterator>(s.cbegin()
+    IntType result = string_to_int<IntType, iterator>(s.cbegin()
             , s.cend()
             , & badpos
             , radix);
@@ -56,11 +56,11 @@ lexical_cast (StringT const & s, int radix = 10)
     return result;
 }
 
-template <typename RealType, typename StringT>
+template <typename RealType, typename StringType>
 typename pfs::enable_if<pfs::is_floating_point<RealType>::value, RealType>::type
-lexical_cast (StringT const & s, typename StringT::value_type decimal_point = '.')
+lexical_cast (StringType const & s, typename StringType::value_type decimal_point = '.')
 {
-    typedef typename StringT::const_iterator iterator;
+    typedef typename StringType::const_iterator iterator;
     iterator badpos;
     
     RealType result = string_to_real<RealType, iterator>(s.cbegin()

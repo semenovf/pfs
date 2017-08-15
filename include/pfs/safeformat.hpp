@@ -210,15 +210,6 @@ template <> struct printf_length_modifier<double> { static char const * value ()
 template <> struct printf_length_modifier<long double> { static char const * value () { return "L"; } };
 #endif
 
-#define SPRINTF_CONV_SPEC_LENGTH   1                /* '%' */                  \
-                                 + 5                /* flags */                \
-                                 + sizeof(int)      /* field-width */          \
-                                 + 2 + sizeof(int)  /* precision */            \
-                                 + 2                /* length-modifier */      \
-                                 + 1                /* conversion-specifier */ \
-                                 + 1                /*'\x0' */
-#define SNPRINTF_DEFAULT_BUFSZ 64
-
 template <typename BackInsertIt>
 struct base_stringifier
 {
@@ -303,6 +294,15 @@ struct stringifier : public base_stringifier<BackInsertIt>
     virtual void stringify (back_insert_iterator out
             , conversion_specification const & conv_spec) const
     {
+        static size_t const SPRINTF_CONV_SPEC_LENGTH =  1                /* '%' */                  \
+                                 + 5                /* flags */                \
+                                 + sizeof(int)      /* field-width */          \
+                                 + 2 + sizeof(int)  /* precision */            \
+                                 + 2                /* length-modifier */      \
+                                 + 1                /* conversion-specifier */ \
+                                 + 1;                /*'\x0' */
+        static size_t const SNPRINTF_DEFAULT_BUFSZ = 64;
+        
         char format[SPRINTF_CONV_SPEC_LENGTH];
         this->prepare_format(format, printf_length_modifier<T>::value(), conv_spec);
                 
@@ -322,7 +322,6 @@ struct stringifier : public base_stringifier<BackInsertIt>
     	// Supporting modern behavior only now.
         int written = snprintf(buf, bufsz, format, this->val);
 #endif
-        
         if (written < 0)
             throw pfs::runtime_error("safeformat: snprintf() error (a negative value is returned)");
         
@@ -686,103 +685,60 @@ private:
               base_stringifier<back_inserter_type> const & stringifier
             , conversion_specification const & conv_spec)
     {
-//        switch (to_ascii<value_type>(conv_spec.spec_char)) {
-//        case '%':
-//            *_out++ = conv_spec.spec_char;
-//            break;
-//            
-//        case 'd':
-//        case 'i':
-//        case 'u':
-//            stringifier.stringify_integer(_out, 10, false, conv_spec);
-//            break;
-//            
-//        case 'o':
-//            stringifier.stringify_integer(_out, 8, false, conv_spec);
-//            break;
-//        
-//        case 'x':
-//            stringifier.stringify_integer(_out, 16, false, conv_spec);
-//            break;
-//        case 'X':
-//            stringifier.stringify_integer(_out, 16, true, conv_spec);
-//            break;
-//            
-//        case 'f':
-//        case 'F':
-//        case 'e':
-//        case 'E':
-//        case 'g':
-//        case 'G':
-//            stringifier.stringify_float(_out, true, conv_spec);
-//        
-//        case 'a': case 'A': case 'c': case 's': case 'p': case 'n':
-//            break;
-//        }
-        
         stringifier.stringify(_out, conv_spec);
     }
     
 public:
     safeformat & operator () (char c)
     {
-        //advance(char_stringifier<back_inserter_type>(c));
         advance(stringifier<back_inserter_type, char>(c));
         return *this;
     }
     
     safeformat & operator () (signed char n)
     {
-        //advance(integer_stringifier<back_inserter_type, signed char>(n));
         advance(stringifier<back_inserter_type, signed char>(n));
         return *this;
     }
     
     safeformat & operator () (unsigned char n)
     {
-        //advance(integer_stringifier<back_inserter_type, unsigned char>(n));
         advance(stringifier<back_inserter_type, unsigned char>(n));
         return *this;
     }
     
     safeformat & operator () (short n)
     {
-        //advance(integer_stringifier<back_inserter_type, short>(n));
         advance(stringifier<back_inserter_type, short>(n));
         return *this;
     }
     
     safeformat & operator () (unsigned short n)
     {
-        //advance(integer_stringifier<back_inserter_type, unsigned short>(n));
         advance(stringifier<back_inserter_type, unsigned short>(n));
         return *this;
     }
     
     safeformat & operator () (int n)
     {
-        //advance(integer_stringifier<back_inserter_type, int>(n));
         advance(stringifier<back_inserter_type, int>(n));
         return *this;
     }
     
     safeformat & operator () (unsigned int n)
     {
-        //advance(integer_stringifier<back_inserter_type, unsigned int>(n));
         advance(stringifier<back_inserter_type, unsigned int>(n));
         return *this;
     }
     
     safeformat & operator () (long n)
     {
-        //advance(integer_stringifier<back_inserter_type, long>(n));
         advance(stringifier<back_inserter_type, long>(n));
         return *this;
     }
     
     safeformat & operator () (unsigned long n)
     {
-        //advance(integer_stringifier<back_inserter_type, unsigned long>(n));
         advance(stringifier<back_inserter_type, unsigned long>(n));
         return *this;
     }
@@ -790,14 +746,12 @@ public:
 #ifdef PFS_HAVE_LONG_LONG
     safeformat & operator () (long long n)
     {
-        //advance(integer_stringifier<back_inserter_type, long long>(n));
         advance(stringifier<back_inserter_type, long long>(n));
         return *this;
     }
     
     safeformat & operator () (unsigned long long n)
     {
-        //advance(integer_stringifier<back_inserter_type, unsigned long long>(n));
         advance(stringifier<back_inserter_type, unsigned long long>(n));
         return *this;
     }
@@ -805,15 +759,12 @@ public:
 
     safeformat & operator () (float n)
     {
-//        double d = n;
-//        advance(double_stringifier<back_inserter_type>(d));
         advance(stringifier<back_inserter_type, float>(n));
         return *this;
     }
     
     safeformat & operator () (double n)
     {
-        //advance(double_stringifier<back_inserter_type>(n));
         advance(stringifier<back_inserter_type, double>(n));
         return *this;
     }
@@ -821,13 +772,11 @@ public:
 #ifdef PFS_HAVE_LONG_DOUBLE
     safeformat & operator () (long double n)
     {
-        //advance(long_double_stringifier<back_inserter_type>(n));
         advance(stringifier<back_inserter_type, long double>(n));
         return *this;
     }
 #endif
 
-    //	safeformat & operator () (typename string_type::value_type c);
     safeformat & operator () (string_type const & s)
     {
         advance(string_stringifier<back_inserter_type, string_type>(s));
@@ -895,7 +844,7 @@ public:
         return operator() (n);
     }
 
-    safeformat & operator% (unsigned long n)
+    safeformat & operator % (unsigned long n)
     {
         return operator() (n);
     }

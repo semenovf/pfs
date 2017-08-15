@@ -116,7 +116,7 @@ struct sax_context
     virtual bool on_string_value (void * user_context, sequence_type const &, sequence_type const &) = 0;
 };
 
-template <typename JsonType, template <typename> class StackType = traits::stdcxx::stack>
+template <typename JsonType, template <typename> class StackImplType = traits::stdcxx::stack>
 struct grammar
 {
     typedef typename JsonType::string_type         string_type;
@@ -130,8 +130,8 @@ struct grammar
         void *         user_context;
         bool           is_json_begin;
         string_type    member_name;
-        pfs::traits::stack<string_type, StackType> objects;
-        pfs::traits::stack<string_type, StackType> arrays;
+        pfs::traits::stack<string_type, StackImplType> objects;
+        pfs::traits::stack<string_type, StackImplType> arrays;
         sax_context<JsonType> & sax;
     };
     
@@ -335,6 +335,7 @@ struct grammar
     transition_type const * p_decimal_num_tr;
     transition_type const * p_number_tr;
 #endif
+    transition_type const * p_json_tr;
 };
 
 template <typename ValueT, template <typename> class StackT>
@@ -619,6 +620,8 @@ grammar<ValueT, StackT>::grammar ()
     p_decimal_num_tr = decimal_num_tr;
     p_number_tr      = number_tr;
 #endif
+    
+    p_json_tr = json_tr;
 
 } // grammar
 

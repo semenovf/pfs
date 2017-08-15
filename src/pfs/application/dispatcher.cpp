@@ -53,7 +53,7 @@ struct module_deleter
 //};
 
 dispatcher::dispatcher (api_item_type * mapping, int n)
-	: _master_module(0)
+	: _master_module_ptr(0)
 {
     activate_posix_signal_handling();
             
@@ -232,15 +232,15 @@ bool dispatcher::register_module (module_spec const & modspec)
 
 void dispatcher::set_master_module (string_type const  & name)
 {
-	module_spec_map::iterator it = _module_spec_map.begin();
-	module_spec_map::iterator itEnd = _module_spec_map.end();
+	module_spec_map::iterator it   = _module_spec_map.begin();
+	module_spec_map::iterator last = _module_spec_map.end();
 
-	for (;it != itEnd; ++it) {
+	for (;it != last; ++it) {
 		module_spec modspec = it->second;
 		shared_ptr<module> pmodule = modspec.pmodule;
 
 		if (pmodule->name() == name)
-			_master_module = pmodule;
+			_master_module_ptr = pmodule;
 	}
 }
 
@@ -275,9 +275,9 @@ void dispatcher::unregister_all ()
 	_runnable_modules.clear();
 
 	module_spec_map::iterator it = _module_spec_map.begin();
-	module_spec_map::iterator itEnd = _module_spec_map.end();
+	module_spec_map::iterator last = _module_spec_map.end();
 
-	for (;it != itEnd; ++it) {
+	for (;it != last; ++it) {
 		module_spec modspec = it->second;
 		shared_ptr<module> pmodule = modspec.pmodule;
 		pmodule->emit_module_registered.disconnect(this);
@@ -320,45 +320,50 @@ int dispatcher::exec ()
 {
 	int r = 0;
 
-	// Exclude master module from dispatcher's threads pool
-	//
-	if (_master_module) {
-		size_t size = _runnable_modules.size();
+//	// Exclude master module from dispatcher's threads pool
+//	//
+//	if (_master_module) {
+//		size_t size = _runnable_modules.size();
+//
+//		for (size_t i = 0; i < size; ++i) {
+//			thread const * th = _runnable_modules[i];
+//			const module_threaded * pt = dynamic_cast<const module_threaded*>(th);
+//
+//			if (pt->module_ptr() == _master_module.get()) {
+//				_runnable_modules.erase(_runnable_modules.begin() + i);
+//				delete pt;
+//				break;
+//			}
+//		}
+//	}
+    
+    thread_sequence thread_pool;
 
-		for (size_t i = 0; i < size; ++i) {
-			thread const * th = _runnable_modules[i];
-			const module_threaded * pt = dynamic_cast<const module_threaded*>(th);
+	typename runnable_sequence::iterator irunnable      = _runnable_modules.begin();
+	typename runnable_sequence::iterator irunnable_last = _runnable_modules.end();
 
-			if (pt->module_ptr() == _master_module.get()) {
-				_runnable_modules.erase(_runnable_modules.begin() + i);
-				delete pt;
-				break;
-			}
-		}
+	for (; irunnable != irunnable_last; ++irunnable) {
+        // run module if it is not a master
+        if (_master_module_ptr && irunnable->get() != _master_module_ptr.get())
+            thread_pool.push_back(pfs::make_shared<thread>((*irunnable)->run, irunnable->get()));
 	}
 
-	typename runnable_sequence::iterator ithread      = _runnable_modules.begin();
-	typename runnable_sequence::iterator ithread_last = _runnable_modules.end();
-
-	for (; ithread != ithread_last; ++ithread) {
-		thread * t = *ithread;
-		t->start();
+	if (_master_module_ptr && _master_module_ptr->run) {
+		r = _master_module_ptr->run(_master_module_ptr.get());
 	}
 
-	if (_master_module && _master_module->run) {
-		r = _master_module->run(_master_module.get());
+  	typename thread_sequence::iterator ithread      = thread_pool.begin();
+	typename thread_sequence::iterator ithread_last = thread_pool.end();
+
+	for (;ithread != ithread_last; ++ithread) {
+        (*ithread)->join();
 	}
 
-	for (itThread = _runnable_modules.begin(); itThread != itThreadEnd; ++itThread) {
-		thread * t = *itThread;
-		t->wait();
-	}
+	module_spec_map::iterator imodule      = _module_spec_map.begin();
+	module_spec_map::iterator imodule_last = _module_spec_map.end();
 
-	module_spec_map_type::iterator itModule = _module_spec_map.begin();
-	module_spec_map_type::iterator itModuleEnd = _module_spec_map.end();
-
-	for (; itModule != itModuleEnd; ++itModule) {
-		module_spec modspec = itModule->second;
+	for (; imodule != imodule_last; ++imodule) {
+		module_spec modspec = imodule->second;
 		shared_ptr<module> pmodule = modspec.pmodule;
 		pmodule->on_finish();
 
@@ -371,18 +376,18 @@ int dispatcher::exec ()
 	return r;
 }
 
-static string __build_log_filename (string const & pattern)
-{
-	string r(pattern);
-
-	pfs::time ct = current_time();
-	pfs::date cd = current_date();
-
-	r = pfs::to_string(cd, r);
-	r = pfs::to_string(ct, r);
-
-	return r;
-}
+//static string __build_log_filename (string const & pattern)
+//{
+//	string r(pattern);
+//
+//	pfs::time ct = current_time();
+//	pfs::date cd = current_date();
+//
+//	r = pfs::to_string(cd, r);
+//	r = pfs::to_string(ct, r);
+//
+//	return r;
+//}
 
 void module::connect_info (log_consumer * p)
 {

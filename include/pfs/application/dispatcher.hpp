@@ -21,7 +21,7 @@
 #include <pfs/logger.hpp>
 #include <pfs/safeformat.hpp>
 #include <pfs/datetime.hpp>
-#include <pfs/byte_string.hpp>
+#include <pfs/thread.hpp>
 #include <pfs/io/file.hpp>
 #include <pfs/application/module.hpp>
 #include <pfs/application/sigslot_mapping.hpp>
@@ -62,6 +62,9 @@ public:
     
     typedef traits::sequence_container<shared_ptr<module>
         , traits::stdcxx::list>                runnable_sequence;
+
+    typedef traits::sequence_container<shared_ptr<pfs::thread>
+        , traits::stdcxx::list>                thread_sequence;
     
     typedef logger::logger<string_type>        logger_type;
     typedef safeformat<string_type>            fmt;
@@ -71,7 +74,7 @@ private:
 	api_map              _api;
 	module_spec_map      _module_spec_map;
 	runnable_sequence    _runnable_modules; // modules run in a separate threads
-	shared_ptr<module>   _master_module;
+	shared_ptr<module>   _master_module_ptr;
     logger_type          _logger;
 
 private:
@@ -85,7 +88,7 @@ private:
 
 protected:
     dispatcher ()
-		: _master_module(0)
+		: _master_module_ptr(0)
 	{}
         
     bool activate_posix_signal_handling ();
@@ -240,25 +243,6 @@ bool dispatcher::register_modules (filesystem::path const & path)
     
     string_type content = read_all<string_type, Ifstream>(is);
     
-//    error_code ec;
-//    io::device dev = io::open_device(io::open_params<io::file>(path, io::read_only), ec);
-//
-//    if (ec) {
-//    	print_error(0, fmt("%s: Open file error: %s")
-//                (to_string<string_type>(path))
-//                (to_string<string_type>(ec)).str());
-//    	return false;
-//    }
-//
-//    ec = dev.read(content, dev.available());
-//
-//    if (ec) {
-//    	print_error(0, fmt("%s: Read file error: %s")
-//                (to_string<string_type>(path))
-//                (to_string<string_type>(ec)).str());
-//    	return false;
-//    }
-
     JsonType conf;
     error_code ec = conf.parse(content);
     

@@ -71,16 +71,16 @@ public:
 public: // signals
 	signal2<string_type const &, bool &> emit_module_registered;
 
-	signal0<>                                      emit_quit;
+	signal0<>                                    emit_quit;
 	signal2<module const *, string_type const &> emit_info;
 	signal2<module const *, string_type const &> emit_debug;
 	signal2<module const *, string_type const &> emit_warn;
 	signal2<module const *, string_type const &> emit_error;
     
 private:
-	string_type _name;
-	dispatcher *  _pdispatcher;
-	atomic_int    _quitfl; // quit flag
+	string_type  _name;
+	dispatcher * _pdispatcher;
+	atomic_int   _quitfl; // quit flag
 
 public:
 	int (* run) (module *);

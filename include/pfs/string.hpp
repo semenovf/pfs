@@ -10,6 +10,7 @@
 
 #include <ostream>
 #include <pfs/assert.hpp>
+#include <pfs/memory.hpp>
 #include <pfs/type_traits.hpp>
 #include <pfs/ctype.hpp>
 #include <pfs/limits.hpp>
@@ -929,11 +930,11 @@ StringType to_string (typename pfs::enable_if<pfs::is_floating_point<Float>::val
 
 	if (!str) {
 		++sz;
-		pbuf = new char [sz];
+        pbuf = pfs::allocator<char>().allocate(sz);
 		str = double_to_cstr(value, f, prec, pbuf, & sz);
 		PFS_ASSERT(str);
 		s = StringType(str);
-		delete [] pbuf;
+        pfs::allocator<char>().destroy(pbuf);    
 	} else {
 		s = StringType(str);
 	}
