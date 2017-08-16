@@ -635,10 +635,10 @@ public:
         return r.first ? r.second : default_value;
     }
     
-//    void swap (value & other)
-//    {
-//        pfs::swap(_d, other._d);
-//    }
+    void swap (json & other)
+    {
+        pfs::swap(_d, other._d);
+    }
 
     /**
      * @brief Deserializer
@@ -658,8 +658,14 @@ public:
 
         // Initialize grammar's static members
         static grammar_type grammar;
+        
         typename grammar_type::parse_context context;
-
+        dom_builder_context<json> sax;
+        context.is_json_begin = true;        
+        context.sax           = & sax;
+        
+        sax.s.push(this);
+        
         fsm_type fsm(grammar.p_json_tr, & context);
         typename fsm_type::result_type r = fsm.exec(0, first, last);
 
@@ -669,7 +675,7 @@ public:
         if (r.first && r.second == last)
             return error_code();
 
-        // TODO need to return bad string ????
+        // TODO return: source too long error???
         return context.ec;
     }
 
@@ -685,8 +691,11 @@ public:
         return json(json::array_type());
     }
     
+    friend void swap (json & lhs, json & rhs)
+    {
+        lhs.swap(rhs);
+    }
 };
-
 
 //enum brace_position_enum
 //{

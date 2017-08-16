@@ -110,7 +110,7 @@ public:
 
     void push (value_type && x)
     {
-        _p.push(std::forward(x));
+        _p.push(x);
     }
 
     template <typename... Args>
@@ -136,8 +136,10 @@ public:
         _p.pop();
     }
 
-    // TODO Implement
-    //void swap (stack & s) noexcept;
+    void swap (stack & s) pfs_noexcept
+    {
+        _p.swap(s._p);
+    }
 
     //
     // Non-standard methods

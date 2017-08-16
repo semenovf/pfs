@@ -4,7 +4,7 @@
 --* Date:    Mon Aug 17 20:34:48 2015
 --************************************************************
 
-kind          "SharedLib"
+kind          "StaticLib"
 language      "C++"
 targetname    "pfs-mpl"
 includedirs   { "../include" }

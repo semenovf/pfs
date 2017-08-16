@@ -45,16 +45,25 @@ configuration "debug"
 configuration "release"
     defines     { "NDEBUG" }
 
-filter { "debug", "action:gmake" }
-    linkoptions  { "-rdynamic" }
 
 filter "action:gmake"
-    buildoptions { "-Wunused", "-Wno-long-long", "-pedantic", "-fPIC" }
+    buildoptions { "-Wno-long-long", "-pedantic", "-fPIC" }
+
+filter { "release", "action:gmake" }
+    buildoptions { "-Wunused" }
+
+filter { "debug", "action:gmake" }
+    buildoptions { "-ftemplate-backtrace-limit=0" }
+    linkoptions  { "-rdynamic" }
 
 filter "platforms:unix*"
     PTHREAD_LIB = os.findlib("pthread")
     BOOST_FILESYSTEM_LIB = os.findlib("boost_filesystem")
-    STDCXX_FS_LIB = os.findlib("stdc++fs")
+    STDCXX_FS_LIB="";
+
+    if os.isfile("/usr/include/c++/5/experimental/filesystem") then
+        STDCXX_FS_LIB = "stdc++fs";
+    end
 
     if PTHREAD_LIB then
         print("`pthread` library found at " .. PTHREAD_LIB)
@@ -65,11 +74,11 @@ filter "platforms:unix*"
     if not STDCXX_FS_LIB then
         if BOOST_FILESYSTEM_LIB then
             print("`Boost Filesystem` library found at " .. BOOST_FILESYSTEM_LIB)
-            defines { "PFS_HAVE_BOOST_FILESYSTEM" }
+            defines { "HAVE_BOOST_FILESYSTEM" }
             links { "boost_filesystem" }
         end
     else
-        print("`stdc++fs` library found at " .. STDCXX_FS_LIB)
+        print("`stdc++fs` library found")
         -- need for 11 <= C++ < 17
         defines { "HAVE_STDCXX_FS" }
         links { "stdc++fs" }

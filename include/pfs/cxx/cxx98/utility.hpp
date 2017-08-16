@@ -8,15 +8,9 @@
 #ifndef __PFS_CXX98_UTILITY_HPP__
 #define __PFS_CXX98_UTILITY_HPP__
 
-//#include <algorithm>
+#include <pfs/cxx/cxx98/utility_common.hpp>
 
 namespace pfs {
-
-template <typename T>
-inline void swap (T & a, T & b)
-{
-	std::swap(a, b);
-}
 
 template <typename T1, typename T2>
 struct pair

@@ -1,7 +1,7 @@
 #ifndef TEST_PARSE_HPP
 #define TEST_PARSE_HPP
 
-#include "pfs/json/rfc4627.hpp"
+#include "pfs/json/json.hpp"
 #include "pfs/fsm/fsm.hpp"
 #include "pfs/fsm/test.hpp"
 
@@ -191,60 +191,63 @@ void test_fsm ()
 #endif    
 }
 
-#if __COMMENT__
+static char const * json_empty_object_str = "{}";
+static char const * json_empty_array_str  = "[]";
 
+static char const * json_object_str = "{\"N\": 10}";
 
-static const pfs::string json_empty_object_str = _u8("{}");
-static const pfs::string json_empty_array_str = _u8("[]");
+//static char const * json_object_str = 
+//    "{"
+//	    "\"Image\": {"
+//		    "\"Width\":  800,"
+//		    "\"Height\": 600,"
+//		    "\"Title\":  \"View from 15th Floor\","
+//		    "\"Thumbnail\": {"
+//		        "\"Url\":    \"http://www.example.com/image/481989943\","
+//			    "\"Height\": 125,"
+//			    "\"Width\":  \"100\""
+//		    "},"
+//		    "\"IDs\": [116, 943, 234, 38793]"
+//	     "}"
+//	"}";
 
-static const pfs::string json_object_str = _u8("{                      \
-		\"Image\": {                                                   \
-			\"Width\":  800,                                           \
-			\"Height\": 600,                                           \
-			\"Title\":  \"View from 15th Floor\",                      \
-			\"Thumbnail\": {                                           \
-				\"Url\":    \"http://www.example.com/image/481989943\",\
-				\"Height\": 125,                                       \
-				\"Width\":  \"100\"                                    \
-			},                                                         \
-			\"IDs\": [116, 943, 234, 38793]                            \
-		  }                                                            \
-	 }");
+static char const * json_invalid_str = 
+    "["
+		"{"
+            "\"Latitude\":  37;7668"
+		"},"
+		"{"
+            "\"Latitude\":  37.371991"
+		"}"
+	"]";
 
-static const pfs::string json_invalid_str = _u8("   [     \
-		  {                                      \
-			 \"Latitude\":  37;7668              \
-		  },                                     \
-		  {                                      \
-			 \"Latitude\":  37.371991            \
-		  }                                      \
-	   ]");
-
-void test ()
+template <typename JsonType>
+void test_parse ()
 {
-    ADD_TESTS(8);
+    ADD_TESTS(12);
 
-	pfs::json::json json_empty_object;
+	JsonType json_empty_object;
 	TEST_OK(json_empty_object.is_null());
-
-	json_empty_object = pfs::json::parse(json_empty_object_str);
-
+	TEST_OK(json_empty_object.parse(json_empty_object_str) == pfs::error_code());
 	TEST_OK(!json_empty_object.is_null());
 	TEST_OK(json_empty_object.is_object());
 
-	pfs::json::json json_empty_array;
+	JsonType json_empty_array;
 	TEST_OK(json_empty_array.is_null());
-
-	json_empty_array = pfs::json::parse(json_empty_array_str);
-
+	TEST_OK(json_empty_array.parse(json_empty_array_str) == pfs::error_code());
 	TEST_OK(!json_empty_array.is_null());
 	TEST_OK(json_empty_array.is_array());
 
-	pfs::json::json json_object = pfs::json::parse(json_object_str);
+	JsonType json_object;
+    TEST_OK(json_object.parse(json_object_str) == pfs::error_code());
 	TEST_OK(json_object.is_object());
 
-	pfs::json::json json_invalid = pfs::json::parse(json_invalid_str);
+	JsonType json_invalid;
+    TEST_OK(json_invalid.parse(json_invalid_str) != pfs::error_code());
 	TEST_OK(json_invalid.is_null());
+    
+    
+    
 //
 //	pfs::string errstr;
 //	if (!pfs::json::json().parse(_u8(json_invalid_str), & errstr)) {
@@ -302,13 +305,11 @@ void test ()
 //	}
 }
 
-#endif
-
-
 template <typename JsonType>
 void test ()
 {
     test_fsm<JsonType>();
+    test_parse<JsonType>();
 }
 
 } // test_parse

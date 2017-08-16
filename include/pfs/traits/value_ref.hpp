@@ -9,6 +9,7 @@
 #define __PFS_TRAITS_VALUE_REF_HPP__
 
 #include <pfs/cxxlang.hpp>
+#include <pfs/utility.hpp>
 
 namespace pfs {
 namespace traits {

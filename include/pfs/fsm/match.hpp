@@ -8,6 +8,7 @@
 #ifndef __PFS_FSM_MATCH_HPP__
 #define __PFS_FSM_MATCH_HPP__
 
+#include <pfs/assert.hpp>
 #include <pfs/fsm/traits.hpp>
 
 namespace pfs {
@@ -56,6 +57,8 @@ protected:
 public:
     ~match ()
     {
+        PFS_ASSERT(_p->ref > 0);
+        
         if(!--_p->ref) {
             delete _p;
         }
@@ -67,8 +70,9 @@ public:
         ++_p->ref;
     }
 
-    match operator = (match const & m)
+    match & operator = (match const & m)
     {
+        this->~match();
         _p = m._p;
         ++_p->ref;
     }
@@ -110,7 +114,7 @@ public:
 
     public:
         match_length (size_type len)
-                : _len(len)
+            : _len(len)
         {}
     };
 

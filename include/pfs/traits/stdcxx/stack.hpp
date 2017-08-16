@@ -114,10 +114,10 @@ public:
         _p->pop();
     }
 
-//    void swap (stack & s) noexcept
-//    {
-//        pfs::swap(_p, s._p);
-//    }
+    void swap (basic_stack & s) pfs_noexcept
+    {
+        _p.swap(s._p);
+    }
 };
 
 template <typename T>

@@ -541,14 +541,14 @@ public:
     // TODO
     // template <typename InputIt>
     // iterator insert (const_iterator i, InputIt first, InputIt last);
-    
-    // TODO
-//    void swap (string & rhs)
-//    {
-//        _p.swap(rhs._p);
-//    }
+
 #endif // __TODO__
     
+    void swap (string & rhs)
+    {
+        _p.swap(rhs._p);
+    }
+
     string & operator += (string const & str)
     {
         return this->append(str);
@@ -639,6 +639,11 @@ public:
     {
         os << s.native();
         return os;
+    }
+    
+    friend void swap (string & lhs, string & rhs)
+    {
+        lhs.swap(rhs);
     }
 };
 

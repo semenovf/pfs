@@ -104,16 +104,125 @@ struct sax_context
 {
     typedef typename JsonType::string_type sequence_type;
     
-    virtual bool on_begin_json   (void * user_context, data_type_t) = 0;
-    virtual bool on_end_json     (void * user_context, bool) = 0;
-    virtual bool on_begin_object (void * user_context, sequence_type const &) = 0;
-    virtual bool on_end_object   (void * user_context, sequence_type const &) = 0;
-    virtual bool on_begin_array  (void * user_context, sequence_type const &) = 0;
-    virtual bool on_end_array    (void * user_context, sequence_type const &) = 0;
-    virtual bool on_null_value   (void * user_context, sequence_type const &) = 0;
-    virtual bool on_boolean_value(void * user_context, sequence_type const &, bool) = 0;
-    virtual bool on_number_value (void * user_context, sequence_type const &, real_t) = 0;
-    virtual bool on_string_value (void * user_context, sequence_type const &, sequence_type const &) = 0;
+    virtual bool on_begin_json   (data_type_t) = 0;
+    virtual bool on_end_json     (bool) = 0;
+    virtual bool on_begin_object (sequence_type const &) = 0;
+    virtual bool on_end_object   (sequence_type const &) = 0;
+    virtual bool on_begin_array  (sequence_type const &) = 0;
+    virtual bool on_end_array    (sequence_type const &) = 0;
+    virtual bool on_null_value   (sequence_type const &) = 0;
+    virtual bool on_boolean_value(sequence_type const &, bool) = 0;
+    virtual bool on_number_value (sequence_type const &, real_t) = 0;
+    virtual bool on_string_value (sequence_type const &, sequence_type const &) = 0;
+};
+
+template <typename JsonType, template <typename> class StackImplType = traits::stdcxx::stack>
+struct dom_builder_context : sax_context<JsonType>
+{
+    typedef JsonType                                       json_type;
+    typedef typename json_type::string_type                string_type;
+    typedef sax_context<json_type>                         base_class;
+    typedef typename sax_context<json_type>::sequence_type sequence_type;
+    typedef pfs::traits::stack<json_type *, StackImplType> stack_type;
+    
+    stack_type s;
+    
+    json_type * add_value (string_type const & name, json_type const & v)
+    {
+        PFS_ASSERT(s.size() > 0);
+
+        json_type * parent = s.top();
+        json_type * r = 0;
+
+        if (parent->is_object()) {
+            (*parent)[name] = v;
+            r = & (*parent)[name];
+        } else {
+            parent->push_back(v);
+            r = & (*parent)[parent->size() - 1];
+        }
+
+        return r;
+    }
+    
+    virtual bool on_begin_json (data_type_t t)
+    {
+        json_type j = (t == data_type_t::object)
+                ? json_type::make_object() 
+                : json_type::make_array();
+        json_type * p = s.top();
+        p->swap(j);
+        return true;
+    }
+    
+    virtual bool on_end_json (bool)
+    {
+        return true;
+    }
+    
+    virtual bool on_begin_object (sequence_type const & name)
+    {
+    	s.push(add_value(name, json_type::make_object()));
+    	return true;
+    }
+    
+    virtual bool on_end_object (sequence_type const &)
+    {
+    	PFS_ASSERT(s.size() > 0);
+        s.pop();
+        return true;
+    }
+    
+    virtual bool on_begin_array  (sequence_type const & name)
+    {
+    	s.push(add_value(name, json_type::make_array()));
+        return true;
+    }
+    
+    virtual bool on_end_array    (sequence_type const &)
+    {
+    	PFS_ASSERT(s.size() > 0);
+        s.pop();
+        return true;
+    }
+    
+    virtual bool on_null_value   (sequence_type const & name)
+    {
+    	add_value(name, json_type());
+        return true;
+    }
+    
+    virtual bool on_boolean_value(sequence_type const & name, bool v)
+    {
+    	add_value(name, json_type(v));
+        return true;        
+    }
+    
+    virtual bool on_number_value (sequence_type const & name, real_t v)
+    {
+        if (v > 0) {
+            // If v is unsigned integer
+            if (static_cast<real_t> (static_cast<uintmax_t> (v)) == v)
+                add_value(name, json_type(static_cast<uintmax_t> (v)));
+            else
+                add_value(name, json_type(v));
+        } else {
+            // If v is signed integer
+            if (static_cast<real_t> (static_cast<intmax_t> (v)) == v)
+                add_value(name, json_type(static_cast<intmax_t> (v)));
+            else
+                add_value(name, json_type(v));
+        }
+
+        return true;
+        
+    }
+    
+    virtual bool on_string_value (sequence_type const & name, sequence_type const & v)
+    {
+    	add_value(name, json_type(v));
+        return true;
+    }
 };
 
 template <typename JsonType, template <typename> class StackImplType = traits::stdcxx::stack>
@@ -127,12 +236,11 @@ struct grammar
 
     struct parse_context
     {
-        void *         user_context;
         bool           is_json_begin;
         string_type    member_name;
         pfs::traits::stack<string_type, StackImplType> objects;
         pfs::traits::stack<string_type, StackImplType> arrays;
-        sax_context<JsonType> & sax;
+        sax_context<JsonType> * sax;
         error_code     ec;
     };
     
@@ -182,7 +290,7 @@ struct grammar
         if (!context) return true;
 
         parse_context * ctx = static_cast<parse_context *>(context);
-        bool result = ctx->sax.on_boolean_value(ctx->user_context, ctx->member_name, false);
+        bool result = ctx->sax->on_boolean_value(ctx->member_name, false);
         ctx->member_name.clear();
         return result;
     }
@@ -192,7 +300,7 @@ struct grammar
         if (!context) return true;
 
         parse_context * ctx = static_cast<parse_context *>(context);
-        bool result = ctx->sax.on_null_value(ctx->user_context, ctx->member_name);
+        bool result = ctx->sax->on_null_value(ctx->member_name);
         ctx->member_name.clear();
         return result;
     }
@@ -202,7 +310,7 @@ struct grammar
         if (!context) return true;
 
         parse_context * ctx = static_cast<parse_context *>(context);
-        bool result = ctx->sax.on_boolean_value(ctx->user_context, ctx->member_name, true);
+        bool result = ctx->sax->on_boolean_value(ctx->member_name, true);
         ctx->member_name.clear();
         return result;
     }
@@ -223,7 +331,7 @@ struct grammar
             throw json_exception(json_errc::bad_number);
         }
 
-        result = ctx->sax.on_number_value(ctx->user_context, ctx->member_name, d);
+        result = ctx->sax->on_number_value(ctx->member_name, d);
         ctx->member_name.clear();
         return result;
     }
@@ -236,7 +344,7 @@ struct grammar
         ++begin;
         --end;
         string_type str = unescape_chars(begin, end);
-        bool result = ctx->sax.on_string_value(ctx->user_context, ctx->member_name, str);
+        bool result = ctx->sax->on_string_value(ctx->member_name, str);
         ctx->member_name.clear();
         return result;
     }
@@ -246,7 +354,7 @@ struct grammar
         if (!context) return true;
 
         parse_context * ctx = static_cast<parse_context *>(context);
-        return ctx->sax.on_end_json(ctx->user_context, true);
+        return ctx->sax->on_end_json(true);
     }
 
     static bool failed_end_json (iterator begin, iterator end, void * context, void * action_args)
@@ -254,7 +362,7 @@ struct grammar
         if (!context) return true;
 
         parse_context * ctx = static_cast<parse_context *>(context);
-        return ctx->sax.on_end_json(ctx->user_context, false);
+        return ctx->sax->on_end_json(false);
     }
     
     static bool begin_member (iterator begin, iterator end, void * context, void * action_args)
@@ -286,8 +394,8 @@ struct grammar
         ctx->objects.push(ctx->member_name);
 
         bool result = ctx->is_json_begin
-                ? ctx->sax.on_begin_json(ctx->user_context, data_type::object)
-                : ctx->sax.on_begin_object(ctx->user_context, ctx->member_name);
+                ? ctx->sax->on_begin_json(data_type::object)
+                : ctx->sax->on_begin_object(ctx->member_name);
 
         ctx->is_json_begin = false;
         ctx->member_name.clear();
@@ -303,7 +411,7 @@ struct grammar
         PFS_ASSERT(ctx->objects.size() > 0);
         string_type member_name(ctx->objects.top());
         ctx->objects.pop();
-        return ctx->sax.on_end_object(ctx->user_context, member_name);
+        return ctx->sax->on_end_object(member_name);
     }
     
     static bool begin_array (iterator begin, iterator end, void * context, void * action_args)
@@ -313,8 +421,8 @@ struct grammar
         parse_context * ctx = static_cast<parse_context *>(context);
         ctx->arrays.push(ctx->member_name);
         bool result = ctx->is_json_begin
-                ? ctx->sax.on_begin_json(ctx->user_context, data_type::array)
-                : ctx->sax.on_begin_array(ctx->user_context, ctx->member_name);
+                ? ctx->sax->on_begin_json(data_type::array)
+                : ctx->sax->on_begin_array(ctx->member_name);
         ctx->is_json_begin = false;
         ctx->member_name.clear();
 
@@ -329,7 +437,7 @@ struct grammar
         PFS_ASSERT(ctx->arrays.size() > 0);
         string_type member_name(ctx->arrays.top());
         ctx->arrays.pop();
-        return ctx->sax.on_end_array(ctx->user_context, member_name);
+        return ctx->sax->on_end_array(member_name);
     }
     
 #if PFS_TEST
@@ -552,7 +660,7 @@ grammar<ValueT, StackT>::grammar ()
         , {-1, 3, FSM_SEQ(TRUE_STR) , fsm_type::accept, true_value , 0 }
         , {-1, 4, FSM_TR(number_tr) , fsm_type::accept, number_value, 0 }
         , {-1, 5, FSM_TR(string_tr) , fsm_type::accept, string_value, 0 }
-        // Bellow data will be replaced partially (`match_type m` member)
+        // Bellow data will be replaced partially below (`match_type m` member)
         , {-1, 6, FSM_NOTHING       , fsm_type::accept, 0, 0 }
         , {-1,-1, FSM_NOTHING       , fsm_type::accept, 0, 0 }
     };
