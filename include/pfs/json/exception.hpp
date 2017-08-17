@@ -23,9 +23,9 @@ struct json_errc
     enum {
 #endif
           success = 0
+        , bad_json
+        , excess_source
         , bad_number
-//        , underflow
-//        , overflow
 #if __cplusplus < 201103L                  
     };
 #endif    

@@ -173,26 +173,26 @@ struct dom_builder_context : sax_context<JsonType>
         return true;
     }
     
-    virtual bool on_begin_array  (sequence_type const & name)
+    virtual bool on_begin_array (sequence_type const & name)
     {
     	s.push(add_value(name, json_type::make_array()));
         return true;
     }
     
-    virtual bool on_end_array    (sequence_type const &)
+    virtual bool on_end_array (sequence_type const &)
     {
     	PFS_ASSERT(s.size() > 0);
         s.pop();
         return true;
     }
     
-    virtual bool on_null_value   (sequence_type const & name)
+    virtual bool on_null_value (sequence_type const & name)
     {
     	add_value(name, json_type());
         return true;
     }
     
-    virtual bool on_boolean_value(sequence_type const & name, bool v)
+    virtual bool on_boolean_value (sequence_type const & name, bool v)
     {
     	add_value(name, json_type(v));
         return true;        
@@ -328,7 +328,9 @@ struct grammar
         try {
             d = lexical_cast<real_t, string_type>(number_str);
         } catch (bad_lexical_cast ex) {
-            throw json_exception(json_errc::bad_number);
+            //throw json_exception(json_errc::bad_number);
+            ctx->ec = make_error_code(json_errc::bad_number);
+            return false;
         }
 
         result = ctx->sax->on_number_value(ctx->member_name, d);
@@ -362,6 +364,7 @@ struct grammar
         if (!context) return true;
 
         parse_context * ctx = static_cast<parse_context *>(context);
+        ctx->ec = make_error_code(json_errc::bad_json);
         return ctx->sax->on_end_json(false);
     }
     
@@ -490,7 +493,7 @@ grammar<ValueT, StackT>::grammar ()
 #define FSM_RANGE(a,b)        fsm_type::range(a,b)
 #define FSM_RPT_TR(x,a,b)     fsm_type::rpt_tr(x,a,b)
 #define FSM_NOTHING           fsm_type::nothing()
-    
+
     /*
      * exp = e [ minus / plus ] 1*DIGIT
      */

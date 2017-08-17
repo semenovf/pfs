@@ -21,6 +21,7 @@ namespace pfs {
 
 // Avoid overload ambiguity errors with std::swap (std::swap will take precedence)
 // see [Question on boost::swap](https://stackoverflow.com/questions/6115204/question-on-boostswap)
+// and [Argument-dependent name lookup](https://en.wikipedia.org/wiki/Argument-dependent_name_lookup)
 namespace details {
     template <typename T>
     void swap_impl(T& left, T& right)

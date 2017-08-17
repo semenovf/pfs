@@ -15,6 +15,12 @@ std::string json_category::message (int ev) const
     case static_cast<int>(json_errc::success):
         return "No error";
         
+    case static_cast<int>(json_errc::bad_json):
+        return "Bad JSON";
+
+    case static_cast<int>(json_errc::excess_source):
+        return "Excess source for JSON";
+
     case static_cast<int>(json_errc::bad_number):
         return "Bad number";
 

@@ -65,6 +65,7 @@ public:
 
         value_rep ()
             : type(data_type::null)
+            , integer(0)
         {}
 
         value_rep (boolean_type v)
@@ -276,9 +277,62 @@ public:
         : _d(v)
     {}
 
-//    value (size_type n, const value & v);
-//    value (const value & other);
+    json & assign (json const & other) 
+    {
+        this->~json();
+        
+        switch (other._d.type) {
+        case data_type::null:
+            _d = rep_type();
+            break;
 
+        case data_type::boolean:
+            _d = rep_type(other._d.boolean);
+            break;
+
+        case data_type::integer:
+        case data_type::uinteger:
+            _d = rep_type(other._d.integer);
+            break;
+
+        case data_type::real:
+            _d = rep_type(other._d.real);
+            break;
+
+        case data_type::string:
+            _d = rep_type(*other._d.string);
+            break;
+
+        case data_type::array:
+            _d = rep_type(*other._d.array);
+            break;
+
+        case data_type::object:
+            _d = rep_type(*other._d.object);
+            break;
+        }        
+    }
+    
+    json (json const & other)
+    {
+        assign(other);
+    }
+
+    json & operator = (json const & other)
+    {
+        return assign(other);
+    }
+
+#if __cplusplus >= 201103L    
+    
+    // TODO Need to implement
+    //json (json && other);
+
+    // TODO Need to implement
+    //json & operator = (json && other);
+    
+#endif
+    
     ~json ()
     {
         switch (_d.type) {
@@ -286,7 +340,6 @@ public:
             std::allocator<string_type> alloc;
             alloc.destroy(_d.string);
             alloc.deallocate(_d.string, 1);
-            _d.string = 0;
             break;
         }
 
@@ -294,7 +347,6 @@ public:
             std::allocator<array_type> alloc;
             alloc.destroy(_d.array);
             alloc.deallocate(_d.array, 1);
-            _d.array = 0;
             break;
         }
 
@@ -302,16 +354,13 @@ public:
             std::allocator<object_type> alloc;
             alloc.destroy(_d.object);
             alloc.deallocate(_d.object, 1);
-            _d.object = 0;
             break;
         }
 
         default:
             break;
-        }
-    }    
-
-//    value & operator = (const value & other);
+        }            
+    }
 
     data_type_t type () const
     {
@@ -411,12 +460,9 @@ public:
 
     reference operator [] (size_type index)
     {
-        // implicitly convert null to object
+        // implicitly convert null to array
         if (_d.type == data_type::null) {
             _d = array_type();
-//            std::allocator<array_type> alloc;
-//            _value.array = alloc.allocate(1);
-//            alloc.construct(_value.array, array_type());
         }
 
         PFS_ASSERT(_d.type == data_type::array);
@@ -444,10 +490,6 @@ public:
     {
         if (_d.type == data_type::null) {
             _d = object_type();
-//            pfs::allocator<object_type> alloc;
-//            _d.type = data_type::object;
-//            _d.object = alloc.allocate(1);
-//            alloc.construct(_d.object, object_type());
         }
 
         PFS_ASSERT(_d.type == data_type::object);
@@ -669,13 +711,15 @@ public:
         fsm_type fsm(grammar.p_json_tr, & context);
         typename fsm_type::result_type r = fsm.exec(0, first, last);
 
-        if (context.ec)
-            return context.ec;
-        
         if (r.first && r.second == last)
             return error_code();
 
-        // TODO return: source too long error???
+        if (r.first && r.second != last) {
+            context.ec = make_error_code(json_errc::excess_source);
+        }
+            
+        json j;
+        this->swap(j);
         return context.ec;
     }
 

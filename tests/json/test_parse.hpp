@@ -194,27 +194,25 @@ void test_fsm ()
 static char const * json_empty_object_str = "{}";
 static char const * json_empty_array_str  = "[]";
 
-static char const * json_object_str = "{\"N\": 10}";
+static char const * json_object_str = 
+    "{"
+	    "\"Image\": {"
+		    "\"Width\":  800,"
+		    "\"Height\": 600,"
+		    "\"Title\":  \"View from 15th Floor\","
+		    "\"Thumbnail\": {"
+		        "\"Url\":    \"http://www.example.com/image/481989943\","
+			    "\"Height\": 125,"
+			    "\"Width\":  \"100\""
+		    "},"
+		    "\"IDs\": [116, 943, 234, 38793]"
+	     "}"
+	"}";
 
-//static char const * json_object_str = 
-//    "{"
-//	    "\"Image\": {"
-//		    "\"Width\":  800,"
-//		    "\"Height\": 600,"
-//		    "\"Title\":  \"View from 15th Floor\","
-//		    "\"Thumbnail\": {"
-//		        "\"Url\":    \"http://www.example.com/image/481989943\","
-//			    "\"Height\": 125,"
-//			    "\"Width\":  \"100\""
-//		    "},"
-//		    "\"IDs\": [116, 943, 234, 38793]"
-//	     "}"
-//	"}";
-
-static char const * json_invalid_str = 
-    "["
-		"{"
-            "\"Latitude\":  37;7668"
+static char const * json_invalid_str =
+    "[\n"
+		"{\n"
+            "\"Latitude\":  37;7668\n"
 		"},"
 		"{"
             "\"Latitude\":  37.371991"
@@ -225,7 +223,7 @@ template <typename JsonType>
 void test_parse ()
 {
     ADD_TESTS(12);
-
+    
 	JsonType json_empty_object;
 	TEST_OK(json_empty_object.is_null());
 	TEST_OK(json_empty_object.parse(json_empty_object_str) == pfs::error_code());
@@ -238,15 +236,13 @@ void test_parse ()
 	TEST_OK(!json_empty_array.is_null());
 	TEST_OK(json_empty_array.is_array());
 
-	JsonType json_object;
+    JsonType json_object;
     TEST_OK(json_object.parse(json_object_str) == pfs::error_code());
-	TEST_OK(json_object.is_object());
+    TEST_OK(json_object.is_object());
 
-	JsonType json_invalid;
-    TEST_OK(json_invalid.parse(json_invalid_str) != pfs::error_code());
-	TEST_OK(json_invalid.is_null());
-    
-    
+    JsonType json_invalid;
+    TEST_OK(json_invalid.parse(json_invalid_str) == pfs::json_errc::bad_json);
+    TEST_OK(json_invalid.is_null());
     
 //
 //	pfs::string errstr;
@@ -308,7 +304,7 @@ void test_parse ()
 template <typename JsonType>
 void test ()
 {
-    test_fsm<JsonType>();
+//    test_fsm<JsonType>();
     test_parse<JsonType>();
 }
 
