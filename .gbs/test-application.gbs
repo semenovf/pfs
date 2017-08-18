@@ -12,5 +12,3 @@ configuration "release"
     objdir       ".cache/tests/application/release"
     targetdir    "../../.build/tests"
     links        { "pfs-test", "pfs-mpl" }
-
-dependson { "pfs" }

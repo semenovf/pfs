@@ -103,7 +103,10 @@ public:
 
     basic_string (const_pointer s, size_type n)
     {
-        _p.v = native_type(s, n);
+        if (n != npos)
+            _p.v = native_type(s, n);
+        else
+            _p.v = native_type(s);
     }
 
     template <typename InputIt>
@@ -195,6 +198,11 @@ public:
         size_type count = pfs::distance(first, last);
         _p->remove(index, count);
         return _p->begin() + index;
+    }
+    
+    void push_back (value_type ch)
+    {
+        _p->push_back(ch);
     }
     
     friend inline bool operator == (basic_string const & lhs, basic_string const & rhs)

@@ -4,15 +4,6 @@ targetname    "test-json"
 files         { "../tests/json/*.cpp" }
 defines       { "PFS_TEST" }
 
----- Special for Qt projects
---require("../../../.gbs/qt_enable")
-
-----Available modules:
-----    core, gui, multimedia, network, opengl, positioning, printsupport,
-----    qml, quick, sensors, sql, svg, testlib, websockets, widgets, xml
-----
---qtmodules     { "core" }
-
 configuration "debug"
     objdir       ".cache/tests/json/debug"
     targetdir    "../../.build/tests"
@@ -22,6 +13,3 @@ configuration "release"
     objdir       ".cache/tests/json/release"
     targetdir    "../../.build/tests"
     links        { "pfs-test", "pfs-mpl" }
-
----- Special for Qt projects
---package.loaded["../../../.gbs/qt_enable"] = nil

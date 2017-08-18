@@ -16,7 +16,7 @@
 #include "pfs/traits/stdcxx/string.hpp"
 #include "pfs/safeformat.hpp"
 
-#ifdef PFS_HAVE_QT
+#ifdef HAVE_QT
 #   include <QString>
 #endif
 
@@ -320,7 +320,7 @@ void test3 ()
 	double ellapsed_sprintf;
 	double ellapsed_safeformat;
 	double ellapsed_sstream;
-#ifdef PFS_HAVE_QT
+#ifdef HAVE_QT
 	double ellapsed_qstring;
 #endif
 
@@ -339,7 +339,7 @@ void test3 ()
 		std::stringstream() << "Hey, " << i << " frobnicators and " << i <<" twiddlicators\n";
 	ellapsed_sstream = sw.ellapsed();
 
-#ifdef PFS_HAVE_QT
+#ifdef HAVE_QT
 	sw.start();
 	for (int i = loop; i > 0; --i)
 		QString("Hey, %1 frobnicators and %2 twiddlicators\n").arg(i).arg(i);
@@ -350,7 +350,7 @@ void test3 ()
 	     << "\tprintf       = " << ellapsed_sprintf    << std::endl
 	     << "\tsafeformat   = " << ellapsed_safeformat << std::endl
 		 << "\tstringstream = " << ellapsed_sstream    << std::endl
-#ifdef PFS_HAVE_QT
+#ifdef HAVE_QT
 		 << "\tQString      = " << ellapsed_qstring    << std::endl
 #endif
 		 ;

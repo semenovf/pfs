@@ -13,6 +13,41 @@ dynamic_library::~dynamic_library ()
 	}
 }
 
+bool dynamic_library::open (filesystem::path const & p, error_code & ec)
+{
+	dynamic_library::native_handle_type h(0);
+
+	if (p.empty()) {
+        ec = pfs::make_error_code(dynamic_library_errc::invalid_argument);
+        return false;
+	}
+
+	if (!filesystem::exists(p)) {
+        ec = pfs::make_error_code(dynamic_library_errc::file_not_found);
+        return false;
+	}
+
+	// clear error
+	::dlerror();
+
+	bool global = false;
+	bool resolve = true;
+
+	h = ::dlopen(p.native().c_str()
+			, (global ? RTLD_GLOBAL : RTLD_LOCAL)
+				| ( resolve ? RTLD_NOW : RTLD_LAZY));
+
+	if (!h) {
+        ec = pfs::make_error_code(dynamic_library_errc::open_failed);
+        return false;
+	}
+
+	_handle = h;
+    _path = p;
+
+	return true;    
+}
+
 bool dynamic_library::open (filesystem::path const & p
         , filesystem::pathlist const & searchdirs
         , error_code & ec) pfs_noexcept
@@ -34,7 +69,7 @@ bool dynamic_library::open (filesystem::path const & p
             return false;
 		}
 	}
-
+    
 	// clear error
 	::dlerror();
 

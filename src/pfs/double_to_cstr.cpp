@@ -28,7 +28,7 @@ char * double_to_cstr (double num
     
     // Precision
     //
-    if (prec > 0) {
+    if (prec >= 0) {
         *p++ = '.';
         p += sprintf(p, "%d", prec);
     }

@@ -1,0 +1,23 @@
+-- Projects
+
+--project "demo-sfinae"
+--    include("demo-sfinae/project.gbs")
+
+----project "demo-db"
+----    include("demo-db/project.gbs")
+
+project "demo-logger"
+    include("demo-logger.gbs")
+
+--if qt5_core_lib then
+--
+--    -- Special for Qt projects
+--    package.loaded["../../.gbs/qt5_enable"] = nil
+--
+--elseif qt4_core_lib then
+--
+--    -- Special for Qt projects
+--    package.loaded["../../.gbs/qt4_enable"] = nil
+--
+--end
+

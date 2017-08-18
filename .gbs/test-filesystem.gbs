@@ -13,6 +13,3 @@ configuration "release"
     targetdir    "../../.build/tests"
     links        { "pfs-test", "pfs-mpl" }
 
-filter { "debug", "action:gmake" }
-    linkoptions  { "-rdynamic" }
-

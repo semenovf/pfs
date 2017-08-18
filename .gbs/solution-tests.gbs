@@ -15,12 +15,6 @@ project "test-container"
 ----project "test-mpl-cli"
 ----    include("test-mpl-cli/project.gbs")
 
-----project "demo-sfinae"
-----    include("demo-sfinae/project.gbs")
-
-----project "demo-db"
-----    include("demo-db/project.gbs")
-
 project "test-fsm"
     include("test-fsm.gbs")
 
@@ -87,24 +81,27 @@ project "test-net-inet4_addr"
 project "test-safeformat"
     include("test-safeformat.gbs")
 
+project "test-dynamic_library"
+    include("test-dynamic_library.gbs")
+
+project "test-shared_object"
+    include("test-shared_object.gbs")
+
 --project "test-application"
 --    include("test-application.gbs")
 
 --project "test-application-module"
 --    include("test-application-module.gbs")
 
---project "demo-logger"
---    include("demo-logger.gbs")
-
-if qt5_core_lib then
-
-    -- Special for Qt projects
-    package.loaded["../../.gbs/qt5_enable"] = nil
-
-elseif qt4_core_lib then
-
-    -- Special for Qt projects
-    package.loaded["../../.gbs/qt4_enable"] = nil
-
-end
+--if qt5_core_lib then
+--
+--    -- Special for Qt projects
+--    package.loaded["../../.gbs/qt5_enable"] = nil
+--
+--elseif qt4_core_lib then
+--
+--    -- Special for Qt projects
+--    package.loaded["../../.gbs/qt4_enable"] = nil
+--
+--end
 

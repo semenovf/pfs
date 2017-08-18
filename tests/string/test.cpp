@@ -16,7 +16,7 @@
 #include <pfs/traits/stdcxx/string.hpp>
 
 // Enabled by `qt_enable`
-#ifdef PFS_HAVE_QT
+#ifdef HAVE_QT
 #   include <pfs/traits/qt/string.hpp>
 #endif
 
@@ -32,7 +32,7 @@ inline char const * stringify_string_impl<wchar_t const *> ()
 { return "wchar_t"; }
 
 
-#ifdef PFS_HAVE_QT
+#ifdef HAVE_QT
 
 template <>
 inline char const * stringify_string_impl<QChar const *> ()
@@ -111,11 +111,11 @@ wchar_t const * string_samples<wchar_t const *> (int i)
         , L""
         , L"ABCDEFABCDEF"
     };
-    
+
     return s[i];
 }
 
-#if PFS_HAVE_QT
+#if HAVE_QT
 template <>
 QChar const * string_samples<QChar const *> (int i)
 {
@@ -128,7 +128,7 @@ QChar const * string_samples<QChar const *> (int i)
         , QString()
         , QString("ABCDEFABCDEF")
     };
-    
+
     return s[i].constData();
 }
 #endif

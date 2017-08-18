@@ -63,6 +63,8 @@ public:
 		return _handle;
 	}
 
+   	bool open (filesystem::path const & p, error_code & ec);
+
 	/**
 	 * @brief Open (load) dynamic library (shared object).
 	 *

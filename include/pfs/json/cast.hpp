@@ -261,6 +261,10 @@ struct cast_traits<float, JsonType>
     : public cast_traits_basic<float, double, JsonType> {};
 
 template <typename JsonType>
+struct cast_traits<double, JsonType> 
+    : public cast_traits_basic<double, double, JsonType> {};
+
+template <typename JsonType>
 struct cast_traits<typename JsonType::string_type, JsonType> 
     : public cast_traits_basic<typename JsonType::string_type
         , typename JsonType::string_type, JsonType> {};

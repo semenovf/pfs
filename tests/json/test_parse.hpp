@@ -1,6 +1,8 @@
 #ifndef TEST_PARSE_HPP
 #define TEST_PARSE_HPP
 
+#include <iostream>
+
 #include "pfs/json/json.hpp"
 #include "pfs/fsm/fsm.hpp"
 #include "pfs/fsm/test.hpp"
@@ -202,8 +204,8 @@ static char const * json_object_str =
 		    "\"Title\":  \"View from 15th Floor\","
 		    "\"Thumbnail\": {"
 		        "\"Url\":    \"http://www.example.com/image/481989943\","
-			    "\"Height\": 125,"
-			    "\"Width\":  \"100\""
+			    "\"Height\": 125.98,"
+			    "\"Width\":  \"100.75\""
 		    "},"
 		    "\"IDs\": [116, 943, 234, 38793]"
 	     "}"
@@ -222,7 +224,9 @@ static char const * json_invalid_str =
 template <typename JsonType>
 void test_parse ()
 {
-    ADD_TESTS(12);
+    typedef typename JsonType::string_type string_type;
+    
+    ADD_TESTS(26);
     
 	JsonType json_empty_object;
 	TEST_OK(json_empty_object.is_null());
@@ -239,7 +243,23 @@ void test_parse ()
     JsonType json_object;
     TEST_OK(json_object.parse(json_object_str) == pfs::error_code());
     TEST_OK(json_object.is_object());
-
+	TEST_OK(json_object.size() > 0);
+	TEST_OK(json_object["Image"]["Width"].template get<int>() == 800);
+	TEST_OK(json_object["Image"]["Height"].template get<int>() == 600);
+    TEST_OK(json_object["Image"]["Title"].template get<string_type>() == "View from 15th Floor");
+    
+	TEST_OK(json_object["Image"]["Thumbnail"]["Url"].template get<string_type>() == "http://www.example.com/image/481989943");
+    
+	TEST_OK(pfs::to_string<string_type>(json_object["Image"]["Thumbnail"]["Height"].template get<double>(), 'f', 2) == "125.98");
+	TEST_OK(json_object["Image"]["Thumbnail"]["Width"].template get<string_type>() == "100.75");
+    TEST_OK(pfs::to_string<string_type>(json_object["Image"]["Thumbnail"]["Width"].template get<double>(), 'f', 2) == "100.75");
+	TEST_OK(pfs::to_string<string_type>(json_object["Image"]["IDs"][size_t(0)].template get<double>(), 'f', 0) == "116");
+	TEST_OK(pfs::to_string<string_type>(json_object["Image"]["IDs"][1].template get<double>(), 'f', 0) == "943");
+	TEST_OK(pfs::to_string<string_type>(json_object["Image"]["IDs"][2].template get<double>(), 'f', 0) == "234");
+	TEST_OK(pfs::to_string<string_type>(json_object["Image"]["IDs"][3].template get<double>(), 'f', 0) == "38793");
+	TEST_OK(pfs::to_string<string_type>(json_object["Image"]["IDs"][4].template get<double>(), 'f', 0) == "0");
+	TEST_OK(json_object["Image"]["Unknown"].is_null());
+    
     JsonType json_invalid;
     TEST_OK(json_invalid.parse(json_invalid_str) == pfs::json_errc::bad_json);
     TEST_OK(json_invalid.is_null());
@@ -254,23 +274,7 @@ void test_parse ()
 //	pfs::json::json json_array(_u8(json_array_str));
 //	TEST_OK(json_array.isArray());
 //
-//	TEST_OK(json_object.size() > 0);
 //	TEST_OK(json_array.size() > 0);
-//
-//	TEST_OK(json_object[_l1("Image")][_l1("Width")].number() == real_t(800));
-//
-//	TEST_OK(json_object[_l1("Image")][_l1("Height")].number() == real_t(600));
-//	TEST_OK(json_object[_l1("Image")][_l1("Title")].str() == _l1("View from 15th Floor"));
-//	TEST_OK(json_object[_l1("Image")][_l1("Thumbnail")][_l1("Url")].str() == _l1("http://www.example.com/image/481989943"));
-//	TEST_OK(json_object[_l1("Image")][_l1("Thumbnail")][_l1("Height")].number() == real_t(125));
-//	TEST_OK(json_object[_l1("Image")][_l1("Thumbnail")][_l1("Width")].str() == _l1("100"));
-//	TEST_OK(json_object[_l1("Image")][_l1("IDs")][0].number() == real_t(116));
-//	TEST_OK(json_object[_l1("Image")][_l1("IDs")][1].number() == real_t(943));
-//	TEST_OK(json_object[_l1("Image")][_l1("IDs")][2].number() == real_t(234));
-//	TEST_OK(json_object[_l1("Image")][_l1("IDs")][3].number() == real_t(38793));
-//
-//	TEST_OK(json_object[_l1("Image")][_l1("IDs")][4].number() == real_t(0));
-//	TEST_OK(json_object[_l1("Image")][_l1("Unknown")].is_null());
 //
 //	TEST_OK(json_array[0][_l1("precision")].str() == _l1("zip"));
 //	TEST_OK(json_array[0][_l1("Latitude")].number()  == real_t(37.7668));

@@ -13,7 +13,7 @@
 #include <pfs/traits/stdcxx/map.hpp>
 
 // Enabled by `qt_enable`
-#ifdef PFS_HAVE_QT
+#ifdef HAVE_QT
 #   include <pfs/traits/qt/string.hpp>
 #   include <pfs/traits/qt/vector.hpp>
 #   include <pfs/traits/qt/map.hpp>
@@ -29,7 +29,6 @@
 //#include "test_erase.hpp"
 
 namespace stdcxx {
-namespace json {
 
 typedef pfs::string<pfs::traits::stdcxx::string> string_type;
 
@@ -39,14 +38,13 @@ typedef pfs::json::json<
         , double
         , string_type
         , pfs::traits::stdcxx::vector
-        , pfs::traits::stdcxx::map> value;
+        , pfs::traits::stdcxx::map> json;
 
-}} //stdcxx::json
+} //stdcxx::json
 
-#ifdef PFS_HAVE_QT
+#ifdef HAVE_QT
 
 namespace qt {
-namespace json {
 
 typedef pfs::string<pfs::traits::qt::string> string_type;
 
@@ -57,9 +55,9 @@ typedef pfs::json::json<
         , string_type
         , pfs::traits::qt::vector
         , pfs::traits::qt::map>
-    value;
+    json;
 
-}} // qt::json
+} // qt
 
 #endif
 
@@ -70,13 +68,14 @@ int main (int argc, char *argv[])
     
 	BEGIN_TESTS(0);
     
-    test_basic::test<stdcxx::json::value>();
-    test_iterator::test<stdcxx::json::value>();
-    test_parse::test<stdcxx::json::value>();
+    test_basic::test<stdcxx::json>();
+    test_iterator::test<stdcxx::json>();
+    test_parse::test<stdcxx::json>();
 
-#ifdef PFS_HAVE_QT
-    test_basic::test<qt::json::value>();
-    test_iterator::test<qt::json::value>();
+#ifdef HAVE_QT
+    test_basic::test<qt::json>();
+    test_iterator::test<qt::json>();
+    test_parse::test<qt::json>();
 #endif
 
 	return END_TESTS;

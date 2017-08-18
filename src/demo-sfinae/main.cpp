@@ -21,16 +21,14 @@ struct A
 };
 
 
-int main (int argc, char * argv[])
+int main (int, char *[])
 {
-    (void)argc; // avoid 'unused ...' warning
-    
     A<char> a1;
     a1.foo("aaa");
-    
+
     A<int> a2;
     int * ints;
     a2.foo(ints);
-    
+
     return 0;
 }

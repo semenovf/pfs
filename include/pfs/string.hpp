@@ -57,7 +57,7 @@ public:
     typedef typename internal_type::difference_type difference_type;
     typedef typename internal_type::size_type       size_type;
     
-    static size_type const npos = size_type(-1);
+    static size_type const npos = internal_type::npos;
     
 protected:
     internal_type _p;
@@ -787,7 +787,7 @@ StringType to_string (typename enable_if<is_signed<IntType>::value, IntType>::ty
             , buf
 			, sizeof(buf));
     
-    return StringType(str);
+    return StringType(str, StringType::npos);
 }
 
 }} // details::integral

@@ -13,7 +13,7 @@
 #include "pfs/traits/stdcxx/string.hpp"
 
 // Enabled by `qt_enable`
-#if PFS_HAVE_QT
+#if HAVE_QT
 #   include "pfs/traits/qt/string.hpp"
 #endif
 
@@ -27,7 +27,7 @@ typedef pfs::net::uri_grammar<uri> uri_grammar;
 
 } // stdcxx
 
-#if PFS_HAVE_QT
+#if HAVE_QT
 
 namespace qt {
 
@@ -37,7 +37,7 @@ typedef pfs::net::uri_grammar<uri> uri_grammar;
 
 } // qt
 
-#endif // PFS_HAVE_QT
+#endif // HAVE_QT
 
 #if __COMMENT__
 
@@ -330,7 +330,7 @@ int main(int argc, char *argv[])
 
 	test_grammar<stdcxx::uri_grammar>();
     
-#if PFS_HAVE_QT
+#if HAVE_QT
     test_grammar<qt::uri_grammar>();
 #endif
 

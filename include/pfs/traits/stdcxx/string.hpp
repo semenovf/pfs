@@ -62,7 +62,10 @@ public:
     
     basic_string (const_pointer s, size_type n)
     {
-        this->_p.v = native_type(s, n);
+        if (n != npos)
+            _p.v = native_type(s, n);
+        else
+            _p.v = native_type(s);
     }
 
     template <typename InputIt>
