@@ -22,8 +22,7 @@ int main(int argc, char *argv[])
 	typedef int (*dl_test_fn)(void);
 
 	dynamic_library dl;
-	path dlfile1 = pfs::build_so_filename("test-shared_object");
-	path dlfile2 = pfs::build_so_filename("test-shared_object-d");
+	path dlfile = pfs::build_so_filename("shared_object");
 	path * dlpath_ptr = 0;
 
 	pathlist searchdirs;
@@ -31,13 +30,10 @@ int main(int argc, char *argv[])
 	searchdirs.push_back(path("."));
 	searchdirs.push_back(path(".."));
 
-    path dlpath1 = pfs::filesystem::search_path(dlfile1, searchdirs);
-    path dlpath2 = pfs::filesystem::search_path(dlfile2, searchdirs);
+    path dlpath = pfs::filesystem::search_path(dlfile, searchdirs);
     
-	if (!dlpath1.empty()) {
-		dlpath_ptr = & dlfile1;
-	} else if (!dlpath2.empty()) {
-		dlpath_ptr = & dlfile2;
+	if (!dlpath.empty()) {
+		dlpath_ptr = & dlfile;
 	}
 
 	TEST_FAIL2(dlpath_ptr != 0, "Candidate for dynamic library found");

@@ -1,14 +1,8 @@
---************************************************************
---* Generated automatically by `gbs'
---* Command: `gbs project --create --name=pfs-test --type=shared-lib'
---* Date:    Mon Aug 17 21:07:10 2015
---************************************************************
-
 kind          "SharedLib"
 language      "C++"
 targetname    "pfs-test"
-includedirs   { "../include" }
 files         { "../src/pfs-test/*.c", "../src/pfs-test/*.cpp" }
+links         { PFS_LINKS }
 
 configuration "debug"
     objdir       ".cache/pfs-test/debug"

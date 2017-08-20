@@ -15,6 +15,7 @@
 #include <pfs/memory.hpp>
 #include <pfs/sigslot.hpp>
 #include <pfs/fsm/fsm.hpp>
+#include <pfs/filesystem.hpp>
 #include <pfs/traits/sequence_container.hpp>
 #include <pfs/traits/stdcxx/list.hpp>
 
@@ -63,10 +64,9 @@ template <typename StringType
 class logger
 {
 public:
-    typedef StringType string_type;
-
+    typedef StringType            string_type;
+    typedef appender<string_type> appender_type;
 private:    
-    typedef appender<string_type>                  appender_type;
 	typedef traits::sequence_container<
               shared_ptr<appender_type>
             , SequenceContainerImplType>           appender_sequence;

@@ -1,28 +1,25 @@
 -- Projects
 
 project "test-algo-between"
-    include("test-algo-between.gbs")
+    test_project("algo-between", {})
 
 project "test-iterator"
-    include("test-iterator.gbs")
+    test_project("iterator", {})
 
 project "test-string"
-    include("test-string.gbs")
+    test_project("string", {"pfs-mpl"})
 
 project "test-container"
-    include("test-container.gbs")
-
-----project "test-mpl-cli"
-----    include("test-mpl-cli/project.gbs")
+    test_project("container", {})
 
 project "test-fsm"
-    include("test-fsm.gbs")
+    test_project("fsm", {"pfs-mpl"})
 
 project "test-net-uri"
-    include("test-net-uri.gbs")
+    test_project("net-uri", {"pfs-mpl"})
 
 project "test-lexical_cast"
-    include("test-lexical_cast.gbs")
+    test_project("lexical_cast", {"pfs-mpl"})
 
 --project "test-mpl-utf8"
 --    include("test-mpl-utf8/project.gbs")
@@ -42,8 +39,8 @@ project "test-lexical_cast"
 --project "test-mpl-binder"
 --    include("test-mpl-binder/project.gbs")
 
-project "test-active-queue"
-    include("test-active_queue.gbs")
+project "test-active_queue"
+    test_project("active_queue", {})
 
 --project "test-mpl-ratio"
 --    include("test-mpl-ratio/project.gbs")
@@ -52,56 +49,40 @@ project "test-active-queue"
 --    include("test-mpl-chrono/project.gbs")
 
 project "test-regex"
-    include("test-regex.gbs")
+    test_project("regex", {})
 
 project "test-filesystem"
-    include("test-filesystem.gbs")
+    test_project("filesystem", {"pfs-mpl"})
 
 project "test-time"
-    include("test-time.gbs")
+    test_project("time", {"pfs-mpl"})
 
 project "test-date"
-    include("test-date.gbs")
+    test_project("date", {"pfs-mpl"})
 
 project "test-json"
-    include("test-json.gbs")
+    test_project("json", {"pfs-mpl"})
 
 project "test-io-buffer"
-    include("test-io-buffer.gbs")
+    test_project("io-buffer", {"pfs-mpl"})
 
 project "test-io-file"
-    include("test-io-file.gbs")
+    test_project("io-file", {"pfs-mpl"})
 
 project "test-io-server"
-    include("test-io-server.gbs")
+    test_project("io-server", {"pfs-mpl"})
 
 project "test-net-inet4_addr"
-    include("test-net-inet4_addr.gbs")
+    test_project("net-inet4_addr", {"pfs-mpl"})
 
 project "test-safeformat"
-    include("test-safeformat.gbs")
+    test_project("safeformat", {"pfs-mpl"})
 
 project "test-dynamic_library"
-    include("test-dynamic_library.gbs")
-
-project "test-shared_object"
-    include("test-shared_object.gbs")
+    test_project("dynamic_library", {"pfs-mpl"})
 
 --project "test-application"
 --    include("test-application.gbs")
 
 --project "test-application-module"
 --    include("test-application-module.gbs")
-
---if qt5_core_lib then
---
---    -- Special for Qt projects
---    package.loaded["../../.gbs/qt5_enable"] = nil
---
---elseif qt4_core_lib then
---
---    -- Special for Qt projects
---    package.loaded["../../.gbs/qt4_enable"] = nil
---
---end
-

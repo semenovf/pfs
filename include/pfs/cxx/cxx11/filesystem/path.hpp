@@ -8,6 +8,8 @@
 #ifndef __PFS_CXX_CXX11_FILESYSTEM_PATH_HPP__
 #define __PFS_CXX_CXX11_FILESYSTEM_PATH_HPP__
 
+#include <pfs/compiler.hpp>
+
 #if PFS_CC_GCC_VERSION >= 50300
 
 //
@@ -27,7 +29,70 @@
 
 namespace pfs {
 namespace filesystem {
+namespace details {
 
+class path : public std::experimental::filesystem::path
+{
+    typedef std::experimental::filesystem::path base_class;
+    
+public:
+    path ()
+        : base_class()
+    {}
+        
+    path (path const & other)
+        : base_class(other)
+    {}
+    
+    path const & operator = (path const & other)
+    {
+        *this = other;
+        return *this;
+    }
+
+    template <typename Source>
+    path (Source const & source)
+        : base_class(source)
+    {}
+
+    template <typename InputIt>
+    path (InputIt first, InputIt last)
+        : base_class(first, last)
+    {}
+
+    template <typename Source>
+    path (Source const & source, std::locale const & loc)
+        : base_class(source, loc)
+    {}
+
+    // FIXME fmt unused yet
+    template <typename InputIt>
+    path (InputIt first, InputIt last, std::locale const & loc)
+        : base_class(first, last, loc)
+    {}
+    
+    template <typename Source>
+    path & operator = (Source const & source)
+    {
+        base_class::operator = (source);
+        return *this;
+    }
+
+    // TODO Implement file_status
+    //bool exists (filesystem::file_status s) noexcept;
+
+    bool exists (pfs::error_code & ec) const noexcept
+    {
+        return std::experimental::filesystem::exists(*this, ec);
+    }
+
+    bool remove (pfs::error_code & ec) const noexcept
+    {
+        return std::experimental::filesystem::remove(*this, ec);
+    }
+};
+
+#if __COMMENT__
 class path : public std::experimental::filesystem::path
 {
     typedef std::experimental::filesystem::path base_class;
@@ -100,12 +165,6 @@ public:
     // path & operator = (string_type && source)
     // {}
     
-    template <typename Source>
-    path & operator = (Source const & source)
-    {
-        base_class::operator = (source);
-        return *this;
-    }
 
     // TODO Implement
     // path & assign (string_type && source)
@@ -620,26 +679,6 @@ inline void swap (path & lhs, path & rhs) noexcept
  */
 
 
-/**
- * @fn template <typename CharT, typename Traits>
- *     std::basic_ostream<CharT, Traits> &
- *     operator << (std::basic_ostream<CharT,Traits> & os, const path& p )
- * 
- * @param os Stream to perform output on.
- * @param p Path to insert.
- * @return @a os.
- */
-
-
-/**
- * @fn template <typename CharT, typename Traits>
-       std::basic_istream<CharT, Traits> &
-       operator >> (std::basic_istream<CharT, Traits> & is, path & p)
-
- * @param is Stream to perform input on.
- * @param p Path to extract.
- * @return @a is.
- */
 
 /**
  * @fn template <typename Source>
@@ -678,30 +717,11 @@ inline path u8path (InputIt first, InputIt last)
     return std::experimental::filesystem::u8path(first, last); 
 }
 
-// TODO Implement file_status
-//bool exists (filesystem::file_status s) noexcept;
 
-inline bool exists (path const & p)
-{
-    return std::experimental::filesystem::exists(p);
-}
 
-inline bool exists (path const & p, pfs::error_code & ec) noexcept
-{
-    return std::experimental::filesystem::exists(p, ec);
-}
+#endif
 
-inline bool remove (path const & p)
-{
-    return std::experimental::filesystem::remove(p);
-}
-    
-inline bool remove (path const & p, error_code & ec)
-{
-    return std::experimental::filesystem::remove(p, ec);
-}
-
-}} // pfs::filesystem
+}}} // pfs::filesystem::details
 
 #else
 #   include <pfs/cxx/cxx98/filesystem/path.hpp>

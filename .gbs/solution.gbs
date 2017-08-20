@@ -1,27 +1,7 @@
-solution "pfs-mpl"
+workspace "pfs-mpl"
     includedirs { "../include" }
-    include("../../.gbs/solution-common.gbs")
-
-configuration "debug"
-    links        { "pfs-test-d", "pfs-mpl-d" }
-
-configuration "release"
-    links        { "pfs-test", "pfs-mpl" }
-
-filter "action:gmake"
-    if not STDCXX_FS_LIB then
-        if BOOST_FILESYSTEM_LIB then
-            links { "boost_filesystem" }
-        end
-    else
-        links { "stdc++fs" }
-    end
-
-    if PTHREAD_LIB then
-        links { "pthread" }
-    end
-
-    links  { "dl", "m" }
+    include("../../.gbs/solution-common.lua")
+    include("../../.gbs/test.lua")
 
 -- Projects
 
@@ -30,6 +10,10 @@ project "pfs-test"
 
 project "pfs"
     include("pfs.gbs")
+
+-- Helper shared object to test dynamic_library
+project "shared_object"
+    include("shared_object.gbs")
 
 include("solution-tests.gbs")
 include("solution-demo.gbs")

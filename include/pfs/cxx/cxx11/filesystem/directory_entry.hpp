@@ -8,12 +8,15 @@
 #ifndef __PFS_CXX_CXX11_FILESYSTEM_DIRECTORY_ENTRY_HPP__
 #define __PFS_CXX_CXX11_FILESYSTEM_DIRECTORY_ENTRY_HPP__
 
+#include <pfs/compiler.hpp>
+
 #if PFS_CC_GCC_VERSION >= 50300
 
 #include <experimental/filesystem>
 
 namespace pfs {
-namespace filesystem { 
+namespace filesystem {
+namespace details {
 
 class directory_entry : public std::experimental::filesystem::directory_entry
 {
@@ -31,10 +34,10 @@ public:
     directory_entry (directory_entry && other) noexcept
         : base_class(other)
     {}
-	
-    explicit directory_entry (pfs::filesystem::path const & p)
-        : base_class(p)
-    {}
+    
+//    explicit directory_entry (pfs::filesystem::path const & p)
+//        : base_class(p)
+//    {}
     
     // TODO Implement
     //directory_entry (path const & p, std::error_code & ec);
@@ -66,11 +69,11 @@ public:
     //void assign (path const & p, std::error_code & ec);
 };
 
-}} // pfs::filesystem
+}}} // pfs::filesystem::details
 
 #else
 
-#   include <pfs/cxx/cxx98/filesystem/directory_entry.hpp>
+#   error "Need to implement"
 
 #endif
 

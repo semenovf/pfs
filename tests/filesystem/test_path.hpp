@@ -379,7 +379,7 @@ void test_path ()
         TEST_OK(p1 == "/path/to1");
         TEST_OK(p2 == "/path/to2");
         
-        pfs::filesystem::swap(p1, p2);
+        pfs::swap(p1, p2);
 
         TEST_OK(p1 == "/path/to2");
         TEST_OK(p2 == "/path/to1");

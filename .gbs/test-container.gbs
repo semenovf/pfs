@@ -6,9 +6,7 @@ files         { "../tests/container/*.cpp" }
 configuration "debug"
     objdir       ".cache/tests/container/debug"
     targetdir    "../../.build/tests"
-    links        { "pfs-test-d" }
 
 configuration "release"
     objdir       ".cache/tests/container/release"
     targetdir    "../../.build/tests"
-    links        { "pfs-test" }

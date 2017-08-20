@@ -4,46 +4,56 @@
 #include "pfs/safeformat.hpp"
 #include "pfs/logger.hpp"
 
-typedef pfs::safeformat<pfs::traits::stdcxx::string> fmt;
+typedef pfs::string<pfs::traits::stdcxx::string>     string_type;
+typedef pfs::safeformat<string_type>                 fmt;
+typedef pfs::logger::logger<string_type>             logger;
+typedef pfs::logger::stdout_appender<string_type>    stdout_appender;
+typedef pfs::logger::stderr_appender<string_type>    stderr_appender;
+typedef logger::appender_type                        appender_type;
 
 int main (int, char * [])
 {
-    pfs::log_trace(fmt("%s, %s!") % "Hello" % "World".str());
-    pfs::string s(fmt("%s, %s!") % "Hello" % "World".str());
-    pfs::log_trace(fmt("%s")(s).str());
+    logger log;
+    log.set_priority(pfs::logger::priority::trace);
+    log.connect(log.add_appender<stdout_appender>());
+    log.trace(fmt("%s, %s!")("Hello")("World").str());
+    string_type s(fmt("%s, %s!")("Hello")("World").str());
+    log.trace(fmt("%s")(s).str());
 
-//    pfs::stdout_appender stdout_appender;
-//    pfs::stderr_appender stderr_appender;
-//    stdout_appender.set_pattern(pfs::string("%d{ABSOLUTE} [%p]: %m"));
-//    stderr_appender.set_pattern(pfs::string("%d{ABSOLUTE} [%p]: %m"));
+    stdout_appender out_appender;
+    stderr_appender err_appender;
+    out_appender.set_pattern("%d{ABSOLUTE} [%p]: %m");
+    err_appender.set_pattern("%d{ABSOLUTE} [%p]: %m");
 
-//    std::cout << "--All messages will be print with date as ABSOLUTE specifier:" << std::endl;
+    std::cout << "--All messages will be print with date as ABSOLUTE specifier:\n";
+
+    log.disconnect_all();
+    log.set_priority(pfs::logger::priority::trace);
+    log.connect(pfs::logger::priority::trace, out_appender);
+    log.connect(pfs::logger::priority::debug, out_appender);
+    log.connect(pfs::logger::priority::info, out_appender);
+    log.connect(pfs::logger::priority::warn, err_appender);
+    log.connect(pfs::logger::priority::error, err_appender);
+
+    log.trace("logging trace");
+    log.debug("logging debug");
+    log.info("logging info");
+    log.warn("logging warn");
+    log.error("logging error");
+    
+    out_appender.set_pattern("%d{DATE} [%p]: %m");
+    err_appender.set_pattern("%d{DATE} [%p]: %m");
+
+    std::cout << "--All messages will be print excluding Trace and Debug with date as DATE specifier:\n";
+    
+    log.set_priority(pfs::logger::priority::info);
+    log.trace("logging trace");
+    log.debug("logging debug");
+    log.info("logging info");
+    log.warn("logging warn");
+    log.error("logging error");
 
 #if __COMMENT__
-    pfs::logger::disconnect_all_appenders();
-    pfs::logger::set_priority(log::trace_priority);
-    pfs::trace().connect(stdout_appender);
-    pfs::debug().connect(stdout_appender);
-    pfs::info().connect(stdout_appender);
-    pfs::warn().connect(stderr_appender);
-    pfs::error().connect(stderr_appender);
-
-    trace("logging trace");
-    debug("logging debug");
-    info("logging info");
-    warn("logging warn");
-    error("logging error");
-
-    stdout_appender.set_pattern(pfs::string("%d{DATE} [%p]: %m"));
-    stderr_appender.set_pattern(pfs::string("%d{DATE} [%p]: %m"));
-
-    printf("--All messages will be print excluding Trace and Debug with date as DATE specifier:\n");
-    log::set_priority(log::info_priority);
-    trace("logging trace");
-    debug("logging debug");
-    info("logging info");
-    warn("logging warn");
-    error("logging error");
 
     stdout_appender.set_pattern(pfs::string("%d{ISO8601} [%p]: %m"));
     stderr_appender.set_pattern(pfs::string("%d{ISO8601} [%p]: %m"));
@@ -66,11 +76,6 @@ int main (int, char * [])
     stdout_appender.set_pattern(_l1("%d{ABSOLUTE} [%p]: {%-30m}"));
     trace("Right padding");
 #endif
-
-    pfs::logger mylogger;
-    pfs::logger_appender & myappender = mylogger.add_appender<pfs::stdout_appender>();
-    mylogger.connect(myappender);
-    mylogger.trace(_u8("mylogger trace"));
 
     return EXIT_SUCCESS;
 }

@@ -1,13 +1,12 @@
 kind          "SharedLib"
 language      "C"
 targetname    "test-shared_object"
+targetdir    "../../.build/tests"
 files         { "../tests/dynamic_library/shared_object.c" }
 
 configuration "debug"
     objdir       ".cache/tests/dynamic_library/debug"
-    targetdir    "../../.build/tests"
 
 configuration "release"
     objdir       ".cache/tests/dynamic_library/release"
-    targetdir    "../../.build/tests"
 
