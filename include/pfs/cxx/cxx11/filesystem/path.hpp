@@ -34,19 +34,19 @@ namespace details {
 class path : public std::experimental::filesystem::path
 {
     typedef std::experimental::filesystem::path base_class;
-    
+
 public:
     path ()
         : base_class()
     {}
-        
+
     path (path const & other)
         : base_class(other)
     {}
-    
+
     path const & operator = (path const & other)
     {
-        *this = other;
+        base_class::operator = (other);
         return *this;
     }
 
@@ -70,7 +70,7 @@ public:
     path (InputIt first, InputIt last, std::locale const & loc)
         : base_class(first, last, loc)
     {}
-    
+
     template <typename Source>
     path & operator = (Source const & source)
     {

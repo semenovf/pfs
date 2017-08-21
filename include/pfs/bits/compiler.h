@@ -88,6 +88,21 @@
 #   error "Unsupported C/C++ compiler"
 #endif
 
+#ifdef EXTERN_C_BEGIN
+#   undef EXTERN_C_BEGIN
+#endif
+
+#ifdef __cplusplus
+#   ifndef  EXTERN_C_BEGIN
+#       define EXTERN_C_BEGIN extern "C" {
+#   endif
+#   define EXTERN_C_END }
+#else
+#   ifndef  EXTERN_C_BEGIN
+#       define EXTERN_C_BEGIN
+#   endif
+#   define EXTERN_C_END
+#endif
 
 /* http://support.microsoft.com/default.aspx?scid=KB;EN-US;168958 */
 #ifdef PFS_DLL_API

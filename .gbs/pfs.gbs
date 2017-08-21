@@ -8,12 +8,11 @@ files         {
               }
 links         { PFS_LINKS }
 
+filter "debug"
+    objdir ".cache/pfs-mpl/debug"
 
-configuration "debug"
-    objdir       ".cache/pfs-mpl/debug"
-
-configuration "release"
-    objdir       ".cache/pfs-mpl/release"
+filter "release"
+    objdir ".cache/pfs-mpl/release"
 
 filter "platforms:unix*"
     files {

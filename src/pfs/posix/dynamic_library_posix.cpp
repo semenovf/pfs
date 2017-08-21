@@ -61,7 +61,7 @@ bool dynamic_library::open (filesystem::path const & p
         return false;
 	}
 
-	if (!filesystem::exists(_path)) {
+	if (!filesystem::exists(_path, ec)) {
 		_path = filesystem::search_path(_path, searchdirs);
 
 		if (_path.empty()) {
@@ -139,5 +139,33 @@ filesystem::path build_so_filename (filesystem::path const & name) noexcept
 	p += ".so";
 	return p;
 }
+
+namespace details {
+
+std::string dynamic_library_category::message (int ev) const
+{
+    switch (ev) {
+    case static_cast<int>(dynamic_library_errc::success):
+        return "No error";
+        
+    case static_cast<int>(dynamic_library_errc::invalid_argument):
+        return "Invalid argument";
+        
+    case static_cast<int>(dynamic_library_errc::file_not_found):
+        return "Shared object (dynamic library) not found: ";
+    
+    case static_cast<int>(dynamic_library_errc::open_failed):
+        return std::string("Failed to open shared object (dynamic library): ")
+                + dlerror();
+        
+    case static_cast<int>(dynamic_library_errc::symbol_not_found):
+        return std::string("Symbol not found in shared object (dynamic library): ")
+                + dlerror();
+        
+    default: return "Unknown dynamic_library error";
+    }
+}
+
+} // details
 
 } //pfs

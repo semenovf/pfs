@@ -8,13 +8,14 @@
 #ifndef __PFS_MODULE_HPP__
 #define __PFS_MODULE_HPP__
 
+#include <pfs/compiler.hpp>
 #include <pfs/system_string.hpp>
 #include <pfs/sigslot.hpp>
 #include <pfs/atomic.hpp>
 
 #define PFS_DETECTOR_CAST(slot) reinterpret_cast<pfs::application::detector>(& slot)
 #define PFS_EMITTER_CAST(e)     reinterpret_cast<void *>(& e)
-#define PFS_MODULE_API extern "C" DLL_API
+#define PFS_MODULE_API extern "C" PFS_DLL_API
 #define PFS_MODULE_CTOR_NAME "__module_ctor__"
 #define PFS_MODULE_DTOR_NAME "__module_dtor__"
 
