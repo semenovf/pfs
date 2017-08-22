@@ -42,6 +42,9 @@ project "test-lexical_cast"
 project "test-active_queue"
     test_project("active_queue", {})
 
+project "test-active_map"
+    test_project("active_map", {})
+
 --project "test-mpl-ratio"
 --    include("test-mpl-ratio/project.gbs")
 

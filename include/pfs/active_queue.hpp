@@ -16,7 +16,7 @@
 namespace pfs {
 
 template <template <typename> class SequenceContainer
-    , typename BasicLockable // see [C++ concepts: BasicLockable](http://en.cppreference.com/w/cpp/concept/BasicLockable)>
+    , typename BasicLockable = pfs::mutex // see [C++ concepts: BasicLockable](http://en.cppreference.com/w/cpp/concept/BasicLockable)>
     , int GcThreshold = 256> 
 class active_queue
 {
@@ -31,16 +31,45 @@ private:
     struct value 
     {
         int8_t state;
+//        binder_base<void> * p;
+//        
+//        value (binder_base<void> * ptr) 
+//            : state(BUSY)
+//            , p(ptr) 
+//        {}
+//        
+//        ~value ()
+//        {
+//            if (p)
+//                delete p;
+//        }
         binder_base<void> * p;
         
-        value (binder_base<void> * ptr) 
+        value (binder_base<void> * ptr)
             : state(BUSY)
             , p(ptr) 
         {}
+
+        value (value const & other)
+            : state(other.state)
+            , p(other.p) 
+        {
+            if (p)
+                p->ref();
+        }
+
+        value & operator = (value const & other) 
+        {
+            this->~value();
+            p = other.p;
+            if (p)
+                p->ref();
+            state = other.state;
+        }
         
         ~value ()
         {
-            if (p)
+            if (p && p->deref() == 0)
                 delete p;
         }
     };
@@ -70,9 +99,9 @@ private:
             gc();
         }
         
-        value_type v(ptr);
-        _sequence.push_back(v);
-        v.p = 0; // Do not destroy 
+        //value_type v(ptr);
+        _sequence.push_back(value_type(ptr));
+        //v.p = 0; // Do not destroy 
 
         ++_count;
     }

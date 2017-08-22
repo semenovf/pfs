@@ -25,9 +25,11 @@ public:
 
 protected:
     size_t _size;
+    int    _ref;
 
     binder_base (size_t size)
         : _size(size)
+        , _ref(1)
     {}
 
 //    virtual void * placement_copy (void * ptr) const = 0;
@@ -35,6 +37,16 @@ protected:
 public:
     virtual ~binder_base () {}
 
+    void ref ()
+    {
+        ++_ref;
+    }
+    
+    int deref ()
+    {
+        return --_ref;
+    }
+    
     size_t size () const
     {
         return _size;
