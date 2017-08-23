@@ -8,8 +8,8 @@
 #ifndef __PFS_MATH_HPP__
 #define __PFS_MATH_HPP__
 
-#include <pfs/types.hpp>
 #include <cmath>
+#include <pfs/types.hpp>
 
 namespace pfs {
 

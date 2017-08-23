@@ -27,7 +27,7 @@ public:
     typedef typename internal_type::native_reference       native_reference;
     typedef typename internal_type::const_native_reference const_native_reference;
 
-    //typedef typename internal_type::value_type             value_type;
+    typedef T                                              value_type;
     //typedef typename internal_type::reference              reference;
     //typedef typename internal_type::const_reference        const_reference;
     typedef typename internal_type::iterator               iterator;

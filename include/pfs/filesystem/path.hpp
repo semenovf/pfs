@@ -32,7 +32,7 @@ template <typename Impl>
 class basic_path
 {
 public:
-    typedef Impl                       impl_type;
+    typedef Impl                            impl_type;
     typedef typename impl_type::value_type  value_type;
     typedef typename impl_type::string_type string_type;
     typedef typename impl_type::iterator    iterator;
@@ -59,6 +59,33 @@ public:
     //      : base_class(source)
     // {}
 
+    /**
+     * @brief Constructs the path from a character sequence.
+     * 
+     * @details Constructs the path from a character sequence
+     *        (format interpreted as specified by @arg fmt) provided by source,
+     *        which is a pointer or an input iterator to a null-terminated 
+     *        character/wide character sequence, an std::basic_string or 
+     *        an std::basic_string_view. Any of the four character types 
+     *        @c char, @c char16_t, @c char32_t, @c wchar_t is allowed, 
+     *        and the method of conversion to the native character set 
+     *        depends on the character type used by source.
+     * 
+     *        * If the source character type is @c char, the encoding of the 
+     *        source is assumed to be the native narrow encoding 
+     *        (so no conversion takes place on POSIX systems).
+     * 
+     *        * If the source character type is @c char16_t, conversion from 
+     *        UTF-16 to native filesystem encoding is used. 
+     * 
+     *        * If the source character type is @c char32_t, conversion from 
+     *        UTF-32 to native filesystem encoding is used.
+     *        
+     *        * If the source character type is @c wchar_t, the input is assumed
+     *        to be the native wide encoding (so no conversion takes places
+     *        on Windows).
+     * @param source 
+     */
     template <typename Source>
     basic_path (Source const & source/*, format fmt = auto_format*/)
         :_d(source)
@@ -69,16 +96,15 @@ public:
         : _d(first, last)
     {}
 
-    template <typename Source>
-    basic_path (Source const & source, std::locale const & loc)
-        : _d(source, loc)
-    {}
+//    template <typename Source>
+//    basic_path (Source const & source, std::locale const & loc)
+//        : _d(source, loc)
+//    {}
 
-    // FIXME fmt unused yet
-    template <typename InputIt>
-    basic_path (InputIt first, InputIt last, std::locale const & loc)
-        : _d(first, last, loc)
-    {}
+//    template <typename InputIt>
+//    basic_path (InputIt first, InputIt last, std::locale const & loc)
+//        : _d(first, last, loc)
+//    {}
     
     ~basic_path () {}
     
@@ -588,7 +614,7 @@ inline bool remove (path const & p, error_code & ec)
 namespace pfs {
 
 template <typename StringType>
-inline StringType to_string (filesystem::path const & p)
+inline StringType to_string (pfs::filesystem::path const & p)
 {
     return StringType(p.native());
 }

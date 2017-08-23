@@ -5,7 +5,7 @@
  */
 
 #include "../include/cwt/svg/transform.hpp"
-#include <cmath>
+#include <pfs/math.hpp>
 
 namespace cwt { namespace svg {
 

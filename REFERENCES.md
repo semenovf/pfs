@@ -96,6 +96,11 @@
 2. [blackhole - Yet another logging library](https://github.com/3Hren/blackhole)
 3. [plog -  Portable, simple and extensible C++ logging library](https://github.com/SergiusTheBest/plog)
 
+
+### Data structures
+
+1. [C++ implementation of a fast **hash map** and **hash set** using robin hood hashing](https://github.com/Tessil/robin-map)
+
 ### Misc
 
 1. [Embedding resource files in a C++ program binary on Linux/*NIX](http://www.atwillys.de/content/cc/embedding-resource-files-in-a-c-plus-plus-program-binary-on-linux-unix/?lang=en)

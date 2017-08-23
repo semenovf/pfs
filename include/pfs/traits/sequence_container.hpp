@@ -26,8 +26,8 @@ public:
     typedef typename base_class::native_reference       native_reference;
     typedef typename base_class::const_native_reference const_native_reference;
 
-    typedef typename base_class::size_type       size_type;
-    //typedef typename base_class::value_type      value_type;
+    typedef typename base_class::size_type                      size_type;
+    typedef typename base_class::value_type                     value_type;
     typedef typename base_class::internal_type::reference       reference;
     typedef typename base_class::internal_type::const_reference const_reference;
     typedef typename base_class::iterator        iterator;
