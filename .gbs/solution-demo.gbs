@@ -9,3 +9,5 @@
 project "demo-logger"
     include("demo-logger.gbs")
 
+project "demo-udp-server"
+    include("demo-udp-server.gbs")

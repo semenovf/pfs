@@ -50,49 +50,49 @@
 
 #if defined __USE_XOPEN || defined __USE_XOPEN2K8
 #   define WR_EVENTS_XOR_MASK_XPG42 (POLLWRNORM | POLLWRBAND)
-#else        
+#else
 #   define WR_EVENTS_XOR_MASK_XPG42 0
 #endif
-        
+
 #define WR_EVENTS_XOR_MASK (POLLOUT | WR_EVENTS_XOR_MASK_XPG42)
 
 namespace pfs { namespace io { namespace details {
 
-template <template <typename> class SequenceContainer
-        , template <typename> class ContigousContainer
-        , template <typename> class AssociativeContainer>
+template <template <typename> class SequenceContainerImpl
+        , template <typename> class ContigousContainerImpl
+        , template <typename> class AssociativeContainerImpl>
 struct pool : public bits::pool
 {
     struct iterator;
-    
-	typedef ::pollfd pollfd_type;
-	typedef io::device::native_handle_type native_handle_type;
 
-	typedef traits::contigous_container<
-            pollfd_type, ContigousContainer>           pollfd_vector_type;
-	typedef traits::associative_container<
+    typedef ::pollfd pollfd_type;
+    typedef io::device::native_handle_type native_handle_type;
+
+    typedef traits::contigous_container<
+            pollfd_type, ContigousContainerImpl>           pollfd_vector_type;
+    typedef traits::associative_container<
             traits::kv<native_handle_type, io::device>
-                , AssociativeContainer>                device_map_type;
+                , AssociativeContainerImpl>                device_map_type;
     typedef traits::associative_container<
             traits::kv<native_handle_type, io::server>
-                , AssociativeContainer>                server_map_type;
+                , AssociativeContainerImpl>                server_map_type;
     typedef traits::sequence_container<io::device
-            , SequenceContainer>                       device_vector_type;
+            , SequenceContainerImpl>                       device_vector_type;
     typedef traits::sequence_container<io::server
-            , SequenceContainer>                       server_vector_type;
+            , SequenceContainerImpl>                       server_vector_type;
 
-	pfs::mutex      mtx;
-	device_map_type device_map;
-	server_map_type server_map;
+    pfs::mutex      mtx;
+    device_map_type device_map;
+    server_map_type server_map;
 
-	pollfd_vector_type pollfds;
-	bool update;  // need updated 'pollfds' before poll() system call.
+    pollfd_vector_type pollfds;
+    bool update;  // need updated 'pollfds' before poll() system call.
 
-	pool ()
-		: update(true)
-	{}
+    pool ()
+        : update(true)
+    {}
 
-	void update_pollfd (short events)
+    void update_pollfd (short events)
     {
         pfs::lock_guard<pfs::mutex> locker(mtx);
 
@@ -132,14 +132,14 @@ struct pool : public bits::pool
                 ++it;
             }
         }
-    }    
+    }
 
-	void push_back (io::device d, short events)
-	{
-		pfs::lock_guard<pfs::mutex> locker(mtx);
-		device_map.insert(d.native_handle(), d);
-		update = true;
-	}
+    void push_back (io::device d, short events)
+    {
+        pfs::lock_guard<pfs::mutex> locker(mtx);
+        device_map.insert(d.native_handle(), d);
+        update = true;
+    }
 
 	void push_back (io::server s, short events)
 	{
@@ -196,7 +196,7 @@ struct pool : public bits::pool
         return r;
     }
 
-	device_vector_type fetch_devices (bool (* filter) (const device & d, void * context), void * context)
+    device_vector_type fetch_devices (bool (* filter) (const device & d, void * context), void * context)
     {
         pfs::lock_guard<pfs::mutex> locker(mtx);
 
@@ -221,8 +221,8 @@ struct pool : public bits::pool
 
         return r;
     }
-    
-	server_vector_type fetch_servers (bool (* filter) (const server & s, void * context), void * context)
+
+    server_vector_type fetch_servers (bool (* filter) (const server & s, void * context), void * context)
     {
         pfs::lock_guard<pfs::mutex> locker(mtx);
 
@@ -277,17 +277,17 @@ struct pool : public bits::pool
 
         static iterator * alloc_begin (short filter_events, pool const & p)
         {
-            pointer begin = p.pollfds.cbegin();
-            pointer end   = p.pollfds.cend();
+            pointer first = p.pollfds.cbegin();
+            pointer last   = p.pollfds.cend();
 
-            while (begin != end) {
-                if (begin->revents & filter_events)
+            while (first != last) {
+                if (first->revents & filter_events)
                     break;
-                ++begin;
+                ++first;
             }
 
-            return new iterator(filter_events, begin, end);
-        }    
+            return new iterator(filter_events, first, last);
+        }
 
         static iterator * alloc_end (short filter_events, pool const & p)
         {

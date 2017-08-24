@@ -124,7 +124,7 @@ public:
     
     const_iterator cend () const
     {
-        return _p->cbegin();
+        return _p->cend();
     }
 #else
     const_iterator cbegin () const
@@ -134,7 +134,7 @@ public:
     
     const_iterator cend () const
     {
-        return _p->begin();
+        return _p->end();
     }
 #endif    
 

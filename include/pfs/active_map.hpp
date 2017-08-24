@@ -137,39 +137,39 @@ public:
 	}
 
 	template <typename Class>
-	void insert_method (key_type const & key, Class * p, result_type (Class::* f) ())
+	void insert_method (key_type const & key, result_type (Class::* f) (), Class * p)
 	{
-		insert_helper(key, new binder_method0<Class, result_type>(p, f));
+		insert_helper(key, new binder_method0<Class, result_type>(f, p));
 	}
 
 	template <typename Class, typename Arg1>
-	void insert_method (key_type const & key, Class * p, result_type (Class::*f) (Arg1), Arg1 a1)
+	void insert_method (key_type const & key, result_type (Class::*f) (Arg1), Class * p, Arg1 a1)
 	{
-		insert_helper(key, new binder_method1<Class, result_type, Arg1>(p, f, a1));
+		insert_helper(key, new binder_method1<Class, result_type, Arg1>(f, p, a1));
 	}
 
 	template <typename Class, typename Arg1, typename Arg2>
-	void insert_method (key_type const & key, Class * p, result_type (Class::*f) (Arg1, Arg2), Arg1 a1, Arg2 a2)
+	void insert_method (key_type const & key, result_type (Class::*f) (Arg1, Arg2), Class * p, Arg1 a1, Arg2 a2)
 	{
-		insert_helper(key, new binder_method2<Class, result_type, Arg1, Arg2>(p, f, a1, a2));
+		insert_helper(key, new binder_method2<Class, result_type, Arg1, Arg2>(f, p, a1, a2));
 	}
 
 	template <typename Class, typename Arg1, typename Arg2, typename Arg3>
-	void insert_method (key_type const & key, Class * p, result_type (Class::*f) (Arg1, Arg2, Arg3), Arg1 a1, Arg2 a2, Arg3 a3)
+	void insert_method (key_type const & key, result_type (Class::*f) (Arg1, Arg2, Arg3), Class * p, Arg1 a1, Arg2 a2, Arg3 a3)
 	{
-		insert_helper(key, new binder_method3<Class, result_type, Arg1, Arg2, Arg3>(p, f, a1, a2, a3));
+		insert_helper(key, new binder_method3<Class, result_type, Arg1, Arg2, Arg3>(f, p, a1, a2, a3));
 	}
 
 	template <typename Class, typename Arg1, typename Arg2, typename Arg3, typename Arg4>
-	void insert_method (key_type const & key, Class * p, result_type (Class::*f) (Arg1, Arg2, Arg3), Arg1 a1, Arg2 a2, Arg3 a3, Arg4 a4)
+	void insert_method (key_type const & key, result_type (Class::*f) (Arg1, Arg2, Arg3), Class * p, Arg1 a1, Arg2 a2, Arg3 a3, Arg4 a4)
 	{
-		insert_helper(key, new binder_method4<Class, result_type, Arg1, Arg2, Arg3, Arg4>(p, f, a1, a2, a3, a4));
+		insert_helper(key, new binder_method4<Class, result_type, Arg1, Arg2, Arg3, Arg4>(f, p, a1, a2, a3, a4));
 	}
 
 	template <typename Class, typename Arg1, typename Arg2, typename Arg3, typename Arg4, typename Arg5>
-	void insert_method (key_type const & key, Class * p, result_type (Class::*f) (Arg1, Arg2, Arg3), Arg1 a1, Arg2 a2, Arg3 a3, Arg4 a4, Arg5 a5)
+	void insert_method (key_type const & key, result_type (Class::*f) (Arg1, Arg2, Arg3), Class * p, Arg1 a1, Arg2 a2, Arg3 a3, Arg4 a4, Arg5 a5)
 	{
-		insert_helper(key, new binder_method5<Class, result_type, Arg1, Arg2, Arg3, Arg4, Arg5>(p, f, a1, a2, a3, a4, a5));
+		insert_helper(key, new binder_method5<Class, result_type, Arg1, Arg2, Arg3, Arg4, Arg5>(f, p, a1, a2, a3, a4, a5));
 	}
     
     void clear ()

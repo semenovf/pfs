@@ -78,9 +78,9 @@ static const char * loremipsum [] = {
 typedef pfs::io::pool<
           pfs::traits::stdcxx::vector
         , pfs::traits::stdcxx::vector
-        , pfs::traits::stdcxx::map> poll_type;
+        , pfs::traits::stdcxx::map> pool_type;
 
-struct dispatcher_context : public poll_type::dispatcher_context2
+struct dispatcher_context : public pool_type::dispatcher_context2
 {
 	int n1;
 
@@ -171,7 +171,7 @@ public:
 		if (!_server.opened())
 			return;
 
-		poll_type pool;
+		pool_type pool;
 		pool.push_back(_server);
 
 		dispatcher_context ctx;
@@ -189,8 +189,6 @@ public:
 	virtual void run ()
 	{
 		ADD_TESTS(2);
-
-		;
 
 		pfs::error_code ex;
 		pfs::io::device client = pfs::io::open_device(pfs::io::open_params<tcp_socket>(

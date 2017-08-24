@@ -93,7 +93,7 @@ public:
 
     ~byte_string () {}
 
-    byte_string & operator = (const byte_string & s)
+    byte_string & operator = (byte_string const & s)
     {
     	_d = s._d;
     	return *this;
@@ -1271,16 +1271,12 @@ ssize_t read_binary (Device & dev, endian order, byte_string & v)
     return result;
 }
 
-} // pfs
+template <typename StringType>
+inline StringType to_string (byte_string const & s)
+{
+    return StringType(s.c_str());
+}
 
-//namespace std {
-//
-//inline ostream & operator << (ostream & os, const pfs::byte_string & o)
-//{
-//	os << o.c_str();
-//	return os;
-//}
-//
-//} // std
+} // pfs
 
 #endif /* __PFS_BYTE_STRING_HPP__ */

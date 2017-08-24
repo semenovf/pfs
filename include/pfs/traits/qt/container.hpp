@@ -117,7 +117,7 @@ public:
     
     const_iterator cend () const
     {
-        return _p->begin();
+        return _p->end();
     }
 
     // *** CAPACITY ***

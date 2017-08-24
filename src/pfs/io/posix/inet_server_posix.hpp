@@ -44,7 +44,7 @@ public:
     virtual error_code close ()
     {
         error_code ex = pfs::io::close_socket(_fd) != 0 
-                ? error_code(errno, pfs::generic_category())
+                ? get_last_system_error()
                 : error_code();
         _fd = -1;
         return ex;
@@ -84,14 +84,14 @@ public:
     {
         _fd = pfs::io::create_tcp_socket(non_blocking);
         return _fd < 0 
-                ? error_code(errno, pfs::generic_category())
+                ? get_last_system_error()
                 : error_code();
     }
 
 	error_code listen (int backlog)
 	{
 		return (::listen(_fd, backlog) != 0) 
-                ? error_code(errno, pfs::generic_category())
+                ? get_last_system_error()
                 : error_code();
 	}
 
@@ -123,7 +123,7 @@ public:
     {
         _fd = pfs::io::create_udp_socket(non_blocking);
         return _fd < 0 
-                ? error_code(errno, pfs::generic_category())
+                ? get_last_system_error()
                 : error_code();
     }
 

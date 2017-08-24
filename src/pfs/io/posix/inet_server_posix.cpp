@@ -36,14 +36,14 @@ error_code inet_server::bind (uint32_t addr, uint16_t port)
 	int rc = ::setsockopt(_fd, SOL_SOCKET, SO_REUSEADDR, & yes, sizeof(int));
 
 	if (rc != 0)
-        return error_code(errno, pfs::generic_category());
+        return get_last_system_error();
 
 	rc = ::bind(_fd
 			, reinterpret_cast<struct sockaddr *>(& _sockaddr)
 			, sizeof(_sockaddr));
 
 	if (rc != 0)
-		return error_code(errno, pfs::generic_category());
+		return get_last_system_error();
 
 	return error_code();
 }
@@ -59,9 +59,8 @@ error_code tcp_server::accept (bits::device ** peer, bool non_blocking)
 
 	PFS_ASSERT(sizeof(sockaddr_in) == peer_addr_len);
 
-	if (peer_sock < 0) {
-    	return error_code(errno, pfs::generic_category());
-	}
+	if (peer_sock < 0)
+    	return get_last_system_error();
 
 	details::tcp_socket_peer * peer_socket = new details::tcp_socket_peer(peer_sock, peer_addr);
 
@@ -81,9 +80,8 @@ error_code udp_server::accept (bits::device ** peer, bool non_blocking)
     ssize_t n = recvfrom (_fd, buf, 0, MSG_PEEK
             , reinterpret_cast<sockaddr *>(& peer_addr), & peer_addr_len);
 
-	if (n < 0) {
-    	return error_code(errno, pfs::generic_category());
-	}
+	if (n < 0)
+    	return get_last_system_error();
 
 	details::udp_socket_peer * peer_socket = new details::udp_socket_peer(_fd, peer_addr);
 

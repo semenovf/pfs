@@ -96,10 +96,13 @@
 2. [blackhole - Yet another logging library](https://github.com/3Hren/blackhole)
 3. [plog -  Portable, simple and extensible C++ logging library](https://github.com/SergiusTheBest/plog)
 
-
 ### Data structures
 
 1. [C++ implementation of a fast **hash map** and **hash set** using robin hood hashing](https://github.com/Tessil/robin-map)
+
+### Database, ORM
+
+1. [SQLite ORM](https://github.com/fnc12/sqlite_orm)
 
 ### Misc
 
