@@ -99,7 +99,7 @@ struct open_params<tcp_socket> : public open_params<inet_socket>
 	{}
 
 	open_params (net::inet4_addr a, uint16_t p)
-        : base_class(a, p, 0, 0)
+        : base_class(a, p, read_write | non_blocking, 0)
 	{}
 };
 
@@ -127,7 +127,7 @@ struct open_params<udp_socket> : public open_params<inet_socket>
 	{}
 
 	open_params (net::inet4_addr a, uint16_t p)
-        : base_class(a, p, 0, 0)
+        : base_class(a, p, read_write | non_blocking, 0)
 	{}
 };
 

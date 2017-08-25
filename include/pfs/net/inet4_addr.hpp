@@ -5,7 +5,7 @@
 #include <pfs/string.hpp>
 #include <pfs/lexical_cast.hpp>
 #include <pfs/algo/split.hpp>
-#include <pfs/traits/stdcxx/list.hpp>
+#include <pfs/stringlist.hpp>
 
 namespace pfs { namespace net {
 
@@ -111,14 +111,15 @@ public:
     inet4_addr (StringType const & s)
         : _addr(invalid_addr_value)
     {
-        typedef traits::stdcxx::list<StringType> stringlist;
+        typedef stringlist<StringType> stringlist_type;
+        
+        stringlist_type sl;
         StringType separator(".");
-        stringlist sl;
 
         if (s.empty())
             return;
 
-        split(s.cbegin(), s.cend(), separator.cbegin(), separator.cend(), true, & sl);
+        sl.split(s, separator, true);
 
         if (sl.size() > 4)
             return;
@@ -127,7 +128,7 @@ public:
         case 1: {
             uint32_t A = 0;
 
-            typename stringlist::const_iterator it0 = sl.cbegin();
+            typename stringlist_type::const_iterator it0 = sl.cbegin();
             
             if (parse_part<StringType>(A, 0xFFFFFFFF, it0->cbegin(), it0->cend())) {
                 inet4_addr other(A);
@@ -141,8 +142,8 @@ public:
             uint32_t a = 0;
             uint32_t B = 0;
             
-            typename stringlist::const_iterator it0 = sl.cbegin();
-            typename stringlist::const_iterator it1 = it0;
+            typename stringlist_type::const_iterator it0 = sl.cbegin();
+            typename stringlist_type::const_iterator it1 = it0;
             
             ++it1;
 
@@ -161,9 +162,9 @@ public:
             uint32_t b = 0;
             uint32_t C = 0;
 
-            typename stringlist::const_iterator it0 = sl.cbegin();
-            typename stringlist::const_iterator it1 = it0;
-            typename stringlist::const_iterator it2 = it0;
+            typename stringlist_type::const_iterator it0 = sl.cbegin();
+            typename stringlist_type::const_iterator it1 = it0;
+            typename stringlist_type::const_iterator it2 = it0;
             
             ++it1;
             ++(++it2);
@@ -187,10 +188,10 @@ public:
             uint32_t c = 0;
             uint32_t d = 0;
             
-            typename stringlist::const_iterator it0 = sl.cbegin();
-            typename stringlist::const_iterator it1 = it0;
-            typename stringlist::const_iterator it2 = it0;
-            typename stringlist::const_iterator it3 = it0;
+            typename stringlist_type::const_iterator it0 = sl.cbegin();
+            typename stringlist_type::const_iterator it1 = it0;
+            typename stringlist_type::const_iterator it2 = it0;
+            typename stringlist_type::const_iterator it3 = it0;
             
             ++it1;
             ++(++it2);
@@ -215,7 +216,6 @@ public:
         default:
             break;
         }
-
     }
 
     /**
@@ -252,37 +252,45 @@ public:
             , inet4_addr * ip
             , uint16_t * port)
     {
-        typedef traits::stdcxx::list<StringType> stringlist;
+        typedef stringlist<StringType> stringlist_type;
         
-        stringlist sl;
-        pfs::split(s, StringType("://"), true, sl);
+        stringlist_type sl;
+        sl.split(s, StringType("://"), true);
 
         if (sl.size() != 2)
             return false;
 
-        if (! (sl[0] == "tcp" || sl[0] == "udp"))
-            return false;
+//        if (! (sl[0] == "tcp" || sl[0] == "udp"))
+//            return false;
 
+        typename stringlist_type::const_iterator it = sl.cbegin();
+        
         if (proto)
-            *proto = sl[0];
+            *proto = *it;
 
-        StringType tail = sl[1];
+        ++it;
+        StringType tail = *it;
         sl.clear();
-        pfs::split(tail, StringType(":"), true, sl);
+        
+        sl.split(tail, StringType(":"), true);
 
         if (sl.size() != 2)
             return false;
 
+        it = sl.cbegin();
+        
         if (ip) {
-            *ip = pfs::net::inet4_addr(sl[0]);
+            *ip = pfs::net::inet4_addr(*it);
 
             if (! *ip)
                 return false;
         }
 
+        ++it;
+                
         if (port) {
             try {
-                *port = pfs::lexical_cast<uint16_t>(sl[1], 0);
+                *port = pfs::lexical_cast<uint16_t>(*it, 0);
             } catch (bad_lexical_cast) {
                 return false;
             }

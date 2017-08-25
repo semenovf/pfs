@@ -973,7 +973,7 @@ inline StringType to_string (double a
 // [How to read in a file in C++](http://insanecoding.blogspot.ru/2011/11/how-to-read-in-file-in-c.html)
 //
 template <typename StringType, typename Istream>
-StringType read_all (Istream & is)
+inline StringType read_all (Istream & is)
 {
     typedef typename StringType::code_unit_type char_type;
     return StringType(istreambuf_iterator<char_type>(is)

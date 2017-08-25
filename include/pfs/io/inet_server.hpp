@@ -56,7 +56,7 @@ struct open_params<tcp_server> : public open_params<inet_server>
 	int npendingconn;
 
 	open_params ()
-        : base_class(net::inet4_addr(), 0, 0)
+        : base_class(net::inet4_addr(), 0, read_write | non_blocking)
 		, npendingconn(0)
 	{}
 
@@ -66,7 +66,7 @@ struct open_params<tcp_server> : public open_params<inet_server>
 	{}
 
 	open_params (net::inet4_addr a, uint16_t p, int backlog)
-        : base_class(a, p, 0)
+        : base_class(a, p, read_write | non_blocking)
 		, npendingconn(backlog)
 	{}
 };
@@ -77,7 +77,7 @@ struct open_params<udp_server> : public open_params<inet_server>
     typedef open_params<inet_server> base_class;
 
 	open_params ()
-        : base_class(net::inet4_addr(), 0, 0)
+        : base_class(net::inet4_addr(), 0, read_write | non_blocking)
 	{}
 
 	open_params (net::inet4_addr a, uint16_t p, device::open_mode_flags of)
@@ -85,15 +85,15 @@ struct open_params<udp_server> : public open_params<inet_server>
 	{}
 
 	open_params (net::inet4_addr a, uint16_t p)
-        : base_class(a, p, 0)
+        : base_class(a, p, read_write | non_blocking)
 	{}
 };
 
 template <>
-server open_server<tcp_server> (const open_params<tcp_server> & op, error_code & ex);
+server open_server<tcp_server> (open_params<tcp_server> const & op, error_code & ec);
 
 template <>
-server open_server<udp_server> (const open_params<udp_server> & op, error_code & ex);
+server open_server<udp_server> (open_params<udp_server> const & op, error_code & ec);
 
 }} // pfs::io
 

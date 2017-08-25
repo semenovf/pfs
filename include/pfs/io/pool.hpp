@@ -296,7 +296,6 @@ public:
         pdp->push_back(s, events);
     }
 
-
 	void delete_deferred (device d)
     {
         PFS_ASSERT(_d);

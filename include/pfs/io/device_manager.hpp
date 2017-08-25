@@ -31,9 +31,9 @@ class device_manager : has_slots<>
     {
         device d;
         time_t timeout; // reconnection timeout in seconds
-        time_t start; // start time point counting timeout from
+        time_t start;   // start time point counting timeout from
 
-        bool operator< (reopen_item const & x) const
+        bool operator < (reopen_item const & x) const
         {
             return (start + timeout) < (x.start + x.timeout);
         }
@@ -50,7 +50,6 @@ class device_manager : has_slots<>
         pool_type * _p2;
 
     private:
-
         dispatcher_context1 (int millis, short filter_events
                 , device_manager * m, pool_type * p1, pool_type * p2)
             : pool_type::dispatcher_context2 (millis, filter_events)
@@ -60,7 +59,6 @@ class device_manager : has_slots<>
         {}
 
     public:
-
         virtual void accepted (device & d, server & listener) const
         {
             _m->accepted(d, listener);
@@ -89,17 +87,16 @@ class device_manager : has_slots<>
         static int const default_millis = 1; // TODO Need it configurable ?!
 
         device_manager * _m;
-        pool_type * _p1;
-        pool_type * _p2;
+        pool_type *      _p1;
+        pool_type *      _p2;
 
     private:
         dispatcher_context2 (device_manager * m, pool_type * p1, pool_type * p2)
-        : pool_type::dispatcher_context2 (default_millis, io::poll_all) // TODO Need to reduce number of events according to specialization of this pool
-        , _m (m)
-        , _p1 (p1)
-        , _p2 (p2)
-        {
-        }
+            : pool_type::dispatcher_context2 (default_millis, io::poll_all) // TODO Need to reduce number of events according to specialization of this pool
+            , _m (m)
+            , _p1 (p1)
+            , _p2 (p2)
+        {}
 
     public:
         virtual void disconnected (device & d) const
@@ -138,8 +135,7 @@ private:
     device_manager & operator= (device_manager const &);
 
 private:
-
-    void push_device (device d, pfs::error_code const & ec)
+    void push_device (device const & d, pfs::error_code const & ec)
     {
         if (!ec) {
             _p1.push_back(d);
@@ -154,7 +150,7 @@ private:
         }
     }
 
-    void push_server (server s, pfs::error_code const & ec)
+    void push_server (server const & s, pfs::error_code const & ec)
     {
         if (!ec) {
             _p1.push_back(s);
@@ -170,6 +166,11 @@ private:
     }
 
 public:
+    /**
+     * @brief Construct device manager.
+     * @param millis        Poll timeout in milliseconds.
+     * @param filter_events Accepted poll events.
+     */
     device_manager (int millis, int filter_events = io::poll_all)
         : _ctx1 (millis, filter_events, this, & _p1, & _p2)
         , _ctx2 (this, & _p1, & _p2)
@@ -269,16 +270,16 @@ public:
     }
 
 public: // signals
-    signal2<device, server> accepted; // accept connection (for connection based server devices)
-    signal1<device> ready_read;
-    signal1<device> opened; // opened (for regular files, servers) or connected (for connection based client devices)
-    signal1<device> disconnected; // disconnection for connection based devices, including peer devices
-    signal1<device> opening; // open (connection) in progress (for connection based client devices)
+    signal2<device, server>     accepted;     ///<! accept connection (for connection based server devices)
+    signal1<device>             ready_read;   ///<! device is ready for read 
+    signal1<device>             opened;       ///<! opened (for regular files, servers) or connected (for connection based client devices)
+    signal1<device>             disconnected; ///<! disconnection for connection based devices, including peer devices
+    signal1<device>             opening;      ///<! open (connection) in progress (for connection based client devices)
     signal2<device, error_code> open_failed;
-    signal1<server> server_opened;
-    signal1<server> server_opening;
+    signal1<server>             server_opened;
+    signal1<server>             server_opening;
     signal2<server, error_code> server_open_failed;
-    signal1<error_code> error;
+    signal1<error_code>         error;
 };
 
 }} // pfs::io
