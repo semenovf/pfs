@@ -21,7 +21,7 @@ namespace pfs {
 namespace unicode {
 
 template <>
-uint16_t code_point_cast<uint16_t, QChar> (QChar x)
+inline uint16_t code_point_cast<uint16_t, QChar> (QChar x)
 {
     return static_cast<uint16_t>(x.unicode());
 }

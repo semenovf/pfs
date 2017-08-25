@@ -14,92 +14,93 @@
 namespace pfs {
 namespace unicode {
 
-enum {
-	  max_code_point           = 0x0010ffff
-	, null_code_point          = 0x00000000
-	, default_replacement_char = 0x0000FFFD
-	, max_bmp                  = 0x0000FFFF
-	, bom_charstatic           = 0x0000FEFF
-	, hi_surrogate_start       = 0x0000D800
-	, hi_surrogate_end         = 0x0000DBFF
-	, low_surrogate_start      = 0x0000DC00
-	, low_surrogate_end        = 0x0000DFFF
+enum
+{
+      max_code_point = 0x0010ffff
+    , null_code_point = 0x00000000
+    , default_replacement_char = 0x0000FFFD
+    , max_bmp = 0x0000FFFF
+    , bom_charstatic = 0x0000FEFF
+    , hi_surrogate_start = 0x0000D800
+    , hi_surrogate_end = 0x0000DBFF
+    , low_surrogate_start = 0x0000DC00
+    , low_surrogate_end = 0x0000DFFF
 };
 
 
 template <typename T1, typename T2>
-T1 code_point_cast (T2 x)
+inline T1 code_point_cast (T2 x)
 {
     return static_cast<T1>(x);
 }
 
 struct char_t
 {
-	static uint32_t const replacement_char = default_replacement_char;
+    static uint32_t const replacement_char = default_replacement_char;
     typedef uint32_t value_type;
 
-	value_type value;
+    value_type value;
 
-	char_t ()
-		: value(0)
-	{}
+    char_t ()
+        : value (0)
+    {}
 
-	char_t (char_t const & other)
-		: value(other.value)
-	{}
+    char_t (char_t const & other)
+        : value (other.value)
+    {}
 
-	char_t (intmax_t v)
-	{
-		value = (v >= 0 && v <= max_code_point
-				? static_cast<value_type>(v)
-				: replacement_char);
-	}
+    char_t (intmax_t v)
+    {
+        value = (v >= 0 && v <= max_code_point
+                ? static_cast<value_type> (v)
+                : replacement_char);
+    }
 
-	char_t & operator = (intmax_t v)
-	{
-		*this = char_t(v);
-		return *this;
-	}
+    char_t & operator = (intmax_t v)
+    {
+        *this = char_t(v);
+        return *this;
+    }
 
-	friend bool operator == (char_t const & lhs, char_t const & rhs)
-	{
-		return lhs.value == rhs.value;
-	}
+    friend bool operator == (char_t const & lhs, char_t const & rhs)
+    {
+        return lhs.value == rhs.value;
+    }
 
-	friend bool operator != (char_t const & lhs, char_t const & rhs)
-	{
-		return lhs.value != rhs.value;
-	}
+    friend bool operator != (char_t const & lhs, char_t const & rhs)
+    {
+        return lhs.value != rhs.value;
+    }
 
-	friend bool operator < (char_t const & lhs, char_t const & rhs)
-	{
-		return lhs.value < rhs.value;
-	}
+    friend bool operator < (char_t const & lhs, char_t const & rhs)
+    {
+        return lhs.value < rhs.value;
+    }
 
-	friend bool operator <= (char_t const & lhs, char_t const & rhs)
-	{
-		return lhs.value <= rhs.value;
-	}
+    friend bool operator <= (char_t const & lhs, char_t const & rhs)
+    {
+        return lhs.value <= rhs.value;
+    }
 
-	friend bool operator > (char_t const & lhs, char_t const & rhs)
-	{
-		return lhs.value > rhs.value;
-	}
+    friend bool operator > (char_t const & lhs, char_t const & rhs)
+    {
+        return lhs.value > rhs.value;
+    }
 
-	friend bool operator >= (char_t const & lhs, char_t const & rhs)
-	{
-		return lhs.value >= rhs.value;
-	}
+    friend bool operator>= (char_t const & lhs, char_t const & rhs)
+    {
+        return lhs.value >= rhs.value;
+    }
 
-	friend bool operator == (char_t const & lhs, char v)
-	{
-		return lhs.value == char_t(v).value;
-	}
+    friend bool operator == (char_t const & lhs, char v)
+    {
+        return lhs.value == char_t(v).value;
+    }
 
-	friend bool operator != (char_t const & lhs, char v)
-	{
-		return lhs.value != char_t(v).value;
-	}
+    friend bool operator != (char_t const & lhs, char v)
+    {
+        return lhs.value != char_t(v).value;
+    }
 };
 
 /**

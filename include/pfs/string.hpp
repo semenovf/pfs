@@ -28,50 +28,39 @@ namespace pfs {
 template <typename StringImplType>
 class string
 {
-    typedef StringImplType internal_type;
+    typedef StringImplType impl_type;
     
 public:
-    typedef string<typename internal_type::string_value_type>     string_value_type;
-    typedef string<typename internal_type::string_reference_type> string_reference_type;
+    typedef string<typename impl_type::string_value_type>     string_value_type;
+    typedef string<typename impl_type::string_reference_type> string_reference_type;
 
-    typedef typename internal_type::native_type            native_type;
-    typedef typename internal_type::native_reference       native_reference;
-    typedef typename internal_type::const_native_reference const_native_reference;
-    typedef typename internal_type::iterator               native_iterator;
-    typedef typename internal_type::const_iterator         native_const_iterator;
+    typedef typename impl_type::native_type            native_type;
+    typedef typename impl_type::native_reference       native_reference;
+    typedef typename impl_type::const_native_reference const_native_reference;
+    typedef typename impl_type::iterator               native_iterator;
+    typedef typename impl_type::const_iterator         native_const_iterator;
 
-    typedef typename internal_type::value_type             code_unit_type;
-    typedef typename unicode::char_t                       value_type;
+    typedef typename impl_type::value_type             code_unit_type;
+    typedef typename unicode::char_t                   value_type;
 //    typedef typename internal_type::reference              reference;
 //    typedef typename internal_type::const_reference        const_reference;
 //    typedef typename internal_type::pointer                pointer;
-    typedef typename internal_type::const_pointer           const_pointer;
+    typedef typename impl_type::const_pointer           const_pointer;
     
     typedef typename unicode::unicode_iterator_traits<
-            typename internal_type::iterator>::iterator       iterator;
+            typename impl_type::iterator>::iterator       iterator;
     typedef typename unicode::unicode_iterator_traits<
-            typename internal_type::const_iterator>::iterator const_iterator;
-    typedef pfs::reverse_iterator<iterator>                   reverse_iterator;
-    typedef pfs::reverse_iterator<const_iterator>             const_reverse_iterator;
+            typename impl_type::const_iterator>::iterator const_iterator;
+    typedef pfs::reverse_iterator<iterator>               reverse_iterator;
+    typedef pfs::reverse_iterator<const_iterator>         const_reverse_iterator;
     
-    typedef typename internal_type::difference_type difference_type;
-    typedef typename internal_type::size_type       size_type;
+    typedef typename impl_type::difference_type difference_type;
+    typedef typename impl_type::size_type       size_type;
     
-    static size_type const npos = internal_type::npos;
+    static size_type const npos = impl_type::npos;
     
 protected:
-    internal_type _p;
-
-protected:
-//    string (typename internal_type::iterator first
-//            , typename internal_type::iterator last)
-//        : _p(first, last)
-//    {}
-//
-//    string (typename internal_type::const_iterator first
-//            , typename internal_type::const_iterator last)
-//        : _p(first, last)
-//    {}
+    impl_type _p;
 
 public:
     string ()
@@ -113,13 +102,13 @@ public:
         : _p(first.base(), last.base())
     {}
     
-    string (typename internal_type::iterator first
-            , typename internal_type::iterator last)
+    string (typename impl_type::iterator first
+            , typename impl_type::iterator last)
         : _p(first, last)
     {}
 
-    string (typename internal_type::const_iterator first
-            , typename internal_type::const_iterator last)
+    string (typename impl_type::const_iterator first
+            , typename impl_type::const_iterator last)
         : _p(first, last)
     {}
 
@@ -327,7 +316,7 @@ public:
     
     string & append (const_pointer str)    
     {
-        return append(str, internal_type::length(str));
+        return append(str, impl_type::length(str));
     }
     
     string & append (const_native_reference s)
@@ -979,6 +968,10 @@ inline StringType read_all (Istream & is)
     return StringType(istreambuf_iterator<char_type>(is)
             , istreambuf_iterator<char_type>());
 }
+
+// TODO implement specializations
+template <typename U8StringType, typename StringType>
+U8StringType u8string (StringType const & s);
 
 } // pfs
 

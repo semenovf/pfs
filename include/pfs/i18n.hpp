@@ -12,7 +12,7 @@
 #   error "Underscore macro already defined"
 #endif
 
-#if PFS_HAVE_GETTEXT
+#if HAVE_GETTEXT
 
 #   include <libintl.h>
 
@@ -20,10 +20,10 @@
 
 #   define _(x) gettext(x)
 
-#else // ! PFS_HAVE_GETTEXT
+#else // ! HAVE_GETTEXT
 
 #   define _(x) x
 
-#endif // PFS_HAVE_GETTEXT
+#endif // HAVE_GETTEXT
 
 #endif /* __PFS_I18N_HPP__ */

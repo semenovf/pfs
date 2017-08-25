@@ -40,6 +40,8 @@ inline shared_ptr<T> reinterpret_pointer_cast (const shared_ptr<T1> & r)
 template <typename T, typename Deleter = std::default_delete<T> >
 using unique_ptr = std::unique_ptr<T, Deleter>;
 
+// see [std::make_unique](http://en.cppreference.com/w/cpp/memory/unique_ptr/make_unique)
+// `Possible Implementation` section.
 template<typename T, typename... Args>
 inline std::unique_ptr<T> make_unique (Args &&... args)
 {
