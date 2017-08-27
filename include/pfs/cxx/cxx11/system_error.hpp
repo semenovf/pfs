@@ -15,6 +15,8 @@
 // [std::error_category](http://www.cplusplus.com/reference/system_error/error_category/)
 // [Unifying error codes](http://breese.github.io/2016/06/18/unifying-error-codes.html)
 // [Your own error condition](https://akrzemi1.wordpress.com/2017/08/12/your-own-error-condition/)
+// [System error support in C++0x - part 1](http://blog.think-async.com/2010/04/system-error-support-in-c0x-part-1.html)
+//     Translation: [Поддержка системных ошибок в C++](https://habrahabr.ru/post/336012/)
 
 namespace pfs {
 
