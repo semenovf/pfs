@@ -69,39 +69,39 @@ struct pool : public bits::pool
     typedef io::device::native_handle_type native_handle_type;
 
     typedef traits::contigous_container<
-            pollfd_type, ContigousContainerImpl>           pollfd_vector_type;
+            pollfd_type, ContigousContainerImpl>           pollfd_vector;
     typedef traits::associative_container<
             traits::kv<native_handle_type, io::device>
-                , AssociativeContainerImpl>                device_map_type;
+                , AssociativeContainerImpl>                device_map;
     typedef traits::associative_container<
             traits::kv<native_handle_type, io::server>
-                , AssociativeContainerImpl>                server_map_type;
+                , AssociativeContainerImpl>                server_map;
     typedef traits::sequence_container<io::device
-            , SequenceContainerImpl>                       device_vector_type;
+            , SequenceContainerImpl>                       device_sequence;
     typedef traits::sequence_container<io::server
-            , SequenceContainerImpl>                       server_vector_type;
+            , SequenceContainerImpl>                       server_sequence;
 
-    pfs::mutex      mtx;
-    device_map_type device_map;
-    server_map_type server_map;
+    pfs::mutex _mtx;
+    device_map _device_map;
+    server_map _server_map;
 
-    pollfd_vector_type pollfds;
-    bool update;  // need updated 'pollfds' before poll() system call.
+    pollfd_vector _pollfds;
+    bool _update;  // need updated 'pollfds' before poll() system call.
 
     pool ()
-        : update(true)
+        : _update(true)
     {}
 
     void update_pollfd (short events)
     {
-        pfs::lock_guard<pfs::mutex> locker(mtx);
+        pfs::lock_guard<pfs::mutex> locker(_mtx);
 
-        pollfds.clear();
-        pollfds.reserve(server_map.size() + device_map.size());
+        _pollfds.clear();
+        _pollfds.reserve(_server_map.size() + _device_map.size());
 
-        if (server_map.size() > 0) {
-            typename server_map_type::const_iterator it = server_map.cbegin();
-            typename server_map_type::const_iterator it_end = server_map.cend();
+        if (_server_map.size() > 0) {
+            typename server_map::const_iterator it = _server_map.cbegin();
+            typename server_map::const_iterator it_end = _server_map.cend();
 
             while (it != it_end) {
                 pollfd_type pfd;
@@ -110,15 +110,15 @@ struct pool : public bits::pool
 
                 PFS_ASSERT(pfd.fd >= 0);
 
-                pollfds.push_back(pfd);
+                _pollfds.push_back(pfd);
 
                 ++it;
             }
         }
 
-        if (device_map.size() > 0) {
-            typename device_map_type::const_iterator it = device_map.cbegin();
-            typename device_map_type::const_iterator it_end = device_map.cend();
+        if (_device_map.size() > 0) {
+            typename device_map::const_iterator it = _device_map.cbegin();
+            typename device_map::const_iterator it_end = _device_map.cend();
 
             while (it != it_end) {
                 pollfd_type pfd;
@@ -127,7 +127,7 @@ struct pool : public bits::pool
 
                 PFS_ASSERT(pfd.fd >= 0);
 
-                pollfds.push_back(pfd);
+                _pollfds.push_back(pfd);
 
                 ++it;
             }
@@ -136,30 +136,30 @@ struct pool : public bits::pool
 
     void push_back (io::device d, short events)
     {
-        pfs::lock_guard<pfs::mutex> locker(mtx);
-        device_map.insert(d.native_handle(), d);
-        update = true;
+        pfs::lock_guard<pfs::mutex> locker(_mtx);
+        _device_map.insert(d.native_handle(), d);
+        _update = true;
     }
 
 	void push_back (io::server s, short events)
 	{
-		pfs::lock_guard<pfs::mutex> locker(mtx);
-		server_map.insert(s.native_handle(), s);
-		update = true;
+		pfs::lock_guard<pfs::mutex> locker(_mtx);
+		_server_map.insert(s.native_handle(), s);
+		_update = true;
 	}
 
 	void delete_deferred (io::device d)
 	{
-		pfs::lock_guard<pfs::mutex> locker(mtx);
-		device_map.erase(d.native_handle());
-		update = true;
+		pfs::lock_guard<pfs::mutex> locker(_mtx);
+		_device_map.erase(d.native_handle());
+		_update = true;
 	}
 
 	void delete_deferred (io::server s)
 	{
-		pfs::lock_guard<pfs::mutex> locker(mtx);
-		server_map.erase(s.native_handle());
-		update = true;
+		pfs::lock_guard<pfs::mutex> locker(_mtx);
+		_server_map.erase(s.native_handle());
+		_update = true;
 	}
 
 	int poll (iterator ** begin
@@ -168,13 +168,13 @@ struct pool : public bits::pool
 			, int millis
 			, error_code * ex)
     {
-        if (update) {
+        if (_update) {
             update_pollfd(filter_events);
-            update = false;
+            _update = false;
         }
 
-        size_t n = pollfds.size();
-        pollfd_type * pfds = pollfds.data();
+        size_t n = _pollfds.size();
+        pollfd_type * pfds = _pollfds.data();
 
         int r = 0;
 
@@ -196,15 +196,15 @@ struct pool : public bits::pool
         return r;
     }
 
-    device_vector_type fetch_devices (bool (* filter) (const device & d, void * context), void * context)
+    device_sequence fetch_devices (bool (* filter) (const device & d, void * context), void * context)
     {
-        pfs::lock_guard<pfs::mutex> locker(mtx);
+        pfs::lock_guard<pfs::mutex> locker(_mtx);
 
-        device_vector_type r;
+        device_sequence r;
 
-        if (device_map.size() > 0) {
-            typename device_map_type::const_iterator it = device_map.cbegin();
-            typename device_map_type::const_iterator it_end = device_map.cend();
+        if (_device_map.size() > 0) {
+            typename device_map::const_iterator it = _device_map.cbegin();
+            typename device_map::const_iterator it_end = _device_map.cend();
 
             //r.reserve(device_map.size());
 
@@ -222,15 +222,15 @@ struct pool : public bits::pool
         return r;
     }
 
-    server_vector_type fetch_servers (bool (* filter) (const server & s, void * context), void * context)
+    server_sequence fetch_servers (bool (* filter) (const server & s, void * context), void * context)
     {
-        pfs::lock_guard<pfs::mutex> locker(mtx);
+        pfs::lock_guard<pfs::mutex> locker(_mtx);
 
-        server_vector_type r;
+        server_sequence r;
 
-        if (server_map.size() > 0) {
-            typename server_map_type::const_iterator it = server_map.cbegin();
-            typename server_map_type::const_iterator it_end = server_map.cend();
+        if (_server_map.size() > 0) {
+            typename server_map::const_iterator it = _server_map.cbegin();
+            typename server_map::const_iterator it_end = _server_map.cend();
 
             //r.reserve(server_map.size());
 
@@ -251,7 +251,7 @@ struct pool : public bits::pool
     struct iterator : public bits::pool_iterator
     {
     public:
-        typedef typename pool::pollfd_vector_type::const_iterator pointer;
+        typedef typename pool::pollfd_vector::const_iterator pointer;
 
         short filter_events;
         pointer ptr;
@@ -277,8 +277,8 @@ struct pool : public bits::pool
 
         static iterator * alloc_begin (short filter_events, pool const & p)
         {
-            pointer first = p.pollfds.cbegin();
-            pointer last   = p.pollfds.cend();
+            pointer first = p._pollfds.cbegin();
+            pointer last   = p._pollfds.cend();
 
             while (first != last) {
                 if (first->revents & filter_events)
@@ -292,8 +292,8 @@ struct pool : public bits::pool
         static iterator * alloc_end (short filter_events, pool const & p)
         {
             return new iterator(filter_events
-                , p.pollfds.cend()
-                , p.pollfds.cend());
+                , p._pollfds.cend()
+                , p._pollfds.cend());
         }
 
         bool eq (iterator & rhs) const

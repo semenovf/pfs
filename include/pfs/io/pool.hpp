@@ -45,7 +45,8 @@ public:
     typedef details::pool<SequenceContainerImpl
             , ContigousContainerImpl
             , AssociativeContainerImpl>         pool_impl;
-    
+    typedef typename pool_impl::device_sequence device_sequence;
+    typedef typename pool_impl::server_sequence server_sequence;
     
 	enum value_enum
 	{
@@ -194,12 +195,12 @@ public:
                 // Search through servers
                 //
                 {
-                    pfs::lock_guard<pfs::mutex> locker(details_pool->mtx);
+                    pfs::lock_guard<pfs::mutex> locker(details_pool->_mtx);
 
-                    typename pool_impl::server_map_type::const_iterator it
-                            = details_pool->server_map.find(fd);
+                    typename pool_impl::server_map::const_iterator it
+                            = details_pool->_server_map.find(fd);
 
-                    if (it != details_pool->server_map.cend()) {
+                    if (it != details_pool->_server_map.cend()) {
                         return pool::value(it->second);
                     }
                 }
@@ -207,12 +208,12 @@ public:
                 // Search through devices
                 //
                 {
-                    pfs::lock_guard<pfs::mutex> locker(details_pool->mtx);
+                    pfs::lock_guard<pfs::mutex> locker(details_pool->_mtx);
 
-                    typename pool_impl::device_map_type::const_iterator it
-                            = details_pool->device_map.find(fd);
+                    typename pool_impl::device_map::const_iterator it
+                            = details_pool->_device_map.find(fd);
 
-                    if (it != details_pool->device_map.cend()) {
+                    if (it != details_pool->_device_map.cend()) {
                         return pool::value(it->second);
                     }
                 }
@@ -273,13 +274,13 @@ public:
 	size_t device_count () const
     {
         pool_impl * pdp = static_cast<pool_impl *>(_d.get());
-        return pdp->device_map.size();
+        return pdp->_device_map.size();
     }
 
 	size_t server_count () const
     {
         pool_impl * pdp = static_cast<pool_impl *>(_d.get());
-        return pdp->server_map.size();
+        return pdp->_server_map.size();
     }
 
 	void push_back (device d, int events = poll_all)
@@ -310,7 +311,7 @@ public:
         pdp->delete_deferred(s);
     }
 
-	typename pool_impl::device_vector_type fetch_devices (
+	device_sequence fetch_devices (
               bool (* filter) (device const & d, void * context)
             , void * context)
     {
@@ -319,7 +320,7 @@ public:
         return  pdp->fetch_devices(filter, context);
     }
     
-	typename pool_impl::server_vector_type fetch_servers (
+	server_sequence fetch_servers (
               bool (* filter) (server const & s, void * context)
             , void * context)
     {

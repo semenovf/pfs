@@ -13,6 +13,7 @@
 #include <pfs/endian.hpp>
 #include <pfs/memory.hpp>
 #include <pfs/algorithm.hpp>
+#include <pfs/iterator.hpp>
 #include <pfs/utility.hpp>
 #include <pfs/traits/binary_stream.hpp>
 
@@ -52,11 +53,11 @@ private:
 public:
     byte_string () : _d() {}
 
-    byte_string (const byte_string & other)
+    byte_string (byte_string const & other)
     	: _d(other._d)
     {}
 
-    byte_string (const byte_string & other,
+    byte_string (byte_string const & other,
                   size_type pos,
                   size_type count = npos)
     	: _d(other._d, pos, count)
@@ -117,7 +118,7 @@ public:
     	return *this;
     }
 
-    byte_string & assign (const byte_string & s
+    byte_string & assign (byte_string const & s
     		, size_type pos
     		, size_type count)
     {
@@ -125,12 +126,12 @@ public:
     	return *this;
     }
 
-    byte_string & assign (const byte_string & s)
+    byte_string & assign (byte_string const & s)
     {
     	return assign(s, 0, npos);
     }
 
-    byte_string & assign (const byte_string & s, size_type pos)
+    byte_string & assign (byte_string const & s, size_type pos)
     {
     	return assign(s, pos, npos);
     }
@@ -415,13 +416,13 @@ public:
 		return *this;
 	}
 
-	byte_string & insert (size_type index, const byte_string & s)
+	byte_string & insert (size_type index, byte_string const & s)
 	{
 		_d.insert(index, s._d);
 		return *this;
 	}
 
-	byte_string & insert (size_type index, const byte_string & s
+	byte_string & insert (size_type index, byte_string const & s
 			,size_type index_str, size_type count = npos)
 	{
 		_d.insert(index, s._d, index_str, count);
@@ -523,13 +524,13 @@ public:
 		return append(count, static_cast<value_type>(ch));
 	}
 
-	byte_string & append (const byte_string & s)
+	byte_string & append (byte_string const & s)
 	{
 		_d.append(s._d);
 		return *this;
 	}
 
-	byte_string & append (const byte_string & s
+	byte_string & append (byte_string const & s
 				, size_type pos
 				, size_type count = npos)
 	{
@@ -566,7 +567,7 @@ public:
 		return *this;
 	}
 
-	byte_string & operator += (const byte_string & s)
+	byte_string & operator += (byte_string const & s)
 	{
 		_d.operator += (s._d);
 		return *this;
@@ -594,18 +595,18 @@ public:
 		return operator += (reinterpret_cast<const_pointer>(s));
 	}
 
-	int compare (const byte_string & s) const
+	int compare (byte_string const & s) const
 	{
 		return _d.compare(s._d);
 	}
 
-	int compare (size_type pos1, size_type count1, const byte_string & s) const
+	int compare (size_type pos1, size_type count1, byte_string const & s) const
 	{
 		return _d.compare(pos1, count1, s._d);
 	}
 
 	int compare (size_type pos1, size_type count1
-			, const byte_string & s
+			, byte_string const & s
 			, size_type pos2, size_type count2 = npos ) const
 	{
 		return _d.compare(pos1, count1, s._d, pos2, count2);
@@ -641,20 +642,20 @@ public:
 		return compare(pos1, count1, reinterpret_cast<const_pointer>(s), count2);
 	}
 
-	byte_string & replace (size_type pos, size_type count, const byte_string & s)
+	byte_string & replace (size_type pos, size_type count, byte_string const & s)
 	{
 		_d.replace(pos, count, s._d);
 		return *this;
 	}
 
-//	byte_string & replace (const_iterator first, const_iterator last, const byte_string & s)
+//	byte_string & replace (const_iterator first, const_iterator last, byte_string const & s)
 //	{
 //		_d.replace(first, last, s._d);
 //		return *this;
 //	}
 
 	byte_string & replace (size_type pos, size_type count
-			, const byte_string & s
+			, byte_string const & s
 			, size_type pos2, size_type count2 = npos)
 	{
 		_d.replace(pos, count, s._d, pos2, count2);
@@ -747,141 +748,135 @@ public:
 	}
 };
 
-struct pack_context
+template <int N>
+struct byte_string_ref_n
 {
-    byte_string buffer;
-    endian o;
+    typedef typename size_type_n<N>::type size_type;
+    byte_string * p;
     
-    pack_context (endian const & order = endian::native_order())
-        : o(order)
+    byte_string_ref_n (byte_string * ptr)
+       : p(ptr)
+    {}
+    
+    size_type max_size () const
+    {
+        return numeric_limits<size_type>::max();
+    }
+};
+
+struct byte_string_ref_sz
+{
+    byte_string * p;
+    byte_string::size_type max_size;
+    
+    byte_string_ref_sz (byte_string * ptr, byte_string::size_type sz)
+        : p(ptr)
+        , max_size(sz)
+    {}
+};
+
+template <typename T>
+struct buffer_wrapper
+{
+    T * p;
+    size_t max_size;
+    
+    buffer_wrapper (T * ptr, byte_string::size_type n)
+        : p(ptr)
+        , max_size(n)
+    {}
+};
+
+
+class byte_ostream
+{
+    byte_string _buffer;
+    endian      _o;
+    
+public:
+    byte_ostream (endian const & order = endian::native_order())
+        : _o(order)
     {}
     
     endian const & order () const
     {
-        return o;
+        return _o;
+    }
+
+    byte_string const & data () const
+    {
+        return _buffer;
+    }
+    
+    template <typename Integral>
+    void write_integral (Integral v)
+    {
+        Integral a = _o.convert(v);
+        union { Integral v; byte_string::value_type b[sizeof(Integral)]; } u;
+        u.v = a;
+        _buffer.append(byte_string(u.b, sizeof(Integral)));
+    }
+    
+    template <typename Real>
+    void write_real (Real v)
+    {
+#ifdef PFS_HAVE_INT64
+        if (sizeof(Real) == 8) {
+            union { uint64_t i; real64_t f; } u;
+            u.f = v;
+            return write_integral(u.i);
+        } else
+#endif        
+        if (sizeof(Real) == 4) {
+            union { uint32_t i; real32_t f; } u;
+            u.f = v;
+            return write_integral(u.i);
+        } else {
+            union { Real v; byte_string::value_type b[sizeof(Real)]; } d;
+
+            if (_o != endian::native_order()) {
+                byte_string::value_type b[sizeof(Real)];
+
+                for (int i = 0, j = sizeof(Real) - 1; j >= 0; ++i, --j) {
+                    b[i] = d.b[j];
+                }
+
+                _buffer.append(byte_string(b, sizeof(Real)));
+            } else {
+                _buffer.append(byte_string(d.b, sizeof(Real)));
+            }
+        }
+    }
+
+    void write (byte_string const & v, byte_string::size_type n = byte_string::npos)
+    {
+        _buffer.append(v, 0, n);
+    }
+
+    void write (byte_string::const_pointer v, byte_string::size_type n = byte_string::npos)
+    {
+        _buffer.append(v, n);
+    }
+
+    void write (char const * v, byte_string::size_type n = byte_string::npos)
+    {
+        _buffer.append(v, n);
     }
 };
 
-template <typename T>
-void pack (pack_context & ctx, T const & v);
-
-template <typename T>
-inline byte_string pack (T const & v, endian const & order)
-{
-    pack_context ctx(order);
-    pack<T>(ctx, v);
-	return ctx.buffer;
-}
-
-inline void pack_raw_data (pack_context & ctx, byte_string const & v)
-{
-    ctx.buffer.append(v);
-}
-
-namespace details {
-
-template <typename Integral>
-void pack_integral (pack_context & ctx, Integral const & v)
-{
-	Integral a = ctx.o.convert(v);
-	union { Integral v; byte_string::value_type b[sizeof(Integral)]; } d;
-	d.v = a;
-	ctx.buffer.append(byte_string(d.b, sizeof(Integral)));
-}
-
-template <typename Float>
-void pack_fp (pack_context & ctx, Float const & v)
-{
-#ifdef PFS_HAVE_INT64    
-    if (sizeof(Float) == 8) {
-        return pack(ctx, *reinterpret_cast<uint64_t const *>(& v));
-    } else
-#endif        
-    if (sizeof(Float) == 4) {
-        return pack(ctx, *reinterpret_cast<uint32_t const *>(& v));
-    } else if (sizeof(Float) == 2) {
-        return pack(ctx, *reinterpret_cast<uint16_t const *>(& v));
-    } else {
-        union { Float v; byte_string::value_type b[sizeof(Float)]; } d;
-        
-        if (ctx.o != endian::native_order()) {
-            byte_string::value_type b[sizeof(Float)];
-            
-            for (int i = 0, j = sizeof(Float) - 1; j >= 0; ++i, --j) {
-                b[i] = d.b[j];
-            }
-            
-            ctx.buffer.append(byte_string(b, sizeof(Float)));
-        } else {
-            ctx.buffer.append(byte_string(d.b, sizeof(Float)));
-        }
-    }
-}
-
-} // details
-
-#define __PFS_DEFN_PACK_INTEGRAL(_Type)                \
-template <>                                            \
-inline void pack (pack_context & ctx, _Type const & v) \
-{                                                      \
-    return details::pack_integral(ctx, v);             \
-}
-
-__PFS_DEFN_PACK_INTEGRAL(bool)
-__PFS_DEFN_PACK_INTEGRAL(char)
-__PFS_DEFN_PACK_INTEGRAL(signed char)
-__PFS_DEFN_PACK_INTEGRAL(unsigned char)
-__PFS_DEFN_PACK_INTEGRAL(wchar_t)
-__PFS_DEFN_PACK_INTEGRAL(short)
-__PFS_DEFN_PACK_INTEGRAL(unsigned short)
-__PFS_DEFN_PACK_INTEGRAL(int)
-__PFS_DEFN_PACK_INTEGRAL(unsigned int)
-__PFS_DEFN_PACK_INTEGRAL(long)
-__PFS_DEFN_PACK_INTEGRAL(unsigned long)
-
-#if PFS_HAVE_LONGLONG
-
-__PFS_DEFN_PACK_INTEGRAL(long long)
-__PFS_DEFN_PACK_INTEGRAL(unsigned long long)
-
-#endif
-
-template <>
-inline void pack (pack_context & ctx, float const & v)
-{
-//    //return details::pack_ieee754(appender, real64_t(v), order, 32, 8);
-    details::pack_fp(ctx, v);
-}
-
-template <>
-inline void pack (pack_context & ctx, double const & v)
-{
-//    //return details::pack_ieee754(appender, real64_t(v), order, 64, 11);
-    details::pack_fp(ctx, v);
-}
-
-template <>
-inline void pack (pack_context & ctx, byte_string const & v)
-{
-    ctx.buffer.reserve(ctx.buffer.size() + sizeof(byte_string::size_type) + v.size());
-    pack(ctx, v.size()); // pack size of byte_string
-    ctx.buffer.append(v);
-}
-
-struct unpack_context
+class byte_istream
 {
     byte_string::const_iterator b;
     byte_string::const_iterator e;
     endian o;
-    bool fail;
     
-    unpack_context (byte_string::const_iterator begin
+public:
+    byte_istream (byte_string::const_iterator begin
             , byte_string::const_iterator end
             , endian const & order = endian::native_order())
         : b(begin)
         , e(end)
         , o(order)
-        , fail(false)
     {}
 
     endian const & order () const
@@ -891,15 +886,406 @@ struct unpack_context
     
     byte_string::difference_type available () const
     {
-        return std::distance(b, e);
+        return pfs::distance(b, e);
     }
     
     void skip (size_t n) 
     {
         n = pfs::min(n, integral_cast_check<size_t>(available()));
-        std::advance(b, n);
+        pfs::advance(b, n);
+    }
+    
+    template <typename Integral>
+    void read_integral (Integral & v)
+    {
+        union u
+        {
+            Integral const v;
+            byte_string::value_type const b[sizeof(Integral)];
+        };
+
+        byte_string::const_iterator pos(b);
+        pfs::advance(pos, sizeof(Integral));
+
+        if (pos <= e) {
+            u const * d = reinterpret_cast<u const *>(b.base());
+            v = o.convert(d->v);
+            b = pos;
+        } else {
+            throw out_of_range("out of bounds");
+        }
+    }
+
+    template <typename Real>
+    void read_real (Real & v)
+    {
+        union u
+        {
+            Real const v;
+            byte_string::value_type const b[sizeof(Real)];
+        };
+
+#   ifdef PFS_HAVE_INT64
+        if (sizeof(Real) == 8) {
+            uint64_t d = 0;
+            read_integral(d);
+            v = *reinterpret_cast<Real *>(& d);
+        } else
+#   endif        
+        if (sizeof(Real) == 4) {
+            uint32_t d = 0;
+            read_integral(d);
+            v = *reinterpret_cast<Real *>(& d);
+        } else if (sizeof(Real) == 2) {
+            uint16_t d = 0;
+            read_integral(d);
+            v = *reinterpret_cast<Real *>(& d);
+        } else {
+            // FIXME
+    //        byte_string::const_iterator pos(ctx.b);
+    //        std::advance(pos, sizeof(Float));
+    //
+    //        if (pos <= ctx.e) {
+    //            u * b = reinterpret_cast<u *>(ctx.b.base());
+    //            
+    //            if (order != endian::native_order()) {
+    //                byte_string::value_type b[sizeof(Float)];
+    //            
+    //            for (int i = 0, j = sizeof(Float) - 1; j >= 0; ++i, --j) {
+    //                b[i] = d.b[j];
+    //            }
+    //            
+    //            appender.append(byte_string(b, sizeof(Float)));
+    //        } else {
+    //            appender.append(byte_string(d.b, sizeof(Float)));
+    //        }
+    //            
+    //            v = ctx.o.convert(d->v);
+    //            ctx.b = pos;
+    //            ctx.fail = false;
+    //        } else {
+    //            ctx.fail = true;
+    //        }
+        }
+    }
+
+    void read (byte_string & v, byte_string::size_type sz)
+    {
+        if (pfs::distance(b, e) > sz)
+            throw out_of_range("out of bounds");//sz = pfs::distance(b, e);
+        
+        byte_string::const_iterator last(b);
+        pfs::advance(last, sz);
+        v.append(b, last);
+        b = last;
+    }
+
+    void read (byte_string::pointer v, byte_string::size_type sz)
+    {
+        if (pfs::distance(b, e) > sz)
+            throw out_of_range("out of bounds");//sz = pfs::distance(b, e);
+        pfs::copy(b.base(), b.base() + sz, v);
+        pfs::advance(b, sz);
+    }
+
+    void read (char * v, byte_string::size_type sz)
+    {
+        read(reinterpret_cast<byte_string::pointer>(v), sz);
     }
 };
+
+template <int N>
+inline byte_ostream & operator << (byte_ostream & os, byte_string_ref_n<N> const & v)
+{
+    typename byte_string_ref_n<N>::size_type n = pfs::min(v.max_size()
+        , static_cast<typename byte_string_ref_n<N>::size_type>(v.p->size()));
+    os.write_integral(n);
+    os.write(*v.p, n);
+    return os;
+}
+
+inline byte_ostream & operator << (byte_ostream & os, byte_string_ref_sz const & v)
+{
+    os.write(*v.p, v.max_size);
+    return os;
+}
+
+inline byte_ostream & operator << (byte_ostream & os, buffer_wrapper<byte_string::value_type const> const & v)
+{
+    os.write(v.p, v.max_size);
+    return os;
+}
+
+inline byte_ostream & operator << (byte_ostream & os, buffer_wrapper<char const> const & v)
+{
+    os.write(v.p, v.max_size);
+    return os;
+}
+
+inline byte_ostream & operator << (byte_ostream & os, bool v)
+{
+    os.write_integral(v);
+    return os;
+}
+
+inline byte_ostream & operator << (byte_ostream & os, char v)
+{
+    os.write_integral(v);
+    return os;
+}
+
+inline byte_ostream & operator << (byte_ostream & os, signed char v)
+{
+    os.write_integral(v);
+    return os;
+}
+
+inline byte_ostream & operator << (byte_ostream & os, unsigned char v)
+{
+    os.write_integral(v);
+    return os;
+}
+
+inline byte_ostream & operator << (byte_ostream & os, wchar_t v)
+{
+    os.write_integral(v);
+    return os;
+}
+
+inline byte_ostream & operator << (byte_ostream & os, short v)
+{
+    os.write_integral(v);
+    return os;
+}
+
+inline byte_ostream & operator << (byte_ostream & os, unsigned short v)
+{
+    os.write_integral(v);
+    return os;
+}
+
+inline byte_ostream & operator << (byte_ostream & os, int v)
+{
+    os.write_integral(v);
+    return os;
+}
+
+inline byte_ostream & operator << (byte_ostream & os, unsigned int v)
+{
+    os.write_integral(v);
+    return os;
+}
+
+inline byte_ostream & operator << (byte_ostream & os, long v)
+{
+    os.write_integral(v);
+    return os;
+}
+
+inline byte_ostream & operator << (byte_ostream & os, unsigned long v)
+{
+    os.write_integral(v);
+    return os;
+}
+
+#if PFS_HAVE_LONGLONG
+
+inline byte_ostream & operator << (byte_ostream & os, long long v)
+{
+    os.write_integral(v);
+    return os;
+}
+
+inline byte_ostream & operator << (byte_ostream & os, unsigned long long v)
+{
+    os.write_integral(v);
+    return os;
+}
+
+#endif
+
+inline byte_ostream & operator << (byte_ostream & os, float v)
+{
+    os.write_real(v);
+    return os;
+}
+
+inline byte_ostream & operator << (byte_ostream & os, double v)
+{
+    os.write_real(v);
+    return os;
+}
+
+template <int N>
+byte_istream & operator >> (byte_istream & is, byte_string_ref_n<N> const & v)
+{
+    typename byte_string_ref_n<N>::size_type sz = 0;
+    is >> sz;
+    is.read(*v.p, sz);
+    return is;
+}
+
+inline byte_istream & operator >> (byte_istream & is, byte_string_ref_sz const & v)
+{
+    is.read(*v.p, v.max_size);
+    return is;
+}
+
+inline byte_istream & operator >> (byte_istream & is, buffer_wrapper<byte_string::value_type> const & v)
+{
+    is.read(v.p, v.max_size);
+    return is;
+}
+
+inline byte_istream & operator >> (byte_istream & is, buffer_wrapper<char> const & v)
+{
+    is.read(v.p, v.max_size);
+    return is;
+}
+
+inline byte_istream & operator >> (byte_istream & is, bool & v)
+{
+    is.read_integral(v);
+    return is;
+}
+
+inline byte_istream & operator >> (byte_istream & is, char & v)
+{
+    is.read_integral(v);
+    return is;
+}
+
+inline byte_istream & operator >> (byte_istream & is, signed char & v)
+{
+    is.read_integral(v);
+    return is;
+}
+
+inline byte_istream & operator >> (byte_istream & is, unsigned char & v)
+{
+    is.read_integral(v);
+    return is;
+}
+
+inline byte_istream & operator >> (byte_istream & is, wchar_t & v)
+{
+    is.read_integral(v);
+    return is;
+}
+
+inline byte_istream & operator >> (byte_istream & is, short & v)
+{
+    is.read_integral(v);
+    return is;
+}
+
+inline byte_istream & operator >> (byte_istream & is, unsigned short & v)
+{
+    is.read_integral(v);
+    return is;
+}
+
+inline byte_istream & operator >> (byte_istream & is, int & v)
+{
+    is.read_integral(v);
+    return is;
+}
+
+inline byte_istream & operator >> (byte_istream & is, unsigned int & v)
+{
+    is.read_integral(v);
+    return is;
+}
+
+inline byte_istream & operator >> (byte_istream & is, long & v)
+{
+    is.read_integral(v);
+    return is;
+}
+
+inline byte_istream & operator >> (byte_istream & is, unsigned long & v)
+{
+    is.read_integral(v);
+    return is;
+}
+
+#if PFS_HAVE_LONGLONG
+
+inline byte_istream & operator >> (byte_istream & is, long long & v)
+{
+    is.read_integral(v);
+    return is;
+}
+
+inline byte_istream & operator >> (byte_istream & is, unsigned long long & v)
+{
+    is.read_integral(v);
+    return is;
+}
+
+#endif
+
+inline byte_istream & operator >> (byte_istream & is, float & v)
+{
+    is.read_real(v);
+    return is;
+}
+
+inline byte_istream & operator >> (byte_istream & is, double & v)
+{
+    is.read_real(v);
+    return is;
+}
+
+inline byte_string operator + (byte_string const & lhs, byte_string const & rhs)
+{
+    byte_string r(lhs);
+    return r += rhs;
+}
+
+inline byte_string operator + (byte_string const & lhs, byte_string::value_type ch)
+{
+    byte_string r(lhs);
+    return r += ch;
+}
+
+inline byte_string operator + (byte_string::value_type ch, byte_string const & rhs)
+{
+    byte_string r(1, ch);
+    return r += rhs;
+}
+
+inline byte_string operator + (char ch, byte_string const & rhs)
+{
+    byte_string r(1, ch);
+    return r += rhs;
+}
+
+inline byte_string operator + (byte_string const & lhs, byte_string::const_pointer rhs)
+{
+    byte_string r(lhs);
+    return r += rhs;
+}
+
+inline byte_string operator + (byte_string::const_pointer lhs, byte_string const & rhs)
+{
+    byte_string r(lhs);
+    return r += rhs;
+}
+
+inline byte_string operator + (byte_string const & lhs, char const * rhs)
+{
+    byte_string r(lhs);
+    return r += rhs;
+}
+
+inline byte_string operator + (char const * lhs, byte_string const & rhs)
+{
+    byte_string r(lhs);
+    return r += rhs;
+}
+
+#if __DEPRECATED__
 
 class unpack_committer
 {
@@ -927,203 +1313,7 @@ public:
     }
 };
 
-/**
- * @brief Unpack data from byte string.
- * @param ctx Unpack context.
- * @param v Reference to store unpacked data.
- * @return @c true if unpack was successfull, @c false otherwise.
- */
-template <typename T>
-bool unpack (unpack_context & ctx, T & v);
-
-template <typename T>
-//inline typename enable_if<is_arithmetic<T>::value, T>::type unpack (unpack_context & ctx)
-inline T unpack (unpack_context & ctx)
-{
-    T r;
-    unpack(ctx, r);
-    return r;
-}
-
-inline byte_string unpack_raw_data (unpack_context & ctx, size_t n)
-{
-    n = pfs::min(n, integral_cast_check<size_t>(ctx.available()));
-    byte_string::const_iterator pos(ctx.b);
-    std::advance(ctx.b, n);
-    return byte_string(pos, ctx.b);
-}
-
-/**
- * @brief Returns raw bytes from packed data.
- * 
- * @param ctx Unpack context
- * @param n Initial value for number.
- * @return Pointer to unpacked bytes, @a n stores actual number of unpacked bytes.
- */
-inline char const * unpack_raw_bytes (unpack_context & ctx, size_t & n)
-{
-    n = pfs::min(n, integral_cast_check<size_t>(ctx.available()));
-    char const * p = reinterpret_cast<char const *>(ctx.b.base());
-    std::advance(ctx.b, n);
-    return p; //byte_string(pos, ctx.b);
-}
-
-namespace details {
-
-// @note No bounds validations
-//
-
-template <typename Integral>
-bool unpack_integral (unpack_context & ctx, Integral & v)
-{
-    union u
-    {
-        Integral const v;
-        byte_string::value_type const b[sizeof(Integral)];
-    };
-
-    if (ctx.fail)
-        return false;
-    
-    byte_string::const_iterator pos(ctx.b);
-    std::advance(pos, sizeof(Integral));
-
-    if (pos <= ctx.e) {
-        u const * d = reinterpret_cast<u const *>(ctx.b.base());
-        v = ctx.o.convert(d->v);
-        ctx.b = pos;
-        ctx.fail = false;
-    } else {
-        ctx.fail = true;
-    }
-    
-	return not ctx.fail;
-}
-
-//bool unpack_ieee754 (unpack_context & ctx
-//        , real64_t & v
-//        , unsigned bits
-//        , unsigned expbits);
-
-template <typename Float>
-bool unpack_fp (unpack_context & ctx, Float & v)
-{
-    union u
-    {
-        Float const v;
-        byte_string::value_type const b[sizeof(Float)];
-    };
-
-    if (ctx.fail)
-        return false;
-    
-#ifdef PFS_HAVE_INT64    
-    if (sizeof(Float) == 8) {
-        uint64_t d = 0;
-        if (unpack(ctx, d)) {
-            v = *reinterpret_cast<Float *>(& d);
-            return true;
-        }
-    } else
-#endif        
-    if (sizeof(Float) == 4) {
-        uint32_t d = 0;
-        if (unpack(ctx, d)) {
-            v = *reinterpret_cast<Float *>(& d);
-            return true;
-        }
-    } else if (sizeof(Float) == 2) {
-        uint16_t d = 0;
-        if (unpack(ctx, d)) {
-            v = *reinterpret_cast<Float *>(& d);
-            return true;
-        }
-    } else {
-        // FIXME
-//        byte_string::const_iterator pos(ctx.b);
-//        std::advance(pos, sizeof(Float));
-//
-//        if (pos <= ctx.e) {
-//            u * b = reinterpret_cast<u *>(ctx.b.base());
-//            
-//            if (order != endian::native_order()) {
-//                byte_string::value_type b[sizeof(Float)];
-//            
-//            for (int i = 0, j = sizeof(Float) - 1; j >= 0; ++i, --j) {
-//                b[i] = d.b[j];
-//            }
-//            
-//            appender.append(byte_string(b, sizeof(Float)));
-//        } else {
-//            appender.append(byte_string(d.b, sizeof(Float)));
-//        }
-//            
-//            v = ctx.o.convert(d->v);
-//            ctx.b = pos;
-//            ctx.fail = false;
-//        } else {
-//            ctx.fail = true;
-//        }
-    }
-    
-	return not ctx.fail;
-}
-
-
-} // details
-
-
-#define __PFS_DEFN_UNPACK_INTEGRAL(_Type)                   \
-template <>                                                 \
-inline bool unpack (unpack_context & ctx, _Type & v)        \
-{                                                           \
-    return details::unpack_integral(ctx, v);                \
-}
-
-__PFS_DEFN_UNPACK_INTEGRAL(bool)
-__PFS_DEFN_UNPACK_INTEGRAL(char)
-__PFS_DEFN_UNPACK_INTEGRAL(signed char)
-__PFS_DEFN_UNPACK_INTEGRAL(unsigned char)
-__PFS_DEFN_UNPACK_INTEGRAL(wchar_t)
-__PFS_DEFN_UNPACK_INTEGRAL(short)
-__PFS_DEFN_UNPACK_INTEGRAL(unsigned short)
-__PFS_DEFN_UNPACK_INTEGRAL(int)
-__PFS_DEFN_UNPACK_INTEGRAL(unsigned int)
-__PFS_DEFN_UNPACK_INTEGRAL(long)
-__PFS_DEFN_UNPACK_INTEGRAL(unsigned long)
-
-#if PFS_HAVE_LONGLONG
-
-__PFS_DEFN_UNPACK_INTEGRAL(long long)
-__PFS_DEFN_UNPACK_INTEGRAL(unsigned long long)
-
-#endif
-
-template <>
-inline bool unpack (unpack_context & ctx, float & v)
-{
-    return details::unpack_fp(ctx, v);
-//    real64_t tmp;
-//    bool r = details::unpack_ieee754(ctx, tmp, 32, 8);
-//    v = static_cast<float>(tmp);
-//    return r;
-}
-
-template <>
-inline bool unpack (unpack_context & ctx, double & v)
-{
-    return details::unpack_fp(ctx, v);
-//    real64_t tmp;
-//    bool r = details::unpack_ieee754(ctx, tmp, 64, 11);
-//    v = static_cast<float>(tmp);
-//    return r;
-}
-
-/**
- * @brief Specialization of unpack for @c byte_string.
- */
-template <>
-inline bool unpack (unpack_context & ctx, byte_string & v);
+#endif // __DEPRECATED__
 
 //// TODO Obsolete
 //template <>
@@ -1156,95 +1346,95 @@ inline bool unpack (unpack_context & ctx, byte_string & v);
 //        , string const & prefix = string()
 //        , string const & separator = string());
 
-byte_string & base64_encode (const byte_string & src, byte_string & result);
-byte_string & base64_decode (const byte_string & src, byte_string & result);
+byte_string & base64_encode (byte_string const & src, byte_string & result);
+byte_string & base64_decode (byte_string const & src, byte_string & result);
 
-inline bool operator == (const byte_string & lhs, const byte_string & rhs)
+inline bool operator == (byte_string const & lhs, byte_string const & rhs)
 {
 	return lhs.compare(rhs) == 0;
 }
 
-inline bool operator != (const byte_string & lhs, const byte_string & rhs)
+inline bool operator != (byte_string const & lhs, byte_string const & rhs)
 {
 	return lhs.compare(rhs) != 0;
 }
 
-inline bool operator <  (const byte_string & lhs, const byte_string & rhs)
+inline bool operator <  (byte_string const & lhs, byte_string const & rhs)
 {
 	return lhs.compare(rhs) < 0;
 }
 
-inline bool operator <= (const byte_string & lhs, const byte_string & rhs)
+inline bool operator <= (byte_string const & lhs, byte_string const & rhs)
 {
 	return lhs.compare(rhs) <= 0;
 }
 
-inline bool operator >  (const byte_string & lhs, const byte_string & rhs)
+inline bool operator >  (byte_string const & lhs, byte_string const & rhs)
 {
 	return lhs.compare(rhs) > 0;
 }
 
-inline bool operator >= (const byte_string & lhs, const byte_string & rhs)
+inline bool operator >= (byte_string const & lhs, byte_string const & rhs)
 {
 	return lhs.compare(rhs) >= 0;
 }
 
-inline bool operator == (const byte_string & lhs, const char * rhs)
+inline bool operator == (byte_string const & lhs, const char * rhs)
 {
 	return lhs.compare(rhs) == 0;
 }
 
-inline bool operator != (const byte_string & lhs, const char * rhs)
+inline bool operator != (byte_string const & lhs, const char * rhs)
 {
 	return lhs.compare(rhs) != 0;
 }
 
-inline bool operator <  (const byte_string & lhs, const char * rhs)
+inline bool operator <  (byte_string const & lhs, const char * rhs)
 {
 	return lhs.compare(rhs) < 0;
 }
 
-inline bool operator <= (const byte_string & lhs, const char * rhs)
+inline bool operator <= (byte_string const & lhs, const char * rhs)
 {
 	return lhs.compare(rhs) <= 0;
 }
 
-inline bool operator >  (const byte_string & lhs, const char * rhs)
+inline bool operator >  (byte_string const & lhs, const char * rhs)
 {
 	return lhs.compare(rhs) > 0;
 }
 
-inline bool operator >= (const byte_string & lhs, const char * rhs)
+inline bool operator >= (byte_string const & lhs, const char * rhs)
 {
 	return lhs.compare(rhs) >= 0;
 }
 
-inline bool operator == (const char * lhs, const byte_string & rhs)
+inline bool operator == (const char * lhs, byte_string const & rhs)
 {
 	return rhs.compare(lhs) == 0;
 }
 
-inline bool operator != (const char * lhs, const byte_string & rhs)
+inline bool operator != (const char * lhs, byte_string const & rhs)
 {
 	return rhs.compare(lhs) != 0;
 }
 
-inline bool operator <  (const char * lhs, const byte_string & rhs)
+inline bool operator <  (const char * lhs, byte_string const & rhs)
 {
 	return rhs.compare(lhs) > 0;
 }
 
-inline bool operator <= (const char * lhs, const byte_string & rhs)
+inline bool operator <= (const char * lhs, byte_string const & rhs)
 {
 	return rhs.compare(lhs) >= 0;
 }
 
-inline bool operator >  (const char * lhs, const byte_string & rhs)
+inline bool operator >  (const char * lhs, byte_string const & rhs)
 {
 	return rhs.compare(lhs) < 0;
 }
 
-inline bool operator >= (const char * lhs, const byte_string & rhs)
+inline bool operator >= (const char * lhs, byte_string const & rhs)
 {
 	return rhs.compare(lhs) <= 0;
 }
@@ -1271,6 +1461,7 @@ ssize_t read_binary (Device & dev, endian order, byte_string & v)
     return result;
 }
 
+// TODO Must be deprecated
 template <typename StringType>
 inline StringType to_string (byte_string const & s)
 {

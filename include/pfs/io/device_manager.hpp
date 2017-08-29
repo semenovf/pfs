@@ -23,10 +23,6 @@ template <template <typename> class SequenceContainer
         , template <typename> class AssociativeContainer>
 class device_manager : has_slots<>
 {
-    typedef pool<SequenceContainer
-            , ContigousContainer
-            , AssociativeContainer> pool_type;
-
     struct reopen_item
     {
         device d;
@@ -39,7 +35,10 @@ class device_manager : has_slots<>
         }
     };
 
-    typedef traits::stdcxx::set<reopen_item> reopen_queue_type;
+    typedef pool<SequenceContainer
+            , ContigousContainer
+            , AssociativeContainer>             pool_type;
+    typedef traits::stdcxx::set<reopen_item>    reopen_queue;
 
     class dispatcher_context1 : public pool_type::dispatcher_context2
     {
@@ -92,10 +91,10 @@ class device_manager : has_slots<>
 
     private:
         dispatcher_context2 (device_manager * m, pool_type * p1, pool_type * p2)
-            : pool_type::dispatcher_context2 (default_millis, io::poll_all) // TODO Need to reduce number of events according to specialization of this pool
-            , _m (m)
-            , _p1 (p1)
-            , _p2 (p2)
+            : pool_type::dispatcher_context2(default_millis, io::poll_all) // TODO Need to reduce number of events according to specialization of this pool
+            , _m(m)
+            , _p1(p1)
+            , _p2(p2)
         {}
 
     public:
@@ -118,6 +117,11 @@ class device_manager : has_slots<>
         }
     };
 
+public:
+    typedef typename pool_type::device_sequence device_sequence;
+    typedef typename pool_type::server_sequence server_sequence;
+
+private:    
     // Main device pool (for valid (operational) devices)
     pool_type _p1;
 
@@ -125,14 +129,14 @@ class device_manager : has_slots<>
     pool_type _p2;
 
     // Reconnection queue, contains devices waiting reconnection by timeout
-    reopen_queue_type _rq;
+    reopen_queue _rq;
 
     dispatcher_context1 _ctx1;
     dispatcher_context2 _ctx2;
 
 private:
     device_manager (device_manager const &);
-    device_manager & operator= (device_manager const &);
+    device_manager & operator = (device_manager const &);
 
 private:
     void push_device (device const & d, pfs::error_code const & ec)
@@ -206,9 +210,9 @@ public:
     {
         PFS_ASSERT(d.set_nonblocking(true));
         reopen_item item;
-        item.d = d;
+        item.d       = d;
         item.timeout = reconn_timeout;
-        item.start = time(0); // TODO may be need to use monotonic clock
+        item.start   = time(0); // TODO may be need to use monotonic clock
 
         _rq.insert(item);
     }
@@ -224,7 +228,7 @@ public:
         // Create temporary item to compare (device field does not matter in comparison)
         reopen_item item;
         item.timeout = 0;
-        item.start = time(0); // TODO may be need to use monotonic clock
+        item.start   = time(0); // TODO may be need to use monotonic clock
 
         // Checking first item will be enough.
         return (*_rq.begin() < item) ? true : false;
@@ -241,10 +245,10 @@ public:
         // Create temporary item to compare (device field does not matter in comparison)
         reopen_item item;
         item.timeout = 0;
-        item.start = time(0); // TODO may be need to use monotonic clock
+        item.start   = time(0); // TODO may be need to use monotonic clock
 
-        typename reopen_queue_type::const_iterator it = _rq.begin();
-        typename reopen_queue_type::const_iterator last = _rq.end();
+        typename reopen_queue::const_iterator it = _rq.begin();
+        typename reopen_queue::const_iterator last = _rq.end();
 
         while (*it < item && it != last) {
             device d = it->d;
@@ -257,6 +261,20 @@ public:
         _rq.erase(_rq.cbegin(), it);
     }
 
+    device_sequence fetch_devices (
+              bool (* filter) (device const & d, void * context)
+            , void * context)
+    {
+        return _p1.fetch_devices(filter, context);
+    }
+    
+	server_sequence fetch_servers (
+              bool (* filter) (server const & s, void * context)
+            , void * context)
+    {
+        return _p1.fetch_servers(filter, context);
+    }
+    
     void dispatch ()
     {
         //if (_p1.server_count() > 0 || _p1.device_count())

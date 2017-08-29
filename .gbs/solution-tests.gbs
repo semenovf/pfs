@@ -9,6 +9,9 @@ project "test-iterator"
 project "test-string"
     test_project("string", {"pfs-mpl"})
 
+project "test-byte_string"
+    test_project("byte_string", {"pfs-mpl"})
+
 project "test-container"
     test_project("container", {})
 
