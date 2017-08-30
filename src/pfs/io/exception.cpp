@@ -13,18 +13,21 @@ std::string io_category::message (int ev) const
 {
     switch (ev) {
     case static_cast<int>(io_errc::success):
-        return "No error";
+        return "no error";
 
     case static_cast<int>(io_errc::operation_in_progress):
-        return "Operation in progress";
+        return "operation in progress";
     
     case static_cast<int>(io_errc::connection_refused):
-        return "Connection refused";
+        return "connection refused";
         
-    case static_cast<int>(io_errc::bas_file_descriptor):
-        return "Bad file descriptor";
+    case static_cast<int>(io_errc::bad_file_descriptor):
+        return "bad file descriptor";
+
+    case static_cast<int>(io_errc::stream):
+        return "stream error";
         
-    default: return "Unknown I/O error";
+    default: return "unknown I/O error";
     }
 }
 

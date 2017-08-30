@@ -25,11 +25,12 @@ struct io_errc
           success = 0
         , operation_in_progress
         , connection_refused
-        , bas_file_descriptor
+        , bad_file_descriptor
 //        , bad_radix // bad radix
 //        , underflow
 //        , overflow
 //        , invalid_string
+        , stream
 #if __cplusplus < 201103L                  
     };
 #endif    

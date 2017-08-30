@@ -529,7 +529,7 @@ private:
             if (revents & poll_nval) {
                 this->delete_deferred(dev);
                 dev.close();
-                context.on_error(make_error_code(io_errc::bas_file_descriptor));
+                context.on_error(make_error_code(io_errc::bad_file_descriptor));
             }
         }
     }

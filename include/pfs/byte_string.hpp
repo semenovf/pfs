@@ -15,7 +15,10 @@
 #include <pfs/algorithm.hpp>
 #include <pfs/iterator.hpp>
 #include <pfs/utility.hpp>
+#include <pfs/io/exception.hpp>
 #include <pfs/traits/binary_stream.hpp>
+
+#define NOT_ENOUGH_DATA_EXCEPTION_STR "not enough data"
 
 namespace pfs {
 
@@ -879,6 +882,26 @@ public:
         , o(order)
     {}
 
+    byte_string::const_iterator begin () const
+    {
+        return b;
+    }
+    
+    byte_string::const_iterator end () const
+    {
+        return e;
+    }
+
+    byte_string::const_iterator cbegin () const
+    {
+        return b;
+    }
+    
+    byte_string::const_iterator cend () const
+    {
+        return e;
+    }
+
     endian const & order () const
     {
         return o;
@@ -912,7 +935,7 @@ public:
             v = o.convert(d->v);
             b = pos;
         } else {
-            throw out_of_range("out of bounds");
+            throw io_exception(make_error_code(io_errc::stream), NOT_ENOUGH_DATA_EXCEPTION_STR);
         }
     }
 
@@ -972,7 +995,7 @@ public:
     void read (byte_string & v, byte_string::size_type sz)
     {
         if (pfs::distance(b, e) > sz)
-            throw out_of_range("out of bounds");//sz = pfs::distance(b, e);
+            throw io_exception(make_error_code(io_errc::stream), NOT_ENOUGH_DATA_EXCEPTION_STR);
         
         byte_string::const_iterator last(b);
         pfs::advance(last, sz);
@@ -983,7 +1006,7 @@ public:
     void read (byte_string::pointer v, byte_string::size_type sz)
     {
         if (pfs::distance(b, e) > sz)
-            throw out_of_range("out of bounds");//sz = pfs::distance(b, e);
+            throw io_exception(make_error_code(io_errc::stream), NOT_ENOUGH_DATA_EXCEPTION_STR);
         pfs::copy(b.base(), b.base() + sz, v);
         pfs::advance(b, sz);
     }
@@ -1019,6 +1042,12 @@ inline byte_ostream & operator << (byte_ostream & os, buffer_wrapper<byte_string
 inline byte_ostream & operator << (byte_ostream & os, buffer_wrapper<char const> const & v)
 {
     os.write(v.p, v.max_size);
+    return os;
+}
+
+inline byte_ostream & operator << (byte_ostream & os, byte_string const & v)
+{
+    os.write(v);
     return os;
 }
 
