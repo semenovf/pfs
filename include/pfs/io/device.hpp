@@ -149,28 +149,26 @@ public:
     /**
      * @brief Write bytes to the device.
      */
-	ssize_t write (const byte_t * bytes, size_t n, error_code * ex = 0)
+	ssize_t write (const byte_t * bytes, size_t n, error_code * ec = 0)
 	{
-		return _d->write(bytes, n, ex);
+		return _d->write(bytes, n, ec);
 	}
 
-    ssize_t write (const char * chars, size_t n, error_code * ex = 0)
+    ssize_t write (const char * chars, size_t n, error_code * ec = 0)
     {
-        return write(reinterpret_cast<const byte_t *>(chars), n, ex);
+        return write(reinterpret_cast<const byte_t *>(chars), n, ec);
     }
 
-    error_code write (byte_string const & bytes, size_t n)
+    // TODO uncomment default value
+    ssize_t write (byte_string const & bytes, size_t n, error_code * ec/* = 0*/)
 	{
-    	error_code ex;
-    	this->write(bytes.data(), pfs::min(n, bytes.size()), & ex);
-    	return ex;
+    	return this->write(bytes.data(), pfs::min(n, bytes.size()), ec);
 	}
 
-	error_code write (byte_string const & bytes)
+    // TODO uncomment default value
+	ssize_t write (byte_string const & bytes, error_code * ec/* = 0*/)
 	{
-    	error_code ex;
-    	this->write(bytes.data(), bytes.size(), & ex);
-    	return ex;
+    	return this->write(bytes.data(), bytes.size(), ec);
 	}
     
 	device_type type () const

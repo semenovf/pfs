@@ -213,7 +213,7 @@ public:
 		for (int i = 0; i < n; ++i) {
 			pfs::byte_string data(loremipsum[i]);
 
-			ex = client.write(data);
+			client.write(data, & ex);
 
 			if (!ex) {
 				++n1;

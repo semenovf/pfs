@@ -71,7 +71,7 @@ void test_read ()
     TEST_OK(d.is_readable());
     TEST_OK(d.is_writable());
 
-    TEST_OK(d.write(byte_string()) == pfs::error_code());
+    TEST_OK(d.write(byte_string(), 0) == 0);
 
     byte_string result;
 
