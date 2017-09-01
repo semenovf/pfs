@@ -13,6 +13,7 @@
 #include <pfs/utility.hpp>
 #include <pfs/memory.hpp>
 #include <pfs/string.hpp>
+#include <pfs/byte_string.hpp>
 #include <pfs/traits/associative_container.hpp>
 #include <pfs/traits/sequence_container.hpp>
 #include <pfs/json/constants.hpp>
@@ -41,6 +42,7 @@ public:
     typedef IntType                               integer_type;
     typedef typename make_unsigned<IntType>::type uinteger_type;
     typedef FloatType                             float_type;
+    typedef FloatType                             real_type;
     typedef pfs::traits::sequence_container<json
             , SequenceContainerImplType>          array_type;
 
@@ -703,7 +705,7 @@ public:
         
         typename grammar_type::parse_context context;
         dom_builder_context<json> sax;
-        context.is_json_begin = true;        
+        context.is_json_begin = true;
         context.sax           = & sax;
         
         sax.s.push(this);
@@ -738,6 +740,161 @@ public:
     friend void swap (json & lhs, json & rhs)
     {
         lhs.swap(rhs);
+    }
+    
+    
+    // TODO Need to be portable.
+    // Provide serializiation of scalar type sizes too with scalar values
+    //
+    friend pfs::byte_ostream & operator << (pfs::byte_ostream & os, json const & v)
+    {
+        // Type
+        os << static_cast<byte_t>(v.type());
+        
+        switch (v.type()) {
+        case data_type::null:
+            break;
+
+        case data_type::boolean:
+            os << v.get<boolean_type>();
+            break;
+
+        case data_type::integer:
+            os << v.get<integer_type>();
+            break;
+
+        case data_type::uinteger:
+            os << v.get<uinteger_type>();
+            break;
+
+        case data_type::real:
+            os << v.get<real_type>();
+            break;
+
+        case data_type::string: {
+            byte_string u8 = u8string<byte_string>(v.get<string_type>());
+            os << byte_string_ref_n<4>(& u8);
+            break;
+        }
+
+        case data_type::array: {
+            json::const_iterator it = v.cbegin();
+            json::const_iterator it_end = v.cend();
+
+            os << static_cast<uint32_t>(v.size());
+
+            for (; it != it_end; ++it)
+                os << *it;
+
+            break;
+        }
+        
+        case data_type::object: {
+            json::const_iterator it = v.cbegin();
+            json::const_iterator it_end = v.cend();
+
+            os << static_cast<uint32_t>(v.size());
+
+            for (; it != it_end; ++it) {
+                byte_string key = u8string<byte_string>(it.key());
+                os << byte_string_ref_n<4>(& key) << *it;
+            }
+
+            break;
+        }}
+        
+        return os;
+    }
+    
+    friend pfs::byte_istream & operator >> (pfs::byte_istream & is, json & v)
+    {
+        byte_t type = 0;
+
+        is >> type;
+
+        switch (type) {
+        case data_type::null:
+            v = json();
+            break;
+
+        case data_type::boolean: {
+            bool b;
+            is >> b;
+            v = json(b);
+            break;
+        }
+
+        case data_type::integer: {
+            json::integer_type d;
+            is >> d;
+            v = json(d);
+            break;
+        }
+
+        case data_type::uinteger: {
+            json::uinteger_type d;
+            is >> d;
+            v = json(d);
+            break;
+        }
+
+        case data_type::real: {
+            json::real_type f;
+            is >> f;
+            v = json(f);
+            break;
+        }
+
+        case data_type::string: {
+            byte_string u8;
+            is >> byte_string_ref_n<4>(& u8);
+            v = json(string_type(u8.c_str()));
+            break;
+        }
+
+        case data_type::array:
+        {
+            uint32_t n = 0;
+
+            is >> n;
+            
+            if (n == 0) {
+                v = json::make_array();
+            } else {
+                for (size_t i = 0; i < n; ++i) {
+                    json j;
+                    is >> j;
+                    v[i] = j;
+                }
+            }
+
+            break;
+        }
+        
+        case data_type::object:
+        {
+            uint32_t n = 0;
+
+            is >> n;
+
+            if (n == 0) {
+                v = json::make_object();
+            } else {
+                for (size_t i = 0; i < n; ++i) {
+                    byte_string u8;
+                    json j;
+                    is >> byte_string_ref_n<4>(& u8) >> j;
+
+                    v[string_type(u8.c_str())] = j;
+                }
+            }
+
+            break;
+        }
+
+        }
+            
+        return is;
     }
 };
 
@@ -806,12 +963,6 @@ JsonType to_json (T const & v, bool plain = false);
 //{
 //    return to_string(v, json::style_plain);
 //}
-//
-//template <>
-//void pack (pack_context & ctx, json::value const & v);
-//
-//template <>
-//bool unpack (unpack_context & ctx, json::value & v);
 
 } // pfs
 

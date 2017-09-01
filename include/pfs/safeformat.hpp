@@ -800,11 +800,10 @@ public:
         return *this;
     }
     
-    string_type const & operator() ()
+    operator string_type const & ()
     {
         return str();
     }
-
 
     //--- boost-like operators
     //	safeformat & operator % (char c)               { return operator () (c); }

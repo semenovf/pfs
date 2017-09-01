@@ -767,12 +767,17 @@ struct byte_string_ref_n
     }
 };
 
-struct byte_string_ref_sz
+struct byte_string_ref
 {
     byte_string * p;
     byte_string::size_type max_size;
+
+    byte_string_ref (byte_string * ptr)
+        : p(ptr)
+        , max_size(ptr->size())
+    {}
     
-    byte_string_ref_sz (byte_string * ptr, byte_string::size_type sz)
+    byte_string_ref (byte_string * ptr, byte_string::size_type sz)
         : p(ptr)
         , max_size(sz)
     {}
@@ -783,7 +788,7 @@ struct buffer_wrapper
 {
     T * p;
     size_t max_size;
-    
+
     buffer_wrapper (T * ptr, byte_string::size_type n)
         : p(ptr)
         , max_size(n)
@@ -1027,7 +1032,7 @@ inline byte_ostream & operator << (byte_ostream & os, byte_string_ref_n<N> const
     return os;
 }
 
-inline byte_ostream & operator << (byte_ostream & os, byte_string_ref_sz const & v)
+inline byte_ostream & operator << (byte_ostream & os, byte_string_ref const & v)
 {
     os.write(*v.p, v.max_size);
     return os;
@@ -1154,7 +1159,7 @@ byte_istream & operator >> (byte_istream & is, byte_string_ref_n<N> const & v)
     return is;
 }
 
-inline byte_istream & operator >> (byte_istream & is, byte_string_ref_sz const & v)
+inline byte_istream & operator >> (byte_istream & is, byte_string_ref const & v)
 {
     is.read(*v.p, v.max_size);
     return is;

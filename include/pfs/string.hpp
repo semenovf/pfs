@@ -973,6 +973,14 @@ inline StringType read_all (Istream & is)
 template <typename U8StringType, typename StringType>
 U8StringType u8string (StringType const & s);
 
+// TODO implement specializations
+template <typename U16StringType, typename StringType>
+U16StringType u16string (StringType const & s);
+
+// TODO implement specializations
+template <typename U32StringType, typename StringType>
+U32StringType u32string (StringType const & s);
+
 } // pfs
 
 #endif /* __PFS_STRING_HPP__ */

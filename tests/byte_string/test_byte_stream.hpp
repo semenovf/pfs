@@ -307,23 +307,23 @@ void test_byte_stream_byte_string ()
 
     {
         ADD_TESTS(1);
-        
+
         pfs::byte_ostream os(pfs::endian::little_endian);
-        os << pfs::byte_string_ref_sz(& sample, sample.size());
-        
+        os << pfs::byte_string_ref(& sample, sample.size());
+
         pfs::byte_istream is(os.data().cbegin(), os.data().cend(), pfs::endian::little_endian);
         pfs::byte_string bs;
-        is >> pfs::byte_string_ref_sz(& bs, sample.size());
+        is >> pfs::byte_string_ref(& bs, sample.size());
 
         TEST_OK(bs == sample);
     }
 
     {
         ADD_TESTS(1);
-        
+
         pfs::byte_ostream os(pfs::endian::little_endian);
-        os << pfs::byte_string_ref_sz(& sample, sample.size());
-        
+        os << pfs::byte_string_ref(& sample);
+
         pfs::byte_istream is(os.data().cbegin(), os.data().cend(), pfs::endian::little_endian);
         char buf[12];
         is >> pfs::buffer_wrapper<char>(buf, 12);

@@ -305,7 +305,7 @@ basic_iterator<JsonType>::ref (basic_iterator & it)
 {
     switch (it._pvalue->type()) {
 	case data_type::object:
-		return it._object_it->second;
+		return object_type::mapped_reference(it._object_it); //it._object_it->second;
 
 	case data_type::array:
 		return *it._array_it;
