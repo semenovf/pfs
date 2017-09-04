@@ -21,7 +21,7 @@
 
 namespace stdcxx {
 
-typedef pfs::string<pfs::traits::stdcxx::string> string_type;
+typedef pfs::string<pfs::stdcxx::string> string_type;
 typedef pfs::net::uri<string_type> uri;
 typedef pfs::net::uri_grammar<uri> uri_grammar;
 
@@ -31,7 +31,7 @@ typedef pfs::net::uri_grammar<uri> uri_grammar;
 
 namespace qt {
 
-typedef pfs::string<pfs::traits::qt::string> string_type;
+typedef pfs::string<pfs::qt::string> string_type;
 typedef pfs::net::uri<string_type> uri;
 typedef pfs::net::uri_grammar<uri> uri_grammar;
 

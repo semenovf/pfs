@@ -969,7 +969,6 @@ inline StringType read_all (Istream & is)
             , istreambuf_iterator<char_type>());
 }
 
-// TODO implement specializations
 template <typename U8StringType, typename StringType>
 U8StringType u8string (StringType const & s);
 

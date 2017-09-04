@@ -116,7 +116,7 @@ struct sax_context
     virtual bool on_string_value (sequence_type const &, sequence_type const &) = 0;
 };
 
-template <typename JsonType, template <typename> class StackImplType = traits::stdcxx::stack>
+template <typename JsonType, template <typename> class StackImplType = stdcxx::stack>
 struct dom_builder_context : sax_context<JsonType>
 {
     typedef JsonType                                       json_type;
@@ -225,7 +225,7 @@ struct dom_builder_context : sax_context<JsonType>
     }
 };
 
-template <typename JsonType, template <typename> class StackImplType = traits::stdcxx::stack>
+template <typename JsonType, template <typename> class StackImplType = stdcxx::stack>
 struct grammar
 {
     typedef typename JsonType::string_type         string_type;

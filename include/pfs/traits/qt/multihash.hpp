@@ -12,7 +12,6 @@
 #include <pfs/traits/qt/container.hpp>
 
 namespace pfs {
-namespace traits {
 namespace qt {
 
 //template <typename T>
@@ -47,7 +46,7 @@ namespace qt {
 //    }
 //};
 
-}}} // pfs::traits::qt
+}} // pfs::qt
 
 #if __COMMENT__
 #include <pfs/traits/multimap.hpp>

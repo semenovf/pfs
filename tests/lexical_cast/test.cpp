@@ -21,15 +21,12 @@
 #include "test_lexical_cast_int.hpp"
 #include "test_lexical_cast_real.hpp"
 
-int main(int argc, char *argv[])
+int main ()
 {
-	PFS_UNUSED(argc);
-	PFS_UNUSED(argv);
-
-	BEGIN_TESTS(0);
+    BEGIN_TESTS(0);
 
     {
-        typedef pfs::string<pfs::traits::stdcxx::string> string_type;
+        typedef pfs::string<pfs::stdcxx::string> string_type;
 
         test_string_to_uint<string_type>();
         test_string_to_int<string_type>();
@@ -39,10 +36,10 @@ int main(int argc, char *argv[])
         test_lexical_cast_int<string_type>();
         test_lexical_cast_float<string_type>();
     }
-            
+
 #ifdef QT_CORE_LIB
     {
-        //typedef pfs::string<pfs::traits::qt::string> string_type;
+        //typedef pfs::string<pfs::qt::string> string_type;
 
 //        test_string_to_uint<string_type>();
 //        test_string_to_int<string_type>();
@@ -52,6 +49,6 @@ int main(int argc, char *argv[])
 //        test_lexical_cast_float<string_type>();
     }
 #endif
-	
-	return END_TESTS;
+
+    return END_TESTS;
 }

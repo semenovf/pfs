@@ -15,7 +15,7 @@ struct buffer : public bits::device
 {
 	static const size_t default_buffer_size = 256;
 
-    typedef traits::stdcxx::vector<byte_t> buffer_type;
+    typedef stdcxx::vector<byte_t> buffer_type;
 
     buffer_type _buffer;
     size_t      _pos;

@@ -60,7 +60,7 @@ template <typename StringType>
 class appender;
 
 template <typename StringType
-    , template <typename> class SequenceContainerImplType = traits::stdcxx::list>
+    , template <typename> class SequenceContainerImplType = stdcxx::list>
 class logger
 {
 public:

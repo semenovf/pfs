@@ -12,7 +12,6 @@
 #include <pfs/traits/value_ref.hpp>
 
 namespace pfs {
-namespace traits {
 namespace stdcxx {
 
 template <typename T>
@@ -27,8 +26,8 @@ class basic_set
     typedef ValueOrReference internal_type;
 
 public:
-    typedef basic_set<T, container_value<T, set_wrapper> >     container_value_type;
-    typedef basic_set<T, container_reference<T, set_wrapper> > container_reference_type;
+    typedef basic_set<T, traits::container_value<T, set_wrapper> >     container_value_type;
+    typedef basic_set<T, traits::container_reference<T, set_wrapper> > container_reference_type;
     
     typedef typename internal_type::native_type            native_type;
     typedef typename internal_type::native_reference       native_reference;
@@ -236,9 +235,9 @@ public:
 };
 
 template <typename T>
-class set : public basic_set<T, container_value<T, set_wrapper> >
+class set : public basic_set<T, traits::container_value<T, set_wrapper> >
 {
-    typedef basic_set<T, container_value<T, set_wrapper> > base_class;
+    typedef basic_set<T, traits::container_value<T, set_wrapper> > base_class;
 
 public:
     typedef typename base_class::native_type            native_type;
@@ -260,9 +259,9 @@ public:
 };
 
 template <typename T>
-class set_reference : public basic_set<T, container_reference<T, set_wrapper> >
+class set_reference : public basic_set<T, traits::container_reference<T, set_wrapper> >
 {
-    typedef basic_set<T, container_reference<T, set_wrapper> > base_class;
+    typedef basic_set<T, traits::container_reference<T, set_wrapper> > base_class;
 
 public:
     typedef typename base_class::native_type            native_type;
@@ -283,6 +282,6 @@ public:
     {}
 };
 
-}}} // pfs::traits::stdcxx
+}} // pfs::stdcxx
 
 #endif /* __PFS_TRAITS_STDCXX_SET_HPP__ */

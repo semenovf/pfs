@@ -54,62 +54,62 @@ public:
 		string_type         desc;
 	} api_item_type;
 
-	typedef traits::associative_container<traits::kv<int, api_item_type *>
-        ,  traits::stdcxx::map>                api_map;
-    
-	typedef traits::associative_container<traits::kv<string_type, module_spec>
-        , traits::stdcxx::map>                 module_spec_map;
-    
+    typedef traits::associative_container<traits::kv<int, api_item_type *>
+            ,  stdcxx::map>                api_map;
+
+    typedef traits::associative_container<traits::kv<string_type, module_spec>
+            , stdcxx::map>         module_spec_map;
+
     typedef traits::sequence_container<shared_ptr<module>
-        , traits::stdcxx::list>                runnable_sequence;
+            , stdcxx::list>                runnable_sequence;
 
     typedef traits::sequence_container<shared_ptr<pfs::thread>
-        , traits::stdcxx::list>                thread_sequence;
-    
+            , stdcxx::list>                thread_sequence;
+
     typedef logger::logger<string_type>        logger_type;
     typedef safeformat<string_type>            fmt;
 
 private:
-	filesystem::pathlist _searchdirs;
-	api_map              _api;
-	module_spec_map      _module_spec_map;
-	runnable_sequence    _runnable_modules; // modules run in a separate threads
-	shared_ptr<module>   _master_module_ptr;
+    filesystem::pathlist _searchdirs;
+    api_map              _api;
+    module_spec_map      _module_spec_map;
+    runnable_sequence    _runnable_modules; // modules run in a separate threads
+    shared_ptr<module>   _master_module_ptr;
     logger_type          _logger;
 
 private:
 #if __cplusplus >= 201103L
-	dispatcher (dispatcher const &) = delete;
-	dispatcher & operator = (dispatcher const &) = delete;
-#else    
-	dispatcher (dispatcher const &);
-	dispatcher & operator = (dispatcher const &);
+    dispatcher (dispatcher const &) = delete;
+    dispatcher & operator = (dispatcher const &) = delete;
+#else
+    dispatcher (dispatcher const &);
+    dispatcher & operator = (dispatcher const &);
 #endif
 
 protected:
     dispatcher ()
-		: _master_module_ptr(0)
-	{}
-        
+        : _master_module_ptr(0)
+    {}
+
     bool activate_posix_signal_handling ();
     void deactivate_posix_signal_handling ();
 
 public:
-	dispatcher (api_item_type * mapping, int n);
+    dispatcher (api_item_type * mapping, int n);
 
-	virtual ~dispatcher ()
-	{
+    virtual ~dispatcher ()
+    {
         deactivate_posix_signal_handling();
-		finalize();
-	}
+        finalize();
+    }
 
-	void finalize ();
+    void finalize ();
 
-	void add_search_path (filesystem::path const & dir)
-	{
-		if (!dir.empty())
-			_searchdirs.push_back(dir);
-	}
+    void add_search_path (filesystem::path const & dir)
+    {
+        if (!dir.empty())
+            _searchdirs.push_back(dir);
+    }
 
     /**
      * @brief Register modules enumerated in configuration file (JSON) specified by @a path.
@@ -119,7 +119,7 @@ public:
      */
     template <typename JsonType, typename Ifstream>
     bool register_modules (filesystem::path const & path);
-    
+
     /**
      * @brief Register modules enumerated in JSON instance specified by @a conf.
      * 

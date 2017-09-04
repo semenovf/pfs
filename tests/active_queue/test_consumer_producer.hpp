@@ -20,7 +20,7 @@ namespace consumer_producer {
 using std::cout;
 using std::endl;
 
-typedef pfs::active_queue<pfs::traits::stdcxx::deque
+typedef pfs::active_queue<pfs::stdcxx::deque
     , pfs::mutex
     , 256> active_queue_type;
 

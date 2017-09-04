@@ -15,16 +15,16 @@
 #if PFS_CC_MSC
 #   include <pfs/traits/stdcxx/string.hpp>
     namespace pfs {
-        typedef string<traits::stdcxx::wstring>           system_string;
-        typedef string<traits::stdcxx::wstring_reference> system_string_reference;
+        typedef string<stdcxx::wstring>           system_string;
+        typedef string<stdcxx::wstring_reference> system_string_reference;
     } // pfs
 #   define PFS_LITERAL(s) L##s
 #   define PFS_SPRINTF swprintf
 #else
 #   include <pfs/traits/stdcxx/string.hpp>
     namespace pfs {
-        typedef string<traits::stdcxx::string>           system_string;
-        typedef string<traits::stdcxx::string_reference> system_string_reference;
+        typedef string<stdcxx::string>           system_string;
+        typedef string<stdcxx::string_reference> system_string_reference;
     } // pfs        
 #   define PFS_LITERAL(s) s
 #   define PFS_SPRINTF sprintf

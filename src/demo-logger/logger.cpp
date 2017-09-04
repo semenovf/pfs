@@ -4,7 +4,7 @@
 #include "pfs/safeformat.hpp"
 #include "pfs/logger.hpp"
 
-typedef pfs::string<pfs::traits::stdcxx::string>     string_type;
+typedef pfs::string<pfs::stdcxx::string>     string_type;
 typedef pfs::safeformat<string_type>                 fmt;
 typedef pfs::logger::logger<string_type>             logger;
 typedef pfs::logger::stdout_appender<string_type>    stdout_appender;

@@ -149,12 +149,12 @@ int main (int argc, char *argv[])
 
     BEGIN_TESTS(0);
 
-    test_basic<pfs::traits::stdcxx::string>();
-//    test_basic<pfs::traits::stdcxx::wstring>();
-//    test_find<pfs::traits::stdcxx::string>();
-//    test_find<pfs::traits::stdcxx::wstring>();
-    test_substr<pfs::traits::stdcxx::string>();
-//    test_substr<pfs::traits::stdcxx::wstring>();
+    test_basic<pfs::stdcxx::string>();
+//    test_basic<pfs::stdcxx::wstring>();
+//    test_find<pfs::stdcxx::string>();
+//    test_find<pfs::stdcxx::wstring>();
+    test_substr<pfs::stdcxx::string>();
+//    test_substr<pfs::stdcxx::wstring>();
 //    test_c_str_cast<std::string>();
 ////    test_c_str_cast<std::wstring>();    // TODO
 //    test_compare<std::string>();
@@ -170,17 +170,17 @@ int main (int argc, char *argv[])
 //    test_to_string<pfs::traits::stdcxx::string>();
 
 #ifdef QT_CORE_LIB
-    test_basic<pfs::traits::qt::string>();
-//    test_find<pfs::traits::qt::string>();
-//    test_substr<pfs::traits::qt::string>();
+    test_basic<pfs::qt::string>();
+//    test_find<pfs::qt::string>();
+//    test_substr<pfs::qt::string>();
 //    test_c_str_cast<QString>();
-//    
+//
 //    test_compare<QString>();
 //    test_compare_cstr<QString>();
-//    
+//
 //    test_erase<QString>();
 //    test_append<QString>();
-//    test_to_string<pfs::traits::qt::string>();
+//    test_to_string<pfs::qt::string>();
 #endif
 
     return END_TESTS;

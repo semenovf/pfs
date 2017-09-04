@@ -12,7 +12,6 @@
 #include <pfs/traits/value_ref.hpp>
 
 namespace pfs {
-namespace traits {
 namespace stdcxx {
 
 template <typename T>
@@ -27,8 +26,8 @@ class basic_deque
     typedef ValueOrReference internal_type;
 
 public:
-    typedef basic_deque<T, container_value<T, deque_wrapper> > container_value_type;
-    typedef basic_deque<T, container_reference<T, deque_wrapper> >   container_reference_type;
+    typedef basic_deque<T, traits::container_value<T, deque_wrapper> > container_value_type;
+    typedef basic_deque<T, traits::container_reference<T, deque_wrapper> >   container_reference_type;
     
     typedef typename internal_type::native_type            native_type;
     typedef typename internal_type::native_reference       native_reference;
@@ -324,9 +323,9 @@ public:
 };
 
 template <typename T>
-class deque : public basic_deque<T, container_value<T, deque_wrapper> >
+class deque : public basic_deque<T, traits::container_value<T, deque_wrapper> >
 {
-    typedef basic_deque<T, container_value<T, deque_wrapper> > base_class;
+    typedef basic_deque<T, traits::container_value<T, deque_wrapper> > base_class;
 
 public:
     typedef typename base_class::native_type            native_type;
@@ -348,9 +347,9 @@ public:
 };
 
 template <typename T>
-class deque_reference : public basic_deque<T, container_reference<T, deque_wrapper> >
+class deque_reference : public basic_deque<T, traits::container_reference<T, deque_wrapper> >
 {
-    typedef basic_deque<T, container_reference<T, deque_wrapper> > base_class;
+    typedef basic_deque<T, traits::container_reference<T, deque_wrapper> > base_class;
 
 public:
     typedef typename base_class::native_type            native_type;
@@ -371,7 +370,7 @@ public:
     {}
 };
 
-}}} // pfs::traits::stdcxx
+}} // pfs::stdcxx
 
 #endif /* __PFS_TRAITS_STDCXX_DEQUE_HPP__ */
 

@@ -76,9 +76,9 @@ static const char * loremipsum [] = {
 };
 
 typedef pfs::io::pool<
-          pfs::traits::stdcxx::vector
-        , pfs::traits::stdcxx::vector
-        , pfs::traits::stdcxx::map> pool_type;
+          pfs::stdcxx::vector
+        , pfs::stdcxx::vector
+        , pfs::stdcxx::map> pool_type;
 
 struct dispatcher_context : public pool_type::dispatcher_context2
 {

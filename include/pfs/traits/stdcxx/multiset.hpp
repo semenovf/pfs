@@ -12,7 +12,6 @@
 #include <pfs/traits/value_ref.hpp>
 
 namespace pfs {
-namespace traits {
 namespace stdcxx {
 
 template <typename T>
@@ -27,8 +26,8 @@ class multiset_basic
     typedef ValueOrReference internal_type;
 
 public:
-    typedef multiset_basic<T, container_value<T, multiset_wrapper> > container_value_type;
-    typedef multiset_basic<T, container_reference<T, multiset_wrapper> >   container_reference_type;
+    typedef multiset_basic<T, traits::container_value<T, multiset_wrapper> > container_value_type;
+    typedef multiset_basic<T, traits::container_reference<T, multiset_wrapper> >   container_reference_type;
     
     typedef typename internal_type::native_type            native_type;
     typedef typename internal_type::native_reference       native_reference;
@@ -217,9 +216,9 @@ public:
 };
 
 template <typename T>
-class multiset : public multiset_basic<T, container_value<T, multiset_wrapper> >
+class multiset : public multiset_basic<T, traits::container_value<T, multiset_wrapper> >
 {
-    typedef multiset_basic<T, container_value<T, multiset_wrapper> > base_class;
+    typedef multiset_basic<T, traits::container_value<T, multiset_wrapper> > base_class;
 
 public:
     typedef typename base_class::native_type            native_type;
@@ -241,9 +240,9 @@ public:
 };
 
 template <typename T>
-class multiset_reference : public multiset_basic<T, container_reference<T, multiset_wrapper> >
+class multiset_reference : public multiset_basic<T, traits::container_reference<T, multiset_wrapper> >
 {
-    typedef multiset_basic<T, container_reference<T, multiset_wrapper> > base_class;
+    typedef multiset_basic<T, traits::container_reference<T, multiset_wrapper> > base_class;
 
 public:
     typedef typename base_class::native_type            native_type;
@@ -264,6 +263,6 @@ public:
     {}
 };
 
-}}} // pfs::traits::stdcxx
+}} // pfs::stdcxx
 
 #endif /* __PFS_TRAITS_STDCXX_MULTISET_HPP__ */

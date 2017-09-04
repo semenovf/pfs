@@ -43,23 +43,13 @@ struct unicode_iterator_traits<QChar const *>
 }}
 
 namespace pfs {
-namespace traits {
-
-//template <>
-//template <typename InputIt>
-//string_value<QChar, QString>::string_value (InputIt first, InputIt last)
-////    : v(first, pfs::distance(first, last))
-//{
-//    v = QString(first, pfs::distance(first, last));
-//}
-
 namespace qt {
 
 template <typename ValueOrReference>
 class basic_string
 {
     typedef ValueOrReference internal_type;
-    
+
 public:
     typedef basic_string<typename internal_type::string_value_type>     string_value_type;
     typedef basic_string<typename internal_type::string_reference_type> string_reference_type;
@@ -67,7 +57,7 @@ public:
     typedef typename internal_type::native_type            native_type;
     typedef typename internal_type::native_reference       native_reference;
     typedef typename internal_type::const_native_reference const_native_reference;
-    
+
     typedef QChar                                 value_type;
     typedef QChar *                               pointer;
     typedef QChar const *                         const_pointer;
@@ -79,12 +69,12 @@ public:
     typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
     typedef ptrdiff_t                             difference_type;
     typedef int                                   size_type; // no native_type::size_type found, but documentation mentions.
-    
+
     static size_type const npos = size_type(-1);
 
 protected:
     internal_type _p;
-    
+
 public:
     basic_string ()
     {}
@@ -96,7 +86,7 @@ public:
     basic_string (const_native_reference rhs)
         : _p(rhs)
     {}
-    
+
     basic_string (char const * s)
         : _p(s)
     {}
@@ -114,7 +104,7 @@ public:
     {
         _p.v = native_type(first, pfs::distance(first, last));
     }
-    
+
     basic_string & operator = (native_reference rhs)
     {
         *_p = rhs;
@@ -133,23 +123,23 @@ public:
     {
         return *_p;
     }
-    
+
         size_type size () const
     {
         return _p->size();
     }
-    
+
     size_type max_size () const
     {
         //return (INT_MAX)/sizeof(QChar) - 1;
         return pfs::numeric_limits<int>::max()/sizeof(QChar) - sizeof(native_type);
     }
-    
+
     const_pointer data () const
     {
         return _p->data();
     }
-    
+
     const_iterator begin () const
     {
         return _p->begin();
@@ -180,17 +170,17 @@ public:
 //    {
 //        return _p->compare(pos1, count1, rhs._p, pos2, count2) ;
 //    }
-    
+
     void clear ()
     {
         _p->clear();
     }
-    
+
     void erase (size_type index, size_type count)
     {
         _p->remove(static_cast<int>(index), static_cast<int>(count));
     }
-    
+
     iterator erase (const_iterator first, const_iterator last)
     {
         const_iterator begin = _p->begin();
@@ -199,12 +189,12 @@ public:
         _p->remove(index, count);
         return _p->begin() + index;
     }
-    
+
     void push_back (value_type ch)
     {
         _p->push_back(ch);
     }
-    
+
     friend inline bool operator == (basic_string const & lhs, basic_string const & rhs)
     {
         return *lhs._p == *rhs._p;
@@ -233,34 +223,34 @@ public:
     friend inline bool operator >= (basic_string const & lhs, basic_string const & rhs)
     {
         return *lhs._p >= *rhs._p;
-    }    
+    }
 };
 
-typedef basic_string<string_value<QChar, QString> > string;
-typedef basic_string<string_ref<QChar, QString> >   string_reference;
+typedef basic_string<traits::string_value<QChar, QString> > string;
+typedef basic_string<traits::string_ref<QChar, QString> >   string_reference;
 
-}}} // pfs::traits::qt
+}} // pfs::qt
 
 namespace pfs {
 
 template <>
-struct iterator_traits<traits::qt::string::const_iterator> 
+struct iterator_traits<qt::string::const_iterator>
 {
-    typedef bidirectional_iterator_tag                   iterator_category;
-    typedef typename traits::qt::string::value_type      value_type;
-    typedef typename traits::qt::string::difference_type difference_type;
-    typedef typename traits::qt::string::const_pointer   pointer;
-    typedef typename traits::qt::string::const_reference reference;
+    typedef bidirectional_iterator_tag           iterator_category;
+    typedef typename qt::string::value_type      value_type;
+    typedef typename qt::string::difference_type difference_type;
+    typedef typename qt::string::const_pointer   pointer;
+    typedef typename qt::string::const_reference reference;
 };
 
 template <>
-struct iterator_traits<traits::qt::string::iterator>
+struct iterator_traits<qt::string::iterator>
 {
-    typedef bidirectional_iterator_tag                   iterator_category;
-    typedef typename traits::qt::string::value_type      value_type;
-    typedef typename traits::qt::string::difference_type difference_type;
-    typedef typename traits::qt::string::pointer         pointer;
-    typedef typename traits::qt::string::reference       reference;
+    typedef bidirectional_iterator_tag           iterator_category;
+    typedef typename qt::string::value_type      value_type;
+    typedef typename qt::string::difference_type difference_type;
+    typedef typename qt::string::pointer         pointer;
+    typedef typename qt::string::reference       reference;
 };
 
 

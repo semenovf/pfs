@@ -11,7 +11,6 @@
 #include <QMultiMap>
 
 namespace pfs {
-namespace traits {
 namespace qt {
 
 //template <typename T>
@@ -46,7 +45,7 @@ namespace qt {
 //    }
 //};
 
-}}} // pfs::traits::qt
+}} // pfs::qt
 
 #endif /* __PFS_TRAITS_QT_MULTIMAP_HPP__ */
 

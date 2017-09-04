@@ -15,19 +15,19 @@
 
 namespace pfs {
 
-template <typename StringType, template <typename> class ContainerValueRef = traits::stdcxx::list>
+template <typename StringType, template <typename> class ContainerValueRef = stdcxx::list>
 class stringlist : public traits::sequence_container<StringType, ContainerValueRef>
 {
     typedef traits::sequence_container<StringType, ContainerValueRef> base_class;
-    
+
 public:
-   	typedef typename base_class::value_type value_type;
-	typedef typename base_class::difference_type difference_type;
+    typedef typename base_class::value_type value_type;
+    typedef typename base_class::difference_type difference_type;
     typedef StringType string_type;
-    
+
 public:
     stringlist () : base_class() {}
-    
+
     void split (string_type const & s, string_type const & separator
             , bool flag = keep_empty)
     {

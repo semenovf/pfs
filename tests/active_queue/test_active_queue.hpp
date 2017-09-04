@@ -38,7 +38,7 @@ namespace active_queue {
 
 namespace test0 {
 
-typedef pfs::active_queue<pfs::traits::stdcxx::deque
+typedef pfs::active_queue<pfs::stdcxx::deque
     , pfs::mutex
     , 256> active_queue_type;
 
@@ -96,7 +96,7 @@ struct A
     }
 };
 
-typedef pfs::active_queue<pfs::traits::stdcxx::deque
+typedef pfs::active_queue<pfs::stdcxx::deque
     , pfs::mutex
     , 256> active_queue_type;
 
@@ -134,7 +134,7 @@ void test ()
 
 namespace test2 {
 
-typedef pfs::active_queue<pfs::traits::stdcxx::deque
+typedef pfs::active_queue<pfs::stdcxx::deque
     , pfs::mutex
     , 256> active_queue_type;
 active_queue_type q;
@@ -197,7 +197,7 @@ void test ()
 
 namespace test3 {
 
-typedef pfs::active_queue<pfs::traits::stdcxx::deque
+typedef pfs::active_queue<pfs::stdcxx::deque
     , pfs::mutex
     , 256> active_queue_type;
 
@@ -346,7 +346,7 @@ void test ()
 
 namespace test4 {
 
-typedef pfs::active_queue<pfs::traits::stdcxx::deque
+typedef pfs::active_queue<pfs::stdcxx::deque
     , pfs::mutex
     , 256> active_queue_type;
 

@@ -21,26 +21,26 @@ namespace application {
 class sigslot_mapping_t
 {
 public:
-	virtual ~sigslot_mapping_t() {}
-	virtual void connect_all () = 0;
-	virtual void disconnect_all () = 0;
-	virtual void append_emitter (emitter *e) = 0;
-	virtual void append_detector (module * m, detector d) = 0;
+    virtual ~sigslot_mapping_t() {}
+    virtual void connect_all () = 0;
+    virtual void disconnect_all () = 0;
+    virtual void append_emitter (emitter *e) = 0;
+    virtual void append_detector (module * m, detector d) = 0;
 };
 
 template <typename EmitterT, typename _detectorT>
 struct sigslot_mapping_base : public sigslot_mapping_t
 {
     typedef traits::sequence_container<EmitterT *
-        , traits::stdcxx::vector>                    emitter_sequence;
+        , stdcxx::vector>                    emitter_sequence;
 
     typedef traits::sequence_container<detector_pair
-     , traits::stdcxx::vector>                       detector_sequence;
+        , stdcxx::vector>                    detector_sequence;
 
-	emitter_sequence  emitters;
-	detector_sequence detectors;
+    emitter_sequence  emitters;
+    detector_sequence detectors;
 
-	virtual void connect_all ()
+    virtual void connect_all ()
     {
         if (emitters.size() == 0 || detectors.size() == 0)
             return;
@@ -53,10 +53,10 @@ struct sigslot_mapping_base : public sigslot_mapping_t
                 EmitterT * em = *it;
                 em->connect(itd->_module, reinterpret_cast<_detectorT> (itd->_detector));
             }
-        }        
+        }
     }
-    
-	virtual void disconnect_all ()
+
+    virtual void disconnect_all ()
     {
         typename emitter_sequence::const_iterator itEnd = emitters.cend();
 

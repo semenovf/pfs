@@ -38,7 +38,7 @@ class device_manager : has_slots<>
     typedef pool<SequenceContainer
             , ContigousContainer
             , AssociativeContainer>             pool_type;
-    typedef traits::stdcxx::set<reopen_item>    reopen_queue;
+    typedef stdcxx::set<reopen_item>    reopen_queue;
 
     class dispatcher_context1 : public pool_type::dispatcher_context2
     {

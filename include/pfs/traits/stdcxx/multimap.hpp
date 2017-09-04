@@ -12,7 +12,6 @@
 #include <pfs/traits/value_ref.hpp>
 
 namespace pfs {
-namespace traits {
 namespace stdcxx {
 
 template <typename KvType>
@@ -27,8 +26,8 @@ class multimap_basic
     typedef ValueOrReference internal_type;
 
 public:
-    typedef multimap_basic<KvType, container_value<KvType, multimap_wrapper> > container_value_type;
-    typedef multimap_basic<KvType, container_reference<KvType, multimap_wrapper> >   container_reference_type;
+    typedef multimap_basic<KvType, traits::container_value<KvType, multimap_wrapper> > container_value_type;
+    typedef multimap_basic<KvType, traits::container_reference<KvType, multimap_wrapper> >   container_reference_type;
     
     typedef typename internal_type::native_type            native_type;
     typedef typename internal_type::native_reference       native_reference;
@@ -234,9 +233,9 @@ public:
 };
 
 template <typename KvType>
-class multimap : public multimap_basic<KvType, container_value<KvType, multimap_wrapper> >
+class multimap : public multimap_basic<KvType, traits::container_value<KvType, multimap_wrapper> >
 {
-    typedef multimap_basic<KvType, container_value<KvType, multimap_wrapper> > base_class;
+    typedef multimap_basic<KvType, traits::container_value<KvType, multimap_wrapper> > base_class;
 
 public:
     typedef typename base_class::native_type            native_type;
@@ -258,9 +257,9 @@ public:
 };
 
 template <typename KvType>
-class multimap_reference : public multimap_basic<KvType, container_reference<KvType, multimap_wrapper> >
+class multimap_reference : public multimap_basic<KvType, traits::container_reference<KvType, multimap_wrapper> >
 {
-    typedef multimap_basic<KvType, container_reference<KvType, multimap_wrapper> > base_class;
+    typedef multimap_basic<KvType, traits::container_reference<KvType, multimap_wrapper> > base_class;
 
 public:
     typedef typename base_class::native_type            native_type;
@@ -281,7 +280,7 @@ public:
     {}
 };
 
-}}} // pfs::traits::stdcxx
+}} // pfs::stdcxx
 
 #if __COMMENT__
 namespace stdcxx {

@@ -204,12 +204,12 @@ std::string randomString (unsigned int maxSize)
 
 void test2 (unsigned limit)
 {
-    typedef pfs::traits::stdcxx::string string_impl_type;
+    typedef pfs::stdcxx::string string_impl_type;
     srand(0);
-    
+
     if (limit != pfs::numeric_limits<unsigned>::max())
         ADD_TESTS(limit);
-    
+
     for (unsigned i = 0; i < limit; ++i) {
         printf("%u\r", i);
 
@@ -309,7 +309,7 @@ void test2 (unsigned limit)
 //
 void test3 ()
 {
-    typedef pfs::string<pfs::traits::stdcxx::string> string_type;
+    typedef pfs::string<pfs::stdcxx::string> string_type;
     
 	char buf[512];
 	using pfs::test::profiler;
@@ -367,14 +367,14 @@ int main (int argc, char * [])
 //	safeformat::set_global_compat(safeformat::compat_gcc);
 //#endif
 
-	test0<pfs::traits::stdcxx::string>();
-    test1<pfs::traits::stdcxx::string>();
+    test0<pfs::stdcxx::string>();
+    test1<pfs::stdcxx::string>();
     test2(1000);
     test3();
-    
+
     if (argc > 1) {
         test2(pfs::numeric_limits<unsigned>::max());
     }
 
-	return END_TESTS;
+    return END_TESTS;
 }

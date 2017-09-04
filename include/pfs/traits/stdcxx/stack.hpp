@@ -12,7 +12,6 @@
 #include <pfs/traits/value_ref.hpp>
 
 namespace pfs {
-namespace traits {
 namespace stdcxx {
 
 template <typename T>
@@ -37,9 +36,9 @@ class basic_stack
             , basic_stack<T1, ValueOrReference1> const &);
 
 public:
-    typedef basic_stack<T, container_value<T, stack_wrapper> >     container_value_type;
-    typedef basic_stack<T, container_reference<T, stack_wrapper> > container_reference_type;
-    
+    typedef basic_stack<T, traits::container_value<T, stack_wrapper> >     container_value_type;
+    typedef basic_stack<T, traits::container_reference<T, stack_wrapper> > container_reference_type;
+
     typedef typename internal_type::native_type            native_type;
     typedef typename internal_type::native_reference       native_reference;
     typedef typename internal_type::const_native_reference const_native_reference;
@@ -121,9 +120,9 @@ public:
 };
 
 template <typename T>
-class stack : public basic_stack<T, container_value<T, stack_wrapper> >
+class stack : public basic_stack<T, traits::container_value<T, stack_wrapper> >
 {
-    typedef basic_stack<T, container_value<T, stack_wrapper> > base_class;
+    typedef basic_stack<T, traits::container_value<T, stack_wrapper> > base_class;
 
 public:
     typedef typename base_class::native_type            native_type;
@@ -145,9 +144,9 @@ public:
 };
 
 template <typename T>
-class stack_reference : public basic_stack<T, container_reference<T, stack_wrapper> >
+class stack_reference : public basic_stack<T, traits::container_reference<T, stack_wrapper> >
 {
-    typedef basic_stack<T, container_reference<T, stack_wrapper> > base_class;
+    typedef basic_stack<T, traits::container_reference<T, stack_wrapper> > base_class;
 
 public:
     typedef typename base_class::native_type            native_type;
@@ -168,7 +167,7 @@ public:
     {}
 };
 
-}}} // pfs::traits::stdcxx
+}} // pfs::stdcxx
 
 #endif /* __PFS_TRAITS_STDCXX_STACK_HPP__ */
 

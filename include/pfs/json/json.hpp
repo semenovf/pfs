@@ -556,15 +556,15 @@ public:
 //     */
 //    size_type size () const;
 //
-//    /**
-//     * @brief Clear value content.
-//     */
-//    void clear ()
-//    {
-//        value v;
-//        this->swap(v);
-//    }
-//
+    /**
+     * @brief Clear value content.
+     */
+    void clear ()
+    {
+        json v;
+        this->swap(v);
+    }
+
     void push_back (json const & v)
     {
         if (_d.type == data_type::null)
@@ -742,6 +742,81 @@ public:
         lhs.swap(rhs);
     }
     
+    friend bool operator == (json const & lhs, json const & rhs)
+    {
+        if (& lhs == & rhs)
+            return true;
+        
+        if (lhs.type() != rhs.type())
+            return false;
+
+        switch (lhs.type()) {
+        case data_type::null:
+            break;
+
+        case data_type::boolean:
+            if (lhs._d.boolean != rhs._d.boolean)
+                return false;
+            break;
+
+        case data_type::integer:
+        case data_type::uinteger:
+            if (lhs._d.integer != rhs._d.integer)
+                return false;
+            break;
+
+        case data_type::real:
+            if (lhs._d.real != rhs._d.real)
+                return false;
+            break;
+
+        case data_type::string: {
+            if (*lhs._d.string != *rhs._d.string)
+                return false;
+            break;
+        }
+
+        case data_type::array: {
+            if (lhs._d.array->size() != rhs._d.array->size())
+                return false;
+            
+            json::const_iterator itl  = lhs.cbegin();
+            json::const_iterator last = lhs.cend();
+            json::const_iterator itr  = rhs.cbegin();
+
+            for (; itl != last; ++itl, ++itr)
+                if (*itl != *itr)
+                    return false;
+
+            break;
+        }
+        
+        case data_type::object: {
+            if (lhs._d.object->size() != rhs._d.object->size())
+                return false;
+
+            json::const_iterator itl  = lhs.cbegin();
+            json::const_iterator last = lhs.cend();
+            json::const_iterator itr  = rhs.cbegin();
+
+            for (; itl != last; ++itl, ++itr) {
+                if (itl.key() != itr.key())
+                    return false;
+
+                if (*itl != *itr)
+                    return false;
+            }
+
+            break;
+        }}
+        
+        return true;
+    }
+    
+    friend bool operator != (json const & lhs, json const & rhs)
+    {
+        return !(lhs == rhs);
+    }
     
     // TODO Need to be portable.
     // Provide serializiation of scalar type sizes too with scalar values
@@ -813,46 +888,46 @@ public:
         is >> type;
 
         switch (type) {
-        case data_type::null:
+        case static_cast<int>(data_type::null):
             v = json();
             break;
 
-        case data_type::boolean: {
+        case static_cast<int>(data_type::boolean): {
             bool b;
             is >> b;
             v = json(b);
             break;
         }
 
-        case data_type::integer: {
+        case static_cast<int>(data_type::integer): {
             json::integer_type d;
             is >> d;
             v = json(d);
             break;
         }
 
-        case data_type::uinteger: {
+        case static_cast<int>(data_type::uinteger): {
             json::uinteger_type d;
             is >> d;
             v = json(d);
             break;
         }
 
-        case data_type::real: {
+        case static_cast<int>(data_type::real): {
             json::real_type f;
             is >> f;
             v = json(f);
             break;
         }
 
-        case data_type::string: {
+        case static_cast<int>(data_type::string): {
             byte_string u8;
             is >> byte_string_ref_n<4>(& u8);
             v = json(string_type(u8.c_str()));
             break;
         }
 
-        case data_type::array:
+        case static_cast<int>(data_type::array):
         {
             uint32_t n = 0;
 
@@ -871,7 +946,7 @@ public:
             break;
         }
         
-        case data_type::object:
+        case static_cast<int>(data_type::object):
         {
             uint32_t n = 0;
 
@@ -891,7 +966,9 @@ public:
 
             break;
         }
-
+        
+        default:
+            throw json_exception(make_error_code(json_errc::bad_json));
         }
             
         return is;

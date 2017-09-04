@@ -12,7 +12,6 @@
 #include <pfs/traits/qt/container.hpp>
 
 namespace pfs {
-namespace traits {
 namespace qt {
 
 template <typename T>
@@ -27,8 +26,8 @@ class linked_list_basic
     typedef ValueOrReference internal_type;
 
 public:
-    typedef linked_list_basic<T, container_value<T, linked_list_wrapper> > container_value_type;
-    typedef linked_list_basic<T, container_reference<T, linked_list_wrapper> >   container_reference_type;
+    typedef linked_list_basic<T, traits::container_value<T, linked_list_wrapper> > container_value_type;
+    typedef linked_list_basic<T, traits::container_reference<T, linked_list_wrapper> >   container_reference_type;
     
     typedef typename internal_type::native_type            native_type;
     typedef typename internal_type::native_reference       native_reference;
@@ -302,9 +301,9 @@ public:
 };
 
 template <typename T>
-class linked_list : public linked_list_basic<T, container_value<T, linked_list_wrapper> >
+class linked_list : public linked_list_basic<T, traits::container_value<T, linked_list_wrapper> >
 {
-    typedef linked_list_basic<T, container_value<T, linked_list_wrapper> > base_class;
+    typedef linked_list_basic<T, traits::container_value<T, linked_list_wrapper> > base_class;
 
 public:
     typedef typename base_class::native_type            native_type;
@@ -326,9 +325,9 @@ public:
 };
 
 template <typename T>
-class linked_list_reference : public linked_list_basic<T, container_reference<T, linked_list_wrapper> >
+class linked_list_reference : public linked_list_basic<T, traits::container_reference<T, linked_list_wrapper> >
 {
-    typedef linked_list_basic<T, container_reference<T, linked_list_wrapper> > base_class;
+    typedef linked_list_basic<T, traits::container_reference<T, linked_list_wrapper> > base_class;
 
 public:
     typedef typename base_class::native_type            native_type;
@@ -349,7 +348,7 @@ public:
     {}
 };
 
-}}} // pfs::traits::qt
+}} // pfs::qt
 
 #if __COMMENT__
 

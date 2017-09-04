@@ -8,28 +8,32 @@ void test ()
 {
     typedef typename JsonType::string_type string_type;
     
-	const char * plain_str = "{\"array\":[[200,300],\"abcd\",100,[200,300],{},[],"
+    char const * test_data[] = {
+        "[]"
+        , "{}"
+        , "[1,2,3]"
+        , "[1,\"hello\",3]"
+        , "{\"a\": 5}"
+        , "{\"array\":[[200,300],\"abcd\",100,[200,300],{},[],"
 			"{\"bar\":\"hello\",\"fee\":[100,200],\"foo\":100}],"
-			"\"object\":{\"bar\":\"hello\",\"fee\":[100,200],\"foo\":100}}";
-
-    ADD_TESTS(3);
-
-//    pfs::pack_context pctx;
-    pfs::byte_ostream os;
-
-    JsonType j1;
+			"\"object\":{\"bar\":\"hello\",\"fee\":[100,200],\"foo\":100}}"
+    };
     
-    TEST_OK(j1.parse(plain_str) == pfs::error_code());
+    for (int i = 0; i < sizeof(test_data)/sizeof(test_data[0]); i++) {
+        ADD_TESTS(2);
 
-    os << j1;
+        pfs::byte_ostream os;
+        JsonType j1;
+        JsonType j2;
 
-//    pfs::unpack_context uctx(pctx.buffer.cbegin(), pctx.buffer.cend());
-//    json j2;
-//    
-//    TEST_FAIL(pfs::unpack(uctx, j2));
-//    
-//    TEST_OK(pfs::to_string(j2) == plain_str);
-//    //std::cout << pfs::to_string(j2) << std::endl;
+        TEST_OK(j1.parse(test_data[i]) == pfs::error_code());
+
+        os << j1;
+        pfs::byte_istream is(os.data().cbegin(), os.data().cend());
+        is >> j2;
+
+        TEST_OK(j1 == j2);
+    }
 }
 
 }

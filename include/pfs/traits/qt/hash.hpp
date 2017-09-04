@@ -12,7 +12,6 @@
 #include <pfs/traits/qt/container.hpp>
 
 namespace pfs {
-namespace traits {
 namespace qt {
 
 template <typename T>
@@ -47,6 +46,6 @@ public:
     }
 };
 
-}}} // pfs::traits::qt
+}} // pfs::qt
 
 #endif /* __PFS_TRAITS_QT_HASH_HPP__ */

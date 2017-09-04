@@ -119,10 +119,10 @@ struct container_value
     typedef typename NativeContainerWrapper<T>::type native_type;
     typedef native_type &       native_reference;
     typedef native_type const & const_native_reference;
-    
+
     typedef container_value<T, NativeContainerWrapper> container_value_type;
     typedef container_reference<T, NativeContainerWrapper>   container_reference_type;
-    
+
     native_type v;
 
     container_value ()
@@ -135,22 +135,22 @@ struct container_value
     container_value (const_native_reference rhs)
         : v(rhs)
     {}
-    
+
     native_reference operator * ()
     {
         return v;
     }
-    
+
     const_native_reference operator * () const
     {
         return v;
     }
-    
+
     native_type * operator -> ()
     {
         return & v;
     }
-    
+
     native_type const * operator -> () const
     {
         return & v;

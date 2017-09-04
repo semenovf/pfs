@@ -14,7 +14,7 @@
 namespace pfs {
 namespace filesystem {
 
-class pathlist : public pfs::traits::stdcxx::list<path>
+class pathlist : public stdcxx::list<path>
 {
 public:
     static path search_path (path const & p, pathlist const & searchdirs)

@@ -12,7 +12,6 @@
 #include <pfs/traits/value_ref.hpp>
 
 namespace pfs {
-namespace traits {
 namespace stdcxx {
 
 template <typename T>
@@ -27,8 +26,8 @@ class vector_basic
     typedef ValueOrReference internal_type;
 
 public:
-    typedef vector_basic<T, container_value<T, vector_wrapper> > container_value_type;
-    typedef vector_basic<T, container_reference<T, vector_wrapper> >   container_reference_type;
+    typedef vector_basic<T, traits::container_value<T, vector_wrapper> > container_value_type;
+    typedef vector_basic<T, traits::container_reference<T, vector_wrapper> >   container_reference_type;
     
     typedef typename internal_type::native_type            native_type;
     typedef typename internal_type::native_reference       native_reference;
@@ -372,9 +371,9 @@ public:
 };
 
 template <typename T>
-class vector : public vector_basic<T, container_value<T, vector_wrapper> >
+class vector : public vector_basic<T, traits::container_value<T, vector_wrapper> >
 {
-    typedef vector_basic<T, container_value<T, vector_wrapper> > base_class;
+    typedef vector_basic<T, traits::container_value<T, vector_wrapper> > base_class;
 
 public:
     typedef typename base_class::native_type            native_type;
@@ -401,9 +400,9 @@ public:
 };
 
 template <typename T>
-class vector_reference : public vector_basic<T, container_reference<T, vector_wrapper> >
+class vector_reference : public vector_basic<T, traits::container_reference<T, vector_wrapper> >
 {
-    typedef vector_basic<T, container_reference<T, vector_wrapper> > base_class;
+    typedef vector_basic<T, traits::container_reference<T, vector_wrapper> > base_class;
 
 public:
     typedef typename base_class::native_type            native_type;
@@ -424,7 +423,7 @@ public:
     {}
 };
 
-}}} // pfs::traits::stdcxx
+}} // pfs::stdcxx
 
 #endif /* __PFS_TRAITS_STDCXX_VECTOR_HPP__ */
 

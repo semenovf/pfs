@@ -12,7 +12,6 @@
 #include <pfs/traits/value_ref.hpp>
 
 namespace pfs {
-namespace traits {
 namespace qt {
 
 template <typename KvType>
@@ -27,8 +26,8 @@ class map_basic
     typedef ValueOrReference internal_type;
 
 public:
-    typedef map_basic<KvType, container_value<KvType, map_wrapper> >     container_value_type;
-    typedef map_basic<KvType, container_reference<KvType, map_wrapper> > container_reference_type;
+    typedef map_basic<KvType, traits::container_value<KvType, map_wrapper> >     container_value_type;
+    typedef map_basic<KvType, traits::container_reference<KvType, map_wrapper> > container_reference_type;
     
     typedef typename internal_type::native_type            native_type;
     typedef typename internal_type::native_reference       native_reference;
@@ -278,9 +277,9 @@ public:
 };
 
 template <typename KvType>
-class map : public map_basic<KvType, container_value<KvType, map_wrapper> >
+class map : public map_basic<KvType, traits::container_value<KvType, map_wrapper> >
 {
-    typedef map_basic<KvType, container_value<KvType, map_wrapper> > base_class;
+    typedef map_basic<KvType, traits::container_value<KvType, map_wrapper> > base_class;
 
 public:
     typedef typename base_class::native_type            native_type;
@@ -304,9 +303,9 @@ public:
 };
 
 template <typename KvType>
-class map_reference : public map_basic<KvType, container_reference<KvType, map_wrapper> >
+class map_reference : public map_basic<KvType, traits::container_reference<KvType, map_wrapper> >
 {
-    typedef map_basic<KvType, container_reference<KvType, map_wrapper> > base_class;
+    typedef map_basic<KvType, traits::container_reference<KvType, map_wrapper> > base_class;
 
 public:
     typedef typename base_class::native_type            native_type;
@@ -361,8 +360,7 @@ public:
 //    }
 //};
 
-}}} // pfs::traits::qt
-
+}} // pfs::qt
 
 #if __OBSOLETE__
 

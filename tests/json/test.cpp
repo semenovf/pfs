@@ -31,15 +31,15 @@
 
 namespace stdcxx {
 
-typedef pfs::string<pfs::traits::stdcxx::string> string_type;
+typedef pfs::string<pfs::stdcxx::string> string_type;
 
 typedef pfs::json::json<
           bool
         , intmax_t
         , double
         , string_type
-        , pfs::traits::stdcxx::vector
-        , pfs::traits::stdcxx::map> json;
+        , pfs::stdcxx::vector
+        , pfs::stdcxx::map> json;
 
 } //stdcxx::json
 
@@ -47,28 +47,25 @@ typedef pfs::json::json<
 
 namespace qt {
 
-typedef pfs::string<pfs::traits::qt::string> string_type;
+typedef pfs::string<pfs::qt::string> string_type;
 
 typedef pfs::json::json<
           bool
         , intmax_t
         , double
         , string_type
-        , pfs::traits::qt::vector
-        , pfs::traits::qt::map>
+        , pfs::qt::vector
+        , pfs::qt::map>
     json;
 
 } // qt
 
 #endif
 
-int main (int argc, char *argv[])
+int main ()
 {
- 	PFS_UNUSED(argc);
-	PFS_UNUSED(argv);
-    
-	BEGIN_TESTS(0);
-    
+    BEGIN_TESTS(0);
+
     test_basic::test<stdcxx::json>();
     test_iterator::test<stdcxx::json>();
     test_parse::test<stdcxx::json>();
@@ -81,5 +78,5 @@ int main (int argc, char *argv[])
     test_serialize::test<qt::json>();
 #endif
 
-	return END_TESTS;
+    return END_TESTS;
 }

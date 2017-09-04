@@ -15,7 +15,6 @@
 #include <pfs/traits/string_value_ref.hpp>
 
 namespace pfs {
-namespace traits {
 namespace stdcxx {
 
 template <typename ValueOrReference>
@@ -278,16 +277,16 @@ public:
     static size_type length (const_pointer str);
 };
 
-typedef basic_string<string_value<char, std::string> >     string;
-typedef basic_string<string_value<wchar_t, std::wstring> > wstring;
-typedef basic_string<string_ref<char, std::string> >       string_reference;
-typedef basic_string<string_ref<wchar_t, std::wstring> >   wstring_reference;
+typedef basic_string<traits::string_value<char, std::string> >     string;
+typedef basic_string<traits::string_value<wchar_t, std::wstring> > wstring;
+typedef basic_string<traits::string_ref<char, std::string> >       string_reference;
+typedef basic_string<traits::string_ref<wchar_t, std::wstring> >   wstring_reference;
 
 #if __cplusplus >= 201103L
-typedef basic_string<string_value<char16_t, std::u16string>> u16string;
-typedef basic_string<string_value<char32_t, std::u32string>> u32string;
-typedef basic_string<string_ref<char16_t, std::u16string>>   u16string_reference;
-typedef basic_string<string_ref<char32_t, std::u32string>>   u32string_reference;
+typedef basic_string<traits::string_value<char16_t, std::u16string>> u16string;
+typedef basic_string<traits::string_value<char32_t, std::u32string>> u32string;
+typedef basic_string<traits::string_ref<char16_t, std::u16string>>   u16string_reference;
+typedef basic_string<traits::string_ref<char32_t, std::u32string>>   u32string_reference;
 #endif
 
 template <>
@@ -302,32 +301,6 @@ inline wstring::size_type wstring::length (const_pointer str)
     return ::wcslen(str);
 }
 
-}}} // pfs::traits::stdcxx
-
-#if __OBSOLETE__
-
-template <>
-class c_str<std::string> 
-    : public traits::stdcxx::c_str<std::string>
-{
-    typedef traits::stdcxx::c_str<std::string> base_type;
-public:
-    explicit c_str (string_type const & s)
-        : base_type(s)
-    {}
-};
-
-template <>
-class c_wstr<std::wstring> 
-    : public traits::stdcxx::c_str<std::wstring>
-{
-    typedef traits::stdcxx::c_str<std::wstring> base_type;
-public:
-    explicit c_wstr (string_type const & s)
-        : base_type(s)
-    {}
-};
-
-#endif
+}} // pfs::stdcxx
 
 #endif /* __PFS_TRAITS_STDCXX_STRING_HPP__ */

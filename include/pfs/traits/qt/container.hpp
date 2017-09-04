@@ -12,7 +12,6 @@
 #include <pfs/traits/value_ref.hpp>
 
 namespace pfs {
-namespace traits {
 namespace qt {
 
 template <typename T, typename ValueOrReference>
@@ -166,7 +165,7 @@ public:
     // *************************************************************************
 };
 
-}}} // pfs::traits::stdcxx
+}} // pfs::stdcxx
 
 #endif /* __PFS_TRAITS_QT_CONTAINER_HPP__ */
 

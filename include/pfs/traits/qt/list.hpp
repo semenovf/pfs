@@ -12,7 +12,6 @@
 #include <pfs/traits/qt/container.hpp>
 
 namespace pfs {
-namespace traits {
 namespace qt {
 
 template <typename T>
@@ -27,8 +26,8 @@ class list_basic
     typedef ValueOrReference internal_type;
 
 public:
-    typedef list_basic<T, container_value<T, list_wrapper> > container_value_type;
-    typedef list_basic<T, container_reference<T, list_wrapper> >   container_reference_type;
+    typedef list_basic<T, traits::container_value<T, list_wrapper> > container_value_type;
+    typedef list_basic<T, traits::container_reference<T, list_wrapper> >   container_reference_type;
     
     typedef typename internal_type::native_type            native_type;
     typedef typename internal_type::native_reference       native_reference;
@@ -302,9 +301,9 @@ public:
 };
 
 template <typename T>
-class list : public list_basic<T, container_value<T, list_wrapper> >
+class list : public list_basic<T, traits::container_value<T, list_wrapper> >
 {
-    typedef list_basic<T, container_value<T, list_wrapper> > base_class;
+    typedef list_basic<T, traits::container_value<T, list_wrapper> > base_class;
 
 public:
     typedef typename base_class::native_type            native_type;
@@ -326,9 +325,9 @@ public:
 };
 
 template <typename T>
-class list_reference : public list_basic<T, container_reference<T, list_wrapper> >
+class list_reference : public list_basic<T, traits::container_reference<T, list_wrapper> >
 {
-    typedef list_basic<T, container_reference<T, list_wrapper> > base_class;
+    typedef list_basic<T, traits::container_reference<T, list_wrapper> > base_class;
 
 public:
     typedef typename base_class::native_type            native_type;
@@ -379,7 +378,7 @@ public:
 //    }
 //};
 
-}}} // pfs::traits::qt
+}} // pfs::qt
 
 #if __COMMENT__
 
