@@ -171,6 +171,24 @@ public:
 //        return _p->compare(pos1, count1, rhs._p, pos2, count2) ;
 //    }
 
+    basic_string & append (size_type count, value_type ch)
+    {
+        _p->append(count, ch);
+        return *this;
+    }
+    
+    basic_string & append (const_pointer str, size_type count)
+    {
+        _p->append(str, count);
+        return *this;
+    }
+    
+    basic_string & append (const_native_reference s)
+    {
+        _p->append(s);
+        return *this;
+    }
+
     void clear ()
     {
         _p->clear();

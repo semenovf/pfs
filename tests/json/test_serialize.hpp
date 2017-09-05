@@ -6,8 +6,6 @@ namespace test_serialize {
 template <typename JsonType>
 void test ()
 {
-    typedef typename JsonType::string_type string_type;
-    
     char const * test_data[] = {
         "[]"
         , "{}"

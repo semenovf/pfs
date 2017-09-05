@@ -22,6 +22,8 @@
 #include <pfs/json/cast.hpp>
 #include <pfs/json/rfc4627.hpp>
 
+#include <QDebug>
+
 namespace pfs {
 namespace json {
 
@@ -143,70 +145,71 @@ public:
     /**
      * @brief Constructs boolean value.
      */
-    json (bool v) 
-        : _d(v)
+    template <typename T, typename EnableIf = pfs::enable_if<pfs::is_same<T, bool>::value> >
+    explicit json (T v)
+        : _d(static_cast<bool>(v))
     {}
 
     /**
      * @brief Constructs integer numeric value from char value.
      */
-    json (char v) 
+    explicit json (char v) 
         : _d(static_cast<integer_type>(v))
     {}
 
     /**
      * @brief Constructs integer numeric value from signed char value.
      */
-    json (signed char v) 
+    explicit json (signed char v) 
         : _d(static_cast<integer_type>(v))
     {}
 
     /**
      * @brief Constructs integer numeric value from unsigned char value.
      */
-    json (unsigned char v) 
+    explicit json (unsigned char v) 
         : _d(static_cast<uinteger_type>(v))
     {}
 
     /**
      * @brief Constructs integer numeric value from short value.
      */
-    json (short v)
+    explicit json (short v)
         : _d(static_cast<integer_type>(v))
     {}
 
     /**
      * @brief Constructs integer numeric value from short value.
      */
-    json (unsigned short v)
+    explicit json (unsigned short v)
         : _d(static_cast<uinteger_type>(v))
     {}
 
     /**
      * @brief Constructs integer numeric value from int value.
      */
-    json (int v)
+    explicit json (int v)
         : _d(static_cast<integer_type>(v))
     {}
 
     /**
      * @brief Constructs integer numeric value from unsigned int value.
      */
-    json (unsigned int v)
+    explicit json (unsigned int v)
         : _d(static_cast<uinteger_type>(v))
     {}
 
     /**
      * @brief Constructs integer numeric value from long value.
      */
-    json (long v) 
+    explicit json (long v) 
         : _d(static_cast<integer_type>(v))
     {}
 
     /**
      * @brief Constructs integer numeric value from unsigned long value.
      */
-    json (unsigned long v) 
+    explicit json (unsigned long v) 
         : _d(static_cast<uinteger_type>(v))
     {}
 
@@ -215,14 +218,14 @@ public:
     /**
      * @brief Constructs integer numeric value from long long value.
      */
-    json (long long v) 
+    explicit json (long long v) 
         : _d(static_cast<integer_type>(v))
     {}
 
     /**
      * @brief Constructs integer numeric value from unsigned long long value.
      */
-    json (unsigned long long v)
+    explicit json (unsigned long long v)
         : _d(static_cast<uinteger_type>(v))
     {}
 #endif
@@ -230,14 +233,14 @@ public:
     /**
      * @brief Constructs number value from float value.
      */
-    json (float v) 
+    explicit json (float v) 
         : _d(static_cast<float_type>(v))
     {}
 
     /**
      * @brief Constructs number value from double value.
      */
-    json (double v)
+    explicit json (double v)
         : _d(static_cast<float_type>(v))
     {}
 
@@ -246,7 +249,7 @@ public:
     /**
      * @brief Constructs number value from double value.
      */
-    json (long double v)
+    explicit json (long double v)
         : _d(static_cast<float_type>(v))
     {}
 #endif
@@ -325,6 +328,12 @@ public:
         return assign(other);
     }
 
+    template <typename T, typename EnableIf = pfs::enable_if<!pfs::is_same<pfs::remove_cv<T>,json>::value> >
+    json & operator = (T v)
+    {
+        return assign(json(v));
+    }
+    
 #if __cplusplus >= 201103L    
     
     // TODO Need to implement
@@ -434,32 +443,18 @@ public:
         return 1;
     }
 
-//    reference at (size_t index)
-//    {
-//        PFS_ASSERT(_type == type_array);
-//        PFS_ASSERT_RANGE(index < _value.array->size());
-//        return _value.array->at(index);
-//    }
-//
-//    const_reference at (size_t index) const
-//    {
-//        PFS_ASSERT(_type == type_array);
-//        PFS_ASSERT_RANGE(index < _value.array->size());
-//        return _value.array->at(index);
-//    }
-//
-//    reference at (const object_type::key_type & key)
-//    {
-//        PFS_ASSERT(_type == type_object);
-//        return _value.object->at(key);
-//    }
-//
-//    const_reference at (const object_type::key_type & key) const
-//    {
-//        PFS_ASSERT(_type == type_object);
-//        return _value.object->at(key);
-//    }
-
+    // For avoid ambiguous overload of operator[] with `0` value
+    reference operator [] (int index)
+    {
+        return operator [] (size_type(0));
+    }
+    
+    // For avoid ambiguous overload of operator[] with `0` value
+    json operator [] (int index) const
+    {
+        return operator [] (size_type(0));
+    }
+        
     reference operator [] (size_type index)
     {
         // implicitly convert null to array
@@ -550,12 +545,7 @@ public:
 //                ? true
 //                : false;
 //    }
-//
-//    /**
-//     * @brief
-//     */
-//    size_type size () const;
-//
+
     /**
      * @brief Clear value content.
      */
@@ -573,6 +563,12 @@ public:
         PFS_ASSERT(_d.type == data_type::array);
 
         _d.array->push_back(v);
+    }
+
+    template <typename T, typename EnableIf = pfs::enable_if<!pfs::is_same<pfs::remove_cv<T>,json>::value> >
+    void push_back (T v)
+    {
+        this->push_back(json(v));
     }
 
     iterator begin ()
@@ -973,73 +969,98 @@ public:
             
         return is;
     }
+    
+    string_type to_string () const
+    {
+        string_type r;
+        
+        switch (type()) {
+        case data_type::null:
+            r.append("null");
+            break;
+
+        case data_type::boolean:
+            r.append(pfs::to_string<string_type>(get<boolean_type>()));
+            break;
+
+        case data_type::integer: {
+            string_type s = pfs::to_string<string_type>(get<integer_type>());
+            qDebug("%s", s.native().toUtf8().constData());
+            r.append(s);
+            break;
+        }
+
+        case data_type::uinteger:
+            r.append(pfs::to_string<string_type>(get<uinteger_type>()));
+            break;
+            
+        case data_type::real:
+            r.append(pfs::to_string<string_type>(get<real_type>()));
+            break;
+
+        case data_type::string:
+            r.append(1, '"');
+            r.append(get<string_type>());
+            r.append(1, '"');
+            break;
+
+
+        case data_type::array: {
+            json::const_iterator it = cbegin();
+            json::const_iterator last = cend();
+
+            r.append(1, '[');
+            
+            if (it != last) {
+                r.append(it->to_string());
+                ++it;
+            }
+            
+            for (; it != last; ++it) {
+                r.append(1, ',');
+                r.append(it->to_string());
+            }
+            
+            r.append(1, ']');
+
+            break;
+        }
+        
+        case data_type::object: {
+            json::const_iterator it = cbegin();
+            json::const_iterator last = cend();
+
+            r.append(1, '{');
+
+            if (it != last) {
+                r.append(1, '"');
+                r.append(it.key());
+                r.append("\":");
+                r.append(it->to_string());
+                ++it;
+            }
+            
+            for (; it != last; ++it) {
+                r.append(",\"");
+                r.append(it.key());
+                r.append("\":");
+                r.append(it->to_string());
+            }
+            
+            r.append(1, '}');
+            break;
+        }}
+        
+        return r;
+    }
 };
 
-//enum brace_position_enum
-//{
-//    brace_same_line
-//    , brace_next_line
-//};
-//
-//enum comma_position_enum
-//{
-//    comma_same_line
-//    , comma_next_line
-//};
-//
-////struct print_format
-////{
-////    int                 base_indent;    // base indent in spaces, -1 - compact style
-////    brace_position_enum bracepos;
-////    comma_position_enum commapos;
-////    string              key_separator;
-////    string              new_line;
-////};
-//
-//struct print_format
-//{
-//    string ws_symbol; //<! whitespace symbol, default is ' ' (space)
-//    size_t base_indent; //<! base indent in symbols, default is 4 
-//    size_t brace_indent; //<! indent in symbols for brace, default is 0
-//    size_t first_item_indent; //<! indent for first item (for comma_next_line), default is 0
-//    size_t ws_before_vseparator; //<! whitespaces before value separator (comma), default is 0
-//    size_t ws_after_vseparator; //<! whitespaces after value separator (comma), default is 1
-//    size_t ws_before_kvseparator; //<! whitespaces before key/value separator (colon), default is 0
-//    size_t ws_after_kvseparator; //<! whitespaces after key/value separator (colon), default is 1
-//    brace_position_enum brace_position; //<! brace position, default is @c brace_same_line
-//    comma_position_enum comma_position; //<! vseparator position, default is @c comma_same_line
-//};
-//
-//// See description at https://en.wikipedia.org/wiki/Indent_style
-////
-//
-//enum print_style_enum
-//{
-//    style_plain // all in one line
-//    , style_kr // Kernighan and Ritchie, base_indent = 4, brace_position = brace_same_line, comma_position = comma_same_line
-//    , style_bsd
-//    , style_allman = style_bsd // BSD (Allman), base_indent = 4, brace_position = brace_next_line, comma_position = comma_same_line
-//    , style_gnu // base_indent = 2, brace_position = brace_next_line, comma_position = comma_same_line
-//    , style_whitesmiths // base_indent = 4, brace_position = brace_next_line_indent, comma_position = comma_same_line
-//    , style_favorite // base_indent = 4, brace_position = brace_same_line, comma_position = comma_next_line
-//};
-//
 }} // pfs::json
-//
-//
+
 namespace pfs {
 
 template <typename JsonType, typename T>
 JsonType to_json (T const & v, bool plain = false);
-
-//
-//string to_string (json::value const & v, json::print_style_enum style);
-//string to_string (json::value const & v, json::print_format const & format);
-//
-//inline string to_string (json::value const & v)
-//{
-//    return to_string(v, json::style_plain);
-//}
 
 } // pfs
 

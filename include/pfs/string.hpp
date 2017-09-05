@@ -295,28 +295,20 @@ public:
         return *this;
     }
     
-//    string & append (string const & s
-//                , const_iterator pos
-//                , size_type count)
-//    {
-//        if (pos >= s.size())
-//            throw out_of_range("string::append()");
-//        
-//        if (count == size_type(-1) || pos + count > s.size())
-//            count = s.size() - pos;
-//        
-//        return append(s.data() + pos, count);
-//    }
-    
     string & append (const_pointer str, size_type count)
     {
         _p.append(str, count);
         return *this;
     }
     
-    string & append (const_pointer str)    
+//    string & append (const_pointer str)
+//    {
+//        return append(str, impl_type::length(str));
+//    }
+
+    string & append (const char * str)
     {
-        return append(str, impl_type::length(str));
+        return append(string(str));
     }
     
     string & append (const_native_reference s)
@@ -759,7 +751,7 @@ StringType to_string (typename pfs::enable_if<pfs::is_unsigned<UintType>::value,
 			, buf
 			, sizeof(buf));
     
-    return StringType(str);
+    return StringType(str, StringType::npos);
 }
 
 template <typename IntType, typename StringType>

@@ -21,7 +21,6 @@ struct string_value
     typedef native_type &       native_reference;
     typedef native_type const & const_native_reference;
     typedef CharT               value_type;
-//    typedef CharT const *       const_pointer;
     
     typedef string_value<CharT, NativeString> string_value_type;
     typedef string_ref<CharT, NativeString>   string_reference_type;
@@ -66,7 +65,6 @@ struct string_ref
     typedef NativeString        native_type;
     typedef native_type &       native_reference;
     typedef native_type const & const_native_reference;
-//    typedef CharT const *       const_pointer;
 
     typedef string_value<CharT, NativeString> string_value_type;
     typedef string_ref<CharT, NativeString>   string_reference_type;
