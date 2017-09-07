@@ -29,13 +29,12 @@ namespace json {
 
 template <typename BoolType
         , typename IntType
-        , typename FloatType
+        , typename RealType
         , typename StringType
         , template <typename> class SequenceContainerImplType
         , template <typename> class AssociativeContainerImplType>
-class json
+struct traits
 {
-public:
     typedef ptrdiff_t difference_type;
     typedef size_t    size_type;
 
@@ -43,16 +42,63 @@ public:
     typedef BoolType                              boolean_type;
     typedef IntType                               integer_type;
     typedef typename make_unsigned<IntType>::type uinteger_type;
-    typedef FloatType                             float_type;
-    typedef FloatType                             real_type;
-    typedef pfs::traits::sequence_container<json
-            , SequenceContainerImplType>          array_type;
+    typedef RealType                              real_type;
+    
+    template <typename T>
+    struct array 
+    {
+        typedef pfs::traits::sequence_container<T
+                , SequenceContainerImplType>          type;
+    };
 
-    typedef pfs::traits::associative_container<
-              pfs::traits::kv<string_type, json>
-            , AssociativeContainerImplType>       object_type;
+    template <typename T>
+    struct object
+    {
+        typedef pfs::traits::associative_container<
+              pfs::traits::kv<string_type, T>
+            , AssociativeContainerImplType>       type;
+        
+        typedef typename type::key_type           key_type;
+    };
+};
 
-    typedef typename object_type::key_type        key_type;
+//template <typename BoolType
+//        , typename IntType
+//        , typename FloatType
+//        , typename StringType
+//        , template <typename> class SequenceContainerImplType
+//        , template <typename> class AssociativeContainerImplType>
+template <typename Traits>
+class json
+{
+public:
+//    typedef ptrdiff_t difference_type;
+//    typedef size_t    size_type;
+//
+//    typedef StringType                            string_type;
+//    typedef BoolType                              boolean_type;
+//    typedef IntType                               integer_type;
+//    typedef typename make_unsigned<IntType>::type uinteger_type;
+//    typedef FloatType                             real_type;
+//    typedef FloatType                             real_type;
+//    typedef pfs::traits::sequence_container<json
+//            , SequenceContainerImplType>          array_type;
+//
+//    typedef pfs::traits::associative_container<
+//              pfs::traits::kv<string_type, json>
+//            , AssociativeContainerImplType>       object_type;
+//
+//    typedef typename object_type::key_type        key_type;
+    typedef typename Traits::difference_type                 difference_type;
+    typedef typename Traits::size_type                       size_type;
+    typedef typename Traits::string_type                     string_type;
+    typedef typename Traits::boolean_type                    boolean_type;
+    typedef typename Traits::integer_type                    integer_type;
+    typedef typename Traits::uinteger_type                   uinteger_type;
+    typedef typename Traits::real_type                       real_type;
+    typedef typename Traits::template array<json>::type      array_type;
+    typedef typename Traits::template object<json>::type     object_type;
+    typedef typename Traits::template object<json>::key_type key_type;
 
     struct value_rep
     {
@@ -61,7 +107,7 @@ public:
         union {
             boolean_type  boolean;
             integer_type  integer;
-            float_type    real;
+            real_type     real;
             string_type * string;
             array_type *  array;
             object_type * object;
@@ -87,7 +133,7 @@ public:
             , integer(v)
         {}
 
-        value_rep (float_type v) 
+        value_rep (real_type v) 
             : type(data_type::real)
             , real(v)
         {}
@@ -234,14 +280,14 @@ public:
      * @brief Constructs number value from float value.
      */
     explicit json (float v) 
-        : _d(static_cast<float_type>(v))
+        : _d(static_cast<real_type>(v))
     {}
 
     /**
      * @brief Constructs number value from double value.
      */
     explicit json (double v)
-        : _d(static_cast<float_type>(v))
+        : _d(static_cast<real_type>(v))
     {}
 
 #ifdef PFS_HAVE_LONG_DOUBLE
@@ -250,7 +296,7 @@ public:
      * @brief Constructs number value from double value.
      */
     explicit json (long double v)
-        : _d(static_cast<float_type>(v))
+        : _d(static_cast<real_type>(v))
     {}
 #endif
 
@@ -446,13 +492,13 @@ public:
     // For avoid ambiguous overload of operator[] with `0` value
     reference operator [] (int index)
     {
-        return operator [] (size_type(0));
+        return operator [] (size_type(index));
     }
     
     // For avoid ambiguous overload of operator[] with `0` value
     json operator [] (int index) const
     {
-        return operator [] (size_type(0));
+        return operator [] (size_type(index));
     }
         
     reference operator [] (size_type index)
@@ -972,40 +1018,33 @@ public:
     
     string_type to_string () const
     {
-        string_type r;
-        
         switch (type()) {
         case data_type::null:
-            r.append("null");
-            break;
+            return string_type("null");
 
         case data_type::boolean:
-            r.append(pfs::to_string<string_type>(get<boolean_type>()));
-            break;
+            return pfs::to_string<string_type>(get<boolean_type>());
 
-        case data_type::integer: {
-            string_type s = pfs::to_string<string_type>(get<integer_type>());
-            qDebug("%s", s.native().toUtf8().constData());
-            r.append(s);
-            break;
-        }
+        case data_type::integer:
+            return pfs::to_string<string_type>(get<integer_type>());
 
         case data_type::uinteger:
-            r.append(pfs::to_string<string_type>(get<uinteger_type>()));
-            break;
+            return pfs::to_string<string_type>(get<uinteger_type>());
             
         case data_type::real:
-            r.append(pfs::to_string<string_type>(get<real_type>()));
-            break;
+            return pfs::to_string<string_type>(get<real_type>());
 
-        case data_type::string:
+        case data_type::string: {
+            string_type r;
             r.append(1, '"');
             r.append(get<string_type>());
             r.append(1, '"');
-            break;
+            return r;
+        }
 
 
         case data_type::array: {
+            string_type r;
             json::const_iterator it = cbegin();
             json::const_iterator last = cend();
 
@@ -1023,10 +1062,11 @@ public:
             
             r.append(1, ']');
 
-            break;
+            return r;
         }
         
         case data_type::object: {
+            string_type r;
             json::const_iterator it = cbegin();
             json::const_iterator last = cend();
 
@@ -1048,10 +1088,10 @@ public:
             }
             
             r.append(1, '}');
-            break;
+            return r;
         }}
         
-        return r;
+        return string_type();
     }
 };
 
@@ -1061,6 +1101,13 @@ namespace pfs {
 
 template <typename JsonType, typename T>
 JsonType to_json (T const & v, bool plain = false);
+
+template <typename StringType, typename JsonTraits>
+typename enable_if<is_same<StringType, typename json::json<JsonTraits>::string_type>::value, StringType>::type
+to_string (json::json<JsonTraits> const & v)
+{
+    return v.to_string();
+}
 
 } // pfs
 

@@ -23,7 +23,7 @@ struct cast_traits_basic
     static T1 cast ()                                        { return static_cast<T1>(nearby_class::cast());  }
     static T1 cast (typename JsonType::boolean_type v)       { return static_cast<T1>(nearby_class::cast(v)); }
     static T1 cast (typename JsonType::integer_type v)       { return static_cast<T1>(nearby_class::cast(v)); }
-    static T1 cast (typename JsonType::float_type v)         { return static_cast<T1>(nearby_class::cast(v)); }
+    static T1 cast (typename JsonType::real_type v)          { return static_cast<T1>(nearby_class::cast(v)); }
     static T1 cast (typename JsonType::string_type const & v){ return static_cast<T1>(nearby_class::cast(v)); }
     static T1 cast (typename JsonType::array_type const & v) { return static_cast<T1>(nearby_class::cast(v)); }
     static T1 cast (typename JsonType::object_type const & v){ return static_cast<T1>(nearby_class::cast(v)); }
@@ -35,7 +35,7 @@ struct cast_traits_basic
 //    static T cast ();
 //    static T cast (typename JsonType::boolean_type);
 //    static T cast (typename JsonType::integer_type);
-//    static T cast (typename JsonType::float_type);
+//    static T cast (typename JsonType::real_type);
 //    static T cast (typename JsonType::string_type const &);
 //    static T cast (typename JsonType::array_type const &);
 //    static T cast (typename JsonType::object_type const &);
@@ -59,9 +59,9 @@ struct cast_traits_basic<bool, bool, JsonType>
         return v ? true : false;
     }
     
-    static bool cast (typename JsonType::float_type v)
+    static bool cast (typename JsonType::real_type v)
     {
-        return v != typename JsonType::float_type(0.0f) ? true : false;
+        return v != typename JsonType::real_type(0.0f) ? true : false;
     }
     
     static bool cast (typename JsonType::string_type const & v)
@@ -98,7 +98,7 @@ struct cast_traits_basic<intmax_t, intmax_t, JsonType>
         return intmax_t(v);
     }
     
-    static intmax_t cast (typename JsonType::float_type v)
+    static intmax_t cast (typename JsonType::real_type v)
     {
         return intmax_t(v);
     }
@@ -137,7 +137,7 @@ struct cast_traits_basic<double, double, JsonType>
         return double(v);
     }
     
-    static double cast (typename JsonType::float_type v)
+    static double cast (typename JsonType::real_type v)
     {
         return double(v);
     }
@@ -180,7 +180,7 @@ struct cast_traits_basic<typename JsonType::string_type
         return to_string<string_type>(v);
     }
     
-    static string_type cast (typename JsonType::float_type v)
+    static string_type cast (typename JsonType::real_type v)
     {
         return to_string<string_type>(v);
     }

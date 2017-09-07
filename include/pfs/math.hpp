@@ -87,6 +87,35 @@ inline long double fabs (long double x)
 }
 #endif
 
+inline float round (float x)
+{
+#if __cplusplus >= 201103L
+    return std::round(x);
+#else
+    return ::round(x);
+#endif    
+}
+
+inline double round (double x)
+{
+#if __cplusplus >= 201103L
+    return std::round(x);
+#else
+    return ::round(x);
+#endif    
+}
+
+#if PFS_HAVE_LONG_DOUBLE
+inline long double round (long double x)
+{
+#if __cplusplus >= 201103L
+    return std::round(x);
+#else
+    return ::round(x);
+#endif    
+}
+#endif // PFS_HAVE_LONG_DOUBLE
+
 } // pfs
 
 namespace pfs {

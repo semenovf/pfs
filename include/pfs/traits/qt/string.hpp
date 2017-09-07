@@ -77,6 +77,7 @@ protected:
 
 public:
     basic_string ()
+        : _p()
     {}
 
     basic_string (native_reference rhs)

@@ -11,7 +11,7 @@ template <typename JsonType>
 void test ()
 {
     typedef typename JsonType::string_type string_type;
-#if 0    
+
     {
         ADD_TESTS(1);
         char const * sample = "[]";
@@ -71,16 +71,10 @@ void test ()
         j.push_back("a");
         TEST_OK(j.to_string() == sample);
     }
-#endif    
+
     {
         ADD_TESTS(1);
 
-        string_type a("a");
-        string_type b("b");
-        a.append(b);
-        a.append(pfs::to_string<string_type>(6));
-        
-        
         char const * sample = "{\"Image\":{\"Height\":600,\"IDs\":[116,943,234,38793],"
             "\"Thumbnail\":{\"Height\":125,\"Url\":\"http://www.example.com/image/481989943\","
             "\"Width\":\"100\"},\"Title\":\"View from 15th Floor\",\"Width\":800}}";
@@ -97,18 +91,7 @@ void test ()
         j["Image"]["IDs"].push_back(943);
         j["Image"]["IDs"].push_back(234);
         j["Image"]["IDs"].push_back(38793);
-//        std::cout << "\n" << j.to_string() << "\n\n";
-        
-//        j.clear();
-        
-  //      std::cout << "\n" << j.to_string() << "\n\n";
-//        
-//        
-//        j.parse(sample);
-//        std::cout << "\n" << sample << "\n\n";
-//        
-//        std::cout << "\n" << j.to_string() << "\n\n";
-        
+        j.parse(sample);
         TEST_OK(j.to_string() == sample);
     }
 }

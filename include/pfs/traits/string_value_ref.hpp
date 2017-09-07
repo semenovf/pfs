@@ -28,6 +28,7 @@ struct string_value
     native_type v;
 
     string_value ()
+        : v()
     {}
 
     string_value (native_reference rhs)
@@ -77,12 +78,11 @@ struct string_ref
         static_assert(false, "Constructor denied");
     }
 
-    string_ref (const_native_reference rhs)
-    {
-        static_assert(false, "Constructor denied");
-    }
-    
 #endif    
+
+    string_ref (const_native_reference rhs)
+        : p(& rhs)
+    {}
     
     string_ref (native_reference rhs)
         : p(& rhs)

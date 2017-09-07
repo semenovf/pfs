@@ -1,17 +1,11 @@
-/*
- * pretty_print.cpp
- *
- *  Created on: Dec 3, 2015
- *      Author: wladt
- */
-#include <pfs/test/test.hpp>
-#include "pfs/json/json.hpp"
+#include "pfs/json/pretty_printer.hpp"
 
-void test_json_pretty_print ()
+namespace test_pretty_printer {
+
+template <typename JsonType>
+void test ()
 {
-//    test_json_pretty_print1();
-//    return;
-    
+    typedef typename JsonType::string_type string_type;
     
 	const char * plain_str = "{\"array\":[[200,300],\"abcd\",100,[200,300],{},[],"
 			"{\"bar\":\"hello\",\"fee\":[100,200],\"foo\":100}],"
@@ -206,44 +200,44 @@ void test_json_pretty_print ()
 
     ADD_TESTS(8);
 
-    using pfs::json::json;
-
-    json json_object;
+    JsonType json_object;
     
-    TEST_FAIL(pfs::json::parse(json_object, _u8(plain_str)));
+    TEST_FAIL(json_object.parse(plain_str) == pfs::error_code());
 	TEST_FAIL(json_object.is_object());
 
-	TEST_OK(pfs::to_string(json_object, pfs::json::style_plain) == _u8(plain_str));
+	TEST_OK(pfs::to_string<string_type>(json_object, pfs::json::style_plain) == plain_str);
 //    std::cout << plain_str << std::endl;
 //    std::cout << "=========================" << std::endl;
 //    std::cout << pfs::to_string(json_object, pfs::json::style_plain) << std::endl;
     
-	TEST_OK(pfs::to_string(json_object, pfs::json::style_kr) == _u8(json_object_kr_str));
+	TEST_OK(pfs::to_string<string_type>(json_object, pfs::json::style_kr) == json_object_kr_str);
 //    std::cout << json_object_kr_str << std::endl;
 //    std::cout << "=========================" << std::endl;
 //    std::cout << pfs::to_string(json_object, pfs::json::style_kr) << std::endl;
 
 
-    TEST_OK(pfs::to_string(json_object, pfs::json::style_bsd) == _u8(json_object_bsd_str));
+    TEST_OK(pfs::to_string<string_type>(json_object, pfs::json::style_bsd) == json_object_bsd_str);
 //    std::cout << json_object_bsd_str << std::endl;
 //    std::cout << "=========================" << std::endl;
 //    std::cout << pfs::to_string(json_object, pfs::json::style_bsd) << std::endl;
 
-    TEST_OK(pfs::to_string(json_object, pfs::json::style_gnu) == _u8(json_object_gnu_str));
+    TEST_OK(pfs::to_string<string_type>(json_object, pfs::json::style_gnu) == json_object_gnu_str);
 //    std::cout << json_object_gnu_str << std::endl;
 //    std::cout << "=========================" << std::endl;
 //    std::cout << pfs::to_string(json_object, pfs::json::style_gnu) << std::endl;
 
 
-    TEST_OK(pfs::to_string(json_object, pfs::json::style_whitesmiths) == _u8(json_object_ws_str));
+    TEST_OK(pfs::to_string<string_type>(json_object, pfs::json::style_whitesmiths) == json_object_ws_str);
 //    std::cout << json_object_ws_str << std::endl;
 //    std::cout << "=========================" << std::endl;
 //    std::cout << pfs::to_string(json_object, pfs::json::style_whitesmiths) << std::endl;
 
 
-    TEST_OK(pfs::to_string(json_object, pfs::json::style_favorite) == _u8(json_object_fav_str));
+    TEST_OK(pfs::to_string<string_type>(json_object, pfs::json::style_favorite) == json_object_fav_str);
 //    std::cout << json_object_fav_str << std::endl;
 //    std::cout << "=========================" << std::endl;
-//    std::cout << pfs::to_string(json_object, pfs::json::style_favorite) << std::endl;
+//    std::cout << pfs::to_string<string_type>(json_object, pfs::json::style_favorite) << std::endl;
+}
+    
 }
 

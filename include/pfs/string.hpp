@@ -749,7 +749,7 @@ StringType to_string (typename pfs::enable_if<pfs::is_unsigned<UintType>::value,
 			, radix
 			, uppercase
 			, buf
-			, sizeof(buf));
+			, sizeof(buf)/sizeof(buf[0]));
     
     return StringType(str, StringType::npos);
 }
@@ -766,7 +766,7 @@ StringType to_string (typename enable_if<is_signed<IntType>::value, IntType>::ty
 			, radix
 			, uppercase
             , buf
-			, sizeof(buf));
+			, sizeof(buf)/sizeof(buf[0]));
     
     return StringType(str, StringType::npos);
 }

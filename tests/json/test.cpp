@@ -24,6 +24,7 @@
 #include "test_parse.hpp"
 #include "test_serialize.hpp"
 #include "test_stringify.hpp"
+#include "test_pretty_printer.hpp"
 //#include "test_compare.hpp"
 //#include "test_find.hpp"
 //#include "test_substr.hpp"
@@ -33,14 +34,15 @@
 namespace stdcxx {
 
 typedef pfs::string<pfs::stdcxx::string> string_type;
-
-typedef pfs::json::json<
+typedef pfs::json::traits<
           bool
         , intmax_t
         , double
         , string_type
         , pfs::stdcxx::vector
-        , pfs::stdcxx::map> json;
+        , pfs::stdcxx::map> json_traits;
+
+typedef pfs::json::json<json_traits> json;
 
 } //stdcxx::json
 
@@ -49,15 +51,15 @@ typedef pfs::json::json<
 namespace qt {
 
 typedef pfs::string<pfs::qt::string> string_type;
-
-typedef pfs::json::json<
+typedef pfs::json::traits<
           bool
         , intmax_t
         , double
         , string_type
         , pfs::qt::vector
-        , pfs::qt::map>
-    json;
+        , pfs::qt::map> json_traits;
+
+typedef pfs::json::json<json_traits> json;
 
 } // qt
 
@@ -67,18 +69,20 @@ int main ()
 {
     BEGIN_TESTS(0);
 
-//    test_basic::test<stdcxx::json>();
-//    test_iterator::test<stdcxx::json>();
-//    test_parse::test<stdcxx::json>();
-//    test_serialize::test<stdcxx::json>();
-//    test_stringify::test<stdcxx::json>();
+    test_basic::test<stdcxx::json>();
+    test_iterator::test<stdcxx::json>();
+    test_parse::test<stdcxx::json>();
+    test_serialize::test<stdcxx::json>();
+    test_stringify::test<stdcxx::json>();
+    test_pretty_printer::test<stdcxx::json>();
 
 #ifdef HAVE_QT
-//    test_basic::test<qt::json>();
-//    test_iterator::test<qt::json>();
-//    test_parse::test<qt::json>();
-//    test_serialize::test<qt::json>();
+    test_basic::test<qt::json>();
+    test_iterator::test<qt::json>();
+    test_parse::test<qt::json>();
+    test_serialize::test<qt::json>();
     test_stringify::test<qt::json>();
+    test_pretty_printer::test<qt::json>();
 #endif
 
     return END_TESTS;

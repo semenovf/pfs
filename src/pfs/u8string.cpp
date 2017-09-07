@@ -1,7 +1,11 @@
 #include "pfs/byte_string.hpp"
 #include "pfs/string.hpp"
 #include "pfs/traits/stdcxx/string.hpp"
-#include "pfs/traits/qt/string.hpp"
+
+#if HAVE_QT
+#   include <QByteArray>
+#   include "pfs/traits/qt/string.hpp"
+#endif
 
 namespace pfs {
 
@@ -22,6 +26,7 @@ byte_string u8string<byte_string> (stdcxx_string_reference_type const & s)
 
 }
 
+#if HAVE_QT
 namespace pfs {
 
 typedef string<qt::string>           qt_string_type;
@@ -41,4 +46,32 @@ byte_string u8string<byte_string> (qt_string_reference_type const & s)
     return byte_string(b.constData(), b.size());
 }
 
+template <>
+QByteArray u8string<QByteArray> (qt_string_type const & s)
+{
+    QByteArray b = s.native().toUtf8();
+    return QByteArray(b.constData(), b.size());
 }
+
+template <>
+QByteArray u8string<QByteArray> (qt_string_reference_type const & s)
+{
+    QByteArray b = s.native().toUtf8();
+    return QByteArray(b.constData(), b.size());
+}
+
+template <>
+QByteArray u8string<QByteArray> (stdcxx_string_type const & s)
+{
+    return QByteArray(s.c_str(), s.size());
+}
+
+template <>
+QByteArray u8string<QByteArray> (stdcxx_string_reference_type const & s)
+{
+    return QByteArray(s.c_str(), s.size());
+}
+
+
+}
+#endif // HAVE_QT

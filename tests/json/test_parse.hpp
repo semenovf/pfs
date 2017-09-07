@@ -6,6 +6,7 @@
 #include "pfs/json/json.hpp"
 #include "pfs/fsm/fsm.hpp"
 #include "pfs/fsm/test.hpp"
+#include "pfs/math.hpp"
 
 namespace test_parse {
 
@@ -253,7 +254,7 @@ void test_parse ()
 	TEST_OK(pfs::to_string<string_type>(json_object["Image"]["Thumbnail"]["Height"].template get<double>(), 'f', 2) == "125.98");
 	TEST_OK(json_object["Image"]["Thumbnail"]["Width"].template get<string_type>() == "100.75");
     TEST_OK(pfs::to_string<string_type>(json_object["Image"]["Thumbnail"]["Width"].template get<double>(), 'f', 2) == "100.75");
-	TEST_OK(pfs::to_string<string_type>(json_object["Image"]["IDs"][size_t(0)].template get<double>(), 'f', 0) == "116");
+	TEST_OK(pfs::to_string<string_type>(json_object["Image"]["IDs"][0].template get<double>(), 'f', 0) == "116");
 	TEST_OK(pfs::to_string<string_type>(json_object["Image"]["IDs"][1].template get<double>(), 'f', 0) == "943");
 	TEST_OK(pfs::to_string<string_type>(json_object["Image"]["IDs"][2].template get<double>(), 'f', 0) == "234");
 	TEST_OK(pfs::to_string<string_type>(json_object["Image"]["IDs"][3].template get<double>(), 'f', 0) == "38793");

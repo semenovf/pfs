@@ -141,6 +141,7 @@ QChar const * string_samples<QChar const *> (int i)
 //#include "test_append.hpp"
 //#include "test_compare.hpp"
 #include "test_to_string.hpp"
+#include "test_u8string.hpp"
 
 int main (int argc, char *argv[])
 {
@@ -168,8 +169,9 @@ int main (int argc, char *argv[])
 //    test_append<std::string>();
 //    test_append<std::wstring>();
 //    test_to_string<pfs::traits::stdcxx::string>();
+    test_u8string<pfs::stdcxx::string>();
 
-#ifdef QT_CORE_LIB
+#ifdef HAVE_QT
     test_basic<pfs::qt::string>();
 //    test_find<pfs::qt::string>();
 //    test_substr<pfs::qt::string>();
@@ -181,7 +183,8 @@ int main (int argc, char *argv[])
 //    test_erase<QString>();
 //    test_append<QString>();
 //    test_to_string<pfs::qt::string>();
+    test_u8string<pfs::qt::string>();
 #endif
-
+    
     return END_TESTS;
 }
