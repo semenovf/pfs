@@ -310,10 +310,18 @@ struct reverse_iterator : public std::reverse_iterator<Iterator>
 {};
 
 template <typename Container>
-inline std::back_insert_iterator<Container> 
+struct back_insert_iterator : public std::back_insert_iterator<Container>
+{
+    explicit back_insert_iterator (Container & c)
+        : std::back_insert_iterator<Container>(c)
+    {}
+};
+
+template <typename Container>
+inline back_insert_iterator<Container> 
 back_inserter (Container & c)
 {
-    return std::back_insert_iterator<Container>(c);
+    return back_insert_iterator<Container>(c);
 }
 
 #endif

@@ -519,6 +519,114 @@ struct is_function<R(A1, A2, A3, A4, A5, A6, A7) const volatile> : true_type {};
 template <typename R, typename A1, typename A2, typename A3, typename A4, typename A5, typename A6, typename A7, typename A8>
 struct is_function<R(A1, A2, A3, A4, A5, A6, A7, A8) const volatile> : true_type {};
 
+template <typename T>
+struct make_unsigned;
+
+template <> struct make_unsigned<char> { typedef unsigned char type; };
+template <> struct make_unsigned<char const> { typedef unsigned char const type; };
+template <> struct make_unsigned<char volatile> { typedef unsigned char volatile type; };
+template <> struct make_unsigned<char const volatile> { typedef unsigned char const volatile type; };
+template <> struct make_unsigned<signed char> { typedef unsigned char type; };
+template <> struct make_unsigned<signed char const> { typedef unsigned char const type; };
+template <> struct make_unsigned<signed char volatile> { typedef unsigned char volatile type; };
+template <> struct make_unsigned<signed char const volatile> { typedef unsigned char const volatile type; };
+template <> struct make_unsigned<unsigned char> { typedef unsigned char type; };
+template <> struct make_unsigned<unsigned char const> { typedef unsigned char const type; };
+template <> struct make_unsigned<unsigned char volatile> { typedef unsigned char volatile type; };
+template <> struct make_unsigned<unsigned char const volatile> { typedef unsigned char const volatile type; };
+
+template <> struct make_unsigned<short> { typedef unsigned short type; };
+template <> struct make_unsigned<short const> { typedef unsigned short const type; };
+template <> struct make_unsigned<short volatile> { typedef unsigned short volatile type; };
+template <> struct make_unsigned<short const volatile> { typedef unsigned short const volatile type; };
+template <> struct make_unsigned<unsigned short> { typedef unsigned short type; };
+template <> struct make_unsigned<unsigned short const> { typedef unsigned short const type; };
+template <> struct make_unsigned<unsigned short volatile> { typedef unsigned short volatile type; };
+template <> struct make_unsigned<unsigned short const volatile> { typedef unsigned short const volatile type; };
+
+template <> struct make_unsigned<int> { typedef unsigned int type; };
+template <> struct make_unsigned<int const> { typedef unsigned int const type; };
+template <> struct make_unsigned<int volatile> { typedef unsigned int volatile type; };
+template <> struct make_unsigned<int const volatile> { typedef unsigned int const volatile type; };
+template <> struct make_unsigned<unsigned int> { typedef unsigned int type; };
+template <> struct make_unsigned<unsigned int const> { typedef unsigned int const type; };
+template <> struct make_unsigned<unsigned int volatile> { typedef unsigned int volatile type; };
+template <> struct make_unsigned<unsigned int const volatile> { typedef unsigned int const volatile type; };
+
+template <> struct make_unsigned<long> { typedef unsigned long type; };
+template <> struct make_unsigned<long const> { typedef unsigned long const type; };
+template <> struct make_unsigned<long volatile> { typedef unsigned long volatile type; };
+template <> struct make_unsigned<long const volatile> { typedef unsigned long const volatile type; };
+template <> struct make_unsigned<unsigned long> { typedef unsigned long type; };
+template <> struct make_unsigned<unsigned long const> { typedef unsigned long const type; };
+template <> struct make_unsigned<unsigned long volatile> { typedef unsigned long volatile type; };
+template <> struct make_unsigned<unsigned long const volatile> { typedef unsigned long const volatile type; };
+
+#if PFS_HAVE_LONG_LONG
+template <> struct make_unsigned<long long> { typedef unsigned long long type; };
+template <> struct make_unsigned<long long const> { typedef unsigned long long const type; };
+template <> struct make_unsigned<long long volatile> { typedef unsigned long long volatile type; };
+template <> struct make_unsigned<long long const volatile> { typedef unsigned long long const volatile type; };
+template <> struct make_unsigned<unsigned long long> { typedef unsigned long long type; };
+template <> struct make_unsigned<unsigned long long const> { typedef unsigned long long const type; };
+template <> struct make_unsigned<unsigned long long volatile> { typedef unsigned long long volatile type; };
+template <> struct make_unsigned<unsigned long long const volatile> { typedef unsigned long long const volatile type; };
+#endif
+
+template <typename T>
+struct make_signed;
+
+template <> struct make_signed<char> { typedef signed char type; };
+template <> struct make_signed<char const> { typedef signed char const type; };
+template <> struct make_signed<char volatile> { typedef signed char volatile type; };
+template <> struct make_signed<char const volatile> { typedef signed char const volatile type; };
+template <> struct make_signed<signed char> { typedef signed char type; };
+template <> struct make_signed<signed char const> { typedef signed char const type; };
+template <> struct make_signed<signed char volatile> { typedef signed char volatile type; };
+template <> struct make_signed<signed char const volatile> { typedef signed char const volatile type; };
+template <> struct make_signed<unsigned char> { typedef signed char type; };
+template <> struct make_signed<unsigned char const> { typedef signed char const type; };
+template <> struct make_signed<unsigned char volatile> { typedef signed char volatile type; };
+template <> struct make_signed<unsigned char const volatile> { typedef signed char const volatile type; };
+
+template <> struct make_signed<short> { typedef signed short type; };
+template <> struct make_signed<short const> { typedef signed short const type; };
+template <> struct make_signed<short volatile> { typedef signed short volatile type; };
+template <> struct make_signed<short const volatile> { typedef signed short const volatile type; };
+template <> struct make_signed<unsigned short> { typedef signed short type; };
+template <> struct make_signed<unsigned short const> { typedef signed short const type; };
+template <> struct make_signed<unsigned short volatile> { typedef signed short volatile type; };
+template <> struct make_signed<unsigned short const volatile> { typedef signed short const volatile type; };
+
+template <> struct make_signed<int> { typedef signed int type; };
+template <> struct make_signed<int const> { typedef signed int const type; };
+template <> struct make_signed<int volatile> { typedef signed int volatile type; };
+template <> struct make_signed<int const volatile> { typedef signed int const volatile type; };
+template <> struct make_signed<unsigned int> { typedef signed int type; };
+template <> struct make_signed<unsigned int const> { typedef signed int const type; };
+template <> struct make_signed<unsigned int volatile> { typedef signed int volatile type; };
+template <> struct make_signed<unsigned int const volatile> { typedef signed int const volatile type; };
+
+template <> struct make_signed<long> { typedef signed long type; };
+template <> struct make_signed<long const> { typedef signed long const type; };
+template <> struct make_signed<long volatile> { typedef signed long volatile type; };
+template <> struct make_signed<long const volatile> { typedef signed long const volatile type; };
+template <> struct make_signed<unsigned long> { typedef signed long type; };
+template <> struct make_signed<unsigned long const> { typedef signed long const type; };
+template <> struct make_signed<unsigned long volatile> { typedef signed long volatile type; };
+template <> struct make_signed<unsigned long const volatile> { typedef signed long const volatile type; };
+
+#if PFS_HAVE_LONG_LONG
+template <> struct make_signed<long long> { typedef signed long long type; };
+template <> struct make_signed<long long const> { typedef signed long long const type; };
+template <> struct make_signed<long long volatile> { typedef signed long long volatile type; };
+template <> struct make_signed<long long const volatile> { typedef signed long long const volatile type; };
+template <> struct make_signed<unsigned long long> { typedef signed long long type; };
+template <> struct make_signed<unsigned long long const> { typedef signed long long const type; };
+template <> struct make_signed<unsigned long long volatile> { typedef signed long long volatile type; };
+template <> struct make_signed<unsigned long long const volatile> { typedef signed long long const volatile type; };
+#endif
+
 } // pfs
 
 #endif /* __PFS_CXX98_TYPE_TRAITS_HPP__ */

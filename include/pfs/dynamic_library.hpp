@@ -94,9 +94,9 @@ filesystem::path build_so_filename (filesystem::path const & name) pfs_noexcept;
 enum class dynamic_library_errc 
 {
 #else
-struct dynamic_library_errc 
+struct dynamic_library_errc
 {
-    enum {
+    enum value_enum {
 #endif
           success = 0
         , invalid_argument
@@ -105,6 +105,23 @@ struct dynamic_library_errc
         , symbol_not_found
 #if __cplusplus < 201103L                  
     };
+    
+    value_enum v;
+    
+    dynamic_library_errc (value_enum x)
+        : v(x)
+    {}
+
+    dynamic_library_errc & operator = (value_enum x)
+    {
+        v = x;
+        return *this;
+    }
+    
+    operator int () const
+    {
+        return static_cast<int>(v);
+    }
 #endif    
 };
 
@@ -128,13 +145,17 @@ inline pfs::error_code make_error_code (dynamic_library_errc e)
 
 namespace std {
 
+// TODO implement for C++98
+#if __cplusplus >= 201103L
+
 template<>
 struct is_error_code_enum<pfs::dynamic_library_errc>
         : public std::true_type 
 {};
 
-} // std
+#endif
 
+} // std
 
 #endif /* __PFS_DYNAMIC_LIBRARY_HPP__ */
 

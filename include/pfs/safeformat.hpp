@@ -15,10 +15,9 @@
 #include <pfs/string.hpp>
 #include <pfs/limits.hpp>
 #include <pfs/exception.hpp>
+#include <pfs/iterator.hpp>
 #include <pfs/lexical_cast.hpp>
-
-#include "cxx/cxx98/exception.hpp"
-#include "cxx/cxx11/memory.hpp"
+//#include "cxx/memory.hpp"
 
 //
 // [Formatted Output](http://www.qnx.com/developers/docs/6.5.0/topic/com.qnx.doc.dinkum_en_c99/lib_prin.html)

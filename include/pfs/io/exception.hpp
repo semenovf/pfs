@@ -18,9 +18,9 @@ namespace pfs {
 enum class io_errc 
 {
 #else
-struct io_errc 
+struct io_errc
 {
-    enum {
+    enum value_enum {
 #endif
           success = 0
         , operation_in_progress
@@ -33,6 +33,23 @@ struct io_errc
         , stream
 #if __cplusplus < 201103L                  
     };
+    
+    value_enum v;
+    
+    io_errc (value_enum x)
+        : v(x)
+    {}
+
+    io_errc & operator = (value_enum x)
+    {
+        v = x;
+        return *this;
+    }
+    
+    operator int () const
+    {
+        return static_cast<int>(v);
+    }
 #endif    
 };
 
@@ -69,18 +86,22 @@ public:
             + ": " + what)
     {}
 
-    virtual ~io_exception() {}
+    virtual ~io_exception() throw() {}
 };
 
 } // pfs
 
 namespace std {
 
+// TODO implement for C++98
+#if __cplusplus >= 201103L
+
 template<>
 struct is_error_code_enum<pfs::io_errc>
         : public std::true_type 
 {};
 
+#endif
 } // std
 
 #endif /* __PFS_IO_EXCEPTION_HPP__ */

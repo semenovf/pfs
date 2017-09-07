@@ -14,6 +14,10 @@
 
 namespace pfs {
 
+template <typename T>
+struct allocator : public std::allocator<T>
+{};
+
 template< class T >
 pfs_constexpr T * addressof (T & arg)
 {

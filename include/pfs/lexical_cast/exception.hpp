@@ -18,9 +18,9 @@ namespace pfs {
 enum class lexical_cast_errc 
 {
 #else
-struct lexical_cast_errc 
+struct lexical_cast_errc
 {
-    enum {
+    enum value_enum {
 #endif
           success = 0
         , bad_radix // bad radix
@@ -29,6 +29,23 @@ struct lexical_cast_errc
         , invalid_string
 #if __cplusplus < 201103L                  
     };
+    
+    value_enum v;
+    
+    lexical_cast_errc (value_enum x)
+        : v(x)
+    {}
+
+    lexical_cast_errc & operator = (value_enum x)
+    {
+        v = x;
+        return *this;
+    }
+    
+    operator int () const
+    {
+        return static_cast<int>(v);
+    }
 #endif    
 };
 
@@ -65,17 +82,22 @@ public:
             + ": " + what)
     {}
 
-    virtual ~bad_lexical_cast() {}
+    virtual ~bad_lexical_cast() throw() {}
 };
 
 } // pfs
 
 namespace std {
 
+// TODO implement for C++98
+#if __cplusplus >= 201103L
+
 template<>
 struct is_error_code_enum<pfs::lexical_cast_errc>
         : public std::true_type 
 {};
+
+#endif
 
 } // std
 

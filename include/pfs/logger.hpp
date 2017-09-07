@@ -572,7 +572,7 @@ public:
     }
 
 protected:
-	virtual void print (StringType const & msg) override
+	virtual void print (StringType const & msg) pfs_override
 	{
 		std::cout << msg << std::endl;
 	}
@@ -592,7 +592,7 @@ public:
     }
 
 protected:
-	virtual void print (StringType const & msg) override
+	virtual void print (StringType const & msg) pfs_override
 	{
 		std::cerr << msg << std::endl;
 	}

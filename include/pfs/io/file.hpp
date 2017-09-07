@@ -24,10 +24,17 @@ struct file {};
 template <>
 struct open_params<file>
 {
+#if __cplusplus >= 201103L
 	static filesystem::perms const default_create_perms = filesystem::perms::owner_read
 			| filesystem::perms::owner_write
 			| filesystem::perms::group_read
 			| filesystem::perms::others_read;
+#else
+	static int const default_create_perms = filesystem::perms::owner_read
+			| filesystem::perms::owner_write
+			| filesystem::perms::group_read
+			| filesystem::perms::others_read;
+#endif
 
 	filesystem::path path;
 	device::open_mode_flags oflags;
