@@ -11,6 +11,7 @@
 #include <ostream>
 #include <istream>
 #include <pfs/cxxlang.hpp>
+#include <pfs/string.hpp>
 #include <pfs/filesystem/filesystem_error.hpp>
 #include <pfs/cxxversion.hpp>
 #include PFS_CXX_HEADER(filesystem/path)
@@ -89,6 +90,11 @@ public:
     template <typename Source>
     basic_path (Source const & source/*, format fmt = auto_format*/)
         :_d(source)
+    {}
+
+    template <typename StringImpl>
+    basic_path (string<StringImpl> const & source/*, format fmt = auto_format*/)
+        :_d(source.native())
     {}
 
     template <typename InputIt>
