@@ -12,6 +12,10 @@
 #include <pfs/types.hpp>
 #include <pfs/cxxlang.hpp>
 
+#if __cplusplus < 201103L
+#   include "memory.hpp" // for addressof
+#endif
+
 namespace pfs {
 
 typedef std::input_iterator_tag         input_iterator_tag;
@@ -309,14 +313,48 @@ template <typename Iterator>
 struct reverse_iterator : public std::reverse_iterator<Iterator>
 {};
 
+//
+// C++98 (GCC) implementation need `const_reference` type defined in Container
+// for `back_insert_iterator & operator=(typename _Container::const_reference __value)`.
+// But pfs::string has no such typedef, so error occurred.
+// So replicate this struct.
+//
 template <typename Container>
-struct back_insert_iterator : public std::back_insert_iterator<Container>
+class back_insert_iterator : public std::iterator<std::output_iterator_tag, void, void, void, void>
 {
-    explicit back_insert_iterator (Container & c)
-        : std::back_insert_iterator<Container>(c)
-    {}
-};
+protected:
+    Container * _container;
 
+public:
+    typedef Container container_type;
+
+    explicit back_insert_iterator (Container & x)
+        : _container (addressof(x))
+    {}
+
+    back_insert_iterator &
+            operator= (const typename Container::value_type & value)
+    {
+        _container->push_back(value);
+        return *this;
+    }
+
+    back_insert_iterator & operator * ()
+    {
+        return *this;
+    }
+
+    back_insert_iterator & operator ++ ()
+    {
+        return *this;
+    }
+
+    back_insert_iterator operator ++ (int)
+    {
+        return *this;
+    }
+};
+    
 template <typename Container>
 inline back_insert_iterator<Container> 
 back_inserter (Container & c)

@@ -24,6 +24,8 @@
 
 #   error "Implement for Win32"
 
+#elif defined(HAVE_BOOST_THREAD)
+#   include "thread_boost.hpp"
 #elif defined(HAVE_PTHREAD)
 #   include <pthread.h>
 #   include "thread_posix.hpp"

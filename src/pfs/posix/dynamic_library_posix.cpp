@@ -132,7 +132,7 @@ dynamic_library::symbol_type dynamic_library::resolve (char const * symbol_name)
     return sym;
 }
 
-filesystem::path build_so_filename (filesystem::path const & name) noexcept
+filesystem::path build_so_filename (filesystem::path const & name) pfs_noexcept
 {
 	filesystem::path p("lib");
 	p += name;

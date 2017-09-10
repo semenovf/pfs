@@ -189,7 +189,7 @@ error_code file::close ()
     return ec;
 }
 
-}}} // cwt::io::details
+}}} // pfs::io::details
 
 namespace pfs { namespace io {
 

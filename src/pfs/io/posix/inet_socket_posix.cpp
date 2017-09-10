@@ -244,19 +244,21 @@ namespace pfs {
 namespace io {
 
 template <>
-device open_device<tcp_socket> (const open_params<tcp_socket> & op, error_code & ex)
+device open_device<tcp_socket> (const open_params<tcp_socket> & op, error_code & ec)
 {
     bool non_blocking_flag = op.oflags & pfs::io::non_blocking;
 
     details::tcp_socket * d = new details::tcp_socket;
 
-    ex = d->open(non_blocking_flag);
+    ec = d->open(non_blocking_flag);
 
-    if (!ex) ex = d->set_socket_options(op.socketopts);
+    if (!ec)
+        ec = d->set_socket_options(op.socketopts);
 
-    if (!ex) ex = d->connect(op.addr.native(), op.port);
+    if (!ec)
+        ec = d->connect(op.addr.native(), op.port);
 
-    if (ex and ex != io_errc::operation_in_progress) {
+    if (ec && ec != make_error_code(io_errc::operation_in_progress)) {
     	delete d;
     	return device();
     }
@@ -265,19 +267,21 @@ device open_device<tcp_socket> (const open_params<tcp_socket> & op, error_code &
 }
 
 template <>
-device open_device<udp_socket> (const open_params<udp_socket> & op, error_code & ex)
+device open_device<udp_socket> (const open_params<udp_socket> & op, error_code & ec)
 {
     bool non_blocking_flag = op.oflags & pfs::io::non_blocking;
 
     details::udp_socket * d = new details::udp_socket;
 
-    ex = d->open(non_blocking_flag);
+    ec = d->open(non_blocking_flag);
 
-    if (!ex) ex = d->set_socket_options(op.socketopts);
+    if (!ec)
+        ec = d->set_socket_options(op.socketopts);
 
-    if (!ex) ex = d->connect(op.addr.native(), op.port);
+    if (!ec)
+        ec = d->connect(op.addr.native(), op.port);
 
-    if (ex and ex != io_errc::operation_in_progress) {
+    if (ec && ec != make_error_code(io_errc::operation_in_progress)) {
     	delete d;
     	return device();
     }

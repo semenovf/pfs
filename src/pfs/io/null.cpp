@@ -64,7 +64,7 @@ struct null : public bits::device
     	return device_null;
     }
     
-    virtual system_string url () const override
+    virtual system_string url () const pfs_override
     {
         return system_string("null");
     }

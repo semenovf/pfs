@@ -22,6 +22,9 @@ namespace details {
 class path : public boost::filesystem::path
 {
     typedef boost::filesystem::path base_class;
+    
+public:
+    typedef typename base_class::string_type string_type;
 
 public:
     path ()
@@ -65,6 +68,12 @@ public:
         base_class::operator = (source);
         return *this;
     }
+    
+    operator string_type () const
+    {
+        return base_class::native();
+    }
+
 
     // TODO Implement file_status
     //bool exists (filesystem::file_status s) noexcept;

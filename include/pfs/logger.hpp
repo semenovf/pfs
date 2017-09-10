@@ -84,7 +84,11 @@ private:
 
 public:
 	logger ()
+#if __cplusplus >= 201103L    
 		: _d(make_unique<data_t>())
+#else
+        : _d(new data_t)
+#endif
 	{
 		_d->_priority = priority::trace;
 	}

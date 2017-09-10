@@ -20,7 +20,7 @@ enum class json_errc
 #else
 struct json_errc 
 {
-    enum {
+    enum value_enum {
 #endif
           success = 0
         , bad_json
@@ -28,6 +28,23 @@ struct json_errc
         , bad_number
 #if __cplusplus < 201103L                  
     };
+
+    value_enum v;
+    
+    json_errc (value_enum x)
+        : v(x)
+    {}
+
+    json_errc & operator = (value_enum x)
+    {
+        v = x;
+        return *this;
+    }
+    
+    operator int () const
+    {
+        return static_cast<int>(v);
+    }    
 #endif    
 };
 
@@ -66,17 +83,22 @@ public:
             + ": " + what)
     {}
 
-    virtual ~json_exception() {}
+    virtual ~json_exception() throw() {}
 };
 
 } // pfs
 
 namespace std {
 
+// TODO implement for C++98
+#if __cplusplus >= 201103L
+
 template<>
 struct is_error_code_enum<pfs::json_errc>
         : public std::true_type 
 {};
+
+#endif
 
 } // std
 

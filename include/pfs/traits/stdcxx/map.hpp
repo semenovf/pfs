@@ -226,7 +226,8 @@ public:
     //
     pfs::pair<iterator, bool> insert (key_type const & key, mapped_type const & value)
     {
-        return _p->insert(pfs::make_pair(key, value));
+        std::pair<iterator,bool> r = _p->insert(std::make_pair(key, value));
+        return pfs::make_pair(r.first, r.second);
     }
 
     // *************************************************************************
