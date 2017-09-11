@@ -180,7 +180,7 @@ public:
 
 	void print (priority level, string_type const & msg)
 	{
-		if (level.value >= _d->_priority and level.value != priority::no_priority)
+		if (level.value >= _d->_priority && level.value != priority::no_priority)
 			_d->_emitters[level](level, msg);
 	}
 

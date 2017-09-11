@@ -273,9 +273,9 @@ bool dispatcher::register_modules (JsonType const & conf)
     	if (dlog.is_object()) {
     		logger::logger<string_type> logger;
     		typename JsonType::const_iterator it = dlog.cbegin();
-    		typename JsonType::const_iterator itEnd = dlog.cend();
+    		typename JsonType::const_iterator last = dlog.cend();
 
-    		for (; it != itEnd; ++it) {
+    		for (; it != last; ++it) {
     			string_type name = it.key();
     			JsonType priority = *it;
     			stringlist<string_type> priorities;
@@ -300,6 +300,16 @@ bool dispatcher::register_modules (JsonType const & conf)
     			}
 
     			PFS_ASSERT(pappender);
+                
+                // FIXME must be configurable {
+                pappender->set_pattern("%d{ABSOLUTE} [%p]: %m");
+                pappender->set_priority_text(logger::priority::trace, "T");
+                pappender->set_priority_text(logger::priority::debug, "D");
+                pappender->set_priority_text(logger::priority::info , "I");
+                pappender->set_priority_text(logger::priority::warn , "W");
+                pappender->set_priority_text(logger::priority::error, "E");
+                pappender->set_priority_text(logger::priority::fatal, "F");
+                // }
 
     			if (priority.is_string()) {
     				priorities.push_back(priority.template get<string_type>());

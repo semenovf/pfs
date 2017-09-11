@@ -31,7 +31,9 @@ public:
             path p1(*i);
             p1 /= p;
 
-            if (exists(p1))
+            error_code ec;
+                    
+            if (exists(p1, ec))
                 return p1;
         }
 

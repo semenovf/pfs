@@ -203,6 +203,7 @@ static char const * json_object_str =
 		    "\"Width\":  800,"
 		    "\"Height\": 600,"
 		    "\"Title\":  \"View from 15th Floor\","
+            "\"Заголовок\":  \"Значение\","
 		    "\"Thumbnail\": {"
 		        "\"Url\":    \"http://www.example.com/image/481989943\","
 			    "\"Height\": 125.98,"
@@ -227,7 +228,7 @@ void test_parse ()
 {
     typedef typename JsonType::string_type string_type;
     
-    ADD_TESTS(26);
+    ADD_TESTS(29);
     
 	JsonType json_empty_object;
 	TEST_OK(json_empty_object.is_null());
@@ -241,6 +242,10 @@ void test_parse ()
 	TEST_OK(!json_empty_array.is_null());
 	TEST_OK(json_empty_array.is_array());
 
+    JsonType json_object_cyr;
+    TEST_OK(json_object_cyr.parse("{\"ё\":\"й\"}") == pfs::error_code());
+    TEST_OK(json_object_cyr["ё"].template get<string_type>() == "й");
+    
     JsonType json_object;
     TEST_OK(json_object.parse(json_object_str) == pfs::error_code());
     TEST_OK(json_object.is_object());
@@ -248,6 +253,7 @@ void test_parse ()
 	TEST_OK(json_object["Image"]["Width"].template get<int>() == 800);
 	TEST_OK(json_object["Image"]["Height"].template get<int>() == 600);
     TEST_OK(json_object["Image"]["Title"].template get<string_type>() == "View from 15th Floor");
+    TEST_OK(json_object["Image"]["Заголовок"].template get<string_type>() == "Значение");
     
 	TEST_OK(json_object["Image"]["Thumbnail"]["Url"].template get<string_type>() == "http://www.example.com/image/481989943");
     

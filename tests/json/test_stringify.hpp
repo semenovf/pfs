@@ -74,6 +74,14 @@ void test ()
 
     {
         ADD_TESTS(1);
+        char const * sample = "[\"й\"]";
+        JsonType j = JsonType::make_array();
+        j.push_back("й");
+        TEST_OK(j.to_string() == sample);
+    }
+
+    {
+        ADD_TESTS(1);
 
         char const * sample = "{\"Image\":{\"Height\":600,\"IDs\":[116,943,234,38793],"
             "\"Thumbnail\":{\"Height\":125,\"Url\":\"http://www.example.com/image/481989943\","

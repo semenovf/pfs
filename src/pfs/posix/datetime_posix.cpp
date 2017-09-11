@@ -20,7 +20,7 @@ namespace pfs {
 static struct tm * __localtime (time_t const * t, struct tm * buffer)
 {
     struct tm * result = 0;
-    
+
 //#if PFS_HAVE_LOCALTIME_R
     tzset();
     result = localtime_r(t, buffer);

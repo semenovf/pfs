@@ -8,6 +8,9 @@
 #include <pfs/json/constants.hpp>
 #include "exception.hpp"
 
+
+#include <pfs/debug.hpp>
+
 namespace pfs { namespace json {
 
 /*
@@ -253,24 +256,26 @@ struct grammar
         iterator it = first;
 
         while (it != last) {
-            if (!escaped && *it == value_type('\\')) {
+            typename string_type::value_type c = *it;
+            
+            if (!escaped && c == value_type('\\')) {
                 escaped = true;
             } else {
                 if (escaped) {
-                    if (*it == value_type('b'))
-                        iterator::encode(value_type('\b'), pfs::back_inserter(r));
-                    else if (*it == value_type('f'))
-                        iterator::encode(value_type('\f'), pfs::back_inserter(r));
-                    else if (*it == value_type('n'))
-                        iterator::encode(value_type('\n'), pfs::back_inserter(r));
-                    else if (*it == value_type('r'))
-                        iterator::encode(value_type('\r'), pfs::back_inserter(r));
-                    else if (*it == value_type('t'))
-                        iterator::encode(value_type('\t'), pfs::back_inserter(r));
+                    if (c == value_type('b'))
+                        r.push_back(value_type('\b'));
+                    else if (c == value_type('f'))
+                        r.push_back(value_type('\f'));
+                    else if (c == value_type('n'))
+                        r.push_back(value_type('\n'));
+                    else if (c == value_type('r'))
+                        r.push_back(value_type('\r'));
+                    else if (c == value_type('t'))
+                        r.push_back(value_type('\t'));
                     else
-                        iterator::encode(*it, pfs::back_inserter(r));
+                        r.push_back(c);
                 } else {
-                    iterator::encode(*it, pfs::back_inserter(r));
+                    r.push_back(c);
                 }
                 escaped = false;
             }
