@@ -3,8 +3,12 @@
 ### C++
 
 1. [Prototypes of member access operators](http://en.cppreference.com/w/cpp/language/operator_member_access)
-2. [Your own error code](https://akrzemi1.wordpress.com/2017/07/12/your-own-error-code/)
-3. [C++17 features](http://www.bfilipek.com/2017/07/cpp17-in-details-attributes.html)
+2. [C++17 features](http://www.bfilipek.com/2017/07/cpp17-in-details-attributes.html)
+
+
+### Templates
+
+1. [Partial Specialization and Tags](https://vector-of-bool.github.io/2017/08/12/partial-specializations.html)
 
 ### std::chrono
 
@@ -18,17 +22,22 @@
 
 1. [Using C++11’s Smart Pointers](http://umich.edu/~eecs381/handouts/C++11_smart_ptrs.pdf)
 
-### rvalue
+### rvalue, value categories
 
 1. [C++ Rvalue References Explained](http://thbecker.net/articles/rvalue_references/section_01.html)
+2. [Value Categories in C++17](https://medium.com/@barryrevzin/value-categories-in-c-17-f56ae54bccbe)
+3. [Understanding the meaning of lvalues and rvalues in C++](https://www.internalpointers.com/post/understanding-meaning-lvalues-and-rvalues-c)
 
 ### STL
 
 1. [STL & Generic Programming: Writing Your Own Iterators](http://www.drdobbs.com/stl-generic-programming-writing-your-ow/184401417)
 
-### Exceptions, handling
+### Exceptions, error handling
 
 1. [Exception handling in constructors](https://medium.com/cpp-station/exception-handling-in-constructors-26bf4c811b46)
+2. [Your own error code](https://akrzemi1.wordpress.com/2017/07/12/your-own-error-code/)
+3. [Your own error condition](https://akrzemi1.wordpress.com/2017/08/12/your-own-error-condition/)
+4. [Using error codes effectively](https://akrzemi1.wordpress.com/2017/09/04/using-error-codes-effectively/)
 
 ### 32/64-bits
 

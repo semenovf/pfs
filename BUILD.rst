@@ -1,0 +1,11 @@
+Build
+================================================================================
+
+Astra Linux 1.4 Special Edition (gcc version 4.7.2 (Debian 4.7.2-5))
+--------------------------------------------------------------------------------
+
+Prerequisites
+
+1. Boost            (libboost1.55-dev)
+2. Boost.System     (libboost-system1.55-dev)
+3. Boost.Filesystem (libboost-filesystem1.55-dev, libboost-filesystem1.55.0)

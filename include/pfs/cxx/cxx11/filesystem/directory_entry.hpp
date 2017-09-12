@@ -73,7 +73,7 @@ public:
 
 #else
 
-#   error "Need to implement"
+#include <pfs/cxx/cxx98/filesystem/directory_entry.hpp>
 
 #endif
 

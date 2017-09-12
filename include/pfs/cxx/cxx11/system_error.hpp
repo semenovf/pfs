@@ -20,6 +20,7 @@
 
 namespace pfs {
 
+using system_error    = std::system_error;
 using error_code      = std::error_code;
 using error_category  = std::error_category;
 using error_condition = std::error_condition;
@@ -55,10 +56,74 @@ inline pfs::error_code get_last_system_error ()
 #else // POSIX
     return error_code(errno, generic_category());
 #endif // !PFS_CC_MSC
-   
 }
 
 } // pfs
+
+#if HAVE_BOOST_SYSTEM
+
+//[Unifying error codes](http://breese.github.io/2016/06/18/unifying-error-codes.html)
+
+#include <boost/system/error_code.hpp>
+#include <pfs/assert.hpp>
+
+namespace pfs {
+namespace boost {
+
+pfs::error_category const & generic_category ();
+
+inline pfs::error_code convert (::boost::system::error_code const & ec)
+{
+    if (ec.category() == ::boost::system::generic_category())
+        return pfs::error_code(ec.value(), generic_category());
+    
+    PFS_ASSERT(false);
+    return pfs::error_code();
+}
+
+inline ::boost::system::error_code convert (pfs::error_code const & ec)
+{
+    if (ec.category() == std::generic_category())
+        return ::boost::system::error_code(ec.value(), generic_category());
+    
+    PFS_ASSERT(false);
+    return ::boost::system::error_code();
+}
+
+struct ec_convert_wrapper
+{
+    pfs::error_code & result;
+    ::boost::system::error_code ec;
+    
+    ec_convert_wrapper (pfs::error_code & r)
+        : result(r)
+    {}
+
+    ~ec_convert_wrapper ()
+    {
+        result = convert(ec);
+    }
+};
+
+} // boost
+
+inline pfs::error_code make_error_code (::boost::system::errc::errc_t e)
+{
+    return pfs::error_code(static_cast<int>(e), boost::generic_category());
+}
+
+} // pfs
+
+namespace std {
+
+template <>
+struct is_error_code_enum<boost::system::errc::errc_t>
+    : public std::true_type
+{};
+
+} // std
+
+#endif // HAVE_BOOST_SYSTEM
 
 #endif /* __PFS_CXX_CXX11_SYSTEM_ERROR_HPP__ */
 

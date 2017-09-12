@@ -13,15 +13,15 @@
 #if HAVE_BOOST_FILESYSTEM
 
 #include <boost/filesystem/path.hpp>
-#include "../system_error.hpp"
+#include <pfs/system_error.hpp>
 
 namespace pfs {
 namespace filesystem {
 namespace details {
 
-class path : public boost::filesystem::path
+class path : public ::boost::filesystem::path
 {
-    typedef boost::filesystem::path base_class;
+    typedef ::boost::filesystem::path base_class;
     
 public:
     typedef typename base_class::string_type string_type;
@@ -80,12 +80,16 @@ public:
 
     bool exists (pfs::error_code & ec) const pfs_noexcept
     {
-        return boost::filesystem::exists(*this, ec);
+        // Automatically convert boost's error_code into pfs::error_code on destroy
+        boost::ec_convert_wrapper w(ec);
+        return ::boost::filesystem::exists(*this, w.ec);
     }
 
     bool remove (pfs::error_code & ec) const pfs_noexcept
     {
-        return boost::filesystem::remove(*this, ec);
+        // Automatically convert boost's error_code into pfs::error_code on destroy
+        boost::ec_convert_wrapper w(ec);
+        return ::boost::filesystem::remove(*this, w.ec);
     }
 };
 

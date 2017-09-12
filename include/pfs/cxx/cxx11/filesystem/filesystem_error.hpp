@@ -20,7 +20,6 @@ namespace details {
 
 using filesystem_error = std::experimental::filesystem::filesystem_error;
 
-
 /**
  * @fn filesystem_error::filesystem_error (std::string const & what_arg, pfs::error_code ec)
  */
@@ -42,7 +41,7 @@ using filesystem_error = std::experimental::filesystem::filesystem_error;
 
 #else
 
-#   error "Need to implement"
+#include <pfs/cxx/cxx98/filesystem/filesystem_error.hpp>
 
 #endif
 

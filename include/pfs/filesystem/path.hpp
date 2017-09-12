@@ -570,7 +570,7 @@ typedef basic_path<details::path> path;
 inline bool exists (path const & p)
 {
     pfs::error_code ec;
-    bool r = exists(p, ec);
+    bool r = p.exists(ec);
     
     if (ec) {
         throw filesystem_error(p, ec);
@@ -587,7 +587,7 @@ inline bool exists (path const & p, pfs::error_code & ec) pfs_noexcept
 inline bool remove (path const & p)
 {
     pfs::error_code ec;
-    bool r = remove(p, ec);
+    bool r = p.remove(ec);
     
     if (ec) {
         throw filesystem_error(p, ec);

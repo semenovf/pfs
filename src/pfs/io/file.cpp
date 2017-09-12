@@ -1,8 +1,22 @@
-#include <pfs/debug.hpp>
 #include <pfs/io/exception.hpp>
 #include "pfs/io/file.hpp"
 
 namespace pfs {
+namespace io {
+
+#if __cplusplus >= 201103L
+template <>
+filesystem::perms const open_params<file>::default_create_perms = filesystem::perms::owner_read
+        | filesystem::perms::owner_write
+        | filesystem::perms::group_read
+        | filesystem::perms::others_read;
+#else
+template <>
+int const open_params<file>::default_create_perms = filesystem::perms::owner_read
+        | filesystem::perms::owner_write
+        | filesystem::perms::group_read
+        | filesystem::perms::others_read;
+#endif
 
 // TODO
 //void file_appender::print (pfs::string const & msg)
@@ -14,4 +28,4 @@ namespace pfs {
 //    PFS_ERROR2(ex == 0, string("Failed to write log message: ").append(to_string(ex)).c_str());
 //}
 
-}
+}} // pfs::io

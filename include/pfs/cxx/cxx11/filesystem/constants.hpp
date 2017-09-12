@@ -24,7 +24,7 @@ using perms = std::experimental::filesystem::perms;
 
 #else
 
-#error  "Need to implement"
+#include <pfs/cxx/cxx98/filesystem/constants.hpp>
 
 #endif
 

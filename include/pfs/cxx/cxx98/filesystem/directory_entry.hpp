@@ -19,9 +19,9 @@ namespace pfs {
 namespace filesystem {
 namespace details {
 
-class directory_entry : public boost::filesystem::directory_entry
+class directory_entry : public ::boost::filesystem::directory_entry
 {
-    typedef boost::filesystem::directory_entry base_class;
+    typedef ::boost::filesystem::directory_entry base_class;
     
 public:
     directory_entry () pfs_noexcept
