@@ -58,6 +58,16 @@ inline pfs::error_code get_last_system_error ()
 #endif // !PFS_CC_MSC
 }
 
+template <typename ErrorCode>
+ErrorCode lexical_cast (pfs::error_code const & ec);
+
+template <>
+inline std::error_code 
+lexical_cast<std::error_code> (pfs::error_code const & ec)
+{
+    return ec;
+}
+
 } // pfs
 
 #if HAVE_BOOST_SYSTEM
@@ -72,16 +82,40 @@ namespace boost {
 
 pfs::error_category const & generic_category ();
 
-inline pfs::error_code convert (::boost::system::error_code const & ec)
-{
-    if (ec.category() == ::boost::system::generic_category())
-        return pfs::error_code(ec.value(), generic_category());
-    
-    PFS_ASSERT(false);
-    return pfs::error_code();
-}
+//struct ec_convert_wrapper
+//{
+//    pfs::error_code & result;
+//    ::boost::system::error_code ec;
+//    
+//    ec_convert_wrapper (pfs::error_code & r)
+//        : result(r)
+//    {}
+//
+//    ~ec_convert_wrapper ()
+//    {
+//        result = pfs::lexical_cast(ec);
+//    }
+//};
 
-inline ::boost::system::error_code convert (pfs::error_code const & ec)
+} // boost
+
+//template <typename Result>
+//Result lexical_cast (::boost::system::error_code const & ec);
+//
+//template <>
+//inline pfs::error_code
+//lexical_cast<pfs::error_code> (::boost::system::error_code const & ec)
+//{
+//    if (ec.category() == ::boost::system::generic_category())
+//        return pfs::error_code(ec.value(), generic_category());
+//    
+//    PFS_ASSERT(false);
+//    return pfs::error_code();
+//}
+
+template <>
+inline ::boost::system::error_code
+lexical_cast<::boost::system::error_code> (pfs::error_code const & ec)
 {
     if (ec.category() == std::generic_category())
         return ::boost::system::error_code(ec.value(), generic_category());
@@ -89,23 +123,6 @@ inline ::boost::system::error_code convert (pfs::error_code const & ec)
     PFS_ASSERT(false);
     return ::boost::system::error_code();
 }
-
-struct ec_convert_wrapper
-{
-    pfs::error_code & result;
-    ::boost::system::error_code ec;
-    
-    ec_convert_wrapper (pfs::error_code & r)
-        : result(r)
-    {}
-
-    ~ec_convert_wrapper ()
-    {
-        result = convert(ec);
-    }
-};
-
-} // boost
 
 inline pfs::error_code make_error_code (::boost::system::errc::errc_t e)
 {

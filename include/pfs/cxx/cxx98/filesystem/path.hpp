@@ -78,18 +78,14 @@ public:
     // TODO Implement file_status
     //bool exists (filesystem::file_status s) noexcept;
 
-    bool exists (pfs::error_code & ec) const pfs_noexcept
+    bool exists (::boost::system::error_code & ec) const pfs_noexcept
     {
-        // Automatically convert boost's error_code into pfs::error_code on destroy
-        boost::ec_convert_wrapper w(ec);
-        return ::boost::filesystem::exists(*this, w.ec);
+        return ::boost::filesystem::exists(*this, ec);
     }
 
-    bool remove (pfs::error_code & ec) const pfs_noexcept
+    bool remove (::boost::system::error_code & ec) const pfs_noexcept
     {
-        // Automatically convert boost's error_code into pfs::error_code on destroy
-        boost::ec_convert_wrapper w(ec);
-        return ::boost::filesystem::remove(*this, w.ec);
+        return ::boost::filesystem::remove(*this, ec);
     }
 };
 

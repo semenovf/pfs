@@ -311,7 +311,20 @@ advance (InputIt & it, typename pfs::iterator_traits<InputIt>::difference_type n
 
 template <typename Iterator>
 struct reverse_iterator : public std::reverse_iterator<Iterator>
-{};
+{
+    typedef std::reverse_iterator<Iterator> base_class;
+    
+    reverse_iterator () : base_class() {}
+    
+    explicit reverse_iterator (Iterator x)
+        : base_class(x)
+    {}
+    
+    template <typename U>
+    reverse_iterator (reverse_iterator<U> const & other)
+        : base_class(other)
+    {}
+};
 
 //
 // C++98 (GCC) implementation need `const_reference` type defined in Container

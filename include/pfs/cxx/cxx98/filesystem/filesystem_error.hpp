@@ -11,33 +11,36 @@
 #if HAVE_BOOST_FILESYSTEM
 
 #include <boost/filesystem/operations.hpp>
-#include <pfs/system_error.hpp>
+#include <boost/filesystem/path.hpp>
 
 namespace pfs {
 namespace filesystem { 
 namespace details {
 
-struct filesystem_error : public ::boost::filesystem::filesystem_error
-{
-    typedef ::boost::filesystem::filesystem_error base_class;
+typedef ::boost::filesystem::filesystem_error filesystem_error;
     
-    filesystem_error (std::string const & what, pfs::error_code ec)
-        : base_class(what, boost::convert(ec))
-    {}
-            
-    filesystem_error (std::string const & what
-            , pfs::filesystem::path const & p1
-            , pfs::error_code ec)
-       : base_class(what, p1, boost::convert(ec))
-    {}
-            
-    filesystem_error (std::string const & what
-            , pfs::filesystem::path const & p1
-            , pfs::filesystem::path const & p2
-            , pfs::error_code ec)
-        : base_class(what, p1, p2, boost::convert(ec))
-    {}
-}
+//struct filesystem_error : public ::boost::filesystem::filesystem_error
+//{
+//    typedef ::boost::filesystem::filesystem_error base_class;
+//    
+//    filesystem_error (std::string const & what_arg
+//            , ::boost::system::error_code ec)
+//        : base_class(what_arg, ec)
+//    {}
+//            
+//    filesystem_error (std::string const & what_arg
+//            , ::boost::filesystem::path const & p1
+//            , ::boost::system::error_code ec)
+//       : base_class(what_arg, p1, ec)
+//    {}
+//            
+//    filesystem_error (std::string const & what_arg
+//            , ::boost::filesystem::path const & p1
+//            , ::boost::filesystem::path const & p2
+//            , ::boost::system::error_code ec)
+//        : base_class(what_arg, p1, p2, ec)
+//    {}
+//};
 
 }}} // pfs::filesystem
 

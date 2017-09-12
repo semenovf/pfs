@@ -16,19 +16,19 @@
 
 namespace pfs {
 
-typedef boost::system::error_code      error_code;
-typedef boost::system::error_category  error_category;
-typedef boost::system::error_condition error_condition;
-typedef boost::system::errc::errc_t    errc;
+typedef ::boost::system::error_code      error_code;
+typedef ::boost::system::error_category  error_category;
+typedef ::boost::system::error_condition error_condition;
+typedef ::boost::system::errc::errc_t    errc;
 
 inline error_category const & system_category () pfs_noexcept
 {
-    return boost::system::system_category();
+    return ::boost::system::system_category();
 }
 
 inline error_category const & generic_category () pfs_noexcept
 {
-    return boost::system::generic_category();
+    return ::boost::system::generic_category();
 }
 
 inline error_code make_error_code (errc e) pfs_noexcept
@@ -54,12 +54,22 @@ inline error_code get_last_system_error ()
 #endif // !PFS_CC_MSC
 }
 
+template <typename ErrorCode>
+ErrorCode lexical_cast (pfs::error_code const & ec);
+
+template <>
+inline ::boost::system::error_code 
+lexical_cast< ::boost::system::error_code> (::boost::system::error_code const & ec)
+{
+    return ec;
+}
+
 } // pfs
 
 #else
 
 #   error "Need to implement system_error for C++98"
 
-#endif // HAVE_BOOST
+#endif // HAVE_BOOST_SYSTEM
 
 #endif /* __PFS_CXX_CXX98_SYSTEM_ERROR_HPP__ */

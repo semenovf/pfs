@@ -43,13 +43,13 @@ public:
         : _d(what_arg, p1.impl(), ec)
     {}
     
-//    template <typename PathImpl>
-//    basic_filesystem_error (std::string const & what_arg
-//            , basic_path<PathImpl> const & p1
-//            , basic_path<PathImpl> const & p2
-//            , pfs::error_code ec)
-//        : _d(what_arg, p1.impl(), p2.impl(),ec)
-//    {}
+    template <typename PathImpl>
+    basic_filesystem_error (std::string const & what_arg
+            , basic_path<PathImpl> const & p1
+            , basic_path<PathImpl> const & p2
+            , pfs::error_code ec)
+        : _d(what_arg, p1.impl(), p2.impl(), ec)
+    {}
 };
 
 typedef basic_filesystem_error<details::filesystem_error> filesystem_error;

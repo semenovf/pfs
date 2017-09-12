@@ -81,12 +81,12 @@ public:
     // TODO Implement file_status
     //bool exists (filesystem::file_status s) noexcept;
 
-    bool exists (pfs::error_code & ec) const noexcept
+    bool exists (std::error_code & ec) const noexcept
     {
         return std::experimental::filesystem::exists(*this, ec);
     }
 
-    bool remove (pfs::error_code & ec) const noexcept
+    bool remove (std::error_code & ec) const noexcept
     {
         return std::experimental::filesystem::remove(*this, ec);
     }

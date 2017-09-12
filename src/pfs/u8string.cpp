@@ -15,13 +15,13 @@ typedef string<stdcxx::string_reference> stdcxx_string_reference_type;
 template <>
 byte_string u8string<byte_string> (stdcxx_string_type const & s)
 {
-    return byte_string(s.native().begin(), s.native().cend());
+    return byte_string(s.native().begin(), s.native().end());
 }
 
 template <>
 byte_string u8string<byte_string> (stdcxx_string_reference_type const & s)
 {
-    return byte_string(s.native().begin(), s.native().cend());
+    return byte_string(s.native().begin(), s.native().end());
 }
 
 }

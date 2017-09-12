@@ -11,5 +11,7 @@
 #include <pfs/cxxversion.hpp>
 #include PFS_CXX_HEADER(system_error)
 
-#endif /* __PFS_SYSTEM_ERROR_HPP__ */
+template <typename ErrorCode>
+ErrorCode lexical_cast (pfs::error_code const & ec);
 
+#endif /* __PFS_SYSTEM_ERROR_HPP__ */

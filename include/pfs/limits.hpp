@@ -9,6 +9,7 @@
 #define __PFS_LIMITS_HPP__
 
 #include <pfs/assert.hpp>
+#include <pfs/types.hpp>
 #include <pfs/cxxversion.hpp>
 #include PFS_CXX_HEADER(limits)
 
