@@ -87,6 +87,13 @@ public:
     {
         return ::boost::filesystem::remove(*this, ec);
     }
+    
+    path & replace_filename (path const & replacement)
+    {
+        remove_filename();
+        base_class::operator /= (replacement);
+        return *this;
+    }
 };
 
 }}} // pfs::filesystem::details

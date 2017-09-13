@@ -1,44 +1,46 @@
+
 /* 
- * File:   regex.hpp
+ * File:   regex_boost.hpp
  * Author: wladt
  *
- * Created on February 2, 2017, 10:10 AM
+ * Created on September 13, 2017, 1:53 PM
  */
 
-#ifndef __PFS_CXX11_REGEX_HPP__
-#define __PFS_CXX11_REGEX_HPP__
+#ifndef __PFS_CXX_CXX98_REGEX_BOOST_HPP__
+#define __PFS_CXX_CXX98_REGEX_BOOST_HPP__
 
-#include <regex>
+#include <pfs/cxxlang.hpp>
+#include <boost/regex.hpp>
 
 namespace pfs {
 
 namespace regex_constants {
 
-typedef std::regex_constants::match_flag_type match_flag_type;
+typedef ::boost::regex_constants::match_flag_type match_flag_type;
 
-constexpr match_flag_type match_default     = std::regex_constants::match_default;
-constexpr match_flag_type match_not_bol     = std::regex_constants::match_not_bol;
-constexpr match_flag_type match_not_eol     = std::regex_constants::match_not_eol;
-constexpr match_flag_type match_not_bow     = std::regex_constants::match_not_bow;
-constexpr match_flag_type match_not_eow     = std::regex_constants::match_not_eow;
-constexpr match_flag_type match_any         = std::regex_constants::match_any;
-constexpr match_flag_type match_not_null    = std::regex_constants::match_not_null;
-constexpr match_flag_type match_continuous  = std::regex_constants::match_continuous;
-constexpr match_flag_type match_prev_avail  = std::regex_constants::match_prev_avail;
-constexpr match_flag_type format_default    = std::regex_constants::format_default;
-constexpr match_flag_type format_sed        = std::regex_constants::format_sed;
-constexpr match_flag_type format_no_copy    = std::regex_constants::format_no_copy;
-constexpr match_flag_type format_first_only = std::regex_constants::format_first_only;
+pfs_constexpr match_flag_type match_default     = ::boost::regex_constants::match_default;
+pfs_constexpr match_flag_type match_not_bol     = ::boost::regex_constants::match_not_bol;
+pfs_constexpr match_flag_type match_not_eol     = ::boost::regex_constants::match_not_eol;
+pfs_constexpr match_flag_type match_not_bow     = ::boost::regex_constants::match_not_bow;
+pfs_constexpr match_flag_type match_not_eow     = ::boost::regex_constants::match_not_eow;
+pfs_constexpr match_flag_type match_any         = ::boost::regex_constants::match_any;
+pfs_constexpr match_flag_type match_not_null    = ::boost::regex_constants::match_not_null;
+pfs_constexpr match_flag_type match_continuous  = ::boost::regex_constants::match_continuous;
+pfs_constexpr match_flag_type match_prev_avail  = ::boost::regex_constants::match_prev_avail;
+pfs_constexpr match_flag_type format_default    = ::boost::regex_constants::format_default;
+pfs_constexpr match_flag_type format_sed        = ::boost::regex_constants::format_sed;
+pfs_constexpr match_flag_type format_no_copy    = ::boost::regex_constants::format_no_copy;
+pfs_constexpr match_flag_type format_first_only = ::boost::regex_constants::format_first_only;
 
 } // regex_constants
 
 template <typename StringType>
-class sub_match : public std::sub_match<typename StringType::const_pointer>
+class sub_match : public ::boost::sub_match<typename StringType::const_pointer>
 {
-    typedef std::sub_match<typename StringType::const_pointer> base_class;
+    typedef ::boost::sub_match<typename StringType::const_pointer> base_class;
     
 public:
-    constexpr sub_match () : base_class() { }
+    pfs_constexpr sub_match () : base_class() { }
     
     operator StringType () const
     {
@@ -49,9 +51,9 @@ public:
 };
 
 template <typename BidirIter>
-class match_results : public std::match_results<BidirIter>
+class match_results : public ::boost::match_results<BidirIter>
 {
-    typedef std::match_results<BidirIter> base_class;
+    typedef ::boost::match_results<BidirIter> base_class;
     
 public:
     explicit match_results ()
@@ -64,19 +66,12 @@ public:
     match_results (match_results const & rhs)
         : base_class(rhs)
     {}
-
-    /**
-     * @brief Move constructs a %match_results.
-     */
-    match_results (match_results && rhs) noexcept
-        : base_class(rhs)
-    {}
 };
 
 template <typename StringType> 
-class basic_regex : public std::basic_regex<typename StringType::code_unit_type>
+class basic_regex : public ::boost::basic_regex<typename StringType::code_unit_type>
 {
-    typedef std::basic_regex<typename StringType::code_unit_type> base_class;
+    typedef ::boost::basic_regex<typename StringType::code_unit_type> base_class;
     
 public:
     typedef pfs::match_results<typename StringType::const_pointer> match_results;
@@ -126,22 +121,16 @@ public:
      */
     basic_regex (basic_regex const & rhs) : base_class(rhs) {}
 
-    /**
-     * @brief Move-constructs a basic regular expression.
-     *
-     * @param rhs A @p regex object.
-     */
-    basic_regex (basic_regex && rhs) noexcept : base_class(rhs) {}
 
-      /**
-       * @brief Constructs a basic regular expression from the string
-       * @p s interpreted according to the flags in @p f.
-       *
-       * @param __s A string containing a regular expression.
-       * @param __f Flags indicating the syntax rules and options.
-       *
-       * @throws regex_error if @p __s is not a valid regular expression.
-       */
+    /**
+     * @brief Constructs a basic regular expression from the string
+     * @p s interpreted according to the flags in @p f.
+     *
+     * @param __s A string containing a regular expression.
+     * @param __f Flags indicating the syntax rules and options.
+     *
+     * @throws regex_error if @p __s is not a valid regular expression.
+     */
 	explicit basic_regex (StringType const s, flag_type f = base_class::ECMAScript)
         : base_class(s.data(), s.data() + s.size(), f)
 	{}
@@ -184,7 +173,7 @@ inline bool regex_match (
         , basic_regex<StringType> & re
         , regex_constants::match_flag_type flags = regex_constants::match_default)
 {
-    return std::regex_match(first.base().base(), last.base().base(), m, re, flags);
+    return ::boost::regex_match(first.base().base(), last.base().base(), m, re, flags);
 }
 
 template <typename StringType>
@@ -195,7 +184,7 @@ inline bool regex_match (
         , basic_regex<StringType> & re
         , regex_constants::match_flag_type flags = regex_constants::match_default)
 {
-    return std::regex_match(first, last, m, re, flags);
+    return ::boost::regex_match(first, last, m, re, flags);
 }
 
 template <typename StringType>
@@ -213,10 +202,10 @@ inline bool regex_match (typename StringType::const_pointer str
         , basic_regex<StringType> & re
         , regex_constants::match_flag_type flags = regex_constants::match_default)
 {
-    return std::regex_match(str, m, re, flags);
+    return ::boost::regex_match(str, m, re, flags);
 }
 
 } // namespace pfs
 
-#endif /* __PFS_CXX11_REGEX_HPP__ */
+#endif /* __PFS_CXX_CXX98_REGEX_BOOST_HPP__ */
 

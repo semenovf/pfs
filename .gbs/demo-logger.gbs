@@ -3,7 +3,7 @@ language    "C++"
 targetname  "demo-logger"
 targetdir   "../../.build"
 files       { "../src/demo-logger/*.cpp" }
-links       { "pfs-mpl" }
+links       { PFS_LINKS, "pfs-mpl" }
 
 configuration "debug"
     objdir ".cache/demo/logger/debug"

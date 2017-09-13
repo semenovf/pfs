@@ -104,8 +104,8 @@ int poll_udp_server (int argc, char ** argv)
         }
         
         if (fds[0].revents & (POLLOUT | POLLWRNORM | POLLWRBAND)) {
-            //puts("Data may be written on device");
-            //continue;
+            /*puts("Data may be written on device");
+            continue; */
         }
 
         if (fds[0].revents & (POLLIN | POLLRDNORM | POLLRDBAND)) {

@@ -21,8 +21,9 @@ class scalar_iterator
                 , typename JsonType::reference
                 , typename JsonType::difference_type> // Distance
 {
-    friend JsonType;
-    
+    template <typename Traits>
+    friend class json;
+
 public:
     typedef random_access_iterator_tag       iterator_category;
     typedef typename JsonType::value_type      value_type;
@@ -99,8 +100,13 @@ public:
     friend class scalar_iterator;
     
     // Allow iterator to const_iterator assignment
+#if __cplusplus >= 201103L
     template <typename JsonTypeU, typename EnableIf = pfs::enable_if<pfs::is_same<pfs::remove_cv<JsonType>,JsonTypeU>::value> >
     scalar_iterator & operator = (scalar_iterator<JsonTypeU> const & rhs)
+#else
+    template <typename JsonTypeU>
+    scalar_iterator & operator = (scalar_iterator<JsonTypeU> const & rhs)
+#endif
     {
         if (_pvalue != rhs._pvalue)
             _pvalue = rhs._pvalue;
@@ -117,7 +123,8 @@ class basic_iterator
                 , JsonType &
                 , ptrdiff_t>
 {
-    friend JsonType;
+    template <typename Traits>
+    friend class json;
     
 public:    
     typedef random_access_iterator_tag  iterator_category;
@@ -199,15 +206,25 @@ public:
     friend class basic_iterator;
     
     // Allow iterator to const_iterator conversion
+#if __cplusplus >= 201103L
     template <typename JsonTypeU, typename EnableIf = pfs::enable_if<pfs::is_same<pfs::remove_cv<JsonType>,JsonTypeU>::value> >
     basic_iterator (basic_iterator<JsonTypeU> const & rhs)
+#else
+    template <typename JsonTypeU>
+    basic_iterator (basic_iterator<JsonTypeU> const & rhs)
+#endif
         : _pvalue (rhs._pvalue)
     {
         operator = (rhs);
     }
 
+#if __cplusplus >= 201103L
     template <typename JsonTypeU, typename EnableIf = pfs::enable_if<pfs::is_same<pfs::remove_cv<JsonType>,JsonTypeU>::value> >
     basic_iterator & operator = (basic_iterator<JsonTypeU> const & rhs)
+#else
+    template <typename JsonTypeU>
+    basic_iterator & operator = (basic_iterator<JsonTypeU> const & rhs)
+#endif
     {
         _pvalue = rhs._pvalue;
         

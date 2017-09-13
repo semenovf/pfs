@@ -68,7 +68,7 @@ public:
     typedef appender<string_type> appender_type;
 private:    
 	typedef traits::sequence_container<
-              shared_ptr<appender_type>
+              appender_type *
             , SequenceContainerImplType>           appender_sequence;
 	typedef signal2<priority, string_type const &> emitter_type;
 
@@ -95,6 +95,12 @@ public:
 
 	~logger ()
 	{
+        typename appender_sequence::iterator it   = _d->_appenders.begin();
+        typename appender_sequence::iterator last = _d->_appenders.end();
+        
+        for (; it != last; ++it)
+            delete *it;
+        
 		if (_d) {
 			clear();
 		}
@@ -113,7 +119,8 @@ public:
 	template <typename Appender>
 	appender_type & add_appender ()
 	{
-		_d->_appenders.emplace_back(make_shared<Appender>());
+		//_d->_appenders.emplace_back(make_shared<Appender>());
+        _d->_appenders.push_back(new Appender);
 		return *_d->_appenders.back();
 	}
 
@@ -122,56 +129,64 @@ public:
 	template <typename Appender, typename Arg1>
 	appender_type & add_appender (Arg1 a1)
 	{
-		_d->_appenders.emplace_back(make_shared<Appender>(a1));
+		//_d->_appenders.emplace_back(make_shared<Appender>(a1)); // Valid for C++11
+        _d->_appenders.push_back(new Appender(a1));
 		return *_d->_appenders.back();
 	}
 
 	template <typename Appender, typename Arg1, typename Arg2>
 	appender_type & add_appender (Arg1 a1, Arg2 a2)
 	{
-		_d->_appenders.emplace_back(make_shared<Appender>(a1, a2));
+		//_d->_appenders.emplace_back(make_shared<Appender>(a1, a2)); // Valid for C++11
+        _d->_appenders.push_back(new Appender(a1, a2));
 		return *_d->_appenders.back();
 	}
 
 	template <typename Appender, typename Arg1, typename Arg2, typename Arg3>
 	appender_type & add_appender (Arg1 a1, Arg2 a2, Arg3 a3)
 	{
-		_d->_appenders.emplace_back(make_shared<Appender>(a1, a2, a3));
+		//_d->_appenders.emplace_back(make_shared<Appender>(a1, a2, a3)); // Valid for C++11
+        _d->_appenders.push_back(new Appender(a1, a2, a3));
 		return *_d->_appenders.back();
 	}
 
 	template <typename Appender, typename Arg1, typename Arg2, typename Arg3, typename Arg4>
 	appender_type & add_appender (Arg1 a1, Arg2 a2, Arg3 a3, Arg4 a4)
 	{
-		_d->_appenders.emplace_back(make_shared<Appender>(a1, a2, a3, a4));
+		//_d->_appenders.emplace_back(make_shared<Appender>(a1, a2, a3, a4)); // Valid for C++11
+        _d->_appenders.push_back(new Appender(a1, a2, a3, a4));
 		return *_d->_appenders.back();
 	}
 
 	template <typename Appender, typename Arg1, typename Arg2, typename Arg3, typename Arg4, typename Arg5>
 	appender_type & add_appender (Arg1 a1, Arg2 a2, Arg3 a3, Arg4 a4, Arg5 a5)
 	{
-		_d->_appenders.emplace_back(make_shared<Appender>(a1, a2, a3, a4, a5));
+		//_d->_appenders.emplace_back(make_shared<Appender>(a1, a2, a3, a4, a5)); // Valid for C++11
+        _d->_appenders.push_back(new Appender(a1, a2, a3, a4, a5));
 		return *_d->_appenders.back();
 	}
 
 	template <typename Appender, typename Arg1, typename Arg2, typename Arg3, typename Arg4, typename Arg5, typename Arg6>
 	appender_type & add_appender (Arg1 a1, Arg2 a2, Arg3 a3, Arg4 a4, Arg5 a5, Arg6 a6)
 	{
-		_d->_appenders.emplace_back(make_shared<Appender>(a1, a2, a3, a4, a5, a6));
+		//_d->_appenders.emplace_back(make_shared<Appender>(a1, a2, a3, a4, a5, a6)); // Valid for C++11
+        _d->_appenders.push_back(new Appender(a1, a2, a3, a4, a5, a6));
 		return *_d->_appenders.back();
 	}
 
 	template <typename Appender, typename Arg1, typename Arg2, typename Arg3, typename Arg4, typename Arg5, typename Arg6, typename Arg7>
 	appender_type & add_appender (Arg1 a1, Arg2 a2, Arg3 a3, Arg4 a4, Arg5 a5, Arg6 a6, Arg7 a7)
 	{
-		_d->_appenders.emplace_back(make_shared<Appender>(a1, a2, a3, a4, a5, a6, a7));
+		//_d->_appenders.emplace_back(make_shared<Appender>(a1, a2, a3, a4, a5, a6, a7)); // Valid for C++11
+        _d->_appenders.push_back(new Appender(a1, a2, a3, a4, a5, a6, a7));
 		return *_d->_appenders.back();
 	}
 
 	template <typename Appender, typename Arg1, typename Arg2, typename Arg3, typename Arg4, typename Arg5, typename Arg6, typename Arg7, typename Arg8>
 	appender_type & add_appender (Arg1 a1, Arg2 a2, Arg3 a3, Arg4 a4, Arg5 a5, Arg6 a6, Arg7 a7, Arg8 a8)
 	{
-		_d->_appenders.emplace_back(make_shared<Appender>(a1, a2, a3, a4, a5, a6, a7, a8));
+		//_d->_appenders.emplace_back(make_shared<Appender>(a1, a2, a3, a4, a5, a6, a7, a8)); // Valid for C++11
+        _d->_appenders.push_back(new Appender(a1, a2, a3, a4, a5, a6, a7, a8));
 		return *_d->_appenders.back();
 	}
 //#else

@@ -17,7 +17,7 @@ enum class data_type
 #else
 struct data_type 
 {
-    enum type {
+    enum value_enum {
 #endif
           null = 0
         , boolean
@@ -29,14 +29,31 @@ struct data_type
         , array
 #if __cplusplus < 201103L
     };
-#endif    
+
+    value_enum v;
+    
+    data_type (value_enum x)
+        : v(x)
+    {}
+
+    data_type & operator = (value_enum x)
+    {
+        v = x;
+        return *this;
+    }
+    
+    operator int () const
+    {
+        return static_cast<int>(v);
+    }    
+#endif
 };
 
-#if __cplusplus >= 201103L
+//#if __cplusplus >= 201103L
     typedef data_type data_type_t;
-#else
-    typedef data_type::type data_type_t;
-#endif
+//#else
+//    typedef data_type::type data_type_t;
+//#endif
 
 }} // pfs::json
 

@@ -22,8 +22,6 @@
 #include <pfs/json/cast.hpp>
 #include <pfs/json/rfc4627.hpp>
 
-#include <QDebug>
-
 namespace pfs {
 namespace json {
 
@@ -191,8 +189,12 @@ public:
     /**
      * @brief Constructs boolean value.
      */
+#if __cplusplus >= 201103L
     template <typename T, typename EnableIf = pfs::enable_if<pfs::is_same<T, bool>::value> >
     explicit json (T v)
+#else
+    explicit json (bool v)
+#endif
         : _d(static_cast<bool>(v))
     {}
 
@@ -374,13 +376,18 @@ public:
         return assign(other);
     }
 
+#if __cplusplus >= 201103L
     template <typename T, typename EnableIf = pfs::enable_if<!pfs::is_same<pfs::remove_cv<T>,json>::value> >
     json & operator = (T v)
+#else
+    template <typename T>
+    json & operator = (T v)
+#endif
     {
         return assign(json(v));
     }
     
-#if __cplusplus >= 201103L    
+#if __cplusplus >= 201103L
     
     // TODO Need to implement
     //json (json && other);
@@ -611,8 +618,13 @@ public:
         _d.array->push_back(v);
     }
 
+#if __cplusplus >= 201103L
     template <typename T, typename EnableIf = pfs::enable_if<!pfs::is_same<pfs::remove_cv<T>,json>::value> >
     void push_back (T v)
+#else
+    template <typename T>
+    void push_back (T v)
+#endif
     {
         this->push_back(json(v));
     }

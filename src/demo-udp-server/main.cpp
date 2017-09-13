@@ -15,11 +15,11 @@ using std::cout;
 using std::cerr;
 using std::endl;
 
-using string = pfs::string<pfs::stdcxx::string>;
-using fmt    = pfs::safeformat<string>;
-using device_manager = pfs::io::device_manager<pfs::stdcxx::list
+typedef pfs::string<pfs::stdcxx::string> string;
+typedef pfs::safeformat<string> fmt;
+typedef pfs::io::device_manager<pfs::stdcxx::list
         , pfs::stdcxx::vector
-        , pfs::stdcxx::map>;
+        , pfs::stdcxx::map> device_manager;
 //
 // Use this command (netcat) to test UDP server work properly
 //

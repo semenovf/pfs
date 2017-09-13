@@ -141,6 +141,30 @@ inline pfs::error_code make_error_code (dynamic_library_errc e)
     return pfs::error_code(static_cast<int>(e), dynamic_library_category());
 }
 
+//
+// Need to avoid gcc compiler error:
+// `error: ISO C++ forbids casting between pointer-to-function and pointer-to-object`
+//
+template <typename FuncPtr>
+inline FuncPtr void_func_ptr_cast (void * p)
+{
+    static_assert(sizeof(void *) == sizeof(void (*)(void)),
+                  "object pointer and function pointer sizes must be equal");
+    union { void * p; FuncPtr f; } u;
+    u.p = p;
+    return u.f;
+}
+
+template <typename FuncPtr>
+inline void * func_void_ptr_cast (FuncPtr f) 
+{
+    static_assert(sizeof(void *) == sizeof(void (*)(void)),
+                  "object pointer and function pointer sizes must be equal");
+    union { void * p; FuncPtr f; } u;
+    u.f = f;
+    return u.p;
+}
+
 } // pfs
 
 namespace std {

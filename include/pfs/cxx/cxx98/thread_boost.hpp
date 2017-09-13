@@ -10,12 +10,13 @@
 
 #include <boost/thread.hpp>
 #include <pfs/cxxlang.hpp>
+#include "chrono.hpp"
 
 namespace pfs {
 
-class thread : public boost::thread
+class thread : public ::boost::thread
 {
-    typedef boost::thread base_class;
+    typedef ::boost::thread base_class;
     
 private:
     thread (thread const &);
@@ -56,6 +57,32 @@ public:
         : base_class(f, a1, a2, a3, a4, a5)
     {}
 };
+
+namespace this_thread {
+
+inline ::boost::thread::id get_id () pfs_noexcept
+{
+    return ::boost::this_thread::get_id();
+}
+
+inline void yield () pfs_noexcept
+{
+    ::boost::this_thread::yield();
+}
+
+template <typename Rep, typename Period>
+inline void sleep_for (pfs::chrono::duration<Rep, Period> const & sleep_duration)
+{
+    ::boost::this_thread::sleep_for<Rep, Period>(sleep_duration);
+}
+
+template <typename Clock, typename Duration>
+inline void sleep_until (pfs::chrono::time_point<Clock, Duration> const & sleep_time)
+{
+    ::boost::this_thread::sleep_until<Clock, Duration>(sleep_time);
+}
+
+} // this_thread
 
 } // pfs
 

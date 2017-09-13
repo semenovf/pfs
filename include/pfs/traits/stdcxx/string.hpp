@@ -127,15 +127,15 @@ public:
         return _p->end();
     }
 
-    const_reverse_iterator rbegin () const
-    {
-        return _p->rbegin();
-    }
-
-    const_reverse_iterator rend () const
-    {
-        return _p->rend();
-    }
+//    const_reverse_iterator rbegin () const
+//    {
+//        return _p->rbegin();
+//    }
+//
+//    const_reverse_iterator rend () const
+//    {
+//        return _p->rend();
+//    }
 
     bool empty () const
     {

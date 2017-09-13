@@ -100,14 +100,7 @@ struct reference
     
 private:
     reference ();
-//    {
-//        static_assert(false, "Default constructor denied");
-//    }
-        
     reference (const_native_reference rhs);
-//    {
-//        static_assert(false, "Constructor denied");
-//    }
 };
 
 template <typename T, template <typename> class NativeContainerWrapper>
@@ -196,15 +189,7 @@ struct container_reference
     
 private:
     container_reference ();
-//    {
-//        static_assert(false, "Constructor denied");
-//    }
-
     container_reference (const_native_reference rhs);
-//    {
-//        static_assert(false, "Constructor denied");
-//    }
-
 };
 
 }} // pfs::traits

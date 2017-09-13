@@ -268,7 +268,7 @@ void test_parse ()
 	TEST_OK(json_object["Image"]["Unknown"].is_null());
     
     JsonType json_invalid;
-    TEST_OK(json_invalid.parse(json_invalid_str) == pfs::json_errc::bad_json);
+    TEST_OK(json_invalid.parse(json_invalid_str) == pfs::make_error_code(pfs::json_errc::bad_json));
     TEST_OK(json_invalid.is_null());
     
 //

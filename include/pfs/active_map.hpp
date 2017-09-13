@@ -14,8 +14,6 @@
 #include <pfs/cxx/cxx98/binder.hpp>
 #include <pfs/traits/associative_container.hpp>
 
-#include "cxx/cxx11/type_traits.hpp"
-
 namespace pfs {
 
 template <typename Key

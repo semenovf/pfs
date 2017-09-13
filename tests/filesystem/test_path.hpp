@@ -32,7 +32,7 @@ void test_path ()
         TEST_OK(p2 == path::string_type("C:\\users\\abcdef\\AppData\\Local\\Temp\\"));
         TEST_OK(p3 == path::string_type("D:/猫.txt"));
     }
-    
+
     // Assign operators
     {
         ADD_TESTS(2);
@@ -47,7 +47,7 @@ void test_path ()
         
         TEST_OK(p == path::string_type("D:/猫.txt"));
     }
-    
+
     //
     // Concatenation #1
     //
@@ -89,7 +89,7 @@ void test_path ()
         TEST_OK(path("C:foo") / "C:bar" == path::string_type("C:foo/bar")); // yields "C:foo/bar"     (appends, omitting p's root-name)
 #endif
     }
-    
+
     //
     // Concatenation #2
     //
@@ -127,7 +127,7 @@ void test_path ()
     {
         // TODO Test path::make_preferred()
     }
-    
+
     //
     // Modifiers #3
     //
@@ -139,7 +139,7 @@ void test_path ()
         TEST_OK(path("/foo").remove_filename() == path::string_type("/"));
         TEST_OK(path("/").remove_filename() == path::string_type("/")); // FAIL on C++11
     }
-    
+
     //
     // Modifiers #4
     //
@@ -197,7 +197,7 @@ void test_path ()
         TEST_OK(p1.compare(p2) > 0);
         TEST_OK(p1.compare(p3) < 0);
     }
-    
+
     //
     // Generation
     //
@@ -214,58 +214,58 @@ void test_path ()
 //        TEST_OK(path("a/b/c").lexically_relative("a/b/c") == ".");
 //        TEST_OK(path("a/b").lexically_relative("c/d") == "../../a/b");
     }
-    
+
     //
     // Decomposition
     //
     {
         ADD_TESTS(27);
 
-        TEST_OK(path("//server/path/to/file").root_name() == "//server");
-        TEST_OK(path("//server/path/to/file").root_directory() == "/");
-        TEST_OK(path("//server/path/to/file").root_path() == "//server/");
-        TEST_OK(path("//server/path/to/file").relative_path() == "path/to/file");
+        TEST_OK(path("//server/path/to/file").root_name() == path("//server"));
+        TEST_OK(path("//server/path/to/file").root_directory() == path("/"));
+        TEST_OK(path("//server/path/to/file").root_path() == path("//server/"));
+        TEST_OK(path("//server/path/to/file").relative_path() == path("path/to/file"));
         
-        TEST_OK(path("//server/path/to/file").parent_path() == "//server/path/to");
-        TEST_OK(path("/path/to/.").parent_path() == "/path/to");
-        TEST_OK(path("/").parent_path() == "");
+        TEST_OK(path("//server/path/to/file").parent_path() == path("//server/path/to"));
+        TEST_OK(path("/path/to/.").parent_path() == path("/path/to"));
+        TEST_OK(path("/").parent_path() == path(""));
         
-        TEST_OK(path("/foo/bar.txt").filename() == "bar.txt");
-        TEST_OK(path("/foo/.bar").filename() == ".bar");
-        TEST_OK(path("/foo/bar/").filename() == ".");
-        TEST_OK(path("/foo/.").filename() == ".");
-        TEST_OK(path("/foo/..").filename() == "..");
-        TEST_OK(path(".").filename() == ".");
-        TEST_OK(path("..").filename() == "..");
-        TEST_OK(path("/").filename() == "/");
+        TEST_OK(path("/foo/bar.txt").filename() == path("bar.txt"));
+        TEST_OK(path("/foo/.bar").filename() == path(".bar"));
+        TEST_OK(path("/foo/bar/").filename() == path("."));
+        TEST_OK(path("/foo/.").filename() == path("."));
+        TEST_OK(path("/foo/..").filename() == path(".."));
+        TEST_OK(path(".").filename() == path("."));
+        TEST_OK(path("..").filename() == path(".."));
+        TEST_OK(path("/").filename() == path("/"));
         
-        TEST_OK(path("/foo/bar.txt").stem() == "bar");
-        TEST_OK(path("/foo/.bar").stem() == ".bar"); // FIXME (for std::experimental::filesystem::path::stem() returns "")
+        TEST_OK(path("/foo/bar.txt").stem() == path::string_type("bar"));
+        TEST_OK(path("/foo/.bar").stem() == path::string_type(".bar")); // FIXME (for std::experimental::filesystem::path::stem() returns "")
         
-        TEST_OK(path("/foo/bar.txt").extension() == ".txt");
-        TEST_OK(path("/foo/bar.").extension() == ".");
-        TEST_OK(path("/foo/bar").extension() == "");
-        TEST_OK(path("/foo/bar.txt/bar.cc").extension() == ".cc");
-        TEST_OK(path("/foo/bar.txt/bar.").extension() == ".");
-        TEST_OK(path("/foo/bar.txt/bar").extension() == "");
-        TEST_OK(path("/foo/.").extension() == "");
-        TEST_OK(path("/foo/..").extension() == "");
-        TEST_OK(path("/foo/.hidden").extension() == ""); // FIXME (for std::experimental::filesystem::path::stem() returns ".hidden")
-        TEST_OK(path("/foo/..bar").extension() == ".bar");
+        TEST_OK(path("/foo/bar.txt").extension() == path::string_type(".txt"));
+        TEST_OK(path("/foo/bar.").extension() == path::string_type("."));
+        TEST_OK(path("/foo/bar").extension() == path::string_type(""));
+        TEST_OK(path("/foo/bar.txt/bar.cc").extension() == path::string_type(".cc"));
+        TEST_OK(path("/foo/bar.txt/bar.").extension() == path::string_type("."));
+        TEST_OK(path("/foo/bar.txt/bar").extension() == path::string_type(""));
+        TEST_OK(path("/foo/.").extension() == path::string_type(""));
+        TEST_OK(path("/foo/..").extension() == path::string_type(""));
+        TEST_OK(path("/foo/.hidden").extension() == path::string_type("")); // FIXME (for std::experimental::filesystem::path::stem() returns ".hidden")
+        TEST_OK(path("/foo/..bar").extension() == path::string_type(".bar"));
         
 #if PFS_OS_DOS
         ADD_TESTS(7);
-        TEST_OK(path("c:\\path\\to\\file").root_name() == "c:");
-        TEST_OK(path("c:\\path\\to\\file").root_directory() == "\\");
-        TEST_OK(path("c:\\path\\to\\file").root_path() == "c:\\");
-        TEST_OK(path("c:\\path\\to\\file").relative_path() == "path\\to\\file");
+        TEST_OK(path("c:\\path\\to\\file").root_name() == path("c:"));
+        TEST_OK(path("c:\\path\\to\\file").root_directory() == path("\\"));
+        TEST_OK(path("c:\\path\\to\\file").root_path() == path("c:\\"));
+        TEST_OK(path("c:\\path\\to\\file").relative_path() == path("path\\to\\file"));
         
-        TEST_OK(path("c:\\path\\to\\file").parent_path() == "c:\\path\\to");
-        TEST_OK(path("c:\\path\\to\\.").parent_path() == "c:\\path\\to");
-        TEST_OK(path("\\").parent_path() == "");
+        TEST_OK(path("c:\\path\\to\\file").parent_path() == path("c:\\path\\to"));
+        TEST_OK(path("c:\\path\\to\\.").parent_path() == path("c:\\path\\to"));
+        TEST_OK(path("\\").parent_path() == path(""));
 #endif
     }
-    
+
     //
     // Queries
     //
@@ -376,13 +376,13 @@ void test_path ()
         path p1("/path/to1");
         path p2("/path/to2");
         
-        TEST_OK(p1 == "/path/to1");
-        TEST_OK(p2 == "/path/to2");
+        TEST_OK(p1 == path("/path/to1"));
+        TEST_OK(p2 == path("/path/to2"));
         
         pfs::swap(p1, p2);
 
-        TEST_OK(p1 == "/path/to2");
-        TEST_OK(p2 == "/path/to1");
+        TEST_OK(p1 == path("/path/to2"));
+        TEST_OK(p2 == path("/path/to1"));
     }
     
     {

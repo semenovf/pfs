@@ -174,17 +174,33 @@ public:
     
     iterator erase (const_iterator pos)
     {
+#if __cplusplus >= 201103L
         return _p->erase(pos);
+#else        
+        //
+        // C++ prior to C++11 
+        // erase() has signature `void erase(iterator pos)`
+        //
+        iterator it(pos);
+        
+        if (pos != end()) {
+            ++it;
+            _p->erase(it);
+        }
+        return it;
+#endif
     }
-    
-//    iterator erase (iterator pos)
-//    {
-//        return _p->erase(pos);
-//    }
     
     iterator erase (const_iterator first, const_iterator last)
     {
+#if __cplusplus >= 201103L
         return _p->erase(first, last);
+#else
+        iterator f(first);
+        iterator l(last);
+        _p->erase(f, l);
+        return l;
+#endif
     }
     
     // FIXME

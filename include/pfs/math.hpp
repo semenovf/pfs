@@ -13,8 +13,6 @@
 
 namespace pfs {
 
-#if __cplusplus >= 201103L
-
 inline bool isnan (float x)
 {
     return std::isnan(x);
@@ -46,8 +44,6 @@ inline bool isinf (long double x)
 {
     return std::isinf(x);
 }
-
-#endif
 
 #endif
 

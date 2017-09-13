@@ -72,14 +72,6 @@ struct string_ref
 
     native_type * p;
     
-#if __cplusplus < 201103L
-    string_ref ()
-    {
-        static_assert(false, "Constructor denied");
-    }
-
-#endif    
-
     string_ref (const_native_reference rhs)
         : p(& rhs)
     {}
@@ -107,6 +99,9 @@ struct string_ref
     {
         return p;
     }
+    
+private:
+    string_ref ();
 };
 
 }} // pfs::traits

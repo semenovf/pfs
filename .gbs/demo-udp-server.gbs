@@ -3,7 +3,7 @@ language    "C++"
 targetname  "demo-udp-server"
 targetdir   "../../.build"
 files       { "../src/demo-udp-server/*.c", "../src/demo-udp-server/*.cpp" }
-links       { "pfs-mpl" }
+links       { PFS_LINKS, "pfs-mpl" }
 
 configuration "debug"
     objdir ".cache/demo/udp-server/debug"

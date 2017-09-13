@@ -151,15 +151,15 @@ public:
         return _p->end();
     }
 
-    const_reverse_iterator rbegin () const
-    {
-        return const_reverse_iterator(_p->end());
-    }
-
-    const_reverse_iterator rend () const
-    {
-        return const_reverse_iterator(_p->begin());
-    }
+//    const_reverse_iterator rbegin () const
+//    {
+//        return const_reverse_iterator(_p->end());
+//    }
+//
+//    const_reverse_iterator rend () const
+//    {
+//        return const_reverse_iterator(_p->begin());
+//    }
 
     value_type at (size_type pos) const
     {

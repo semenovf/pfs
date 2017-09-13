@@ -48,7 +48,7 @@ int main(int argc, char *argv[])
 
 	TEST_FAIL2(rc, "Open/load library");
 
-	dl_test_fn dltest = reinterpret_cast<dl_test_fn>(dl.resolve("dl_only_for_testing_purpose"
+	dl_test_fn dltest = pfs::void_func_ptr_cast<dl_test_fn>(dl.resolve("dl_only_for_testing_purpose"
 			, ec));
 
 	if (ec) {

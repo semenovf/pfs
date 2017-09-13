@@ -37,7 +37,7 @@ class device_manager : has_slots<>
 
     typedef pool<SequenceContainer
             , ContigousContainer
-            , AssociativeContainer>             pool_type;
+            , AssociativeContainer>     pool_type;
     typedef stdcxx::set<reopen_item>    reopen_queue;
 
     class dispatcher_context1 : public pool_type::dispatcher_context2
@@ -145,7 +145,7 @@ private:
             _p1.push_back(d);
             opened(d);
         } else {
-            if (ec == io_errc::operation_in_progress) {
+            if (ec == pfs::make_error_code(io_errc::operation_in_progress)) {
                 _p2.push_back(d);
                 opening(d);
             } else {
@@ -160,7 +160,7 @@ private:
             _p1.push_back(s);
             server_opened(s);
         } else {
-            if (ec == io_errc::operation_in_progress) {
+            if (ec == pfs::make_error_code(io_errc::operation_in_progress)) {
                 _p2.push_back(s);
                 server_opening(s);
             } else {

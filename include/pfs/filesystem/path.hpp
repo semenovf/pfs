@@ -55,6 +55,18 @@ public:
         : _d(p._d)
     {}
 
+    basic_path (string_type const & source/*, format fmt = auto_format*/)
+        : _d(source)
+    {}
+
+    basic_path (char const * source/*, format fmt = auto_format*/)
+        : _d(source)
+    {}
+
+    basic_path (wchar_t const * source/*, format fmt = auto_format*/)
+        : _d(source)
+    {}
+
     // TODO implement
     // path (string_type && source, format fmt = auto_format)
     //      : base_class(source)
@@ -87,10 +99,10 @@ public:
      *        on Windows).
      * @param source 
      */
-    template <typename Source>
-    basic_path (Source const & source/*, format fmt = auto_format*/)
-        :_d(source)
-    {}
+//    template <typename Source>
+//    basic_path (Source const & source/*, format fmt = auto_format*/)
+//        :_d(source)
+//    {}
 
     template <typename StringImpl>
     basic_path (string<StringImpl> const & source/*, format fmt = auto_format*/)
@@ -262,6 +274,12 @@ public:
         return *this;
     }
     
+    /**
+     * @brief Replaces a single filename component with replacement.
+     * 
+     * @param replacement Replacement path.
+     * @return @c *this.
+     */
     basic_path & replace_filename (basic_path const & replacement)
     {
         _d.replace_filename(replacement._d);
@@ -502,6 +520,16 @@ public:
         lhs._d.swap(rhs._d);
     }
     
+    friend bool operator == (string_type const & lhs, basic_path const & rhs)
+    {
+        return lhs == rhs._d;
+    }
+
+    friend bool operator == (basic_path const & lhs, string_type const & rhs)
+    {
+        return lhs._d == rhs;
+    }
+
     friend bool operator == (basic_path const & lhs, basic_path const & rhs)
     {
         return lhs._d == rhs._d;
