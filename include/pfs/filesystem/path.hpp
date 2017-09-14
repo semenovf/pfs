@@ -600,7 +600,7 @@ inline bool exists (path const & p)
     pfs::error_code ec;
     bool r = p.exists(ec);
     
-    if (ec) {
+    if (ec && ec != make_error_code(errc::no_such_file_or_directory)) {
         throw filesystem_error(p, ec);
     }
     

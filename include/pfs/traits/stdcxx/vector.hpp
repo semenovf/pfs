@@ -9,6 +9,7 @@
 #define __PFS_TRAITS_STDCXX_VECTOR_HPP__
 
 #include <vector>
+#include <pfs/iterator.hpp>
 #include <pfs/traits/value_ref.hpp>
 
 namespace pfs {
@@ -241,11 +242,11 @@ public:
         // erase() has signature `iterator erase(iterator first, iterator last)`
         //
         iterator it(this->begin());
-        advance(it, distance(this->cbegin(), pos));
+        pfs::advance(it, distance(this->cbegin(), pos));
         return _p->erase(it);
 #endif
     }
-    
+
     iterator erase (const_iterator first, const_iterator last)
     {
 #if __cplusplus >= 201103L
@@ -257,17 +258,17 @@ public:
         //
         iterator from(this->begin());
         iterator to(this->begin());
-        advance(from, distance(this->cbegin(), first));
-        advance(to, distance(this->cbegin(), last));
+        pfs::advance(from, distance(this->cbegin(), first));
+        pfs::advance(to, distance(this->cbegin(), last));
         return _p->erase(from, to);
-#endif        
+#endif
     }
 
     iterator insert (const_iterator pos, const_reference value)
     {
         return _p->insert(pos, value);
     }
-    
+
 #if __cplusplus >= 201103L
     iterator insert (const_iterator pos, T && value )
     {
@@ -279,20 +280,20 @@ public:
     {
         return _p->insert(pos, count, value);
     }
-    
+
     template <typename InputIt>
     iterator insert (const_iterator pos, InputIt first, InputIt last)
     {
         return _p->insert<InputIt>(pos, first, last);
     }
-    
+
 #if __cplusplus >= 201103L
     iterator insert (const_iterator pos, std::initializer_list<T> ilist)
     {
         return _p->insert(pos, ilist);
     }
 #endif
-    
+
     void push_back (const_reference value)
     {
         _p->push_back(value);

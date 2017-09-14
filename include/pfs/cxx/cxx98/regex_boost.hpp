@@ -18,19 +18,19 @@ namespace regex_constants {
 
 typedef ::boost::regex_constants::match_flag_type match_flag_type;
 
-pfs_constexpr match_flag_type match_default     = ::boost::regex_constants::match_default;
-pfs_constexpr match_flag_type match_not_bol     = ::boost::regex_constants::match_not_bol;
-pfs_constexpr match_flag_type match_not_eol     = ::boost::regex_constants::match_not_eol;
-pfs_constexpr match_flag_type match_not_bow     = ::boost::regex_constants::match_not_bow;
-pfs_constexpr match_flag_type match_not_eow     = ::boost::regex_constants::match_not_eow;
-pfs_constexpr match_flag_type match_any         = ::boost::regex_constants::match_any;
-pfs_constexpr match_flag_type match_not_null    = ::boost::regex_constants::match_not_null;
-pfs_constexpr match_flag_type match_continuous  = ::boost::regex_constants::match_continuous;
-pfs_constexpr match_flag_type match_prev_avail  = ::boost::regex_constants::match_prev_avail;
-pfs_constexpr match_flag_type format_default    = ::boost::regex_constants::format_default;
-pfs_constexpr match_flag_type format_sed        = ::boost::regex_constants::format_sed;
-pfs_constexpr match_flag_type format_no_copy    = ::boost::regex_constants::format_no_copy;
-pfs_constexpr match_flag_type format_first_only = ::boost::regex_constants::format_first_only;
+static const match_flag_type match_default     = ::boost::regex_constants::match_default;
+static const match_flag_type match_not_bol     = ::boost::regex_constants::match_not_bol;
+static const match_flag_type match_not_eol     = ::boost::regex_constants::match_not_eol;
+static const match_flag_type match_not_bow     = ::boost::regex_constants::match_not_bow;
+static const match_flag_type match_not_eow     = ::boost::regex_constants::match_not_eow;
+static const match_flag_type match_any         = ::boost::regex_constants::match_any;
+static const match_flag_type match_not_null    = ::boost::regex_constants::match_not_null;
+static const match_flag_type match_continuous  = ::boost::regex_constants::match_continuous;
+static const match_flag_type match_prev_avail  = ::boost::regex_constants::match_prev_avail;
+static const match_flag_type format_default    = ::boost::regex_constants::format_default;
+static const match_flag_type format_sed        = ::boost::regex_constants::format_sed;
+static const match_flag_type format_no_copy    = ::boost::regex_constants::format_no_copy;
+static const match_flag_type format_first_only = ::boost::regex_constants::format_first_only;
 
 } // regex_constants
 

@@ -154,11 +154,11 @@ std::string dynamic_library_category::message (int ev) const
         return "shared object (dynamic library) not found";
 
     case static_cast<int>(dynamic_library_errc::open_failed):
-        return std::string("failed to open shared object (dynamic library)")
+        return std::string("failed to open shared object (dynamic library): ")
                 + dlerror();
 
     case static_cast<int>(dynamic_library_errc::symbol_not_found):
-        return std::string("symbol not found in shared object (dynamic library)")
+        return std::string("symbol not found in shared object (dynamic library): ")
                 + dlerror();
 
     default: return "unknown dynamic_library error";

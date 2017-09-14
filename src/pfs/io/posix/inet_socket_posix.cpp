@@ -92,7 +92,8 @@ error_code inet_socket::connect (uint32_t addr, uint16_t port)
 		 */
         case EINPROGRESS:
         case EALREADY:
-        	ex = error_code(errno, pfs::generic_category());
+        	//ex = error_code(errno, pfs::generic_category());
+            ex = make_error_code(io_errc::operation_in_progress);
 //        	sock._state = bits::connecting_state;
             break;
 

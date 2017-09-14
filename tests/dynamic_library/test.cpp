@@ -33,7 +33,7 @@ int main(int argc, char *argv[])
     path dlpath = pfs::filesystem::search_path(dlfile, searchdirs);
     
 	if (!dlpath.empty()) {
-		dlpath_ptr = & dlfile;
+		dlpath_ptr = & dlpath;
 	}
 
 	TEST_FAIL2(dlpath_ptr != 0, "Candidate for dynamic library found");

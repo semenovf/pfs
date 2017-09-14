@@ -118,7 +118,7 @@ inline ::boost::system::error_code
 lexical_cast<::boost::system::error_code> (pfs::error_code const & ec)
 {
     if (ec.category() == std::generic_category())
-        return ::boost::system::error_code(ec.value(), generic_category());
+        return ::boost::system::error_code(ec.value(), ::boost::system::generic_category());
     
     PFS_ASSERT(false);
     return ::boost::system::error_code();

@@ -242,11 +242,11 @@ public:
         // erase() has signature `iterator erase(iterator first, iterator last)`
         //
         iterator it(this->begin());
-        advance(it, distance(this->cbegin(), pos));
+        pfs::advance(it, distance(this->cbegin(), pos));
         return _p->erase(it);
 #endif
     }
-    
+
     iterator erase (const_iterator first, const_iterator last)
     {
 #if __cplusplus >= 201103L
@@ -258,17 +258,17 @@ public:
         //
         iterator from(this->begin());
         iterator to(this->begin());
-        advance(from, distance(this->cbegin(), first));
-        advance(to, distance(this->cbegin(), last));
+        pfs::advance(from, distance(this->cbegin(), first));
+        pfs::advance(to, distance(this->cbegin(), last));
         return _p->erase(from, to);
-#endif        
+#endif
     }
 
     iterator insert (const_iterator pos, const_reference value)
     {
         return _p->insert(pos, value);
     }
-    
+
 #if __cplusplus >= 201103L
     iterator insert (const_iterator pos, T && value )
     {
@@ -280,20 +280,20 @@ public:
     {
         return _p->insert(pos, count, value);
     }
-    
+
     template <typename InputIt>
     iterator insert (const_iterator pos, InputIt first, InputIt last)
     {
         return _p->insert<InputIt>(pos, first, last);
     }
-    
+
 #if __cplusplus >= 201103L
     iterator insert (const_iterator pos, std::initializer_list<T> ilist)
     {
         return _p->insert(pos, ilist);
     }
 #endif
-    
+
     void push_back (const_reference value)
     {
         _p->push_back(value);
@@ -303,30 +303,30 @@ public:
     {
         _p->pop_back();
     }
-    
+
     // *************************************************************************
     // } END Requirements for sequence container traits
     // *************************************************************************
-    
+
     // *************************************************************************
     // BEGIN Requirements for contigous container traits {
     // *************************************************************************
-    
+
     pointer data ()
     {
         return _p->data();
     }
-    
+
     const_pointer data () const
     {
         return _p->data();
     }
-    
+
     void resize (size_type count)
     {
         _p->resize(count);
     }
-    
+
     void resize (size_type count, value_type const & value)
     {
         _p->resize(count, value);
@@ -336,36 +336,36 @@ public:
     {
         _p->reserve(new_cap);
     }
-    
+
     void shrink_to_fit ()
     {
         _p->shrink_to_fit();
     }
-    
+
     //
     // *** ELEMENT ACCESS
     //
-    
+
     reference at (size_type pos)
     {
         return _p->at(pos);
     }
-		
+
     const_reference at (size_type pos) const
     {
         return _p->at(pos);
     }
-	
+
     reference operator [] (size_type pos)
     {
         return _p->operator[](pos);
     }
-		
+
     const_reference operator [] (size_type pos) const
     {
         return _p->operator[](pos);
     }
-    
+
     // *************************************************************************
     // } END Requirements for contigous container traits
     // *************************************************************************
@@ -381,7 +381,7 @@ public:
     typedef typename base_class::native_reference       native_reference;
     typedef typename base_class::const_native_reference const_native_reference;
     typedef typename base_class::size_type              size_type;
-    
+
 public:
     vector ()
         : base_class()

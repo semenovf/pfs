@@ -1,6 +1,6 @@
 kind          "SharedLib"
 language      "C"
-targetname    "test-shared_object"
+targetname    "shared_object"
 targetdir    "../../.build/tests"
 files         { "../tests/dynamic_library/shared_object.c" }
 

@@ -525,7 +525,7 @@ public:
         pfs::advance(it, index);
         return *it;
     }
-    
+
     json operator [] (size_type index) const
     {
         if (_d.type == data_type::array) {
@@ -535,7 +535,7 @@ public:
         }
         return json();
     }
-    
+
     reference operator [] (key_type const & key)
     {
         if (_d.type == data_type::null) {

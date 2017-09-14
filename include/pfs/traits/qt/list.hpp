@@ -420,17 +420,17 @@ struct list_rep<T, QLinkedList> : public QLinkedList<T>
     {
         return reverse_iterator(base_class::end());
     }
-    
+
     const_reverse_iterator rbegin () const
     {
         return const_reverse_iterator(base_class::end());
     }
-    
+
     reverse_iterator rend ()
     {
         return reverse_iterator(base_class::begin());
     }
-    
+
     const_reverse_iterator rend () const
     {
         return const_reverse_iterator(base_class::begin());

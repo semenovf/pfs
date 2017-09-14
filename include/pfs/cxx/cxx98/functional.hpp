@@ -15,13 +15,13 @@
 namespace pfs {
 
 template <typename T, bool IsFunctionType = is_function<T>::value>
-struct _Function_to_function_pointer
+struct function_to_function_pointer
 {
     typedef T type;
 };
 
 template <typename T>
-struct _Function_to_function_pointer<T, true>
+struct function_to_function_pointer<T, true>
 {
     typedef T * type;
 };
@@ -32,7 +32,7 @@ class reference_wrapper
 {
     // If T is a function type, we can't form result_of<_Tp(...)>,
     // so turn it into a function pointer type.
-    typedef typename _Function_to_function_pointer<T>::type _M_func_type;
+    typedef typename function_to_function_pointer<T>::type func_type;
 
     T * _ptr;
     
@@ -64,18 +64,18 @@ public:
         return *_ptr;
     }
 
-    typename result_of<_M_func_type()>::type
-    operator () () const
-    {
-        return (*get())();
-    }
-    
-    template <typename A1>
-    typename result_of<_M_func_type(A1)>::type
-    operator () (A1 a1) const
-    {
-        return (*get())(a1);
-    }
+//    typename result_of<func_type()>::type
+//    operator () () const
+//    {
+//        return (*get())();
+//    }
+//    
+//    template <typename A1>
+//    typename result_of<func_type(A1)>::type
+//    operator () (A1 a1) const
+//    {
+//        return (*get())(a1);
+//    }
 };
 
 template <typename T>
@@ -102,14 +102,13 @@ inline reference_wrapper<const T> cref (reference_wrapper<T> ref)
     return cref(ref.get()); 
 }
 
-////    template< class... ArgTypes >
-////    typename std::result_of<T & (ArgTypes && ...)>::type
-////    
-////    operator () (ArgTypes &&... args) const
-////    {
-////        return std::invoke(get(), std::forward<ArgTypes>(args)...);
-////    }
-//};
+//    template< class... ArgTypes >
+//    typename std::result_of<T & (ArgTypes && ...)>::type
+//    
+//    operator () (ArgTypes &&... args) const
+//    {
+//        return std::invoke(get(), std::forward<ArgTypes>(args)...);
+//    }
 
 } // pfs
 

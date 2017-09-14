@@ -9,6 +9,7 @@
 #define __PFS_TRAITS_STDCXX_DEQUE_HPP__
 
 #include <deque>
+#include <pfs/iterator.hpp>
 #include <pfs/traits/value_ref.hpp>
 
 namespace pfs {
@@ -245,7 +246,7 @@ public:
         // erase() has signature `iterator erase(iterator first, iterator last)`
         //
         iterator it(this->begin());
-        advance(it, distance(this->cbegin(), pos));
+        pfs::advance(it, pfs::distance(this->cbegin(), pos));
         return _p->erase(it);
 #endif
     }
@@ -261,8 +262,8 @@ public:
         //
         iterator from(this->begin());
         iterator to(this->begin());
-        advance(from, distance(this->cbegin(), first));
-        advance(to, distance(this->cbegin(), last));
+        pfs::advance(from, pfs::distance(this->cbegin(), first));
+        pfs::advance(to, pfs::distance(this->cbegin(), last));
         return _p->erase(from, to);
 #endif        
     }

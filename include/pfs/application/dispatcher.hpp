@@ -234,7 +234,11 @@ bool dispatcher::register_modules (filesystem::path const & path)
     	return false;
     }
 
+#if __cplusplus >= 201103L
     Ifstream is(path.native());
+#else
+    Ifstream is(path.native().c_str());
+#endif
     
     if (!is.good()) {
         print_error(0, fmt("%s: Open file error")(to_string<string_type>(path)).str());

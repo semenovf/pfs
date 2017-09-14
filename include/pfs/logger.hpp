@@ -629,7 +629,11 @@ public:
 	file_appender () : base_class() {}
 
 	file_appender (filesystem::path const & path)
+#if __cplusplus >= 201103L
         : _d(path.native(), std::ios::out)
+#else
+        : _d(path.native().c_str(), std::ios::out)
+#endif
     {}
 
     virtual bool is_open () const

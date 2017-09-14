@@ -235,12 +235,12 @@ public:
 
     const_reverse_iterator rbegin () const
     {
-        return const_reverse_iterator(this->begin());
+        return const_reverse_iterator(this->end());
     }
 
     const_reverse_iterator rend () const
     {
-        return const_reverse_iterator(this->end());
+        return const_reverse_iterator(this->begin());
     }
 
     const_reverse_iterator crbegin () const

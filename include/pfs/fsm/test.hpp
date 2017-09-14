@@ -84,13 +84,13 @@ struct test_invalid_entry
 
         if (offset > 0) {
             Iterator it(first);
-            std::advance(it, offset);
+            pfs::advance(it, offset);
             return result.first && result.second == it;
         }
 
         return result.first == false && result.second == last;
     }
-    
+
     bool operator () (transition<Iterator, AtomicInt> const * trans_tab
             , Iterator first
             , Iterator last
@@ -107,9 +107,9 @@ struct test_invalid_entry_seq : test_invalid_entry<typename Grammar::iterator, A
     typedef test_invalid_entry<typename Grammar::iterator, AtomicInt> base_class;
     typedef typename Grammar::iterator iterator;
     typedef typename Grammar::string_type string_type;
-    
+
     test_invalid_entry_seq () {}
-    
+
     bool operator () (transition<iterator, AtomicInt> const * trans_tab
         , void * user_context
         , string_type const & s

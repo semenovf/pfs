@@ -14,7 +14,9 @@
 #include "pfs/io/inet_socket.hpp"
 #include "posix_utils.hpp"
 
-namespace pfs { namespace io { namespace details {
+namespace pfs {
+namespace io {
+namespace details {
 
 class inet_socket : public bits::device
 {
