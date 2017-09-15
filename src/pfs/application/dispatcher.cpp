@@ -25,36 +25,10 @@ struct module_deleter
 	}
 };
 
-
-//class module_threaded
-//{
-//    shared_ptr<module> _pmodule;
-//    
-//public:
-//	module_threaded (shared_ptr<module> pmodule)
-//		: _pmodule(pmodule)
-//	{
-//		PFS_ASSERT(_pmodule);
-//	}
-//
-//	virtual ~module_threaded ()
-//	{}
-//
-//	module const * module_ptr () const
-//	{
-//		return _pmodule.get();
-//	}
-//
-//protected:
-//	virtual void run ()
-//	{
-//		_pmodule->run(_pmodule.get());
-//	}
-//};
-
 dispatcher::dispatcher (api_item_type * mapping, int n)
 	: _master_module_ptr(0)
 {
+    init_default_logger();
     activate_posix_signal_handling();
             
 	for (int i = 0; i < n; ++i) {

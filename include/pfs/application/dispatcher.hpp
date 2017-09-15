@@ -91,6 +91,21 @@ protected:
         : _master_module_ptr(0)
     {}
 
+    void init_default_logger ()
+    {
+        logger_type::appender_type & cout_appender = _logger.add_appender<logger::stdout_appender<string_type> >();
+        logger_type::appender_type & cerr_appender = _logger.add_appender<logger::stderr_appender<string_type> >();
+        cout_appender.set_pattern("%d{ABSOLUTE} [%p]: %m");
+        cerr_appender.set_pattern("%d{ABSOLUTE} [%p]: %m");
+        
+        _logger.connect(pfs::logger::priority::trace   , cout_appender);
+        _logger.connect(pfs::logger::priority::debug   , cout_appender);
+        _logger.connect(pfs::logger::priority::info    , cout_appender);
+        _logger.connect(pfs::logger::priority::warn    , cerr_appender);
+        _logger.connect(pfs::logger::priority::error   , cerr_appender);
+        _logger.connect(pfs::logger::priority::critical, cerr_appender);
+    }
+    
     bool activate_posix_signal_handling ();
     void deactivate_posix_signal_handling ();
 
