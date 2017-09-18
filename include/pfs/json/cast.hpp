@@ -190,12 +190,12 @@ struct cast_traits_basic<typename JsonType::string_type
         return v;
     }
     
-    static string_type cast (typename JsonType::array_type const & v)
+    static string_type cast (typename JsonType::array_type const & /*v*/)
     {
         return string_type();
     }
     
-    static string_type cast (typename JsonType::object_type const & v)
+    static string_type cast (typename JsonType::object_type const & /*v*/)
     {
         return string_type();
     }

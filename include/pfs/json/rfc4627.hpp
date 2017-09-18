@@ -290,7 +290,7 @@ struct grammar
         // TODO unescape hexdigits in form: \uXXXX
     }     
     
-    static bool false_value (iterator begin, iterator end, void * context, void * action_args)
+    static bool false_value (iterator /*first*/, iterator /*last*/, void * context, void * /*action_args*/)
     {
         if (!context) return true;
 
@@ -300,7 +300,7 @@ struct grammar
         return result;
     }
 
-    static bool null_value (iterator begin, iterator end, void * context, void * action_args)
+    static bool null_value (iterator /*first*/, iterator /*last*/, void * context, void * /*action_args*/)
     {
         if (!context) return true;
 
@@ -310,7 +310,7 @@ struct grammar
         return result;
     }
 
-    static bool true_value (iterator begin, iterator end, void * context, void * action_args)
+    static bool true_value (iterator /*first*/, iterator /*last*/, void * context, void * /*action_args*/)
     {
         if (!context) return true;
 
@@ -320,13 +320,13 @@ struct grammar
         return result;
     }
 
-    static bool number_value (iterator begin, iterator end, void * context, void * action_args)
+    static bool number_value (iterator first, iterator last, void * context, void * /*action_args*/)
     {
         if (!context) return true;
         
         parse_context * ctx = static_cast<parse_context *>(context);
 
-        string_type number_str = string_type(begin, end);
+        string_type number_str = string_type(first, last);
         bool result = false;
         real_t d;
         
@@ -343,7 +343,7 @@ struct grammar
         return result;
     }
     
-    static bool string_value (iterator begin, iterator end, void * context, void * action_args)
+    static bool string_value (iterator begin, iterator end, void * context, void * /*action_args*/)
     {
         if (!context) return true;
         
@@ -356,7 +356,7 @@ struct grammar
         return result;
     }
     
-    static bool success_end_json (iterator begin, iterator end, void * context, void * action_args)
+    static bool success_end_json (iterator /*first*/, iterator /*last*/, void * context, void * /*action_args*/)
     {
         if (!context) return true;
 
@@ -364,7 +364,7 @@ struct grammar
         return ctx->sax->on_end_json(true);
     }
 
-    static bool failed_end_json (iterator begin, iterator end, void * context, void * action_args)
+    static bool failed_end_json (iterator /*first*/, iterator /*last*/, void * context, void * /*action_args*/)
     {
         if (!context) return true;
 
@@ -373,19 +373,19 @@ struct grammar
         return ctx->sax->on_end_json(false);
     }
     
-    static bool begin_member (iterator begin, iterator end, void * context, void * action_args)
+    static bool begin_member (iterator first, iterator last, void * context, void * /*action_args*/)
     {
         if (context) {
             parse_context * ctx = static_cast<parse_context *>(context);
-            ++begin;
-            --end;
-            ctx->member_name = unescape_chars(begin, end);
+            ++first;
+            --last;
+            ctx->member_name = unescape_chars(first, last);
         }
 
         return true;
     }
 
-    static bool end_member (iterator begin, iterator end, void * context, void * action_args)
+    static bool end_member (iterator /*first*/, iterator /*last*/, void * context, void * /*action_args*/)
     {
         if (context) {
             parse_context * ctx = static_cast<parse_context *>(context);
@@ -394,7 +394,7 @@ struct grammar
         return true;
     }
 
-    static bool begin_object (iterator begin, iterator end, void * context, void * action_args)
+    static bool begin_object (iterator /*first*/, iterator /*last*/, void * context, void * /*action_args*/)
     {
         if (!context) return true;
 
@@ -411,7 +411,7 @@ struct grammar
         return result;
     }
     
-    static bool end_object (iterator begin, iterator end, void * context, void * action_args)
+    static bool end_object (iterator /*first*/, iterator /*last*/, void * context, void * /*action_args*/)
     {
         if (!context) return true;
 
@@ -422,7 +422,7 @@ struct grammar
         return ctx->sax->on_end_object(member_name);
     }
     
-    static bool begin_array (iterator begin, iterator end, void * context, void * action_args)
+    static bool begin_array (iterator /*first*/, iterator /*last*/, void * context, void * /*action_args*/)
     {
         if (!context) return true;
 
@@ -437,7 +437,7 @@ struct grammar
         return result;
     }    
     
-    static bool end_array (iterator begin, iterator end, void * context, void * action_args)
+    static bool end_array (iterator /*first*/, iterator /*last*/, void * context, void * /*action_args*/)
     {
         if (!context) return true;
 

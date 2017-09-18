@@ -65,6 +65,8 @@ private:
             if (p)
                 p->ref();
             state = other.state;
+            
+            return *this;
         }
         
         ~value ()

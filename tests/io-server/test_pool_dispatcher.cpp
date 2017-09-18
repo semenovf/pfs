@@ -88,7 +88,7 @@ struct dispatcher_context : public pool_type::dispatcher_context2
 		: n1(0)
 	{}
 
-	virtual void connected (pfs::io::device & d, const pfs::io::server & )
+	virtual void connected (pfs::io::device &, const pfs::io::server &)
 	{
 		std::cout << "Socket connected" << std::endl;
 	}
@@ -101,13 +101,13 @@ struct dispatcher_context : public pool_type::dispatcher_context2
 		std::cout << "Ready read: " << bytes.size() << " bytes" << std::endl;
 	}
 
-	virtual void disconnected (pfs::io::device & d)
+	virtual void disconnected (pfs::io::device &)
 	{
 		++n1;
 		std::cout << "Socket disconnected" << std::endl;
 	}
 
-	virtual void can_write (pfs::io::device & d)
+	virtual void can_write (pfs::io::device &)
 	{
 		std::cout << "Socket can write" << std::endl;
 	}

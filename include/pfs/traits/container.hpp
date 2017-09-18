@@ -141,7 +141,7 @@ public:
     friend inline bool operator == (container const & lhs
         , container const & rhs)
     {
-        return lhs._p == lhs._p;
+        return lhs._p == rhs._p;
     }
 
     friend inline bool operator != (container const & lhs

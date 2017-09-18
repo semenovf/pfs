@@ -195,7 +195,7 @@ class pretty_printer
 
     static inline void __print_brace_indent (string_type & result
             , print_spec const & pspec
-            , int indent)
+            , int /*indent*/)
     {
         __repeat(result, pspec.ws_symbol, pspec.brace_indent);
     }

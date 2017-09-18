@@ -326,7 +326,7 @@ struct stringifier : public base_stringifier<BackInsertIt>
         
         // A return value of size or more means that the output was truncated.
         //
-        if (written >= SNPRINTF_DEFAULT_BUFSZ) {
+        if (static_cast<size_t>(written) >= SNPRINTF_DEFAULT_BUFSZ) {
             bufsz = static_cast<size_t>(written) + 1;
             pbuf = pfs::allocator<char>().allocate(bufsz);
             
@@ -339,7 +339,7 @@ struct stringifier : public base_stringifier<BackInsertIt>
             if (written < 0)
                 throw pfs::runtime_error("safeformat: snprintf() error (a negative value is returned)");
 
-            PFS_ASSERT(written < bufsz);
+            PFS_ASSERT(static_cast<size_t>(written) < bufsz);
         }
 
         char * p = pbuf;
@@ -385,8 +385,8 @@ struct string_stringifier : public base_stringifier<BackInsertIt>
         size_t padding_count = 0;
         typename string_type::value_type padding_char = ' ';
 
-        if (vallen < conv_spec.field_width) {
-            padding_count = size_t(conv_spec.field_width) - vallen;
+        if (vallen < static_cast<size_t>(conv_spec.field_width)) {
+            padding_count = static_cast<size_t>(conv_spec.field_width) - vallen;
             
             if (conv_spec.flags & conversion_specification::FL_ZERO_PADDING
                     && conv_spec.flags & conversion_specification::FL_SPACE_PADDING) {
@@ -443,9 +443,9 @@ class safeformat
     
 public:
     safeformat (string_type const & format)
-        : _p(format.cbegin())
+        : _out(_result)
+        , _p(format.cbegin())
         , _end(format.cend())
-        , _out(_result)
     {}
 
 private:

@@ -57,7 +57,7 @@ error_code device::close ()
  *         @li -1 and @a *ex == 0 if size of written data is not equals to size of read data;
  *         @li >=0 if data is succesfull.
  */
-ssize_t copy (device & dest, device & src, size_t chunkSize, error_code * ec)
+ssize_t copy (device & dest, device & src, size_t chunk_size, error_code * ec)
 {
     byte_t buffer[DEFAULT_READ_BUFSZ];
     ssize_t r = 0;
@@ -65,7 +65,7 @@ ssize_t copy (device & dest, device & src, size_t chunkSize, error_code * ec)
     if (ec)
     	ec->clear();
 
-    while (r < chunkSize) {
+    while (r < static_cast<ssize_t>(chunk_size)) {
     	ssize_t r1 = src.read(buffer, DEFAULT_READ_BUFSZ, ec);
 
     	if (r1 < 0)

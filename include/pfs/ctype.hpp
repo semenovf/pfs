@@ -53,9 +53,7 @@ char to_ascii (CharT c);
 template <>
 inline char to_ascii<char> (char c)
 {
-    return c >= 0 && c <= 127 
-            ? c
-            : -1;
+    return c >= 0 ? c : -1;
 }
 
 } // pfs

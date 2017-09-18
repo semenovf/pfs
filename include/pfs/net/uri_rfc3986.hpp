@@ -115,7 +115,7 @@ struct uri_grammar
     
     uri_grammar ();
     
-    static bool set_scheme (iterator first, iterator last, void * context, void * action_args)
+    static bool set_scheme (iterator first, iterator last, void * context, void * /*action_args*/)
     {
     {
         if (context) {
@@ -126,7 +126,7 @@ struct uri_grammar
     }
     }
     
-    static bool set_query (iterator first, iterator last, void * context, void * action_args)
+    static bool set_query (iterator first, iterator last, void * context, void * /*action_args*/)
     {
         if (context) {
             parse_context * ctx = static_cast<parse_context *>(context);
@@ -135,7 +135,7 @@ struct uri_grammar
     	return true;
     }    
     
-    static bool set_fragment (iterator first, iterator last, void * context, void * action_args)
+    static bool set_fragment (iterator first, iterator last, void * context, void * /*action_args*/)
     {
         if (context) {
             parse_context * ctx = static_cast<parse_context *>(context);
@@ -144,7 +144,7 @@ struct uri_grammar
     	return true;
     }    
     
-    static bool set_path (iterator first, iterator last, void * context, void * action_args)
+    static bool set_path (iterator first, iterator last, void * context, void * /*action_args*/)
     {
         if (context) {
             parse_context * ctx = static_cast<parse_context *>(context);
@@ -153,7 +153,7 @@ struct uri_grammar
     	return true;
     }
     
-    static bool set_userinfo (iterator first, iterator last, void * context, void * action_args)
+    static bool set_userinfo (iterator first, iterator last, void * context, void * /*action_args*/)
     {
         if (context) {
             parse_context * ctx = static_cast<parse_context *>(context);
@@ -162,7 +162,7 @@ struct uri_grammar
     	return true;
     }
     
-    static bool unset_userinfo (iterator first, iterator last, void * context, void * action_args)
+    static bool unset_userinfo (iterator /*first*/, iterator /*last*/, void * context, void * /*action_args*/)
     {
         if (context) {
             parse_context * ctx = static_cast<parse_context *>(context);
@@ -171,7 +171,7 @@ struct uri_grammar
     	return true;
     }
     
-    static bool set_host (iterator first, iterator last, void * context, void * action_args)
+    static bool set_host (iterator first, iterator last, void * context, void * /*action_args*/)
     {
         if (context) {
             parse_context * ctx = static_cast<parse_context *>(context);
@@ -181,7 +181,7 @@ struct uri_grammar
 
     }
     
-    static bool set_port (iterator first, iterator last, void * context, void * action_args)
+    static bool set_port (iterator first, iterator last, void * context, void * /*action_args*/)
     {
         if (!context) return true;
         
@@ -196,7 +196,7 @@ struct uri_grammar
         return true;
     }
     
-    static bool set_raw_host (iterator first, iterator last, void * context, void * action_args)
+    static bool set_raw_host (iterator /*first*/, iterator /*last*/, void * context, void * /*action_args*/)
     {
         if (context) {
             parse_context * ctx = static_cast<parse_context *>(context);

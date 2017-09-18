@@ -50,7 +50,7 @@ public:
         return it._pvalue;
     }
     
-    static void increment (scalar_iterator &, difference_type n = 1)
+    static void increment (scalar_iterator &, difference_type /*n*/ = 1)
     {
         throw domain_error("json::scalar_iterator::increment()");
     }
@@ -164,13 +164,13 @@ protected:
     struct set_begin {};
     struct set_end {};
     
-    basic_iterator (pointer pvalue, set_begin begin_tag)
+    basic_iterator (pointer pvalue, set_begin /*begin_tag*/)
         : _pvalue(pvalue)
     {
         __set_begin();
     }
 
-    basic_iterator (pointer pvalue, set_end end_tag)
+    basic_iterator (pointer pvalue, set_end /*end_tag*/)
         : _pvalue(pvalue)
     {
         __set_end();
@@ -242,8 +242,9 @@ public:
                 _scalar_it = rhs._scalar_it;
                 break;
             }
-            return *this;
         }
+        
+        return *this;
     }
     
     key_type key () const

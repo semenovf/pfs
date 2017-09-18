@@ -3,6 +3,7 @@ External Links
 CLI
 --------------------------------------------------------------------------------
 1. `Docopt <http://docopt.org/>`_
+2. `Optional<https://mulholland.xyz/docs/optional/index.html>`_
 
 File system
 --------------------------------------------------------------------------------

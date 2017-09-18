@@ -75,6 +75,8 @@ public:
         this->~match();
         _p = m._p;
         ++_p->ref;
+        
+        return *this;
     }
 
     result_type operator () (context<Iterator, AtomicInt> * ctx
@@ -105,7 +107,7 @@ public:
     {
         size_type _len;
 
-        virtual result_type do_match (context<Iterator, AtomicInt> * ctx
+        virtual result_type do_match (context<Iterator, AtomicInt> * /*ctx*/
                 , iterator begin
                 , iterator end) const
         {
@@ -123,7 +125,7 @@ public:
         iterator _seq_begin;
         iterator _seq_end;
 
-        virtual result_type do_match (context<Iterator, AtomicInt> * ctx
+        virtual result_type do_match (context<Iterator, AtomicInt> * /*ctx*/
                 , iterator begin
                 , iterator end) const
         {
@@ -142,7 +144,7 @@ public:
         iterator _seq_begin;
         iterator _seq_end;
 
-        virtual result_type do_match (context<Iterator, AtomicInt> * ctx
+        virtual result_type do_match (context<Iterator, AtomicInt> * /*ctx*/
                 , iterator begin
                 , iterator end) const
         {
@@ -161,7 +163,7 @@ public:
         char_type _min;
         char_type _max;
 
-        virtual result_type do_match (context<Iterator, AtomicInt> * ctx
+        virtual result_type do_match (context<Iterator, AtomicInt> * /*ctx*/
                 , iterator begin
                 , iterator end) const
         {

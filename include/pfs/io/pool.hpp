@@ -397,7 +397,7 @@ public:
 		virtual ~dispatcher_context2 () {}
 
 	public:
-		virtual void accepted (device &, server & listener) const {}
+		virtual void accepted (device &, server &) const {}
 		virtual void ready_read (device &) const {}
 		virtual void disconnected (device &) const {}
 		virtual void can_write (device &) const {}

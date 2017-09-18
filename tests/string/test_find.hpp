@@ -24,7 +24,7 @@ void test_find_basic ()
     typedef typename string::value_type  value_type;
 
     test_description<value_type>(__PRETTY_FUNCTION__);
-    
+  
 //    ADD_TESTS(1);
 //
 //    typedef pfs::mpl::string<StringImpl> string;

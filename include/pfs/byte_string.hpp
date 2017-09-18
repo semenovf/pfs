@@ -1000,7 +1000,7 @@ public:
 
     void read (byte_string & v, byte_string::size_type sz)
     {
-        if (pfs::distance(b, e) < sz)
+        if (static_cast<byte_string::size_type>(pfs::distance(b, e)) < sz)
             throw io_exception(make_error_code(io_errc::stream), NOT_ENOUGH_DATA_EXCEPTION_STR);
         
         byte_string::const_iterator last(b);
@@ -1011,7 +1011,7 @@ public:
 
     void read (byte_string::pointer v, byte_string::size_type sz)
     {
-        if (pfs::distance(b, e) < sz)
+        if (static_cast<byte_string::size_type>(pfs::distance(b, e)) < sz)
             throw io_exception(make_error_code(io_errc::stream), NOT_ENOUGH_DATA_EXCEPTION_STR);
         pfs::copy(b.base(), b.base() + sz, v);
         pfs::advance(b, sz);

@@ -10,7 +10,7 @@ namespace test_stringify {
 template <typename JsonType>
 void test ()
 {
-    typedef typename JsonType::string_type string_type;
+    //typedef typename JsonType::string_type string_type;
 
     {
         ADD_TESTS(1);

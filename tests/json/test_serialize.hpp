@@ -17,7 +17,7 @@ void test ()
 			"\"object\":{\"bar\":\"hello\",\"fee\":[100,200],\"foo\":100}}"
     };
     
-    for (int i = 0; i < sizeof(test_data)/sizeof(test_data[0]); i++) {
+    for (size_t i = 0; i < sizeof(test_data)/sizeof(test_data[0]); i++) {
         ADD_TESTS(2);
 
         pfs::byte_ostream os;

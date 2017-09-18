@@ -76,7 +76,7 @@ public:
     	return _ctx;
     }
 
-    context_type * const context () const
+    context_type const * context () const
     {
     	return _ctx;
     }

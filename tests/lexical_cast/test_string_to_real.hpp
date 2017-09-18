@@ -72,7 +72,7 @@ static void __print_diff_greater_than_epsilon (char const * prefix
 
 template <typename RealType, typename StringType>
 static bool __test_string_to_real (char const * s
-    , RealType result_sample
+    , RealType /*result_sample*/
     , ptrdiff_t badpos_increment)
 {
     typedef typename StringType::const_iterator char_iterator_type;

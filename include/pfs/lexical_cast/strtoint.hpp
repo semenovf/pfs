@@ -180,7 +180,7 @@ UintT __string_to_uint (CharIteratorT beginpos
             }
 
             if (result < cutoff_value
-                    || (result == cutoff_value && digit <= cutoff_limit)) {
+                    || (result == cutoff_value && static_cast<UintT>(digit) <= cutoff_limit)) {
                 result *= static_cast<UintT>(radix);
                 result += digit;
             } else {

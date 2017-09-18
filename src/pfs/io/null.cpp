@@ -21,12 +21,12 @@ struct null : public bits::device
     	 return 0;
     }
 
-    virtual ssize_t read (byte_t * bytes, size_t n, error_code *) pfs_override
+    virtual ssize_t read (byte_t * /*bytes*/, size_t /*n*/, error_code *) pfs_override
     {
         return 0;
     }
 
-    virtual ssize_t write (const byte_t * bytes, size_t n, error_code *) pfs_override
+    virtual ssize_t write (const byte_t * /*bytes*/, size_t n, error_code *) pfs_override
     {
         return integral_cast_check<ssize_t>(n);
     }

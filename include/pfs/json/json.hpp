@@ -363,7 +363,9 @@ public:
         case data_type::object:
             _d = rep_type(*other._d.object);
             break;
-        }        
+        }
+        
+        return *this;
     }
     
     json (json const & other)

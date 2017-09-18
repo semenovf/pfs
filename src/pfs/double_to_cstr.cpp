@@ -56,7 +56,7 @@ char * double_to_cstr (double num
         throw pfs::runtime_error("safeformat: snprintf() error (a negative value is returned)");
         
     // A return value of size or more means that the output was truncated.
-    if (written >= *n) {
+    if (static_cast<size_t>(written) >= *n) {
         *n = written;
         return 0;
     }

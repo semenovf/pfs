@@ -25,7 +25,7 @@ using std::endl;
 struct null_ostream
 {
     template <typename T>
-    null_ostream & operator << (T a) { return *this; }
+    null_ostream & operator << (T) { return *this; }
 };
 
 static null_ostream nout;
@@ -55,11 +55,10 @@ void test ()
     
     active_queue_type q;
     
-    size_t max_count = 100;
+    int max_count = 100;
     
-    for (size_t i = 0; i < max_count; ++i) {
+    for (int i = 0; i < max_count; ++i)
         q.push_function(& func);
-    }
     
     max_count = q.count();
     q.call_all();
@@ -71,11 +70,11 @@ void test ()
     
     active_queue_type q1;
     
-    for (size_t i = 0; i < max_count; ++i) {
+    for (int i = 0; i < max_count; ++i) {
         q1.push_function(& func);
     }
     
-    TEST_OK(q1.count() == max_count)
+    TEST_OK(q1.count() == static_cast<size_t>(max_count))
         //, _Sf("q1.count()=> %u == %u")(q1.count())(max_count).str().c_str());
 }
 
