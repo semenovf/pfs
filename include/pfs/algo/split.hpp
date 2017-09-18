@@ -37,48 +37,48 @@ Sequence * split (
 		, bool flag
 		, Sequence * result = 0)
 {
-	typedef typename Sequence::value_type value_type;
-	typedef typename Sequence::difference_type difference_type;
+    typedef typename Sequence::value_type value_type;
+    typedef typename Sequence::difference_type difference_type;
 
-	if (begin == end)
-		return result;
+    if (begin == end)
+        return result;
 
-	difference_type n = pfs::distance(separator_begin, separator_end);
+    difference_type n = pfs::distance(separator_begin, separator_end);
 
     if (! result)
         result = new Sequence;
-    
-	// "/"
 
-	while (begin != end) {
-		InputIt1 it = pfs::find(begin
-				, end
-				, separator_begin
-				, separator_end);
+    // "/"
 
-		if (it == end)
-			break;
+    while (begin != end) {
+            InputIt1 it = pfs::find(begin
+                            , end
+                            , separator_begin
+                            , separator_end);
 
-		value_type v(begin, it);
+            if (it == end)
+                    break;
 
-		if (!(v.empty() && !flag)) {
-			result->push_back(v);
-		}
+            value_type v(begin, it);
 
-		// Skip separator
-		//
-		pfs::advance(it, n);
-		begin = it;
-	}
+            if (!(v.empty() && !flag)) {
+                    result->push_back(v);
+            }
 
-	if (begin != end)
-		result->push_back(value_type(begin, end));
-	else {
-		if (flag)
-			result->push_back(value_type());
-	}
+            // Skip separator
+            //
+            pfs::advance(it, n);
+            begin = it;
+    }
 
-	return result;
+    if (begin != end) {
+        result->push_back(value_type(begin, end));
+    } else {
+        if (flag)
+            result->push_back(value_type());
+    }
+
+    return result;
 }
 
 } // pfs

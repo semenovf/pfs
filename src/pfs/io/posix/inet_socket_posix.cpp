@@ -189,7 +189,9 @@ ssize_t inet_socket::read (byte_t * bytes, size_t n, error_code * pex)
 //	do {
 		r = recv(_fd, bytes, n, 0);
 
-		if (r < 0 && (errno == EAGAIN || errno == EWOULDBLOCK)) {
+        PFS_ASSERT(EAGAIN == EWOULDBLOCK);
+        
+		if (r < 0 && errno == EAGAIN) { // || errno == EWOULDBLOCK)) {
 			r = 0;
 //			continue;
 		}
@@ -220,7 +222,9 @@ ssize_t inet_socket::write (const byte_t * bytes, size_t nbytes, error_code * ex
 		ssize_t n = send(_fd, bytes + r, nbytes, MSG_NOSIGNAL);
 
 		if (n < 0) {
-			if (errno == EAGAIN || errno == EWOULDBLOCK)
+            PFS_ASSERT(EAGAIN == EWOULDBLOCK);
+            
+			if (errno == EAGAIN) // || errno == EWOULDBLOCK)
 				continue;
 
 			r = -1;

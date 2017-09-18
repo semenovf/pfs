@@ -208,8 +208,8 @@ RealType string_to_real (CharIterator first
 
     if (first == last) {
     	if (badpos)
-    		*badpos = first;
-		return RealType(0.0f);
+            *badpos = first;
+	return RealType(0.0f);
     }
 
     // Skip over any leading whitespace

@@ -327,23 +327,23 @@ match<Iterator, AtomicInt>::match_rpt::do_match (context<Iterator, AtomicInt> * 
     if (from > to)
         throw out_of_range("match_rpt::do_match()");
 
-	int i = 0;
+    int i = 0;
 
-	for (i = 0; i < to && ptr < end; i++) {
-		result_type r = _match(ctx, ptr, end);
+    for (i = 0; i < to && ptr < end; i++) {
+        result_type r = _match(ctx, ptr, end);
 
-		if (!r.first) {
-			break;
-		}
+        if (!r.first) {
+            break;
+        }
 
-		ptr = r.second;
-	}
+        ptr = r.second;
+    }
 
-	if (i < from) {
-		return result_type(false, end);
-	}
+    if (i < from) {
+        return result_type(false, end);
+    }
 
-	return result_type(true, ptr);
+    return result_type(true, ptr);
 }
 
 }} // pfs::fsm
