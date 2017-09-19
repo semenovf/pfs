@@ -114,6 +114,11 @@ public:
         return match_type::template make<typename match_type::match_seq
                 , iterator, iterator>(first, last);
     }
+
+    static match_type eq (char_type ch)
+    {
+        return match_type::template make<typename match_type::match_eq/*, char_type*/>(ch);
+    }
     
     static match_type one_of (iterator first, iterator last)
     {

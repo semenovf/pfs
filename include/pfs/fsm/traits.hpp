@@ -42,6 +42,20 @@ struct match_traits
                 ? result_type(false, end)
                 : result_type(true, begin);
     }
+
+    static result_type xmatch_eq (
+              iterator begin
+            , iterator end
+            , char_type ch)
+    {
+        if (begin == end)
+            return result_type(false, end);
+
+        if (*begin == ch)
+            return result_type(true, ++begin);
+
+        return result_type(false, begin);
+    }
     
     static result_type xmatch_one_of (
               iterator begin
@@ -61,7 +75,6 @@ struct match_traits
 
         return result_type(false, end);
     }
-    
 
     static result_type xmatch_seq (
               iterator begin

@@ -139,6 +139,24 @@ public:
         {}
     };
 
+    class match_eq : public match_base
+    {
+        char_type _ch;
+
+        virtual result_type do_match (context<Iterator, AtomicInt> * /*ctx*/
+                , iterator begin
+                , iterator end) const
+        {
+            return match_traits_type::xmatch_eq(begin, end, _ch);
+        }
+
+    public:
+        match_eq (char_type const & ch)
+            : _ch(ch)
+        {}
+    };
+
+    
     class match_one_of : public match_base
     {
         iterator _seq_begin;

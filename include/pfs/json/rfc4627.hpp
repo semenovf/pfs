@@ -8,10 +8,8 @@
 #include <pfs/json/constants.hpp>
 #include "exception.hpp"
 
-
-#include <pfs/debug.hpp>
-
-namespace pfs { namespace json {
+namespace pfs {
+namespace json {
 
 /*
    RFC 4627:  The application/json Media Type for JavaScript Object Notation (JSON).
