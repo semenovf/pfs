@@ -106,7 +106,7 @@ static uint64_t __crc64_lookup_table[] = {
 */
 int64_t crc64 (const void * pdata, size_t nbytes, int64_t initial)
 {
-	const byte_t *pbytes = (const byte_t *)pdata;
+	const byte_t *pbytes = static_cast<const byte_t *>(pdata);
 	uint64_t r = initial;
 	while( nbytes-- )
 		r = __crc64_lookup_table[(r ^ *pbytes++) & 0xff ] ^ (r >> 8);

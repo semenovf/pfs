@@ -416,22 +416,22 @@ public:
             pool::iterator it_end = result.second;
 
             while (it != it_end) {
-                pool::value value = *it;
+                pool::value val = *it;
 
                 short revents = it.revents();
 
-                if (value.is_server()) { // accept connection
+                if (val.is_server()) { // accept connection
                     // Servers wait incoming data (to establish connection)
                     // so ignore write events
                     //
                     if ((revents ^ WR_EVENTS_XOR_MASK) == 0) {
                         ; // TODO here may be need check opening/opened state
                     } else {
-                        pfs::io::server server = value.get_server();
+                        pfs::io::server server = val.get_server();
                         process_server(server, context, revents);
                     }
                 } else {
-                    pfs::io::device dev = value.get_device();
+                    pfs::io::device dev = val.get_device();
                     process_device(dev, context, revents);
                 }
 

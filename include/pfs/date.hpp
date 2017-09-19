@@ -20,9 +20,9 @@ class date
 
 public:
 	static const intmax_t NULL_JULIAN_DAY;
-	static const intmax_t MIN_JULIAN_DAY   = intmax_t(-784366681008); // Date::julianDay(PFS_INT_MIN, 1, 1)
-	static const intmax_t MAX_JULIAN_DAY   = intmax_t(784354017364);  // Date::julianDay(PFS_INT_MAX, 12, 31)
-    static const intmax_t EPOCH_JULIAN_DAY = intmax_t(2440588);       // Date::julianDay(1970, 1, 1)
+	static const intmax_t MIN_JULIAN_DAY   = -784366681008L; // Date::julianDay(PFS_INT_MIN, 1, 1)
+	static const intmax_t MAX_JULIAN_DAY   = 784354017364L;  // Date::julianDay(PFS_INT_MAX, 12, 31)
+    static const intmax_t EPOCH_JULIAN_DAY = 2440588L;       // Date::julianDay(1970, 1, 1)
 
 public:
 	date ()

@@ -1327,7 +1327,7 @@ public:
 
     virtual _connection_base0<Mutex>* duplicate(has_slots<Mutex>* pnewdest)
     {
-        return new _connection0<dest_type, Mutex>((dest_type *)pnewdest, _pmemfun);
+        return new _connection0<dest_type, Mutex>(static_cast<dest_type *>(pnewdest), _pmemfun);
     }
 
     virtual void emit_()
@@ -1368,7 +1368,7 @@ public:
 
     virtual _connection_base1<arg1_type, Mutex>* duplicate(has_slots<Mutex>* pnewdest)
     {
-        return new _connection1<dest_type, arg1_type, Mutex>((dest_type *)pnewdest, _pmemfun);
+        return new _connection1<dest_type, arg1_type, Mutex>(static_cast<dest_type *>(pnewdest), _pmemfun);
     }
 
     virtual void emit_(arg1_type a1)
@@ -1412,7 +1412,7 @@ public:
 
     virtual _connection_base2<arg1_type, arg2_type, Mutex>* duplicate(has_slots<Mutex>* pnewdest)
     {
-        return new _connection2<dest_type, arg1_type, arg2_type, Mutex>((dest_type *)pnewdest, _pmemfun);
+        return new _connection2<dest_type, arg1_type, arg2_type, Mutex>(static_cast<dest_type *>(pnewdest), _pmemfun);
     }
 
     virtual void emit_(arg1_type a1, arg2_type a2)
@@ -1454,7 +1454,7 @@ public:
 
     virtual _connection_base3<arg1_type, arg2_type, arg3_type, Mutex>* duplicate(has_slots<Mutex>* pnewdest)
     {
-        return new _connection3<dest_type, arg1_type, arg2_type, arg3_type, Mutex>((dest_type *)pnewdest, _pmemfun);
+        return new _connection3<dest_type, arg1_type, arg2_type, arg3_type, Mutex>(static_cast<dest_type *>(pnewdest), _pmemfun);
     }
 
     virtual void emit_(arg1_type a1, arg2_type a2, arg3_type a3)
@@ -1498,7 +1498,7 @@ public:
 
     virtual _connection_base4<arg1_type, arg2_type, arg3_type, arg4_type, Mutex>* duplicate(has_slots<Mutex>* pnewdest)
     {
-        return new _connection4<dest_type, arg1_type, arg2_type, arg3_type, arg4_type, Mutex>((dest_type *)pnewdest, _pmemfun);
+        return new _connection4<dest_type, arg1_type, arg2_type, arg3_type, arg4_type, Mutex>(static_cast<dest_type *>(pnewdest), _pmemfun);
     }
 
     virtual void emit_(arg1_type a1, arg2_type a2, arg3_type a3,
@@ -1548,7 +1548,7 @@ public:
         arg5_type, Mutex>* duplicate(has_slots<Mutex>* pnewdest)
     {
         return new _connection5<dest_type, arg1_type, arg2_type, arg3_type, arg4_type,
-            arg5_type, Mutex>((dest_type *)pnewdest, _pmemfun);
+            arg5_type, Mutex>(static_cast<dest_type *>(pnewdest), _pmemfun);
     }
 
     virtual void emit_(arg1_type a1, arg2_type a2, arg3_type a3, arg4_type a4,
@@ -1598,7 +1598,7 @@ public:
         arg5_type, arg6_type, Mutex>* duplicate(has_slots<Mutex>* pnewdest)
     {
         return new _connection6<dest_type, arg1_type, arg2_type, arg3_type, arg4_type,
-            arg5_type, arg6_type, Mutex>((dest_type *)pnewdest, _pmemfun);
+            arg5_type, arg6_type, Mutex>(static_cast<dest_type *>(pnewdest), _pmemfun);
     }
 
     virtual void emit_(arg1_type a1, arg2_type a2, arg3_type a3, arg4_type a4,
@@ -1648,7 +1648,7 @@ public:
         arg5_type, arg6_type, arg7_type, Mutex>* duplicate(has_slots<Mutex>* pnewdest)
     {
         return new _connection7<dest_type, arg1_type, arg2_type, arg3_type, arg4_type,
-            arg5_type, arg6_type, arg7_type, Mutex>((dest_type *)pnewdest, _pmemfun);
+            arg5_type, arg6_type, arg7_type, Mutex>(static_cast<dest_type *>(pnewdest), _pmemfun);
     }
 
     virtual void emit_(arg1_type a1, arg2_type a2, arg3_type a3, arg4_type a4,
@@ -1700,7 +1700,7 @@ public:
         arg5_type, arg6_type, arg7_type, arg8_type, Mutex>* duplicate(has_slots<Mutex>* pnewdest)
     {
         return new _connection8<dest_type, arg1_type, arg2_type, arg3_type, arg4_type,
-            arg5_type, arg6_type, arg7_type, arg8_type, Mutex>((dest_type *)pnewdest, _pmemfun);
+            arg5_type, arg6_type, arg7_type, arg8_type, Mutex>(static_cast<dest_type *>(pnewdest), _pmemfun);
     }
 
     virtual void emit_(arg1_type a1, arg2_type a2, arg3_type a3, arg4_type a4,

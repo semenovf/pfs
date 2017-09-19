@@ -80,7 +80,7 @@ public:
 	int	seconds_to (const time & t) const
 	{
 	    return valid() &&  t.valid()
-			? int(t._millis / 1000) - int(_millis / 1000)
+			? t._millis/1000 - _millis/1000
 			: 0;
 	}
 

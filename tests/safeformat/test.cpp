@@ -223,7 +223,7 @@ void test2 (unsigned limit)
         static std::string const flags("-+0 #");
         size_t maxFlags = randomInt(0u, flags.length() - 1);
 
-        for (size_t i = 0; i != maxFlags; ++i) {
+        for (size_t j = 0; j != maxFlags; ++j) {
             formatSpec += flags[randomInt(0u, flags.length() - 1)];
         }
 

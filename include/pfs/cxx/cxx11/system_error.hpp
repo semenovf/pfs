@@ -44,7 +44,7 @@ inline pfs::error_code make_error_code (pfs::errc e) noexcept
 template <typename StringT>
 inline StringT to_string (error_code const & ec)
 {
-    return StringT(ec.message());
+    return pfs::to_string<StringT>(ec.message());
 }
 
 // [Construct std::error_code from errno on POSIX and GetLastError() on Windows](https://stackoverflow.com/questions/13950938/construct-stderror-code-from-errno-on-posix-and-getlasterror-on-windows)

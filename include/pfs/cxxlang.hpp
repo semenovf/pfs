@@ -96,14 +96,14 @@
 /* These can't be used after statements in c89. */
 #   ifdef __COUNTER__
 #       define static_assert(e,m) \
-            ;enum { PFS_ASSERT_CONCAT(static_assert_, __COUNTER__) = 1/(int)(!!(e)) }
+            ;enum { PFS_ASSERT_CONCAT(static_assert_, __COUNTER__) = 1/static_cast<int>(!!(e)) }
 #   else
   /* This can't be used twice on the same line so ensure if using in headers
    * that the headers are not included twice (by wrapping in #ifndef...#endif)
    * Note it doesn't cause an issue when used on same line of separate modules
    * compiled with gcc -combine -fwhole-program.  */
 #       define static_assert(e,m) \
-            ;enum { PFS_ASSERT_CONCAT(assert_line_, __LINE__) = 1/(int)(!!(e)) }
+            ;enum { PFS_ASSERT_CONCAT(assert_line_, __LINE__) = 1/static_cast<int>(!!(e)) }
 #   endif
 
 #endif

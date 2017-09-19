@@ -54,7 +54,7 @@ public:
     
     value_type load () const
     {
-        return atomic_load((value_type *)& value);
+        return atomic_load(const_cast<value_type *>(& value));
     }
 
     value_type operator ++ ()
@@ -220,7 +220,7 @@ public:
 
     pointer_type load () const
     {
-        return atomic_load((pointer_type *)& _p);
+        return atomic_load(static_cast<pointer_type *>(& _p));
     }
 
     pointer_type exchange (pointer_type p)

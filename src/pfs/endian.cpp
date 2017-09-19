@@ -122,7 +122,9 @@ int32_t endian::bswap_32 (int32_t i)
 	b3 = ( i >> 16 ) & 255;
 	b4 = ( i >> 24 ) & 255;
 
-	return ((int)b1 << 24) + ((int)b2 << 16) + ((int)b3 << 8) + b4;
+	return (static_cast<int>(b1) << 24) 
+            + (static_cast<int>(b2) << 16) 
+            + (static_cast<int>(b3) << 8) + b4;
 }
 
 #ifdef PFS_HAVE_INT64

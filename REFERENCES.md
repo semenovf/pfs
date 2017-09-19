@@ -28,6 +28,11 @@
 2. [Value Categories in C++17](https://medium.com/@barryrevzin/value-categories-in-c-17-f56ae54bccbe)
 3. [Understanding the meaning of lvalues and rvalues in C++](https://www.internalpointers.com/post/understanding-meaning-lvalues-and-rvalues-c)
 4. [Pass by Reference vs Pass by Value in C++](https://codeofconnor.wordpress.com/2017/09/12/pass-by-reference-vs-pass-by-value-in-cpp/)
+5. [One-Shot Learning of C++ r-value, &&, and Move](https://hackernoon.com/one-shot-learning-of-c-r-value-and-move-27e5d6bcec3b)
+
+### Return Value Optimization (RVO), Named RVO (NRVO) and Copy-Elision
+
+1. [Return Value Optimization](http://shaharmike.com/cpp/rvo/)
 
 ### STL
 

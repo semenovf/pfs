@@ -88,8 +88,8 @@ intmax_t datetime::to_intmax () const
 	int	m = t.minute();
 	int	s = t.second();
 
-	intmax_t r = intmax_t(10000000000) * Y + intmax_t(100000000) * M + intmax_t(1000000) * D
-			+ intmax_t(10000) * h + intmax_t(100) * m + s;
+	intmax_t r = 10000000000L * Y + 100000000L * M + 1000000L * D
+			+ 10000L * h + 100L * m + s;
 
 	return r;
 }

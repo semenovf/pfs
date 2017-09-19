@@ -104,10 +104,10 @@ public:
 //        :_d(source)
 //    {}
 
-    template <typename StringImpl>
-    basic_path (string<StringImpl> const & source/*, format fmt = auto_format*/)
-        :_d(source.native())
-    {}
+//    template <typename StringImpl>
+//    basic_path (string<StringImpl> const & source/*, format fmt = auto_format*/)
+//        :_d(source.native())
+//    {}
 
     template <typename InputIt>
     basic_path (InputIt first, InputIt last)
@@ -600,7 +600,7 @@ inline bool exists (path const & p)
     pfs::error_code ec;
     bool r = p.exists(ec);
     
-    if (ec && ec != make_error_code(errc::no_such_file_or_directory)) {
+    if (ec && ec != pfs::make_error_code(errc::no_such_file_or_directory)) {
         throw filesystem_error(p, ec);
     }
     
@@ -648,10 +648,7 @@ inline bool remove (path const & p, error_code & ec)
 namespace pfs {
 
 template <typename StringType>
-inline StringType to_string (pfs::filesystem::path const & p)
-{
-    return StringType(p.native());
-}
+StringType to_string (pfs::filesystem::path const & p);
 
 } // pfs
 

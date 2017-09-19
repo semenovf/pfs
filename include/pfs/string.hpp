@@ -9,6 +9,7 @@
 #define __PFS_STRING_HPP__
 
 #include <ostream>
+#include <string>
 #include <pfs/assert.hpp>
 #include <pfs/memory.hpp>
 #include <pfs/type_traits.hpp>
@@ -949,6 +950,12 @@ inline StringType to_string (double a
             , format
             , precision);
 }
+
+template <typename StringType>
+StringType to_string (std::string const & s);
+
+template <typename T, typename StringType>
+T from_string (StringType const & s);
 
 //
 // [How to read in a file in C++](http://insanecoding.blogspot.ru/2011/11/how-to-read-in-file-in-c.html)

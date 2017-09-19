@@ -155,21 +155,21 @@ UintT __string_to_uint (CharIteratorT beginpos
 
         for (; ok && pos != endpos; ++pos) {
 
-            value_type c = *pos;
+            value_type c1 = *pos;
             int digit = 0;
             
             // Finish
-            if (!pfs::is_print(c)) {
+            if (!pfs::is_print(c1)) {
                 ok = false;
                 break;
             }
 
-            if (pfs::is_digit(c))
-                digit = pfs::to_ascii(c) - '0';
-            else if (pfs::is_lower(c))
-                digit = pfs::to_ascii(c) - 'a' + 10;
-            else if (pfs::is_upper(c))
-                digit = pfs::to_ascii(c) - 'A' + 10;
+            if (pfs::is_digit(c1))
+                digit = pfs::to_ascii(c1) - '0';
+            else if (pfs::is_lower(c1))
+                digit = pfs::to_ascii(c1) - 'a' + 10;
+            else if (pfs::is_upper(c1))
+                digit = pfs::to_ascii(c1) - 'A' + 10;
             else
                 break;
 

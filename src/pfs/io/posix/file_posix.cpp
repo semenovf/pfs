@@ -106,18 +106,18 @@ struct file : public bits::device
     }
 };
 
-error_code file::open (filesystem::path const & path, int oflags, mode_t omode)
+error_code file::open (filesystem::path const & p, int of, mode_t om)
 {
-	int fd = ::open(path.native().c_str(), oflags, omode);
+	int fd = ::open(p.native().c_str(), of, om);
 
 	if (fd < 0) {
         return error_code(errno, pfs::generic_category());
 	}
 
 	this->_fd    = fd;
-	this->path   = path;
-	this->oflags = oflags;
-	this->omode  = omode;
+	this->path   = p;
+	this->oflags = of;
+	this->omode  = om;
 
 	return error_code();
 }
@@ -150,7 +150,7 @@ size_t file::bytes_available () const
     PFS_ASSERT(::lseek(_fd, cur, SEEK_SET) >= off_t(0));
     PFS_ASSERT(total >= cur);
 
-    return (size_t)(total - cur);
+    return static_cast<size_t>(total - cur);
 }
 
 ssize_t file::read (byte_t * bytes, size_t n, error_code * pex)
