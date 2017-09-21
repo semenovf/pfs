@@ -310,7 +310,7 @@ match<Iterator, AtomicInt>::match_tr::do_match (context<Iterator, AtomicInt> * c
         , iterator end) const
 {
     fsm<Iterator, AtomicInt> f(_tr, ctx->user_context);
-    return f.template exec(fsm<Iterator, AtomicInt>::normal, begin, end);
+    return f.exec(fsm<Iterator, AtomicInt>::normal, begin, end);
 }
 
 template <typename Iterator, typename AtomicInt>
