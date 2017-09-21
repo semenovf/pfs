@@ -10,6 +10,7 @@
 
 #include <system_error>
 #include <pfs/compiler.hpp>
+#include <pfs/string.hpp>
 
 // Creating custom error category:
 // [std::error_category](http://www.cplusplus.com/reference/system_error/error_category/)
@@ -41,10 +42,10 @@ inline pfs::error_code make_error_code (pfs::errc e) noexcept
     return std::make_error_code(e);
 }
 
-template <typename StringT>
-inline StringT to_string (error_code const & ec)
+template <typename StringType>
+inline StringType to_string (error_code const & ec)
 {
-    return pfs::to_string<StringT>(ec.message());
+    return StringType(ec.message());
 }
 
 // [Construct std::error_code from errno on POSIX and GetLastError() on Windows](https://stackoverflow.com/questions/13950938/construct-stderror-code-from-errno-on-posix-and-getlasterror-on-windows)

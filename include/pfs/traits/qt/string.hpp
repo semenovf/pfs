@@ -92,6 +92,14 @@ public:
         : _p(s)
     {}
 
+    basic_string (std::string const & s)
+        : _p(native_type::fromStdString(s))
+    {}
+
+    basic_string (std::wstring const & s)
+        : _p(native_type::fromStdWString(s))
+    {}
+
     basic_string (const_pointer s, size_type n)
     {
         if (n != npos)

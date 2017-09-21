@@ -40,7 +40,7 @@ public:
     basic_filesystem_error (std::string const & what_arg
             , basic_path<PathImpl> const & p1
             , pfs::error_code ec)
-        : _d(what_arg, p1.impl(), ec)
+        : _d(what_arg, p1.native_path(), ec)
     {}
     
     template <typename PathImpl>
@@ -48,7 +48,7 @@ public:
             , basic_path<PathImpl> const & p1
             , basic_path<PathImpl> const & p2
             , pfs::error_code ec)
-        : _d(what_arg, p1.impl(), p2.impl(), ec)
+        : _d(what_arg, p1.native_path(), p2.native_path(), ec)
     {}
 };
 

@@ -300,6 +300,9 @@ void basic_iterator<JsonType>::__set_begin ()
 	case data_type::array:
 		_array_it = _pvalue->_d.array->begin();
         break;
+
+    default:
+        break;
     }
 }
 
@@ -314,6 +317,9 @@ void basic_iterator<JsonType>::__set_end ()
 	case data_type::array:
 		_array_it = _pvalue->_d.array->end();
         break;
+
+    default:
+        break;
     }
 }
 
@@ -327,6 +333,9 @@ basic_iterator<JsonType>::ref (basic_iterator & it)
 
 	case data_type::array:
 		return *it._array_it;
+
+    default:
+        break;
     }
 
     return *it._scalar_it;
@@ -342,6 +351,9 @@ basic_iterator<JsonType>::ptr (basic_iterator & it)
 
     case data_type::array:
         return & *it._array_it;
+
+    default:
+        break;
     }
 
     return & *it._scalar_it;
@@ -382,6 +394,9 @@ bool basic_iterator<JsonType>::equals (basic_iterator const & lhs
         
 	case data_type::array:
 		return lhs._array_it == rhs._array_it;
+        
+    default:
+        break;
     }
     
     return lhs._scalar_it == rhs._scalar_it;
@@ -397,6 +412,9 @@ int basic_iterator<JsonType>::compare (basic_iterator const & lhs
         
 	case data_type::array:
 		return lhs._array_it - rhs._array_it;
+
+    default:
+        break;
     }
     
     return scalar_iterator_type::compare(lhs._scalar_it, rhs._scalar_it);
@@ -412,6 +430,9 @@ basic_iterator<JsonType>::subscript (basic_iterator & it, difference_type n)
         
 	case data_type::array:
 		return it._array_it[n];
+
+    default:
+        break;
     }
     
     return scalar_iterator_type::subscript(it._scalar_it, n);
@@ -428,6 +449,9 @@ basic_iterator<JsonType>::diff (basic_iterator const & lhs
         
 	case data_type::array:
 		return lhs._array_it - rhs._array_it;
+
+    default:
+        break;
     }
     
     return scalar_iterator_type::diff(lhs._scalar_it, rhs._scalar_it);

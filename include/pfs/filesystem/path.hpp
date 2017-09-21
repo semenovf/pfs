@@ -32,8 +32,10 @@ namespace filesystem {
 template <typename Impl>
 class basic_path
 {
+    typedef Impl impl_type;
+    
 public:
-    typedef Impl                            impl_type;
+    typedef typename impl_type::native_path_type native_path_type;
     typedef typename impl_type::value_type  value_type;
     typedef typename impl_type::string_type string_type;
     typedef typename impl_type::iterator    iterator;
@@ -41,14 +43,14 @@ public:
 
 protected:
     impl_type _d;
+
+    basic_path (native_path_type const & d)
+        : _d(d)
+    {}
     
 public:
     basic_path ()
         : _d()
-    {}
-
-    basic_path (impl_type const & d)
-        : _d(d)
     {}
         
     basic_path (basic_path const & p)
@@ -143,15 +145,15 @@ public:
         return *this;
     }
     
-    impl_type const & impl () const
+    native_path_type const & native_path () const
     {
         return _d;
     }
     
-    operator impl_type () const
-    {
-        return _d;
-    }
+//    operator native_path_type () const
+//    {
+//        return _d;
+//    }
 
     template <typename Source>
     basic_path & assign (Source const & source)
@@ -510,9 +512,11 @@ public:
         return _d.end();
     }
     
-    friend basic_path operator / (basic_path const & lhs, basic_path const & rhs)
+    friend inline basic_path operator / (basic_path const & lhs, basic_path const & rhs)
     {
-        return basic_path(lhs._d / rhs._d);
+        basic_path r(lhs);
+        r._d /= rhs._d;
+        return r;
     }
     
     friend void swap (basic_path & lhs, basic_path & rhs)
@@ -648,7 +652,29 @@ inline bool remove (path const & p, error_code & ec)
 namespace pfs {
 
 template <typename StringType>
-StringType to_string (pfs::filesystem::path const & p);
+StringType to_string (filesystem::path const & p)
+{
+    return StringType(p.native());
+}
+
+//template <typename StringType>
+//filesystem::path lexical_cast (StringType const & s);
+
+template <typename PathType, typename StringType>
+inline typename enable_if<is_same<PathType, filesystem::path>::value
+        && is_same<typename PathType::value_type, char>::value, PathType>::type
+lexical_cast (StringType const & s)
+{
+    return filesystem::path(s.to_std_string());
+}
+
+template <typename PathType, typename StringType>
+inline typename enable_if<is_same<PathType, filesystem::path>::value
+        && is_same<typename PathType::value_type, wchar_t>::value, PathType>::type
+lexical_cast (StringType const & s)
+{
+    return filesystem::path(s.to_std_wstring());
+}
 
 } // pfs
 

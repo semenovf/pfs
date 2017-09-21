@@ -57,7 +57,7 @@ static bool __set_posix_signal_handling (dispatcher * disp
         if (sigaction(signal_list[i], & act, NULL) < 0) {
             disp->print_error(0, dispatcher::fmt("sigaction(%d): %s")
                     (signal_list[i])
-                    (to_string<dispatcher::string_type>(pfs::get_last_system_error())).str());
+                    (to_string<dispatcher::string_type>(pfs::get_last_system_error())));
             
             return false;
         }

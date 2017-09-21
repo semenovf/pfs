@@ -80,7 +80,7 @@ typedef pfs::io::pool<
         , pfs::stdcxx::vector
         , pfs::stdcxx::map> pool_type;
 
-struct dispatcher_context : public pool_type::dispatcher_context2
+struct dispatcher_context : public pool_type::dispatcher_context
 {
 	int n1;
 
@@ -88,12 +88,12 @@ struct dispatcher_context : public pool_type::dispatcher_context2
 		: n1(0)
 	{}
 
-	virtual void connected (pfs::io::device &, const pfs::io::server &) const
+	virtual void connected (pfs::io::device &, const pfs::io::server &)
 	{
 		std::cout << "Socket connected" << std::endl;
 	}
 
-	virtual void ready_read (pfs::io::device & d) const
+	virtual void ready_read (pfs::io::device & d)
 	{
 		pfs::byte_string bytes;
 		/*pfs::error_code ex = */ d.read(bytes, d.available());
@@ -101,18 +101,18 @@ struct dispatcher_context : public pool_type::dispatcher_context2
 		std::cout << "Ready read: " << bytes.size() << " bytes" << std::endl;
 	}
 
-	virtual void disconnected (pfs::io::device &) const
+	virtual void disconnected (pfs::io::device &)
 	{
 		++n1;
 		std::cout << "Socket disconnected" << std::endl;
 	}
 
-	virtual void can_write (pfs::io::device &) const
+	virtual void can_write (pfs::io::device &)
 	{
 		std::cout << "Socket can write" << std::endl;
 	}
 
-	virtual void on_error (pfs::error_code const & ex) const
+	virtual void on_error (pfs::error_code const & ex)
 	{
 		std::cerr << "ERROR: " << ex.message() << std::endl;
 	}

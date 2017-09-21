@@ -39,11 +39,11 @@ public:
 #endif    
 
     explicit basic_directory_entry (pfs::filesystem::path const & p)
-        : _d(p.impl())
+        : _d(p.native_path())
     {}
     
     basic_directory_entry (pfs::filesystem::path const & p, pfs::error_code & ec)
-        : _d(p.impl(), ec)
+        : _d(p.native_path(), ec)
     {}
 };
 

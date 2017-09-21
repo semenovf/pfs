@@ -24,6 +24,7 @@ class path : public ::boost::filesystem::path
     typedef ::boost::filesystem::path base_class;
     
 public:
+    typedef base_class native_path_type;
     typedef typename base_class::string_type string_type;
 
 public:
@@ -42,7 +43,7 @@ public:
     }
 
     template <typename Source>
-    path (Source const & source)
+    explicit path (Source const & source)
         : base_class(source)
     {}
 

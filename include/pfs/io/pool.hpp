@@ -9,8 +9,6 @@
 #define __PFS_IO_POOL_HPP__
 
 #include <pfs/atomic.hpp>
-//#include <pfs/memory.hpp>
-//#include <pfs/traits/sequence_container.hpp>
 #include <pfs/operationsystem.hpp>
 
 #if PFS_OS_POSIX
@@ -371,7 +369,7 @@ public:
         return poll_result_type(pool::iterator(), pool::iterator());
     }            
 
-	class dispatcher_context2
+	class dispatcher_context
 	{
 		friend class pool;
 
@@ -379,32 +377,32 @@ public:
 		int _filter_events;
 
 	public:
-		dispatcher_context2 ()
+		dispatcher_context ()
 			: _millis(0)
 			, _filter_events(poll_all)
 		{}
 
-		dispatcher_context2 (int millis)
+		dispatcher_context (int millis)
 			: _millis(millis)
 			, _filter_events(poll_all)
 		{}
 
-		dispatcher_context2 (int millis, int filter_events)
+		dispatcher_context (int millis, int filter_events)
 			: _millis(millis)
 			, _filter_events(filter_events)
 		{}
 
-		virtual ~dispatcher_context2 () {}
+		virtual ~dispatcher_context () {}
 
 	public:
-		virtual void accepted (device &, server &) const {}
-		virtual void ready_read (device &) const {}
-		virtual void disconnected (device &) const {}
-		virtual void can_write (device &) const {}
-		virtual void on_error (error_code const &) const {}
+		virtual void accepted (device &, server &) {}
+		virtual void ready_read (device &) {}
+		virtual void disconnected (device &) {}
+		virtual void can_write (device &) {}
+		virtual void on_error (error_code const &) {}
 	};
 
-	void dispatch (dispatcher_context2 const & context)
+	void dispatch (dispatcher_context & context)
     {
         pfs::error_code ex;
         poll_result_type result = this->poll(context._filter_events, context._millis, & ex);
@@ -443,7 +441,7 @@ public:
 private:
         // Used by dispatch(...)
     void process_server (pfs::io::server & server
-            , pool::dispatcher_context2 const & context
+            , pool::dispatcher_context & context
             , short revents)
     {
         pfs::io::device client;
@@ -479,7 +477,7 @@ private:
     
     // Used by dispatch(...)
     void process_device (pfs::io::device & dev
-            , pool::dispatcher_context2 const & context
+            , pool::dispatcher_context & context
             , short revents)
     {
         if (dev.available() == 0

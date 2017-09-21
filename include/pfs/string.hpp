@@ -78,11 +78,6 @@ public:
         : _p(rhs)
     {}
 
-//    template <typename T>
-//    string (typename enable_if<!is_same<typename remove_pointer<T>::type, char>::value
-//            , typename remove_pointer<T>::type const *>::type s)
-//        : _p(s)
-//    {}
     string (const_pointer s, size_type n)
         : _p(s, n)
     {}
@@ -92,6 +87,24 @@ public:
     {}
 
 //    string (wchar_t const * s)
+//        : _p(s)
+//    {}
+    
+    /**
+     * @fn string::string (std::string const & s).
+     *  
+     * @brief Constructs string from std::string.
+     * @param s value.
+     */
+    template <typename T>
+    string (typename enable_if<is_same<T, std::string>::value 
+            && !is_same<T, native_type>::value, T>::type const & s, T * = 0)
+        : _p(s)
+    {}
+
+    // TODO
+//    template <typename T>
+//    string (typename enable_if<is_same<T, std::wstring>::value && !is_same<T, native_type>::value, T>::type const & s, T * = 0)
 //        : _p(s)
 //    {}
     
@@ -951,11 +964,11 @@ inline StringType to_string (double a
             , precision);
 }
 
-template <typename StringType>
-StringType to_string (std::string const & s);
-
-template <typename T, typename StringType>
-T from_string (StringType const & s);
+//template <typename StringType>
+//StringType to_string (std::string const & s);
+//
+//template <typename StringType>
+//StringType to_string (std::wstring const & s);
 
 //
 // [How to read in a file in C++](http://insanecoding.blogspot.ru/2011/11/how-to-read-in-file-in-c.html)

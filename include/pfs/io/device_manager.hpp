@@ -40,7 +40,7 @@ class device_manager : has_slots<>
             , AssociativeContainer>     pool_type;
     typedef stdcxx::set<reopen_item>    reopen_queue;
 
-    class dispatcher_context1 : public pool_type::dispatcher_context2
+    class dispatcher_context1 : public pool_type::dispatcher_context
     {
         friend class device_manager;
 
@@ -51,7 +51,7 @@ class device_manager : has_slots<>
     private:
         dispatcher_context1 (int millis, short filter_events
                 , device_manager * m, pool_type * p1, pool_type * p2)
-            : pool_type::dispatcher_context2 (millis, filter_events)
+            : pool_type::dispatcher_context (millis, filter_events)
             , _m (m)
             , _p1 (p1)
             , _p2 (p2)
@@ -79,7 +79,7 @@ class device_manager : has_slots<>
         }
     };
 
-    class dispatcher_context2 : public pool_type::dispatcher_context2
+    class dispatcher_context2 : public pool_type::dispatcher_context
     {
         friend class device_manager;
 
@@ -91,7 +91,7 @@ class device_manager : has_slots<>
 
     private:
         dispatcher_context2 (device_manager * m, pool_type * p1, pool_type * p2)
-            : pool_type::dispatcher_context2(default_millis, io::poll_all) // TODO Need to reduce number of events according to specialization of this pool
+            : pool_type::dispatcher_context(default_millis, io::poll_all) // TODO Need to reduce number of events according to specialization of this pool
             , _m(m)
             , _p1(p1)
             , _p2(p2)

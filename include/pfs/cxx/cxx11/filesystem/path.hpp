@@ -36,6 +36,9 @@ class path : public std::experimental::filesystem::path
     typedef std::experimental::filesystem::path base_class;
 
 public:
+    typedef base_class native_path_type;
+    
+public:
     path ()
         : base_class()
     {}
