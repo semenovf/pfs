@@ -14,7 +14,7 @@ filter "debug"
 filter "release"
     objdir ".cache/pfs-mpl/release"
 
-filter "platforms:unix*"
+filter "platforms:unix* or elbrus*"
     files {
               "../src/pfs/gnuc/*.cpp"
             , "../src/pfs/posix/*.cpp"
