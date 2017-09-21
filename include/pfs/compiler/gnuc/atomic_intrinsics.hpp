@@ -21,61 +21,68 @@ namespace pfs {
 template <typename T>
 inline T atomic_add_fetch (T * pval, T n)
 {
-    return reinterpret_cast<T>(__sync_add_and_fetch(pval, n));
+    // Elbrus4C's compiler `lcc` issues an error:
+    //     Нестандартный reinterpret_cast ...
+    // at at line below
+    //
+    // return reinterpret_cast<T>(__sync_add_and_fetch(pval, n));
+    //
+    // So simply return as is:
+    return __sync_add_and_fetch(pval, n);
 }
 
 template <typename T>
 inline T atomic_sub_fetch (T * pval, T n)
 {
-    return reinterpret_cast<T>(__sync_sub_and_fetch(pval, n));
+    return __sync_sub_and_fetch(pval, n);
 }
 
 template <typename T>
 inline T atomic_and_fetch (T * pval, T n)
 {
-    return reinterpret_cast<T>(__sync_and_and_fetch(pval, n));
+    return __sync_and_and_fetch(pval, n);
 }
 
 template <typename T>
 inline T atomic_or_fetch (T * pval, T n)
 {
-    return reinterpret_cast<T>(__sync_or_and_fetch(pval, n));
+    return __sync_or_and_fetch(pval, n);
 }
 
 template <typename T>
 inline T atomic_xor_fetch (T * pval, T n)
 {
-    return reinterpret_cast<T>(__sync_xor_and_fetch(pval, n));
+    return __sync_xor_and_fetch(pval, n);
 }
 
 template <typename T>
 inline T atomic_fetch_add (T * pval, T n)
 {
-    return reinterpret_cast<T>(__sync_fetch_and_add(pval, n));
+    return __sync_fetch_and_add(pval, n);
 }
 
 template <typename T>
 inline T atomic_fetch_sub (T * pval, T n)
 {
-    return reinterpret_cast<T>(__sync_fetch_and_sub(pval, n));
+    return __sync_fetch_and_sub(pval, n);
 }
 
 template <typename T>
 inline T atomic_fetch_and (T * pval, T n)
 {
-    return reinterpret_cast<T>(__sync_fetch_and_and(pval, n));
+    return __sync_fetch_and_and(pval, n);
 }
 
 template <typename T>
 inline T atomic_fetch_or (T * pval, T n)
 {
-    return reinterpret_cast<T>(__sync_fetch_and_or(pval, n));
+    return __sync_fetch_and_or(pval, n);
 }
 
 template <typename T>
 inline T atomic_fetch_xor (T * pval, T n)
 {
-    return reinterpret_cast<T>(__sync_fetch_and_xor(pval, n));
+    return __sync_fetch_and_xor(pval, n);
 }
 
 template <typename T>
