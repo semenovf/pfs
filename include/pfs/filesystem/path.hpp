@@ -106,10 +106,8 @@ public:
 //        :_d(source)
 //    {}
 
-//    template <typename StringImpl>
-//    basic_path (string<StringImpl> const & source/*, format fmt = auto_format*/)
-//        :_d(source.native())
-//    {}
+    template <typename StringImpl>
+    basic_path (string<StringImpl> const & source/*, format fmt = auto_format*/);
 
     template <typename InputIt>
     basic_path (InputIt first, InputIt last)
