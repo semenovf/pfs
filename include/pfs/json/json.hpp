@@ -60,33 +60,10 @@ struct traits
     };
 };
 
-//template <typename BoolType
-//        , typename IntType
-//        , typename FloatType
-//        , typename StringType
-//        , template <typename> class SequenceContainerImplType
-//        , template <typename> class AssociativeContainerImplType>
 template <typename Traits>
 class json
 {
 public:
-//    typedef ptrdiff_t difference_type;
-//    typedef size_t    size_type;
-//
-//    typedef StringType                            string_type;
-//    typedef BoolType                              boolean_type;
-//    typedef IntType                               integer_type;
-//    typedef typename make_unsigned<IntType>::type uinteger_type;
-//    typedef FloatType                             real_type;
-//    typedef FloatType                             real_type;
-//    typedef pfs::traits::sequence_container<json
-//            , SequenceContainerImplType>          array_type;
-//
-//    typedef pfs::traits::associative_container<
-//              pfs::traits::kv<string_type, json>
-//            , AssociativeContainerImplType>       object_type;
-//
-//    typedef typename object_type::key_type        key_type;
     typedef typename Traits::difference_type                 difference_type;
     typedef typename Traits::size_type                       size_type;
     typedef typename Traits::string_type                     string_type;
@@ -189,13 +166,8 @@ public:
     /**
      * @brief Constructs boolean value.
      */
-#if __cplusplus >= 201103L
-    template <typename T, typename EnableIf = pfs::enable_if<pfs::is_same<T, bool>::value> >
-    explicit json (T v)
-#else
     explicit json (bool v)
-#endif
-        : _d(static_cast<bool>(v))
+        : _d(v)
     {}
 
     /**

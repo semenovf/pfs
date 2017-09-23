@@ -1,5 +1,3 @@
-#include <qt4/QtCore/qstring.h>
-
 #include "pfs/type_traits.hpp"
 #include "pfs/filesystem/path.hpp"
 #include "pfs/traits/stdcxx/string.hpp"

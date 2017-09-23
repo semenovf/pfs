@@ -11,6 +11,9 @@
 namespace pfs {
 namespace json {
 
+// TODO Implement RFC 7159
+// https://tools.ietf.org/html/rfc7159
+
 /*
    RFC 4627:  The application/json Media Type for JavaScript Object Notation (JSON).
    URL: http://www.ietf.org/rfc/rfc4627.txt

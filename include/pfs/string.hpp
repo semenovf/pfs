@@ -97,8 +97,8 @@ public:
      * @param s value.
      */
     template <typename T>
-    string (typename enable_if<is_same<T, std::string>::value 
-            && !is_same<T, native_type>::value, T>::type const & s, T * = 0)
+    string (T const & s, typename enable_if<is_same<T, std::string>::value 
+            && !is_same<T, native_type>::value, T>::type * = 0)
         : _p(s)
     {}
 
