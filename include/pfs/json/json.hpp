@@ -707,6 +707,11 @@ public:
         return r.first ? r.second : default_value;
     }
     
+    string_type get_string () const
+    {
+        return this->get<string_type>();
+    }
+    
     void swap (json & other)
     {
         pfs::swap(_d, other._d);
