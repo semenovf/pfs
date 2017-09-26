@@ -9,6 +9,7 @@
 #define __PFS_IO_DEVICE_MANAGER_HPP__
 
 #include <ctime>
+#include <pfs/cxxlang.hpp>
 #include <pfs/sigslot.hpp>
 #include <pfs/traits/stdcxx/set.hpp>
 #include <pfs/io/pool.hpp>
@@ -58,22 +59,22 @@ class device_manager : has_slots<>
         {}
 
     public:
-        virtual void accepted (device & d, server & listener) const
+        virtual void accepted (device & d, server & listener) pfs_override 
         {
             _m->accepted(d, listener);
         }
 
-        virtual void ready_read (device & d) const
+        virtual void ready_read (device & d) pfs_override 
         {
             _m->ready_read(d);
         }
 
-        virtual void disconnected (device & d) const
+        virtual void disconnected (device & d) pfs_override 
         {
             _m->disconnected(d);
         }
 
-        virtual void on_error (error_code const & ex) const
+        virtual void on_error (error_code const & ex) pfs_override 
         {
             _m->error(ex);
         }
@@ -98,12 +99,12 @@ class device_manager : has_slots<>
         {}
 
     public:
-        virtual void disconnected (device & d) const
+        virtual void disconnected (device & d) pfs_override
         {
             _m->disconnected(d);
         }
 
-        virtual void can_write (device & d) const
+        virtual void can_write (device & d) pfs_override
         {
             _p2->delete_deferred(d);
             _p1->push_back(d);
@@ -111,7 +112,7 @@ class device_manager : has_slots<>
             _m->opened(d);
         }
 
-        virtual void on_error (error_code const & ex) const
+        virtual void on_error (error_code const & ex) pfs_override
         {
             _m->error(ex);
         }
