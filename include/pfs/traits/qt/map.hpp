@@ -265,6 +265,11 @@ public:
         return it.key();
     }
 
+    static key_type const & key (const_iterator it)
+    {
+        return it.key();
+    }
+
     static mapped_type & mapped_reference (iterator it)
     {
         return it.value();

@@ -96,6 +96,11 @@ public:
     {
         return internal_type::key(it);
     }
+
+    static key_type const & key (const_iterator it)
+    {
+        return internal_type::key(it);
+    }
     
     static mapped_type & mapped_reference (iterator it)
     {
