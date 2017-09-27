@@ -658,21 +658,21 @@ StringType to_string (filesystem::path const & p)
 //template <typename StringType>
 //filesystem::path lexical_cast (StringType const & s);
 
-template <typename PathType, typename StringType>
-inline typename enable_if<is_same<PathType, filesystem::path>::value
-        && is_same<typename PathType::value_type, char>::value, PathType>::type
-lexical_cast (StringType const & s)
-{
-    return filesystem::path(s.to_std_string());
-}
-
-template <typename PathType, typename StringType>
-inline typename enable_if<is_same<PathType, filesystem::path>::value
-        && is_same<typename PathType::value_type, wchar_t>::value, PathType>::type
-lexical_cast (StringType const & s)
-{
-    return filesystem::path(s.to_std_wstring());
-}
+//template <typename PathType, typename StringType>
+//inline typename enable_if<is_same<PathType, filesystem::path>::value
+//        && is_same<typename PathType::value_type, char>::value, PathType>::type
+//lexical_cast (StringType const & s)
+//{
+//    return filesystem::path(s.to_std_string());
+//}
+//
+//template <typename PathType, typename StringType>
+//inline typename enable_if<is_same<PathType, filesystem::path>::value
+//        && is_same<typename PathType::value_type, wchar_t>::value, PathType>::type
+//lexical_cast (StringType const & s)
+//{
+//    return filesystem::path(s.to_std_wstring());
+//}
 
 } // pfs
 
