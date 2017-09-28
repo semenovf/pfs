@@ -7,22 +7,22 @@ project "test-iterator"
     test_project("iterator", {})
 
 project "test-string"
-    test_project("string", {"pfs-mpl"})
+    test_project("string", {"pfs"})
 
 project "test-byte_string"
-    test_project("byte_string", {"pfs-mpl"})
+    test_project("byte_string", {"pfs"})
 
 project "test-container"
     test_project("container", {})
 
 project "test-fsm"
-    test_project("fsm", {"pfs-mpl"})
+    test_project("fsm", {"pfs"})
 
 project "test-net-uri"
-    test_project("net-uri", {"pfs-mpl"})
+    test_project("net-uri", {"pfs"})
 
 project "test-lexical_cast"
-    test_project("lexical_cast", {"pfs-mpl"})
+    test_project("lexical_cast", {"pfs"})
 
 --project "test-mpl-utf8"
 --    include("test-mpl-utf8/project.gbs")
@@ -43,10 +43,10 @@ project "test-lexical_cast"
 --    include("test-mpl-binder/project.gbs")
 
 project "test-active_queue"
-    test_project("active_queue", {"pfs-mpl"})
+    test_project("active_queue", {"pfs"})
 
 project "test-active_map"
-    test_project("active_map", {"pfs-mpl"})
+    test_project("active_map", {"pfs"})
 
 --project "test-mpl-ratio"
 --    include("test-mpl-ratio/project.gbs")
@@ -58,34 +58,34 @@ project "test-regex"
     test_project("regex", {})
 
 project "test-filesystem"
-    test_project("filesystem", {"pfs-mpl"})
+    test_project("filesystem", {"pfs"})
 
 project "test-time"
-    test_project("time", {"pfs-mpl"})
+    test_project("time", {"pfs"})
 
 project "test-date"
-    test_project("date", {"pfs-mpl"})
+    test_project("date", {"pfs"})
 
 project "test-json"
-    test_project("json", {"pfs-mpl"})
+    test_project("json", {"pfs"})
 
 project "test-io-buffer"
-    test_project("io-buffer", {"pfs-mpl"})
+    test_project("io-buffer", {"pfs"})
 
 project "test-io-file"
-    test_project("io-file", {"pfs-mpl"})
+    test_project("io-file", {"pfs"})
 
 project "test-io-server"
-    test_project("io-server", {"pfs-mpl"})
+    test_project("io-server", {"pfs"})
 
 project "test-net-inet4_addr"
-    test_project("net-inet4_addr", {"pfs-mpl"})
+    test_project("net-inet4_addr", {"pfs"})
 
 project "test-safeformat"
-    test_project("safeformat", {"pfs-mpl"})
+    test_project("safeformat", {"pfs"})
 
 project "test-dynamic_library"
-    test_project("dynamic_library", {"pfs-mpl"})
+    test_project("dynamic_library", {"pfs"})
 
 --project "test-application"
 --    include("test-application.gbs")

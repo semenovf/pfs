@@ -1,14 +1,5 @@
-kind          "SharedLib"
 language      "C++"
-targetname    "pfs-test"
 files         { "../src/pfs-test/*.c", "../src/pfs-test/*.cpp" }
-links         { PFS_LINKS }
-
-configuration "debug"
-    objdir       ".cache/pfs-test/debug"
-
-configuration "release"
-    objdir       ".cache/pfs-test/release"
 
 filter "platforms:unix* or elbrus*"
     files { "../src/pfs-test/unix/*.cpp" }

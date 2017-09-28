@@ -6,9 +6,15 @@ workspace "pfs-mpl"
 -- Projects
 
 project "pfs-test"
+    kind       "SharedLib"
+    targetname "pfs-test"
+    links      { PFS_LINKS }
     include("pfs-test.gbs")
 
 project "pfs"
+    kind "StaticLib"
+    targetname "pfs"
+    links { PFS_LINKS }
     include("pfs.gbs")
 
 -- Helper shared object to test dynamic_library
