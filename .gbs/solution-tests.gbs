@@ -24,8 +24,8 @@ project "test-net-uri"
 project "test-lexical_cast"
     test_project("lexical_cast", {"pfs"})
 
---project "test-mpl-utf8"
---    include("test-mpl-utf8/project.gbs")
+project "test-utf8"
+    test_project("utf8", {"pfs"})
 
 ----project "test-mpl-treap"
 ----    include("test-mpl-treap/project.gbs")

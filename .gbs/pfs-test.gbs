@@ -1,8 +1,0 @@
-language      "C++"
-files         { "../src/pfs-test/*.c", "../src/pfs-test/*.cpp" }
-
-filter "platforms:unix* or elbrus*"
-    files { "../src/pfs-test/unix/*.cpp" }
-
-filter "platforms:mswin*"
-    files { "../src/pfs-test/win/*.cpp" }

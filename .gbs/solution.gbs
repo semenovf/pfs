@@ -1,4 +1,5 @@
 workspace "pfs-mpl"
+    language      "C++"
     includedirs { "../include" }
     include("../../.gbs/solution-common.lua")
     include("../../.gbs/test.lua")
@@ -9,7 +10,11 @@ project "pfs-test"
     kind       "SharedLib"
     targetname "pfs-test"
     links      { PFS_LINKS }
-    include("pfs-test.gbs")
+    files      { "../src/pfs-test/*.c", "../src/pfs-test/*.cpp" }
+    filter "platforms:unix* or elbrus*"
+        files { "../src/pfs-test/unix/*.cpp" }
+    filter "platforms:mswin*"
+        files { "../src/pfs-test/win/*.cpp" }
 
 project "pfs"
     kind "StaticLib"
