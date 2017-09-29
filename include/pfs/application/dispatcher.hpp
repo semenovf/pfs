@@ -97,7 +97,7 @@ protected:
         logger_type::appender_type & cerr_appender = _logger.add_appender<logger::stderr_appender<string_type> >();
         cout_appender.set_pattern("%d{ABSOLUTE} [%p]: %m");
         cerr_appender.set_pattern("%d{ABSOLUTE} [%p]: %m");
-        
+
         _logger.connect(pfs::logger::priority::trace   , cout_appender);
         _logger.connect(pfs::logger::priority::debug   , cout_appender);
         _logger.connect(pfs::logger::priority::info    , cout_appender);

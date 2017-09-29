@@ -48,8 +48,8 @@ project "test-active_queue"
 project "test-active_map"
     test_project("active_map", {"pfs"})
 
---project "test-mpl-ratio"
---    include("test-mpl-ratio/project.gbs")
+project "test-ratio"
+    test_project("ratio", {"pfs"})
 
 --project "test-mpl-chrono"
 --    include("test-mpl-chrono/project.gbs")

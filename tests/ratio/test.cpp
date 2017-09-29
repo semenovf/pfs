@@ -13,16 +13,13 @@
 using std::cout;
 using std::endl;
 
-int main(int argc, char *argv[])
+int main ()
 {
-	PFS_UNUSED(argc);
-	PFS_UNUSED(argv);
-
     BEGIN_TESTS(0);
-    
+
     {
         ADD_TESTS(5);
-        
+
         typedef pfs::ratio<5,3> t1;
         TEST_OK(t1::num == 5 && t1::den == 3);
 
@@ -38,7 +35,7 @@ int main(int argc, char *argv[])
         typedef pfs::ratio<7,-3> t5;
         TEST_OK(t5::num == -7 && t5::den == 3);
     }
-    
+
     // Test Comparison
     //
     {
@@ -57,7 +54,7 @@ int main(int argc, char *argv[])
         TEST_OK((pfs::ratio_greater_equal<pfs::ratio<57,90>, pfs::ratio<23,37> >::value));
         TEST_OK((pfs::ratio_greater_equal<pfs::ratio<5,3>, pfs::ratio<25,15> >::value));
     }
-    
+
     // Add operations
     //
     {
@@ -67,7 +64,7 @@ int main(int argc, char *argv[])
         typedef pfs::ratio_add<t1, t2> t3;
         TEST_OK(t3::num == 5 && t3::den == 6);
     }
-    
+
     // Subtract operations
     {
         ADD_TESTS(1);
@@ -76,7 +73,7 @@ int main(int argc, char *argv[])
         typedef pfs::ratio_subtract<t1, t2> t3;
         TEST_OK(t3::num == 1 && t3::den == 2);
     }
-    
+
     // Multiply operations
     //
     {
@@ -96,7 +93,7 @@ int main(int argc, char *argv[])
         typedef pfs::ratio_divide<t1, t2> t3;
         TEST_OK(t3::num == 4 && t3::den == 1);
     }
-    
-	return END_TESTS;
+
+    return END_TESTS;
 }
 

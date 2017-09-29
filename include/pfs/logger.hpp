@@ -444,12 +444,12 @@ protected:
             }
             return true;
         }
-        
+
         static bool set_left_justify (iterator first, iterator last, void * context, void * /*action_args*/)
         {
             if (context) {
                 parse_context * ctx = static_cast<parse_context *>(context);
-                advance(first, 1);
+                pfs::advance(first, 1);
                 if (first == last) {
                     ctx->spec.left_justify = true;
                 }
