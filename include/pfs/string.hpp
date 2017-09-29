@@ -553,11 +553,44 @@ public:
     {
         return append(1, ch);
     }
+
+    string & operator += (value_type ch)
+    {
+        return append(1, ch);
+    }
     
     // TODO
     //string & operator += (const char * s);   
     
-    
+   /**
+    * 
+    * @param first
+    * @param last
+    * @param old_value
+    * @param new_value
+    * @param result
+    * @return 
+    * 
+    * @note Range [@a first, @a) last should not overlap [result.begin(), result.end()).
+    */
+
+    template <typename ForwardIt>
+    static string const & replace (ForwardIt first
+            , ForwardIt last
+            , value_type old_value
+            , value_type new_value
+            , string & result);
+
+    template <typename ForwardIt>
+    static inline string replace (ForwardIt first
+            , ForwardIt last
+            , value_type old_value
+            , value_type new_value)
+    {
+        string r;
+        return replace(first, last, old_value, new_value, r);
+    }    
+        
     friend inline bool operator == (string const & lhs, string const & rhs)
     {
         return lhs._p == rhs._p;
@@ -659,6 +692,27 @@ string<StringImplType>::substr (const_iterator pos, size_type count) const
     
     return string_value_type(pos, epos);
 }
+
+template <typename StringImplType>
+template <typename ForwardIt>
+string<StringImplType> const & string<StringImplType>::replace (ForwardIt first
+        , ForwardIt last
+        , typename string<StringImplType>::value_type old_value
+        , typename string<StringImplType>::value_type new_value
+        , string<StringImplType> & result)
+{
+    while (first != last) {
+        if (*first == old_value)
+            result += new_value;
+        else
+            result += *first;
+
+        ++first;
+    }
+
+    return result;
+}
+
 
 namespace details {
 namespace integral {
