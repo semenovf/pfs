@@ -219,14 +219,14 @@ struct ratio_subtract
     static intmax_t den;
 };
 
-template<typename R1, typename R2>
+template <typename R1, typename R2>
 struct ratio_multiply
 {
     static intmax_t num;
     static intmax_t den;
 };
 
-template<typename R1, typename R2>
+template <typename R1, typename R2>
 struct ratio_divide
 {
     static intmax_t num;

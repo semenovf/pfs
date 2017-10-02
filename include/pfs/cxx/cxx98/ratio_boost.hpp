@@ -17,6 +17,47 @@ template <intmax_t Num, intmax_t Denom = 1>
 class ratio : public ::boost::ratio<Num, Denom> 
 {};
 
+template <typename R1, typename R2>
+struct ratio_equal : public ::boost::ratio_equal<R1, R2>
+{};
+
+template <typename R1, typename R2>
+struct ratio_not_equal : public ::boost::ratio_not_equal<R1, R2>
+{};
+
+template <typename R1, typename R2>
+struct ratio_less : public ::boost::ratio_less<R1, R2>
+{};
+
+template <typename R1, typename R2>
+struct ratio_less_equal : public ::boost::ratio_less_equal<R1, R2>
+{};
+
+template <typename R1, typename R2>
+struct ratio_greater : public ::boost::ratio_greater<R1, R2>
+{};
+
+template <typename R1, typename R2>
+struct ratio_greater_equal : public ::boost::ratio_greater_equal<R1, R2>
+{};
+
+template <typename R1, typename R2>
+struct ratio_add : public ::boost::ratio_add<R1,R2>
+{};
+
+template <typename R1, typename R2>
+struct ratio_subtract : public ::boost::ratio_subtract<R1,R2>
+{};
+
+template <typename R1, typename R2>
+struct ratio_multiply : public ::boost::ratio_multiply<R1,R2>
+{};
+
+template <typename R1, typename R2>
+struct ratio_divide : public ::boost::ratio_divide<R1,R2>
+{};
+
+
 typedef ratio<1,       1000000000000000000> atto;
 typedef ratio<1,          1000000000000000> femto;
 typedef ratio<1,             1000000000000> pico;

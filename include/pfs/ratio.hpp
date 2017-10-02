@@ -9,7 +9,7 @@
 #define __PFS_RATIO_HPP__
 
 #include <pfs/cxxversion.hpp>
-ratio_custom
+#include PFS_CXX_HEADER(ratio)
 
 #endif /* __PFS_RATIO_HPP__ */
 
