@@ -253,8 +253,8 @@ public:
 
         while (*it < item && it != last) {
             device d = it->d;
-            pfs::error_code ec = d.reopen();
-            push_device(d, ec);
+            d.reopen();
+            push_device(d, d.errorcode());
 
             ++it;
         }

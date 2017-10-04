@@ -12,7 +12,8 @@
 #include <pfs/io/server.hpp>
 #include <pfs/net/inet4_addr.hpp>
 
-namespace pfs { namespace io {
+namespace pfs {
+namespace io {
 
 struct inet_server {};
 

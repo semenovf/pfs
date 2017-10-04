@@ -11,7 +11,8 @@
 #include <pfs/io/exception.hpp>
 #include <pfs/io/device.hpp>
 
-namespace pfs { namespace io {
+namespace pfs {
+namespace io {
 
 class buffered_device
 {
@@ -22,9 +23,9 @@ class buffered_device
 	size_t   _cursor;
 
 private:
-	bool can_read (size_t count, error_code & ex);
+	bool can_read (size_t count);
 
-	ssize_t upload_bytes (size_t max_size, error_code & ex);
+	ssize_t upload_bytes (size_t max_size);
 
 public:
 	buffered_device (device & d, size_t initialSize = 256);
@@ -40,25 +41,13 @@ public:
      * @return @c true if byte read successfully,
      *         or @c false if error occurred or no more bytes available (i.e. at end of device).
      */
-    bool read_byte (byte_t & c, error_code & ex);
+    bool read_byte (byte_t & c);
 
-    bool read_byte (byte_t & c)
-    {
-    	error_code ex;
-    	return read_byte(c, ex);
-    }
-
-    bool peek_byte (byte_t & c, error_code & ex);
-
-    bool peek_byte (byte_t & c)
-    {
-    	error_code ex;
-    	return peek_byte(c, ex);
-    }
+    bool peek_byte (byte_t & c);
 
     //void unread_byte (byte_t c);
 
-    error_code read_line (byte_string & line, size_t maxSize);
+    bool read_line (byte_string & line, size_t maxSize);
 };
 
 }}

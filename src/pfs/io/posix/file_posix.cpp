@@ -14,7 +14,9 @@
 #include "pfs/io/file.hpp"
 #include "posix_utils.hpp"
 
-namespace pfs { namespace io { namespace details {
+namespace pfs {
+namespace io {
+namespace details {
 
 struct file : public bits::device
 {
@@ -43,28 +45,29 @@ struct file : public bits::device
 
 	error_code open (filesystem::path const & path, int native_oflags, mode_t native_mode);
 
-    virtual error_code reopen ()
+    virtual bool reopen () pfs_override
     {
-    	close();
-    	return open(path, oflags, omode);
+        if (close())
+            this->_ec = open(path, oflags, omode);
+        return this->_ec == error_code();
     }
 
-    virtual open_mode_flags open_mode () const;
+    virtual open_mode_flags open_mode () const pfs_override;
 
-    virtual size_t bytes_available () const;
+    virtual ssize_t bytes_available () const pfs_override;
 
-    virtual ssize_t read (byte_t * bytes, size_t n, error_code * ex);
+    virtual ssize_t read (byte_t * bytes, size_t n) pfs_override;
 
-    virtual ssize_t write (const byte_t * bytes, size_t n, error_code * ex);
+    virtual ssize_t write (const byte_t * bytes, size_t n) pfs_override;
 
-    virtual error_code close ();
+    virtual bool close () pfs_override;
 
-    virtual bool opened () const
+    virtual bool opened () const pfs_override
     {
     	return _fd >= 0;
     }
 
-    virtual void flush ()
+    virtual void flush () pfs_override
     {
 #if PFS_CC_GCC
     	::fsync(_fd);
@@ -73,7 +76,7 @@ struct file : public bits::device
 #endif
     }
 
-    virtual bool set_nonblocking (bool on)
+    virtual bool set_nonblocking (bool on) pfs_override
     {
         int flags = fcntl(_fd, F_GETFL, 0);
         if (on)
@@ -83,22 +86,22 @@ struct file : public bits::device
         return fcntl(_fd, F_SETFL, flags) >= 0;
     }
 
-    virtual bool is_nonblocking () const
+    virtual bool is_nonblocking () const pfs_override
     {
         return pfs::io::is_nonblocking(_fd);
     }
     
-    virtual native_handle_type native_handle () const
+    virtual native_handle_type native_handle () const pfs_override
     {
     	return _fd;
     }
 
-    virtual device_type type () const
+    virtual device_type type () const pfs_override
     {
     	return device_file;
     }
     
-    virtual system_string url () const
+    virtual system_string url () const pfs_override
     {
         system_string r("file:/");
         r.append(path.native());
@@ -137,7 +140,7 @@ bits::device::open_mode_flags file::open_mode () const
 	return r;
 }
 
-size_t file::bytes_available () const
+ssize_t file::bytes_available () const
 {
     PFS_ASSERT(_fd  >= 0);
 
@@ -150,43 +153,42 @@ size_t file::bytes_available () const
     PFS_ASSERT(::lseek(_fd, cur, SEEK_SET) >= off_t(0));
     PFS_ASSERT(total >= cur);
 
-    return static_cast<size_t>(total - cur);
+    return static_cast<ssize_t>(total - cur);
 }
 
-ssize_t file::read (byte_t * bytes, size_t n, error_code * pex)
+ssize_t file::read (byte_t * bytes, size_t n)
 {
     ssize_t sz = ::read(_fd, bytes, n);
     
-    if (sz < 0 && pex) {
-        *pex = error_code(errno, pfs::generic_category());
-    }
+    if (sz < 0)
+        this->_ec = error_code(errno, pfs::generic_category());
     
     return sz;
 }
 
-ssize_t file::write (const byte_t * bytes, size_t n, error_code * pex)
+ssize_t file::write (const byte_t * bytes, size_t n)
 {
     ssize_t sz = ::write(_fd, bytes, n);
     
-    if( sz < 0 && pex) {
-        *pex = error_code(errno, pfs::generic_category());
-    }
+    if( sz < 0)
+        this->_ec = error_code(errno, pfs::generic_category());
     
     return sz;
 }
 
-error_code file::close ()
+bool file::close ()
 {
-    error_code ec;
+    bool r = true;
 
     if (_fd > 0) {
         if (::close(_fd) < 0) {
-        	ec = error_code(errno, pfs::generic_category());
+            this->_ec = error_code(errno, pfs::generic_category());
+            r = false;
         }
     }
 
     _fd = -1;
-    return ec;
+    return r;
 }
 
 }}} // pfs::io::details
@@ -211,7 +213,7 @@ static int __convert_to_native_perms (filesystem::perms perms)
 }
 
 template <>
-device open_device<file> (const open_params<file> & op, error_code & ex)
+device open_device<file> (const open_params<file> & op, error_code & ec)
 {
 	device result;
 	int native_oflags = 0;
@@ -238,9 +240,9 @@ device open_device<file> (const open_params<file> & op, error_code & ex)
 
 	details::file * f = new details::file;
 
-	ex = f->open(op.path, native_oflags, native_mode);
+	ec = f->open(op.path, native_oflags, native_mode);
 
-	if (!ex) {
+	if (!ec) {
 	    shared_ptr<bits::device> d(f);
 	    result._d.swap(d);
 	} else {

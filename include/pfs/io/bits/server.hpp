@@ -11,8 +11,8 @@
 #include <pfs/io/exception.hpp>
 #include <pfs/io/bits/device.hpp>
 
-
-namespace pfs { namespace io {
+namespace pfs {
+namespace io {
 
 enum server_type
 {
@@ -21,9 +21,11 @@ enum server_type
     , server_udp
 };
 
-}}
+}} // pfs::io
 
-namespace pfs { namespace io { namespace bits {
+namespace pfs {
+namespace io {
+namespace bits {
 
 struct server : public basic_device
 {
@@ -38,7 +40,7 @@ struct server : public basic_device
 
     virtual bool opened () const = 0;
 
-    virtual error_code close () = 0;
+    virtual bool close () = 0;
 
     virtual bool set_nonblocking (bool on) = 0;
 

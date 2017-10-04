@@ -9,7 +9,9 @@
 #include "pfs/traits/stdcxx/vector.hpp"
 #include "pfs/io/buffer.hpp"
 
-namespace pfs { namespace io { namespace details {
+namespace pfs {
+namespace io {
+namespace details {
 
 struct buffer : public bits::device
 {
@@ -33,9 +35,9 @@ struct buffer : public bits::device
         _buffer.resize(n);
     }
 
-    virtual error_code reopen ()
+    virtual bool reopen ()
     {
-    	return error_code();
+    	return true;
     }
 
     virtual open_mode_flags open_mode () const
@@ -43,18 +45,18 @@ struct buffer : public bits::device
     	return read_write | non_blocking;
     }
 
-    virtual size_t  bytes_available () const
+    virtual ssize_t bytes_available () const
     {
     	 return _buffer.size() - _pos;
     }
 
-    virtual ssize_t read (byte_t * bytes, size_t n, error_code * ex);
+    virtual ssize_t read (byte_t * bytes, size_t n) pfs_override;
 
-    virtual ssize_t write (const byte_t * bytes, size_t n, error_code * ex);
+    virtual ssize_t write (const byte_t * bytes, size_t n) pfs_override;
 
-    virtual error_code close ()
+    virtual bool close ()
     {
-    	return error_code();
+    	return true;
     }
 
     virtual bool opened () const
@@ -91,7 +93,7 @@ struct buffer : public bits::device
     }
 };
 
-ssize_t buffer::read (byte_t * bytes, size_t n, error_code *)
+ssize_t buffer::read (byte_t * bytes, size_t n)
 {
     if (_pos >= _buffer.size())
         return 0;
@@ -104,7 +106,7 @@ ssize_t buffer::read (byte_t * bytes, size_t n, error_code *)
     return integral_cast_check<ssize_t>(n);
 }
 
-ssize_t buffer::write (const byte_t * bytes, size_t n, error_code *)
+ssize_t buffer::write (const byte_t * bytes, size_t n)
 {
     PFS_ASSERT(numeric_limits<size_t>::max() - _pos >= n);
 
@@ -123,10 +125,11 @@ ssize_t buffer::write (const byte_t * bytes, size_t n, error_code *)
 
 }}} // pfs::io::details
 
-namespace pfs { namespace io {
+namespace pfs {
+namespace io {
 
 template <>
-device open_device<buffer> (const open_params<buffer> & op, error_code & ex)
+device open_device<buffer> (const open_params<buffer> & op, error_code & ec)
 {
 	device result;
 
@@ -143,7 +146,7 @@ device open_device<buffer> (const open_params<buffer> & op, error_code & ex)
 	shared_ptr<bits::device> d(p);
     result._d.swap(d);
 
-    ex.clear();
+    ec.clear();
 
     return result;
 }

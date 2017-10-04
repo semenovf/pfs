@@ -49,6 +49,16 @@ public:
     	return opened();
 	}
 
+    bool is_error () const
+    {
+        return _d->is_error();
+    }
+
+    error_code errorcode () const
+    {
+        return _d->errorcode();
+    }
+
     bool is_null () const
     {
     	return !_d;
@@ -77,7 +87,7 @@ public:
      *         notification storage
      * @see    device::notification()
      */
-    error_code close ();
+    bool close ();
 
 	/**
 	 *
@@ -88,7 +98,6 @@ public:
 	 * @return
 	 */
 	error_code accept (device & peer, bool non_blocking);
-
 
 	server_type type () const
 	{
@@ -126,11 +135,11 @@ public:
 	}
 
 	template <typename ServerTag>
-	friend server open_server (const open_params<ServerTag> &, error_code & ex);
+	friend server open_server (open_params<ServerTag> const &, error_code & ec);
 };
 
 template <typename ServerTag>
-server open_server (const open_params<ServerTag> &, error_code & ex);
+server open_server (open_params<ServerTag> const &, error_code & ec);
 
 }} // pfs::io
 

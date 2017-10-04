@@ -25,7 +25,7 @@ buffered_device::~buffered_device ()
         std::free(_buffer);
 }
     
-ssize_t buffered_device::upload_bytes (size_t max_size, error_code & ex)
+ssize_t buffered_device::upload_bytes (size_t max_size)
 {
     if (max_size == 0)
         return 0;
@@ -37,7 +37,7 @@ ssize_t buffered_device::upload_bytes (size_t max_size, error_code & ex)
         _buffer = tmp;
     }
     
-    ssize_t r = _d.read(_buffer + _count, max_size, & ex);
+    ssize_t r = _d.read(_buffer + _count, max_size);
         
     if (r > 0) {
         _count += r;
@@ -46,10 +46,8 @@ ssize_t buffered_device::upload_bytes (size_t max_size, error_code & ex)
     return r;
 }
     
-bool buffered_device::can_read (size_t count, error_code & ex)
+bool buffered_device::can_read (size_t count)
 {
-	ex.clear();
-
 	if (_cursor + count < _count) {
 		return true;
 	}
@@ -58,7 +56,7 @@ bool buffered_device::can_read (size_t count, error_code & ex)
 		_cursor = 0;
 	}
 
-	ssize_t n = upload_bytes(count < 256 ? 256 : count, ex);
+	ssize_t n = upload_bytes(count < 256 ? 256 : count);
 
 	if (n < static_cast<ssize_t>(count)) {
 		return false;
@@ -67,18 +65,18 @@ bool buffered_device::can_read (size_t count, error_code & ex)
 	return true;
 }
 
-bool buffered_device::read_byte (byte_t & c, error_code & ex)
+bool buffered_device::read_byte (byte_t & c)
 {
-	if (can_read(1, ex)) {
+	if (can_read(1)) {
 		c = _buffer[_cursor++];
 		return true;
 	}
 	return false;
 }
 
-bool buffered_device::peek_byte (byte_t & c, error_code & ex)
+bool buffered_device::peek_byte (byte_t & c)
 {
-	if (can_read(1, ex)) {
+	if (can_read(1)) {
 		c = _buffer[_cursor];
 		return true;
 	}
@@ -94,13 +92,12 @@ bool buffered_device::peek_byte (byte_t & c, error_code & ex)
 //	}
 //}
 
-error_code buffered_device::read_line (byte_string & line, size_t maxSize)
+bool buffered_device::read_line (byte_string & line, size_t maxSize)
 {
 	size_t n = 0;
-	error_code ex;
 	byte_t c;
 
-	while (n < maxSize && read_byte(c, ex)) {
+	while (n < maxSize && read_byte(c)) {
 		++n;
 		line.append(1, c);
 
@@ -109,7 +106,7 @@ error_code buffered_device::read_line (byte_string & line, size_t maxSize)
 		}
 	}
 
-	return ex;
+	return _d.errorcode() == error_code();
 }
 
 }}

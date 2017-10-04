@@ -124,15 +124,15 @@ error_code inet_socket::connect (uint32_t addr, uint16_t port)
 
 // FIXME Return in non-blocking mode (need to change this behavior)
 //
-error_code inet_socket::reopen ()
+bool inet_socket::reopen ()
 {
-	close();
-	error_code ex = open(true);
-    
-    // Need conversion ntoh() because connect() will convert again (see connect() above)
-    //
-	if (!ex) ex = connect(ntohl(_sockaddr.sin_addr.s_addr), ntohs(_sockaddr.sin_port));
-	return ex;
+    if (close()) {
+        this->_ec = open(true);
+
+        // Need conversion ntoh() because connect() will convert again (see connect() above)
+        if (!this->_ec) this->_ec = connect(ntohl(_sockaddr.sin_addr.s_addr), ntohs(_sockaddr.sin_port));
+    }
+    return this->_ec == error_code();
 }
 
 bits::device::open_mode_flags inet_socket::open_mode () const
@@ -151,7 +151,7 @@ bits::device::open_mode_flags inet_socket::open_mode () const
 	return r;
 }
 
-size_t inet_socket::bytes_available () const
+ssize_t inet_socket::bytes_available () const
 {
 	PFS_ASSERT(_fd >= 0 );
 	int n = 0;
@@ -161,7 +161,7 @@ size_t inet_socket::bytes_available () const
 	PFS_ASSERT_X(rc == 0, error_code(errno, pfs::generic_category()).message().c_str());
 	PFS_ASSERT(n >= 0);
 
-	return static_cast<size_t>(n);
+	return static_cast<ssize_t>(n);
 }
 
 error_code inet_socket::set_socket_options (uint32_t sso)
@@ -180,7 +180,7 @@ error_code inet_socket::set_socket_options (uint32_t sso)
 	return error_code();
 }
 
-ssize_t inet_socket::read (byte_t * bytes, size_t n, error_code * pex)
+ssize_t inet_socket::read (byte_t * bytes, size_t n)
 {
 	PFS_ASSERT(_fd >= 0 );
 
@@ -197,8 +197,7 @@ ssize_t inet_socket::read (byte_t * bytes, size_t n, error_code * pex)
 		}
 
 		if (r < 0) {
-			if (pex)
-				*pex = error_code(errno, pfs::generic_category());
+    		this->_ec = error_code(errno, pfs::generic_category());
 		}
 
 //		break;
@@ -207,7 +206,7 @@ ssize_t inet_socket::read (byte_t * bytes, size_t n, error_code * pex)
 	return r;
 }
 
-ssize_t inet_socket::write (const byte_t * bytes, size_t nbytes, error_code * ex)
+ssize_t inet_socket::write (const byte_t * bytes, size_t nbytes)
 {
 	PFS_ASSERT(_fd >= 0);
 
@@ -235,10 +234,8 @@ ssize_t inet_socket::write (const byte_t * bytes, size_t nbytes, error_code * ex
 		nbytes -= n;
 	}
 
-	if (r < 0) {
-		if (ex)
-			*ex = error_code(errno, pfs::generic_category());
-	}
+	if (r < 0)
+    	this->_ec = error_code(errno, pfs::generic_category());
 
 	return r;
 }

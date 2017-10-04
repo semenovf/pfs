@@ -6,60 +6,60 @@ struct null : public bits::device
 {
     null () {}
 
-    virtual error_code reopen ()
+    virtual bool reopen () pfs_override
     {
-    	return error_code();
+    	return true;
     }
 
-    virtual open_mode_flags open_mode () const
+    virtual open_mode_flags open_mode () const pfs_override
     {
     	return read_write | non_blocking;
     }
 
-    virtual size_t  bytes_available () const
-    {
-    	 return 0;
-    }
-
-    virtual ssize_t read (byte_t * /*bytes*/, size_t /*n*/, error_code *) pfs_override
+    virtual ssize_t  bytes_available () const pfs_override
     {
         return 0;
     }
 
-    virtual ssize_t write (const byte_t * /*bytes*/, size_t n, error_code *) pfs_override
+    virtual ssize_t read (byte_t * /*bytes*/, size_t /*n*/) pfs_override
+    {
+        return 0;
+    }
+
+    virtual ssize_t write (const byte_t * /*bytes*/, size_t n) pfs_override
     {
         return integral_cast_check<ssize_t>(n);
     }
 
-    virtual error_code close ()
-    {
-    	return error_code();
-    }
-
-    virtual bool opened () const
+    virtual bool close () pfs_override
     {
     	return true;
     }
 
-    virtual void flush ()
+    virtual bool opened () const pfs_override
+    {
+    	return true;
+    }
+
+    virtual void flush () pfs_override
     { }
 
-    virtual bool is_nonblocking() const
+    virtual bool is_nonblocking() const pfs_override
     {
         return true;
     }
     
-    virtual bool set_nonblocking (bool)
+    virtual bool set_nonblocking (bool) pfs_override
     {
     	return true;
     }
 
-    virtual native_handle_type native_handle () const
+    virtual native_handle_type native_handle () const pfs_override
     {
     	return -1;
     }
 
-    virtual device_type type () const
+    virtual device_type type () const pfs_override
     {
     	return device_null;
     }

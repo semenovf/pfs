@@ -9,33 +9,30 @@
 
 namespace pfs { namespace io {
 
-error_code server::close ()
+bool server::close ()
 {
-	error_code ex;
+    error_code ex;
 
-	if (_d) {
-		ex = _d->close();
-//		shared_ptr<bits::server> nil;
-//		_d.swap(nil);
-	}
+    if (_d)
+        return _d->close();
 
-	return ex;
+    return true;
 }
 
 error_code server::accept (device & peer, bool non_blocking)
 {
-	PFS_ASSERT(_d);
+    PFS_ASSERT(_d);
 
-	bits::device * p;
+    bits::device * p;
 
-	error_code ex = _d->accept(& p, non_blocking);
+    error_code ex = _d->accept(& p, non_blocking);
 
-	if (!ex) {
-	    shared_ptr<bits::device> d(p);
-	    peer._d.swap(d);
-	}
+    if (!ex) {
+       shared_ptr<bits::device> d(p);
+       peer._d.swap(d);
+    }
 
-	return ex;
+    return ex;
 }
 
 }} // pfs::io

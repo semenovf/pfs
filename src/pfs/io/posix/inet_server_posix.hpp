@@ -1,9 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 /* 
  * File:   inet_server_posix.hpp
  * Author: wladt
@@ -41,31 +35,33 @@ public:
 		close();
 	}
 
-    virtual error_code close ()
+    virtual bool close () pfs_override
     {
-        error_code ex = pfs::io::close_socket(_fd) != 0 
-                ? get_last_system_error()
-                : error_code();
+        bool r = true;
+        if (pfs::io::close_socket(_fd) != 0) {
+            this->_ec = get_last_system_error();
+            r = false;
+        }
         _fd = -1;
-        return ex;
+        return r;
     }
 
-    virtual bool opened () const
+    virtual bool opened () const pfs_override
     {
     	return _fd >= 0;
     }
     
-    virtual bool set_nonblocking (bool on)
+    virtual bool set_nonblocking (bool on) pfs_override
     {
         return pfs::io::set_nonblocking(_fd, on);
     }
     
-    virtual bool is_nonblocking () const
+    virtual bool is_nonblocking () const pfs_override
     {
         return pfs::io::is_nonblocking(_fd);
     }
     
-    virtual native_handle_type native_handle () const
+    virtual native_handle_type native_handle () const pfs_override
     {
     	return _fd;
     }
@@ -100,17 +96,17 @@ public:
 		: inet_server()
 	{}
 
-    virtual server_type type () const
+    virtual server_type type () const pfs_override
     {
     	return server_tcp;
     }
     
-    virtual system_string url () const
+    virtual system_string url () const pfs_override
     {
         return pfs::io::inet_socket_url<system_string>("tcp", _sockaddr);
     }
   
-    virtual error_code accept (bits::device ** peer, bool non_blocking);
+    virtual error_code accept (bits::device ** peer, bool non_blocking) pfs_override;
 };
 
 class udp_server : public inet_server
@@ -137,17 +133,17 @@ public:
 		: inet_server()
 	{}
 
-    virtual server_type type () const
+    virtual server_type type () const pfs_override
     {
     	return server_udp;
     }
     
-    virtual system_string url () const
+    virtual system_string url () const pfs_override
     {
         return pfs::io::inet_socket_url<system_string>("udp", _sockaddr);
     }
 
-    error_code accept (bits::device ** peer, bool non_blocking);
+    virtual error_code accept (bits::device ** peer, bool non_blocking) pfs_override;
 };
 
 

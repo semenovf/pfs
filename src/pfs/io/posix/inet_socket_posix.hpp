@@ -47,45 +47,47 @@ public:
 	}
 
     error_code connect (uint32_t addr, uint16_t port);
-    
-    virtual error_code reopen ();
-    
-    virtual open_mode_flags open_mode () const;
 
-    virtual size_t bytes_available () const;
+    virtual bool reopen () pfs_override;
 
-    virtual ssize_t read (byte_t * bytes, size_t n, error_code * ex);
+    virtual open_mode_flags open_mode () const pfs_override;
 
-    virtual ssize_t write (const byte_t * bytes, size_t n, error_code * ex);
+    virtual ssize_t bytes_available () const pfs_override;
 
-    virtual error_code close ()
+    virtual ssize_t read (byte_t * bytes, size_t n) pfs_override;
+
+    virtual ssize_t write (const byte_t * bytes, size_t n) pfs_override;
+
+    virtual bool close () pfs_override
     {
-        error_code ex = close_socket(_fd) != 0 
-                ? error_code(errno, pfs::generic_category()) 
-                : error_code();
+        bool r = true;
+        if (close_socket(_fd) != 0) {
+            this->_ec = error_code(errno, pfs::generic_category());
+            r = false;
+        }
         _fd = -1;
-        return ex;
+        return r;
     }
 
-    virtual bool opened () const
+    virtual bool opened () const pfs_override
     {
     	return _fd >= 0;
     }
 
-    virtual void flush ()
+    virtual void flush () pfs_override
     {}
 
-    virtual bool set_nonblocking (bool on)
+    virtual bool set_nonblocking (bool on) pfs_override
     {
         return pfs::io::set_nonblocking(_fd, on);
     }
 
-    virtual bool is_nonblocking () const
+    virtual bool is_nonblocking () const pfs_override
     {
         return pfs::io::is_nonblocking(_fd);
     }
 
-    virtual native_handle_type native_handle () const
+    virtual native_handle_type native_handle () const pfs_override
     {
     	return _fd;
     }
@@ -104,7 +106,7 @@ public:
     typedef inet_socket::system_string      system_string;
 
 public:
-	virtual error_code open (bool non_blocking)
+	virtual error_code open (bool non_blocking) pfs_override
     {
         _fd = create_tcp_socket(non_blocking);
         return _fd < 0 
@@ -117,12 +119,12 @@ public:
 		: inet_socket()
 	{}
 
-    virtual device_type type () const
+    virtual device_type type () const pfs_override
     {
         return device_tcp_socket;
     }
         
-    virtual system_string url () const
+    virtual system_string url () const pfs_override
     {
         return inet_socket_url<system_string>("tcp", _sockaddr);
     }
@@ -141,7 +143,7 @@ public:
 		::memcpy(& _sockaddr, & sockaddr, sizeof(_sockaddr));
 	}
         
-    virtual device_type type () const
+    virtual device_type type () const pfs_override
     {
         return device_tcp_peer;
     }
@@ -154,7 +156,7 @@ public:
     typedef inet_socket::system_string      system_string;
 
 public:
-	virtual error_code open (bool non_blocking)
+	virtual error_code open (bool non_blocking) pfs_override
     {
         _fd = create_udp_socket(non_blocking);
         return _fd < 0 
@@ -167,12 +169,12 @@ public:
 		: inet_socket()
 	{}
 
-    virtual device_type type () const
+    virtual device_type type () const pfs_override
     {
         return device_udp_socket;
     }
 
-    virtual system_string url () const
+    virtual system_string url () const pfs_override
     {
         return inet_socket_url<system_string>("udp", _sockaddr);
     }
@@ -196,20 +198,20 @@ public:
 		close();
 	}
         
-    virtual device_type type () const
+    virtual device_type type () const pfs_override
     {
         return device_udp_peer;
     }
     
     // Reimplemented to avoid descriptor closing
     //
-    virtual error_code close ()
+    virtual bool close () pfs_override
     {
         // Really descriptor cannot be closed,
         // it still used by server
         //
         _fd = -1;
-        return error_code();
+        return true;
     }
 
 };

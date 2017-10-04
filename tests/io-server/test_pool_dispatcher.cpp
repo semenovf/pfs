@@ -213,12 +213,10 @@ public:
 		for (int i = 0; i < n; ++i) {
 			pfs::byte_string data(loremipsum[i]);
 
-			client.write(data, & ex);
-
-			if (!ex) {
+			if (client.write(data) >= 0) {
 				++n1;
 			} else {
-				std::cerr << "ERROR (client): " << ex.message() << std::endl;
+				std::cerr << "ERROR (client): " << client.errorcode().message() << std::endl;
 			}
 		}
 

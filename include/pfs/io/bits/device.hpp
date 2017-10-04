@@ -12,7 +12,8 @@
 #include <pfs/io/exception.hpp>
 #include <pfs/system_string.hpp>
 
-namespace pfs { namespace io {
+namespace pfs {
+namespace io {
 
 enum open_mode_enum
 {
@@ -37,14 +38,15 @@ enum device_type
     , device_udp_peer
 };
 
-}}
+}} // pfs::io
 
-namespace pfs { namespace io { namespace bits {
+namespace pfs {
+namespace io {
+namespace bits {
 
 // TODO Support other platform specific native file handle types.
 //
 typedef int native_handle_type;
-
 
 struct device_context
 {
@@ -59,6 +61,7 @@ public:
 
 protected:
 	context_type * _ctx;
+    error_code     _ec;
 
 public:
 	basic_device ()
@@ -88,6 +91,16 @@ public:
     	_ctx = context;
     }
     
+    error_code errorcode () const
+    {
+        return _ec;
+    }
+    
+    bool is_error () const
+    {
+        return _ec != error_code();
+    }
+    
     virtual system_string url () const = 0;
 };
 
@@ -107,17 +120,17 @@ public:
 
     virtual ~device () {}
 
-    virtual error_code reopen () = 0;
+    virtual bool reopen () = 0;
 
     virtual open_mode_flags open_mode () const = 0;
 
-    virtual size_t  bytes_available () const = 0;
+    virtual ssize_t bytes_available () const = 0;
 
-    virtual ssize_t read (byte_t * bytes, size_t n, error_code * ex) = 0;
+    virtual ssize_t read (byte_t * bytes, size_t n) = 0;
 
-    virtual ssize_t write (const byte_t * bytes, size_t n, error_code * ex) = 0;
+    virtual ssize_t write (const byte_t * bytes, size_t n) = 0;
 
-    virtual error_code close () = 0;
+    virtual bool close () = 0;
 
     virtual bool opened () const = 0;
 

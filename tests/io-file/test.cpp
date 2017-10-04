@@ -227,13 +227,13 @@ void test_write_read ()
     TEST_FAIL((d = open_device(open_params<file>(file_path, pfs::io::write_only), ex)));
 
     TEST_FAIL(d.write(loremipsum, ::strlen(loremipsum)) == ssize_t(::strlen(loremipsum)));
-    TEST_FAIL(d.close() == pfs::error_code());
+    TEST_FAIL(d.close());
 
     TEST_FAIL((d = open_device(open_params<file>(file_path, pfs::io::read_only))));
     pfs::byte_string bs;
     d.read(bs, d.available());
 
-    TEST_OK(d.close() == pfs::error_code());
+    TEST_OK(d.close());
     TEST_OK(bs == loremipsum);
 
     TEST_FAIL2(pfs::filesystem::remove(file_path), "Temporary file unlink");

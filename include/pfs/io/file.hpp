@@ -8,7 +8,6 @@
 #ifndef __PFS_IO_FILE_HPP__
 #define __PFS_IO_FILE_HPP__
 
-//#include <pfs/logger.hpp>
 #include <pfs/filesystem.hpp>
 #include <pfs/io/device.hpp>
 
@@ -62,21 +61,15 @@ struct open_params<file>
 
 
 /**
- * @fn bool open_device<file> (device & d, const open_params<file> & op)
- *
  * @brief Open file device.
  *
- * @param d File device to open.
  * @param op Open device parameters.
- * 		@li open_params(size_t n, uint32_t oflags)
- * 		@li open_params(byte_t * p, size_t n, uint32_t oflags)
- * 		@li open_params(char * p, size_t n, uint32_t oflags)
+ * @param ec Error code to store resulting code while open device.
  *
- * @return @c true if open is successful, @c false otherwise
- *         (i.e. file device is already opened).
+ * @return device opened.
  */
 template <>
-device open_device<file> (const open_params<file> & op, error_code & ec);
+device open_device<file> (open_params<file> const & op, error_code & ec);
 
 }} // pfs::io
 

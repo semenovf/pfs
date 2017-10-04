@@ -4,25 +4,25 @@
  * @date Apr 28, 2014
  */
 
-#include "pfs/io/file.hpp"
+#include "pfs/io/device.hpp"
 
-namespace pfs { namespace io {
+namespace pfs {
+namespace io {
 
-static const size_t DEFAULT_READ_BUFSZ = 256;
+static const ssize_t DEFAULT_READ_BUFSZ = 256;
 
-error_code device::read (byte_string & bytes, size_t n)
+bool device::read (byte_string & bytes, ssize_t n)
 {
 	byte_t buffer[DEFAULT_READ_BUFSZ];
-	error_code ex;
 	ssize_t sz = 0;
-	size_t total = 0;
-	size_t chunk_size = DEFAULT_READ_BUFSZ;
+	ssize_t total = 0;
+	ssize_t chunk_size = DEFAULT_READ_BUFSZ;
 
 	do {
 		if (n - total < chunk_size)
 			chunk_size = n - total;
 
-		sz = _d->read(buffer, chunk_size, & ex);
+		sz = _d->read(buffer, chunk_size);
 
 		if (sz > 0) {
 			bytes.append(buffer, size_t(sz));
@@ -30,20 +30,14 @@ error_code device::read (byte_string & bytes, size_t n)
 		}
 	} while (sz > 0 && total < n);
 
-	return ex;
+	return this->errorcode() == error_code();
 }
 
-error_code device::close ()
+bool device::close ()
 {
-	error_code ex;
-
-	if (_d) {
-		ex = _d->close();
-//		shared_ptr<bits::device> nil;
-//		_d.swap(nil);
-	}
-
-	return ex;
+    if (_d)
+        return _d->close();
+    return true;
 }
 
 /**
@@ -66,7 +60,7 @@ ssize_t copy (device & dest, device & src, size_t chunk_size, error_code * ec)
     	ec->clear();
 
     while (r < static_cast<ssize_t>(chunk_size)) {
-    	ssize_t r1 = src.read(buffer, DEFAULT_READ_BUFSZ, ec);
+    	ssize_t r1 = src.read(buffer, DEFAULT_READ_BUFSZ);
 
     	if (r1 < 0)
     		return -1;
@@ -74,7 +68,7 @@ ssize_t copy (device & dest, device & src, size_t chunk_size, error_code * ec)
     	if (r1 == 0)
     		break;
 
-    	ssize_t r2 = dest.write(buffer, static_cast<size_t>(r1), ec);
+    	ssize_t r2 = dest.write(buffer, static_cast<size_t>(r1));
 
     	if (r2 <= 0)
     		return -1;

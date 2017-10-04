@@ -59,7 +59,7 @@ public:
     	return _d->native_handle();
     }
 
-    error_code reopen ()
+    bool reopen ()
     {
     	return _d->reopen();
     }
@@ -69,6 +69,16 @@ public:
     	return opened();
 	}
 
+    bool is_error () const
+    {
+        return _d->is_error();
+    }
+
+    error_code errorcode () const
+    {
+        return _d->errorcode();
+    }
+    
     bool is_null () const
     {
     	return !_d;
@@ -111,9 +121,9 @@ public:
      *
      * @see    device::notification()
      */
-    error_code close ();
+    bool close ();
 
-	size_t available () const
+	ssize_t available () const
 	{
 	    return _d->bytes_available();
 	}
@@ -126,49 +136,47 @@ public:
 	/**
 	 * @brief Read bytes from the device.
 	 */
-	ssize_t read (byte_t * bytes, size_t n, error_code * ex = 0)
+	ssize_t read (byte_t * bytes, size_t n)
 	{
-		return _d->read(bytes, n, ex);
+		return _d->read(bytes, n);
 	}
 
-    ssize_t read (char * chars, size_t n, error_code * ex = 0)
+    ssize_t read (char * chars, size_t n)
     {
-        return read(reinterpret_cast<byte_t *>(chars), n, ex);
+        return read(reinterpret_cast<byte_t *>(chars), n);
     }
 
     /**
      * @brief Read data from device and appends them
      */
-    error_code read (byte_string & bytes)
+    bool read (byte_string & bytes)
     {
     	return read(bytes, available());
     }
 
-    error_code read (byte_string & bytes, size_t n);
+    bool read (byte_string & bytes, ssize_t n);
 
     /**
      * @brief Write bytes to the device.
      */
-	ssize_t write (const byte_t * bytes, size_t n, error_code * ec = 0)
+	ssize_t write (const byte_t * bytes, size_t n)
 	{
-		return _d->write(bytes, n, ec);
+		return _d->write(bytes, n);
 	}
 
-    ssize_t write (const char * chars, size_t n, error_code * ec = 0)
+    ssize_t write (const char * chars, size_t n)
     {
-        return write(reinterpret_cast<const byte_t *>(chars), n, ec);
+        return write(reinterpret_cast<const byte_t *>(chars), n);
     }
 
-    // TODO uncomment default value
-    ssize_t write (byte_string const & bytes, size_t n, error_code * ec/* = 0*/)
+    ssize_t write (byte_string const & bytes, size_t n)
 	{
-    	return this->write(bytes.data(), pfs::min(n, bytes.size()), ec);
+    	return this->write(bytes.data(), pfs::min(n, bytes.size()));
 	}
 
-    // TODO uncomment default value
-	ssize_t write (byte_string const & bytes, error_code * ec/* = 0*/)
+	ssize_t write (byte_string const & bytes)
 	{
-    	return this->write(bytes.data(), bytes.size(), ec);
+    	return this->write(bytes.data(), bytes.size());
 	}
     
 	device_type type () const
@@ -201,25 +209,25 @@ public:
 		_d.swap(other._d);
 	}
 
-	bool operator == (const device & other)
+	bool operator == (device const & other)
 	{
 		return _d == other._d;
 	}
 
-	bool operator != (const device & other)
+	bool operator != (device const & other)
 	{
 		return ! operator == (other);
 	}
 
 	template <typename DeviceTag>
-	friend device open_device (const open_params<DeviceTag> &, error_code & ex);
+	friend device open_device (open_params<DeviceTag> const &, error_code & ec);
 
 //    friend bool compress (device & dest, device & src, zlib::compression_level level, size_t chunkSize, error_code * ex = 0);
 //
 //    friend bool uncompress (device & dest, device & src, size_t chunkSize, error_code * ex = 0);
 };
 
-ssize_t copy (device & dest, device & src, size_t chunkSize, error_code * ex = 0);
+ssize_t copy (device & dest, device & src, size_t chunkSize, error_code * ec = 0);
 
 //inline bool compress (device & src, device & dest, error_code * ex = 0)
 //{
@@ -232,21 +240,21 @@ ssize_t copy (device & dest, device & src, size_t chunkSize, error_code * ex = 0
 //}
 
 template <typename DeviceTag>
-device open_device (open_params<DeviceTag> const &, error_code & ex);
+device open_device (open_params<DeviceTag> const &, error_code & ec);
 
 template <typename DeviceTag>
 inline device open_device (open_params<DeviceTag> const & op)
 {
-	error_code ex;
-	return open_device<DeviceTag>(op, ex);
+	error_code ec;
+	return open_device<DeviceTag>(op, ec);
 }
 
 template <typename DeviceTag>
 inline device open_device ()
 {
-	error_code ex;
+	error_code ec;
     open_params<DeviceTag> op;
-	return open_device<DeviceTag>(op, ex);
+	return open_device<DeviceTag>(op, ec);
 }
 
 }} // pfs::io

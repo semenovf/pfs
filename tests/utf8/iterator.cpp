@@ -14,6 +14,34 @@
 #include "test_data.hpp"
 
 template <typename OctetIt>
+void __test_input (const char * itertype)
+{
+	typedef typename pfs::unicode::utf8_input_iterator<OctetIt> utf8_input_iterator;
+
+	int ntests = sizeof(data)/sizeof(data[0]);
+	ADD_TESTS(ntests);
+
+	for (int i = 0; i < ntests; ++i) {
+		utf8_input_iterator it(iter_cast<OctetIt>(data[i].text), iter_cast<OctetIt>(data[i].text) + data[i].len);
+        utf8_input_iterator it_end(iter_cast<OctetIt>(data[i].text) + data[i].len);
+		
+		size_t count = 0;
+
+		while (it != it_end) {
+			++it;
+			++count;
+		}
+
+		std::ostringstream desc;
+
+		desc << "Iterate using pfs::unicode::utf8_input_iterator<" << itertype << ">."
+				<< " String `" << data[i].name << "'."
+				<< " Number of unicode chars " << count << ", expected " << data[i].nchars;
+		TEST_OK2(count == data[i].nchars, desc.str().c_str());
+	}
+}
+
+template <typename OctetIt>
 void __test_forward (const char * itertype)
 {
 	typedef typename pfs::unicode::utf8_iterator<OctetIt> utf8_iterator;
@@ -176,6 +204,13 @@ void __test_std_reverse_iterator(const char * itertype)
 
 void test_iterator ()
 {
+	__test_input<unsigned char *>("unsigned char *");
+	__test_input<const unsigned char *>("const unsigned char *");
+	__test_input<char *>("char *");
+	__test_input<const char *>("const char *");
+	__test_input<std::string::iterator>("std::string::iterator");
+	__test_input<std::string::const_iterator>("std::string::const_iterator");
+    
 	__test_forward<unsigned char *>("unsigned char *");
 	__test_forward<const unsigned char *>("const unsigned char *");
 	__test_forward<char *>("char *");

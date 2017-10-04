@@ -38,10 +38,10 @@ struct handlers : pfs::has_slots<>
     {
         //cout << fmt("%s: device ready to read)")(d.url()).str() << endl;
         pfs::byte_string data;
-        pfs::error_code ex = d.read(data);
 
-        if (ex) {
-            cerr << fmt("read device error: %s")(pfs::to_string<string>(ex)).str() << endl;
+        if (! d.read(data)) {
+            cerr << fmt("read device error: %s") % pfs::to_string<string>(d.errorcode())
+                  << endl;
         } else {
             cout << "read: " << pfs::to_string<string>(data) << endl;
         }
@@ -49,12 +49,12 @@ struct handlers : pfs::has_slots<>
 
     void device_opened (pfs::io::device d)
     {
-        cout << fmt("%s: device successfully opened/connected")(d.url()).str() << endl; 
+        cout << fmt("%s: device successfully opened/connected") % d.url() << endl; 
     }
 
     void device_opening (pfs::io::device d)
     {
-        cout << fmt("%s: open/connection device in progress")(d.url()).str() << endl; 
+        cout << fmt("%s: open/connection device in progress") % d.url() << endl; 
     }
 
     void device_open_failed (pfs::io::device d, pfs::error_code ex)
@@ -63,38 +63,38 @@ struct handlers : pfs::has_slots<>
             cerr << fmt("%s: open/connection device error: %s")
                     (d.url())(pfs::to_string<string>(ex)).str() << endl;
         } else {
-            cerr << fmt("open device error: %s")(pfs::to_string<string>(ex)).str() << endl;
+            cerr << fmt("open device error: %s") % pfs::to_string<string>(ex) << endl;
         }
     }
 
     void device_disconnected (pfs::io::device d)
     {
-        cerr << fmt("%s: device closed/disconnected")(d.url()).str() << endl; 
+        cerr << fmt("%s: device closed/disconnected") % d.url() << endl; 
     }
 
     void server_opened (pfs::io::server s)
     {
-        cout << fmt("%s: server successfully opened")(s.url()).str() << endl; 
+        cout << fmt("%s: server successfully opened") % s.url() << endl; 
     }
 
     void server_opening (pfs::io::server s)
     {
-        cout << fmt("%s: open server in progress")(s.url()).str() << endl; 
+        cout << fmt("%s: open server in progress") % s.url() << endl; 
     }
 
     void server_open_failed (pfs::io::server s, pfs::error_code ex)
     {
         if (! s.is_null()) {
             cerr << fmt("%s: open server error: %s")
-                    (s.url())(pfs::to_string<string>(ex)).str() << endl;
+                    % s.url() % pfs::to_string<string>(ex) << endl;
         } else {
-            cerr << fmt("open server error: %s")(pfs::to_string<string>(ex)).str() << endl;
+            cerr << fmt("open server error: %s") % pfs::to_string<string>(ex) << endl;
         }
     }
 
     void error (pfs::error_code ex)
     {
-        cerr << fmt("I/O error: %s")(pfs::to_string<string>(ex)).str() << endl;
+        cerr << fmt("I/O error: %s") % pfs::to_string<string>(ex) << endl;
     }
 };
 

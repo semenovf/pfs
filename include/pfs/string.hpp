@@ -1027,13 +1027,17 @@ inline StringType to_string (double a
 //
 // [How to read in a file in C++](http://insanecoding.blogspot.ru/2011/11/how-to-read-in-file-in-c.html)
 //
+// There is one problem:
+// How to read (optimal) byte-oriented stream into string with code_unit_type other than byte?
+// So use io::read_all() from io::file.
+// 
 template <typename StringType, typename Istream>
-inline StringType read_all (Istream & is)
-{
-    typedef typename StringType::code_unit_type char_type;
-    return StringType(istreambuf_iterator<char_type>(is)
-            , istreambuf_iterator<char_type>());
-}
+/*inline */StringType read_all (Istream & is);
+//{
+//    typedef typename StringType::code_unit_type char_type;
+//    return StringType(istreambuf_iterator<char_type>(is)
+//            , istreambuf_iterator<char_type>());
+//}
 
 template <typename U8StringType, typename StringType>
 U8StringType u8string (StringType const & s);

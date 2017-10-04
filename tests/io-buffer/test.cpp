@@ -66,7 +66,7 @@ void test_read ()
 			, strlen(loremipsum)))));
 	TEST_OK(d.opened());
 
-	TEST_FAIL(d.available() == strlen(loremipsum));
+	TEST_FAIL(static_cast<size_t>(d.available()) == strlen(loremipsum));
 
     TEST_OK(d.is_readable());
     TEST_OK(d.is_writable());
@@ -97,7 +97,7 @@ void test_write ()
     TEST_OK(d.read(a1, 0) >= 0); // is writable only
 
     TEST_OK(d.write(loremipsum, strlen(loremipsum) + 1) == static_cast<ssize_t>(strlen(loremipsum)) + 1);
-    TEST_OK(d.available() == strlen(loremipsum) + 1);
+    TEST_OK(static_cast<size_t>(d.available()) == strlen(loremipsum) + 1);
  }
 
 int main(int argc, char *argv[])

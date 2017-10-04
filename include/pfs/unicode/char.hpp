@@ -136,21 +136,10 @@ inline bool is_surrogate (char_t c)
 	return (c.value - hi_surrogate_start < 2048u);
 }
 
-#if __OBSOLETE__
-/**
- * @return @c true if @a c is decimal digit character.
- * @note Decimal digits are any of: 0 1 2 3 4 5 6 7 8 9.
- */
-inline bool is_decimal_digit (char_t c)
+inline bool is_valid (char_t c)
 {
-	return c.value >= char_t('0').value && c.value <= char_t('9').value;
+    return !(is_surrogate(c) || c.value >= max_code_point);
 }
-
-inline bool is_space (char_t c)
-{
-	return c.value <= 127 && isspace(static_cast<char>(c.value));
-}
-#endif
 
 }} // pfs::unicode
 
