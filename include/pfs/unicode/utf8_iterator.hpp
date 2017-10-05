@@ -36,13 +36,15 @@ class utf8_input_iterator : public iterator_facade<input_iterator_tag
         , char_t *  // unused
         , char_t &> // unused
 {
-public:
     typedef iterator_facade<input_iterator_tag
         , utf8_input_iterator<OctetInputIt>
         , char_t
         , char_t *
         , char_t &> base_class;
     
+public:
+    typedef typename base_class::pointer         pointer;
+    typedef typename base_class::reference       reference;
     typedef typename base_class::difference_type difference_type;
     typedef BrokenSeqAction broken_sequence_action;
 
@@ -79,21 +81,6 @@ public:
         , _flag(ATEND_FLAG)
     {}
 
-    char_t operator * () const
-    {
-        return _value;
-    }
-
-    char_t * operator -> () const
-    {
-        return & _value;
-    }
-
-//    bool good () const
-//    {
-//        return _ok;
-//    }
-    
     operator OctetInputIt ()
     {
         return _p;
@@ -105,11 +92,21 @@ public:
     }
 
 public:
+    static reference ref (utf8_input_iterator & it)
+    {
+        return it._value;
+    }
+    
+    static pointer ptr (utf8_input_iterator & it)
+    {
+        return & it._value;
+    }
+
     static void increment (utf8_input_iterator & it, difference_type);
 
     static bool equals (utf8_input_iterator const & it1, utf8_input_iterator const & it2)
     {
-        return ((it1._flag & ATEND_FLAG) == (it2._flag & ATEND_FLAG))
+        return ((it1._flag & ATEND_FLAG) && (it2._flag & ATEND_FLAG))
                 && (it1._p == it2._p);
     }
 

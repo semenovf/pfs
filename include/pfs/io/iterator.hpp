@@ -15,29 +15,39 @@
 namespace pfs {
 namespace io {
 
-// TODO Implement io::input_iterator
-#if __TODO__
-
 template <typename CharType>
 class input_iterator : public pfs::iterator_facade<
           pfs::input_iterator_tag
-        , forward_iterator
+        , input_iterator<CharType>
         , CharType, CharType *, CharType &>
 {
+    typedef pfs::iterator_facade<
+          pfs::input_iterator_tag
+        , input_iterator
+        , CharType, CharType *, CharType &> base_class;
 public:
+    typedef typename base_class::pointer         pointer;
+    typedef typename base_class::reference       reference;
+    typedef typename base_class::difference_type difference_type;
+
     typedef CharType char_type;
 
 private:
-    device * _pd;
+    static int8_t const ATEND_FLAG = 0x01;
+    
+    device *  _pd;
     char_type _value;
+    int8_t    _flag;
 
 public:
     input_iterator ()
         : _pd(0)
+        , _flag(ATEND_FLAG)
     {}
     
     input_iterator (device & d)
         : _pd(& d)
+        , _flag(0)
     {
         ++*this;
     }
@@ -59,25 +69,24 @@ public:
     
     static void increment (input_iterator & it, difference_type)
     {
-        pfs::error_code ec;
-                
-        it._d.read(& it._c, sizeof(char_type), ec);
-        
-        if (!ec)
-            throw io_exception(ec);
+        if (it._pd && !(it._flag & ATEND_FLAG)) {
+            it._pd->read(& it._value, sizeof(char_type));
+
+            if (it._pd->is_error())
+                throw io_exception(it._pd->errorcode());
+        }
     }
     
     static bool equals (input_iterator const & it1, input_iterator const & it2)
     {
-        int flag = 0;
-        
-        if (it1._d.is_null() || it1._d.at_end())
-            flag |= 0x01;
-
-        if (it2._d.is_null() || it2._d.at_end())
-            flag |= 0x02;
-
-        return flag == 0x03;
+        if (it1._pd == it2._pd) {
+            if (it1._pd == 0)
+                return true;
+            
+            if ((it1._flag & ATEND_FLAG) && (it2._flag & ATEND_FLAG))
+                return true;
+        }
+        return false;
     }
     
 private:
@@ -87,13 +96,19 @@ private:
             pfs::error_code ec;
             ssize_t n = _pd->read(& _value, sizeof(char_type), ec);
 
-            if (n <= 0)
+            if (ec)
+                throw io_exception(ec);
+
+            PFS_ASSERT(n >= 0);
+            
+            if (n == 0) {
+                _value = 0;
                _pd = 0;
+               _flag |= ATEND_FLAG;
+            }
         }
     }
 };
-
-#endif
 
 }} // pfs::io
 

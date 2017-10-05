@@ -1032,7 +1032,7 @@ inline StringType to_string (double a
 // So use io::read_all() from io::file.
 // 
 template <typename StringType, typename Istream>
-/*inline */StringType read_all (Istream & is);
+StringType read_all (Istream & is);
 //{
 //    typedef typename StringType::code_unit_type char_type;
 //    return StringType(istreambuf_iterator<char_type>(is)
