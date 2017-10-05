@@ -19,12 +19,24 @@ byte_string u8string<byte_string> (stdcxx_string_type const & s)
 }
 
 template <>
+std::string u8string<std::string> (stdcxx_string_type const & s)
+{
+    return s.native();
+}
+
+template <>
 byte_string u8string<byte_string> (stdcxx_string_reference_type const & s)
 {
     return byte_string(s.native().begin(), s.native().end());
 }
 
+template <>
+std::string u8string<std::string> (stdcxx_string_reference_type const & s)
+{
+    return s.native();
 }
+
+} // pfs
 
 #if HAVE_QT
 namespace pfs {
@@ -40,10 +52,22 @@ byte_string u8string<byte_string> (qt_string_type const & s)
 }
 
 template <>
+std::string u8string<std::string> (qt_string_type const & s)
+{
+    return s.native().toStdString();
+}
+
+template <>
 byte_string u8string<byte_string> (qt_string_reference_type const & s)
 {
     QByteArray b = s.native().toUtf8();
     return byte_string(b.constData(), b.size());
+}
+
+template <>
+std::string u8string<std::string> (qt_string_reference_type const & s)
+{
+    return s.native().toStdString();
 }
 
 template <>
