@@ -611,7 +611,10 @@ inline bool exists (path const & p)
 
 inline bool exists (path const & p, pfs::error_code & ec) pfs_noexcept
 {
-    return p.exists(ec);
+    bool r = p.exists(ec);
+    if (ec && ec == pfs::make_error_code(errc::no_such_file_or_directory))
+        ec.clear();
+    return r;
 }
 
 inline bool remove (path const & p)
