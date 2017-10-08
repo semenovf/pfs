@@ -2,8 +2,11 @@
 #include "pfs/test/test.hpp"
 #include "pfs/filesystem.hpp"
 #include "pfs/io/file.hpp"
+#include "pfs/io/iterator.hpp"
 
 #include <iostream>
+#include <sstream>
+#include <fstream>
 
 using pfs::io::device;
 using pfs::io::open_device;
@@ -287,6 +290,160 @@ void test_write_read ()
 //    file.close();
 //}
 
+
+void test_io_iterator ()
+{
+	ADD_TESTS(5);
+    
+    char const * hello = "Abcde";
+    
+    // FIXME Use pfs::fs::unique() call to generate temporary file
+    char const * filename = "/tmp/test_io_iterator.tmp";
+
+    pfs::filesystem::path file_path(filename);
+    TEST_FAIL2(!file_path.empty(), "Build temporary file name");
+
+    if (pfs::filesystem::exists(file_path))
+    	pfs::filesystem::remove(file_path);
+
+    pfs::error_code ec;
+    device d;
+    TEST_FAIL((d = open_device(open_params<file>(file_path, pfs::io::write_only), ec)));
+    TEST_FAIL(d.write(hello, ::strlen(hello)) == ssize_t(::strlen(hello)));
+    TEST_FAIL(d.close());
+
+    if (1) {
+        ADD_TESTS(6);
+
+        std::cout << "*** `std::istreambuf_iterator' with `std::istringstream'\n";
+        std::istringstream in(hello);
+        std::istreambuf_iterator<char> it1(in);
+        std::istreambuf_iterator<char> last;
+
+        TEST_OK(*it1++ == 'A');
+        TEST_OK(*it1++ == 'b');
+        TEST_OK(*it1++ == 'c');
+        
+        std::istreambuf_iterator<char> it2(in);
+        
+        TEST_OK(*it2++ == 'd');
+        TEST_OK(*it2++ == 'e');
+        TEST_OK(it2 == last);
+    }
+    
+    if (1) {
+        ADD_TESTS(6);
+
+        std::cout << "*** `std::istream_iterator' with `std::istringstream'\n";
+        
+        std::istringstream in(hello);
+        std::istream_iterator<char> it1(in);
+        std::istream_iterator<char> last;
+
+        TEST_OK(*it1++ == 'A');
+        TEST_OK(*it1++ == 'b');
+        TEST_OK(*it1++ == 'c');
+        
+        std::istream_iterator<char> it2(in);
+
+        std::cout << "*it2='" << *it2 << "'\n";
+        TEST_OK(*it2++ == 'd');
+        TEST_OK(*it2++ == 'e');
+        TEST_OK(it2 == last);
+    }
+       
+    if (1) {
+        ADD_TESTS(6);
+
+        std::cout << "*** `std::istreambuf_iterator' with `std::ifstream'\n";
+        
+        std::ifstream in(filename);
+        
+        std::istreambuf_iterator<char> it1(in);
+        std::istreambuf_iterator<char> last;
+
+        TEST_OK(*it1++ == 'A');
+        TEST_OK(*it1++ == 'b');
+        TEST_OK(*it1++ == 'c');
+        
+        std::istreambuf_iterator<char> it2(in);
+
+        TEST_OK(*it2++ == 'd');
+        TEST_OK(*it2++ == 'e');
+        TEST_OK(it2 == last);
+        
+        in.close();
+    }
+    
+    if (1) {
+        ADD_TESTS(6);
+
+        std::cout << "*** `std::istream_iterator' with `std::ifstream'\n";
+        
+        std::ifstream in(filename);
+        
+        std::istream_iterator<char> it1(in);
+        std::istream_iterator<char> last;
+
+        TEST_OK(*it1++ == 'A');
+        TEST_OK(*it1++ == 'b');
+        TEST_OK(*it1++ == 'c');
+        
+        std::istream_iterator<char> it2(in);
+
+        TEST_OK(*it2++ == 'd');
+        TEST_OK(*it2++ == 'e');
+        TEST_OK(it2 == last);
+        
+        in.close();
+    }
+    
+    if (1) {
+        ADD_TESTS(8);
+
+        std::cout << "*** `pfs::io::input_iterator' with `pfs::io::device'\n";
+        
+        TEST_FAIL((d = open_device(open_params<file>(file_path, pfs::io::read_only))));
+
+        pfs::io::input_iterator<char> it(d);
+        pfs::io::input_iterator<char> last;
+
+        TEST_OK(*it++ == 'A');
+        TEST_OK(*it++ == 'b');
+        TEST_OK(*it++ == 'c');
+        TEST_OK(*it++ == 'd');
+        TEST_OK(*it++ == 'e');
+        TEST_OK(it == last);
+
+        TEST_FAIL(d.close());
+    }
+    
+    if (1) {
+        ADD_TESTS(8);
+
+        std::cout << "*** `pfs::io::input_iterator' with `pfs::io::device'\n";
+        
+        TEST_FAIL((d = open_device(open_params<file>(file_path, pfs::io::read_only))));
+
+        pfs::io::input_iterator<char> it1(d);
+        pfs::io::input_iterator<char> last;
+
+        TEST_OK(*it1++ == 'A');
+        TEST_OK(*it1++ == 'b');
+        TEST_OK(*it1++ == 'c');
+        
+        pfs::io::input_iterator<char> it2(d);
+        
+        TEST_OK(*it2++ == 'd');
+        TEST_OK(*it2++ == 'e');
+        TEST_OK(it2 == last);
+
+        TEST_FAIL(d.close());
+    }
+    
+    TEST_FAIL2(pfs::filesystem::remove(file_path), "Temporary file unlink");
+}
+
 int main(int argc, char *argv[])
 {
     PFS_UNUSED2(argc, argv);
@@ -295,6 +452,7 @@ int main(int argc, char *argv[])
     test_open_absent_file();
     test_write_read();
 //    test_bytes_available();
+    test_io_iterator();
 
     return END_TESTS;
 }

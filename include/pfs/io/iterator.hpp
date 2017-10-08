@@ -69,12 +69,7 @@ public:
     
     static void increment (input_iterator & it, difference_type)
     {
-        if (it._pd && !(it._flag & ATEND_FLAG)) {
-            it._pd->read(& it._value, sizeof(char_type));
-
-            if (it._pd->is_error())
-                throw io_exception(it._pd->errorcode());
-        }
+        it.read();
     }
     
     static bool equals (input_iterator const & it1, input_iterator const & it2)
@@ -93,14 +88,11 @@ private:
     void read ()
     {
         if (_pd) {
-            pfs::error_code ec;
-            ssize_t n = _pd->read(& _value, sizeof(char_type), ec);
+            ssize_t n = _pd->read(& _value, sizeof(char_type));
 
-            if (ec)
-                throw io_exception(ec);
+            if (n < 0)
+                throw io_exception(_pd->errorcode());
 
-            PFS_ASSERT(n >= 0);
-            
             if (n == 0) {
                 _value = 0;
                _pd = 0;

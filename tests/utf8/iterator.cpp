@@ -11,6 +11,7 @@
 #include <pfs/unicode/utf8_iterator.hpp>
 #include <string>
 #include <sstream>
+#include <fstream>
 #include "test_data.hpp"
 
 template <typename OctetIt>

@@ -41,7 +41,7 @@ StringType __read_line (OctetInputIt first, OctetInputIt last)
     utf8_input_iterator it(first, last);
     utf8_input_iterator end(last);
 
-    while (it != end || *it != '\n')
+    while (it != end && *it != '\n')
         result.push_back(*it++);
     
     return result;
