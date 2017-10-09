@@ -1,12 +1,12 @@
 /* 
- * File:   utf16_iterator.hpp
+ * File:   u16_iterator.hpp
  * Author: wladt
  *
  * Created on August 2, 2017, 10:54 AM
  */
 
-#ifndef __PFS_UTF16_ITERATOR_HPP__
-#define __PFS_UTF16_ITERATOR_HPP__
+#ifndef __PFS_UNICODE_U16_ITERATOR_HPP__
+#define __PFS_UNICODE_U16_ITERATOR_HPP__
 
 #include <pfs/iterator.hpp>
 #include <pfs/exception.hpp>
@@ -307,5 +307,5 @@ BackInsertIt utf16_iterator<CodePointIter>::encode (char_t uc, BackInsertIt it)
 
 }} // pfs::unicode
 
-#endif /* __PFS_UTF16_ITERATOR_HPP__ */
+#endif /* __PFS_UNICODE_U16_ITERATOR_HPP__ */
 

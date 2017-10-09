@@ -9,8 +9,8 @@
 #define __PFS_UNICODE_UNICODE_ITERATOR_HPP__
 
 #include <string>
-#include <pfs/unicode/utf8_iterator.hpp>
-#include <pfs/unicode/utf16_iterator.hpp>
+#include <pfs/unicode/u8_iterator.hpp>
+#include <pfs/unicode/u16_iterator.hpp>
 //#include <pfs/unicode/utf32_iterator.hpp>
 #include <pfs/limits.hpp>
 #include <pfs/type_traits.hpp>

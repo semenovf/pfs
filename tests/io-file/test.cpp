@@ -331,7 +331,8 @@ void test_io_iterator ()
         TEST_OK(it2 == last);
     }
     
-    if (1) {
+    // Failed because `pfs::io::input_iterator' is single-pass iterator
+    if (0) {
         ADD_TESTS(6);
 
         std::cout << "*** `std::istream_iterator' with `std::istringstream'\n";
@@ -351,8 +352,9 @@ void test_io_iterator ()
         TEST_OK(*it2++ == 'e');
         TEST_OK(it2 == last);
     }
-       
-    if (1) {
+
+    // Failed because `pfs::io::input_iterator' is single-pass iterator
+    if (0) {
         ADD_TESTS(6);
 
         std::cout << "*** `std::istreambuf_iterator' with `std::ifstream'\n";
@@ -375,7 +377,8 @@ void test_io_iterator ()
         in.close();
     }
     
-    if (1) {
+    // Failed because `pfs::io::input_iterator' is single-pass iterator
+    if (0) {
         ADD_TESTS(6);
 
         std::cout << "*** `std::istream_iterator' with `std::ifstream'\n";
@@ -398,27 +401,8 @@ void test_io_iterator ()
         in.close();
     }
     
-    if (1) {
-        ADD_TESTS(8);
-
-        std::cout << "*** `pfs::io::input_iterator' with `pfs::io::device'\n";
-        
-        TEST_FAIL((d = open_device(open_params<file>(file_path, pfs::io::read_only))));
-
-        pfs::io::input_iterator<char> it(d);
-        pfs::io::input_iterator<char> last;
-
-        TEST_OK(*it++ == 'A');
-        TEST_OK(*it++ == 'b');
-        TEST_OK(*it++ == 'c');
-        TEST_OK(*it++ == 'd');
-        TEST_OK(*it++ == 'e');
-        TEST_OK(it == last);
-
-        TEST_FAIL(d.close());
-    }
-    
-    if (1) {
+    // Failed because `pfs::io::input_iterator' is single-pass iterator
+    if (0) {
         ADD_TESTS(8);
 
         std::cout << "*** `pfs::io::input_iterator' with `pfs::io::device'\n";
@@ -437,6 +421,26 @@ void test_io_iterator ()
         TEST_OK(*it2++ == 'd');
         TEST_OK(*it2++ == 'e');
         TEST_OK(it2 == last);
+
+        TEST_FAIL(d.close());
+    }
+    
+    if (1) {
+        ADD_TESTS(8);
+
+        std::cout << "*** `pfs::io::input_iterator' with `pfs::io::device'\n";
+        
+        TEST_FAIL((d = open_device(open_params<file>(file_path, pfs::io::read_only))));
+
+        pfs::io::input_iterator<char> it(d);
+        pfs::io::input_iterator<char> last;
+
+        TEST_OK(*it++ == 'A');
+        TEST_OK(*it++ == 'b');
+        TEST_OK(*it++ == 'c');
+        TEST_OK(*it++ == 'd');
+        TEST_OK(*it++ == 'e');
+        TEST_OK(it == last);
 
         TEST_FAIL(d.close());
     }

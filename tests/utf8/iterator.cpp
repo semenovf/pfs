@@ -8,7 +8,7 @@
 
 #include <pfs/test/test.hpp>
 #include <pfs/unicode/unicode_iterator.hpp>
-#include <pfs/unicode/utf8_iterator.hpp>
+#include <pfs/unicode/u8_iterator.hpp>
 #include <string>
 #include <sstream>
 #include <fstream>
@@ -17,7 +17,7 @@
 template <typename OctetIt>
 void __test_input (const char * itertype)
 {
-	typedef typename pfs::unicode::utf8_input_iterator<OctetIt> utf8_input_iterator;
+	typedef typename pfs::unicode::u8_input_iterator<OctetIt> utf8_input_iterator;
 
 	int ntests = sizeof(data)/sizeof(data[0]);
 	ADD_TESTS(ntests);

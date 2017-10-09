@@ -1,12 +1,12 @@
 /* 
- * File:   utf8_iterator.hpp
+ * File:   u8_iterator.hpp
  * Author: wladt
  *
  * Created on March 30, 2017, 3:18 PM
  */
 
-#ifndef __PFS_UNICODE_UTF8_ITERATOR_HPP__
-#define __PFS_UNICODE_UTF8_ITERATOR_HPP__
+#ifndef __PFS_UNICODE_U8_ITERATOR_HPP__
+#define __PFS_UNICODE_U8_ITERATOR_HPP__
 
 #include <pfs/iterator.hpp>
 #include <pfs/unicode/char.hpp>
@@ -30,14 +30,14 @@ template <typename CodePointIter>
 struct unicode_iterator_traits;
 
 template <typename OctetInputIt, typename BrokenSeqAction = ignore_broken_sequence>
-class utf8_input_iterator : public iterator_facade<input_iterator_tag
-        , utf8_input_iterator<OctetInputIt>
+class u8_input_iterator : public iterator_facade<input_iterator_tag
+        , u8_input_iterator<OctetInputIt>
         , char_t
         , char_t *  // unused
         , char_t &> // unused
 {
     typedef iterator_facade<input_iterator_tag
-        , utf8_input_iterator<OctetInputIt>
+        , u8_input_iterator<OctetInputIt>
         , char_t
         , char_t *
         , char_t &> base_class;
@@ -52,22 +52,22 @@ private:
     static int8_t const ATEND_FLAG  = 0x01;
     static int8_t const BROKEN_FLAG = 0x02;
     
-    OctetInputIt _p;
+    OctetInputIt * _p;
     OctetInputIt _last;
     char_t       _value;
     int8_t       _flag;
 
 public:
-    utf8_input_iterator ()
+    u8_input_iterator ()
         : _flag(0)
     {}
 
-    utf8_input_iterator (OctetInputIt p, OctetInputIt last)
-        : _p(p)
+    u8_input_iterator (OctetInputIt & first, OctetInputIt last)
+        : _p(& first)
         , _last(last)
         , _flag(0)
     {
-        if (_p == _last) {
+        if (*_p == _last) {
             _flag |= ATEND_FLAG;
         } else {
             increment(*this, 1);
@@ -75,36 +75,36 @@ public:
         }
     }
     
-    utf8_input_iterator (OctetInputIt last)
-        : _p(last)
+    u8_input_iterator (OctetInputIt last)
+        : _p(0)
         , _last(last)
         , _flag(ATEND_FLAG)
     {}
 
-    operator OctetInputIt ()
-    {
-        return _p;
-    }
-    
-    OctetInputIt base () const
-    {
-        return _p;
-    }
+//    operator OctetInputIt ()
+//    {
+//        return *_p;
+//    }
+//    
+//    OctetInputIt base () const
+//    {
+//        return _p;
+//    }
 
 public:
-    static reference ref (utf8_input_iterator & it)
+    static reference ref (u8_input_iterator & it)
     {
         return it._value;
     }
     
-    static pointer ptr (utf8_input_iterator & it)
+    static pointer ptr (u8_input_iterator & it)
     {
         return & it._value;
     }
 
-    static void increment (utf8_input_iterator & it, difference_type);
+    static void increment (u8_input_iterator & it, difference_type);
 
-    static bool equals (utf8_input_iterator const & it1, utf8_input_iterator const & it2)
+    static bool equals (u8_input_iterator const & it1, u8_input_iterator const & it2)
     {
         return ((it1._flag & ATEND_FLAG) && (it2._flag & ATEND_FLAG))
                 && (it1._p == it2._p);
@@ -115,21 +115,26 @@ private:
     {
         // Broken utf-8 sequence
         _value = char_t::replacement_char;
-        _p = _last;
+        _p = 0;
         _flag |= (ATEND_FLAG | BROKEN_FLAG);
         broken_sequence_action()();
     }
 };
 
 template <typename OctetInputIt, typename BrokenSeqAction>
-void utf8_input_iterator<OctetInputIt, BrokenSeqAction>::increment (utf8_input_iterator & it, difference_type)
+void u8_input_iterator<OctetInputIt, BrokenSeqAction>::increment (u8_input_iterator & it, difference_type)
 {
-    if (it._p == it._last) {
+    if (! it._p)
+        return;
+
+    if (*it._p == it._last) {
+        it._p = 0;
         it._flag |= ATEND_FLAG;
         return;
     }
 
-    uint8_t b = code_point_cast<uint8_t>(*it._p++);
+    uint8_t b = code_point_cast<uint8_t>(**it._p);
+    ++(*it._p);
     char_t::value_type result;
     int nunits = 0;
 
@@ -157,12 +162,13 @@ void utf8_input_iterator<OctetInputIt, BrokenSeqAction>::increment (utf8_input_i
     }
 
     while (--nunits) {
-        if (it._p == it._last) {
+        if (*it._p == it._last) {
             it.broken_sequence();
             return;
         }
 
-        b = code_point_cast<uint8_t>(*it._p++);
+        b = code_point_cast<uint8_t>(**it._p);
+        ++(*it._p);
 
         if ((b & 0xC0) == 0x80) {
             result = (result << 6) | (b & 0x3F);
@@ -175,6 +181,8 @@ void utf8_input_iterator<OctetInputIt, BrokenSeqAction>::increment (utf8_input_i
     it._value = static_cast<intmax_t>(result);
 }
 
+
+// TODO OBSOLETE Must be replaced by u8_input_iterator (see above) and u8_output_iterator
 template <typename OctetInputIt>
 class utf8_iterator : public iterator_facade<bidirectional_iterator_tag
         , utf8_iterator<OctetInputIt>
@@ -459,5 +467,46 @@ BackInsertIt utf8_iterator<OctetInputIt>::encode (char_t uc, BackInsertIt it)
 
 }} // pfs::unicode
 
-#endif /* __PFS_UNICODE_UTF8_ITERATOR_HPP__ */
+namespace pfs {
+
+template <typename StringType, typename OctetInputIt>
+StringType read_line_u8 (OctetInputIt & first, OctetInputIt last)
+{
+    typedef unicode::u8_input_iterator<OctetInputIt> utf8_input_iterator;
+    
+    StringType result;
+    utf8_input_iterator it(first, last);
+    utf8_input_iterator end(last);
+    
+    while (it != end && *it != '\n') {
+        if (*it != '\r')
+            result.push_back(*it);
+        ++it;
+    }
+    
+    return result;
+}
+
+template <typename StringType, typename OctetInputIt>
+StringType read_all_u8 (OctetInputIt & first, OctetInputIt last)
+{
+    typedef unicode::u8_input_iterator<OctetInputIt> utf8_input_iterator;
+    
+    StringType result;
+    
+    utf8_input_iterator it(first, last);
+    utf8_input_iterator end(last);
+
+    while (it != end) {
+        if (*it != '\r')
+            result.push_back(*it);
+        ++it;
+    }
+    
+    return result;
+}
+
+} // pfs
+
+#endif /* __PFS_UNICODE_U8_ITERATOR_HPP__ */
 

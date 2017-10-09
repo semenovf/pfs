@@ -96,6 +96,6 @@ QByteArray u8string<QByteArray> (stdcxx_string_reference_type const & s)
     return QByteArray(s.c_str(), s.size());
 }
 
+} // pfs
 
-}
 #endif // HAVE_QT

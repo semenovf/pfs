@@ -25,6 +25,8 @@
 #include <pfs/io/file.hpp>
 #include <pfs/application/module.hpp>
 #include <pfs/application/sigslot_mapping.hpp>
+#include <pfs/unicode/u8_iterator.hpp>
+#include <pfs/io/iterator.hpp>
 
 namespace pfs {
 namespace application {
@@ -132,7 +134,7 @@ public:
      * @param path Configuration file path (JSON format).
      * @return @c true if modules registered successfully. @c false otherwise.
      */
-    template <typename JsonType, typename Ifstream>
+    template <typename JsonType>
     bool register_modules (filesystem::path const & path);
 
     /**
@@ -241,29 +243,45 @@ protected:
 	bool register_module (module_spec const & modspec);
 };
 
-template <typename JsonType, typename Ifstream>
+/**
+ * @brief Load module descriptions in JSON format from UTF-8-encoded file 
+ *        and register specified modules.
+ * @param path Path to file.
+ * @return @c true on successful loading and registration, @c false otherwise.
+ */
+template <typename JsonType>
 bool dispatcher::register_modules (filesystem::path const & path)
 {
-    if (!filesystem::exists(path)) {
-    	print_error(0, fmt("%s: File not found")(to_string<string_type>(path)).str());
-    	return false;
-    }
-
-#if __cplusplus >= 201103L
-    Ifstream is(path.native());
-#else
-    Ifstream is(path.native().c_str());
-#endif
-    
-    if (!is.good()) {
-        print_error(0, fmt("%s: Open file error")(to_string<string_type>(path)).str());
+    pfs::error_code ec;
+            
+    if (!pfs::filesystem::exists(path, ec)) {
+        if (ec) {
+            print_error(0, fmt("`%s': %s")
+                    % pfs::to_string<string_type>(path)
+                    % pfs::to_string<string_type>(ec));
+        } else {
+            print_error(0, fmt("`%s': file not found")
+                    % pfs::to_string<string_type>(path));
+        }
         return false;
     }
     
-    string_type content = read_all<string_type, Ifstream>(is);
+    pfs::io::device file = pfs::io::open_device<pfs::io::file>(
+            pfs::io::open_params<pfs::io::file>(path, pfs::io::read_only), ec);
+    
+    if (ec) {
+        print_error(0, fmt("`%s`: file open failure: %s")
+                % pfs::to_string<string_type>(path)
+                % pfs::to_string<string_type>(ec));
+        return false;
+    }
+
+    io::input_iterator<char> first(file);
+    io::input_iterator<char> last;
+    string_type content = read_all_u8<string_type>(first, last);
     
     JsonType conf;
-    error_code ec = conf.parse(content);
+    ec = conf.parse(content);
     
     if (ec) {
     	print_error(0, fmt("%s: Invalid JSON: %s")

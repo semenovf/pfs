@@ -1018,12 +1018,6 @@ inline StringType to_string (double a
             , precision);
 }
 
-template <typename StringType, typename Istream>
-StringType read_line (Istream & is);
-
-template <typename StringType, typename Istream>
-StringType read_all (Istream & is);
-
 template <typename U8StringType, typename StringType>
 U8StringType u8string (StringType const & s);
 
