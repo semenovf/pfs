@@ -693,6 +693,42 @@ string<StringImplType>::substr (const_iterator pos, size_type count) const
     return string_value_type(pos, epos);
 }
 
+template <typename StringType>
+StringType ltrim (StringType const & orig)
+{
+    typename StringType::const_iterator first = orig.cbegin();
+    while (first != orig.cend() && is_space(*first))
+        ++first;
+    return orig.substr(first, orig.cend());
+}
+
+template <typename StringType>
+StringType rtrim (StringType const & orig)
+{
+    typename StringType::const_iterator last = orig.cend();
+    while (last != orig.cbegin() && is_space(*--last))
+        ;
+    if (last != orig.cend() && last != orig.cbegin())
+        ++last;
+    return orig.substr(orig.cbegin(), last);
+}
+
+template <typename StringType>
+StringType trim (StringType const & orig)
+{
+    typename StringType::const_iterator first = orig.cbegin();
+    while (first != orig.cend() && is_space(*first))
+        ++first;
+
+    typename StringType::const_iterator last = orig.cend();
+    while (last != orig.cbegin() && is_space(*--last))
+        ;
+    if (last != orig.cend() && last != orig.cbegin())
+        ++last;
+
+    return orig.substr(first, last);
+}
+
 template <typename StringImplType>
 template <typename ForwardIt>
 string<StringImplType> const & string<StringImplType>::replace (ForwardIt first

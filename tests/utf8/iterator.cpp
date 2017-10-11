@@ -15,7 +15,7 @@
 #include "test_data.hpp"
 
 template <typename OctetIt>
-void __test_input (const char * itertype)
+void __test_input (char const * itertype)
 {
 	typedef typename pfs::unicode::u8_input_iterator<OctetIt> utf8_input_iterator;
 
@@ -23,7 +23,8 @@ void __test_input (const char * itertype)
 	ADD_TESTS(ntests);
 
 	for (int i = 0; i < ntests; ++i) {
-		utf8_input_iterator it(iter_cast<OctetIt>(data[i].text), iter_cast<OctetIt>(data[i].text) + data[i].len);
+        OctetIt first = iter_cast<OctetIt>(data[i].text);
+		utf8_input_iterator it(first, iter_cast<OctetIt>(data[i].text) + data[i].len);
         utf8_input_iterator it_end(iter_cast<OctetIt>(data[i].text) + data[i].len);
 		
 		size_t count = 0;
