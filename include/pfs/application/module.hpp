@@ -9,6 +9,7 @@
 #define __PFS_MODULE_HPP__
 
 #include <pfs/compiler.hpp>
+#include <pfs/cxxlang.hpp>
 #include <pfs/system_string.hpp>
 #include <pfs/sigslot.hpp>
 #include <pfs/atomic.hpp>
@@ -181,26 +182,48 @@ struct detector_pair
 #define PFS_MODULE_EMITTER(id, em) { id , PFS_EMITTER_CAST(em) }
 #define PFS_MODULE_DETECTOR(id, dt) { id , PFS_DETECTOR_CAST(dt) }
 
-#define PFS_MODULE_EMITTERS_BEGIN                                       \
-const pfs::application::emitter_mapping * get_emitters (int & count)    \
-{                                                                       \
+#define PFS_MODULE_EMITTERS_EXTERN                                             \
+pfs::application::emitter_mapping const *                                      \
+get_emitters (int & count) pfs_override;
+
+#define PFS_MODULE_EMITTERS_BEGIN(XMOD)                                        \
+pfs::application::emitter_mapping const *                                      \
+XMOD::get_emitters (int & count)                                               \
+{                                                                              \
 	static pfs::application::emitter_mapping __emitter_mapping[] = {
 
-#define PFS_MODULE_EMITTERS_END                                         \
-	};                                                                  \
-	count = sizeof(__emitter_mapping)/sizeof(__emitter_mapping[0]) ;    \
-	return & __emitter_mapping[0];                                      \
+#define PFS_MODULE_EMITTERS_INLINE_BEGIN                                       \
+const pfs::application::emitter_mapping *                                      \
+get_emitters (int & count) pfs_override                                        \
+{                                                                              \
+	static pfs::application::emitter_mapping __emitter_mapping[] = {
+
+#define PFS_MODULE_EMITTERS_END                                                \
+	};                                                                         \
+	count = sizeof(__emitter_mapping)/sizeof(__emitter_mapping[0]) ;           \
+	return & __emitter_mapping[0];                                             \
 }
 
-#define PFS_MODULE_DETECTORS_BEGIN                                      \
-const pfs::application::detector_mapping * get_detectors (int & count)  \
-{                                                                       \
+#define PFS_MODULE_DETECTORS_EXTERN                                            \
+const pfs::application::detector_mapping *                                     \
+get_detectors (int & count) pfs_override;
+
+#define PFS_MODULE_DETECTORS_BEGIN(XMOD)                                       \
+pfs::application::detector_mapping const *                                     \
+XMOD::get_detectors (int & count)                                              \
+{                                                                              \
 	static pfs::application::detector_mapping __detector_mapping[] = {
 
-#define PFS_MODULE_DETECTORS_END		                                \
-	};                                                                  \
-	count = sizeof(__detector_mapping)/sizeof(__detector_mapping[0]);   \
-	return & __detector_mapping[0];                                     \
+#define PFS_MODULE_DETECTORS_INLINE_BEGIN                                      \
+const pfs::application::detector_mapping *                                     \
+get_detectors (int & count) pfs_override                                       \
+{                                                                              \
+	static pfs::application::detector_mapping __detector_mapping[] = {
+
+#define PFS_MODULE_DETECTORS_END		                                       \
+	};                                                                         \
+	count = sizeof(__detector_mapping)/sizeof(__detector_mapping[0]);          \
+	return & __detector_mapping[0];                                            \
 }
 
 #endif /* __PFS_MODULE_HPP__ */

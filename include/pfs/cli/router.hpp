@@ -11,12 +11,11 @@
 #include <pfs/memory.hpp>
 #include <pfs/traits/associative_container.hpp>
 #include <pfs/stringlist.hpp>
-//#include <pfs/algorithm.hpp>
 #include <pfs/io/file.hpp>
 #include <pfs/io/iterator.hpp>
 #include <pfs/filesystem.hpp>
-#include <pfs/command.hpp>
 #include <pfs/io/iterator.hpp>
+#include <pfs/cli/command.hpp>
 
 namespace pfs {
 namespace cli {
@@ -57,10 +56,15 @@ public:
     {
         request_type rq;
         return _pcmd->parse(& rq, first, last)
-                ? _pcmd->exec(rq)
+                ? exec(rq)
                 : response_type::make(response_code::BAD_REQUEST, "invalid or incomplete command");
     }
    
+    response_type exec (request_type const & rq)
+    {
+        return _pcmd->exec(rq);
+    }
+    
     response_type usage () const
     {
         return _pcmd->usage();

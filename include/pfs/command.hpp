@@ -131,21 +131,13 @@ struct response : public PropertyTree
     static response make (pfs::error_code const & ec, string_type const & message = string_type());
 };
 
-template <typename PropertyTree, typename StringIter>
-class command
+template <typename PropertyTree>
+struct command
 {
-public:
-    typedef StringIter iterator;
     typedef request<PropertyTree> request_type;
     typedef response<PropertyTree> response_type;
     
-    virtual bool parse (request_type * rq, iterator first, iterator last) = 0;
     virtual response_type exec (request_type const & rq) = 0;
-    virtual response_type usage () const
-    {
-        return response_type::make(response_code::USAGE);
-            //.push_text("<No help usage>");
-    }
 };
 
 template <typename PropertyTree>
