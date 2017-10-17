@@ -10,6 +10,7 @@
 #define __PFS_FUNCTION_MAP_HPP__
 
 #include <pfs/type_traits.hpp>
+#include <pfs/memory.hpp>
 #include <pfs/mutex.hpp>
 #include <pfs/cxx/cxx98/binder.hpp>
 #include <pfs/traits/associative_container.hpp>
@@ -27,37 +28,39 @@ public:
     typedef R   result_type;
     
 protected:
-    struct value 
-    {
-        binder_base<void> * p;
-        
-        value (binder_base<void> * ptr) 
-            : p(ptr) 
-        {}
+    typedef pfs::shared_ptr<binder_base<void> > value_type;
 
-        value (value const & other) 
-            : p(other.p) 
-        {
-            if (p)
-                p->ref();
-        }
+//    struct value 
+//    {
+//        binder_base<void> * p;
+//        
+//        value (binder_base<void> * ptr) 
+//            : p(ptr) 
+//        {}
+//
+//        value (value const & other) 
+//            : p(other.p) 
+//        {
+//            if (p)
+//                p->ref();
+//        }
+//
+//        value & operator = (value const & other) 
+//        {
+//            this->~value();
+//            p = other.p;
+//            if (p)
+//                p->ref();
+//        }
+//        
+//        ~value ()
+//        {
+//            if (p && p->deref() == 0)
+//                delete p;
+//        }
+//    };
 
-        value & operator = (value const & other) 
-        {
-            this->~value();
-            p = other.p;
-            if (p)
-                p->ref();
-        }
-        
-        ~value ()
-        {
-            if (p && p->deref() == 0)
-                delete p;
-        }
-    };
-
-    typedef value                                value_type;
+//    typedef value                                value_type;
     typedef BasicLockable                        mutex_type;
     typedef pfs::traits::associative_container<
               pfs::traits::kv<key_type, value_type>
@@ -70,13 +73,10 @@ protected:
     mutable mutex_type _mutex;
     
 protected:
-    void insert_helper (key_type const & key, binder_base<void> * ptr)
+    void insert_helper (key_type const & key, shared_ptr<binder_base<void> > ptr)
     {
         unique_lock<mutex_type> locker(_mutex);
-        
-        value_type v(ptr);
-        _map.insert(key, v);
-        v.p = 0; // Do not destroy 
+        _map.insert(key, ptr);
     }
 
 public:
@@ -101,73 +101,73 @@ public:
     
 	void insert_function (key_type const & key, result_type (* f) ())
 	{
-		insert_helper(key, new binder_function0<result_type>(f));
+		insert_helper(key, shared_ptr<binder_base<void> >(new binder_function0<result_type>(f)));
 	}
 
   	template <typename Arg1>
 	void insert_function (key_type const & key, result_type (*f) (Arg1), Arg1 a1)
 	{
-        insert_helper(key, new binder_function1<result_type, Arg1>(f, a1));
+        insert_helper(key, shared_ptr<binder_base<void> >(new binder_function1<result_type, Arg1>(f, a1)));
 	}
 
     template <typename Arg1, typename Arg2>
 	void insert_function (key_type const & key, result_type (*f) (Arg1, Arg2), Arg1 a1, Arg2 a2)
 	{
-        insert_helper(key, new binder_function2<result_type, Arg1, Arg2>(f, a1, a2));
+        insert_helper(key, shared_ptr<binder_base<void> >(new binder_function2<result_type, Arg1, Arg2>(f, a1, a2)));
 	}
 
    	template <typename Arg1, typename Arg2, typename Arg3>
 	void insert_function (key_type const & key, result_type (*f) (Arg1, Arg2, Arg3), Arg1 a1, Arg2 a2, Arg3 a3)
 	{
-		insert_helper(key, new binder_function3<result_type, Arg1, Arg2, Arg3>(f, a1, a2, a3));
+		insert_helper(key, shared_ptr<binder_base<void> >(new binder_function3<result_type, Arg1, Arg2, Arg3>(f, a1, a2, a3)));
 	}
 
 	template <typename Arg1, typename Arg2, typename Arg3, typename Arg4>
 	void insert_function (key_type const & key, result_type (*f) (Arg1, Arg2, Arg3), Arg1 a1, Arg2 a2, Arg3 a3, Arg4 a4)
 	{
-		insert_helper(key, new binder_function4<result_type, Arg1, Arg2, Arg3, Arg4>(f, a1, a2, a3, a4));
+		insert_helper(key, shared_ptr<binder_base<void> >(new binder_function4<result_type, Arg1, Arg2, Arg3, Arg4>(f, a1, a2, a3, a4)));
 	}
 
     template <typename Arg1, typename Arg2, typename Arg3, typename Arg4, typename Arg5>
 	void insert_function (key_type const & key, result_type (*f) (Arg1, Arg2, Arg3), Arg1 a1, Arg2 a2, Arg3 a3, Arg4 a4, Arg5 a5)
 	{
-		insert_helper(key, new binder_function5<result_type, Arg1, Arg2, Arg3, Arg4, Arg5>(f, a1, a2, a3, a4, a5));
+		insert_helper(key, shared_ptr<binder_base<void> >(new binder_function5<result_type, Arg1, Arg2, Arg3, Arg4, Arg5>(f, a1, a2, a3, a4, a5)));
 	}
 
 	template <typename Class>
 	void insert_method (key_type const & key, result_type (Class::* f) (), Class * p)
 	{
-		insert_helper(key, new binder_method0<Class, result_type>(f, p));
+		insert_helper(key, shared_ptr<binder_base<void> >(new binder_method0<Class, result_type>(f, p)));
 	}
 
 	template <typename Class, typename Arg1>
 	void insert_method (key_type const & key, result_type (Class::*f) (Arg1), Class * p, Arg1 a1)
 	{
-		insert_helper(key, new binder_method1<Class, result_type, Arg1>(f, p, a1));
+		insert_helper(key, shared_ptr<binder_base<void> >(new binder_method1<Class, result_type, Arg1>(f, p, a1)));
 	}
 
 	template <typename Class, typename Arg1, typename Arg2>
 	void insert_method (key_type const & key, result_type (Class::*f) (Arg1, Arg2), Class * p, Arg1 a1, Arg2 a2)
 	{
-		insert_helper(key, new binder_method2<Class, result_type, Arg1, Arg2>(f, p, a1, a2));
+		insert_helper(key, shared_ptr<binder_base<void> >(new binder_method2<Class, result_type, Arg1, Arg2>(f, p, a1, a2)));
 	}
 
 	template <typename Class, typename Arg1, typename Arg2, typename Arg3>
 	void insert_method (key_type const & key, result_type (Class::*f) (Arg1, Arg2, Arg3), Class * p, Arg1 a1, Arg2 a2, Arg3 a3)
 	{
-		insert_helper(key, new binder_method3<Class, result_type, Arg1, Arg2, Arg3>(f, p, a1, a2, a3));
+		insert_helper(key, shared_ptr<binder_base<void> >(new binder_method3<Class, result_type, Arg1, Arg2, Arg3>(f, p, a1, a2, a3)));
 	}
 
 	template <typename Class, typename Arg1, typename Arg2, typename Arg3, typename Arg4>
 	void insert_method (key_type const & key, result_type (Class::*f) (Arg1, Arg2, Arg3), Class * p, Arg1 a1, Arg2 a2, Arg3 a3, Arg4 a4)
 	{
-		insert_helper(key, new binder_method4<Class, result_type, Arg1, Arg2, Arg3, Arg4>(f, p, a1, a2, a3, a4));
+		insert_helper(key, shared_ptr<binder_base<void> >(new binder_method4<Class, result_type, Arg1, Arg2, Arg3, Arg4>(f, p, a1, a2, a3, a4)));
 	}
 
 	template <typename Class, typename Arg1, typename Arg2, typename Arg3, typename Arg4, typename Arg5>
 	void insert_method (key_type const & key, result_type (Class::*f) (Arg1, Arg2, Arg3), Class * p, Arg1 a1, Arg2 a2, Arg3 a3, Arg4 a4, Arg5 a5)
 	{
-		insert_helper(key, new binder_method5<Class, result_type, Arg1, Arg2, Arg3, Arg4, Arg5>(f, p, a1, a2, a3, a4, a5));
+		insert_helper(key, shared_ptr<binder_base<void> >(new binder_method5<Class, result_type, Arg1, Arg2, Arg3, Arg4, Arg5>(f, p, a1, a2, a3, a4, a5)));
 	}
     
     void clear ()
@@ -257,7 +257,7 @@ public:
         if (pos != this->_map.end()) {
             locker.unlock();
 
-            (*map_type::mapped_reference(pos).p)();
+            (*map_type::mapped_reference(pos))();
            
             if (called)
                 *called = true;

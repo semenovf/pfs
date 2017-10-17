@@ -9,6 +9,8 @@
 #ifndef __PFS_BINDER_HPP__
 #define __PFS_BINDER_HPP__
 
+#include <pfs/debug.hpp>
+
 namespace pfs {
 
 template <typename T>
@@ -25,27 +27,13 @@ public:
 
 protected:
     size_t _size;
-    int    _ref;
 
     binder_base (size_t size)
         : _size(size)
-        , _ref(1)
     {}
-
-//    virtual void * placement_copy (void * ptr) const = 0;
 
 public:
     virtual ~binder_base () {}
-
-    void ref ()
-    {
-        ++_ref;
-    }
-    
-    int deref ()
-    {
-        return --_ref;
-    }
     
     size_t size () const
     {
@@ -466,9 +454,14 @@ public:
     binder_method0 (funcptr_type f, Class * p)
         : base_class(sizeof(binder_method0)
                 , reinterpret_cast<typename base_class::funcptr_type>(f), p)
-    {}
+    {
+        PFS_DEBUG(std::cout << this << "::binder_method0" << std::endl);
+    }
 
-    virtual ~binder_method0 () {}
+    virtual ~binder_method0 () 
+    {
+        PFS_DEBUG(std::cout << this << "::~binder_method0" << std::endl);
+    }
 
     virtual return_type operator () () const
     {
@@ -497,9 +490,14 @@ public:
         : base_class(sizeof(binder_method1)
                 , reinterpret_cast<typename base_class::funcptr_type>(f), p)
         , _a1(a1)
-    {}
+    {
+        PFS_DEBUG(std::cout << this << "::binder_method1" << std::endl);
+    }
 
-    virtual ~binder_method1 () {}
+    virtual ~binder_method1 () 
+    {
+        PFS_DEBUG(std::cout << this << "::~binder_method1" << std::endl);
+    }
 
     virtual return_type operator () () const
     {
@@ -530,9 +528,14 @@ public:
                 , reinterpret_cast<typename base_class::funcptr_type>(f), p)
         , _a1(a1)
         , _a2(a2)
-    {}
+    {
+        PFS_DEBUG(std::cout << this << "::binder_method2" << std::endl);
+    }
 
-    virtual ~binder_method2 () {}
+    virtual ~binder_method2 () 
+    {
+        PFS_DEBUG(std::cout << this << "::~binder_method2" << std::endl);
+    }
 
     virtual return_type operator () () const
     {
@@ -565,9 +568,14 @@ public:
         , _a1(a1)
         , _a2(a2)
         , _a3(a3)
-    {}
+    {
+        PFS_DEBUG(std::cout << this << "::binder_method3" << std::endl);
+    }
 
-    virtual ~binder_method3 () {}
+    virtual ~binder_method3 () 
+    {
+        PFS_DEBUG(std::cout << this << "::~binder_method3" << std::endl);
+    }
 
     virtual return_type operator () () const
     {
@@ -602,9 +610,14 @@ public:
         , _a2(a2)
         , _a3(a3)
         , _a4(a4)
-    {}
+    {
+        PFS_DEBUG(std::cout << this << "::binder_method4" << std::endl);
+    }
 
-    virtual ~binder_method4 () {}
+    virtual ~binder_method4 () 
+    {
+        PFS_DEBUG(std::cout << this << "::~binder_method4" << std::endl);
+    }
 
     virtual return_type operator () () const
     {
