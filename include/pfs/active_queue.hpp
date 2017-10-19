@@ -32,58 +32,6 @@ private:
     };
     
     typedef pfs::pair<int8_t, pfs::shared_ptr<binder_base<void> > > value_type;
-    
-//    struct value 
-//    {
-//        int8_t state;
-//        binder_base<void> * p;
-//        
-//        value (binder_base<void> * ptr)
-//            : state(BUSY)
-//            , p(ptr) 
-//        {
-//            PFS_DEBUG(std::cout << p << "::value(binder_base<void> * = " << ptr << ")" << std::endl);
-//        }
-//
-//        value (value const & other)
-//            : state(other.state)
-//            , p(other.p) 
-//        {
-//            if (p)
-//                p->ref();
-//            PFS_DEBUG(std::cout << p << "::value(value const & other)" << std::endl);
-//        }
-//
-//        value & operator = (value const & other)
-//        {
-//            if (this != & other) {
-//                this->~value();
-//                p = other.p;
-//                if (p)
-//                    p->ref();
-//                state = other.state;
-//
-//                PFS_DEBUG(std::cout << p << "::operator = (value const & other)" << std::endl);
-//            }
-//            
-//            return *this;
-//        }
-//        
-//        ~value ()
-//        {
-//            PFS_DEBUG(std::cout << p << "::~value()" << std::endl);
-//            
-//            if (p && p->deref() == 0) {
-//                PFS_DEBUG(std::cout << p << "::~value(): REAL DELETED" << std::endl);
-//                delete p;
-//                p = 0;
-//            }
-//        }
-//        
-//    private:
-//    };
-
-//    typedef value value_type;
     typedef BasicLockable mutex_type;
     typedef traits::sequence_container<value_type, SequenceContainer> sequence_container_type;
     typedef typename sequence_container_type::size_type size_type;
@@ -130,6 +78,7 @@ private:
         return pos;
     }
     
+private:    
     // Garbage collector
     void gc ()
     {
@@ -173,6 +122,12 @@ public:
         unique_lock<mutex_type> locker(_mutex);
 		return _sequence.size();
 	}
+
+    void clear ()
+    {
+        unique_lock<mutex_type> locker(_mutex);
+        _sequence.clear();
+    }
 
 //#if __cplusplus >= 201103L
 //#   error Implement using variadic templates    

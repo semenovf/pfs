@@ -160,8 +160,12 @@ public:
 			, void * mod_data = 0)
 	{
 		module_spec modspec = module_for_path(path, class_name, mod_data);
-		modspec.pmodule->set_name(name);
-		return register_module(modspec);
+
+        if (modspec.pmodule) {
+            modspec.pmodule->set_name(name);
+            return register_module(modspec);
+        }
+        return false;
 	}
 
 	bool register_module_for_name (string_type const & name
@@ -169,6 +173,7 @@ public:
 			, void * mod_data = 0)
 	{
 		module_spec modspec = module_for_name(name, class_name, mod_data);
+
 		if (modspec.pmodule) {
 			modspec.pmodule->set_name(name);
 			return register_module(modspec);

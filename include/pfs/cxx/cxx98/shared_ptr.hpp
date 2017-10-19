@@ -9,6 +9,47 @@
 #ifndef __PFS_CXX98_SHARED_PTR_HPP__
 #define __PFS_CXX98_SHARED_PTR_HPP__
 
+#include <pfs/compare.hpp>
+
+#if HAVE_BOOST_SMARTPTR
+
+#include <boost/shared_ptr.hpp>
+
+namespace pfs {
+
+template <typename T> class shared_ptr : public boost::shared_ptr<T>
+{
+    typedef boost::shared_ptr<T> base_class;
+
+public:
+    shared_ptr () : base_class()
+    {}
+
+    explicit shared_ptr (T * ptr) : base_class(ptr)
+    {}
+
+    template <typename Deleter>
+    shared_ptr (T * ptr, Deleter deleter) : base_class(ptr, deleter)
+    {}
+
+    template <typename U>
+    shared_ptr (shared_ptr<U> const & other, T * p) : base_class(other, p)
+    {}
+
+    shared_ptr (shared_ptr const & other) : base_class(other)
+    {}
+
+    inline shared_ptr & operator = (shared_ptr const & other)
+    {
+        base_class::operator = (other);
+        return *this;
+    }
+};
+
+} // pfs
+
+#else // !HAVE_BOOST_SMARTPTR
+
 #include <pfs/cxxlang.hpp>
 #include <pfs/utility.hpp>
 #include <pfs/atomic.hpp>
@@ -142,6 +183,13 @@ public:
     		ref();
     }
 
+    inline shared_ptr<T> & operator = (const shared_ptr<T> & other)
+    {
+        shared_ptr copy(other);
+        swap(copy);
+        return *this;
+    }
+    
     ~shared_ptr ()
     {
     	deref();
@@ -150,13 +198,6 @@ public:
     bool is_null () const
     {
     	return _value == 0;
-    }
-
-    inline shared_ptr<T> & operator = (const shared_ptr<T> & other)
-    {
-        shared_ptr copy(other);
-        swap(copy);
-        return *this;
     }
 
     T & operator * () const
@@ -223,67 +264,6 @@ public:
     	return use_count() == 1 ? true : false;
     }
 
-    // comparaison operators
-	inline bool operator == (const shared_ptr & ptr) const
-	{
-		return (_value == ptr._value);
-	}
-
-	inline bool operator == (const T * p) const
-	{
-		return (_value == p);
-	}
-
-	inline bool operator != (const shared_ptr & ptr) const
-	{
-		return (_value != ptr._value);
-	}
-
-	inline bool operator != (const T * p) const
-	{
-		return (_value != p);
-	}
-
-	inline bool operator <= (const shared_ptr & ptr) const
-	{
-		return (_value <= ptr._value);
-	}
-
-	inline bool operator <= (const T * p) const
-	{
-		return (_value <= p);
-	}
-
-	inline bool operator < (const shared_ptr & ptr) const
-	{
-		return (_value < ptr._value);
-	}
-
-	inline bool operator< (const T * p) const
-	{
-		return (_value < p);
-	}
-
-	inline bool operator >= (const shared_ptr & ptr) const
-	{
-		return (_value >= ptr._value);
-	}
-
-	inline bool operator >= (const T * p) const
-	{
-		return (_value >= p);
-	}
-
-	inline bool operator > (const shared_ptr & ptr) const
-	{
-		return (_value > ptr._value);
-	}
-
-	inline bool operator > (const T * p) const
-	{
-		return (_value > p);
-	}
-
 private:
     static void deref (ref_count * d)
     {
@@ -309,6 +289,12 @@ private:
     	++_d->strongref;
     }
 };
+
+} // namespace pfs
+
+#endif // HAVE_BOOST_SMARTPTR
+
+namespace pfs {
 
 template <typename T>
 inline shared_ptr<T> make_shared () { return shared_ptr<T>(new T); }
@@ -364,6 +350,42 @@ inline shared_ptr<T> reinterpret_pointer_cast (const shared_ptr<T1> & r)
 	return shared_ptr<T>(r, reinterpret_cast<T*>(r.get()));
 }
 
-} // namespace pfs
+template <typename T, typename U>
+inline bool operator == (shared_ptr<T> const & a, shared_ptr<U> const & b)
+{
+     return a.get() == b.get();
+}
+
+template <typename T, typename U>
+inline bool operator < (shared_ptr<T> const & a, shared_ptr<U> const & b)
+{
+    return a.get() < b.get();
+}
+
+template <typename T>
+inline bool operator == (shared_ptr<T> const & a, void const * b)
+{
+     return a.get() == b;
+}
+
+template <typename T>
+inline bool operator < (shared_ptr<T> const & a, void const * b)
+{
+    return a.get() < b;
+}
+
+template <typename T>
+inline bool operator == (void const * a, shared_ptr<T> const & b)
+{
+     return a == b.get();
+}
+
+template <typename T>
+inline bool operator < (void const * a, shared_ptr<T> const & b)
+{
+    return a < b.get();
+}
+
+} // pfs
 
 #endif /* __PFS_CXX98_SHARED_PTR_HPP__ */

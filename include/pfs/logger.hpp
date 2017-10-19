@@ -50,7 +50,7 @@ struct priority
         return *this;
     }
     
-    operator int ()
+    operator int () const
     {
         return value;
     }

@@ -16,6 +16,8 @@
 #include <pfs/thread.hpp>
 #include <pfs/traits/stdcxx/deque.hpp>
 #include <pfs/active_queue.hpp>
+#include <pfs/memory.hpp>
+#include <pfs/byte_string.hpp>
 
 #include <iostream>
 
@@ -283,12 +285,20 @@ class producer3
 public:
 	producer3 () {}
 
+    void method1 (pfs::shared_ptr<pfs::byte_string> data)
+    {
+        (void)data;
+        ++cons3_counter;
+    }
+    
 	void run()
 	{
         int i = 0;
         
 		while (! is_finish) {
             q.push_function(& func3, i++, 'W');
+            ++prod3_counter;
+            q.push_method(& producer3::method1, this, pfs::shared_ptr<pfs::byte_string>(new pfs::byte_string("DATA")));
             ++prod3_counter;
         }
 	}

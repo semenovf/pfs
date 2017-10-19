@@ -3,6 +3,9 @@
 project "test-algo-between"
     test_project("algo-between", {})
 
+project "test-smart_ptr"
+    test_project("smart_ptr", {"pfs"})
+
 project "test-iterator"
     test_project("iterator", {})
 
