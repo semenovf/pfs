@@ -28,39 +28,7 @@ public:
     typedef R   result_type;
     
 protected:
-    typedef pfs::shared_ptr<binder_base<void> > value_type;
-
-//    struct value 
-//    {
-//        binder_base<void> * p;
-//        
-//        value (binder_base<void> * ptr) 
-//            : p(ptr) 
-//        {}
-//
-//        value (value const & other) 
-//            : p(other.p) 
-//        {
-//            if (p)
-//                p->ref();
-//        }
-//
-//        value & operator = (value const & other) 
-//        {
-//            this->~value();
-//            p = other.p;
-//            if (p)
-//                p->ref();
-//        }
-//        
-//        ~value ()
-//        {
-//            if (p && p->deref() == 0)
-//                delete p;
-//        }
-//    };
-
-//    typedef value                                value_type;
+    typedef pfs::shared_ptr<binder_base<void> >  value_type;
     typedef BasicLockable                        mutex_type;
     typedef pfs::traits::associative_container<
               pfs::traits::kv<key_type, value_type>
