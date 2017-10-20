@@ -5,33 +5,64 @@
  * Created on Apr 27, 2017
  */
 
-#ifndef __PFS_TRAITS_DB_SQLITE3_DATABASE_HPP__
-#define __PFS_TRAITS_DB_SQLITE3_DATABASE_HPP__
+#ifndef __PFS_DB_SQLITE3_DATABASE_HPP__
+#define __PFS_DB_SQLITE3_DATABASE_HPP__
 
-#include <sqlite3.h>
+#include <pfs/system_error.hpp>
 #include <pfs/net/uri.hpp>
-#include <pfs/traits/db/sqlite3/tag.hpp>
-#include <pfs/traits/db/database.hpp>
+#include <pfs/db/exception.hpp>
+#include <pfs/db/sqlite3/sqlite3.h>
 
 namespace pfs {
 namespace db {
+namespace sqlite3 {
 
-template <typename StringT>
-struct database_rep<StringT, sqlite3_tag>
+template <typename StringType>
+struct database
 {
-    typedef traits::string<StringT>   string_type;
-    typedef traits::c_str<StringT>    c_str;
-    typedef db::exception<StringT>    exception;
+    static int const MAX_BUSY_TIMEOUT = 1000; // 1 second
 
-    database_rep ()
-        : _handle(0)
-    {}
-    
-    bool open (string_type const & uri);
-    void close ();
-    
+    typedef StringType string_type;
+    typedef struct sqlite3 *  native_handle;
+
 private:
-    sqlite3 * _handle;
+    native_handle _h;
+    
+public:
+    database () : _h(0) {}
+    
+    bool open (string_type const & uri, error_code & ec);
+    bool close ();
+
+    bool opened () const
+    {
+        return _h != 0;
+    }
+    
+    bool query (char const * sql, pfs::error_code & ec, string_type * errstr);
+    
+    bool query (string_type const & sql, pfs::error_code & ec, string_type * errstr)
+    {
+        return query(u8string<std::string>(sql).c_str(), ec, errstr);
+    }
+    
+	bool begin ()
+    {
+        pfs::error_code ec;
+        return query("BEGIN", ec, 0);
+    }
+    
+	bool commit ()
+    {
+        pfs::error_code ec;
+        return query("COMMIT", ec, 0);
+    }
+    
+	bool rollback ()
+    {
+        pfs::error_code ec;
+        return query("ROLLBACK", ec, 0);
+    }
 };
 
 /**
@@ -78,80 +109,77 @@ private:
  *
  * @note  Autocommit mode is on by default.
  */
-template <typename StringT>
-bool
-database_traits<StringT, sqlite3_tag>::open (string_type const & uristr)
+template <typename StringType>
+bool database<StringType>::open (string_type const & uristr, error_code & ec)
 {
-    pfs::net::uri<StringT> uri
+    pfs::net::uri<StringType> uri;
     
-    if (! uri.starts_with(string_type("sqlite3:"))) {
-        throw exception_type(string_type("bad database URI"));
+    if (! uristr.starts_with(string_type("sqlite3:"))) {
+        ec = make_error_code(db_errc::bad_uri);
+        return false;
     }
 
-	int rc        = SQLITE_OK;
-	int flags     = SQLITE_OPEN_URI;
-	int flag_mode = SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE;
-
-	pfs::map<pfs::string, pfs::string>::const_iterator mode = params.find(string_type("mode"));
-
-	if (mode != params.cend()) {
-		if (mode->second == "ro")
-			flag_mode = SQLITE_OPEN_READONLY;
-		else if (mode->second == "rw")
-			flag_mode = SQLITE_OPEN_READWRITE;
-		else if (mode->second == "rwc")
-			flag_mode = SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE;
-		else if (mode->second == "memory")
-			flag_mode = SQLITE_OPEN_MEMORY;
-	}
-
-	flags |= flag_mode;
-
-    rc = sqlite3_open_v2(path.c_str(), & dbh_native, s3_flags, NULL);
+    if (!uri.parse(uristr)) {
+        ec = make_error_code(db_errc::bad_uri);
+        return false;
+    }
+    
+	int rc = sqlite3_open_v2(u8string<std::string>(uri.path()).c_str(), & _h, SQLITE_OPEN_URI, NULL);
 
 	if (rc != SQLITE_OK) {
-		if (!dbh_native) {
-			errstr = _u8(_Tr("Unable to allocate memory for database handler."));
-			errstr << _Tr("Internal error code: ") << pfs::string::number(rc);
+		if (!_h) {
+            // Unable to allocate memory for database handler.
+            // Internal error code.
+            ec = make_error_code(db_errc::bad_alloc);
 		} else {
-			switch( rc ) {
-				case SQLITE_CANTOPEN:
-					errstr << _Tr("Unable to open the database file. Try to check path ") << path;
-					break;
-				default: break;
+			switch (rc) {
+            case SQLITE_CANTOPEN:
+                ec = make_error_code(db_errc::open_fail);
+                return false;
+            default: break;
 			}
-			sqlite3_close(dbh_native);
-			dbh_native = nullptr;
+			sqlite3_close_v2(_h);
+			_h = 0;
 		}
-	} else {
-		PFS_ASSERT(__dbd);
-		dbh = new Sqlite3DbHandler;
 
+        return false;
+	} else {
 		// TODO what for this call ?
-		sqlite3_busy_timeout(dbh_native, MaxSqlTimeout);
+		sqlite3_busy_timeout(_h, MAX_BUSY_TIMEOUT);
 
 		// Enable extended result codes
-		sqlite3_extended_result_codes(dbh_native, 1);
-
-		dbh->_driver = __dbd;
-		dbh->_dbh_native = dbh_native;
-	}
-
-	if (dbh) {
-		pfs::auto_lock<> lock(& __mutex);
-		++__refs;
+		sqlite3_extended_result_codes(_h, 1);
 	}
 
     return true;
 }
 
-//template <typename StringT>
-//void database_traits<StringT, sqlite3_rep>::xclose (data_type & d)
-//{
-//    
-//}
+template <typename StringType>
+inline bool database<StringType>::close ()
+{
+	int rc = sqlite3_close_v2(_h);
+    _h = 0;
+    return rc == SQLITE_OK;
+}
 
-}} // pfs::db
+template <typename StringType>
+bool database<StringType>::query (char const * sql, pfs::error_code & ec, string_type * errstr)
+{
+	char * errmsg;
+	int rc = sqlite3_exec(_h, sql, NULL, NULL, & errmsg);
 
-#endif /* __PFS_TRAITS_DB_SQLITE3_DATABASE_HPP__ */
+	if (SQLITE_OK != rc) {
+		if (errmsg && errstr) {
+			*errstr = errmsg;
+			sqlite3_free(errmsg);
+		}
+		return false;
+	}
+
+	return true;
+}
+
+}}} // pfs::db::sqlite3
+
+#endif /* __PFS_DB_SQLITE3_DATABASE_HPP__ */
 

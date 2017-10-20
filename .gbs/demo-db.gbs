@@ -1,0 +1,12 @@
+kind        "ConsoleApp"
+language    "C++"
+targetname  "demo-db"
+targetdir   "../../.build"
+files       { "../src/demo-db/*.cpp" }
+links       { "pfs", PFS_LINKS }
+
+configuration "debug"
+    objdir ".cache/demo/db/debug"
+
+configuration "release"
+    objdir ".cache/demo/db/release"

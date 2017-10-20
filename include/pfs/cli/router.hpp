@@ -60,7 +60,7 @@ public:
                 : response_type::make(response_code::BAD_REQUEST, "invalid or incomplete command");
     }
    
-    response_type exec (request_type const & rq)
+    response_type exec (request_type const & rq) const
     {
         return _pcmd->exec(rq);
     }
@@ -201,9 +201,9 @@ public:
             _sout << cmd << "\n";
     }
     
-    void print_response (response_type const & rp);
+    void print_response (response_type const & rp) const;
 
-    void print_usage (response_type const & rp)
+    void print_usage (response_type const & rp) const
     {
         print_response(rp);
     }
@@ -259,7 +259,7 @@ router<RouteType, Ostream, AssociativeContainerTraits>::find (iterator & first, 
 template <typename RouteType
         , typename Ostream
         , template <typename> class AssociativeContainerTraits>
-void router<RouteType, Ostream, AssociativeContainerTraits>::print_response (response_type const & rp)
+void router<RouteType, Ostream, AssociativeContainerTraits>::print_response (response_type const & rp) const
 {
     ostream_type * out = & _sout;
             

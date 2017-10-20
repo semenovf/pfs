@@ -137,7 +137,7 @@ struct command
     typedef request<PropertyTree> request_type;
     typedef response<PropertyTree> response_type;
     
-    virtual response_type exec (request_type const & rq) = 0;
+    virtual response_type exec (request_type const & rq) const = 0;
 };
 
 template <typename PropertyTree>

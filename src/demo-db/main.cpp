@@ -1,26 +1,32 @@
 #include <iostream>
-#include <pfs/foundation/cxx/stdcxx/string.hpp>
-#include <pfs/foundation/cxx/stdcxx/string_builder.hpp>
-#include <pfs/foundation/db/psql/database.hpp>
+#include <pfs/traits/stdcxx/string.hpp>
+#include <pfs/string.hpp>
+#include <pfs/db/sqlite3/database.hpp>
+#include <pfs/db/database.hpp>
 
 using std::cout;
 using std::cerr;
 using std::endl;
+
+typedef pfs::string<pfs::stdcxx::string> string_t;
+typedef pfs::db::database_traits<string_t, pfs::db::sqlite3::database> database_traits_t;
+typedef pfs::db::database<database_traits_t> db_t;
 
 
 // Prerequisites:
 //      * PostgreSQL must be installed
 //      * role `postgres`
 
-typedef pfs::db::database<char, pfs::db::postgresql_tag> database;
-
-int main (int argc, char * argv[])
+int main ()
 {
+    // Attempt open non-exists database for read write (by default)
+    // Throws exception (test.db no such database file)
+    //
     try {
-        database db;
-        db.open("postgresql://");
+        db_t db;
+        db.open("sqlite3://nonexists.db");
         db.close();
-    } catch (database::exception ex) {
+    } catch (pfs::db_exception ex) {
         cerr << ex.what() << endl;
         return 1;
     }
