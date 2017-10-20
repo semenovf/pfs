@@ -109,13 +109,13 @@ void test_string_to_int ()
     // "-1", static_cast<uintmax_t>(-1), 0);
     
     TEST_OK((__test_string_to_int<int32_t, StringT>( "2147483647", 10,  2147483647L, 0, 0)));
-    TEST_OK((__test_string_to_int<int32_t, StringT>("-2147483648", 10, -2147483648L, 0, 0)));
+    TEST_OK((__test_string_to_int<int32_t, StringT>("-2147483648", 10, -2147483647L - 1, 0, 0)));
     
     TEST_OK((__test_string_to_int<int32_t, StringT>( "2147483648", 10,  214748364L, 1, 1)));
     TEST_OK((__test_string_to_int<int32_t, StringT>("-2147483649", 10, -214748364L, -1, 1)));
 
     TEST_OK((__test_string_to_int<int32_t, StringT>( "7FFFFFFF", 16,  2147483647L, 0, 0)));
-    TEST_OK((__test_string_to_int<int32_t, StringT>( "80000000", 16, -2147483648L, 0, 0)));
+    TEST_OK((__test_string_to_int<int32_t, StringT>( "80000000", 16, -2147483647L - 1, 0, 0)));
     TEST_OK((__test_string_to_int<int32_t, StringT>( "FFFFFFFF", 16, -1L, 0, 0)));
     
 #if PFS_HAVE_INT64

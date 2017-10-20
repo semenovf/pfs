@@ -8,6 +8,8 @@
 #ifndef __PFS_CXX98_TYPE_TRAITS_HPP__
 #define __PFS_CXX98_TYPE_TRAITS_HPP__
 
+#include <pfs/types.hpp>
+
 namespace pfs {
 
 template <typename T, T v>
@@ -562,7 +564,7 @@ template <> struct make_unsigned<unsigned long const> { typedef unsigned long co
 template <> struct make_unsigned<unsigned long volatile> { typedef unsigned long volatile type; };
 template <> struct make_unsigned<unsigned long const volatile> { typedef unsigned long const volatile type; };
 
-#if PFS_HAVE_LONG_LONG
+#if PFS_HAVE_LONGLONG
 template <> struct make_unsigned<long long> { typedef unsigned long long type; };
 template <> struct make_unsigned<long long const> { typedef unsigned long long const type; };
 template <> struct make_unsigned<long long volatile> { typedef unsigned long long volatile type; };
@@ -616,7 +618,7 @@ template <> struct make_signed<unsigned long const> { typedef signed long const 
 template <> struct make_signed<unsigned long volatile> { typedef signed long volatile type; };
 template <> struct make_signed<unsigned long const volatile> { typedef signed long const volatile type; };
 
-#if PFS_HAVE_LONG_LONG
+#if PFS_HAVE_LONGLONG
 template <> struct make_signed<long long> { typedef signed long long type; };
 template <> struct make_signed<long long const> { typedef signed long long const type; };
 template <> struct make_signed<long long volatile> { typedef signed long long volatile type; };

@@ -919,7 +919,7 @@ bool uri<StringType>::parse (typename string_type::const_iterator first
 
     _d.clear();
     
-	fsm_type fsm(*grammar.p_uri_tr, & _d);
+	fsm_type fsm(grammar.p_uri_tr, & _d);
 	typename fsm_type::result_type r = fsm.exec(0, first, last);
 
     if (r.first && r.second == last)

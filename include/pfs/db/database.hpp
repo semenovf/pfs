@@ -14,10 +14,10 @@
 namespace pfs {
 namespace db {
 
-template <typename StringImplType, template <typename> class DatabaseRep>
+template <typename StringType, template <typename> class DatabaseRep>
 struct database_traits
 {
-    typedef string<StringImplType>   string_type;
+    typedef StringType               string_type;
     typedef db_exception             exception_type;
     typedef DatabaseRep<string_type> rep_type;
 };
@@ -47,11 +47,11 @@ private:
 public:
     database () : _d() {}
     
-    bool open (string_type const & uri, pfs::error_code & ec)
+    bool open (string_type const & uri, error_code & ec)
     {
         return _d.open(uri, ec);
     }
-    
+
     bool open (string_type const & uri)
     {
         pfs::error_code ec;

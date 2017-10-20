@@ -9,7 +9,6 @@
 #include "pfs/test/test.hpp"
 #include "pfs/string.hpp"
 #include "pfs/net/uri.hpp"
-#include "pfs/net/uri_parse.hpp"
 #include "pfs/traits/stdcxx/string.hpp"
 
 // Enabled by `qt_enable`

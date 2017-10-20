@@ -238,5 +238,7 @@ public:
 
 }} // pfs::net
 
+#include <pfs/net/uri_parse.hpp>
+
 #endif /* __PFS_NET_URI_HPP__ */
 
