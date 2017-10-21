@@ -139,7 +139,7 @@ public:
     template <typename Source>
     basic_path & operator = (Source const & source)
     {
-        _d.operator = <Source>(source);
+        _d.template operator = <Source>(source);
         return *this;
     }
     
@@ -156,14 +156,14 @@ public:
     template <typename Source>
     basic_path & assign (Source const & source)
     {
-        _d.assign<Source>(source);
+        _d.template assign<Source>(source);
         return *this;
     }
 
     template <typename InputIt>
     basic_path & assign (InputIt first, InputIt last)
     {
-        _d.assign<InputIt>(first, last);
+        _d.template assign<InputIt>(first, last);
         return *this;
     }
     
@@ -179,21 +179,21 @@ public:
     template <typename Source>
     basic_path & operator /= (Source const & source)
     {
-        _d.operator /= <Source> (source);
+        _d.template operator /= <Source> (source);
         return *this;
     }
     
     template <typename Source>
     basic_path & append (Source const & source)
     {
-        _d.append<Source>(source);
+        _d.template append<Source>(source);
         return *this;
     }
     
     template <typename InputIt>
     basic_path & append (InputIt first, InputIt last)
     {
-        _d.append<InputIt>(first, last);
+        _d.template append<InputIt>(first, last);
         return *this;
     }
 
@@ -227,14 +227,14 @@ public:
     template <typename Source>
     basic_path & operator += (Source const & source)
     {
-        _d.operator += <Source> (source);
+        _d.template operator += <Source> (source);
         return *this;
     }
     
     template <typename CharT>
     basic_path & operator += (CharT x)
     {
-        _d.operator += <CharT> (x);
+        _d.template operator += <CharT> (x);
         return *this;
         
     }
@@ -242,14 +242,14 @@ public:
     template <typename Source>
     basic_path & concat (Source const & source)
     {
-        _d.concat<Source>(source);
+        _d.template concat<Source>(source);
         return *this;
     }
     
     template <typename InputIt>
     basic_path & concat (InputIt first, InputIt last)
     {
-        _d.concat<InputIt>(first, last);
+        _d.template concat<InputIt>(first, last);
         return *this;
     }
     

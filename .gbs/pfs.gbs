@@ -15,3 +15,6 @@ filter "platforms:unix* or elbrus*"
         , "../src/pfs/io/posix/*.cpp"
         , "../src/pfs/application/posix/*.cpp"
     }
+
+filter { "files:../src/pfs/db/sqlite3.c" }
+    buildoptions { "-Wno-implicit-fallthrough" }

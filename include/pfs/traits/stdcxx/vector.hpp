@@ -284,7 +284,7 @@ public:
     template <typename InputIt>
     iterator insert (const_iterator pos, InputIt first, InputIt last)
     {
-        return _p->insert<InputIt>(pos, first, last);
+        return _p->template insert<InputIt>(pos, first, last);
     }
 
 #if __cplusplus >= 201103L

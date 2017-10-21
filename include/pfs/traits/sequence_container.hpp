@@ -53,7 +53,7 @@ public:
     template <typename InputIt>
     void assign (InputIt first, InputIt last)
     {
-        base_class::_p.assign<InputIt>(first, last);
+        base_class::_p.template assign<InputIt>(first, last);
     }
 
 #if __cplusplus >= 201103L
@@ -143,7 +143,7 @@ public:
     template <typename InputIt>
     iterator insert (const_iterator pos, InputIt first, InputIt last)
     {
-        return base_class::_p.insert<InputIt>(pos, first, last);
+        return base_class::_p.template insert<InputIt>(pos, first, last);
     }
     
 #if __cplusplus >= 201103L
