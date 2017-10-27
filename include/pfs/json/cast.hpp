@@ -66,7 +66,7 @@ struct cast_traits_basic<bool, bool, JsonType>
     
     static bool cast (typename JsonType::string_type const & v)
     {
-        return pfs::lexical_cast<bool>(v);
+        return v == "true" ? true : false;
     }
     
     static bool cast (typename JsonType::array_type const & v)

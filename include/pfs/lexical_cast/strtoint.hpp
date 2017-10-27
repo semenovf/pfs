@@ -268,7 +268,7 @@ IntT string_to_int (CharIteratorT beginpos
             , & sign
             , & overflow);
 
-    uintmax_type abs_min = static_cast<uintmax_type>(-1 * numeric_limits<IntT>::min());
+    uintmax_type abs_min = -static_cast<uintmax_type>(numeric_limits<IntT>::min());
     uintmax_type abs_max = static_cast<uintmax_type>(numeric_limits<IntT>::max());
 
     if (sign > 0 && unsigned_result > abs_max) {

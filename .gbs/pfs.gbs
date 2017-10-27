@@ -16,5 +16,8 @@ filter "platforms:unix* or elbrus*"
         , "../src/pfs/application/posix/*.cpp"
     }
 
-filter { "files:../src/pfs/db/sqlite3.c" }
+--filter { "action:gmake*", "files:../src/pfs/db/sqlite3.c" }
+--    buildoptions { "-Wno-implicit-fallthrough" }
+filter { "action:gmake*", "files:**/sqlite3.c" }
     buildoptions { "-Wno-implicit-fallthrough" }
+

@@ -138,6 +138,9 @@ struct command
     typedef response<PropertyTree> response_type;
     
     virtual response_type exec (request_type const & rq) const = 0;
+    
+    // TODO For future implementation of do/undo functionality
+    virtual response_type undo (request_type const & /*rq*/) const { return response_type::make(); }
 };
 
 template <typename PropertyTree>

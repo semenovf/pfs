@@ -157,10 +157,10 @@ void test1 ()
 	ADD_TESTS(4);
 	std::cout << "\n\nTesting with pointer\n";
 
-    TEST_FAIL((testCase<void *  , StringImplType>("%p" , "%p", (void *)0xabcd)));
-    TEST_FAIL((testCase<int *   , StringImplType>("%p" , "%p", (int *)0xabcd)));
-    TEST_FAIL((testCase<long *  , StringImplType>("%p" , "%p", (long *)0xabcd)));
-    TEST_FAIL((testCase<double *, StringImplType>("%p" , "%p", (double *)0xabcd)));
+    TEST_FAIL((testCase<void *  , StringImplType>("%p" , "%p", reinterpret_cast<void *>(0xabcd))));
+    TEST_FAIL((testCase<int *   , StringImplType>("%p" , "%p", reinterpret_cast<int *>(0xabcd))));
+    TEST_FAIL((testCase<long *  , StringImplType>("%p" , "%p", reinterpret_cast<long *>(0xabcd))));
+    TEST_FAIL((testCase<double *, StringImplType>("%p" , "%p", reinterpret_cast<double *>(0xabcd))));
 }
 
 
@@ -341,8 +341,10 @@ void test3 ()
 
 #ifdef HAVE_QT
 	sw.start();
-	for (int i = loop; i > 0; --i)
-		QString("Hey, %1 frobnicators and %2 twiddlicators\n").arg(i).arg(i);
+	for (int i = loop; i > 0; --i) {
+		QString s = QString("Hey, %1 frobnicators and %2 twiddlicators\n").arg(i).arg(i);
+        (void)s;
+    }
 	ellapsed_qstring = sw.ellapsed();
 #endif
 
