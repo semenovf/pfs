@@ -124,7 +124,12 @@ bool database<StringType>::open (string_type const & uristr, error_code & ec)
         return false;
     }
     
-	int rc = sqlite3_open_v2(u8string<std::string>(uri.path()).c_str(), & _h, SQLITE_OPEN_URI, NULL);
+    int flags = SQLITE_OPEN_URI;
+
+    if (uri.query().find("mode=") == uri.query().cend())
+        flags |= SQLITE_OPEN_READONLY;
+    
+	int rc = sqlite3_open_v2(u8string<std::string>(uri.path()).c_str(), & _h, flags, NULL);
 
 	if (rc != SQLITE_OK) {
 		if (!_h) {
@@ -136,7 +141,9 @@ bool database<StringType>::open (string_type const & uristr, error_code & ec)
             case SQLITE_CANTOPEN:
                 ec = make_error_code(db_errc::open_fail);
                 return false;
-            default: break;
+            default:
+                ec = make_error_code(db_errc::internal_error);
+                break;
 			}
 			sqlite3_close_v2(_h);
 			_h = 0;

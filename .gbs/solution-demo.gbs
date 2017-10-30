@@ -3,9 +3,6 @@
 --project "demo-sfinae"
 --    include("demo-sfinae/project.gbs")
 
-project "demo-db"
-    include("demo-db.gbs")
-
 project "demo-logger"
     include("demo-logger.gbs")
 

@@ -95,6 +95,16 @@ public:
     }
 };
 
+inline path temp_directory_path ()
+{
+    return std::filesystem::temp_directory_path();
+}
+
+inline path temp_directory_path (error_code & ec)
+{
+    return std::filesystem::temp_directory_path(ec);
+}
+
 #if __COMMENT__
 class path : public std::experimental::filesystem::path
 {

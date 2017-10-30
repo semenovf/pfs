@@ -57,7 +57,7 @@ public:
         pfs::error_code ec;
 
         if (!open(uri, ec))
-            throw db_exception(ec, "bad database URI");
+            throw db_exception(ec);
 
         return true;
     }

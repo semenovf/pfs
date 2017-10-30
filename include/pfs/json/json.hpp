@@ -302,43 +302,7 @@ public:
         : _d(v)
     {}
 
-    json & assign (json const & other) 
-    {
-        this->~json();
-        
-        switch (other._d.type) {
-        case data_type::null:
-            _d = rep_type();
-            break;
-
-        case data_type::boolean:
-            _d = rep_type(other._d.boolean);
-            break;
-
-        case data_type::integer:
-        case data_type::uinteger:
-            _d = rep_type(other._d.integer);
-            break;
-
-        case data_type::real:
-            _d = rep_type(other._d.real);
-            break;
-
-        case data_type::string:
-            _d = rep_type(*other._d.string);
-            break;
-
-        case data_type::array:
-            _d = rep_type(*other._d.array);
-            break;
-
-        case data_type::object:
-            _d = rep_type(*other._d.object);
-            break;
-        }
-        
-        return *this;
-    }
+    json & assign (json const & other);
     
     json (json const & other)
     {
@@ -775,316 +739,369 @@ public:
         lhs.swap(rhs);
     }
     
-    friend bool operator == (json const & lhs, json const & rhs)
-    {
-        if (& lhs == & rhs)
-            return true;
-        
-        if (lhs.type() != rhs.type())
+    template <typename U>
+    friend bool operator == (json<U> const & lhs, json<U> const & rhs);
+    
+    //friend pfs::byte_ostream & operator << (pfs::byte_ostream & os, json const & v)
+    //friend pfs::byte_istream & operator >> (pfs::byte_istream & is, json & v);
+    
+    string_type to_string () const;
+};
+
+template <typename Traits>
+json<Traits> & json<Traits>::assign (json const & other)
+{
+    this->~json();
+
+    switch (other._d.type) {
+    case data_type::null:
+        _d = rep_type();
+        break;
+
+    case data_type::boolean:
+        _d = rep_type(other._d.boolean);
+        break;
+
+    case data_type::integer:
+    case data_type::uinteger:
+        _d = rep_type(other._d.integer);
+        break;
+
+    case data_type::real:
+        _d = rep_type(other._d.real);
+        break;
+
+    case data_type::string:
+        _d = rep_type(*other._d.string);
+        break;
+
+    case data_type::array:
+        _d = rep_type(*other._d.array);
+        break;
+
+    case data_type::object:
+        _d = rep_type(*other._d.object);
+        break;
+    }
+
+    return *this;
+}
+
+template <typename Traits>
+bool operator == (json<Traits> const & lhs, json<Traits> const & rhs)
+{
+    if (& lhs == & rhs)
+        return true;
+
+    if (lhs.type() != rhs.type())
+        return false;
+
+    switch (lhs.type()) {
+    case data_type::null:
+        break;
+
+    case data_type::boolean:
+        if (lhs._d.boolean != rhs._d.boolean)
+            return false;
+        break;
+
+    case data_type::integer:
+    case data_type::uinteger:
+        if (lhs._d.integer != rhs._d.integer)
+            return false;
+        break;
+
+    case data_type::real:
+        if (lhs._d.real != rhs._d.real)
+            return false;
+        break;
+
+    case data_type::string: {
+        if (*lhs._d.string != *rhs._d.string)
+            return false;
+        break;
+    }
+
+    case data_type::array: {
+        if (lhs._d.array->size() != rhs._d.array->size())
             return false;
 
-        switch (lhs.type()) {
-        case data_type::null:
-            break;
+        typename json<Traits>::const_iterator itl  = lhs.cbegin();
+        typename json<Traits>::const_iterator last = lhs.cend();
+        typename json<Traits>::const_iterator itr  = rhs.cbegin();
 
-        case data_type::boolean:
-            if (lhs._d.boolean != rhs._d.boolean)
-                return false;
-            break;
-
-        case data_type::integer:
-        case data_type::uinteger:
-            if (lhs._d.integer != rhs._d.integer)
-                return false;
-            break;
-
-        case data_type::real:
-            if (lhs._d.real != rhs._d.real)
-                return false;
-            break;
-
-        case data_type::string: {
-            if (*lhs._d.string != *rhs._d.string)
-                return false;
-            break;
-        }
-
-        case data_type::array: {
-            if (lhs._d.array->size() != rhs._d.array->size())
-                return false;
-            
-            json::const_iterator itl  = lhs.cbegin();
-            json::const_iterator last = lhs.cend();
-            json::const_iterator itr  = rhs.cbegin();
-
-            for (; itl != last; ++itl, ++itr)
-                if (*itl != *itr)
-                    return false;
-
-            break;
-        }
-        
-        case data_type::object: {
-            if (lhs._d.object->size() != rhs._d.object->size())
+        for (; itl != last; ++itl, ++itr)
+            if (*itl != *itr)
                 return false;
 
-            json::const_iterator itl  = lhs.cbegin();
-            json::const_iterator last = lhs.cend();
-            json::const_iterator itr  = rhs.cbegin();
-
-            for (; itl != last; ++itl, ++itr) {
-                if (itl.key() != itr.key())
-                    return false;
-
-                if (*itl != *itr)
-                    return false;
-            }
-
-            break;
-        }}
-        
-        return true;
+        break;
     }
-    
-    friend bool operator != (json const & lhs, json const & rhs)
-    {
-        return !(lhs == rhs);
+
+    case data_type::object: {
+        if (lhs._d.object->size() != rhs._d.object->size())
+            return false;
+
+        typename json<Traits>::const_iterator itl  = lhs.cbegin();
+        typename json<Traits>::const_iterator last = lhs.cend();
+        typename json<Traits>::const_iterator itr  = rhs.cbegin();
+
+        for (; itl != last; ++itl, ++itr) {
+            if (itl.key() != itr.key())
+                return false;
+
+            if (*itl != *itr)
+                return false;
+        }
+
+        break;
+    }}
+
+    return true;
+}
+
+template <typename Traits>
+inline bool operator != (json<Traits> const & lhs, json<Traits> const & rhs)
+{
+    return !(lhs == rhs);
+}
+
+
+// TODO Need to be portable.
+// Provide serialization of scalar type sizes too with scalar values
+//
+template <typename Traits>
+pfs::byte_ostream & operator << (pfs::byte_ostream & os, json<Traits> const & v)
+{
+    // Type
+    os << static_cast<byte_t>(v.type());
+
+    switch (v.type()) {
+    case data_type::null:
+        break;
+
+    case data_type::boolean:
+        os << v.template get<typename json<Traits>::boolean_type>();
+        break;
+
+    case data_type::integer:
+        os << v.template get<typename json<Traits>::integer_type>();
+        break;
+
+    case data_type::uinteger:
+        os << v.template get<typename json<Traits>::uinteger_type>();
+        break;
+
+    case data_type::real:
+        os << v.template get<typename json<Traits>::real_type>();
+        break;
+
+    case data_type::string: {
+        byte_string u8 = u8string<byte_string>(v.template get<typename json<Traits>::string_type>());
+        os << byte_string_ref_n<4>(& u8);
+        break;
     }
-    
-    // TODO Need to be portable.
-    // Provide serializiation of scalar type sizes too with scalar values
-    //
-    friend pfs::byte_ostream & operator << (pfs::byte_ostream & os, json const & v)
-    {
-        // Type
-        os << static_cast<byte_t>(v.type());
-        
-        switch (v.type()) {
-        case data_type::null:
-            break;
 
-        case data_type::boolean:
-            os << v.get<boolean_type>();
-            break;
+    case data_type::array: {
+        typename json<Traits>::const_iterator it = v.cbegin();
+        typename json<Traits>::const_iterator it_end = v.cend();
 
-        case data_type::integer:
-            os << v.get<integer_type>();
-            break;
+        os << static_cast<uint32_t>(v.size());
 
-        case data_type::uinteger:
-            os << v.get<uinteger_type>();
-            break;
+        for (; it != it_end; ++it)
+            os << *it;
 
-        case data_type::real:
-            os << v.get<real_type>();
-            break;
-
-        case data_type::string: {
-            byte_string u8 = u8string<byte_string>(v.get<string_type>());
-            os << byte_string_ref_n<4>(& u8);
-            break;
-        }
-
-        case data_type::array: {
-            json::const_iterator it = v.cbegin();
-            json::const_iterator it_end = v.cend();
-
-            os << static_cast<uint32_t>(v.size());
-
-            for (; it != it_end; ++it)
-                os << *it;
-
-            break;
-        }
-        
-        case data_type::object: {
-            json::const_iterator it = v.cbegin();
-            json::const_iterator it_end = v.cend();
-
-            os << static_cast<uint32_t>(v.size());
-
-            for (; it != it_end; ++it) {
-                byte_string key = u8string<byte_string>(it.key());
-                os << byte_string_ref_n<4>(& key) << *it;
-            }
-
-            break;
-        }}
-        
-        return os;
+        break;
     }
-    
-    friend pfs::byte_istream & operator >> (pfs::byte_istream & is, json & v)
-    {
-        byte_t type = 0;
 
-        is >> type;
+    case data_type::object: {
+        typename json<Traits>::const_iterator it = v.cbegin();
+        typename json<Traits>::const_iterator it_end = v.cend();
 
-        switch (type) {
-        case static_cast<int>(data_type::null):
-            v = json();
-            break;
+        os << static_cast<uint32_t>(v.size());
 
-        case static_cast<int>(data_type::boolean): {
-            bool b;
-            is >> b;
-            v = json(b);
-            break;
+        for (; it != it_end; ++it) {
+            byte_string key = u8string<byte_string>(it.key());
+            os << byte_string_ref_n<4>(& key) << *it;
         }
 
-        case static_cast<int>(data_type::integer): {
-            json::integer_type d;
-            is >> d;
-            v = json(d);
-            break;
-        }
+        break;
+    }}
 
-        case static_cast<int>(data_type::uinteger): {
-            json::uinteger_type d;
-            is >> d;
-            v = json(d);
-            break;
-        }
+    return os;
+}
 
-        case static_cast<int>(data_type::real): {
-            json::real_type f;
-            is >> f;
-            v = json(f);
-            break;
-        }
+template <typename Traits>
+pfs::byte_istream & operator >> (pfs::byte_istream & is, json<Traits> & v)
+{
+    byte_t type = 0;
 
-        case static_cast<int>(data_type::string): {
-            byte_string u8;
-            is >> byte_string_ref_n<4>(& u8);
-            v = json(string_type(u8.c_str()));
-            break;
-        }
+    is >> type;
 
-        case static_cast<int>(data_type::array):
-        {
-            uint32_t n = 0;
+    switch (type) {
+    case static_cast<int>(data_type::null):
+        v = json<Traits>();
+        break;
 
-            is >> n;
-            
-            if (n == 0) {
-                v = json::make_array();
-            } else {
-                for (size_t i = 0; i < n; ++i) {
-                    json j;
-                    is >> j;
-                    v[i] = j;
-                }
-            }
-
-            break;
-        }
-        
-        case static_cast<int>(data_type::object):
-        {
-            uint32_t n = 0;
-
-            is >> n;
-
-            if (n == 0) {
-                v = json::make_object();
-            } else {
-                for (size_t i = 0; i < n; ++i) {
-                    byte_string u8;
-                    json j;
-                    is >> byte_string_ref_n<4>(& u8) >> j;
-
-                    v[string_type(u8.c_str())] = j;
-                }
-            }
-
-            break;
-        }
-        
-        default:
-            throw json_exception(make_error_code(json_errc::bad_json));
-        }
-            
-        return is;
+    case static_cast<int>(data_type::boolean): {
+        bool b;
+        is >> b;
+        v = json<Traits>(b);
+        break;
     }
-    
-    string_type to_string () const
+
+    case static_cast<int>(data_type::integer): {
+        typename json<Traits>::integer_type d;
+        is >> d;
+        v = json<Traits>(d);
+        break;
+    }
+
+    case static_cast<int>(data_type::uinteger): {
+        typename json<Traits>::uinteger_type d;
+        is >> d;
+        v = json<Traits>(d);
+        break;
+    }
+
+    case static_cast<int>(data_type::real): {
+        typename json<Traits>::real_type f;
+        is >> f;
+        v = json<Traits>(f);
+        break;
+    }
+
+    case static_cast<int>(data_type::string): {
+        byte_string u8;
+        is >> byte_string_ref_n<4>(& u8);
+        v = json<Traits>(typename json<Traits>::string_type(u8.c_str()));
+        break;
+    }
+
+    case static_cast<int>(data_type::array):
     {
-        switch (type()) {
-        case data_type::null:
-            return string_type("null");
+        uint32_t n = 0;
 
-        case data_type::boolean:
-            return pfs::to_string<string_type>(get<boolean_type>());
+        is >> n;
 
-        case data_type::integer:
-            return pfs::to_string<string_type>(get<integer_type>());
+        if (n == 0) {
+            v = json<Traits>::make_array();
+        } else {
+            for (size_t i = 0; i < n; ++i) {
+                json<Traits> j;
+                is >> j;
+                v[i] = j;
+            }
+        }
 
-        case data_type::uinteger:
-            return pfs::to_string<string_type>(get<uinteger_type>());
-            
-        case data_type::real:
-            return pfs::to_string<string_type>(get<real_type>());
+        break;
+    }
 
-        case data_type::string: {
-            string_type r;
+    case static_cast<int>(data_type::object):
+    {
+        uint32_t n = 0;
+
+        is >> n;
+
+        if (n == 0) {
+            v = json<Traits>::make_object();
+        } else {
+            for (size_t i = 0; i < n; ++i) {
+                byte_string u8;
+                json<Traits> j;
+                is >> byte_string_ref_n<4>(& u8) >> j;
+
+                v[typename json<Traits>::string_type(u8.c_str())] = j;
+            }
+        }
+
+        break;
+    }
+
+    default:
+        throw json_exception(make_error_code(json_errc::bad_json));
+    }
+
+    return is;
+}
+
+template <typename Traits>
+typename json<Traits>::string_type json<Traits>::to_string () const
+{
+    switch (type()) {
+    case data_type::null:
+        return string_type("null");
+
+    case data_type::boolean:
+        return pfs::to_string<string_type>(get<boolean_type>());
+
+    case data_type::integer:
+        return pfs::to_string<string_type>(get<integer_type>());
+
+    case data_type::uinteger:
+        return pfs::to_string<string_type>(get<uinteger_type>());
+
+    case data_type::real:
+        return pfs::to_string<string_type>(get<real_type>());
+
+    case data_type::string: {
+        string_type r;
+        r.append(1, '"');
+        r.append(get<string_type>());
+        r.append(1, '"');
+        return r;
+    }
+
+
+    case data_type::array: {
+        string_type r;
+        json::const_iterator it = cbegin();
+        json::const_iterator last = cend();
+
+        r.append(1, '[');
+
+        if (it != last) {
+            r.append(it->to_string());
+            ++it;
+        }
+
+        for (; it != last; ++it) {
+            r.append(1, ',');
+            r.append(it->to_string());
+        }
+
+        r.append(1, ']');
+
+        return r;
+    }
+
+    case data_type::object: {
+        string_type r;
+        json::const_iterator it = cbegin();
+        json::const_iterator last = cend();
+
+        r.append(1, '{');
+
+        if (it != last) {
             r.append(1, '"');
-            r.append(get<string_type>());
-            r.append(1, '"');
-            return r;
+            r.append(it.key());
+            r.append("\":");
+            r.append(it->to_string());
+            ++it;
         }
 
-
-        case data_type::array: {
-            string_type r;
-            json::const_iterator it = cbegin();
-            json::const_iterator last = cend();
-
-            r.append(1, '[');
-            
-            if (it != last) {
-                r.append(it->to_string());
-                ++it;
-            }
-            
-            for (; it != last; ++it) {
-                r.append(1, ',');
-                r.append(it->to_string());
-            }
-            
-            r.append(1, ']');
-
-            return r;
+        for (; it != last; ++it) {
+            r.append(",\"");
+            r.append(it.key());
+            r.append("\":");
+            r.append(it->to_string());
         }
-        
-        case data_type::object: {
-            string_type r;
-            json::const_iterator it = cbegin();
-            json::const_iterator last = cend();
 
-            r.append(1, '{');
+        r.append(1, '}');
+        return r;
+    }}
 
-            if (it != last) {
-                r.append(1, '"');
-                r.append(it.key());
-                r.append("\":");
-                r.append(it->to_string());
-                ++it;
-            }
-            
-            for (; it != last; ++it) {
-                r.append(",\"");
-                r.append(it.key());
-                r.append("\":");
-                r.append(it->to_string());
-            }
-            
-            r.append(1, '}');
-            return r;
-        }}
-        
-        return string_type();
-    }
-};
+    return string_type();
+}
 
 }} // pfs::json
 

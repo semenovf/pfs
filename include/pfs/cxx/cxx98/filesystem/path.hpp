@@ -97,6 +97,16 @@ public:
     }
 };
 
+inline ::boost::filesystem::path temp_directory_path ()
+{
+    return ::boost::filesystem::temp_directory_path();
+}
+
+inline ::boost::filesystem::path temp_directory_path (error_code & ec)
+{
+    return ::boost::filesystem::temp_directory_path(ec);
+}
+
 }}} // pfs::filesystem::details
 
 #else

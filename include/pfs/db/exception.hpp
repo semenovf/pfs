@@ -27,6 +27,7 @@ struct db_errc
         , open_fail
         , bad_alloc
         , query_fail
+        , internal_error
 #if __cplusplus < 201103L                  
     };
     

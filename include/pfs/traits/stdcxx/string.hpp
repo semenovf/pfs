@@ -176,6 +176,11 @@ public:
         _p->clear();
     }
     
+    size_type find (basic_string const & str, size_type pos) const
+    {
+        return _p->find(*str._p, pos);
+    }
+    
     iterator erase (const_iterator first, const_iterator last)
     {
 #if __cplusplus >= 201103L

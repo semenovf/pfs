@@ -44,10 +44,6 @@ public:
 protected:
     impl_type _d;
 
-    basic_path (native_path_type const & d)
-        : _d(d)
-    {}
-    
 public:
     basic_path ()
         : _d()
@@ -67,6 +63,10 @@ public:
 
     basic_path (wchar_t const * source/*, format fmt = auto_format*/)
         : _d(source)
+    {}
+
+    basic_path (native_path_type const & d)
+        : _d(d)
     {}
 
     // TODO implement
@@ -575,7 +575,7 @@ public:
     friend std::basic_ostream<CharT, Traits> &
     operator << (std::basic_ostream<CharT,Traits> & os, basic_path const & p)
     {
-        return os << (os, p._d);
+        return os << p._d;
     }
 
     /**
@@ -634,6 +634,15 @@ inline bool remove (path const & p, error_code & ec)
     return p.remove(ec);
 }
 
+inline path temp_directory_path ()
+{
+    return path(details::temp_directory_path());
+}
+
+inline path temp_directory_path (error_code & ec)
+{
+    return path(details::temp_directory_path(ec));
+}
 
 //
 //template <typename Source>

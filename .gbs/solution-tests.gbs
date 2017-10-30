@@ -90,6 +90,9 @@ project "test-safeformat"
 project "test-dynamic_library"
     test_project("dynamic_library", {"pfs"})
 
+project "test-db"
+    test_project("db", {"pfs"})
+
 --project "test-application"
 --    include("test-application.gbs")
 
