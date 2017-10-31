@@ -27,7 +27,7 @@ void test0 ()
         db.close();
     } catch (pfs::db_exception ex) {
         cerr << ex.what() << endl;
-        TEST_OK2(true, "Attempt to open non-exists database for read only (by default)");
+        TEST_OK2(true, "Attempt to open non-existence database for read only (by default)");
     }    
 }
 
@@ -57,7 +57,7 @@ void test1 ()
     } catch (pfs::db_exception ex) {
         ADD_TESTS(1);
         cerr << ex.what() << endl;
-        TEST_OK2(false, "Attempt to create non-exists database for read-write");
+        TEST_OK2(false, "Attempt to create non-existence database for read-write");
     }
     
     TEST_FAIL2(pfs::filesystem::remove(path), "Remove DB file");
