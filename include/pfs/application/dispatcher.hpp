@@ -57,26 +57,27 @@ public:
 	} api_item_type;
 
     typedef traits::associative_container<traits::kv<int, api_item_type *>
-            ,  stdcxx::map>                api_map;
+            ,  stdcxx::map> api_map;
 
     typedef traits::associative_container<traits::kv<string_type, module_spec>
-            , stdcxx::map>         module_spec_map;
+            , stdcxx::map>  module_spec_map;
 
     typedef traits::sequence_container<shared_ptr<module>
-            , stdcxx::list>                runnable_sequence;
+            , stdcxx::list>  runnable_sequence;
 
     typedef traits::sequence_container<shared_ptr<pfs::thread>
-            , stdcxx::list>                thread_sequence;
+            , stdcxx::list>  thread_sequence;
 
-    typedef logger::logger<string_type>        logger_type;
-    typedef safeformat<string_type>            fmt;
+    typedef logger::logger<string_type> logger_type;
+    typedef safeformat<string_type>     fmt;
 
 private:
     filesystem::pathlist _searchdirs;
     api_map              _api;
     module_spec_map      _module_spec_map;
     runnable_sequence    _runnable_modules; // modules run in a separate threads
-    shared_ptr<module>   _master_module_ptr;
+    //shared_ptr<module>   _master_module_ptr;
+    module *             _master_module_ptr;
     logger_type          _logger;
 
 private:
@@ -89,9 +90,9 @@ private:
 #endif
 
 protected:
-    dispatcher ()
-        : _master_module_ptr(0)
-    {}
+//    dispatcher ()
+//        : _master_module_ptr(0)
+//    {}
 
     void init_default_logger ()
     {
@@ -112,6 +113,7 @@ protected:
     void deactivate_posix_signal_handling ();
 
 public:
+    //dispatcher ();
     dispatcher (api_item_type * mapping, int n);
 
     virtual ~dispatcher ()
@@ -121,6 +123,7 @@ public:
     }
 
     void finalize ();
+    void register_api (api_item_type * mapping, int n);
 
     void add_search_path (filesystem::path const & dir)
     {

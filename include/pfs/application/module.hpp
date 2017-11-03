@@ -149,6 +149,15 @@ public:
 		return _quitfl == 0 ? false : true;
 	}
 
+    /**
+     * @brief Module's on_loaded() method called after loaded and before registration.
+     * @return 
+     */
+    virtual bool on_loaded ()
+    {
+        return true;
+    }
+
 	/**
 	 * @brief Module's on_start() method called after loaded and connection completed.
 	 */
