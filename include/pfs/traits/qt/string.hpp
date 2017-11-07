@@ -203,6 +203,13 @@ public:
         _p->clear();
     }
 
+    const_iterator find (basic_string const & rhs, const_iterator pos) const
+    {
+        int p = pfs::distance(this->begin().base(), pos);
+        int index = _p->indexOf(*rhs._p, p, Qt::CaseSensitive);
+        return index < 0 ? this->end() : const_iterator(this->begin() + index);
+    }
+
     void erase (size_type index, size_type count)
     {
         _p->remove(static_cast<int>(index), static_cast<int>(count));

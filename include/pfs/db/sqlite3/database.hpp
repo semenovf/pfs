@@ -31,7 +31,7 @@ private:
 public:
     database () : _h(0) {}
     
-    bool open (string_type const & uri, error_code & ec);
+    bool open (string_type const & uri, error_code & ec, string_type * errstr);
     bool close ();
 
     bool opened () const
@@ -110,7 +110,7 @@ public:
  * @note  Autocommit mode is on by default.
  */
 template <typename StringType>
-bool database<StringType>::open (string_type const & uristr, error_code & ec)
+bool database<StringType>::open (string_type const & uristr, error_code & ec, string_type * errstr)
 {
     pfs::net::uri<StringType> uri;
     
@@ -126,10 +126,19 @@ bool database<StringType>::open (string_type const & uristr, error_code & ec)
     
     int flags = SQLITE_OPEN_URI;
 
-    if (uri.query().find("mode=") == uri.query().cend())
-        flags |= SQLITE_OPEN_READONLY;
+    //
+    // It is an error to specify a value for the mode parameter 
+    // that is less restrictive than that specified by the flags passed 
+    // in the third parameter to sqlite3_open_v2().
+    //
+    flags |= SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE;
     
-	int rc = sqlite3_open_v2(u8string<std::string>(uri.path()).c_str(), & _h, flags, NULL);
+    pfs::net::uri<StringType> filename;
+    filename.set_scheme("file");
+    filename.set_path(uri.path());
+    filename.set_query(uri.query());
+    
+	int rc = sqlite3_open_v2(u8string<std::string>(filename.to_string()).c_str(), & _h, flags, NULL);
 
 	if (rc != SQLITE_OK) {
 		if (!_h) {
@@ -140,9 +149,15 @@ bool database<StringType>::open (string_type const & uristr, error_code & ec)
 			switch (rc) {
             case SQLITE_CANTOPEN:
                 ec = make_error_code(db_errc::open_fail);
+                if (errstr) {
+                    *errstr = sqlite3_errstr(rc);
+                }
                 return false;
             default:
-                ec = make_error_code(db_errc::internal_error);
+                ec = make_error_code(db_errc::specific_error);
+                if (errstr) {
+                    *errstr = sqlite3_errstr(rc);
+                }
                 break;
 			}
 			sqlite3_close_v2(_h);

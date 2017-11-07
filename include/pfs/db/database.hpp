@@ -47,17 +47,18 @@ private:
 public:
     database () : _d() {}
     
-    bool open (string_type const & uri, error_code & ec)
+    bool open (string_type const & uri, error_code & ec, string_type * errstr = 0)
     {
-        return _d.open(uri, ec);
+        return _d.open(uri, ec, errstr);
     }
 
     bool open (string_type const & uri)
     {
         pfs::error_code ec;
+        string_type errstr;
 
-        if (!open(uri, ec))
-            throw db_exception(ec);
+        if (!open(uri, ec, & errstr))
+            throw db_exception(ec, u8string<std::string>(errstr));
 
         return true;
     }
@@ -118,8 +119,8 @@ bool database<Traits>::query (string_type const & sql)
     string_type errstr;
 
     if (!_d.query(sql, ec, & errstr)) {
-        errstr = "query failed: " + errstr;
-        throw db_exception(ec, u8string<std::string>(errstr).c_str());
+        //errstr = "query failed: " + errstr;
+        throw db_exception(ec, u8string<std::string>(errstr));
     }
 
     return true;

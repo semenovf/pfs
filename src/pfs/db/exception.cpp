@@ -22,8 +22,8 @@ std::string db_category::message (int ev) const
         return "insufficient memory";
     case static_cast<int>(db_errc::query_fail):
         return "query failed";
-    case static_cast<int>(db_errc::internal_error):
-        return "internal error";
+    case static_cast<int>(db_errc::specific_error):
+        return "specific error";
     default: break;
     }
     return "unknown DB error";

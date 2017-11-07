@@ -205,22 +205,22 @@ public:
 
             if (_d.port > 0) {
                 r.push_back(':');
-                r.append(to_string(_d.port));
+                r.append(pfs::to_string<string_type>(_d.port));
             }
+        }
 
-            if (!_d.path.empty()) {
-                r.append(_d.path);
-            }
+        if (!_d.path.empty()) {
+            r.append(_d.path);
+        }
 
-            if (!_d.query.empty()) {
-                r.push_back('?');
-                r.append(_d.query);
-            }
+        if (!_d.query.empty()) {
+            r.push_back('?');
+            r.append(_d.query);
+        }
 
-            if (!_d.fragment.empty()) {
-                r.push_back('#');
-                r.append(_d.fragment);
-            }
+        if (!_d.fragment.empty()) {
+            r.push_back('#');
+            r.append(_d.fragment);
         }
 
         return r;

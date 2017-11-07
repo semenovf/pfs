@@ -176,9 +176,11 @@ public:
         _p->clear();
     }
     
-    size_type find (basic_string const & str, size_type pos) const
+    const_iterator find (basic_string const & rhs, const_iterator pos) const
     {
-        return _p->find(*str._p, pos);
+        size_type from = pfs::distance(this->begin().base(), pos.base());
+        size_type index = _p->find(*rhs._p, from);
+        return index == npos ? this->end() : const_iterator(this->begin().base() + index);
     }
     
     iterator erase (const_iterator first, const_iterator last)

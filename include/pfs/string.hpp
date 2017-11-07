@@ -363,8 +363,7 @@ public:
      */
     const_iterator find (string const & rhs, const_iterator pos) const
     {
-        size_type index = _p.find(rhs._p, pfs::distance(pos.base(), this->cend().base()));
-        return index == npos ? this->cend() : const_iterator(this->cbegin().base() + index);
+        return _p.find(rhs._p, pos);
     }
 
     const_iterator find (string const & rhs) const
