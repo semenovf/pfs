@@ -1,12 +1,3 @@
-/*
- * dispatcher.hpp
- *
- *  Created on: Feb 9, 2011
- *      Author: wladt
- *  Removed to CWT on Feb 12, 2013
- *  Renamed to dispatcher Aug 25, 2015
- */
-
 #ifndef __PFS_APPLICATION_DISPATCHER_HPP__
 #define __PFS_APPLICATION_DISPATCHER_HPP__
 
@@ -49,12 +40,12 @@ class dispatcher : public has_slots<>
 public:
     typedef system_string string_type;
     
-	typedef struct api_item_type_t
+	typedef struct api_item_type
 	{
 		int                 id;
-		sigslot_mapping_t * map;
+		sigslot_mapping_t * mapping;
 		string_type         desc;
-	} api_item_type;
+	} api_item_type_t;
 
     typedef traits::associative_container<traits::kv<int, api_item_type *>
             ,  stdcxx::map> api_map;
@@ -76,7 +67,6 @@ private:
     api_map              _api;
     module_spec_map      _module_spec_map;
     runnable_sequence    _runnable_modules; // modules run in a separate threads
-    //shared_ptr<module>   _master_module_ptr;
     module *             _master_module_ptr;
     logger_type          _logger;
 
@@ -130,6 +120,18 @@ public:
         if (!dir.empty())
             _searchdirs.push_back(dir);
     }
+
+    /**
+     * @brief Output summary of emitters/detectors utilization.
+     * TODO Implement
+     */
+    void print_api_connections () {}
+
+    /**
+     * @brief Output summary of incomplete emitters/detectors utilization.
+     * TODO Implement
+     */
+    void print_api_incomplete_connections () {}
 
     /**
      * @brief Register modules enumerated in configuration file (JSON) specified by @a path.

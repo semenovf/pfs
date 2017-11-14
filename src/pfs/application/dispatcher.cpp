@@ -1,11 +1,3 @@
-/*
- * dispacther.cpp
- *
- *  Created on: Feb 9, 2011
- *      Author: wladt
- *  Removed to CWT on: Feb 12, 2013
- */
-
 #include "pfs/thread.hpp"
 #include "pfs/application/dispatcher.hpp"
 
@@ -84,6 +76,17 @@ void dispatcher::finalize ()
 		unregister_all();
 	}
 }
+
+void dispatcher::print_api_connections ()
+{
+    
+}
+
+void dispatcher::print_api_incomplete_connections ()
+{
+    
+}
+
 
 module_spec dispatcher::module_for_path (filesystem::path const & path
         , char const * class_name
@@ -181,7 +184,7 @@ bool dispatcher::register_module (module_spec const & modspec)
             api_map::iterator it = _api.find(emitter_id);
 
             if (it != it_end) {
-                it->second->map->append_emitter(reinterpret_cast<emitter *> (emitters[i]._emitter));
+                it->second->mapping->append_emitter(reinterpret_cast<emitter_t *> (emitters[i]._emitter));
             } else {
                 print_warn(0, fmt("%s: Emitter '%s' not found while registering module, "
                         "may be signal/slot mapping is not supported for this application")
@@ -197,7 +200,7 @@ bool dispatcher::register_module (module_spec const & modspec)
             api_map::iterator it = _api.find(detector_id);
 
             if (it != it_end) {
-                it->second->map->append_detector(pmodule.get(), detectors[i]._detector);
+                it->second->mapping->append_detector(pmodule.get(), detectors[i]._detector);
             } else {
                 print_warn(0, fmt("%s: Detector '%s' not found while registering module, "
                         "may be signal/slot mapping is not supported for this application")
@@ -242,7 +245,7 @@ void dispatcher::connect_all ()
     api_map::iterator itEnd = _api.end();
 
     for (; it != itEnd; ++it) {
-        it->second->map->connect_all();
+        it->second->mapping->connect_all();
     }
 }
 
@@ -252,7 +255,7 @@ void dispatcher::disconnect_all ()
     api_map::iterator itEnd = _api.end();
 
     for (; it != itEnd; ++it) {
-        it->second->map->disconnect_all();
+        it->second->mapping->disconnect_all();
     }
 }
 
@@ -284,7 +287,7 @@ bool dispatcher::start ()
         module_spec modspec = it->second;
         shared_ptr<module> pmodule = modspec.pmodule;
 
-        if (not pmodule->on_start()) {
+        if (! pmodule->on_start()) {
             print_error(pmodule.get(), "Failed to start module");
             r = false;
         }

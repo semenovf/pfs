@@ -1,10 +1,3 @@
-/* 
- * File:   map.hpp
- * Author: wladt
- *
- * Created on January 16, 2017, 3:03 PM
- */
-
 #ifndef __PFS_TRAITS_STDCXX_MAP_HPP__
 #define __PFS_TRAITS_STDCXX_MAP_HPP__
 

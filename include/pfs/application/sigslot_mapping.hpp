@@ -1,12 +1,3 @@
-/*
- * sigslot_mapping.hpp
- *
- *  Created on: Feb 21, 2011
- *      Author: wladt
- *  Removed to CWT on: Feb 12, 2013
- */
-
-
 #ifndef __PFS_APPLICATION_SIGSLOT_MAPPING_HPP__
 #define __PFS_APPLICATION_SIGSLOT_MAPPING_HPP__
 
@@ -24,18 +15,18 @@ public:
     virtual ~sigslot_mapping_t() {}
     virtual void connect_all () = 0;
     virtual void disconnect_all () = 0;
-    virtual void append_emitter (emitter *e) = 0;
-    virtual void append_detector (module * m, detector d) = 0;
+    virtual void append_emitter (emitter_t *e) = 0;
+    virtual void append_detector (module * m, detector_t d) = 0;
 };
 
 template <typename EmitterT, typename _detectorT>
 struct sigslot_mapping_base : public sigslot_mapping_t
 {
     typedef traits::sequence_container<EmitterT *
-        , stdcxx::vector>                    emitter_sequence;
+        , stdcxx::vector> emitter_sequence;
 
     typedef traits::sequence_container<detector_pair
-        , stdcxx::vector>                    detector_sequence;
+        , stdcxx::vector> detector_sequence;
 
     emitter_sequence  emitters;
     detector_sequence detectors;
@@ -66,12 +57,12 @@ struct sigslot_mapping_base : public sigslot_mapping_t
         }
     }
 
-	virtual void append_emitter (emitter * e)
+	virtual void append_emitter (emitter_t * e)
 	{
 		emitters.push_back(reinterpret_cast<EmitterT*>(e));
 	}
 
-	virtual void append_detector (module * m, detector d)
+	virtual void append_detector (module * m, detector_t d)
 	{
 		detectors.push_back(detector_pair (m, d));
 	}

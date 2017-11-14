@@ -1,10 +1,3 @@
-/*
- * module.hpp
- *
- *  Created on: Feb 11, 2011
- *      Author: wladt
- */
-
 #ifndef __PFS_MODULE_HPP__
 #define __PFS_MODULE_HPP__
 
@@ -14,7 +7,7 @@
 #include <pfs/sigslot.hpp>
 #include <pfs/atomic.hpp>
 
-#define PFS_DETECTOR_CAST(slot) reinterpret_cast<pfs::application::detector>(& slot)
+#define PFS_DETECTOR_CAST(slot) reinterpret_cast<pfs::application::detector_t>(& slot)
 #define PFS_EMITTER_CAST(e)     reinterpret_cast<void *>(& e)
 #define PFS_MODULE_API extern "C" PFS_DLL_API
 #define PFS_MODULE_CTOR_NAME "__module_ctor__"
@@ -25,10 +18,10 @@ namespace application {
 
 class dispatcher;
 class module;
-typedef signal1<void *> emitter;
-typedef void (module::* detector)(void *);
+typedef signal1<void *> emitter_t;
+typedef void (module::* detector_t)(void *);
 typedef struct { int _id; void * _emitter; } emitter_mapping;
-typedef struct { int _id; detector _detector; } detector_mapping;
+typedef struct { int _id; detector_t _detector; } detector_mapping;
 
 typedef module * (* module_ctor_t)(char const * name, void *);
 typedef void  (* module_dtor_t)(module *);
@@ -181,9 +174,9 @@ public: // slots
 struct detector_pair
 {
 	detector_pair () : _module(NULL), _detector(NULL) {}
-	detector_pair (module * p, detector d) : _module(p), _detector(d) {}
+	detector_pair (module * p, detector_t d) : _module(p), _detector(d) {}
 	module * _module;
-	detector _detector;
+	detector_t _detector;
 };
 
 }} // pfs::application
