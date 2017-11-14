@@ -21,3 +21,4 @@ filter "platforms:unix* or elbrus*"
 filter { "action:gmake*", "files:**/sqlite3.c" }
     buildoptions { "-Wno-implicit-fallthrough" }
 
+

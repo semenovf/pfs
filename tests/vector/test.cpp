@@ -1,11 +1,3 @@
-/**
- * @file   test.cpp
- * @author
- * @date
- *
- * @brief testing ...
- */
-
 #include <vector>
 #include <pfs/test/test.hpp>
 #include <pfs/traits/stdcxx/vector.hpp>
