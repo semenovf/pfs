@@ -77,17 +77,6 @@ void dispatcher::finalize ()
 	}
 }
 
-void dispatcher::print_api_connections ()
-{
-    
-}
-
-void dispatcher::print_api_incomplete_connections ()
-{
-    
-}
-
-
 module_spec dispatcher::module_for_path (filesystem::path const & path
         , char const * class_name
         , void * mod_data)
