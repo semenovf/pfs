@@ -166,7 +166,7 @@ sub binder_def_signal
         for (my $i = 2; $i <= $nargs; ++$i) {
             $s .= ", Arg${i}";
         }
-        $s .= '> funcptr_type;';
+        $s .= '> * funcptr_type;';
         push @$r, $s;
     }
 
