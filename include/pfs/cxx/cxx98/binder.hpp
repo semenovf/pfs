@@ -9,6 +9,10 @@
 #ifndef __PFS_BINDER_HPP__
 #define __PFS_BINDER_HPP__
 
+//------------------------
+#include <pfs/sigslot.hpp>
+//------------------------
+
 namespace pfs {
 
 template <typename T>
@@ -775,6 +779,73 @@ public:
 //    }
 };
 
+
+//-----------------------------------
+class binder_signal_base : public binder_base<void>
+{
+public:
+    typedef void return_type;
+    typedef signal1<void *> * funcptr_type;
+
+protected:
+    funcptr_type _f;
+
+    binder_signal_base (size_t size, funcptr_type f)
+        : binder_base<void>(size)
+        , _f(f)
+    { }
+
+public:
+    virtual ~binder_signal_base () {}
+};
+
+//template <typename Class, typename ReturnType>
+class binder_signal0 : public binder_signal_base
+{
+
+public:
+    typedef binder_signal_base base_class;
+    typedef signal0<> * funcptr_type;
+
+    binder_signal0 (funcptr_type f)
+        : base_class(sizeof(binder_signal0)
+                , reinterpret_cast<typename base_class::funcptr_type>(f))
+    {}
+
+    virtual ~binder_signal0 () {}
+
+    virtual void operator () () const
+    {
+        funcptr_type f = reinterpret_cast<funcptr_type>(this->_f);
+        return (*f)();
+    }
+};
+
+template <typename Arg1>
+class binder_signal1 : public binder_signal_base
+{
+    typename binder_type_trait<Arg1>::type _a1;
+
+public:
+    typedef binder_signal_base base_class;
+    typedef signal1<Arg1> * funcptr_type;
+
+    binder_signal1 (funcptr_type f, Arg1 a1)
+        : base_class(sizeof(binder_signal1)
+                , reinterpret_cast<typename base_class::funcptr_type>(f))
+        , _a1(a1)
+    {}
+
+    virtual ~binder_signal1 () {}
+
+    virtual return_type operator () () const
+    {
+        funcptr_type f = reinterpret_cast<funcptr_type>(this->_f);
+        return (*f)(_a1);
+    }
+};
+
+//-----------------------------------
 
 } // pfs
 

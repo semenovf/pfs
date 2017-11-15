@@ -30,12 +30,6 @@ project "test-lexical_cast"
 project "test-utf8"
     test_project("utf8", {"pfs"})
 
-project "test-vector"
-    test_project("vector", {"pfs"})
-
-project "test-map"
-    test_project("map", {"pfs"})
-
 ----project "test-mpl-treap"
 ----    include("test-mpl-treap/project.gbs")
 

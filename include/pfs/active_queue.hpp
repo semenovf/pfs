@@ -1,11 +1,3 @@
-/* 
- * File:   active_queue.hpp
- * Author: wladt
- *
- * Created on September 22, 2016
- * Moved to pfs-mpl and re-implemented on June 14, 2017
- */
-
 #ifndef __PFS_ACTIVE_QUEUE_HPP__
 #define __PFS_ACTIVE_QUEUE_HPP__
 
@@ -238,6 +230,18 @@ public:
 	{
         push_helper(shared_ptr<binder_base<void> >(new binder_method8<C, void, Arg1, Arg2, Arg3, Arg4, Arg5, Arg6, Arg7, Arg8>(f, c, a1, a2, a3, a4, a5, a6, a7, a8)));
 	}
+    
+  	void push_signal (signal0<> * sig)
+	{
+        push_helper(shared_ptr<binder_base<void> >(new binder_signal0(sig)));
+    }
+
+   	template <typename Arg1>
+	void push_signal (signal1<Arg1> * sig, Arg1 a1)
+	{
+        push_helper(shared_ptr<binder_base<void> >(new binder_signal1<Arg1>(sig, a1)));
+	}
+
 //#endif
     
   	void call ()
