@@ -349,4 +349,32 @@ void module::connect_error (log_consumer * p)
     _pdispatcher->emit_error.connect(p, & log_consumer::_on_error);
 }
 
+void module::disconnect_info (log_consumer * p)
+{
+    _pdispatcher->emit_info.disconnect(p);
+}
+
+void module::disconnect_debug (log_consumer * p)
+{
+    _pdispatcher->emit_debug.disconnect(p);
+}
+
+void module::disconnect_warn (log_consumer * p)
+{
+    _pdispatcher->emit_warn.disconnect(p);
+}
+
+void module::disconnect_error (log_consumer * p)
+{
+    _pdispatcher->emit_error.disconnect(p);
+}
+
+void module::disconnect_all_loggers (log_consumer * p)
+{
+    disconnect_info(p);
+    disconnect_debug(p);
+    disconnect_warn(p);
+    disconnect_error(p);
+}
+
 }} // pfs::application

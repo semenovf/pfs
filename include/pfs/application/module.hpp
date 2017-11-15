@@ -125,6 +125,12 @@ public:
 	void connect_warn  (log_consumer * p);
 	void connect_error (log_consumer * p);
 
+      	void disconnect_info  (log_consumer * p);
+	void disconnect_debug (log_consumer * p);
+	void disconnect_warn  (log_consumer * p);
+	void disconnect_error (log_consumer * p);
+        void disconnect_all_loggers (log_consumer * p);
+
 	virtual emitter_mapping const * get_emitters (int & count)
 	{
 		count = 0;
