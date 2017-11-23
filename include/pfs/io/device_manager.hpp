@@ -209,7 +209,7 @@ public:
 
     void push_deferred (device d, time_t reconn_timeout)
     {
-        PFS_ASSERT(d.set_nonblocking(true));
+        //PFS_ASSERT(d.set_nonblocking(true));
         reopen_item item;
         item.d       = d;
         item.timeout = reconn_timeout;
