@@ -24,6 +24,9 @@ std::string json_category::message (int ev) const
     case static_cast<int>(json_errc::bad_number):
         return "Bad number";
 
+    case static_cast<int>(json_errc::range):
+        return "Out of bounds";
+
     default: return "Unknown JSON error";
     }
 }

@@ -26,6 +26,7 @@ struct json_errc
         , bad_json
         , excess_source
         , bad_number
+        , range
 #if __cplusplus < 201103L                  
     };
 

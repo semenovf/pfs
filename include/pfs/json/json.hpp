@@ -441,7 +441,7 @@ public:
     }
     
     // For avoid ambiguous overload of operator[] with `0` value
-    json operator [] (int index) const
+    const_reference operator [] (int index) const
     {
         return operator [] (size_type(index));
     }
@@ -464,14 +464,16 @@ public:
         return *it;
     }
 
-    json operator [] (size_type index) const
+    const_reference operator [] (size_type index) const
     {
         if (_d.type == data_type::array) {
             typename array_type::iterator it = _d.array->begin();
             pfs::advance(it, index);
             return *it;
         }
-        return json();
+        
+        throw json_exception(make_error_code(json_errc::range));
+        //return json();
     }
 
     reference operator [] (key_type const & key)
@@ -495,14 +497,16 @@ public:
         return object_type::mapped_reference(it);
     }
 
-    json operator [] (key_type const & key) const
+    const_reference operator [] (key_type const & key) const
     {
         if (_d.type == data_type::object) {
             typename object_type::const_iterator it = _d.object->find(key);
             if (it != _d.object->cend())
                 return object_type::mapped_reference(it);
         }
-        return json();
+
+        throw json_exception(make_error_code(json_errc::range));
+        //return json();
     }
     
     reference operator [] (const char * key)
@@ -510,7 +514,7 @@ public:
         return operator [] (key_type(key));
     }
 
-    json operator [] (const char * key) const
+    const_reference operator [] (const char * key) const
     {
         return operator [] (key_type(key));
     }
