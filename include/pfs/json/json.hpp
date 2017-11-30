@@ -1,10 +1,3 @@
-/*
- * json.hpp
- *
- *  Created on: Nov 30, 2015
- *      Author: wladt
- */
-
 #ifndef __PFS_JSON_JSON_HPP__
 #define __PFS_JSON_JSON_HPP__
 
@@ -473,7 +466,6 @@ public:
         }
         
         throw json_exception(make_error_code(json_errc::range));
-        //return json();
     }
 
     reference operator [] (key_type const & key)
@@ -518,7 +510,7 @@ public:
     {
         return operator [] (key_type(key));
     }
-
+    
 //    void erase (const size_type index)
 //    {
 //        PFS_ASSERT(_type == type_array);
