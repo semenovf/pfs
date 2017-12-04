@@ -1,24 +1,46 @@
-# Ubuntu 14.04 - VERSION 2.8.12
-cmake_minimum_required (VERSION 2.8.12)
-
 project(pfs C CXX)
 
-include_directories(../include)
-#    include("../../.gbs/solution-common.lua")
+include(../../solution.cmake)
+
+include_directories(../../include)
 #
 #-- Projects
 #
-#project "pfs"
-#    kind "StaticLib"
 set(PFS_TARGET_NAME pfs)
-#    links { PFS_LINKS }
-#
+
 set(PFS_COMMON_SOURCES
-#      "../src/pfs/*.cpp"
-#    , "../src/pfs/io/*.cpp"
-#    , "../src/pfs/db/*.c"
-#    , "../src/pfs/db/*.cpp"
-#    , "../src/pfs/application/*.cpp"
+    crc32.cpp
+    crc64.cpp
+    date.cpp
+    datetime.cpp
+    double_to_cstr.cpp
+    dynamic_library.cpp
+    endian.cpp
+    filesystem.cpp
+    json.cpp
+    lexical_cast.cpp
+    string.cpp
+    system_error.cpp
+    time.cpp
+    u8string.cpp
+
+#   Application
+    application/app.cpp
+    application/dispatcher.cpp
+
+#   Db
+    db/exception.cpp
+    db/sqlite3.c
+
+#   IO
+    io/buffer.cpp
+    io/buffered_device.cpp
+    io/device.cpp
+    io/exception.cpp
+    io/file.cpp
+    io/inet4_addr.cpp
+    io/null.cpp
+    io/server.cpp
 )
 
 if (UNIX)
@@ -29,6 +51,8 @@ if (UNIX)
 #        , "../src/pfs/io/posix/*.cpp"
 #        , "../src/pfs/application/posix/*.cpp"
 #    }
+    set(PFS_PLATFORM_SOURCES
+    )
 endif(UNIX)
 
 #--filter { "action:gmake*", "files:../src/pfs/db/sqlite3.c" }
@@ -36,5 +60,19 @@ endif(UNIX)
 #filter { "action:gmake*", "files:**/sqlite3.c" }
 #    buildoptions { "-Wno-implicit-fallthrough" }
 
-add_library(${PFS_TARGET_NAME} STATIC ${PFS_COMMON_SOURCES} ${PFS_PLATFORM_SOURCES})
-add_library(${PFS_TARGET_NAME} SHARED ${PFS_COMMON_SOURCES} ${PFS_PLATFORM_SOURCES})
+# [Is it possible to get CMake to build both a static and shared version of the same library?](https://stackoverflow.com/questions/2152077/is-it-possible-to-get-cmake-to-build-both-a-static-and-shared-version-of-the-sam)
+#===============================================================================
+# this is the "object library" target: compiles the sources only once
+add_library(PFS_OBJLIB OBJECT ${PFS_COMMON_SOURCES} ${PFS_PLATFORM_SOURCES})
+
+# shared libraries need PIC
+set_property(TARGET PFS_OBJLIB PROPERTY POSITION_INDEPENDENT_CODE 1)
+
+# Use C++98 standard
+set_property(TARGET PFS_OBJLIB PROPERTY CXX_STANDARD ${PFS_PREFERRED_CXX_STANDARD})
+
+# shared and static libraries built from the same object files
+add_library(${PFS_TARGET_NAME}        SHARED $<TARGET_OBJECTS:PFS_OBJLIB>)
+add_library(${PFS_TARGET_NAME}_static STATIC $<TARGET_OBJECTS:PFS_OBJLIB>)
+#===============================================================================
+
