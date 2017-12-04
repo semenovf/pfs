@@ -2,7 +2,6 @@ project(pfs C CXX)
 
 include(../../solution.cmake)
 
-include_directories(../../include)
 #
 #-- Projects
 #
@@ -44,15 +43,22 @@ set(PFS_COMMON_SOURCES
 )
 
 if (UNIX)
-#filter "platforms:unix* or elbrus*"
-#    files {
-#          "../src/pfs/gnuc/*.cpp"
-#        , "../src/pfs/posix/*.cpp"
-#        , "../src/pfs/io/posix/*.cpp"
-#        , "../src/pfs/application/posix/*.cpp"
-#    }
-    set(PFS_PLATFORM_SOURCES
+    #filter "platforms:unix* or elbrus*"
+    list(APPEND PFS_PLATFORM_SOURCES
+        posix/date_posix.cpp
+        posix/datetime_posix.cpp
+        posix/dynamic_library_posix.cpp
+        posix/time_posix.cpp
+        application/posix/signal.cpp
+        io/posix/file_posix.cpp
+        io/posix/inet_server_posix.cpp
+        io/posix/inet_socket_posix.cpp
+        io/posix/posix_utils.cpp
     )
+
+    if (CMAKE_COMPILER_IS_GNUCXX)
+        list(APPEND PFS_PLATFORM_SOURCES gnuc/assert.cpp)
+    endif()
 endif(UNIX)
 
 #--filter { "action:gmake*", "files:../src/pfs/db/sqlite3.c" }

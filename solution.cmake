@@ -20,7 +20,6 @@ if(Boost_FOUND)
     check_include_file_cxx("boost/filesystem.hpp" HAVE_BOOST_FILESYSTEM)
 endif(Boost_FOUND)
 
-
 # [CMake with Qt4](https://wiki.qt.io/Using_CMake_build_system)
 find_package(Qt4 COMPONENTS QTCORE)
 
@@ -29,3 +28,5 @@ find_package(Qt5Core)
 find_package(Qt5Widgets)
 
 configure_file(${CMAKE_CURRENT_LIST_DIR}/config.h.in ${CMAKE_CURRENT_LIST_DIR}/config.h)
+
+include_directories(include)
