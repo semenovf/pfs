@@ -71,7 +71,7 @@ lexical_cast<std::error_code> (pfs::error_code const & ec)
 
 } // pfs
 
-#if HAVE_BOOST_SYSTEM
+#if HAVE_BOOST_SYSTEM_ERROR
 
 //[Unifying error codes](http://breese.github.io/2016/06/18/unifying-error-codes.html)
 
@@ -109,7 +109,7 @@ pfs::error_category const & generic_category ();
 //{
 //    if (ec.category() == ::boost::system::generic_category())
 //        return pfs::error_code(ec.value(), generic_category());
-//    
+//
 //    PFS_ASSERT(false);
 //    return pfs::error_code();
 //}
@@ -120,7 +120,7 @@ lexical_cast<::boost::system::error_code> (pfs::error_code const & ec)
 {
     if (ec.category() == std::generic_category())
         return ::boost::system::error_code(ec.value(), ::boost::system::generic_category());
-    
+
     PFS_ASSERT(false);
     return ::boost::system::error_code();
 }
@@ -141,7 +141,7 @@ struct is_error_code_enum<boost::system::errc::errc_t>
 
 } // std
 
-#endif // HAVE_BOOST_SYSTEM
+#endif // HAVE_BOOST_SYSTEM_ERROR
 
 #endif /* __PFS_CXX_CXX11_SYSTEM_ERROR_HPP__ */
 

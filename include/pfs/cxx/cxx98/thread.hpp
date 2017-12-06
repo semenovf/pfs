@@ -1,10 +1,3 @@
-/* 
- * File:   thread.hpp
- * Author: wladt
- *
- * Created on June 16, 2017, 2:25 PM
- */
-
 #ifndef __PFS_CXX_CXX98_THREAD_HPP__
 #define __PFS_CXX_CXX98_THREAD_HPP__
 
@@ -18,8 +11,9 @@
 // [Programmatically find the number of cores on a machine](https://stackoverflow.com/questions/150355/programmatically-find-the-number-of-cores-on-a-machine)
 //
 
+#include <pfs/config.h>
+
 #if defined(PFS_CC_MSC)
-//#	include <windows.h>
 #   include "thread_win32.hpp"
 
 #   error "Implement for Win32"
@@ -27,10 +21,9 @@
 #elif defined(HAVE_BOOST_THREAD)
 #   include "thread_boost.hpp"
 #elif defined(HAVE_PTHREAD)
-#   include <pthread.h>
 #   include "thread_posix.hpp"
 #else
-#	error "No native support for threads"
+#   error "No native support for threads"
 #endif
 
 #endif /* __PFS_CXX_CXX98_THREAD_HPP__ */

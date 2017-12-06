@@ -76,11 +76,11 @@ static bool __test_string_to_real (char const * s
     , ptrdiff_t badpos_increment)
 {
     typedef typename StringType::const_iterator char_iterator_type;
-    
+
     bool r = true;
     char_iterator_type badpos;
     StringType str(s);
-    
+
     RealType result = pfs::string_to_real<RealType, char_iterator_type>(str.cbegin()
         , str.cend()
         ,'.'
@@ -88,10 +88,10 @@ static bool __test_string_to_real (char const * s
 
     char * endptr;
     RealType std_result = std_string_to_float<RealType>(s, & endptr);
-    
+
     if (result != std_result) {
         RealType absdiff = pfs::fabs(result - std_result);
-        
+
         if (absdiff <= pfs::numeric_limits<RealType>::epsilon()) {
             __print_diff_less_than_epsilon("Comparing with result of strtof[d,ld]()"
                     , result
@@ -105,10 +105,10 @@ static bool __test_string_to_real (char const * s
             r = false;
         }
     }
-    
+
 //    if (result != result_sample) {
 //        RealType absdiff = pfs::fabs(result - result_sample);
-//        
+//
 //        if (absdiff <= pfs::numeric_limits<RealType>::epsilon()) {
 //            __print_diff_less_than_epsilon("Comparing with sample"
 //                    , result
@@ -124,12 +124,12 @@ static bool __test_string_to_real (char const * s
 //    }
 
     pfs::advance(badpos, badpos_increment);
-    
+
     if (badpos != str.cend()) {
         std::cout << "***ERROR: badpos does not match" << std::endl;
         r = false;
     }
-    
+
     return r;
 }
 
@@ -139,7 +139,7 @@ static bool __test_isnan (char const * s)
     typedef typename StringType::const_iterator char_iterator_type;
     char_iterator_type badpos;
     StringType str(s);
-    
+
     return pfs::isnan(pfs::string_to_real<RealType, char_iterator_type>(str.begin()
             , str.end()
             , '.'
@@ -152,7 +152,7 @@ static bool __test_isinf (char const * s)
     typedef typename StringType::const_iterator char_iterator_type;
     char_iterator_type badpos;
     StringType str(s);
-    
+
     return pfs::isinf(pfs::string_to_real<RealType, char_iterator_type>(str.begin()
             , str.end()
             , '.'
@@ -163,7 +163,7 @@ template <typename RealType, typename StringType>
 void test_string_to_real ()
 {
     ADD_TESTS(95);
-    
+
     TEST_OK((__test_isinf<RealType, StringType>("INFINITY")));
     TEST_OK((__test_isinf<RealType, StringType>("-INFINITY")));
     TEST_OK((__test_isinf<RealType, StringType>("+INFINITY")));
@@ -174,7 +174,7 @@ void test_string_to_real ()
     TEST_OK((__test_isinf<RealType, StringType>("-INF")));
     TEST_OK((__test_isinf<RealType, StringType>("+INF")));
     TEST_OK((__test_isinf<RealType, StringType>("INFINITY$%^")));
-    
+
     TEST_OK((__test_isnan<RealType, StringType>("NAN")));
     TEST_OK((__test_isnan<RealType, StringType>("-NAN")));
     TEST_OK((__test_isnan<RealType, StringType>("+NAN")));
@@ -188,7 +188,7 @@ void test_string_to_real ()
     TEST_OK((__test_string_to_real<RealType, StringType>("   ", 0.0f, 3)));
     TEST_OK((__test_string_to_real<RealType, StringType>(" ." , 0.0f, 2)));
     TEST_OK((__test_string_to_real<RealType, StringType>(""   , 0.0f, 0)));
-    
+
     TEST_OK((__test_string_to_real<RealType, StringType>("0"  , 0.0f, 0)));
     TEST_OK((__test_string_to_real<RealType, StringType>("00" , 0.0f, 0)));
     TEST_OK((__test_string_to_real<RealType, StringType>("000", 0.0f, 0)));
@@ -229,12 +229,12 @@ void test_string_to_real ()
     TEST_OK((__test_string_to_real<RealType, StringType>("1.34"      , 1.34f, 0)));
     TEST_OK((__test_string_to_real<RealType, StringType>("12.34"     , 12.34f, 0)));
     TEST_OK((__test_string_to_real<RealType, StringType>("123.456"   , 123.456f, 0)));
-    
+
     TEST_OK((__test_string_to_real<RealType, StringType>("999999999999999999" , 1.0f, 0)));
     TEST_OK((__test_string_to_real<RealType, StringType>("000000000999999999" , 1.0f, 0)));
     TEST_OK((__test_string_to_real<RealType, StringType>("0.99999999999999999" , 1.0f, 0)));
     TEST_OK((__test_string_to_real<RealType, StringType>("0.9999999999999999999999999999999999" , 1.0f, 0)));
-    
+
     TEST_OK((__test_string_to_real<RealType, StringType>("1", RealType(1.0f), 0)));
 	TEST_OK((__test_string_to_real<RealType, StringType>("12", RealType(12.0f), 0)));
 	TEST_OK((__test_string_to_real<RealType, StringType>("123", RealType(123.0f), 0)));
@@ -361,7 +361,7 @@ char * doubleToHex (real_t x)
 
 	TEST_OK2(compare_with_strtold("123.456"), _MSG);
 
-// TODO Tests not passed {
+// TODO Tests not passed
 #ifdef PFS_HAVE_LONG_DOUBLE
 	TEST_OK2(compare_with_strtold("3.36210314311209350626e-4932"), _MSG); // PFS_LONG_DOUBLE_MIN
 	TEST_OK2(compare_with_strtold("1.18973149535723176502e+4932"), _MSG); // PFS_LONG_DOUBLE_MAX
@@ -369,7 +369,6 @@ char * doubleToHex (real_t x)
 	TEST_OK2(compare_with_strtold("2.22507385850720138309e-308"), _MSG); // PFS_DOUBLE_MIN
 	TEST_OK2(compare_with_strtold("1.79769313486231570815e+308"), _MSG); // PFS_DOUBLE_MAX
 #endif
-// }
 
 	// MSVC supports strtold since VC 2013.
 //	std::cout << "'" << strtold("123.456", NULL) << "'"

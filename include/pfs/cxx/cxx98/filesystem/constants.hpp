@@ -1,11 +1,7 @@
-/* 
- * File:   constants.hpp
- * Author: wladt
- *
- * Created on Sep 07, 2017
- */
 #ifndef __PFS_CXX_CXX98_FILESYSTEM_CONSTANTS_HPP__
 #define __PFS_CXX_CXX98_FILESYSTEM_CONSTANTS_HPP__
+
+#include <pfs/config.h>
 
 #if HAVE_BOOST_FILESYSTEM
 

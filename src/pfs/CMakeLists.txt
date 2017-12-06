@@ -5,9 +5,10 @@ include(../../solution.cmake)
 #
 #-- Projects
 #
-set(PFS_TARGET_NAME pfs)
+set(PFS_LIB_TARGET_NAME pfs)
+set(PFS_LIB_TARGET_LINKS "")
 
-set(PFS_COMMON_SOURCES
+set(PFS_LIB_COMMON_SOURCES
     crc32.cpp
     crc64.cpp
     date.cpp
@@ -44,7 +45,7 @@ set(PFS_COMMON_SOURCES
 
 if (UNIX)
     #filter "platforms:unix* or elbrus*"
-    list(APPEND PFS_PLATFORM_SOURCES
+    list(APPEND PFS_LIB_PLATFORM_SOURCES
         posix/date_posix.cpp
         posix/datetime_posix.cpp
         posix/dynamic_library_posix.cpp
@@ -57,7 +58,7 @@ if (UNIX)
     )
 
     if (CMAKE_COMPILER_IS_GNUCXX)
-        list(APPEND PFS_PLATFORM_SOURCES gnuc/assert.cpp)
+        list(APPEND PFS_LIB_PLATFORM_SOURCES gnuc/assert.cpp)
     endif()
 endif(UNIX)
 
@@ -66,19 +67,51 @@ endif(UNIX)
 #filter { "action:gmake*", "files:**/sqlite3.c" }
 #    buildoptions { "-Wno-implicit-fallthrough" }
 
+# Set `pfs` library dependencies
+
+if (HAVE_BOOST_FILESYSTEM)
+    list(APPEND PFS_LIB_TARGET_LINKS "boost_filesystem")
+endif()
+
+if (HAVE_BOOST_THREAD)
+    list(APPEND PFS_LIB_TARGET_LINKS "boost_thread")
+endif()
+
+if (HAVE_BOOST_CHRONO)
+    list(APPEND PFS_LIB_TARGET_LINKS "boost_chrono")
+endif()
+
+if (HAVE_BOOST_REGEX)
+    list(APPEND PFS_LIB_TARGET_LINKS "boost_regex")
+endif()
+
+if (HAVE_BOOST_SYSTEM_ERROR)
+    list(APPEND PFS_LIB_TARGET_LINKS "boost_system")
+endif()
+
+if(UNIX)
+    list(APPEND PFS_LIB_TARGET_LINKS "dl")
+
+    if(HAVE_PTHREAD)
+        list(APPEND PFS_LIB_TARGET_LINKS "pthread")
+    endif()
+endif()
+
 # [Is it possible to get CMake to build both a static and shared version of the same library?](https://stackoverflow.com/questions/2152077/is-it-possible-to-get-cmake-to-build-both-a-static-and-shared-version-of-the-sam)
 #===============================================================================
 # this is the "object library" target: compiles the sources only once
-add_library(PFS_OBJLIB OBJECT ${PFS_COMMON_SOURCES} ${PFS_PLATFORM_SOURCES})
+add_library(PFS_LIB_OBJLIB OBJECT ${PFS_LIB_COMMON_SOURCES} ${PFS_LIB_PLATFORM_SOURCES})
 
 # shared libraries need PIC
-set_property(TARGET PFS_OBJLIB PROPERTY POSITION_INDEPENDENT_CODE 1)
+set_property(TARGET PFS_LIB_OBJLIB PROPERTY POSITION_INDEPENDENT_CODE 1)
 
-# Use C++98 standard
-set_property(TARGET PFS_OBJLIB PROPERTY CXX_STANDARD ${PFS_PREFERRED_CXX_STANDARD})
+# Use preferred standard
+set_property(TARGET PFS_LIB_OBJLIB PROPERTY CXX_STANDARD ${PFS_PREFERRED_CXX_STANDARD})
 
 # shared and static libraries built from the same object files
-add_library(${PFS_TARGET_NAME}        SHARED $<TARGET_OBJECTS:PFS_OBJLIB>)
-add_library(${PFS_TARGET_NAME}_static STATIC $<TARGET_OBJECTS:PFS_OBJLIB>)
+add_library(${PFS_LIB_TARGET_NAME}        SHARED $<TARGET_OBJECTS:PFS_LIB_OBJLIB>)
+add_library(${PFS_LIB_TARGET_NAME}_static STATIC $<TARGET_OBJECTS:PFS_LIB_OBJLIB>)
+target_link_libraries(${PFS_LIB_TARGET_NAME} ${PFS_LIB_TARGET_LINKS})
+target_link_libraries(${PFS_LIB_TARGET_NAME}_static ${PFS_LIB_TARGET_LINKS})
 #===============================================================================
 

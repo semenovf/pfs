@@ -1,9 +1,3 @@
-/*
- * test.cpp
- *
- *  Created on: Nov 21, 2013
- *      Author: wladt
- */
 #include "pfs/test/test.hpp"
 #include "pfs/test/profiler.hpp"
 

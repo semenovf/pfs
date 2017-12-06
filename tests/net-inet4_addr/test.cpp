@@ -89,7 +89,7 @@ bool test_check_valid (int addrClass, int ntests)
     bool ok = true;
 
     for (int i = 0; ok && i < ntests; ++i) {
-        uint32_t  a, b, c, d;
+        uint32_t  a = 0, b = 0, c = 0, d = 0;
 
         if (addrClass == 4) {
             a = random() % pfs::numeric_limits<uint8_t>::max();
@@ -120,19 +120,19 @@ bool test_check_valid (int addrClass, int ntests)
 //        cout << addrDecStr << ' ' << addrOctStr << ' ' << addrHexStr << endl;
 
         if (!addrDec) {
-            cerr << "ERROR: unexpected invalid address in decimal format: " 
+            cerr << "ERROR: unexpected invalid address in decimal format: "
                     << addrDecStr << " at " << i << " iteration" << endl;
             ok = false;
         }
 
         if (!addrOct) {
-            cerr << "ERROR: unexpected invalid address in octal format: " 
+            cerr << "ERROR: unexpected invalid address in octal format: "
                     << addrOctStr << " at " << i << " iteration" << endl;
             ok = false;
         }
 
         if (!addrHex) {
-            cerr << "ERROR: unexpected invalid address in hexadecimal format: " 
+            cerr << "ERROR: unexpected invalid address in hexadecimal format: "
                     << addrHexStr << " at " << i << " iteration" << endl;
             ok = false;
         }
@@ -225,7 +225,7 @@ int main(int argc, char *argv[])
         , PFS_LITERAL("%a.%b.%C")
         , PFS_LITERAL("%a.%b.%c.%d")
     };
-    
+
     pfs::system_string msg;
 
     for (int i = 1; i < 5; ++i) {

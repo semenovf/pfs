@@ -1,17 +1,11 @@
-/*
- * mutex.hpp
- *
- *  Created on: Oct 23, 2016
- *      Author: wladt
- */
-
 #ifndef __PFS_CXX_CXX98_MUTEX_HPP__
 #define __PFS_CXX_CXX98_MUTEX_HPP__
 
+#include <pfs/config.h>
 #include <pfs/assert.hpp>
 
 #if defined(PFS_CC_MSC)
-#	include <windows.h>
+#   include <windows.h>
 
     typedef CRITICAL_SECTION native_mutex_t;
 
@@ -30,7 +24,7 @@
     typedef pthread_mutex_t native_mutex_t;
     typedef pthread_mutex_t native_recursive_mutex_t;
 #else
-#		error "No native support for threads"
+#   error "No native support for threads"
 #endif
 
 namespace pfs {
@@ -51,58 +45,58 @@ struct adopt_lock_t { };
 class mutex
 {
 public:
-	typedef native_mutex_t * native_handle_type;
+    typedef native_mutex_t * native_handle_type;
 
 private:
-	native_mutex_t _mutex;
+    native_mutex_t _mutex;
 
 private:
     mutex (const mutex &);
     mutex & operator = (const mutex &);
 
 public:
-	mutex ();
-	~mutex ();
+    mutex ();
+    ~mutex ();
 
-	void lock ();
+    void lock ();
 
-	bool try_lock ();
+    bool try_lock ();
 
-	void unlock ();
+    void unlock ();
 
-	native_handle_type native_handle ()
-	{
-		return & _mutex;
-	}
+    native_handle_type native_handle ()
+    {
+        return & _mutex;
+    }
 };
 
 /// recursive_mutex
 class recursive_mutex
 {
 public:
-	typedef native_recursive_mutex_t * native_handle_type;
+    typedef native_recursive_mutex_t * native_handle_type;
 
 private:
-	native_recursive_mutex_t _mutex;
+    native_recursive_mutex_t _mutex;
 
 private:
-	recursive_mutex (const mutex &);
-	recursive_mutex & operator = (const mutex &);
+    recursive_mutex (const mutex &);
+    recursive_mutex & operator = (const mutex &);
 
 public:
-	recursive_mutex ();
-	~recursive_mutex ();
+    recursive_mutex ();
+    ~recursive_mutex ();
 
-	void lock ();
+    void lock ();
 
-	bool try_lock ();
+    bool try_lock ();
 
-	void unlock ();
+    void unlock ();
 
-	native_handle_type native_handle ()
-	{
-		return & _mutex;
-	}
+    native_handle_type native_handle ()
+    {
+        return & _mutex;
+    }
 };
 
 template <typename Mutex>
@@ -120,9 +114,9 @@ private:
 
 public:
     explicit lock_guard (mutex_type & mtx)
-    	: _mtx(mtx)
+        : _mtx(mtx)
     {
-    	_mtx.lock();
+        _mtx.lock();
     }
 
     lock_guard (mutex_type & mtx, adopt_lock_t)

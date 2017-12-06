@@ -1,11 +1,3 @@
-
-/* 
- * File:   chrono_boost.hpp
- * Author: wladt
- *
- * Created on September 13, 2017, 10:41 AM
- */
-
 #ifndef __PFS_CXX_CXX98_CHRONO_BOOST_HPP__
 #define __PFS_CXX_CXX98_CHRONO_BOOST_HPP__
 
@@ -20,10 +12,10 @@ template <typename Rep, typename Period = ::boost::ratio<1> >
 class duration : public ::boost::chrono::duration<Rep, Period>
 {
     typedef ::boost::chrono::duration<Rep, Period> base_class;
-    
+
 public:
     pfs_constexpr duration () : base_class() {}
-    
+
     template <typename Rep2>
     pfs_constexpr explicit duration (Rep2 const & r)
         : base_class(r)

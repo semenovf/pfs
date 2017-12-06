@@ -1,3 +1,16 @@
-#cmakedefine HAVE_BOOST_RATIO 1
-#cmakedefine HAVE_BOOST_SMART_PTR 1
-#cmakedefine HAVE_BOOST_FILESYSTEM 1
+#cmakedefine01 HAVE_PTHREAD
+
+#cmakedefine01 HAVE_BOOST_CHRONO
+
+#cmakedefine01 HAVE_BOOST_FILESYSTEM
+
+#cmakedefine01 HAVE_BOOST_RATIO
+
+#cmakedefine01 HAVE_BOOST_REGEX
+
+#cmakedefine01 HAVE_BOOST_SMART_PTR
+
+#cmakedefine01 HAVE_BOOST_SYSTEM_ERROR
+
+#cmakedefine01 HAVE_BOOST_THREAD
+

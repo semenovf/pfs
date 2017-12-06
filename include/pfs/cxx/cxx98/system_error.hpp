@@ -1,16 +1,10 @@
-/* 
- * File:   system_error.hpp
- * Author: wladt
- *
- * Created on June 21, 2017, 3:22 PM
- */
-
 #ifndef __PFS_CXX_CXX98_SYSTEM_ERROR_HPP__
 #define __PFS_CXX_CXX98_SYSTEM_ERROR_HPP__
 
+#include <pfs/config.h>
 #include <pfs/cxxlang.hpp>
 
-#if HAVE_BOOST_SYSTEM
+#if HAVE_BOOST_SYSTEM_ERROR
 
 #include <boost/system/error_code.hpp>
 
@@ -169,8 +163,8 @@ lexical_cast< ::boost::system::error_code> (::boost::system::error_code const & 
 
 #else
 
-#   error "Need to implement system_error for C++98"
+#   error "Need to implement system_error for C++98 or use Boost implementation (need BoostSystem)"
 
-#endif // HAVE_BOOST_SYSTEM
+#endif // HAVE_BOOST_SYSTEM_ERROR
 
 #endif /* __PFS_CXX_CXX98_SYSTEM_ERROR_HPP__ */

@@ -1,16 +1,8 @@
-/**
- * @file   shared_ptr.cpp
- * @author wladt
- * @date   Mar 26, 2013 3:17:03 PM
- *
- * @brief
- */
-
 #include <cstdio>
 #include <pfs/test/test.hpp>
 #include <pfs/memory.hpp>
-
-#include <iostream>
+#include <pfs/debug.hpp>
+#include <pfs/assert.hpp>
 //
 // This unit tests base on BOOST's shared_ptr unit tests.
 //
@@ -43,6 +35,8 @@ int Foo::g_instances = 0;
 
 void test_empty_ptr()
 {
+    ADD_TESTS(10);
+
     // Create an empty (ie. NULL) shared_ptr
     pfs::shared_ptr<Foo> xPtr;
 
@@ -51,7 +45,7 @@ void test_empty_ptr()
     TEST_OK(0 == xPtr.use_count());
     TEST_OK(NULL == xPtr.get());
 
-    PFS_ASSERT(!xPtr); // bool cast operator error";
+    TEST_FAIL(!xPtr); // bool cast operator error";
 
     // Reset to NULL (ie. do nothing)
     xPtr.reset();
@@ -63,6 +57,7 @@ void test_empty_ptr()
 
     // sub-scope
     {
+        ADD_TESTS(12);
         // Copy construct the empty (ie. NULL) shared_ptr
     	pfs::shared_ptr<Foo> yPtr(xPtr);
 
@@ -96,7 +91,11 @@ void test_empty_ptr()
 
 void test_basic_ptr()
 {
+    ADD_TESTS(1);
+
     {
+        ADD_TESTS(9);
+
         // Create a shared_ptr
     	pfs::shared_ptr<Foo> xPtr(new Foo(123));
 
@@ -105,8 +104,9 @@ void test_basic_ptr()
         TEST_OK(1 == xPtr.use_count());
         TEST_OK(NULL != xPtr.get());
 
-        if (xPtr)
-        {
+        if (xPtr) {
+            ADD_TESTS(21);
+
             TEST_OK(123 == xPtr->m_val);
             TEST_OK(1 == xPtr->g_instances);
             TEST_OK(1 == Foo::g_instances);
@@ -136,8 +136,9 @@ void test_basic_ptr()
             TEST_OK(123 == yPtr->m_val);
             TEST_OK(1 == Foo::g_instances);
 
-            if (yPtr)
-            {
+            if (yPtr) {
+                ADD_TESTS(16);
+
                 // Assign the shared_ptr
             	pfs::shared_ptr<Foo> zPtr;
                 zPtr = xPtr;
@@ -171,7 +172,7 @@ void test_basic_ptr()
             TEST_OK(1 == Foo::g_instances);
         }
 
-        PFS_ASSERT(xPtr); // bool cast operator error
+        TEST_FAIL(xPtr); // bool cast operator error
 
         //TEST_OK(true == xPtr);
         TEST_OK(true == xPtr.unique());
@@ -186,6 +187,8 @@ void test_basic_ptr()
 
 void test_reset_ptr()
 {
+    ADD_TESTS(15);
+
     // Create an empty (ie. NULL) shared_ptr
     pfs::shared_ptr<Foo> xPtr;
 
@@ -222,6 +225,8 @@ void test_reset_ptr()
 
 void test_compare_ptr()
 {
+    ADD_TESTS(33);
+
     // Create a shared_ptr
     pfs::shared_ptr<Foo> xPtr(new Foo(123));
 
@@ -292,6 +297,8 @@ void test_compare_ptr()
 
 void test_swap_ptr()
 {
+    ADD_TESTS(12);
+
     // Create a shared_ptr
     pfs::shared_ptr<Foo> xPtr(new Foo(123));
 
@@ -334,6 +341,8 @@ void test_swap_ptr()
 
 void test_unique()
 {
+    ADD_TESTS(2);
+
     pfs::shared_ptr<int> sp1(new int(5));
     TEST_OK(sp1.unique() == true);
 
@@ -376,10 +385,10 @@ void test_deep_swap_ptr ()
 void test_cast ()
 {
     ADD_TESTS(4);
-    
+
     pfs::shared_ptr<int> p1(new int);
     pfs::shared_ptr<int> p2 = pfs::static_pointer_cast<int>(p1);
-    
+
     TEST_OK(p1.use_count() == 2);
     TEST_OK(p2.use_count() == 2);
 
@@ -394,7 +403,7 @@ void test_cast ()
 int main(int argc, char *argv[])
 {
     PFS_UNUSED2(argc, argv);
-	BEGIN_TESTS(133);
+	BEGIN_TESTS(0);
 
 	test_empty_ptr();
 	test_basic_ptr();

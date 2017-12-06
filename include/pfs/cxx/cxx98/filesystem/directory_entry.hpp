@@ -1,13 +1,7 @@
-/* 
- * File:   directory_entry.hpp
- * Author: wladt
- *
- * Created on Sep 07, 2017
- */
-
 #ifndef __PFS_CXX_CXX98_FILESYSTEM_DIRECTORY_ENTRY_HPP__
 #define __PFS_CXX_CXX98_FILESYSTEM_DIRECTORY_ENTRY_HPP__
 
+#include <pfs/config.h>
 #include <pfs/cxxlang.hpp>
 
 #if HAVE_BOOST_FILESYSTEM

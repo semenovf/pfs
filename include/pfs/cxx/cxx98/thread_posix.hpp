@@ -1,10 +1,3 @@
-/* 
- * File:   thread_posix.hpp
- * Author: wladt
- *
- * Created on June 16, 2017, 2:43 PM
- */
-
 #ifndef __PFS_CXX_CXX98_THREAD_POSIX_HPP__
 #define __PFS_CXX_CXX98_THREAD_POSIX_HPP__
 

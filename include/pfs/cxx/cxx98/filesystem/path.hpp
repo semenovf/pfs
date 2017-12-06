@@ -1,13 +1,7 @@
-/* 
- * File:   path.hpp
- * Author: wladt
- *
- * Created on Sep 07, 2017
- */
-
 #ifndef __PFS_CXX_CXX98_FILESYSTEM_PATH_HPP__
 #define __PFS_CXX_CXX98_FILESYSTEM_PATH_HPP__
 
+#include <pfs/config.h>
 #include <pfs/cxxlang.hpp>
 
 #if HAVE_BOOST_FILESYSTEM
@@ -22,7 +16,7 @@ namespace details {
 class path : public ::boost::filesystem::path
 {
     typedef ::boost::filesystem::path base_class;
-    
+
 public:
     typedef base_class native_path_type;
     typedef typename base_class::string_type string_type;

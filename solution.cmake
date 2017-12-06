@@ -1,9 +1,15 @@
-include(CheckIncludeFileCXX) # For use of CHECK_INCLUDE_FILE_CXX()
+#include(CheckIncludeFileCXX) # For use of CHECK_INCLUDE_FILE_CXX()
+include(CheckCXXCompilerFlag)
+include(${CMAKE_CURRENT_LIST_DIR}/compiler.cmake)
 
 set(PFS_PREFERRED_CXX_STANDARD 98) # FIXME
 
 # pthread
 find_package(Threads)
+
+if(CMAKE_USE_PTHREADS_INIT)
+    set(HAVE_PTHREAD 1)
+endif()
 
 # [FindBoost](https://cmake.org/cmake/help/git-master/module/FindBoost.html)
 find_package(Boost COMPONENTS
@@ -14,10 +20,35 @@ find_package(Boost COMPONENTS
     thread)
 
 if(Boost_FOUND)
-#    include_directories(${Boost_INCLUDE_DIRS})
-    check_include_file_cxx("boost/ratio.hpp" HAVE_BOOST_RATIO)
-    check_include_file_cxx("boost/smart_ptr.hpp" HAVE_BOOST_SMART_PTR)
-    check_include_file_cxx("boost/filesystem.hpp" HAVE_BOOST_FILESYSTEM)
+    # TODO try to use `find_path` instead of `if(EXISTS ...)`
+
+    if(EXISTS ${Boost_INCLUDE_DIR}/boost/ratio.hpp)
+        set(HAVE_BOOST_RATIO 1)
+    endif()
+
+    if(EXISTS ${Boost_INCLUDE_DIR}/boost/smart_ptr.hpp)
+        set(HAVE_BOOST_SMART_PTR 1)
+    endif()
+
+    if(EXISTS ${Boost_INCLUDE_DIR}/boost/filesystem.hpp)
+        set(HAVE_BOOST_FILESYSTEM 1)
+    endif()
+
+    if(EXISTS ${Boost_INCLUDE_DIR}/boost/chrono.hpp)
+        set(HAVE_BOOST_CHRONO 1)
+    endif()
+
+    if(EXISTS ${Boost_INCLUDE_DIR}/boost/regex.hpp)
+        set(HAVE_BOOST_REGEX 1)
+    endif()
+
+    if(EXISTS ${Boost_INCLUDE_DIR}/boost/thread.hpp)
+        set(HAVE_BOOST_THREAD 1)
+    endif()
+
+    if(EXISTS ${Boost_INCLUDE_DIR}/boost/system/system_error.hpp)
+        set(HAVE_BOOST_SYSTEM_ERROR 1)
+    endif()
 endif(Boost_FOUND)
 
 # [CMake with Qt4](https://wiki.qt.io/Using_CMake_build_system)
@@ -29,4 +60,4 @@ find_package(Qt5Widgets)
 
 configure_file(${CMAKE_CURRENT_LIST_DIR}/config.h.in ${CMAKE_CURRENT_LIST_DIR}/config.h)
 
-include_directories(include)
+include_directories(${CMAKE_CURRENT_LIST_DIR}/include)
