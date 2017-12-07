@@ -2,8 +2,6 @@
 include(CheckCXXCompilerFlag)
 include(${CMAKE_CURRENT_LIST_DIR}/compiler.cmake)
 
-set(PFS_PREFERRED_CXX_STANDARD 98) # FIXME
-
 # pthread
 find_package(Threads)
 
@@ -58,6 +56,6 @@ find_package(Qt4 COMPONENTS QTCORE)
 find_package(Qt5Core)
 find_package(Qt5Widgets)
 
-configure_file(${CMAKE_CURRENT_LIST_DIR}/config.h.in ${CMAKE_CURRENT_LIST_DIR}/config.h)
+configure_file(${CMAKE_CURRENT_LIST_DIR}/pfs_config.h.in ${CMAKE_BINARY_DIR}/pfs_config.h)
 
-include_directories(${CMAKE_CURRENT_LIST_DIR}/include)
+include_directories(${CMAKE_CURRENT_LIST_DIR}/include ${CMAKE_BINARY_DIR})

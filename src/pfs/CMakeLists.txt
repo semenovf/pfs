@@ -2,11 +2,13 @@ project(pfs C CXX)
 
 include(../../solution.cmake)
 
-#
-#-- Projects
-#
-set(PFS_LIB_TARGET_NAME pfs)
-set(PFS_LIB_TARGET_LINKS "")
+if(NOT PFS_TARGET_SHARED_LIB_NAME)
+    message(FATAL_ERROR "PFS_TARGET_SHARED_LIB_NAME must be specified")
+endif()
+
+if(NOT PFS_TARGET_STATIC_LIB_NAME)
+    message(FATAL_ERROR "PFS_TARGET_STATIC_LIB_NAME must be specified")
+endif()
 
 set(PFS_LIB_COMMON_SOURCES
     crc32.cpp
@@ -69,31 +71,33 @@ endif(UNIX)
 
 # Set `pfs` library dependencies
 
+set(PFS_TARGET_LIB_LINKS "")
+
 if (HAVE_BOOST_FILESYSTEM)
-    list(APPEND PFS_LIB_TARGET_LINKS "boost_filesystem")
+    list(APPEND PFS_TARGET_LIB_LINKS "boost_filesystem")
 endif()
 
 if (HAVE_BOOST_THREAD)
-    list(APPEND PFS_LIB_TARGET_LINKS "boost_thread")
+    list(APPEND PFS_TARGET_LIB_LINKS "boost_thread")
 endif()
 
 if (HAVE_BOOST_CHRONO)
-    list(APPEND PFS_LIB_TARGET_LINKS "boost_chrono")
+    list(APPEND PFS_TARGET_LIB_LINKS "boost_chrono")
 endif()
 
 if (HAVE_BOOST_REGEX)
-    list(APPEND PFS_LIB_TARGET_LINKS "boost_regex")
+    list(APPEND PFS_TARGET_LIB_LINKS "boost_regex")
 endif()
 
 if (HAVE_BOOST_SYSTEM_ERROR)
-    list(APPEND PFS_LIB_TARGET_LINKS "boost_system")
+    list(APPEND PFS_TARGET_LIB_LINKS "boost_system")
 endif()
 
 if(UNIX)
-    list(APPEND PFS_LIB_TARGET_LINKS "dl")
+    list(APPEND PFS_TARGET_LIB_LINKS "dl")
 
     if(HAVE_PTHREAD)
-        list(APPEND PFS_LIB_TARGET_LINKS "pthread")
+        list(APPEND PFS_TARGET_LIB_LINKS "pthread")
     endif()
 endif()
 
@@ -109,9 +113,9 @@ set_property(TARGET PFS_LIB_OBJLIB PROPERTY POSITION_INDEPENDENT_CODE 1)
 set_property(TARGET PFS_LIB_OBJLIB PROPERTY CXX_STANDARD ${PFS_PREFERRED_CXX_STANDARD})
 
 # shared and static libraries built from the same object files
-add_library(${PFS_LIB_TARGET_NAME}        SHARED $<TARGET_OBJECTS:PFS_LIB_OBJLIB>)
-add_library(${PFS_LIB_TARGET_NAME}_static STATIC $<TARGET_OBJECTS:PFS_LIB_OBJLIB>)
-target_link_libraries(${PFS_LIB_TARGET_NAME} ${PFS_LIB_TARGET_LINKS})
-target_link_libraries(${PFS_LIB_TARGET_NAME}_static ${PFS_LIB_TARGET_LINKS})
+add_library(${PFS_TARGET_SHARED_LIB_NAME} SHARED $<TARGET_OBJECTS:PFS_LIB_OBJLIB>)
+add_library(${PFS_TARGET_STATIC_LIB_NAME} STATIC $<TARGET_OBJECTS:PFS_LIB_OBJLIB>)
+target_link_libraries(${PFS_TARGET_SHARED_LIB_NAME} ${PFS_TARGET_LIB_LINKS})
+target_link_libraries(${PFS_TARGET_STATIC_LIB_NAME} ${PFS_TARGET_LIB_LINKS})
 #===============================================================================
 
