@@ -1,18 +1,10 @@
-/**
- * @file   uri.cpp
- * @author wladt
- * @date   Oct 12, 2012 11:18:36 AM
- *
- * @brief URI testing
- */
-
 #include "pfs/test/test.hpp"
 #include "pfs/string.hpp"
 #include "pfs/net/uri.hpp"
 #include "pfs/traits/stdcxx/string.hpp"
 
 // Enabled by `qt_enable`
-#if HAVE_QT
+#if HAVE_QT_CORE
 #   include "pfs/traits/qt/string.hpp"
 #endif
 
@@ -26,7 +18,7 @@ typedef pfs::net::uri_grammar<uri> uri_grammar;
 
 } // stdcxx
 
-#if HAVE_QT
+#if HAVE_QT_CORE
 
 namespace qt {
 
@@ -36,7 +28,7 @@ typedef pfs::net::uri_grammar<uri> uri_grammar;
 
 } // qt
 
-#endif // HAVE_QT
+#endif // HAVE_QT_CORE
 
 #if __COMMENT__
 
@@ -329,7 +321,7 @@ int main(int argc, char *argv[])
 
 	test_grammar<stdcxx::uri_grammar>();
     
-#if HAVE_QT
+#if HAVE_QT_CORE
     test_grammar<qt::uri_grammar>();
 #endif
 

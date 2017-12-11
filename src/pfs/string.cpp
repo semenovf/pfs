@@ -9,7 +9,7 @@
 //#include "pfs/unicode/utf8_iterator.hpp"
 //#include "pfs/traits/stdcxx/string.hpp"
 //
-//#if HAVE_QT
+//#if HAVE_QT_CORE
 //#   include "pfs/traits/qt/string.hpp"
 //#endif
 
@@ -105,7 +105,7 @@ namespace pfs {
 //    return __read_line<stdcxx_string_type>(octet_input_iterator(dev), octet_input_iterator());
 //}
 //
-//#if HAVE_QT
+//#if HAVE_QT_CORE
 //
 //typedef string<qt::string> qt_string_type;
 //

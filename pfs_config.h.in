@@ -14,3 +14,7 @@
 
 #cmakedefine01 HAVE_BOOST_THREAD
 
+#cmakedefine01 HAVE_QT_CORE
+
+#cmakedefine01 HAVE_QT4_CORE
+

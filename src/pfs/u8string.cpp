@@ -2,7 +2,7 @@
 #include "pfs/string.hpp"
 #include "pfs/traits/stdcxx/string.hpp"
 
-#if HAVE_QT
+#if HAVE_QT_CORE
 #   include <QByteArray>
 #   include "pfs/traits/qt/string.hpp"
 #endif
@@ -38,7 +38,7 @@ std::string u8string<std::string> (stdcxx_string_reference_type const & s)
 
 } // pfs
 
-#if HAVE_QT
+#if HAVE_QT_CORE
 namespace pfs {
 
 typedef string<qt::string>           qt_string_type;
@@ -98,4 +98,4 @@ QByteArray u8string<QByteArray> (stdcxx_string_reference_type const & s)
 
 } // pfs
 
-#endif // HAVE_QT
+#endif // HAVE_QT_CORE

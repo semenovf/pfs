@@ -4,19 +4,13 @@
 
 #include <iostream>
 #include <sstream>
-//#include <utility>
-//#include <cstdio>
-
 #include "pfs/test/test.hpp"
 #include "pfs/test/profiler.hpp"
-//#include "pfs/compiler.hpp"
-//#include "pfs/string.hpp"
 #include "pfs/typeinfo.hpp"
-//#include "pfs/limits.hpp"
 #include "pfs/traits/stdcxx/string.hpp"
 #include "pfs/safeformat.hpp"
 
-#ifdef HAVE_QT
+#ifdef HAVE_QT_CORE
 #   include <QString>
 #endif
 
@@ -320,7 +314,7 @@ void test3 ()
 	double ellapsed_sprintf;
 	double ellapsed_safeformat;
 	double ellapsed_sstream;
-#ifdef HAVE_QT
+#ifdef HAVE_QT_CORE
 	double ellapsed_qstring;
 #endif
 
@@ -339,7 +333,7 @@ void test3 ()
 		std::stringstream() << "Hey, " << i << " frobnicators and " << i <<" twiddlicators\n";
 	ellapsed_sstream = sw.ellapsed();
 
-#ifdef HAVE_QT
+#ifdef HAVE_QT_CORE
 	sw.start();
 	for (int i = loop; i > 0; --i) {
 		QString s = QString("Hey, %1 frobnicators and %2 twiddlicators\n").arg(i).arg(i);
@@ -352,7 +346,7 @@ void test3 ()
 	     << "\tprintf       = " << ellapsed_sprintf    << std::endl
 	     << "\tsafeformat   = " << ellapsed_safeformat << std::endl
 		 << "\tstringstream = " << ellapsed_sstream    << std::endl
-#ifdef HAVE_QT
+#ifdef HAVE_QT_CORE
 		 << "\tQString      = " << ellapsed_qstring    << std::endl
 #endif
 		 ;

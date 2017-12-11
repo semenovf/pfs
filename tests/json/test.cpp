@@ -1,11 +1,3 @@
-/**
- * @file   test.cpp
- * @author
- * @date
- *
- * @brief Testing pfs::json.
- */
-
 #include <pfs/test/test.hpp>
 #include <pfs/json/json.hpp>
 #include <pfs/traits/stdcxx/string.hpp>
@@ -13,7 +5,7 @@
 #include <pfs/traits/stdcxx/map.hpp>
 
 // Enabled by `qt_enable`
-#ifdef HAVE_QT
+#ifdef HAVE_QT_CORE
 #   include <pfs/traits/qt/string.hpp>
 #   include <pfs/traits/qt/vector.hpp>
 #   include <pfs/traits/qt/map.hpp>
@@ -46,7 +38,7 @@ typedef pfs::json::json<json_traits> json;
 
 } //stdcxx::json
 
-#ifdef HAVE_QT
+#ifdef HAVE_QT_CORE
 
 namespace qt {
 
@@ -76,7 +68,7 @@ int main ()
     test_stringify::test<stdcxx::json>();
     test_pretty_printer::test<stdcxx::json>();
 
-#ifdef HAVE_QT
+#ifdef HAVE_QT_CORE
     test_basic::test<qt::json>();
     test_iterator::test<qt::json>();
     test_parse::test<qt::json>();

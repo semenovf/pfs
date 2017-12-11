@@ -1,11 +1,3 @@
-/**
- * @file   test.cpp
- * @author
- * @date
- *
- * @brief Testing pfs::mpl::string.hpp.
- */
-
 #include <cstring>
 #include <cwchar>
 #include <iostream>
@@ -16,7 +8,7 @@
 #include <pfs/traits/stdcxx/string.hpp>
 
 // Enabled by `qt_enable`
-#ifdef HAVE_QT
+#ifdef HAVE_QT_CORE
 #   include <pfs/traits/qt/string.hpp>
 #endif
 
@@ -32,7 +24,7 @@ inline char const * stringify_string_impl<wchar_t const *> ()
 { return "wchar_t"; }
 
 
-#ifdef HAVE_QT
+#ifdef HAVE_QT_CORE
 
 template <>
 inline char const * stringify_string_impl<QChar const *> ()
@@ -115,7 +107,7 @@ wchar_t const * string_samples<wchar_t const *> (int i)
     return s[i];
 }
 
-#if HAVE_QT
+#if HAVE_QT_CORE
 template <>
 QChar const * string_samples<QChar const *> (int i)
 {
@@ -173,7 +165,7 @@ int main (int argc, char *argv[])
     test_u8string<pfs::stdcxx::string>();
     test_trim<pfs::stdcxx::string>();
 
-#ifdef HAVE_QT
+#ifdef HAVE_QT_CORE
     test_basic<pfs::qt::string>();
 //    test_find<pfs::qt::string>();
 //    test_substr<pfs::qt::string>();
@@ -188,6 +180,6 @@ int main (int argc, char *argv[])
     test_u8string<pfs::qt::string>();
     test_trim<pfs::qt::string>();
 #endif
-    
+
     return END_TESTS;
 }
