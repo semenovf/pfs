@@ -24,28 +24,21 @@ namespace application {
 
 struct module_spec
 {
-	shared_ptr<module>          pmodule;
-	shared_ptr<dynamic_library> pdl;
-
-	~module_spec ()
-	{
-		// Need to destroy pmodule before dynamic library will be destroyed automatically
-		//
-		pmodule.reset();
-	}
+    shared_ptr<module>          pmodule;
+    shared_ptr<dynamic_library> pdl;
 };
 
 class dispatcher : public has_slots<>
 {
 public:
     typedef system_string string_type;
-    
-	typedef struct api_item_type
-	{
-		int                 id;
-		sigslot_mapping_t * mapping;
-		string_type         desc;
-	} api_item_type_t;
+
+    typedef struct api_item_type
+    {
+        int                 id;
+        sigslot_mapping_t * mapping;
+        string_type         desc;
+    } api_item_type_t;
 
     typedef traits::associative_container<traits::kv<int, api_item_type *>
             ,  stdcxx::map> api_map;
@@ -98,7 +91,7 @@ protected:
         _logger.connect(pfs::logger::priority::error   , cerr_appender);
         _logger.connect(pfs::logger::priority::critical, cerr_appender);
     }
-    
+
     bool activate_posix_signal_handling ();
     void deactivate_posix_signal_handling ();
 
@@ -135,7 +128,7 @@ public:
 
     /**
      * @brief Register modules enumerated in configuration file (JSON) specified by @a path.
-     * 
+     *
      * @param path Configuration file path (JSON format).
      * @return @c true if modules registered successfully. @c false otherwise.
      */
@@ -144,7 +137,7 @@ public:
 
     /**
      * @brief Register modules enumerated in JSON instance specified by @a conf.
-     * 
+     *
      * @param conf JSON instance contained modules for registration.
      * @return @c true if modules registered successfully. @c false otherwise.
      */
@@ -226,12 +219,12 @@ public: // slots
     {
         return _logger;
     }
-    
+
     logger_type & logger ()
     {
         return _logger;
     }
-    
+
 	void print_info  (module const * m, string_type const & s);
 	void print_debug (module const * m, string_type const & s);
 	void print_warn  (module const * m, string_type const & s);
@@ -254,7 +247,7 @@ protected:
 };
 
 /**
- * @brief Load module descriptions in JSON format from UTF-8-encoded file 
+ * @brief Load module descriptions in JSON format from UTF-8-encoded file
  *        and register specified modules.
  * @param path Path to file.
  * @return @c true on successful loading and registration, @c false otherwise.
@@ -263,7 +256,7 @@ template <typename JsonType>
 bool dispatcher::register_modules (filesystem::path const & path)
 {
     pfs::error_code ec;
-            
+
     if (!pfs::filesystem::exists(path, ec)) {
         if (ec) {
             print_error(0, fmt("`%s': %s")
@@ -275,10 +268,10 @@ bool dispatcher::register_modules (filesystem::path const & path)
         }
         return false;
     }
-    
+
     pfs::io::device file = pfs::io::open_device<pfs::io::file>(
             pfs::io::open_params<pfs::io::file>(path, pfs::io::read_only), ec);
-    
+
     if (ec) {
         print_error(0, fmt("`%s`: file open failure: %s")
                 % pfs::to_string<string_type>(path)
@@ -289,10 +282,10 @@ bool dispatcher::register_modules (filesystem::path const & path)
     io::input_iterator<char> first(file);
     io::input_iterator<char> last;
     string_type content = read_all_u8<string_type>(first, last);
-    
+
     JsonType conf;
     ec = conf.parse(content);
-    
+
     if (ec) {
     	print_error(0, fmt("%s: Invalid JSON: %s")
                 (to_string<string_type>(path))
@@ -300,7 +293,7 @@ bool dispatcher::register_modules (filesystem::path const & path)
     	return false;
     }
 
-    return register_modules<JsonType>(conf);    
+    return register_modules<JsonType>(conf);
 }
 
 
@@ -336,7 +329,7 @@ bool dispatcher::register_modules (JsonType const & conf)
                     // Construct path from pattern
     				filesystem::path path(to_string<string_type>(current_datetime(), name).native()); // `name` is a pattern here
     				pappender = & logger.add_appender<logger::file_appender<string_type> >(path);
-                    
+
                     if (! pappender->is_open()) {
                         pfs::error_code ec = pfs::get_last_system_error();
     					print_error(0, fmt("Failed to create/open log file: %s: %s")
@@ -347,7 +340,7 @@ bool dispatcher::register_modules (JsonType const & conf)
     			}
 
     			PFS_ASSERT(pappender);
-                
+
                 // FIXME must be configurable {
                 pappender->set_pattern("%d{ABSOLUTE} [%p]: %m");
                 pappender->set_priority_text(logger::priority::trace, "T");

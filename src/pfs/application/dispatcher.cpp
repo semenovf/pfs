@@ -6,23 +6,17 @@ namespace application {
 
 struct module_deleter
 {
-	module_dtor_t _deleter;
+    module_dtor_t _deleter;
 
-	module_deleter (module_dtor_t deleter)
-		: _deleter(deleter)
-	{}
+    module_deleter (module_dtor_t deleter)
+        : _deleter(deleter)
+    {}
 
-	void operator () (module * p) const {
-		_deleter(p);
-	}
+    void operator () (module * p) const
+    {
+        _deleter(p);
+    }
 };
-
-//dispatcher::dispatcher ()
-//	: _master_module_ptr(0)
-//{
-//    init_default_logger();
-//    activate_posix_signal_handling();
-//}
 
 dispatcher::dispatcher (api_item_type * mapping, int n)
     : _master_module_ptr(0)
@@ -47,34 +41,34 @@ inline dispatcher::string_type __build_string_for_log (module const * m
 
 void dispatcher::print_info (module const * m, string_type const & s)
 {
-	_logger.info(__build_string_for_log(m, s));
-	emit_info(m, s);
+    _logger.info(__build_string_for_log(m, s));
+    emit_info(m, s);
 }
 
 void dispatcher::print_debug (module const * m, string_type const & s)
 {
-	_logger.debug(__build_string_for_log(m, s));
-	emit_debug(m, s);
+    _logger.debug(__build_string_for_log(m, s));
+    emit_debug(m, s);
 }
 
 void dispatcher::print_warn  (module const * m, string_type const & s)
 {
-	_logger.warn(__build_string_for_log(m, s));
-	emit_warn(m, s);
+    _logger.warn(__build_string_for_log(m, s));
+    emit_warn(m, s);
 }
 
 void dispatcher::print_error (module const * m, string_type const & s)
 {
-	_logger.error(__build_string_for_log(m, s));
-	emit_error(m, s);
+    _logger.error(__build_string_for_log(m, s));
+    emit_error(m, s);
 }
 
 void dispatcher::finalize ()
 {
-	if (_module_spec_map.size() > 0) {
-		disconnect_all();
-		unregister_all();
-	}
+    if (_module_spec_map.size() > 0) {
+        disconnect_all();
+        unregister_all();
+    }
 }
 
 module_spec dispatcher::module_for_path (filesystem::path const & path
@@ -256,10 +250,13 @@ void dispatcher::unregister_all ()
     module_spec_map::iterator last = _module_spec_map.end();
 
     for (; it != last; ++it) {
-        module_spec modspec = it->second;
-        shared_ptr<module> pmodule = modspec.pmodule;
+        module_spec & modspec = it->second;
+        shared_ptr<module> & pmodule = modspec.pmodule;
         pmodule->emit_module_registered.disconnect(this);
         print_debug(0, fmt("%s: unregistered") % (pmodule->name()));
+
+        // Need to destroy pmodule before dynamic library will be destroyed automatically
+        pmodule.reset();
     }
 
     _module_spec_map.clear();
