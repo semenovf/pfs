@@ -1,10 +1,3 @@
-/*
- * server.hpp
- *
- *  Created on: Jan 13, 2016
- *      Author: wladt
- */
-
 #ifndef __PFS_IO_SERVER_HPP__
 #define __PFS_IO_SERVER_HPP__
 
@@ -12,7 +5,8 @@
 #include <pfs/io/bits/server.hpp>
 #include <pfs/io/device.hpp>
 
-namespace pfs { namespace io {
+namespace pfs {
+namespace io {
 
 template <typename ServerImpl>
 struct open_params;
@@ -33,21 +27,21 @@ protected:
 
 public:
     server ()
-		: _d()
-	{}
+        : _d()
+    {}
 
     ~server ()
     {}
 
     native_handle_type native_handle () const
     {
-    	return _d->native_handle();
+        return _d->native_handle();
     }
 
     operator bool () const
-	{
-    	return opened();
-	}
+    {
+        return opened();
+    }
 
     bool is_error () const
     {
@@ -61,24 +55,24 @@ public:
 
     bool is_null () const
     {
-    	return !_d;
+        return !_d;
     }
 
-	bool opened () const
-	{
-	    return _d ? _d->opened() : false;
-	}
+    bool opened () const
+    {
+        return _d ? _d->opened() : false;
+    }
 
     bool set_nonblocking (bool on)
     {
-    	return _d->set_nonblocking(on);
+        return _d->set_nonblocking(on);
     }
 
     bool is_nonblocking () const
     {
         return _d->is_nonblocking();
     }
-    
+
     /**
      * @brief Close device.
      * @return @c true if device closed successfully,
@@ -89,53 +83,53 @@ public:
      */
     bool close ();
 
-	/**
-	 *
-	 * @param
-	 * @param non_blocking Sets non-blocking to the accepted device.
-	 *		Using this flag saves extra calls to set_non_blocking() call.
-	 *
-	 * @return
-	 */
-	error_code accept (device & peer, bool non_blocking);
+    /**
+     *
+     * @param
+     * @param non_blocking Sets non-blocking to the accepted device.
+     *		Using this flag saves extra calls to set_non_blocking() call.
+     *
+     * @return
+     */
+    error_code accept (device & peer, bool non_blocking);
 
-	server_type type () const
-	{
-		return _d->type();
-	}
+    server_type type () const
+    {
+        return _d->type();
+    }
 
-	void set_context (context_type * ctx)
-	{
-		_d->set_context(ctx);
-	}
+    void set_context (context_type * ctx)
+    {
+        _d->set_context(ctx);
+    }
 
-	const context_type * context () const
-	{
-		return _d->context();
-	}
+    const context_type * context () const
+    {
+        return _d->context();
+    }
 
-	context_type * context ()
-	{
-		return _d->context();
-	}
-    
+    context_type * context ()
+    {
+        return _d->context();
+    }
+
     std::string url () const
     {
         return _d->url();
     }
 
-	bool operator == (const server & other)
-	{
-		return _d == other._d;
-	}
+    bool operator == (const server & other)
+    {
+        return _d == other._d;
+    }
 
-	bool operator != (const server & other)
-	{
-		return ! operator == (other);
-	}
+    bool operator != (const server & other)
+    {
+        return ! operator == (other);
+    }
 
-	template <typename ServerTag>
-	friend server open_server (open_params<ServerTag> const &, error_code & ec);
+    template <typename ServerTag>
+    friend server open_server (open_params<ServerTag> const &, error_code & ec);
 };
 
 template <typename ServerTag>

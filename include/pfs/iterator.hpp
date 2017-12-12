@@ -1,10 +1,3 @@
-/*
- * iterator.hpp
- *
- *  Created on: Oct 25, 2015
- *      Author: wladt
- */
-
 #ifndef __PFS_ITERATOR_HPP__
 #define __PFS_ITERATOR_HPP__
 
@@ -19,13 +12,13 @@ struct basic_safe_iterator
 {
     typedef typename Iter::value_type value_type;
     typedef typename Iter::pointer    pointer;
-    
+
     Iter pos;
     Iter const first;
     Iter const last;
-    
+
     basic_safe_iterator () {}
-    
+
     basic_safe_iterator (Iter const & p, Iter const & f, Iter const & l)
             : pos(p), first(f), last(l)
     {}
@@ -38,13 +31,13 @@ struct safe_input_iterator : basic_safe_iterator<input_iterator_tag, Iter>
     typedef basic_safe_iterator<input_iterator_tag, Iter> base_class;
     typedef typename base_class::value_type value_type;
     typedef typename base_class::pointer    pointer;
-    
+
     safe_input_iterator () : base_class() {}
-    
+
     safe_input_iterator (Iter const & p, Iter const & l)
             : base_class(p, p, l)
     {}
-    
+
     value_type operator * () const
     {
     	return *base_class::pos;

@@ -1,10 +1,3 @@
-/*
- * test.hpp
- *
- *  Created on: 21.11.2013
- *      Author: wladt
- */
-
 #ifndef __PFS_TEST_HPP__
 #define __PFS_TEST_HPP__
 

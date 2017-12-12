@@ -1,10 +1,3 @@
-/* 
- * File:   exception.hpp
- * Author: wladt
- *
- * Created on June 27, 2017, 3:45 PM
- */
-
 #ifndef __PFS_JSON_EXCEPTION_HPP__
 #define __PFS_JSON_EXCEPTION_HPP__
 
@@ -15,10 +8,10 @@
 namespace pfs {
 
 #if __cplusplus >= 201103L
-enum class json_errc 
+enum class json_errc
 {
 #else
-struct json_errc 
+struct json_errc
 {
     enum value_enum {
 #endif
@@ -27,11 +20,13 @@ struct json_errc
         , excess_source
         , bad_number
         , range
-#if __cplusplus < 201103L                  
+        , array_expected
+        , object_expected
+#if __cplusplus < 201103L
     };
 
     value_enum v;
-    
+
     json_errc (value_enum x)
         : v(x)
     {}
@@ -41,17 +36,17 @@ struct json_errc
         v = x;
         return *this;
     }
-    
+
     operator int () const
     {
         return static_cast<int>(v);
-    }    
-#endif    
+    }
+#endif
 };
 
 namespace details {
 
-class json_category : public pfs::error_category 
+class json_category : public pfs::error_category
 {
 public:
     virtual char const * name () const pfs_noexcept pfs_override;
@@ -96,7 +91,7 @@ namespace std {
 
 template<>
 struct is_error_code_enum<pfs::json_errc>
-        : public std::true_type 
+        : public std::true_type
 {};
 
 #endif

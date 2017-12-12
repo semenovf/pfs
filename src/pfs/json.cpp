@@ -13,21 +13,27 @@ std::string json_category::message (int ev) const
 {
     switch (ev) {
     case static_cast<int>(json_errc::success):
-        return "No error";
-        
+        return "no error";
+
     case static_cast<int>(json_errc::bad_json):
-        return "Bad JSON";
+        return "bad JSON";
 
     case static_cast<int>(json_errc::excess_source):
-        return "Excess source for JSON";
+        return "excess source for JSON";
 
     case static_cast<int>(json_errc::bad_number):
-        return "Bad number";
+        return "bad number";
 
     case static_cast<int>(json_errc::range):
-        return "Out of bounds";
+        return "out of bounds";
 
-    default: return "Unknown JSON error";
+    case static_cast<int>(json_errc::array_expected):
+        return "array expected";
+
+    case static_cast<int>(json_errc::object_expected):
+        return "object expected";
+
+    default: return "unknown JSON error";
     }
 }
 

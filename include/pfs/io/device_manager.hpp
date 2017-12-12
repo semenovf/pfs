@@ -1,10 +1,3 @@
-/* 
- * File:   device_manager.hpp
- * Author: wladt
- *
- * Created on November 14, 2016, 4:29 PM
- */
-
 #ifndef __PFS_IO_DEVICE_MANAGER_HPP__
 #define __PFS_IO_DEVICE_MANAGER_HPP__
 
@@ -19,9 +12,9 @@ namespace io {
 
 // All devices must be in non-blocking mode.
 
-template <template <typename> class SequenceContainer
-        , template <typename> class ContigousContainer
-        , template <typename> class AssociativeContainer>
+template <template <typename> class SequenceContainerImpl
+        , template <typename> class ContigousContainerImpl
+        , template <typename> class AssociativeContainerImpl>
 class device_manager : has_slots<>
 {
     struct reopen_item
@@ -36,9 +29,9 @@ class device_manager : has_slots<>
         }
     };
 
-    typedef pool<SequenceContainer
-            , ContigousContainer
-            , AssociativeContainer>     pool_type;
+    typedef pool<SequenceContainerImpl
+            , ContigousContainerImpl
+            , AssociativeContainerImpl> pool_type;
     typedef stdcxx::set<reopen_item>    reopen_queue;
 
     class dispatcher_context1 : public pool_type::dispatcher_context
@@ -59,22 +52,22 @@ class device_manager : has_slots<>
         {}
 
     public:
-        virtual void accepted (device & d, server & listener) pfs_override 
+        virtual void accepted (device & d, server & listener) pfs_override
         {
             _m->accepted(d, listener);
         }
 
-        virtual void ready_read (device & d) pfs_override 
+        virtual void ready_read (device & d) pfs_override
         {
             _m->ready_read(d);
         }
 
-        virtual void disconnected (device & d) pfs_override 
+        virtual void disconnected (device & d) pfs_override
         {
             _m->disconnected(d);
         }
 
-        virtual void on_error (error_code const & ex) pfs_override 
+        virtual void on_error (error_code const & ex) pfs_override
         {
             _m->error(ex);
         }
@@ -122,7 +115,7 @@ public:
     typedef typename pool_type::device_sequence device_sequence;
     typedef typename pool_type::server_sequence server_sequence;
 
-private:    
+private:
     // Main device pool (for valid (operational) devices)
     pool_type _p1;
 
@@ -268,14 +261,14 @@ public:
     {
         return _p1.fetch_devices(filter, context);
     }
-    
+
 	server_sequence fetch_servers (
               bool (* filter) (server const & s, void * context)
             , void * context)
     {
         return _p1.fetch_servers(filter, context);
     }
-    
+
     void dispatch ()
     {
         //if (_p1.server_count() > 0 || _p1.device_count())
@@ -290,7 +283,7 @@ public:
 
 public: // signals
     signal2<device, server>     accepted;     ///<! accept connection (for connection based server devices)
-    signal1<device>             ready_read;   ///<! device is ready for read 
+    signal1<device>             ready_read;   ///<! device is ready for read
     signal1<device>             opened;       ///<! opened (for regular files, servers) or connected (for connection based client devices)
     signal1<device>             disconnected; ///<! disconnection for connection based devices, including peer devices
     signal1<device>             opening;      ///<! open (connection) in progress (for connection based client devices)

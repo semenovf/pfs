@@ -7,7 +7,8 @@
 #include <pfs/algo/split.hpp>
 #include <pfs/stringlist.hpp>
 
-namespace pfs { namespace net {
+namespace pfs {
+namespace net {
 
 /**
  * @brief Satisfies Concepts:
@@ -112,7 +113,7 @@ public:
         : _addr(invalid_addr_value)
     {
         typedef stringlist<StringType> stringlist_type;
-        
+
         stringlist_type sl;
         StringType separator(".");
 
@@ -129,7 +130,7 @@ public:
             uint32_t A = 0;
 
             typename stringlist_type::const_iterator it0 = sl.cbegin();
-            
+
             if (parse_part<StringType>(A, 0xFFFFFFFF, it0->cbegin(), it0->cend())) {
                 inet4_addr other(A);
                 this->swap(other);
@@ -141,10 +142,10 @@ public:
         case 2: {
             uint32_t a = 0;
             uint32_t B = 0;
-            
+
             typename stringlist_type::const_iterator it0 = sl.cbegin();
             typename stringlist_type::const_iterator it1 = it0;
-            
+
             ++it1;
 
             if (parse_part<StringType>(a, 0xFF, it0->cbegin(), it0->cend())
@@ -165,7 +166,7 @@ public:
             typename stringlist_type::const_iterator it0 = sl.cbegin();
             typename stringlist_type::const_iterator it1 = it0;
             typename stringlist_type::const_iterator it2 = it0;
-            
+
             ++it1;
             ++(++it2);
 
@@ -187,12 +188,12 @@ public:
             uint32_t b = 0;
             uint32_t c = 0;
             uint32_t d = 0;
-            
+
             typename stringlist_type::const_iterator it0 = sl.cbegin();
             typename stringlist_type::const_iterator it1 = it0;
             typename stringlist_type::const_iterator it2 = it0;
             typename stringlist_type::const_iterator it3 = it0;
-            
+
             ++it1;
             ++(++it2);
             ++(++(++it3));
@@ -235,11 +236,11 @@ public:
     {
     	pfs::swap(_addr, other._addr);
     }
-    
+
 public:
     /**
      * @brief Parses string representing TCP/UDP address in format @c proto://inet4_addr:port.
-     * 
+     *
      * @param s String in format @c proto://inet4_addr:port, where proto must be equal to 'tcp' or 'udp'.
      * @param proto Reference to store resulting proto.
      * @param ip Reference to store resulting inet4 address.
@@ -253,7 +254,7 @@ public:
             , uint16_t * port)
     {
         typedef stringlist<StringType> stringlist_type;
-        
+
         stringlist_type sl;
         sl.split(s, StringType("://"), true);
 
@@ -264,21 +265,21 @@ public:
 //            return false;
 
         typename stringlist_type::const_iterator it = sl.cbegin();
-        
+
         if (proto)
             *proto = *it;
 
         ++it;
         StringType tail = *it;
         sl.clear();
-        
+
         sl.split(tail, StringType(":"), true);
 
         if (sl.size() != 2)
             return false;
 
         it = sl.cbegin();
-        
+
         if (ip) {
             *ip = pfs::net::inet4_addr(*it);
 
@@ -287,7 +288,7 @@ public:
         }
 
         ++it;
-                
+
         if (port) {
             try {
                 *port = pfs::lexical_cast<uint16_t>(*it, 0);
@@ -298,7 +299,7 @@ public:
 
         return true;
     }
-    
+
 private:
     template <typename StringType>
     static bool parse_part (uint32_t & result
@@ -494,7 +495,6 @@ bool inet_socket_impl::open (inet_proto_enum protocol, int32_t oflags, errorable
 }} // pfs:io
 
 namespace pfs {
-
 namespace details {
 
 template <typename StringType>
@@ -645,7 +645,7 @@ StringType to_string (net::inet4_addr const & addr
 		++it;
 	}
 
-	return r;    
+	return r;
 }
 
 /**

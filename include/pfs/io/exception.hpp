@@ -1,10 +1,3 @@
-/* 
- * File:   exception.hpp
- * Author: wladt
- *
- * Created on July 3, 2017, 3:52 PM
- */
-
 #ifndef __PFS_IO_EXCEPTION_HPP__
 #define __PFS_IO_EXCEPTION_HPP__
 
@@ -15,7 +8,7 @@
 namespace pfs {
 
 #if __cplusplus >= 201103L
-enum class io_errc 
+enum class io_errc
 {
 #else
 struct io_errc
@@ -31,11 +24,11 @@ struct io_errc
 //        , overflow
 //        , invalid_string
         , stream
-#if __cplusplus < 201103L                  
+#if __cplusplus < 201103L
     };
-    
+
     value_enum v;
-    
+
     io_errc (value_enum x)
         : v(x)
     {}
@@ -45,16 +38,16 @@ struct io_errc
         v = x;
         return *this;
     }
-    
+
     operator int () const
     {
         return static_cast<int>(v);
     }
-#endif    
+#endif
 };
 
 namespace details {
-class io_category : public pfs::error_category 
+class io_category : public pfs::error_category
 {
 public:
     virtual char const * name () const pfs_noexcept pfs_override;
@@ -98,7 +91,7 @@ namespace std {
 
 template<>
 struct is_error_code_enum<pfs::io_errc>
-        : public std::true_type 
+        : public std::true_type
 {};
 
 #endif

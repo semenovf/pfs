@@ -1,10 +1,3 @@
-/*
- * inet_socket.hpp
- *
- *  Created on: Jan 11, 2016
- *      Author: wladt
- */
-
 #ifndef __PFS_IO_INET_SOCKET_HPP__
 #define __PFS_IO_INET_SOCKET_HPP__
 
@@ -66,7 +59,7 @@ struct open_params<inet_socket>
 	uint16_t port;
 	device::open_mode_flags oflags;
 	uint32_t socketopts;
-    
+
     open_params (net::inet4_addr a, uint16_t p, device::open_mode_flags of, uint32_t sso)
         : addr(a)
 		, port(p)
@@ -79,9 +72,9 @@ template <>
 struct open_params<tcp_socket> : public open_params<inet_socket>
 {
     typedef open_params<inet_socket> base_class;
-    
-	open_params () 
-        : base_class(net::inet4_addr(), 0, 0, 0) 
+
+	open_params ()
+        : base_class(net::inet4_addr(), 0, 0, 0)
     {}
 
 	/**
@@ -107,9 +100,9 @@ template <>
 struct open_params<udp_socket> : public open_params<inet_socket>
 {
     typedef open_params<inet_socket> base_class;
-    
-	open_params () 
-        : base_class(net::inet4_addr(), 0, 0, 0) 
+
+	open_params ()
+        : base_class(net::inet4_addr(), 0, 0, 0)
     {}
 
 	/**

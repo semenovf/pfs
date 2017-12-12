@@ -1,10 +1,3 @@
-/*
- * device_impl.hpp
- *
- *  Created on: Dec 16, 2015
- *      Author: wladt
- */
-
 #ifndef __PFS_IO_BITS_DEVICE_HPP__
 #define __PFS_IO_BITS_DEVICE_HPP__
 
@@ -90,17 +83,17 @@ public:
     		delete _ctx;
     	_ctx = context;
     }
-    
+
     error_code errorcode () const
     {
         return _ec;
     }
-    
+
     bool is_error () const
     {
         return _ec != error_code();
     }
-    
+
     virtual system_string url () const = 0;
 };
 
@@ -137,7 +130,7 @@ public:
     virtual void flush () = 0;
 
     virtual bool set_nonblocking (bool on) = 0;
-    
+
     virtual bool is_nonblocking () const = 0;
 
     virtual native_handle_type native_handle () const = 0;

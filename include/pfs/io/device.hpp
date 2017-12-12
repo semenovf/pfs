@@ -1,10 +1,3 @@
-/*
- * device.hpp
- *
- *  Created on: Jul 12, 2013
- *      Author: wladt
- */
-
 #ifndef __PFS_IO_DEVICE_HPP__
 #define __PFS_IO_DEVICE_HPP__
 
@@ -49,7 +42,7 @@ public:
 
     ~device ()
     {}
-    
+
 #if __cplusplus >= 201103L
     device (device const & rhs) = default;
 #endif
@@ -78,7 +71,7 @@ public:
     {
         return _d->errorcode();
     }
-    
+
     bool is_null () const
     {
     	return !_d;
@@ -178,7 +171,7 @@ public:
 	{
     	return this->write(bytes.data(), bytes.size());
 	}
-    
+
 	device_type type () const
 	{
 		return _d->type();
@@ -203,7 +196,7 @@ public:
     {
         return _d->url();
     }
-    
+
 	void swap (device & other)
 	{
 		_d.swap(other._d);

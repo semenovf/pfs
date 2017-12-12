@@ -1,9 +1,3 @@
-/*
- * device_pool_posix.cpp
- *
- *  Created on: Jan 13, 2016
- *      Author: wladt
- */
 #ifndef __PFS_IO_POSIX_POOL_HPP__
 #define __PFS_IO_POSIX_POOL_HPP__
 

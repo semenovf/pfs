@@ -1,10 +1,3 @@
-/*
- * mbcs_string.cpp
- *
- *  Created on: Nov 15, 2013
- *  Author: wladt
- */
-
 #ifndef __PFS_TEST_TO_STRING_HPP__
 #define __PFS_TEST_TO_STRING_HPP__
 
@@ -15,9 +8,9 @@ void test_to_string ()
     typedef typename string_type::value_type value_type;
 
     test_description<value_type>(__PRETTY_FUNCTION__);
-    
+
     ADD_TESTS(13);
-        
+
 	TEST_OK((pfs::to_string<string_type>(0) == string_type("0")));
 	TEST_OK((pfs::to_string<string_type>(127)     == string_type("127")));
 	TEST_OK((pfs::to_string<string_type>(-128)    == string_type("-128")));

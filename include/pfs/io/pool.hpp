@@ -1,10 +1,3 @@
-/*
- * device_pool.hpp
- *
- *  Created on: Jan 13, 2016
- *      Author: wladt
- */
-
 #ifndef __PFS_IO_POOL_HPP__
 #define __PFS_IO_POOL_HPP__
 
@@ -12,9 +5,7 @@
 #include <pfs/operationsystem.hpp>
 
 #if PFS_OS_POSIX
-
-#   include <pfs/io/posix/pool.hpp>
-
+    #include <pfs/io/posix/pool.hpp>
 #endif
 
 #include <pfs/debug.hpp>
@@ -45,145 +36,145 @@ public:
             , AssociativeContainerImpl>         pool_impl;
     typedef typename pool_impl::device_sequence device_sequence;
     typedef typename pool_impl::server_sequence server_sequence;
-    
-	enum value_enum
-	{
-		  Null
-		, Listener
-		, Device
-	};
 
-	class value
-	{
-		friend class pool;
+    enum value_enum
+    {
+          Null
+        , Listener
+        , Device
+    };
 
-		value_enum type;
-		server s;
-		device d;
+    class value
+    {
+        friend class pool;
 
-	public:
-		value ()
-			: type(Null)
-		{}
+        value_enum type;
+        server s;
+        device d;
 
-		value (const value & other)
-			: type(other.type)
-			, s(other.s)
-			, d(other.d)
-		{}
+    public:
+        value ()
+            : type(Null)
+        {}
 
-		value & operator = (const value & other)
-		{
-			type = other.type;
-			s = other.s;
-			d = other.d;
-			return *this;
-		}
+        value (const value & other)
+            : type(other.type)
+            , s(other.s)
+            , d(other.d)
+        {}
 
-		value (const server & other)
-			: type(Listener)
-			, s(other)
-		{}
+        value & operator = (const value & other)
+        {
+            type = other.type;
+            s = other.s;
+            d = other.d;
+            return *this;
+        }
 
-		value (const device & other)
-			: type(Device)
-			, d(other)
-		{}
+        value (const server & other)
+            : type(Listener)
+            , s(other)
+        {}
 
-		server & get_server ()
-		{
-			return s;
-		}
+        value (const device & other)
+            : type(Device)
+            , d(other)
+        {}
 
-		server & get_listener ()
-		{
-			return s;
-		}
+        server & get_server ()
+        {
+            return s;
+        }
 
-		device & get_device ()
-		{
-			return d;
-		}
+        server & get_listener ()
+        {
+            return s;
+        }
 
-		const server & get_server () const
-		{
-			return s;
-		}
+        device & get_device ()
+        {
+            return d;
+        }
 
-		const server & get_listener () const
-		{
-			return s;
-		}
+        const server & get_server () const
+        {
+            return s;
+        }
 
-		const device & get_device () const
-		{
-			return d;
-		}
+        const server & get_listener () const
+        {
+            return s;
+        }
 
-		bool is_server () const
-		{
-			return type == Listener;
-		}
+        const device & get_device () const
+        {
+            return d;
+        }
 
-		bool is_device () const
-		{
-			return type == Device;
-		}
+        bool is_server () const
+        {
+            return type == Listener;
+        }
 
-		bool operator == (const server & rhs) const
-		{
-			return type == Listener && s == rhs;
-		}
+        bool is_device () const
+        {
+            return type == Device;
+        }
 
-		bool operator == (const device & rhs) const
-		{
-			return type == Device && d == rhs;
-		}
+        bool operator == (const server & rhs) const
+        {
+            return type == Listener && s == rhs;
+        }
 
-		bool operator != (const server & rhs) const
-		{
-			return ! operator == (rhs);
-		}
+        bool operator == (const device & rhs) const
+        {
+            return type == Device && d == rhs;
+        }
 
-		bool operator != (const device & rhs) const
-		{
-			return ! operator == (rhs);
-		}
-	};
+        bool operator != (const server & rhs) const
+        {
+            return ! operator == (rhs);
+        }
 
-	class iterator
-	{
-		friend class pool;
+        bool operator != (const device & rhs) const
+        {
+            return ! operator == (rhs);
+        }
+    };
 
-		pool * _powner;
-		shared_ptr<bits::pool_iterator> _d;
+    class iterator
+    {
+        friend class pool;
 
-	protected:
-		iterator (pool * owner, bits::pool_iterator * pd)
-			: _powner(owner)
-			, _d(pd)
+        pool * _powner;
+        shared_ptr<bits::pool_iterator> _d;
 
-		{}
+    protected:
+        iterator (pool * owner, bits::pool_iterator * pd)
+            : _powner(owner)
+            , _d(pd)
 
-	public:
-		iterator ()
-			: _powner(0)
-		{}
+        {}
 
-		iterator & operator ++ ()
-		{
-			_d->next();
-			return *this;
-		}
+    public:
+        iterator ()
+            : _powner(0)
+        {}
+
+        iterator & operator ++ ()
+        {
+            _d->next();
+            return *this;
+        }
 
         // No need to implement
 //		iterator operator ++ (int)
 //		{}
 
-		value operator * () const
+        value operator * () const
         {
             if (_d) {
-                typename pool_impl::iterator * details_it 
+                typename pool_impl::iterator * details_it
                         = static_cast<typename pool_impl::iterator *> (_d.get());
                 pool_impl * details_pool = static_cast<pool_impl *> (_powner->_d.get());
 
@@ -221,10 +212,10 @@ public:
 
             return pool::value();
         }
-        
-		bool operator == (iterator const & rhs) const
+
+        bool operator == (iterator const & rhs) const
         {
-            typename pool_impl::iterator * it1 = 
+            typename pool_impl::iterator * it1 =
                     static_cast<typename pool_impl::iterator *>(_d.get());
             typename pool_impl::iterator * it2 =
                     static_cast<typename pool_impl::iterator *>(rhs._d.get());
@@ -235,14 +226,14 @@ public:
             PFS_ASSERT(it1);
             PFS_ASSERT(it2);
             return it1->eq(*it2);
-        }        
+        }
 
-		bool operator != (const iterator & rhs) const
-		{
-			return ! operator == (rhs);
-		}
+        bool operator != (const iterator & rhs) const
+        {
+            return ! operator == (rhs);
+        }
 
-		short revents () const
+        short revents () const
         {
             typename pool_impl::iterator * it =
                     static_cast<typename pool_impl::iterator *> (_d.get());
@@ -251,75 +242,75 @@ public:
     };
 
 private:
-	shared_ptr<bits::pool> _d;
+    shared_ptr<bits::pool> _d;
 
 protected:
-	pool (bits::pool * pd)
-		: _d(pd)
-	{}
+    pool (bits::pool * pd)
+        : _d(pd)
+    {}
 
     void swap (pool & other)
     {
-    	_d.swap(other._d);
+        _d.swap(other._d);
     }
 
 public:
-	pool ()
-    	: _d(new pool_impl())
+    pool ()
+        : _d(new pool_impl())
     {}
 
 
-	size_t device_count () const
+    size_t device_count () const
     {
         pool_impl * pdp = static_cast<pool_impl *>(_d.get());
         return pdp->_device_map.size();
     }
 
-	size_t server_count () const
+    size_t server_count () const
     {
         pool_impl * pdp = static_cast<pool_impl *>(_d.get());
         return pdp->_server_map.size();
     }
 
-	void push_back (device d, int events = poll_all)
+    void push_back (device d, int events = poll_all)
     {
-    	PFS_ASSERT(_d);
+        PFS_ASSERT(_d);
         pool_impl * pdp = static_cast<pool_impl *>(_d.get());
         pdp->push_back(d, events);
     }
 
-	void push_back (server s, int events = poll_all)
+    void push_back (server s, int events = poll_all)
     {
         PFS_ASSERT(_d);
         pool_impl * pdp = static_cast<pool_impl *>(_d.get());
         pdp->push_back(s, events);
     }
 
-	void delete_deferred (device d)
+    void delete_deferred (device d)
     {
         PFS_ASSERT(_d);
         pool_impl * pdp = static_cast<pool_impl *>(_d.get());
         pdp->delete_deferred(d);
     }
 
-	void delete_deferred (server s)
+    void delete_deferred (server s)
     {
         PFS_ASSERT(_d);
         pool_impl * pdp = static_cast<pool_impl *> (_d.get());
         pdp->delete_deferred(s);
     }
 
-	device_sequence fetch_devices (
-              bool (* filter) (device const & d, void * context)
+    device_sequence fetch_devices (
+                bool (* filter) (device const & d, void * context)
             , void * context)
     {
         PFS_ASSERT(_d);
         pool_impl * pdp = static_cast<pool_impl *>(_d.get());
         return  pdp->fetch_devices(filter, context);
     }
-    
-	server_sequence fetch_servers (
-              bool (* filter) (server const & s, void * context)
+
+    server_sequence fetch_servers (
+                bool (* filter) (server const & s, void * context)
             , void * context)
     {
         PFS_ASSERT(_d);
@@ -327,33 +318,33 @@ public:
         return pdp->fetch_servers(filter, context);
     }
 
-	typedef pfs::pair<pool::iterator, pool::iterator> poll_result_type;
+    typedef pfs::pair<pool::iterator, pool::iterator> poll_result_type;
 
-	/**
-	 * @brief Wait for some event on a file descriptor.
-	 *
-	 * @details The call will block until either
-	 * 		@li a device becomes ready;
-	 * 		@li the call is interrupted by a signal handler; or
-	 * 		@li the timeout expires.
-	 *
-	 * @param filter_events
-	 * @param millis The timeout argument specifies the number of milliseconds
-	 * 		that poll() should block waiting for a device to become ready.
-	 * 		Zero value Causes poll() to return immediately, even if no devices
-	 * 		are ready.
-	 * @param devices List of devices become ready.
-	 * @param ex Pointer to store error code on error.
-	 *
-	 * @return On success, a positive number is returned;
-	 * 		this is the number of descriptors with events or errors reported.
-	 * 		A value of 0 indicates that the call timed out and no file
-	 * 		descriptors were ready.
-	 * 		On error, -1 is returned, and @a *ex is set appropriately.
-	 */
-	poll_result_type poll (int filter_events = poll_all
-			 , int millis = 0
-			 , error_code * ec = 0)
+    /**
+        * @brief Wait for some event on a file descriptor.
+        *
+        * @details The call will block until either
+        * 		@li a device becomes ready;
+        * 		@li the call is interrupted by a signal handler; or
+        * 		@li the timeout expires.
+        *
+        * @param filter_events
+        * @param millis The timeout argument specifies the number of milliseconds
+        * 		that poll() should block waiting for a device to become ready.
+        * 		Zero value Causes poll() to return immediately, even if no devices
+        * 		are ready.
+        * @param devices List of devices become ready.
+        * @param ex Pointer to store error code on error.
+        *
+        * @return On success, a positive number is returned;
+        * 		this is the number of descriptors with events or errors reported.
+        * 		A value of 0 indicates that the call timed out and no file
+        * 		descriptors were ready.
+        * 		On error, -1 is returned, and @a *ex is set appropriately.
+        */
+    poll_result_type poll (int filter_events = poll_all
+                , int millis = 0
+                , error_code * ec = 0)
     {
         pool_impl * pdp = static_cast<pool_impl *> (_d.get());
         typename pool_impl::iterator * begin = 0;
@@ -367,42 +358,42 @@ public:
         }
 
         return poll_result_type(pool::iterator(), pool::iterator());
-    }            
+    }
 
-	class dispatcher_context
-	{
-		friend class pool;
+    class dispatcher_context
+    {
+        friend class pool;
 
-		int _millis;
-		int _filter_events;
+        int _millis;
+        int _filter_events;
 
-	public:
-		dispatcher_context ()
-			: _millis(0)
-			, _filter_events(poll_all)
-		{}
+    public:
+        dispatcher_context ()
+            : _millis(0)
+            , _filter_events(poll_all)
+        {}
 
-		dispatcher_context (int millis)
-			: _millis(millis)
-			, _filter_events(poll_all)
-		{}
+        dispatcher_context (int millis)
+            : _millis(millis)
+            , _filter_events(poll_all)
+        {}
 
-		dispatcher_context (int millis, int filter_events)
-			: _millis(millis)
-			, _filter_events(filter_events)
-		{}
+        dispatcher_context (int millis, int filter_events)
+            : _millis(millis)
+            , _filter_events(filter_events)
+        {}
 
-		virtual ~dispatcher_context () {}
+        virtual ~dispatcher_context () {}
 
-	public:
-		virtual void accepted (device &, server &) {}
-		virtual void ready_read (device &) {}
-		virtual void disconnected (device &) {}
-		virtual void can_write (device &) {}
-		virtual void on_error (error_code const &) {}
-	};
+    public:
+        virtual void accepted (device &, server &) {}
+        virtual void ready_read (device &) {}
+        virtual void disconnected (device &) {}
+        virtual void can_write (device &) {}
+        virtual void on_error (error_code const &) {}
+    };
 
-	void dispatch (dispatcher_context & context)
+    void dispatch (dispatcher_context & context)
     {
         pfs::error_code ex;
         poll_result_type result = this->poll(context._filter_events, context._millis, & ex);
@@ -473,8 +464,8 @@ private:
                 break;
             }
         }
-    }    
-    
+    }
+
     // Used by dispatch(...)
     void process_device (pfs::io::device & dev
             , pool::dispatcher_context & context
@@ -482,9 +473,10 @@ private:
     {
         if (dev.available() == 0
                 && (revents & poll_in)) { // TODO Check if this event enough to decide to disconnect.
+            //PFS_DEBUG(puts("pfs::io::pool::dispatch(): disconnected (1)"));
+            context.disconnected(dev);
             this->delete_deferred(dev);
             dev.close();
-            context.disconnected(dev);
         } else {
             // Error condition (output only).
             //
@@ -497,21 +489,24 @@ private:
             // Hang up (output only).
             //
             if (revents & poll_hup) {
+                //PFS_DEBUG(puts("pfs::io::pool::dispatch(): disconnected (poll_hup)"));
+                context.disconnected(dev);
                 this->delete_deferred(dev);
                 dev.close();
-                context.disconnected(dev);
             }
 
             // There is urgent data to read (e.g., out-of-band data on TCP socket;
             // pseudo-terminal master in packet mode has seen state change in slave).
             //
             if (revents & poll_pri) {
+                //PFS_DEBUG(puts("pfs::io::pool::dispatch(): ready_read (poll_pri)"));
                 context.ready_read(dev);
             }
 
             // There is data to read
             //
             if (revents & poll_in) {
+                //PFS_DEBUG(puts("pfs::io::pool::dispatch(): ready_read (poll_in)"));
                 context.ready_read(dev);
             }
 
@@ -519,15 +514,17 @@ private:
             // in a socket or pipe will still block (unless O_NONBLOCK is set).
             //
             if (revents & poll_out) {
+                //PFS_DEBUG(puts("pfs::io::pool::dispatch(): can_write (poll_out)"));
                 context.can_write(dev);
             }
 
             // Invalid request: fd not open (output only).
             //
             if (revents & poll_nval) {
+                //PFS_DEBUG(puts("pfs::io::pool::dispatch(): on_error (poll_nval)"));
+                context.on_error(make_error_code(io_errc::bad_file_descriptor));
                 this->delete_deferred(dev);
                 dev.close();
-                context.on_error(make_error_code(io_errc::bad_file_descriptor));
             }
         }
     }

@@ -1,9 +1,3 @@
-/*
- * byte_string.hpp
- *
- *      Author: wladt
- */
-
 #ifndef __PFS_BYTE_STRING_HPP__
 #define __PFS_BYTE_STRING_HPP__
 
@@ -42,7 +36,7 @@ public:
 	typedef typename rep_type::const_reverse_iterator const_reverse_iterator;
 
     typedef pfs::shared_ptr<byte_string> shared_type;
-    
+
 	static const size_type npos = rep_type::npos;
 private:
     rep_type  _d;
@@ -757,11 +751,11 @@ struct byte_string_ref_n
 {
     typedef typename size_type_n<N>::type size_type;
     byte_string * p;
-    
+
     byte_string_ref_n (byte_string * ptr)
        : p(ptr)
     {}
-    
+
     size_type max_size () const
     {
         return numeric_limits<size_type>::max();
@@ -777,7 +771,7 @@ struct byte_string_ref
         : p(ptr)
         , max_size(ptr->size())
     {}
-    
+
     byte_string_ref (byte_string * ptr, byte_string::size_type sz)
         : p(ptr)
         , max_size(sz)
@@ -801,12 +795,12 @@ class byte_ostream
 {
     byte_string _buffer;
     endian      _o;
-    
+
 public:
     byte_ostream (endian const & order = endian::native_order())
         : _o(order)
     {}
-    
+
     endian const & order () const
     {
         return _o;
@@ -816,7 +810,7 @@ public:
     {
         return _buffer;
     }
-    
+
     template <typename Integral>
     void write_integral (Integral v)
     {
@@ -825,7 +819,7 @@ public:
         u.v = a;
         _buffer.append(byte_string(u.b, sizeof(Integral)));
     }
-    
+
     template <typename Real>
     void write_real (Real v)
     {
@@ -835,7 +829,7 @@ public:
             u.f = v;
             return write_integral(u.i);
         } else
-#endif        
+#endif
         if (sizeof(Real) == 4) {
             union { uint32_t i; real32_t f; } u;
             u.f = v;
@@ -878,7 +872,7 @@ class byte_istream
     byte_string::const_iterator b;
     byte_string::const_iterator e;
     endian o;
-    
+
 public:
     byte_istream (byte_string::const_iterator begin
             , byte_string::const_iterator end
@@ -892,7 +886,7 @@ public:
     {
         return b;
     }
-    
+
     byte_string::const_iterator end () const
     {
         return e;
@@ -902,7 +896,7 @@ public:
     {
         return b;
     }
-    
+
     byte_string::const_iterator cend () const
     {
         return e;
@@ -912,18 +906,18 @@ public:
     {
         return o;
     }
-    
+
     byte_string::difference_type available () const
     {
         return pfs::distance(b, e);
     }
-    
-    void skip (size_t n) 
+
+    void skip (size_t n)
     {
         n = pfs::min(n, integral_cast_check<size_t>(available()));
         pfs::advance(b, n);
     }
-    
+
     template <typename Integral>
     void read_integral (Integral & v)
     {
@@ -960,7 +954,7 @@ public:
             read_integral(d);
             v = *reinterpret_cast<Real *>(& d);
         } else
-#   endif        
+#   endif
         if (sizeof(Real) == 4) {
             uint32_t d = 0;
             read_integral(d);
@@ -976,19 +970,19 @@ public:
     //
     //        if (pos <= ctx.e) {
     //            u * b = reinterpret_cast<u *>(ctx.b.base());
-    //            
+    //
     //            if (order != endian::native_order()) {
     //                byte_string::value_type b[sizeof(Float)];
-    //            
+    //
     //            for (int i = 0, j = sizeof(Float) - 1; j >= 0; ++i, --j) {
     //                b[i] = d.b[j];
     //            }
-    //            
+    //
     //            appender.append(byte_string(b, sizeof(Float)));
     //        } else {
     //            appender.append(byte_string(d.b, sizeof(Float)));
     //        }
-    //            
+    //
     //            v = ctx.o.convert(d->v);
     //            ctx.b = pos;
     //            ctx.fail = false;
@@ -1002,7 +996,7 @@ public:
     {
         if (static_cast<byte_string::size_type>(pfs::distance(b, e)) < sz)
             throw io_exception(make_error_code(io_errc::stream), NOT_ENOUGH_DATA_EXCEPTION_STR);
-        
+
         byte_string::const_iterator last(b);
         pfs::advance(last, sz);
         v.append(b, last);
@@ -1327,20 +1321,20 @@ class unpack_committer
     unpack_context & _ctx;
     byte_string::const_iterator _b;
     bool _committed;
-    
+
 public:
     unpack_committer (unpack_context & ctx)
         : _ctx(ctx)
         , _b(ctx.b)
         , _committed(false)
     {}
-    
+
     ~unpack_committer ()
     {
         if (not _committed)
             _ctx.b = _b;
     }
-        
+
     void commit ()
     {
         _b = _ctx.b;
@@ -1366,14 +1360,14 @@ public:
 
 ///**
 // * @brief Represents (convert) @c byte_string data as @c string.
-// * 
+// *
 // * @param v Value for string representation.
 // * @param base Radix.
 // * @param zero_padded @c true if value should be zero padded.
 // * @param uppercase @c true if digit representaion characters should be in upper case.
 // * @param prefix Prefix prepended for converted value.
 // * @param separator String inserted bitween numbers.
-// * @return 
+// * @return
 // */
 //string to_string (byte_string const & v, int base = 10
 //        , bool zero_padded = false
@@ -1485,14 +1479,14 @@ ssize_t read_binary (Device & dev, endian order, byte_string & v)
 {
     char * buffer = 0;
     size_t size = 0;
-    
+
     ssize_t result = details::sequence::read_binary<Device>(dev, order, & buffer, & size);
-    
+
     if (buffer) {
         v.append(buffer, size);
         delete buffer;
     }
-    
+
     return result;
 }
 

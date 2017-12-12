@@ -1,3 +1,4 @@
+#include "pfs/config.h"
 #include "pfs/byte_string.hpp"
 #include "pfs/string.hpp"
 #include "pfs/traits/stdcxx/string.hpp"

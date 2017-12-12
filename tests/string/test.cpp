@@ -2,6 +2,7 @@
 #include <cwchar>
 #include <iostream>
 #include <sstream>
+#include <pfs/config.h>
 #include <pfs/test/test.hpp>
 #include <pfs/string.hpp>
 #include <pfs/limits.hpp>
@@ -36,7 +37,7 @@ template <typename ConstPointer>
 void test_description (char const * title)
 {
     std::cout << "================================================================================\n"
-            << title << ": string implemented using <" 
+            << title << ": string implemented using <"
             << stringify_string_impl<ConstPointer>() << "> ==="
             << std::endl
             << "================================================================================\n";
@@ -71,7 +72,7 @@ char const * string_samples<char const *> (int i)
         , ""
         , "ABCDEFABCDEF"
     };
-    
+
     return s[i];
 }
 
@@ -87,7 +88,7 @@ char const * string_samples_ru<char const *> (int i)
         , ""
         , "АБВГДEАБВГДE"
     };
-    
+
     return s[i];
 }
 
@@ -155,7 +156,7 @@ int main (int argc, char *argv[])
 //    test_compare<std::wstring>();
 //    test_compare_cstr<std::string>();
 //    //test_compare_cstr<wchar_t>();
-//    
+//
 //    test_erase<std::string>();
 //    test_erase<std::wstring>();
 //

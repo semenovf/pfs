@@ -1,10 +1,3 @@
-/*
- * debug.hpp
- *
- *  Created on: Jun 18, 2017
- *      Author: wladt
- */
-
 #ifndef __PFS_DEBUG_HPP__
 #define __PFS_DEBUG_HPP__
 

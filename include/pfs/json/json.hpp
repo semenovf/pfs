@@ -34,9 +34,9 @@ struct traits
     typedef IntType                               integer_type;
     typedef typename make_unsigned<IntType>::type uinteger_type;
     typedef RealType                              real_type;
-    
+
     template <typename T>
-    struct array 
+    struct array
     {
         typedef pfs::traits::sequence_container<T
                 , SequenceContainerImplType>          type;
@@ -48,7 +48,7 @@ struct traits
         typedef pfs::traits::associative_container<
               pfs::traits::kv<string_type, T>
             , AssociativeContainerImplType>       type;
-        
+
         typedef typename type::key_type           key_type;
     };
 };
@@ -71,7 +71,7 @@ public:
     struct value_rep
     {
         data_type_t type;
-        
+
         union {
             boolean_type  boolean;
             integer_type  integer;
@@ -101,7 +101,7 @@ public:
             , integer(v)
         {}
 
-        value_rep (real_type v) 
+        value_rep (real_type v)
             : type(data_type::real)
             , real(v)
         {}
@@ -130,9 +130,9 @@ public:
             alloc.construct(object, v);
         }
     };
-    
+
     typedef value_rep rep_type;
-   
+
     typedef json                       value_type;
     typedef json *                     pointer;
     typedef json const *               const_pointer;
@@ -152,7 +152,7 @@ public:
     /**
      * @brief Constructs null value.
      */
-    json () 
+    json ()
         : _d()
     {}
 
@@ -166,21 +166,21 @@ public:
     /**
      * @brief Constructs integer numeric value from char value.
      */
-    explicit json (char v) 
+    explicit json (char v)
         : _d(static_cast<integer_type>(v))
     {}
 
     /**
      * @brief Constructs integer numeric value from signed char value.
      */
-    explicit json (signed char v) 
+    explicit json (signed char v)
         : _d(static_cast<integer_type>(v))
     {}
 
     /**
      * @brief Constructs integer numeric value from unsigned char value.
      */
-    explicit json (unsigned char v) 
+    explicit json (unsigned char v)
         : _d(static_cast<uinteger_type>(v))
     {}
 
@@ -215,14 +215,14 @@ public:
     /**
      * @brief Constructs integer numeric value from long value.
      */
-    explicit json (long v) 
+    explicit json (long v)
         : _d(static_cast<integer_type>(v))
     {}
 
     /**
      * @brief Constructs integer numeric value from unsigned long value.
      */
-    explicit json (unsigned long v) 
+    explicit json (unsigned long v)
         : _d(static_cast<uinteger_type>(v))
     {}
 
@@ -231,7 +231,7 @@ public:
     /**
      * @brief Constructs integer numeric value from long long value.
      */
-    explicit json (long long v) 
+    explicit json (long long v)
         : _d(static_cast<integer_type>(v))
     {}
 
@@ -246,7 +246,7 @@ public:
     /**
      * @brief Constructs number value from float value.
      */
-    explicit json (float v) 
+    explicit json (float v)
         : _d(static_cast<real_type>(v))
     {}
 
@@ -277,26 +277,26 @@ public:
     /**
      * @brief Constructs string value from C-string.
      */
-    explicit json (char const * v) 
+    explicit json (char const * v)
         : _d(string_type(v))
     {}
 
     /**
      * @brief Constructs array value from other type_array value.
      */
-    json (array_type const & v) 
+    json (array_type const & v)
         : _d(v)
     {}
 
     /**
      * @brief Constructs object value from other type_object value.
      */
-    json (object_type const & v) 
+    json (object_type const & v)
         : _d(v)
     {}
 
     json & assign (json const & other);
-    
+
     json (json const & other)
     {
         assign(other);
@@ -317,17 +317,17 @@ public:
     {
         return assign(json(v));
     }
-    
+
 #if __cplusplus >= 201103L
-    
+
     // TODO Need to implement
     //json (json && other);
 
     // TODO Need to implement
     //json & operator = (json && other);
-    
+
 #endif
-    
+
     ~json ()
     {
         switch (_d.type) {
@@ -354,7 +354,7 @@ public:
 
         default:
             break;
-        }            
+        }
     }
 
     data_type_t type () const
@@ -374,7 +374,7 @@ public:
 
     bool is_integer () const
     {
-        return _d.type == data_type::integer 
+        return _d.type == data_type::integer
                 || _d.type == data_type::uinteger;
     }
 
@@ -432,25 +432,24 @@ public:
     {
         return operator [] (size_type(index));
     }
-    
+
     // For avoid ambiguous overload of operator[] with `0` value
     const_reference operator [] (int index) const
     {
         return operator [] (size_type(index));
     }
-        
+
     reference operator [] (size_type index)
     {
         // implicitly convert null to array
-        if (_d.type == data_type::null) {
+        if (_d.type == data_type::null)
             _d = array_type();
-        }
 
-        PFS_ASSERT(_d.type == data_type::array);
+        if (_d.type != data_type::array)
+            throw json_exception(make_error_code(json_errc::array_expected));
 
-        for (size_t i = _d.array->size(); i <= index; ++i) {
+        for (size_t i = _d.array->size(); i <= index; ++i)
             _d.array->push_back(json());
-        }
 
         typename array_type::iterator it = _d.array->begin();
         pfs::advance(it, index);
@@ -459,27 +458,29 @@ public:
 
     const_reference operator [] (size_type index) const
     {
-        if (_d.type == data_type::array) {
-            typename array_type::iterator it = _d.array->begin();
-            pfs::advance(it, index);
-            return *it;
-        }
-        
-        throw json_exception(make_error_code(json_errc::range));
+        if (_d.type != data_type::array)
+            throw json_exception(make_error_code(json_errc::array_expected));
+
+        if (index >= _d.array->size())
+            throw json_exception(make_error_code(json_errc::range));
+
+        typename array_type::iterator it = _d.array->begin();
+        pfs::advance(it, index);
+        return *it;
     }
 
     reference operator [] (key_type const & key)
     {
-        if (_d.type == data_type::null) {
+        if (_d.type == data_type::null)
             _d = object_type();
-        }
 
-        PFS_ASSERT(_d.type == data_type::object);
+        if (_d.type != data_type::object)
+            throw json_exception(make_error_code(json_errc::object_expected));
 
         typename object_type::iterator it = _d.object->find(key);
 
         if (it == _d.object->end()) {
-            pfs::pair<typename object_type::iterator, bool> result 
+            pfs::pair<typename object_type::iterator, bool> result
                 = _d.object->insert(key, json());
             it = result.first;
 
@@ -491,16 +492,17 @@ public:
 
     const_reference operator [] (key_type const & key) const
     {
-        if (_d.type == data_type::object) {
-            typename object_type::const_iterator it = _d.object->find(key);
-            if (it != _d.object->cend())
-                return object_type::mapped_reference(it);
-        }
+        if (_d.type != data_type::object)
+            throw json_exception(make_error_code(json_errc::object_expected));
 
-        throw json_exception(make_error_code(json_errc::range));
-        //return json();
+        typename object_type::const_iterator it = _d.object->find(key);
+
+        if (it == _d.object->cend())
+            throw json_exception(make_error_code(json_errc::range));
+
+        return object_type::mapped_reference(it);
     }
-    
+
     reference operator [] (const char * key)
     {
         return operator [] (key_type(key));
@@ -510,7 +512,7 @@ public:
     {
         return operator [] (key_type(key));
     }
-    
+
 //    void erase (const size_type index)
 //    {
 //        PFS_ASSERT(_type == type_array);
@@ -616,7 +618,7 @@ public:
 
         return end();
     }
-    
+
     iterator find (char const * key)
     {
         return find(key_type(key));
@@ -666,12 +668,12 @@ public:
         pfs::pair<bool, T> r = fetch<T>();
         return r.first ? r.second : default_value;
     }
-    
+
     string_type get_string () const
     {
         return this->get<string_type>();
     }
-    
+
     void swap (json & other)
     {
         pfs::swap(_d, other._d);
@@ -680,7 +682,7 @@ public:
     /**
      * @brief Deserializer
      * @param s
-     * @return 
+     * @return
      */
     error_code parse (string_type const & s)
     {
@@ -695,14 +697,14 @@ public:
 
         // Initialize grammar's static members
         static grammar_type grammar;
-        
+
         typename grammar_type::parse_context context;
         dom_builder_context<json> sax;
         context.is_json_begin = true;
         context.sax           = & sax;
-        
+
         sax.s.push(this);
-        
+
         fsm_type fsm(grammar.p_json_tr, & context);
         typename fsm_type::result_type r = fsm.exec(0, first, last);
 
@@ -712,35 +714,35 @@ public:
         if (r.first && r.second != last) {
             context.ec = make_error_code(json_errc::excess_source);
         }
-            
+
         json j;
         this->swap(j);
         return context.ec;
     }
 
 //    error_code write (string_type & s);
-    
+
     static json make_object ()
     {
         return json(json::object_type());
     }
-    
+
     static json make_array ()
     {
         return json(json::array_type());
     }
-    
+
     friend void swap (json & lhs, json & rhs)
     {
         lhs.swap(rhs);
     }
-    
+
     template <typename U>
     friend bool operator == (json<U> const & lhs, json<U> const & rhs);
-    
+
     //friend pfs::byte_ostream & operator << (pfs::byte_ostream & os, json const & v)
     //friend pfs::byte_istream & operator >> (pfs::byte_istream & is, json & v);
-    
+
     string_type to_string () const;
 };
 

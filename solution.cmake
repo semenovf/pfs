@@ -50,14 +50,11 @@ if(Boost_FOUND)
 endif(Boost_FOUND)
 
 # [CMake with Qt4](https://wiki.qt.io/Using_CMake_build_system)
-find_package(Qt4)
+find_package(Qt4 COMPONENTS QtCore)
 
 if(Qt4_FOUND)
     set(HAVE_QT_CORE 1)
     set(HAVE_QT4_CORE 1)
-
-    include(${QT_USE_FILE})
-    add_definitions(${QT_DEFINITIONS})
 endif(Qt4_FOUND)
 
 # [CMake Manual](http://doc.qt.io/qt-5/cmake-manual.html)

@@ -93,6 +93,14 @@ if (HAVE_BOOST_SYSTEM_ERROR)
     list(APPEND PFS_TARGET_LIB_LINKS "boost_system")
 endif()
 
+if (HAVE_QT5_CORE)
+#   TODO
+elseif (HAVE_QT4_CORE)
+    include(${QT_USE_FILE})
+    add_definitions(${QT_DEFINITIONS})
+    list(APPEND PFS_TARGET_LIB_LINKS ${QT_LIBRARIES})
+endif()
+
 if(UNIX)
     list(APPEND PFS_TARGET_LIB_LINKS "dl")
 

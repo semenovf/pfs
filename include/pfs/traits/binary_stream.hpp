@@ -1,10 +1,3 @@
-/* 
- * File:   binary_stream.hpp
- * Author: wladt
- *
- * Created on July 15, 2016, 7:04 PM
- */
-
 #ifndef __PFS_TRAITS_BINARY_STREAM_HPP__
 #define __PFS_TRAITS_BINARY_STREAM_HPP__
 
@@ -53,12 +46,12 @@ ssize_t read_binary (Device & dev, endian order, Integral & v)
     } d;
 
     ssize_t result = dev.read(d.b, sizeof(Integral));
-    
+
     if (result < 0)
         return result;
-    
+
     v = order.convert(d.v);
-    
+
 	return result;
 }
 
@@ -70,31 +63,31 @@ namespace fp {
 template <typename Device, typename Float>
 ssize_t write_binary (Device & dev, endian order, Float const & v)
 {
-#ifdef PFS_HAVE_INT64    
+#ifdef PFS_HAVE_INT64
     if (sizeof(Float) == 8) {
         return details::integral::write_binary(dev, order, *reinterpret_cast<uint64_t const *>(& v));
     } else
-#endif        
+#endif
     if (sizeof(Float) == 4) {
         return details::integral::write_binary(dev, order, *reinterpret_cast<uint32_t const *>(& v));
     } else if (sizeof(Float) == 2) {
         return details::integral::write_binary(dev, order, *reinterpret_cast<uint16_t const *>(& v));
     } else {
         union { Float v; char b[sizeof(Float)]; } d;
-        
+
         if (order != endian::native_order()) {
             char b[sizeof(Float)];
-            
+
             for (int i = 0, j = sizeof(Float) - 1; j >= 0; ++i, --j) {
                 b[i] = d.b[j];
             }
-            
+
             return dev.write(b, sizeof(Float));
         } else {
             return dev.write(d.b, sizeof(Float));
         }
     }
-    
+
     return ssize_t(-1);
 }
 
@@ -102,15 +95,15 @@ template <typename Device, typename Float>
 ssize_t read_binary (Device & dev, endian order, Float & v)
 {
     ssize_t result = -1;
-            
-#ifdef PFS_HAVE_INT64    
+
+#ifdef PFS_HAVE_INT64
     if (sizeof(Float) == 8) {
         uint64_t d = 0;
         result = details::integral::read_binary(dev, order, d);
         v = *reinterpret_cast<Float *>(& d);
         return result;
     } else
-#endif        
+#endif
     if (sizeof(Float) == 4) {
         uint32_t d = 0;
         result = details::integral::read_binary(dev, order, d);
@@ -128,19 +121,19 @@ ssize_t read_binary (Device & dev, endian order, Float & v)
 //
 //        if (pos <= ctx.e) {
 //            u * b = reinterpret_cast<u *>(ctx.b.base());
-//            
+//
 //            if (order != endian::native_order()) {
 //                byte_string::value_type b[sizeof(Float)];
-//            
+//
 //            for (int i = 0, j = sizeof(Float) - 1; j >= 0; ++i, --j) {
 //                b[i] = d.b[j];
 //            }
-//            
+//
 //            appender.append(byte_string(b, sizeof(Float)));
 //        } else {
 //            appender.append(byte_string(d.b, sizeof(Float)));
 //        }
-//            
+//
 //            v = ctx.o.convert(d->v);
 //            ctx.b = pos;
 //            ctx.fail = false;
@@ -148,7 +141,7 @@ ssize_t read_binary (Device & dev, endian order, Float & v)
 //            ctx.fail = true;
 //        }
     }
-    
+
 	return result;
 }
 
@@ -161,16 +154,16 @@ template <typename Device>
 ssize_t write_binary (Device & dev, endian order, char const * data, size_t n)
 {
     ssize_t result = write_binary(dev, order, n);
-    
+
     if (result > 0) { // pack size of byte_string
         ssize_t r1 = dev.write(data, n);
-        
+
         if (r1 >= 0)
             result += r1;
         else
             result = r1;
     }
-    
+
     return result;
 }
 
@@ -181,23 +174,23 @@ ssize_t read_binary (Device & dev, endian order, char ** buffer, size_t * n)
 {
     size_t size = 0;
     ssize_t result = read_binary(dev, order, size);
-    
+
     *buffer = 0;
-    
+
     if (result > 0) {
         *n = size;
-        
+
         *buffer = new char[size];
-        
+
         ssize_t r1 = dev.read(*buffer, size);
-        
+
         if (r1 >= 0) {
             result += r1;
         } else {
             result = r1;
         }
     }
-    
+
     return result;
 }
 

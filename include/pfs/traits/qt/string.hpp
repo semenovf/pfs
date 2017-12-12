@@ -1,10 +1,3 @@
-/* 
- * File:   string.hpp
- * Author: wladt
- *
- * Created on January 11, 2017, 4:05 PM
- */
-
 #ifndef __PFS_TRAITS_QT_STRING_HPP__
 #define __PFS_TRAITS_QT_STRING_HPP__
 
@@ -185,13 +178,13 @@ public:
         _p->append(count, ch);
         return *this;
     }
-    
+
     basic_string & append (const_pointer str, size_type count)
     {
         _p->append(str, count);
         return *this;
     }
-    
+
     basic_string & append (const_native_reference s)
     {
         _p->append(s);
@@ -366,7 +359,7 @@ inline bool is_upper<QChar> (QChar c)
 template <>
 inline bool is_xdigit<QChar> (QChar c)
 {
-    return c.isDigit() 
+    return c.isDigit()
             || (c.unicode() >= 'a' && c.unicode() <= 'f')
             || (c.unicode() >= 'A' && c.unicode() <= 'F');
 }
@@ -407,15 +400,15 @@ struct string_rep<QString> : public QString
     {
         return d.midRef(pos1, count1).compare(rhs.midRef(pos2, count2));
     }
-    
+
 //    static size_type xfind (data_type const & d
 //            , data_type const & rhs
 //            , size_type pos)
 //    {
-//        int i = d.indexOf(rhs, pos); 
+//        int i = d.indexOf(rhs, pos);
 //        return i < 0 ? size_type(-1) : size_type(i);
 //    }
-//    
+//
 //    static size_type xfind (data_type const & d
 //            , value_type c
 //            , size_type pos)
@@ -431,7 +424,7 @@ struct string_rep<QString> : public QString
 //        int i = d.lastIndexOf(rhs, pos);
 //        return i < 0 ? size_type(-1) : size_type(i);
 //    }
-//    
+//
 //    static size_type xrfind (data_type const & d
 //            , value_type c
 //            , size_type pos)
@@ -439,8 +432,8 @@ struct string_rep<QString> : public QString
 //        int i = d.lastIndexOf(c, pos);
 //        return i < 0 ? size_type(-1) : size_type(i);
 //    }
-    
-   
+
+
 //    static void xclear (data_type & d)
 //    {
 //        d.clear();
@@ -450,7 +443,7 @@ struct string_rep<QString> : public QString
     {
         d.append(QString(count, ch));
     }
-    
+
     void append (const_pointer s, size_type count)
     {
         d.append(QString(s, count));
@@ -460,17 +453,17 @@ struct string_rep<QString> : public QString
 //    {
 //        d.insert(index, QString(int(count), ch));
 //    }
-//    
+//
 //    static void xinsert (data_type & d, size_type index, const_pointer s)
 //    {
 //        d.insert(index, QString(s));
 //    }
-//    
+//
 //    static void xinsert (data_type & d, size_type index, const_pointer s, size_type count)
 //    {
 //        d.insert(index, s, int(count));
 //    }
-//    
+//
 //    static void xpush_back (data_type & d, value_type ch)
 //    {
 //        d.append(ch);
@@ -487,20 +480,20 @@ class c_str<QString>
 {
 public:
     typedef string<QString> string_type;
-    
+
 private:
     QByteArray _d;
-    
+
 public:
     explicit c_str (string_type const & s)
         : _d(static_cast<QString const &>(s).toUtf8())
     {}
-    
+
     char const * operator () () const
     {
         return _d.constData();
     }
-    
+
     operator char const * () const
     {
         return _d.constData();
@@ -512,20 +505,20 @@ class c_wstr<QString>
 {
 public:
     typedef string<QString> string_type;
-    
+
 private:
     std::wstring _d;
-    
+
 public:
     explicit c_wstr (string_type const & s)
         : _d(static_cast<QString const &>(s).toStdWString())
     {}
-    
+
     wchar_t const * operator () () const
     {
         return _d.c_str();
     }
-    
+
     operator wchar_t const * () const
     {
         return _d.c_str();

@@ -1,13 +1,3 @@
-/*
- * endian.hpp
- *
- *  Created on: Jan 27, 2009
- *  Modified on: Apr 10, 2014
- *  Modified on: May 08, 2015
- *
- *  Author: wladt
- */
-
 #ifndef __PFS_ENDIAN_HPP__
 #define __PFS_ENDIAN_HPP__
 

@@ -1,10 +1,3 @@
-/*
- * types.h
- *
- *  Created on: May 22, 2015
- *      Author: wladt
- */
-
 #ifndef __PFS_BITS_TYPES_H__
 #define __PFS_BITS_TYPES_H__
 
@@ -23,12 +16,12 @@
  * ===================================
  */
 #if (defined(__WORDSIZE) && __WORDSIZE == 64)                           \
-	|| (defined(UINTPTR_MAX) && UINTPTR_MAX == 0xFFFFFFFFFFFFFFFF)  \
-	||  defined(_WIN64)                                             \
-	|| (defined(__GNUC__) && (__x86_64__ || __ppc64__))             \
-	||  defined(__LP64__)                                           \
-	||  defined(_LP64)                                              \
-	||  defined(__INT64_TYPE__)
+        || (defined(UINTPTR_MAX) && UINTPTR_MAX == 0xFFFFFFFFFFFFFFFF)  \
+        ||  defined(_WIN64)                                             \
+        || (defined(__GNUC__) && (__x86_64__ || __ppc64__))             \
+        ||  defined(__LP64__)                                           \
+        ||  defined(_LP64)                                              \
+        ||  defined(__INT64_TYPE__)
 
 #   define PFS_HAVE_INT64 1
 #endif
@@ -46,7 +39,7 @@
  * C99-specific header
  */
 #if (defined(__STDC_VERSION__) && __STDC_VERSION__ >= 199901L) /* c99 or higher */ \
-	|| (defined(_MSC_VER) && _MSC_VER >= 1600) /* msvc >= MSVC++ 10.0 */       \
+        || (defined(_MSC_VER) && _MSC_VER >= 1600) /* msvc >= MSVC++ 10.0 */       \
     || defined(__INT8_TYPE__) /* gcc w/o -std=c99 or higher option */              \
     || defined(__elbrus_4c__) /* gcc for Elbrus */
 
@@ -59,69 +52,70 @@
 #endif
 
 #ifdef __cplusplus
-#	include <cfloat>
-#	include <limits>
+#   include <cfloat>
+#   include <limits>
 #   include <cstddef>
 #else
-#	include <float.h>
-#	include <limits.h>
+#   include <float.h>
+#   include <limits.h>
 #   include <stddef.h>
 #endif
 
-#if defined(_SIZE_T_DEFINED_)    \
-	|| defined(_SIZE_T_DEFINED)  \
-	|| defined(__DJ_size_t)      \
-	|| defined(__size_t_defined) \
-	|| defined(_SIZE_T_)         \
-	|| defined(_SIZE_T)              /* borland c++ */
-#	define PFS_HAVE_SIZE_T 1
+#if defined(_SIZE_T_DEFINED_)        \
+        || defined(_SIZE_T_DEFINED)  \
+        || defined(__DJ_size_t)      \
+        || defined(__size_t_defined) \
+        || defined(_SIZE_T_)         \
+        || defined(_SIZE_T)              /* borland c++ */
+#   define PFS_HAVE_SIZE_T 1
 #endif
 
-#if defined(_SSIZE_T_DEFINED_)   \
-	|| defined(_SSIZE_T_DEFINED) \
-	|| defined(__DJ_ssize_t)     \
-	|| defined(__ssize_t_defined)
-#	define PFS_HAVE_SSIZE_T 1
+#if defined(_SSIZE_T_DEFINED_)       \
+        || defined(_SSIZE_T_DEFINED) \
+        || defined(__DJ_ssize_t)     \
+        || defined(__ssize_t_defined)
+#   define PFS_HAVE_SSIZE_T 1
 #endif
 
 #if defined(_INTPTR_T_DEFINED) /* msvc */     \
-    || defined(__intptr_t_defined) /* gcc */
-#	define PFS_HAVE_INTPTR_T 1
+        || defined(__intptr_t_defined) /* gcc */
+#    define PFS_HAVE_INTPTR_T 1
 #endif
 
 #if defined(_UINTPTR_T_DEFINED) \
-    || defined(__intptr_t_defined) /* gcc */
-#	define PFS_HAVE_UINTPTR_T 1
+        || defined(__intptr_t_defined) /* gcc */
+#    define PFS_HAVE_UINTPTR_T 1
 #endif
 
-#if defined(__PTRDIFF_TYPE__)                  \
-	|| defined(_PTRDIFF_T_DEFINED)  /* msvc */ \
-	|| defined(_PTRDIFF_T)          /* borland c++ */
-#	define PFS_HAVE_PTRDIFF_T 1
+#if defined(__PTRDIFF_TYPE__)                      \
+        || defined(_PTRDIFF_T_DEFINED)  /* msvc */ \
+        || defined(_PTRDIFF_T)          /* borland c++ */
+#    define PFS_HAVE_PTRDIFF_T 1
 #endif
 
 #ifdef PFS_HAVE_LONG_LONG
-#	undef PFS_HAVE_LONG_LONG
+#    undef PFS_HAVE_LONG_LONG
 #endif
 
 #ifdef PFS_HAVE_LONGLONG
-#	undef PFS_HAVE_LONGLONG
+#    undef PFS_HAVE_LONGLONG
 #endif
 
 #if defined(LLONG_MAX)                   \
-	|| defined(__LONG_LONG_MAX__)  // valid for gcc
+        || defined(__LONG_LONG_MAX__)  // valid for gcc
 
 #   define PFS_HAVE_LONG_LONG 1
-#	define PFS_HAVE_LONGLONG 1
+#       define PFS_HAVE_LONGLONG 1
 #endif
 
 #if defined(LDBL_MIN) \
-	|| defined(__LDBL_MIN__)      // valid for gcc
+        || defined(__LDBL_MIN__)      // valid for gcc
 
-#	ifdef PFS_HAVE_LONG_DOUBLE
-#		undef PFS_HAVE_LONG_DOUBLE
-#	endif
-#	define PFS_HAVE_LONG_DOUBLE 1
+#    ifdef PFS_HAVE_LONG_DOUBLE
+#        undef PFS_HAVE_LONG_DOUBLE
+#    endif
+
+#    define PFS_HAVE_LONG_DOUBLE 1
 #endif
 
 #ifdef PFS_HAVE_LONG_DOUBLE
@@ -163,9 +157,9 @@ typedef double real64_t;
 #   define false 0
 #   define true (!(false))
 #endif
-    
+
 #if !defined(PFS_HAVE_PTRDIFF_T) || !PFS_HAVE_PTRDIFF_T
     typedef ptrdiff_t long int;
-#endif    
+#endif
 
 #endif /* __PFS_BITS_TYPES_H__ */

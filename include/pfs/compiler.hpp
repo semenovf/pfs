@@ -1,11 +1,3 @@
-/**
- * @file   compiler.hpp
- * @author wladt
- * @date   Sep 8, 2016 11:45:00
- *
- * @brief
- */
-
 #ifndef __PFS_COMPILER_HPP__
 #define __PFS_COMPILER_HPP__
 
