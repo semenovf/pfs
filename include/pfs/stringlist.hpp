@@ -1,11 +1,3 @@
-
-/* 
- * File:   stringlist.hpp
- * Author: wladt
- *
- * Created on August 4, 2017, 8:58 AM
- */
-
 #ifndef __PFS_STRINGLIST_HPP__
 #define __PFS_STRINGLIST_HPP__
 

@@ -4,6 +4,7 @@
 #include "pfs/test/test.hpp"
 #include "pfs/system_string.hpp"
 #include "pfs/net/inet4_addr.hpp"
+#include "inet_interface.hpp"
 
 #include <iostream>
 
@@ -243,6 +244,8 @@ int main(int argc, char *argv[])
     TEST_OK(test_check_to_string(pfs::system_string(PFS_LITERAL("%a.%b.%C"))   , CHECK_STRING_NTESTS));
     TEST_OK(test_check_to_string(pfs::system_string(PFS_LITERAL("%a.%B"))      , CHECK_STRING_NTESTS));
     TEST_OK(test_check_to_string(pfs::system_string(PFS_LITERAL("%A"))         , CHECK_STRING_NTESTS));
+
+    test_inet_interface();
 
     return END_TESTS;
 }

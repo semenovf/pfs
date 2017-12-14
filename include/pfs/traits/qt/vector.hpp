@@ -1,10 +1,3 @@
-/* 
- * File:   vector.hpp
- * Author: wladt
- *
- * Created on February 26, 2017, 10:58 AM
- */
-
 #ifndef __PFS_TRAITS_QT_VECTOR_HPP__
 #define __PFS_TRAITS_QT_VECTOR_HPP__
 
@@ -41,14 +34,22 @@ public:
     typedef typename native_type::const_reference  const_reference;
     typedef typename native_type::iterator         iterator;
     typedef typename native_type::const_iterator   const_iterator;
+
+    // There is no QVector::reverse_iterator in Qt4
+#if HAVE_QT5_CORE
+    typedef typename native_type::reverse_iterator reverse_iterator;
+    typedef typename native_type::const_reverse_iterator const_reverse_iterator;
+#elif HAVE_QT4_CORE
     typedef typename pfs::reverse_iterator<iterator>       reverse_iterator;
     typedef typename pfs::reverse_iterator<const_iterator> const_reverse_iterator;
+#endif
+
     typedef typename native_type::difference_type  difference_type;
     typedef typename native_type::size_type        size_type;
 
 protected:
     internal_type _p;
-    
+
 public:
     vector_basic ()
     {}
@@ -60,7 +61,7 @@ public:
     vector_basic (const_native_reference rhs)
         : _p(rhs)
     {}
-    
+
 //    vector_basic (size_type count, T const & value)
 //        : _p(count, value)
 //    {}
@@ -69,7 +70,7 @@ public:
 //    basic_string (InputIt first, InputIt last)
 //        : _p(first, last)
 //    {}
-    
+
     vector_basic & operator = (native_reference rhs)
     {
         *_p = rhs;
@@ -100,28 +101,28 @@ public:
     {
         return _p->begin();
     }
-    
+
     const_iterator begin () const
     {
         return _p->begin();
     }
-    
+
     iterator end ()
     {
         return _p->end();
     }
-    
+
     const_iterator end () const
     {
         return _p->end();
     }
-    
+
 #if __cplusplus >= 201103L
     const_iterator cbegin () const
     {
         return _p->cbegin();
     }
-    
+
     const_iterator cend () const
     {
         return _p->cend();
@@ -131,43 +132,43 @@ public:
     {
         return _p->begin();
     }
-    
+
     const_iterator cend () const
     {
         return _p->end();
     }
-#endif    
+#endif
 
     // *** CAPACITY ***
-    // 
+    //
 
     size_type size () const pfs_noexcept
     {
         return _p->size();
     }
-    
+
     size_type max_size () const pfs_noexcept
     {
         return _p->max_size();
     }
-    
+
     bool empty () const pfs_noexcept
     {
         return _p->empty();
     }
-    
+
     // *** MODIFIERS ***
     //
-    
+
     // FIXME
 //    void swap (container & rhs)
 //    {
 //        _p->swap(*rhs._p);
 //    }
-    
+
     // *** NON-MEMBER FUNCTIONS (OPERATORS) ***
     //
-    
+
     friend inline bool operator == (vector_basic const & lhs
         , vector_basic const & rhs)
     {
@@ -183,7 +184,7 @@ public:
     // *************************************************************************
     // } END Requirements for container traits
     // *************************************************************************
-    
+
     // *************************************************************************
     // BEGIN Requirements for sequence container traits {
     // *************************************************************************
@@ -194,30 +195,30 @@ public:
     {
         return _p->back();
     }
-		
+
     const_reference back () const
     {
         return _p->back();
     }
-	
+
     reference front ()
     {
         return _p->front();
     }
-		
+
     const_reference front () const
     {
         return _p->front();
     }
-	
+
     // *** MODIFIERS ***
     //
-        
+
     void clear () pfs_noexcept
     {
         _p->clear();
     }
-    
+
 #if __cplusplus >= 201103L
     template <typename... Args>
     iterator emplace (const_iterator pos, Args &&... args)
@@ -230,15 +231,15 @@ public:
     {
         return _p->template emplace_back<Args...>(args...);
     }
-#endif    
+#endif
 
     iterator erase (const_iterator pos)
     {
 #if __cplusplus >= 201103L
         return _p->erase(pos);
-#else        
+#else
         //
-        // C++ prior to C++11 
+        // C++ prior to C++11
         // erase() has signature `iterator erase(iterator first, iterator last)`
         //
         iterator it(this->begin());
@@ -253,7 +254,7 @@ public:
         return _p->erase(first, last);
 #else
         //
-        // C++ prior to C++11 
+        // C++ prior to C++11
         // erase() has signature `iterator erase(iterator first, iterator last)`
         //
         iterator from(this->begin());
@@ -444,7 +445,7 @@ public:
 //class vector : public container<T, vector_wrapper>
 //{
 //    typedef container<T, vector_wrapper> base_class;
-//    
+//
 //public:
 //    typedef typename base_class::native_type      native_type;
 //    typedef typename base_class::native_reference native_reference;

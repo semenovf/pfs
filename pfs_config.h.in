@@ -1,3 +1,9 @@
+#cmakedefine01 HAVE_IF_NAMEINDEX
+
+#cmakedefine01 HAVE_GETIFADDRS
+
+#cmakedefine01 HAVE_GETNAMEINFO
+
 #cmakedefine01 HAVE_PTHREAD
 
 #cmakedefine01 HAVE_BOOST_CHRONO

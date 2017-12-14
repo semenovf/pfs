@@ -29,21 +29,21 @@ public:
      * @brief Constructs invalid @c inet4_addr instance.
      */
     inet4_addr ()
-		: _addr(invalid_addr_value)
-	{}
+        : _addr(invalid_addr_value)
+    {}
 
     /**
      * @brief Copy constructor.
      */
     inet4_addr (inet4_addr const & x)
-		: _addr(x._addr)
-	{}
+        : _addr(x._addr)
+    {}
 
     /**
      * @brief Copy assignment operator.
      */
     inet4_addr & operator = (inet4_addr const & x)
-	{
+    {
         _addr = x._addr;
         return *this;
     }
@@ -60,7 +60,6 @@ public:
      * @param d Fourth numeric part.
      */
     inet4_addr (uint8_t a, uint8_t b, uint8_t c, uint8_t d);
-
 
     /**
      * @brief Constructs inet4_addr from three numeric parts.
@@ -223,18 +222,18 @@ public:
      * @brief Returns @c true if inet4_addr represents a valid IPv4 address.
      */
     operator bool () const
-	{
-    	return _addr != invalid_addr_value;
-	}
+    {
+        return _addr != invalid_addr_value;
+    }
 
     uint32_t native () const
     {
-    	return _addr;
+        return _addr;
     }
 
     void swap (inet4_addr & other)
     {
-    	pfs::swap(_addr, other._addr);
+        pfs::swap(_addr, other._addr);
     }
 
 public:
@@ -323,176 +322,7 @@ private:
     }
 };
 
-#if __COMMENT__
-
-
-#include <netdb.h> // getaddrinfo(), freeaddrinfo()
-
-#if (defined(_POSIX_C_SOURCE) && _POSIX_C_SOURCE >= 1) || defined(_XOPEN_SOURCE) || defined(_POSIX_SOURCE)
-#   define PFS_HAVE_GETADDRINFO 1
-#endif
-
-#ifdef PFS_HAVE_GETADDRINFO
-
-struct addrinfo_iterator_data
-{
-    addrinfo_iterator_data () : result(nullptr), next(nullptr) {}
-    ~addrinfo_iterator_data ()
-    {
-        if (result) {
-            freeaddrinfo(result);
-            result = nullptr;
-            next = nullptr;
-        }
-    }
-    struct addrinfo * result;
-    struct addrinfo * next;
-};
-
-class addrinfo_iterator
-{
-    pfs::shared_ptr<addrinfo_iterator_data> _data;
-
-public:
-    addrinfo_iterator () : _data(new addrinfo_iterator_data) {}
-    addrinfo_iterator (const addrinfo_iterator & it) : _data(it._data) {}
-
-    addrinfo_iterator & operator = (const addrinfo_iterator & it)
-    {
-        _data = it._data;
-        return *this;
-    }
-
-    bool operator == (const addrinfo_iterator & it)
-    {
-        return _data->next == it._data->next;
-    }
-
-    bool operator != (const addrinfo_iterator & it) { return !(*this == it); }
-    addrinfo_iterator & operator ++ ()
-    {
-        _data->next = _data->next->ai_next;
-        return *this;
-    }
-
-    addrinfo_iterator operator ++ (int)
-    {
-        addrinfo_iterator r(*this);
-        this->operator ++();
-        return r;
-    }
-
-    /* Official name of the host */
-    pfs::string canonicalName () const
-    {
-        // Only field of the first of the addrinfo structures in the returned list
-        // is set to point to the official name of the host.
-        if (_data->result)
-            return pfs::string(_data->result->ai_canonname);
-        return pfs::string();
-    }
-
-    pfs::string hostname () const
-    {
-        return canonicalName();
-    }
-
-    uint32_t ip4addr () const
-    {
-        if (_data->next) {
-            struct sockaddr_in * saddr = reinterpret_cast<struct sockaddr_in *>(_data->next->ai_addr);
-            return ntohl(saddr->sin_addr.s_addr);
-        }
-        return 0;
-    }
-
-    uint16_t port () const
-    {
-        return _data->next
-                ? reinterpret_cast<struct sockaddr_in *>(_data->next->ai_addr)->sin_port
-                : 0;
-    }
-
-
-    static addrinfo_iterator begin (const pfs::string & hostname);
-    static addrinfo_iterator end ()
-    {
-        return addrinfo_iterator();
-    }
-};
-
-addrinfo_iterator addrinfo_iterator::begin (const pfs::string & hostname)
-{
-    addrinfo_iterator it;
-
-    const char * node = hostname.c_str();
-    const char * service = nullptr; // service is no matter
-    struct addrinfo hints;
-    struct addrinfo * result;
-
-    memset(& hints, 0, sizeof(struct addrinfo));
-    hints.ai_flags     = (hostname.isEmpty() ? AI_PASSIVE : 0) | AI_CANONNAME;
-    hints.ai_family    = AF_UNSPEC;    /* Allow IPv4 or IPv6, i.e. any address family */
-    hints.ai_socktype  = 0;            /* Any type */
-    hints.ai_protocol  = 0;            /* Any protocol */
-    hints.ai_canonname = nullptr;
-    hints.ai_addr      = nullptr;
-    hints.ai_next      = nullptr;
-
-    int rc = getaddrinfo(node, service, & hints, & result);
-    if (!PFS_VERIFY_X(rc == 0
-            , (pfs::string() << hostname
-              << _u8(": get address info failure: ")
-              << gai_strerror(rc)).c_str())) {
-        return end();
-    }
-
-    pfs::shared_ptr<addrinfo_iterator_data> d(new addrinfo_iterator_data);
-    d->result = result;
-    d->next = result;
-    it._data.swap(d);
-
-    return it;
-}
-
-#else
-#   error getaddrinfo() does not supported by this platform
-#endif
-
-
-bool inet_socket_impl::open (inet_proto_enum protocol, int32_t oflags, errorable_ext & ex)
-{
-    int proto = -1;
-    int style = -1;
-
-    switch (protocol) {
-    case InetProtoUdp:    proto = IPPROTO_UDP; style = SOCK_DGRAM; break;
-    case InetProtoTcp:    proto = IPPROTO_TCP; style = SOCK_STREAM; break;
-    case InetProtoUnspec:
-    default: break;
-    }
-
-    if (proto < 0 || style < 0) {
-        ex.addError(_u8("bad inet protocol specified"));
-        return false;
-    }
-
-    if (oflags & device::NonBlocking)
-        style |= SOCK_NONBLOCK;
-
-    _sockfd = ::socket(PF_INET, style, proto);
-
-    if (_sockfd < 0) {
-        ex.addSystemError(errno, _u8("failed to open inet socket"));
-        return false;
-    }
-
-    return true;
-}
-
-#endif
-
-}} // pfs:io
+}} // pfs:net
 
 namespace pfs {
 namespace details {
@@ -500,40 +330,40 @@ namespace details {
 template <typename StringType>
 void append_number_prefix (StringType & r, StringType const & a, int base)
 {
-	if (base == 16) {
-		size_t len = a.length();
-		r.append("0x");
+    if (base == 16) {
+        size_t len = a.length();
+        r.append("0x");
 
-		if (len == 1)
-			r.push_back('0');
-	} else if (base == 8) {
-		size_t len = a.length();
-		r.append("0");
+        if (len == 1)
+            r.push_back('0');
+    } else if (base == 8) {
+        size_t len = a.length();
+        r.append("0");
 
-		if (len < 3)
-			r.push_back('0');
+        if (len < 3)
+            r.push_back('0');
 
-		if (len < 2)
-			r.push_back('0');
-	}
+        if (len < 2)
+            r.push_back('0');
+    }
 }
 
 template <typename StringType>
 void append_number_prefix (StringType & r, int base)
 {
-	if (base == 16)
-		r.append("0x");
-	else if (base == 8)
-		r.append("0");
+    if (base == 16)
+        r.append("0x");
+    else if (base == 8)
+        r.append("0");
 }
 
-}
+} // details
 
 /**
  * @brief Converts IPv4 address to string.
  *
  * @details The format specification is a null-terminated string and may
- * 		contain special character sequences called conversion specifications,
+ *      contain special character sequences called conversion specifications,
  *      each of which is introduced by a '%' character and terminated by
  *      some other character known as a conversion specifier character.
  *      All other character sequences are ordinary character sequences.
@@ -573,79 +403,79 @@ StringType to_string (net::inet4_addr const & addr
         , int base)
 {
     typedef typename StringType::value_type char_type;
-	static const StringType __default_format("%a.%b.%c.%d");
+    static const StringType __default_format("%a.%b.%c.%d");
 
-	StringType r;
+    StringType r;
 
-	if (!addr)
-		return StringType();
+    if (!addr)
+        return StringType();
 
-	StringType const * f = 0;
+    StringType const * f = 0;
 
-	if (format.empty()) {
-		f = & __default_format;
-	} else {
-		f = & format;
-	}
+    if (format.empty()) {
+        f = & __default_format;
+    } else {
+        f = & format;
+    }
 
-	if (not (base == 10 || base == 8 || base == 16)) {
-		base = 10;
-	}
+    if (not (base == 10 || base == 8 || base == 16)) {
+        base = 10;
+    }
 
-	typename StringType::const_iterator it = f->cbegin();
-	typename StringType::const_iterator it_end = f->cend();
+    typename StringType::const_iterator it = f->cbegin();
+    typename StringType::const_iterator it_end = f->cend();
 
-	bool uppercase = true;
+    bool uppercase = true;
 
-	uint32_t native = addr.native();
-	StringType A = to_string<StringType>(native, base, uppercase);
-	StringType B = to_string<StringType>(0x00FFFFFF & native, base, uppercase);
-	StringType C = to_string<StringType>(0x0000FFFF & native, base, uppercase);
-	StringType a = to_string<StringType>(static_cast<uint8_t>(0x000000FF & (native >> 24)), base, uppercase);
-	StringType b = to_string<StringType>(static_cast<uint8_t>(0x000000FF & (native >> 16)), base, uppercase);
-	StringType c = to_string<StringType>(static_cast<uint8_t>(0x000000FF & (native >> 8)), base, uppercase);
-	StringType d = to_string<StringType>(static_cast<uint8_t>(0x000000FF & native), base, uppercase);
+    uint32_t native = addr.native();
+    StringType A = to_string<StringType>(native, base, uppercase);
+    StringType B = to_string<StringType>(0x00FFFFFF & native, base, uppercase);
+    StringType C = to_string<StringType>(0x0000FFFF & native, base, uppercase);
+    StringType a = to_string<StringType>(static_cast<uint8_t>(0x000000FF & (native >> 24)), base, uppercase);
+    StringType b = to_string<StringType>(static_cast<uint8_t>(0x000000FF & (native >> 16)), base, uppercase);
+    StringType c = to_string<StringType>(static_cast<uint8_t>(0x000000FF & (native >> 8)), base, uppercase);
+    StringType d = to_string<StringType>(static_cast<uint8_t>(0x000000FF & native), base, uppercase);
 
-	while (it != it_end) {
-		if (*it == char_type('%')) {
-			++it;
-			if (it == it_end) {
-				r.push_back(char_type('%'));
-				break;
-			}
+    while (it != it_end) {
+        if (*it == char_type('%')) {
+            ++it;
+            if (it == it_end) {
+                r.push_back(char_type('%'));
+                break;
+            }
 
-			if (*it == char_type('a')) {
-				details::append_number_prefix<StringType>(r, a, base);
-				r.append(a);
-			} else if (*it == char_type('b')) {
-				details::append_number_prefix<StringType>(r, b, base);
-				r.append(b);
+            if (*it == char_type('a')) {
+                details::append_number_prefix<StringType>(r, a, base);
+                r.append(a);
+            } else if (*it == char_type('b')) {
+                details::append_number_prefix<StringType>(r, b, base);
+                r.append(b);
             } else if (*it == char_type('c')) {
-				details::append_number_prefix<StringType>(r, c, base);
-				r.append(c);
+                details::append_number_prefix<StringType>(r, c, base);
+                r.append(c);
             } else if (*it == char_type('d')) {
-				details::append_number_prefix<StringType>(r, d, base);
-				r.append(d);
+                details::append_number_prefix<StringType>(r, d, base);
+                r.append(d);
             } else if (*it == char_type('A')) {
-				details::append_number_prefix<StringType>(r, base);
-				r.append(A);
+                details::append_number_prefix<StringType>(r, base);
+                r.append(A);
             } else if (*it == char_type('B')) {
-				details::append_number_prefix<StringType>(r, base);
-				r.append(B);
+                details::append_number_prefix<StringType>(r, base);
+                r.append(B);
             } else if (*it == char_type('C')) {
-				details::append_number_prefix<StringType>(r, base);
-				r.append(C);
+                details::append_number_prefix<StringType>(r, base);
+                r.append(C);
             } else {
-				r.push_back(*it);
-			}
-		} else {
-			r.push_back(*it);
-		}
+                r.push_back(*it);
+            }
+        } else {
+            r.push_back(*it);
+        }
 
-		++it;
-	}
+        ++it;
+    }
 
-	return r;
+    return r;
 }
 
 /**
@@ -660,7 +490,7 @@ template <typename StringType>
 inline StringType to_string (net::inet4_addr const & addr
         , StringType const & format)
 {
-	return to_string(addr, format, 10);
+    return to_string(addr, format, 10);
 }
 
 /**
@@ -673,7 +503,7 @@ inline StringType to_string (net::inet4_addr const & addr
 template <typename StringType>
 inline StringType to_string (net::inet4_addr const & addr)
 {
-	return to_string(addr, StringType(), 10);
+    return to_string(addr, StringType(), 10);
 }
 
 } //pfs

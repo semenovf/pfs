@@ -1,10 +1,3 @@
-/* 
- * File:   inet_posix_utils.hpp
- * Author: wladt
- *
- * Created on November 15, 2016, 6:28 PM
- */
-
 #ifndef __PFS_IO_INET_POSIX_UTILS_HPP__
 #define __PFS_IO_INET_POSIX_UTILS_HPP__
 
@@ -28,7 +21,7 @@ StringType inet_socket_url (char const * proto, sockaddr_in const & sin)
 {
 #if PFS_CC_MSC
 #   error "Implement inet_socket_url() for MSC"
-#else    
+#else
     char str[INET_ADDRSTRLEN];
     inet_ntop(AF_INET, & sin.sin_addr, str, INET_ADDRSTRLEN);
     StringType r(proto);

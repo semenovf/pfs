@@ -1,11 +1,3 @@
-
-/* 
- * File:   string.hpp
- * Author: wladt
- *
- * Created on July 4, 2017, 9:53 AM
- */
-
 #ifndef __PFS_SYSTEM_STRING_HPP__
 #define __PFS_SYSTEM_STRING_HPP__
 
@@ -25,7 +17,7 @@
     namespace pfs {
         typedef string<stdcxx::string>           system_string;
         typedef string<stdcxx::string_reference> system_string_reference;
-    } // pfs        
+    } // pfs
 #   define PFS_LITERAL(s) s
 #   define PFS_SPRINTF sprintf
 #endif
@@ -35,6 +27,6 @@ namespace pfs {
 typedef system_string::code_unit_type system_char_t;
 
 } // pfs
-    
+
 #endif /* __PFS_SYSTEM_STRING_HPP__ */
 

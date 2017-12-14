@@ -1,10 +1,3 @@
-/* 
- * File:   container.hpp
- * Author: wladt
- *
- * Created on May 5, 2017, 8:49 PM
- */
-
 #ifndef __PFS_TRAITS_CONTAINER_HPP__
 #define __PFS_TRAITS_CONTAINER_HPP__
 
@@ -21,7 +14,7 @@ class container
 {
 protected:
     typedef ContainerValueRef<T> internal_type;
-    
+
 public:
     typedef typename internal_type::native_type            native_type;
     typedef typename internal_type::native_reference       native_reference;
@@ -34,7 +27,7 @@ public:
     typedef typename internal_type::const_iterator         const_iterator;
     typedef typename internal_type::difference_type        difference_type;
     typedef typename internal_type::size_type              size_type;
-    
+
 protected:
     internal_type _p;
 
@@ -42,7 +35,7 @@ public:
     // Acceptable for container_value only (as opposite to container_reference)
     container ()
     {}
-    
+
     /**
      * Initializes with reference to native container
      */
@@ -65,79 +58,79 @@ public:
     {
         return _p;
     }
-    
+
     // *** ITERATORS ***
     //
-    
+
     iterator begin ()
     {
         return _p.begin();
     }
-    
+
     const_iterator begin () const
     {
         return _p.begin();
     }
-    
+
     iterator end ()
     {
         return _p.end();
     }
-    
+
     const_iterator end () const
     {
         return _p.end();
     }
-    
+
     const_iterator cbegin () const
     {
         return _p.cbegin();
     }
-    
+
     const_iterator cend () const
     {
         return _p.cend();
     }
-    
+
     // *** CAPACITY ***
-    // 
-    
+    //
+
     size_type size () const pfs_noexcept
     {
         return _p.size();
     }
-    
+
     size_type max_size () const pfs_noexcept
     {
         return _p.max_size();
     }
-    
+
     bool empty () const pfs_noexcept
     {
         return _p.empty();
     }
-        
+
     // *** MODIFIERS ***
     //
     void clear ()
     {
         _p.clear();
     }
-    
+
     iterator erase (const_iterator pos)
     {
         _p.erase(pos);
     }
-    
+
     // FIXME
 //    void swap (container & rhs)
 //    {
 //        _p->swap(rhs._p);
 //    }
-    
+
     // *** NON-MEMBER FUNCTIONS (OPERATORS)***
     //
-    
+
     friend inline bool operator == (container const & lhs
         , container const & rhs)
     {

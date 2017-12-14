@@ -1,6 +1,18 @@
 #include(CheckIncludeFileCXX) # For use of CHECK_INCLUDE_FILE_CXX()
+include(CheckFunctionExists)
 include(CheckCXXCompilerFlag)
 include(${CMAKE_CURRENT_LIST_DIR}/compiler.cmake)
+
+if(UNIX)
+    set(CMAKE_REQUIRED_INCLUDES net/if.h)
+    CHECK_FUNCTION_EXISTS(if_nameindex HAVE_IF_NAMEINDEX)
+
+    set(CMAKE_REQUIRED_INCLUDES ifaddrs.h)
+    CHECK_FUNCTION_EXISTS(getifaddrs HAVE_GETIFADDRS)
+
+    set(CMAKE_REQUIRED_INCLUDES netdb.h)
+    CHECK_FUNCTION_EXISTS(getnameinfo HAVE_GETNAMEINFO)
+endif(UNIX)
 
 # pthread
 find_package(Threads)
