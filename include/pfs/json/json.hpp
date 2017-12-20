@@ -654,12 +654,13 @@ public:
         case data_type::string:   return pfs::make_pair<bool,T>(true, cast_traits<T>::cast(*_d.string));
         case data_type::array:    return pfs::make_pair<bool,T>(true, cast_traits<T>::cast(*_d.array));
         case data_type::object:   return pfs::make_pair<bool,T>(true, cast_traits<T>::cast(*_d.object));
+
         case data_type::null:
         default:
             break;
         }
 
-        return pfs::make_pair<bool,T>(true, cast_traits<T>::cast());
+        return pfs::make_pair<bool,T>(false, cast_traits<T>::cast());
     }
 
     template <typename T>

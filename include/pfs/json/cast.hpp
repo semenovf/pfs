@@ -1,11 +1,3 @@
-
-/* 
- * File:   cast.hpp
- * Author: wladt
- *
- * Created on August 4, 2017, 2:52 PM
- */
-
 #ifndef __PFS_JSON_CAST_HPP__
 #define __PFS_JSON_CAST_HPP__
 
@@ -19,7 +11,7 @@ template <typename T1, typename T2, typename JsonType>
 struct cast_traits_basic
 {
     typedef cast_traits_basic<T2, T2, JsonType> nearby_class;
-    
+
     static T1 cast ()                                        { return static_cast<T1>(nearby_class::cast());  }
     static T1 cast (typename JsonType::boolean_type v)       { return static_cast<T1>(nearby_class::cast(v)); }
     static T1 cast (typename JsonType::integer_type v)       { return static_cast<T1>(nearby_class::cast(v)); }
@@ -44,12 +36,12 @@ struct cast_traits_basic
 template <typename JsonType>
 struct cast_traits_basic<bool, bool, JsonType>
 {
-    static bool cast () 
+    static bool cast ()
     {
         return false;
     }
-    
-    static bool cast (typename JsonType::boolean_type v)       
+
+    static bool cast (typename JsonType::boolean_type v)
     {
         return bool(v);
     }
@@ -58,22 +50,22 @@ struct cast_traits_basic<bool, bool, JsonType>
     {
         return v ? true : false;
     }
-    
+
     static bool cast (typename JsonType::real_type v)
     {
         return v != typename JsonType::real_type(0.0f) ? true : false;
     }
-    
+
     static bool cast (typename JsonType::string_type const & v)
     {
         return v == "true" ? true : false;
     }
-    
+
     static bool cast (typename JsonType::array_type const & v)
     {
         return v.size() > 0 ? true : false;
     }
-    
+
     static bool cast (typename JsonType::object_type const & v)
     {
         return v.size() > 0 ? true : false;
@@ -83,36 +75,36 @@ struct cast_traits_basic<bool, bool, JsonType>
 template <typename JsonType>
 struct cast_traits_basic<intmax_t, intmax_t, JsonType>
 {
-    static intmax_t cast () 
+    static intmax_t cast ()
     {
         return false;
     }
-    
-    static intmax_t cast (typename JsonType::boolean_type v)       
+
+    static intmax_t cast (typename JsonType::boolean_type v)
     {
         return bool(v) ? 1 : 0;
     }
-    
+
     static intmax_t cast (typename JsonType::integer_type v)
     {
         return intmax_t(v);
     }
-    
+
     static intmax_t cast (typename JsonType::real_type v)
     {
         return intmax_t(v);
     }
-    
+
     static intmax_t cast (typename JsonType::string_type const & v)
     {
         return pfs::lexical_cast<intmax_t>(v);
     }
-    
+
     static intmax_t cast (typename JsonType::array_type const & v)
     {
         return intmax_t(v.size());
     }
-    
+
     static intmax_t cast (typename JsonType::object_type const & v)
     {
         return intmax_t(v.size());
@@ -122,12 +114,12 @@ struct cast_traits_basic<intmax_t, intmax_t, JsonType>
 template <typename JsonType>
 struct cast_traits_basic<double, double, JsonType>
 {
-    static double cast () 
+    static double cast ()
     {
         return false;
     }
-    
-    static double cast (typename JsonType::boolean_type v)       
+
+    static double cast (typename JsonType::boolean_type v)
     {
         return bool(v) ? 1.0f : 0;
     }
@@ -136,22 +128,22 @@ struct cast_traits_basic<double, double, JsonType>
     {
         return double(v);
     }
-    
+
     static double cast (typename JsonType::real_type v)
     {
         return double(v);
     }
-    
+
     static double cast (typename JsonType::string_type const & v)
     {
         return pfs::lexical_cast<double>(v);
     }
-    
+
     static double cast (typename JsonType::array_type const & v)
     {
         return double(v.size());
     }
-    
+
     static double cast (typename JsonType::object_type const & v)
     {
         return double(v.size());
@@ -164,37 +156,37 @@ struct cast_traits_basic<typename JsonType::string_type
         , JsonType>
 {
     typedef typename JsonType::string_type string_type;
-    
-    static string_type cast () 
+
+    static string_type cast ()
     {
         return string_type();
     }
-    
-    static string_type cast (typename JsonType::boolean_type v)       
+
+    static string_type cast (typename JsonType::boolean_type v)
     {
         return to_string<string_type>(v);
     }
-    
+
     static string_type cast (typename JsonType::integer_type v)
     {
         return to_string<string_type>(v);
     }
-    
+
     static string_type cast (typename JsonType::real_type v)
     {
         return to_string<string_type>(v);
     }
-    
+
     static string_type cast (typename JsonType::string_type const & v)
     {
         return v;
     }
-    
+
     static string_type cast (typename JsonType::array_type const & /*v*/)
     {
         return string_type();
     }
-    
+
     static string_type cast (typename JsonType::object_type const & /*v*/)
     {
         return string_type();
@@ -257,15 +249,15 @@ struct cast_traits<unsigned long long, JsonType>
 #endif
 
 template <typename JsonType>
-struct cast_traits<float, JsonType> 
+struct cast_traits<float, JsonType>
     : public cast_traits_basic<float, double, JsonType> {};
 
 template <typename JsonType>
-struct cast_traits<double, JsonType> 
+struct cast_traits<double, JsonType>
     : public cast_traits_basic<double, double, JsonType> {};
 
 template <typename JsonType>
-struct cast_traits<typename JsonType::string_type, JsonType> 
+struct cast_traits<typename JsonType::string_type, JsonType>
     : public cast_traits_basic<typename JsonType::string_type
         , typename JsonType::string_type, JsonType> {};
 
