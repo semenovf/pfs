@@ -1,15 +1,7 @@
-/* 
- * File:   stack.hpp
- * Author: wladt
- *
- * Created on June 26, 2017, 2:26 PM
- */
-
-#ifndef __PFS_TRAITS_STACK_HPP__
-#define __PFS_TRAITS_STACK_HPP__
+#ifndef __PFS_STACK_HPP__
+#define __PFS_STACK_HPP__
 
 namespace pfs {
-namespace traits {
 
 template <typename T, template <typename> class ContainerValueRef>
 class stack
@@ -26,7 +18,7 @@ public:
     typedef typename internal_type::reference              reference;
     typedef typename internal_type::const_reference        const_reference;
     typedef typename internal_type::size_type              size_type;
-    
+
 protected:
     internal_type _p;
 
@@ -152,7 +144,7 @@ public:
     }
 };
 
-}} //pfs::traits
+} //pfs
 
-#endif /* __PFS_TRAITS_STACK_HPP__ */
+#endif /* __PFS_STACK_HPP__ */
 

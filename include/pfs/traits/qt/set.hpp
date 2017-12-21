@@ -1,10 +1,3 @@
-/* 
- * File:   set.hpp
- * Author: wladt
- *
- * Created on May 8, 2017
- */
-
 #ifndef __PFS_TRAITS_QT_SET_HPP__
 #define __PFS_TRAITS_QT_SET_HPP__
 

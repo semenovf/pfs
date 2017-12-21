@@ -1,10 +1,3 @@
-/* 
- * File:   directory_entry.hpp
- * Author: wladt
- *
- * Created on August 20, 2017, 11:20 AM
- */
-
 #ifndef __PFS_FILESYSTEM_DIRECTORY_ENTRY_HPP__
 #define __PFS_FILESYSTEM_DIRECTORY_ENTRY_HPP__
 

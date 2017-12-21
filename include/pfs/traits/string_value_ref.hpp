@@ -1,10 +1,3 @@
-/* 
- * File:   string_value_ref.hpp
- * Author: wladt
- *
- * Created on May 12, 2017, 3:34 PM
- */
-
 #ifndef __PFS_TRAITS_STRING_VALUE_REF_HPP__
 #define __PFS_TRAITS_STRING_VALUE_REF_HPP__
 

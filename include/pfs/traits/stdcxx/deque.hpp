@@ -1,10 +1,3 @@
-/* 
- * File:   deque.hpp
- * Author: wladt
- *
- * Created on May 08, 2017
- */
-
 #ifndef __PFS_TRAITS_STDCXX_DEQUE_HPP__
 #define __PFS_TRAITS_STDCXX_DEQUE_HPP__
 

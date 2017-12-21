@@ -5,10 +5,9 @@
 
 void test_duration ()
 {
-    ADD_TESTS(3);
-
     // FIXME
-#if __FIXME__    
+#if __FIXME__
+    ADD_TESTS(3);
     pfs::chrono::milliseconds ms(3); // 3 milliseconds
     pfs::chrono::microseconds us = 2 * ms; // 6000 microseconds constructed from 3 milliseconds
     pfs::chrono::duration<double, pfs::ratio<1, 30> > hz30(3.5); // 30Hz clock using fractional ticks

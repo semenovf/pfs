@@ -1,10 +1,3 @@
-/* 
- * File:   associative_container.hpp
- * Author: wladt
- *
- * Created on June 22, 2017, 11:59 AM
- */
-
 #ifndef __PFS_TRAITS_ASSOCIATIVE_CONTAINER_HPP__
 #define __PFS_TRAITS_ASSOCIATIVE_CONTAINER_HPP__
 

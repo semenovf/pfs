@@ -1,10 +1,3 @@
-/* 
- * File:   linked_list.hpp
- * Author: wladt
- *
- * Created on May 8, 2017
- */
-
 #ifndef __PFS_TRAITS_QT_LINKED_LIST_HPP__
 #define __PFS_TRAITS_QT_LINKED_LIST_HPP__
 

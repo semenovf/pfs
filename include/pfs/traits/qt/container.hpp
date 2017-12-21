@@ -1,10 +1,3 @@
-/* 
- * File:   container.hpp
- * Author: wladt
- *
- * Created on May 8, 2017, 11:27 AM
- */
-
 #ifndef __PFS_TRAITS_QT_CONTAINER_HPP__
 #define __PFS_TRAITS_QT_CONTAINER_HPP__
 

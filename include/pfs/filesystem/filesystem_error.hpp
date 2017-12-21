@@ -1,10 +1,3 @@
-/* 
- * File:   filesystem_error.hpp
- * Author: wladt
- *
- * Created on August 20, 2017, 11:08 AM
- */
-
 #ifndef __PFS_FILESYSTEM_ERROR_HPP__
 #define __PFS_FILESYSTEM_ERROR_HPP__
 

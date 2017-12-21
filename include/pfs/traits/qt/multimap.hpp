@@ -1,10 +1,3 @@
-/* 
- * File:   multimap.hpp
- * Author: wladt
- *
- * Created on May 8, 2017
- */
-
 #ifndef __PFS_TRAITS_QT_MULTIMAP_HPP__
 #define __PFS_TRAITS_QT_MULTIMAP_HPP__
 

@@ -3,7 +3,7 @@
 
 #include <pfs/fsm/fsm.hpp>
 #include <pfs/lexical_cast.hpp>
-#include <pfs/traits/stack.hpp>
+#include <pfs/stack.hpp>
 #include <pfs/traits/stdcxx/stack.hpp>
 #include <pfs/json/constants.hpp>
 #include "exception.hpp"
@@ -19,14 +19,14 @@ namespace json {
    URL: http://www.ietf.org/rfc/rfc4627.txt
   -----------------------------------------------------------------------
 
-	A JSON text is a sequence of tokens.  The set of tokens includes six
-	structural characters, strings, numbers, and three literal names.
+  A JSON text is a sequence of tokens.  The set of tokens includes six
+  structural characters, strings, numbers, and three literal names.
 
-	A JSON text is a serialized object or array.
+  A JSON text is a serialized object or array.
 
-	JSON-text = object / array
+  JSON-text = object / array
 
-	ws = *(
+  ws = *(
 			%x20 /              ; Space
 			%x09 /              ; Horizontal tab
 			%x0A /              ; Line feed or New line
@@ -127,7 +127,7 @@ struct dom_builder_context : sax_context<JsonType>
     typedef typename json_type::string_type                string_type;
     typedef sax_context<json_type>                         base_class;
     typedef typename sax_context<json_type>::sequence_type sequence_type;
-    typedef pfs::traits::stack<json_type *, StackImplType> stack_type;
+    typedef pfs::stack<json_type *, StackImplType>         stack_type;
     
     stack_type s;
     
@@ -242,8 +242,8 @@ struct grammar
     {
         bool           is_json_begin;
         string_type    member_name;
-        pfs::traits::stack<string_type, StackImplType> objects;
-        pfs::traits::stack<string_type, StackImplType> arrays;
+        pfs::stack<string_type, StackImplType> objects;
+        pfs::stack<string_type, StackImplType> arrays;
         sax_context<JsonType> * sax;
         error_code     ec;
     };

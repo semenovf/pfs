@@ -1,10 +1,3 @@
-/* 
- * File:   value_ref.hpp
- * Author: wladt
- *
- * Created on May 15, 2017, 7:09 PM
- */
-
 #ifndef __PFS_TRAITS_VALUE_REF_HPP__
 #define __PFS_TRAITS_VALUE_REF_HPP__
 
@@ -23,10 +16,10 @@ struct value
     typedef NativeType          native_type;
     typedef native_type &       native_reference;
     typedef native_type const & const_native_reference;
-    
+
     typedef value<NativeType>     value_type;
     typedef reference<NativeType> reference_type;
-    
+
     native_type v;
 
     value ()
@@ -44,17 +37,17 @@ struct value
     {
         return v;
     }
-    
+
     const_native_reference operator * () const
     {
         return v;
     }
-    
+
     native_type * operator -> ()
     {
         return & v;
     }
-    
+
     native_type const * operator -> () const
     {
         return & v;
@@ -72,7 +65,6 @@ struct reference
     typedef reference<NativeType> reference_type;
 
     native_type * p;
-    
 
     reference (native_reference rhs)
         : p(& rhs)
@@ -82,7 +74,7 @@ struct reference
     {
         return *p;
     }
-    
+
     const_native_reference operator * () const
     {
         return *p;
@@ -92,12 +84,12 @@ struct reference
     {
         return p;
     }
-    
+
     native_type const * operator -> () const
     {
         return p;
     }
-    
+
 private:
     reference ();
     reference (const_native_reference rhs);

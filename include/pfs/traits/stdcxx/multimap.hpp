@@ -1,10 +1,3 @@
-/* 
- * File:   multimap.hpp
- * Author: wladt
- *
- * Created on January 20, 2017, 3:54 PM
- */
-
 #ifndef __PFS_TRAITS_STDCXX_MULTIMAP_HPP__
 #define __PFS_TRAITS_STDCXX_MULTIMAP_HPP__
 
@@ -104,28 +97,28 @@ public:
     {
         return _p->begin();
     }
-    
+
     const_iterator begin () const
     {
         return _p->begin();
     }
-    
+
     iterator end ()
     {
         return _p->end();
     }
-    
+
     const_iterator end () const
     {
         return _p->end();
     }
-    
+
 #if __cplusplus >= 201103L
     const_iterator cbegin () const
     {
         return _p->cbegin();
     }
-    
+
     const_iterator cend () const
     {
         return _p->cend();
@@ -135,12 +128,12 @@ public:
     {
         return _p->begin();
     }
-    
+
     const_iterator cend () const
     {
         return _p->end();
     }
-#endif    
+#endif
 
     // *** CAPACITY ***
     // 
@@ -149,20 +142,20 @@ public:
     {
         return _p->size();
     }
-    
+
     size_type max_size () const pfs_noexcept
     {
         return _p->max_size();
     }
-    
+
     bool empty () const pfs_noexcept
     {
         return _p->empty();
     }
-    
+
     // *** MODIFIERS ***
     //
-    
+
     iterator erase (const_iterator pos)
     {
         return _p->erase(pos);
@@ -173,10 +166,10 @@ public:
 //    {
 //        _p->swap(*rhs._p);
 //    }
-    
+
     // *** NON-MEMBER FUNCTIONS (OPERATORS) ***
     //
-    
+
     friend inline bool operator == (multimap_basic const & lhs
         , multimap_basic const & rhs)
     {
@@ -192,40 +185,40 @@ public:
     // *************************************************************************
     // } END Requirements for container traits
     // *************************************************************************
-    
+
     // *************************************************************************
     // BEGIN Requirements for associative container traits {
     // *************************************************************************
 
     // *** LOOKUP ***
     //
-    
+
     iterator find (key_type const & key)
     {
         return _p->find(key);
     }
-    
+
     const_iterator find (key_type const & key) const
     {
         return _p->find(key);
     }
-    
+
     // *** MODIFIERS
     //
     pfs::pair<iterator, bool> insert (key_type const & key, mapped_type const & value)
     {
         return pfs::make_pair(_p->insert(std::make_pair(key, value)), true);
     }
-    
+
     // *************************************************************************
     // } END Requirements for associative container traits
     // *************************************************************************
-    
+
     static mapped_type & mapped_reference (iterator it)
     {
         return it->second;
     }
-    
+
     static mapped_type const & mapped_reference (const_iterator it)
     {
         return it->second;

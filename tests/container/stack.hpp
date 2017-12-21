@@ -1,21 +1,13 @@
-/* 
- * File:   stack.hpp
- * Author: wladt
- *
- * Created on June 26, 2017, 2:50 PM
- */
-
 #ifndef TEST_STACK_HPP
 #define TEST_STACK_HPP
 
-//#include "pfs/utility.hpp"
-#include "pfs/traits/stack.hpp"
+#include "pfs/stack.hpp"
 
 template <typename T, template <typename> class ContainerValueRef>
 void test_stack ()
 {
     ADD_TESTS(0);
-    
+
 //    typedef pfs::traits::stack<T, ContainerValueRef> stack_traits;
 //    typedef typename stack_traits::value_type        value_type;
     

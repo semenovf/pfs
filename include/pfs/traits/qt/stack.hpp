@@ -1,10 +1,3 @@
-/* 
- * File:   stack.hpp
- * Author: wladt
- *
- * Created on August 13, 2017, 3:09 PM
- */
-
 #ifndef __PFS_TRAITS_QT_STACK_HPP__
 #define __PFS_TRAITS_QT_STACK_HPP__
 

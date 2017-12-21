@@ -53,12 +53,9 @@ static uint16_t const             TCP_LISTENER_PORT(9876);
 static pfs::net::inet4_addr const TCP_DEFUNCT_LISTENER_ADDR(127, 0, 0, 1);
 static uint16_t const             TCP_DEFUNCT_LISTENER_PORT(7654);
 
-int main(int argc, char *argv[])
+int main ()
 {
-    PFS_UNUSED(argc);
-    PFS_UNUSED(argv);
-
-    BEGIN_TESTS(1);
+    BEGIN_TESTS(2);
 
     pfs::error_code ec;
     device_manager_slots devslots;

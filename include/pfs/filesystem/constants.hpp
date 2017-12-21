@@ -1,10 +1,3 @@
-/* 
- * File:   constants.hpp
- * Author: wladt
- *
- * Created on August 20, 2017, 11:39 AM
- */
-
 #ifndef __PFS_FILESYSTEM_CONSTANTS_HPP__
 #define __PFS_FILESYSTEM_CONSTANTS_HPP__
 

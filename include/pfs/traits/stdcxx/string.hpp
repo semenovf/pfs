@@ -1,10 +1,3 @@
-/* 
- * File:   string.hpp
- * Author: wladt
- *
- * Created on January 9, 2017, 3:21 PM
- */
-
 #ifndef __PFS_TRAITS_STDCXX_STRING_HPP__
 #define __PFS_TRAITS_STDCXX_STRING_HPP__
 

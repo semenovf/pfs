@@ -1,11 +1,3 @@
-/**
- * @file   test.cpp
- * @author
- * @date
- *
- * @brief Testing container traits
- */
-
 #include "pfs/test/test.hpp"
 #include "pfs/utility.hpp"
 
@@ -82,6 +74,8 @@ int main ()
 //    test_container_basic<pfs::traits::kv_type<int, int>, pfs::qt::multimap>(); // QMultiMap<Key, T>
 //    test_container_basic<pfs::traits::kv_type<int, int>, pfs::qt::hash>();     // QHash<Key, T>
 //    test_container_basic<pfs::traits::kv_type<int, int>, pfs::qt::multihash>();// QMultiHash<Key, T>
+//    test_stack<int, pfs::qt::stack>();
+//    test_stack<int, pfs::qt::stack_reference>();
 #endif
 
     return END_TESTS;

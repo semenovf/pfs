@@ -1,10 +1,3 @@
-/* 
- * File:   pathlist.hpp
- * Author: wladt
- *
- * Created on August 20, 2017, 10:36 AM
- */
-
 #ifndef __PFS_FILESYSTEM_PATHLIST_HPP__
 #define __PFS_FILESYSTEM_PATHLIST_HPP__
 
@@ -32,7 +25,7 @@ public:
             p1 /= p;
 
             error_code ec;
-                    
+
             if (exists(p1, ec))
                 return p1;
         }
