@@ -1,10 +1,3 @@
-/*
- * iterator.cpp
- *
- *  Created on: Jan 9, 2016
- *      Author: wladt
- */
-
 #ifndef TEST_ITERATOR_HPP
 #define TEST_ITERATOR_HPP
 

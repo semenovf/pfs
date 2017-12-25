@@ -17,6 +17,7 @@
 #include "test_serialize.hpp"
 #include "test_stringify.hpp"
 #include "test_pretty_printer.hpp"
+#include "test_reference_wrapper.hpp"
 //#include "test_compare.hpp"
 //#include "test_find.hpp"
 //#include "test_substr.hpp"
@@ -63,6 +64,7 @@ int main ()
 
     test_basic::test<stdcxx::json>();
     test_iterator::test<stdcxx::json>();
+    test_reference_wrapper::test<stdcxx::json>();
     test_parse::test<stdcxx::json>();
     test_serialize::test<stdcxx::json>();
     test_stringify::test<stdcxx::json>();
@@ -71,6 +73,7 @@ int main ()
 #ifdef HAVE_QT_CORE
     test_basic::test<qt::json>();
     test_iterator::test<qt::json>();
+    test_reference_wrapper::test<qt::json>();
     test_parse::test<qt::json>();
     test_serialize::test<qt::json>();
     test_stringify::test<qt::json>();

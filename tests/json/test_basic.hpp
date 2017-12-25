@@ -1,10 +1,3 @@
-/* 
- * File:   test_basic.hpp
- * Author: wladt
- *
- * Created on February 26, 2017, 11:48 AM
- */
-
 #ifndef TEST_BASIC_HPP
 #define TEST_BASIC_HPP
 

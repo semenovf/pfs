@@ -430,13 +430,13 @@ public:
     // For avoid ambiguous overload of operator[] with `0` value
     reference operator [] (int index)
     {
-        return operator [] (size_type(index));
+        return operator [] (static_cast<size_type>(index));
     }
 
     // For avoid ambiguous overload of operator[] with `0` value
     const_reference operator [] (int index) const
     {
-        return operator [] (size_type(index));
+        return operator [] (static_cast<size_type>(index));
     }
 
     reference operator [] (size_type index)
@@ -629,6 +629,46 @@ public:
         return find(key_type(key));
     }
 
+    iterator find (int index)
+    {
+        return index < 0 
+                ? end()
+                : find(static_cast<size_type>(index));
+    }
+    
+    iterator find (size_type index)
+    {
+        if (is_array()) {
+            if (index < _d.array->size()) {
+                typename array_type::iterator it = _d.array->begin();
+                pfs::advance(it, index);
+                return iterator(this, it);
+            }
+        }
+
+        return end();
+    }
+
+    const_iterator find (int index) const
+    {
+        return index < 0 
+                ? end()
+                : find(static_cast<size_type>(index));
+    }
+    
+    const_iterator find (size_type index) const
+    {
+        if (is_array()) {
+            if (index < _d.array->size()) {
+                typename array_type::iterator it = _d.array->begin();
+                pfs::advance(it, index);
+                return const_iterator(this, it);
+            }
+        }
+
+        return end();
+    }
+    
     bool contains (key_type const & key) const
     {
         return find(key) != end();
@@ -643,31 +683,45 @@ public:
     struct cast_traits : public details::cast_traits<T, json>
     {};
 
-    template <typename T>
-    pfs::pair<bool, T> fetch () const
-    {
-        switch (type()) {
-        case data_type::boolean:  return pfs::make_pair<bool,T>(true, cast_traits<T>::cast(_d.boolean));
-        case data_type::integer:
-        case data_type::uinteger: return pfs::make_pair<bool,T>(true, cast_traits<T>::cast(_d.integer));
-        case data_type::real:     return pfs::make_pair<bool,T>(true, cast_traits<T>::cast(_d.real));
-        case data_type::string:   return pfs::make_pair<bool,T>(true, cast_traits<T>::cast(*_d.string));
-        case data_type::array:    return pfs::make_pair<bool,T>(true, cast_traits<T>::cast(*_d.array));
-        case data_type::object:   return pfs::make_pair<bool,T>(true, cast_traits<T>::cast(*_d.object));
+// private:
+//     template <typename T>
+//     pfs::pair<bool, T> fetch () const
+//     {
+//         switch (type()) {
+//         case data_type::boolean:  return pfs::make_pair<bool,T>(true, cast_traits<T>::cast(_d.boolean));
+//         case data_type::integer:
+//         case data_type::uinteger: return pfs::make_pair<bool,T>(true, cast_traits<T>::cast(_d.integer));
+//         case data_type::real:     return pfs::make_pair<bool,T>(true, cast_traits<T>::cast(_d.real));
+//         case data_type::string:   return pfs::make_pair<bool,T>(true, cast_traits<T>::cast(*_d.string));
+//         case data_type::array:    return pfs::make_pair<bool,T>(true, cast_traits<T>::cast(*_d.array));
+//         case data_type::object:   return pfs::make_pair<bool,T>(true, cast_traits<T>::cast(*_d.object));
+//         case data_type::null:     return pfs::make_pair<bool,T>(true, cast_traits<T>::cast());
+//         default:
+//             break;
+//         }
+// 
+//         return pfs::make_pair<bool,T>(false, cast_traits<T>::cast());
+//     }
 
-        case data_type::null:
+public:
+    template <typename T>
+    //T get (T const & default_value = T()) const
+    T get () const
+    {
+//         pfs::pair<bool, T> r = fetch<T>();
+//         return r.first ? r.second : default_value;
+        switch (type()) {
+        case data_type::boolean:  return cast_traits<T>::cast(_d.boolean);
+        case data_type::integer:
+        case data_type::uinteger: return cast_traits<T>::cast(_d.integer);
+        case data_type::real:     return cast_traits<T>::cast(_d.real);
+        case data_type::string:   return cast_traits<T>::cast(*_d.string);
+        case data_type::array:    return cast_traits<T>::cast(*_d.array);
+        case data_type::object:   return cast_traits<T>::cast(*_d.object);
+        case data_type::null:     return cast_traits<T>::cast();
         default:
             break;
         }
-
-        return pfs::make_pair<bool,T>(false, cast_traits<T>::cast());
-    }
-
-    template <typename T>
-    T get (T const & default_value = T()) const
-    {
-        pfs::pair<bool, T> r = fetch<T>();
-        return r.first ? r.second : default_value;
     }
 
     string_type get_string () const
@@ -1101,6 +1155,84 @@ typename json<Traits>::string_type json<Traits>::to_string () const
 
     return string_type();
 }
+
+template <typename JsonType>
+class reference_wrapper
+{
+    JsonType * _p;
+    
+public:
+    typedef typename JsonType::size_type size_type;
+    typedef typename JsonType::key_type  key_type;
+    
+protected:
+    reference_wrapper ()
+        : _p(0)
+    {}
+
+    reference_wrapper (JsonType * p)
+        : _p(p)
+    {}
+
+public:
+    explicit reference_wrapper (JsonType & ref)
+        : _p(& ref)
+    {}
+
+    reference_wrapper (reference_wrapper<JsonType> const & ref) 
+        :_p(ref._p)
+    {}
+
+    reference_wrapper & operator = (reference_wrapper<JsonType> const & ref)
+    {
+        _p = ref._p;
+        return *this;
+    }
+
+    operator bool () const 
+    {
+        return _p != 0;
+    }
+    
+    // For avoid ambiguous overload of operator[] with `0` value
+    reference_wrapper operator [] (int index)
+    {
+        return operator [] (size_type(index));
+    }
+
+    reference_wrapper operator [] (size_type index)
+    {
+        if (_p) {
+            typename JsonType::iterator it = _p->find(index);
+            
+            if (it != _p->end())
+                return reference_wrapper(*it);
+        }
+        return reference_wrapper();
+    }
+
+    reference_wrapper operator [] (key_type const & key)
+    {
+        if (_p) {
+            typename JsonType::iterator it = _p->find(key);
+
+            if (it != _p->end())
+                return reference_wrapper(*it);
+        }
+        return reference_wrapper();
+    }
+
+    reference_wrapper operator [] (const char * key)
+    {
+        return operator [] (key_type(key));
+    }
+    
+    template <typename T>
+    T get (T const & default_value = T()) const
+    {
+        return _p ? _p->get<T>() : default_value;
+    }
+};
 
 }} // pfs::json
 

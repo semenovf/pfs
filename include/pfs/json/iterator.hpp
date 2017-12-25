@@ -1,10 +1,3 @@
-/*
- * iterator.hpp
- *
- *  Created on: Jan 9, 2016
- *      Author: wladt
- */
-
 #include <pfs/type_traits.hpp>
 #include <pfs/iterator.hpp>
 #include <pfs/exception.hpp>

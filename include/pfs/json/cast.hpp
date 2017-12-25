@@ -77,7 +77,7 @@ struct cast_traits_basic<intmax_t, intmax_t, JsonType>
 {
     static intmax_t cast ()
     {
-        return false;
+        return 0;
     }
 
     static intmax_t cast (typename JsonType::boolean_type v)
@@ -116,7 +116,7 @@ struct cast_traits_basic<double, double, JsonType>
 {
     static double cast ()
     {
-        return false;
+        return .0f;
     }
 
     static double cast (typename JsonType::boolean_type v)
