@@ -279,6 +279,7 @@ public:
         return *this;
     }
     
+    // FIXME for std::experimental::filesystem and boost::filesystem implementations
     basic_path & replace_extension (basic_path const & replacement = basic_path())
     {
         _d.replace_extension(replacement._d);
@@ -409,12 +410,18 @@ public:
     }
 
     // FIXME (For description see test_path.hpp)
+    // std::experimental::filesystem::path(".hidden").stem() returns ""
+    // boost::filesystem::path(".hidden").stem()             returns ""
+    // std::filesystem::path(".hidden").stem()               returns ".hidden"
     basic_path stem () const
     {
         return basic_path(_d.stem());
     }
     
     // FIXME (For description see test_path.hpp)
+    // std::experimental::filesystem::path(".hidden").extension() returns ".hidden"
+    // boost::filesystem::path(".hidden").extension()             returns ".hidden"
+    // std::filesystem::path(".hidden").extension()               returns ""
     basic_path extension () const
     {
         return basic_path(_d.extension());

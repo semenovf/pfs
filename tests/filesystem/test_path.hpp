@@ -1,10 +1,3 @@
-/* 
- * File:   test_path.hpp
- * Author: wladt
- *
- * Created on June 20, 2017
- */
-
 #ifndef TEST_PATH_HPP
 #define TEST_PATH_HPP
 
@@ -219,7 +212,7 @@ void test_path ()
     // Decomposition
     //
     {
-        ADD_TESTS(27);
+        ADD_TESTS(29);
 
         TEST_OK(path("//server/path/to/file").root_name() == path("//server"));
         TEST_OK(path("//server/path/to/file").root_directory() == path("/"));
@@ -240,7 +233,8 @@ void test_path ()
         TEST_OK(path("/").filename() == path("/"));
         
         TEST_OK(path("/foo/bar.txt").stem() == path::string_type("bar"));
-        TEST_OK(path("/foo/.bar").stem() == path::string_type(".bar")); // FIXME (for std::experimental::filesystem::path::stem() returns "")
+        TEST_OK(path(".hidden").stem() == path::string_type(".hidden"))
+        TEST_OK(path("/foo/.hidden").stem() == path::string_type(".hidden")); // FIXME (for std::experimental::filesystem::path::stem() returns "")
         
         TEST_OK(path("/foo/bar.txt").extension() == path::string_type(".txt"));
         TEST_OK(path("/foo/bar.").extension() == path::string_type("."));
@@ -250,7 +244,8 @@ void test_path ()
         TEST_OK(path("/foo/bar.txt/bar").extension() == path::string_type(""));
         TEST_OK(path("/foo/.").extension() == path::string_type(""));
         TEST_OK(path("/foo/..").extension() == path::string_type(""));
-        TEST_OK(path("/foo/.hidden").extension() == path::string_type("")); // FIXME (for std::experimental::filesystem::path::stem() returns ".hidden")
+        TEST_OK(path(".hidden").extension() == path::string_type(""));
+        TEST_OK(path("/foo/.hidden").extension() == path::string_type("")); // FIXME (for std::experimental::filesystem::path::extension() returns ".hidden")
         TEST_OK(path("/foo/..bar").extension() == path::string_type(".bar"));
         
 #if PFS_OS_DOS
@@ -270,7 +265,7 @@ void test_path ()
     // Queries
     //
     {
-        ADD_TESTS(31);
+        ADD_TESTS(33);
         
         TEST_OK(!path("//server/path/to/file").empty());
         TEST_OK(path("").empty());
@@ -295,7 +290,8 @@ void test_path ()
         TEST_OK(path("/").has_filename());
 
         TEST_OK(path("/foo/bar.txt").has_stem());
-        TEST_OK(path("/foo/.bar").has_stem()); // FIXME (for std::experimental::filesystem::path::stem() returns "")
+        TEST_OK(path(".hidden").has_stem());
+        TEST_OK(path("/foo/.hidden").has_stem()); // FIXME (for std::experimental::filesystem::path::stem() returns "")
 
         TEST_OK(path("/foo/bar.txt").has_extension());
         TEST_OK(path("/foo/bar.").has_extension());
@@ -305,6 +301,7 @@ void test_path ()
         TEST_OK(!path("/foo/bar.txt/bar").has_extension());
         TEST_OK(!path("/foo/.").has_extension());
         TEST_OK(!path("/foo/..").has_extension());
+        TEST_OK(!path(".hidden").has_extension());
         TEST_OK(!path("/foo/.hidden").has_extension()); // FIXME (for std::experimental::filesystem::path::stem() returns ".hidden")
         TEST_OK(path("/foo/..bar").has_extension());
         
@@ -332,7 +329,7 @@ void test_path ()
     {
 
 #if PFS_OS_POSIX
-        ADD_TESTS(8);
+        ADD_TESTS(9);
         
         path p = "/home/user/abcdef/app_data/Local/Temp/";
         path::iterator it = p.begin();
@@ -351,7 +348,7 @@ void test_path ()
 #endif
         
 #if PFS_OS_DOS
-        ADD_TESTS(8);
+        ADD_TESTS(9);
         path p = "C:\\users\\abcdef\\AppData\\Local\\Temp\\";
         path::iterator it = p.begin();
         
