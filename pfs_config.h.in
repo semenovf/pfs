@@ -24,3 +24,4 @@
 
 #cmakedefine01 HAVE_QT4_CORE
 
+#cmakedefine01 HAVE_READLINE

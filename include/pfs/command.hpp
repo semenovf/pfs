@@ -95,7 +95,9 @@ struct response : public PropertyTree
     template <typename T>
     T value (T const & default_value = T()) const
     {
-        return (*this)[VALUE_KEY()].template get<T>(default_value);
+        return this->contains(VALUE_KEY())
+            ? (*this)[VALUE_KEY()].template get<T>()
+            : default_value;
     }
 
     // Light OK response
