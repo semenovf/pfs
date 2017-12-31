@@ -255,28 +255,28 @@ void test_compare_ptr()
     TEST_OK(234 == yPtr->m_val);
     Foo* pY = yPtr.get();
 
-    TEST_OK(xPtr != pY);
+    TEST_OK(xPtr.get() != pY);
     TEST_OK(xPtr != yPtr);
     if (pX < pY)
     {
-        TEST_OK(xPtr < pY);
+        TEST_OK(xPtr.get() < pY);
         TEST_OK(xPtr < yPtr);
-        TEST_OK(xPtr <= pY);
+        TEST_OK(xPtr.get() <= pY);
         TEST_OK(xPtr <= yPtr);
-        TEST_OK(yPtr > pX);
+        TEST_OK(yPtr.get() > pX);
         TEST_OK(yPtr > xPtr);
-        TEST_OK(yPtr >= pX);
+        TEST_OK(yPtr.get() >= pX);
         TEST_OK(yPtr >= xPtr);
     }
     else // (pX > pY)
     {
-        TEST_OK(xPtr > pY);
+        TEST_OK(xPtr.get() > pY);
         TEST_OK(xPtr > yPtr);
-        TEST_OK(xPtr >= pY);
+        TEST_OK(xPtr.get() >= pY);
         TEST_OK(xPtr >= yPtr);
-        TEST_OK(yPtr < pX);
+        TEST_OK(yPtr.get() < pX);
         TEST_OK(yPtr < xPtr);
-        TEST_OK(yPtr <= pX);
+        TEST_OK(yPtr.get() <= pX);
         TEST_OK(yPtr <= xPtr);
     }
 
@@ -285,13 +285,13 @@ void test_compare_ptr()
     Foo* pZ = zPtr.get();
 
     TEST_OK(pX == pZ);
-    TEST_OK(xPtr == pZ);
+    TEST_OK(xPtr.get() == pZ);
     TEST_OK(xPtr == zPtr);
-    TEST_OK(zPtr == pX);
+    TEST_OK(zPtr.get() == pX);
     TEST_OK(zPtr == xPtr);
-    TEST_OK(xPtr >= pZ);
+    TEST_OK(xPtr.get() >= pZ);
     TEST_OK(xPtr >= zPtr);
-    TEST_OK(xPtr <= pZ);
+    TEST_OK(xPtr.get() <= pZ);
     TEST_OK(xPtr <= zPtr);
 }
 

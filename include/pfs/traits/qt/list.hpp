@@ -119,12 +119,12 @@ public:
 #if __cplusplus >= 201103L
     const_iterator cbegin () const
     {
-        return _p->cbegin();
+        return _p->begin();
     }
 
     const_iterator cend () const
     {
-        return _p->cend();
+        return _p->end();
     }
 #else
     const_iterator cbegin () const

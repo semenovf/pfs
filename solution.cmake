@@ -1,4 +1,4 @@
-#include(CheckIncludeFileCXX) # For use of CHECK_INCLUDE_FILE_CXX()
+include(CheckIncludeFileCXX) # For use of CHECK_INCLUDE_FILE_CXX()
 include(CheckFunctionExists)
 include(CheckCXXCompilerFlag)
 include(${CMAKE_CURRENT_LIST_DIR}/compiler.cmake)
@@ -20,6 +20,9 @@ find_package(Threads)
 if(CMAKE_USE_PTHREADS_INIT)
     set(HAVE_PTHREAD 1)
 endif()
+
+CHECK_INCLUDE_FILE_CXX(experimental/filesystem HAVE_STDCXX_FS_EXPERIMENTAL)
+CHECK_INCLUDE_FILE_CXX(filesystem HAVE_STDCXX_FS)
 
 # [FindBoost](https://cmake.org/cmake/help/git-master/module/FindBoost.html)
 find_package(Boost COMPONENTS
@@ -71,7 +74,11 @@ endif(Qt4_FOUND)
 
 # [CMake Manual](http://doc.qt.io/qt-5/cmake-manual.html)
 find_package(Qt5Core)
-find_package(Qt5Widgets)
+
+if (Qt5::Core)
+    set(HAVE_QT_CORE 1)
+    set(HAVE_QT5_CORE 1)
+endif()
 
 configure_file(${CMAKE_CURRENT_LIST_DIR}/pfs_config.h.in ${CMAKE_BINARY_DIR}/pfs_config.h)
 

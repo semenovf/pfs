@@ -1,10 +1,3 @@
-/* 
- * File:   system_error.hpp
- * Author: wladt
- *
- * Created on June 21, 2017, 3:19 PM
- */
-
 #ifndef __PFS_CXX_CXX11_SYSTEM_ERROR_HPP__
 #define __PFS_CXX_CXX11_SYSTEM_ERROR_HPP__
 
@@ -63,7 +56,7 @@ template <typename ErrorCode>
 ErrorCode lexical_cast (pfs::error_code const & ec);
 
 template <>
-inline std::error_code 
+inline std::error_code
 lexical_cast<std::error_code> (pfs::error_code const & ec)
 {
     return ec;
@@ -87,7 +80,7 @@ pfs::error_category const & generic_category ();
 //{
 //    pfs::error_code & result;
 //    ::boost::system::error_code ec;
-//    
+//
 //    ec_convert_wrapper (pfs::error_code & r)
 //        : result(r)
 //    {}

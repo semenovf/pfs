@@ -5,14 +5,16 @@
 #include <pfs/memory.hpp>
 #include <pfs/cxx/cxx98/binder.hpp>
 #include <pfs/traits/sequence_container.hpp>
-#include "cxx/cxx98/utility.hpp"
-#include "cxx/cxx98/shared_ptr.hpp"
+// #include "cxx/cxx98/utility.hpp"
+// #include "cxx/cxx98/shared_ptr.hpp"
+#include <pfs/utility.hpp>
+#include <pfs/memory.hpp>
 
 namespace pfs {
 
 template <template <typename> class SequenceContainer
     , typename BasicLockable = pfs::mutex // see [C++ concepts: BasicLockable](http://en.cppreference.com/w/cpp/concept/BasicLockable)>
-    , int GcThreshold = 256> 
+    , int GcThreshold = 256>
 class active_queue
 {
 private:
@@ -22,7 +24,7 @@ private:
         , BUSY
         , PROCESSING
     };
-    
+
     typedef pfs::pair<int8_t, pfs::shared_ptr<binder_base<void> > > value_type;
     typedef BasicLockable mutex_type;
     typedef traits::sequence_container<value_type, SequenceContainer> sequence_container_type;
@@ -30,7 +32,7 @@ private:
     typedef typename sequence_container_type::iterator  iterator;
 
     static size_type const GC_THRESHOLD = GcThreshold;
-    
+
 private:
     sequence_container_type _sequence;
     size_type               _count;
@@ -42,22 +44,22 @@ private:
     void push_helper (shared_ptr<binder_base<void> > ptr)
     {
         unique_lock<mutex_type> locker(_mutex);
-        
-        if (_sequence.size() > GC_THRESHOLD 
+
+        if (_sequence.size() > GC_THRESHOLD
                 && _sequence.begin()->first == FREE) {
             gc();
         }
-        
-        _sequence.push_back(make_pair(BUSY, ptr));
+
+        _sequence.push_back(pfs::make_pair(BUSY, ptr));
 
         ++_count;
     }
-    
+
     iterator front_busy ()
     {
         iterator pos = _sequence.begin();
         iterator end = _sequence.end();
-        
+
         // TODO Need an optimization to access to the first BUSY element
         while (pos != end) {
             if (pos->first == BUSY) {
@@ -66,23 +68,23 @@ private:
             }
             ++pos;
         }
-            
+
         return pos;
     }
-    
-private:    
+
+private:
     // Garbage collector
     void gc ()
     {
         iterator pos = _sequence.begin();
         iterator end = _sequence.end();
-        
+
         while (pos != end && pos->first == FREE)
             ++pos;
 
         _sequence.erase(_sequence.begin(), pos);
     }
-    
+
 public:
 	active_queue ()
         : _count(0)
@@ -93,7 +95,7 @@ public:
 		call_all();
         gc();
 	}
-    
+
 	bool empty () const
 	{
         unique_lock<mutex_type> locker(_mutex);
@@ -122,8 +124,8 @@ public:
     }
 
 //#if __cplusplus >= 201103L
-//#   error Implement using variadic templates    
-//#else    
+//#   error Implement using variadic templates
+//#else
 	void push_function (void (* f) ())
 	{
         push_helper(shared_ptr<binder_base<void> >(new binder_function0<void>(f)));
@@ -134,7 +136,7 @@ public:
 	{
         push_helper(shared_ptr<binder_base<void> >(new binder_function1<void, Arg1>(f, a1)));
 	}
-    
+
 	template <typename Arg1, typename Arg2>
 	void push_function (void (* f) (Arg1, Arg2), Arg1 a1, Arg2 a2)
 	{
@@ -176,7 +178,7 @@ public:
 	{
         push_helper(shared_ptr<binder_base<void> >(new binder_function8<void, Arg1, Arg2, Arg3, Arg4, Arg5, Arg6, Arg7, Arg8>(f, a1, a2, a3, a4, a5, a6, a7, a8)));
 	}
-    
+
     template <typename C>
 	void push_method (void (C::* f) (), C * c)
 	{
@@ -188,7 +190,7 @@ public:
 	{
         push_helper(shared_ptr<binder_base<void> >(new binder_method1<C, void, Arg1>(f, c, a1)));
 	}
-    
+
 	template <typename C, typename Arg1, typename Arg2>
 	void push_method (void (C::* f) (Arg1, Arg2), C * c, Arg1 a1, Arg2 a2)
 	{
@@ -230,7 +232,7 @@ public:
 	{
         push_helper(shared_ptr<binder_base<void> >(new binder_method8<C, void, Arg1, Arg2, Arg3, Arg4, Arg5, Arg6, Arg7, Arg8>(f, c, a1, a2, a3, a4, a5, a6, a7, a8)));
 	}
-    
+
   	void push_signal (signal0<> * sig)
 	{
         push_helper(shared_ptr<binder_base<void> >(new binder_signal0(sig)));
@@ -243,25 +245,25 @@ public:
 	}
 
 //#endif
-    
+
   	void call ()
     {
         unique_lock<mutex_type> locker(_mutex);
-        
+
         iterator pos = front_busy();
-        
+
         if (pos != _sequence.end()) {
             --_count;
             locker.unlock();
 
             (*(pos->second))();
-            
+
             locker.lock();
-            
+
             pos->first = FREE;
         }
     }
-    
+
 	void call_all ()
     {
         while (!this->empty())

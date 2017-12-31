@@ -1,10 +1,3 @@
-/* 
- * File:   utility.hpp
- * Author: wladt
- *
- * Created on January 17, 2017, 2:20 PM
- */
-
 #ifndef __PFS_CXX_CXX11_UTILITY_HPP__
 #define __PFS_CXX_CXX11_UTILITY_HPP__
 

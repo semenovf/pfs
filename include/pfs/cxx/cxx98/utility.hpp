@@ -1,10 +1,3 @@
-/* 
- * File:   pair.hpp
- * Author: wladt
- *
- * Created on January 17, 2017, 2:13 PM
- */
-
 #ifndef __PFS_CXX98_UTILITY_HPP__
 #define __PFS_CXX98_UTILITY_HPP__
 
@@ -23,20 +16,20 @@ struct pair
 
     pair ()
         : first()
-        , second() 
+        , second()
     {}
 
     pair (T1 const & a, T2 const & b)
         : first(a)
-        , second(b) 
+        , second(b)
     {}
 
     template <typename U1, typename U2>
     pair (pair<U1, U2> const & p)
         : first(p.first)
-        , second(p.second) 
+        , second(p.second)
     {}
-    
+
     pair & operator = (pair const & p)
     {
         first = p.first;
@@ -68,9 +61,9 @@ inline pair<T1, T2> make_pair (T1 x, T2 y)
 template <typename T1, typename T2>
 inline bool operator == (pair<T1,T2> const & lhs, pair<T1,T2> const & rhs)
 {
-    return lhs.first == rhs.first && lhs.second == rhs.second;   
+    return lhs.first == rhs.first && lhs.second == rhs.second;
 }
-	
+
 template <typename T1, typename T2>
 inline bool operator != (pair<T1,T2> const & lhs, pair<T1,T2> const & rhs)
 {
@@ -81,7 +74,7 @@ template <typename T1, typename T2>
 inline bool operator < (pair<T1,T2> const & lhs, pair<T1,T2> const & rhs)
 {
     return lhs.first < rhs.first
-	     || (!(rhs.first < lhs.first) && lhs.second < rhs.second); 
+	     || (!(rhs.first < lhs.first) && lhs.second < rhs.second);
 }
 
 template <typename T1, typename T2>

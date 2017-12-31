@@ -1,13 +1,5 @@
-/**
- * @file   shared_ptr.hpp
- * @author wladt
- * @date   Nov 20, 2013
- *
- * @brief  derived from: cwt-core/include/cwt/shared_ptr.hpp (Mar 26, 2013 1:47:13 PM)
- */
-
-#ifndef __PFS_CXX98_SHARED_PTR_HPP__
-#define __PFS_CXX98_SHARED_PTR_HPP__
+#ifndef __PFS_CXX_CXX98_SHARED_PTR_HPP__
+#define __PFS_CXX_CXX98_SHARED_PTR_HPP__
 
 #include <pfs/compare.hpp>
 
@@ -75,7 +67,7 @@ public:
 
     void operator () (T * p) const
     {
-    	delete [] p;
+        delete [] p;
     }
 };
 
@@ -189,7 +181,7 @@ public:
         swap(copy);
         return *this;
     }
-    
+
     ~shared_ptr ()
     {
     	deref();
@@ -269,11 +261,11 @@ private:
     {
         if (! d)
         	return;
-        
+
         if (! --d->strongref) {
             d->destroy();
         }
-        
+
         if (! --d->weakref)
             delete d;
     }
@@ -362,30 +354,32 @@ inline bool operator < (shared_ptr<T> const & a, shared_ptr<U> const & b)
     return a.get() < b.get();
 }
 
-template <typename T>
-inline bool operator == (shared_ptr<T> const & a, void const * b)
-{
-     return a.get() == b;
-}
-
-template <typename T>
-inline bool operator < (shared_ptr<T> const & a, void const * b)
-{
-    return a.get() < b;
-}
-
-template <typename T>
-inline bool operator == (void const * a, shared_ptr<T> const & b)
-{
-     return a == b.get();
-}
-
-template <typename T>
-inline bool operator < (void const * a, shared_ptr<T> const & b)
-{
-    return a < b.get();
-}
+// Avoid direct comaparison with raw pointers
+//
+// template <typename T>
+// inline bool operator == (shared_ptr<T> const & a, void const * b)
+// {
+//      return a.get() == b;
+// }
+//
+// template <typename T>
+// inline bool operator < (shared_ptr<T> const & a, void const * b)
+// {
+//     return a.get() < b;
+// }
+//
+// template <typename T>
+// inline bool operator == (void const * a, shared_ptr<T> const & b)
+// {
+//      return a == b.get();
+// }
+//
+// template <typename T>
+// inline bool operator < (void const * a, shared_ptr<T> const & b)
+// {
+//     return a < b.get();
+// }
 
 } // pfs
 
-#endif /* __PFS_CXX98_SHARED_PTR_HPP__ */
+#endif /* __PFS_CXX_CXX98_SHARED_PTR_HPP__ */

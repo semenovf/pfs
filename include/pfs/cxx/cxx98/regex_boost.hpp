@@ -1,11 +1,3 @@
-
-/* 
- * File:   regex_boost.hpp
- * Author: wladt
- *
- * Created on September 13, 2017, 1:53 PM
- */
-
 #ifndef __PFS_CXX_CXX98_REGEX_BOOST_HPP__
 #define __PFS_CXX_CXX98_REGEX_BOOST_HPP__
 
@@ -38,10 +30,10 @@ template <typename StringType>
 class sub_match : public ::boost::sub_match<typename StringType::const_pointer>
 {
     typedef ::boost::sub_match<typename StringType::const_pointer> base_class;
-    
+
 public:
     pfs_constexpr sub_match () : base_class() { }
-    
+
     operator StringType () const
     {
         return this->matched
@@ -54,7 +46,7 @@ template <typename BidirIter>
 class match_results : public ::boost::match_results<BidirIter>
 {
     typedef ::boost::match_results<BidirIter> base_class;
-    
+
 public:
     explicit match_results ()
         : base_class()
@@ -68,11 +60,11 @@ public:
     {}
 };
 
-template <typename StringType> 
+template <typename StringType>
 class basic_regex : public ::boost::basic_regex<typename StringType::code_unit_type>
 {
     typedef ::boost::basic_regex<typename StringType::code_unit_type> base_class;
-    
+
 public:
     typedef pfs::match_results<typename StringType::const_pointer> match_results;
     typedef typename base_class::flag_type flag_type;

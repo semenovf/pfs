@@ -78,7 +78,8 @@ int main ()
                     , pfs::io::read_write | pfs::io::non_blocking)
             , & ec);
 
-    TEST_FAIL2(ec.value() == pfs::io_errc::operation_in_progress, "Defunct TCP socket opening in progress");
+    TEST_FAIL2(ec.value() == static_cast<int>(pfs::io_errc::operation_in_progress)
+            , "Defunct TCP socket opening in progress");
 
     pfs::io::server tcp_server = devman.new_server(
             pfs::io::open_params<pfs::io::tcp_server>(TCP_LISTENER_ADDR

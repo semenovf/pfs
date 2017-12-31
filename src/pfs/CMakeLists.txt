@@ -110,6 +110,11 @@ if(UNIX)
     endif()
 endif()
 
+if (HAVE_STDCXX_FS)
+elseif (HAVE_STDCXX_FS_EXPERIMENTAL)
+    list(APPEND PFS_TARGET_LIB_LINKS "stdc++fs")
+endif()
+
 # [Is it possible to get CMake to build both a static and shared version of the same library?](https://stackoverflow.com/questions/2152077/is-it-possible-to-get-cmake-to-build-both-a-static-and-shared-version-of-the-sam)
 #===============================================================================
 # this is the "object library" target: compiles the sources only once
@@ -119,7 +124,7 @@ add_library(PFS_LIB_OBJLIB OBJECT ${PFS_LIB_COMMON_SOURCES} ${PFS_LIB_PLATFORM_S
 set_property(TARGET PFS_LIB_OBJLIB PROPERTY POSITION_INDEPENDENT_CODE 1)
 
 # Use preferred standard
-set_property(TARGET PFS_LIB_OBJLIB PROPERTY CXX_STANDARD ${PFS_PREFERRED_CXX_STANDARD})
+#set_property(TARGET PFS_LIB_OBJLIB PROPERTY CXX_STANDARD ${PFS_PREFERRED_CXX_STANDARD})
 
 # shared and static libraries built from the same object files
 add_library(${PFS_TARGET_SHARED_LIB_NAME} SHARED $<TARGET_OBJECTS:PFS_LIB_OBJLIB>)

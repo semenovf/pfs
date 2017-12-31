@@ -1,10 +1,3 @@
-/* 
- * File:   cxxlang.hpp
- * Author: wladt
- *
- * Created on January 18, 2017, 12:04 PM
- */
-
 #ifndef __PFS_CXXLANG_HPP__
 #define __PFS_CXXLANG_HPP__
 
@@ -35,16 +28,16 @@
 //
 // https://infektor.net/posts/2017-01-19-using-cpp17-attributes-today.html
 // http://clang.llvm.org/docs/LanguageExtensions.html#has-cpp-attribute
-// 
-// Bellow are C++17 three additional attributes were added to the standard which 
+//
+// Bellow are C++17 three additional attributes were added to the standard which
 // enable additional compiler warnings when used in general code.
-// 
-// nodiscard 
+//
+// nodiscard
 //          specifies that a return value should not be discarded
-// fallthrough 
-//          indicates to the compiler that you intended a case in a switch 
+// fallthrough
+//          indicates to the compiler that you intended a case in a switch
 //          statement to fall-through, requires an optional warning to be enabled
-// maybe_unused 
+// maybe_unused
 //          silences warnings generated when a variable is only used in an assertion
 //
 #ifndef __has_cpp_attribute

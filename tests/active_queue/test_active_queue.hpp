@@ -1,10 +1,3 @@
-/* 
- * File:   test_active_queue.hpp
- * Author: wladt
- *
- * Created on October 26, 2016, 4:19 PM
- */
-
 #ifndef __TEST_ACTIVE_QUEUE_HPP__
 #define __TEST_ACTIVE_QUEUE_HPP__
 
@@ -54,28 +47,28 @@ void func ()
 void test ()
 {
     ADD_TESTS(2);
-    
+
     active_queue_type q;
-    
+
     int max_count = 100;
-    
+
     for (int i = 0; i < max_count; ++i)
         q.push_function(& func);
-    
+
     max_count = q.count();
     q.call_all();
-    
+
     TEST_OK(max_count > 0 && counter == max_count);
             //, _Sf("counter(%u) == max_count(%u)")(counter)(max_count).str().c_str());
-    
+
     max_count = 100;
-    
+
     active_queue_type q1;
-    
+
     for (int i = 0; i < max_count; ++i) {
         q1.push_function(& func);
     }
-    
+
     TEST_OK(q1.count() == static_cast<size_t>(max_count))
         //, _Sf("q1.count()=> %u == %u")(q1.count())(max_count).str().c_str());
 }
@@ -84,13 +77,13 @@ void test ()
 
 namespace test1 {
 
-struct A 
+struct A
 {
     static size_t max_count;
     size_t counter;
-    
+
     A () : counter(0) {}
-    
+
     void method ()
     {
         ++counter;
@@ -106,27 +99,27 @@ size_t A::max_count = 100;
 void test ()
 {
     ADD_TESTS(2);
-    
+
     active_queue_type q;
     active_queue_type q1;
     A a;
-    
+
     for (size_t i = 0; i < A::max_count; ++i) {
         q.push_method(& A::method, & a);
     }
-    
+
     A::max_count = q.count();
     q.call_all();
-    
+
     TEST_OK(A::max_count > 0 && a.counter == A::max_count);
             //, _Sf("counter(%u) == max_count(%u)")(a.counter)(A::max_count).str().c_str());
 
     A::max_count = 100;
-    
+
     for (size_t i = 0; i < A::max_count; ++i) {
         q1.push_method(& A::method, & a);
     }
-    
+
     TEST_OK(q1.count() == A::max_count);
         //, _Sf("q1.count()=> %u == %u")(q1.count())(A::max_count).str().c_str());
 }
@@ -169,25 +162,25 @@ static size_t random ()
 void test ()
 {
     ADD_TESTS(1);
-    
+
     std::srand(0xACCABEAF);
     size_t limit = random();
     int max = pfs::numeric_limits<uint16_t>::max();
-    
+
     for (int i = 0; i < max; ++i) {
         //COUT << "Push: " << i << endl;
         q.push_function(& func1);
         q.push_function(& func2, i);
         q.push_function(& func3, i, 'W');
-        
+
         if (q.size() > limit) {
             q.call_all();
             limit = random();
         }
     }
-    
+
     q.call_all();
-    
+
     TEST_OK2(counter1 == max
                 && counter2 == max
                 && counter3 == max
@@ -236,14 +229,14 @@ void func3 (int a, char b)
 struct consumer
 {
 public:
-	consumer () {} 
+	consumer () {}
 
 	void run()
 	{
 		while (! is_finish) {
             q.call_all();
         }
-        
+
         // Wait some time to complete producers
         pfs::this_thread::sleep_for(pfs::chrono::milliseconds(5));
         q.call_all();
@@ -272,7 +265,7 @@ public:
 	void run()
 	{
         int i = 0;
-        
+
 		while (! is_finish) {
             q.push_function(& func2, i++);
             ++prod2_counter;
@@ -290,11 +283,11 @@ public:
         (void)data;
         ++cons3_counter;
     }
-    
+
 	void run()
 	{
         int i = 0;
-        
+
 		while (! is_finish) {
             q.push_function(& func3, i++, 'W');
             ++prod3_counter;
@@ -308,7 +301,7 @@ public:
 void test ()
 {
     ADD_TESTS(1);
-    
+
     consumer cons;
     producer1 prod1;
     producer2 prod2;
@@ -320,21 +313,21 @@ void test ()
     pfs::thread t3(& producer3::run, & prod3);
 
     pfs::this_thread::sleep_for(pfs::chrono::milliseconds(10));
-    
+
     is_finish = 1;
 
     t.join();
     t1.join();
     t2.join();
     t3.join();
-    
+
     TEST_OK2(result == 0
                 && q.count() == 0
                 && cons1_counter == prod1_counter
                 && cons2_counter == prod2_counter
                 && cons3_counter == prod3_counter
             , "test::active_queue::test3 is ok");
-    
+
     cout << "\tresult = 0x" << std::hex << result.load() << std::dec << " (must be 0x0)" << endl;
     cout << "\tcons1_counter(" << cons1_counter.load() << ") "
          << (cons1_counter == prod1_counter ? "==" : "!=")
@@ -347,7 +340,7 @@ void test ()
     cout << "\tcons3_counter(" << cons3_counter.load() << ") "
          << (cons3_counter == prod3_counter ? "==" : "!=")
          << " prod3_counter(" << prod3_counter.load() << ")" << endl;
-    
+
     cout << "\tq.count() == " << q.count() << " (must be 0)" << endl;
 }
 
@@ -401,23 +394,23 @@ public:
 void test ()
 {
     ADD_TESTS(1);
-    
+
     consumer cons;
     producer prod;
 
     pfs::thread t(& consumer::run, & cons);
     pfs::thread t1(& producer::run, & prod);
-    
+
     pfs::this_thread::sleep_for(pfs::chrono::milliseconds(10));
-    
+
     is_finish = 1;
-    
+
     t1.join();
     t.join();
-    
+
     if (result != 0)
         cout << "result = 0x" << std::hex << result.load() << endl;
-    
+
     TEST_OK2(result == 0
             , "test::active_queue::test4 is ok");
 }

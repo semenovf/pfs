@@ -71,7 +71,7 @@ foreach(MY_TEST_TARGET ${MY_TEST_TARGETS})
     endif()
 
     target_link_libraries(test-${MY_TEST_TARGET} pfs-test pfs)
-    set_property(TARGET test-${MY_TEST_TARGET} PROPERTY CXX_STANDARD ${PFS_PREFERRED_CXX_STANDARD})
+    #set_property(TARGET test-${MY_TEST_TARGET} PROPERTY CXX_STANDARD ${PFS_PREFERRED_CXX_STANDARD})
     add_test(NAME ${MY_TEST_TARGET} COMMAND test-${MY_TEST_TARGET})
 endforeach(MY_TEST_TARGET)
 

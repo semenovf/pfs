@@ -1,11 +1,3 @@
-
-/* 
- * File:   ratio_boost.hpp
- * Author: wladt
- *
- * Created on September 13, 2017, 11:00 AM
- */
-
 #ifndef __PFS_CXX_CXX98_RATIO_BOOST_HPP__
 #define __PFS_CXX_CXX98_RATIO_BOOST_HPP__
 
@@ -14,7 +6,7 @@
 namespace pfs {
 
 template <intmax_t Num, intmax_t Denom = 1>
-class ratio : public ::boost::ratio<Num, Denom> 
+class ratio : public ::boost::ratio<Num, Denom>
 {};
 
 template <typename R1, typename R2>

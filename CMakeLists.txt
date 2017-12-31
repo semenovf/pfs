@@ -3,7 +3,8 @@ cmake_minimum_required (VERSION 2.8)
 
 enable_testing()
 
-set(PFS_PREFERRED_CXX_STANDARD 98)
+set(CMAKE_CXX_STANDARD 14)
+
 set(PFS_TARGET_SHARED_LIB_NAME pfs)
 set(PFS_TARGET_STATIC_LIB_NAME pfs-static)
 
