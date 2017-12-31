@@ -141,7 +141,7 @@ struct sax_context
 {
     typedef typename JsonType::string_type sequence_type;
 
-    virtual bool on_begin_json   (data_type_t) = 0;
+    virtual bool on_begin_json   () = 0;
     virtual bool on_end_json     (bool) = 0;
     virtual bool on_begin_object (sequence_type const &) = 0;
     virtual bool on_end_object   (sequence_type const &) = 0;
@@ -162,8 +162,15 @@ struct dom_builder_context : sax_context<JsonType>
     typedef typename sax_context<json_type>::sequence_type sequence_type;
     typedef pfs::stack<json_type *, StackImplType>         stack_type;
 
+    bool is_begin;
     stack_type s;
 
+    dom_builder_context (json_type & caller)
+        : is_begin(true)
+    {
+        s.push(& caller);
+    }
+            
     json_type * add_value (string_type const & name, json_type const & v)
     {
         PFS_ASSERT(s.size() > 0);
@@ -182,13 +189,13 @@ struct dom_builder_context : sax_context<JsonType>
         return r;
     }
 
-    virtual bool on_begin_json (data_type_t t)
+    virtual bool on_begin_json ()
     {
-        json_type j = (t == data_type_t::object)
-                ? json_type::make_object()
-                : json_type::make_array();
-        json_type * p = s.top();
-        p->swap(j);
+//        json_type j = (t == data_type_t::object)
+//                ? json_type::make_object()
+//                : json_type::make_array();
+//        json_type * p = s.top();
+//        p->swap(j);
         return true;
     }
 
@@ -199,7 +206,16 @@ struct dom_builder_context : sax_context<JsonType>
 
     virtual bool on_begin_object (sequence_type const & name)
     {
-    	s.push(add_value(name, json_type::make_object()));
+        json_type j = json_type::make_object();
+
+        if(is_begin) {
+            json_type * p = s.top();
+            p->swap(j);
+            is_begin = false;
+        } else {
+            s.push(add_value(name, j));
+        }
+    	
     	return true;
     }
 
@@ -212,7 +228,16 @@ struct dom_builder_context : sax_context<JsonType>
 
     virtual bool on_begin_array (sequence_type const & name)
     {
-    	s.push(add_value(name, json_type::make_array()));
+        json_type j = json_type::make_array();
+
+        if (is_begin) {
+            json_type * p = s.top();
+            p->swap(j);
+            is_begin = false;
+        } else {
+            s.push(add_value(name, j));
+        }
+        
         return true;
     }
 
@@ -225,39 +250,72 @@ struct dom_builder_context : sax_context<JsonType>
 
     virtual bool on_null_value (sequence_type const & name)
     {
-    	add_value(name, json_type());
+        json_type j;
+
+        if (is_begin) {
+            json_type * p = s.top();
+            p->swap(j);
+            is_begin = false;
+        } else {
+            add_value(name, j);
+        }
         return true;
     }
 
     virtual bool on_boolean_value (sequence_type const & name, bool v)
     {
-    	add_value(name, json_type(v));
+        json_type j(v);
+
+        if (is_begin) {
+            json_type * p = s.top();
+            p->swap(j);
+            is_begin = false;
+        } else {
+            add_value(name, j);
+        }
         return true;
     }
 
     virtual bool on_number_value (sequence_type const & name, real_t v)
     {
+        json_type j;
+
         if (v > 0) {
             // If v is unsigned integer
-            if (static_cast<real_t> (static_cast<uintmax_t> (v)) == v)
-                add_value(name, json_type(static_cast<uintmax_t> (v)));
+            if (static_cast<real_t>(static_cast<uintmax_t>(v)) == v)
+                j = json_type(static_cast<uintmax_t>(v));
             else
-                add_value(name, json_type(v));
+                j = json_type(v);
         } else {
             // If v is signed integer
-            if (static_cast<real_t> (static_cast<intmax_t> (v)) == v)
-                add_value(name, json_type(static_cast<intmax_t> (v)));
+            if (static_cast<real_t>(static_cast<intmax_t>(v)) == v)
+                j = json_type(static_cast<intmax_t>(v));
             else
-                add_value(name, json_type(v));
+                j = json_type(v);
+        }
+
+        if (is_begin) {
+            json_type * p = s.top();
+            p->swap(j);
+            is_begin = false;
+        } else {
+            add_value(name, j);
         }
 
         return true;
-
     }
 
     virtual bool on_string_value (sequence_type const & name, sequence_type const & v)
     {
-    	add_value(name, json_type(v));
+        json_type j(v);
+
+        if (is_begin) {
+            json_type * p = s.top();
+            p->swap(j);
+            is_begin = false;
+        } else {
+        	add_value(name, j);
+        }
         return true;
     }
 };
@@ -273,7 +331,7 @@ struct grammar
 
     struct parse_context
     {
-        bool           is_json_begin;
+        //bool           is_json_begin;
         string_type    member_name;
         pfs::stack<string_type, StackImplType> objects;
         pfs::stack<string_type, StackImplType> arrays;
@@ -390,6 +448,14 @@ struct grammar
         return result;
     }
 
+    static bool begin_json (iterator /*first*/, iterator /*last*/, void * context, void * /*action_args*/)
+    {
+        if (!context) return true;
+
+        parse_context * ctx = static_cast<parse_context *>(context);
+        return ctx->sax->on_begin_json();
+    }
+
     static bool success_end_json (iterator /*first*/, iterator /*last*/, void * context, void * /*action_args*/)
     {
         if (!context) return true;
@@ -435,11 +501,13 @@ struct grammar
         parse_context * ctx = static_cast<parse_context *>(context);
         ctx->objects.push(ctx->member_name);
 
-        bool result = ctx->is_json_begin
-                ? ctx->sax->on_begin_json(data_type::object)
-                : ctx->sax->on_begin_object(ctx->member_name);
+//        bool result = ctx->is_json_begin
+//                ? ctx->sax->on_begin_json(data_type::object)
+//                : ctx->sax->on_begin_object(ctx->member_name);
+//        ctx->is_json_begin = false;
+        
+        bool result = ctx->sax->on_begin_object(ctx->member_name);
 
-        ctx->is_json_begin = false;
         ctx->member_name.clear();
 
         return result;
@@ -462,10 +530,11 @@ struct grammar
 
         parse_context * ctx = static_cast<parse_context *>(context);
         ctx->arrays.push(ctx->member_name);
-        bool result = ctx->is_json_begin
-                ? ctx->sax->on_begin_json(data_type::array)
-                : ctx->sax->on_begin_array(ctx->member_name);
-        ctx->is_json_begin = false;
+//        bool result = ctx->is_json_begin
+//                ? ctx->sax->on_begin_json(data_type::array)
+//                : ctx->sax->on_begin_array(ctx->member_name);
+//        ctx->is_json_begin = false;
+        bool result = ctx->sax->on_begin_array(ctx->member_name);
         ctx->member_name.clear();
 
         return result;
@@ -620,7 +689,6 @@ grammar<ValueT, StackT>::grammar ()
         , {-1,-1, FSM_RPT_ONE_OF(WS, 0,-1), fsm_type::accept, 0, 0 }
     };
 
-
     /* === Strings === */
 
     /* unescaped = %x20-21 / %x23-5B / %x5D-10FFFF */
@@ -692,7 +760,6 @@ grammar<ValueT, StackT>::grammar ()
         , {-1,-1, FSM_ONE_OF(DQUOTE)       , fsm_type::accept, 0, 0 }
     };
 
-
     /* === Objects ===*/
 
     /* value = false / null / true / object / array / number / string */
@@ -735,6 +802,7 @@ grammar<ValueT, StackT>::grammar ()
     };
 
     /* === Arrays === */
+
     /* next-value = value-separator value  */
     static transition_type const next_value_tr[] = {
           { 1,-1, FSM_TR(value_separator_tr), fsm_type::normal, 0, 0 }
@@ -769,9 +837,10 @@ grammar<ValueT, StackT>::grammar ()
 
     /* JSON-text = ws value ws */
     static transition_type const json_tr[] = {
-          { 1,-1, FSM_RPT_ONE_OF(WS, 0,-1) , fsm_type::normal, 0, 0 }
-        , { 2, 4, FSM_TR(value_tr)         , fsm_type::normal, 0, 0 }
-        , { 3,-1, FSM_RPT_ONE_OF(WS, 0,-1) , fsm_type::normal, 0, 0 }
+          { 1,-1, FSM_NOTHING              , fsm_type::normal, begin_json, 0 }
+        , { 2,-1, FSM_RPT_ONE_OF(WS, 0,-1) , fsm_type::normal, 0, 0 }
+        , { 3, 5, FSM_TR(value_tr)         , fsm_type::normal, 0, 0 }
+        , { 4,-1, FSM_RPT_ONE_OF(WS, 0,-1) , fsm_type::normal, 0, 0 }
         , {-1,-1, FSM_NOTHING              , fsm_type::accept, success_end_json, 0 }
         , {-1,-1, FSM_NOTHING              , fsm_type::reject, failed_end_json, 0 }
     };

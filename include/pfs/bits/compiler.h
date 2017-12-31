@@ -1,11 +1,3 @@
-
-/* 
- * File:   compiler.h
- * Author: wladt
- *
- * Created on July 3, 2017, 1:36 PM
- */
-
 #ifndef __PFS_BITS_COMPILER_H__
 #define __PFS_BITS_COMPILER_H__
 

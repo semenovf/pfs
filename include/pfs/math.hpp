@@ -1,10 +1,3 @@
-/*
- * math.hpp
- *
- *  Created on: Sep 13, 2013
- *      Author: wladt
- */
-
 #ifndef __PFS_MATH_HPP__
 #define __PFS_MATH_HPP__
 
@@ -68,18 +61,30 @@ inline long double pow (long double x, long double y)
 
 inline double fabs (double x)
 {
+#if __cplusplus >= 201103L
+    return std::fabs(x);
+#else
     return ::fabs(x);
+#endif
 }
        
 inline float fabs (float x)
 {
+#if __cplusplus >= 201103L
+    return std::fabs(x);
+#else
     return ::fabsf(x);
+#endif
 }
 
 #if PFS_HAVE_LONG_DOUBLE
 inline long double fabs (long double x)
 {
+#if __cplusplus >= 201103L
+    return std::fabs(x);
+#else
     return ::fabsl(x);
+#endif
 }
 #endif
 

@@ -1,10 +1,3 @@
-/*
- * typeinfo.hpp
- *
- *  Created on: Mar 24, 2015
- *      Author: wladt
- */
-
 #ifndef __PFS_TYPEINFO_HPP__
 #define __PFS_TYPEINFO_HPP__
 

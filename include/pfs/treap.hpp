@@ -1,10 +1,3 @@
-/* 
- * File:   treap.hpp
- * Author: wladt
- *
- * Created on April 9, 2017, 6:11 PM
- */
-
 #ifndef __PFS_TREAP_HPP__
 #define __PFS_TREAP_HPP__
 

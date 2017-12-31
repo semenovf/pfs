@@ -1,10 +1,3 @@
-/* 
- * File:   between.hpp
- * Author: wladt
- *
- * Created on February 18, 2017, 12:36 PM
- */
-
 #ifndef __PFS_ALGO_BETWEEN_HPP__
 #define __PFS_ALGO_BETWEEN_HPP__
 

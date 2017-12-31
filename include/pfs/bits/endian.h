@@ -1,11 +1,3 @@
-/**
- * @file   endian.h
- * @author wladt
- * @date   Feb 21, 2013 13:58:00 AM
- *
- * @brief This file based on source from Qt Project
- */
-
 #ifndef __PFS_BITS_ENDIAN_H__
 #define __PFS_BITS_ENDIAN_H__
 

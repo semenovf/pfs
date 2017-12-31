@@ -1,10 +1,3 @@
-/*
- * join.hpp
- *
- *  Created on: Oct 25, 2015
- *      Author: wladt
- */
-
 #ifndef __PFS_ALGO_JOIN_HPP__
 #define __PFS_ALGO_JOIN_HPP__
 

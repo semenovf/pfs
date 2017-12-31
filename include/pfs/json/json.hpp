@@ -753,12 +753,13 @@ public:
         // Initialize grammar's static members
         static grammar_type grammar;
 
+        dom_builder_context<json> sax(*this);
         typename grammar_type::parse_context context;
-        dom_builder_context<json> sax;
-        context.is_json_begin = true;
+        
+        //context.is_json_begin = true;
         context.sax           = & sax;
 
-        sax.s.push(this);
+//        sax.s.push(this);
 
         fsm_type fsm(grammar.p_json_tr, & context);
         typename fsm_type::result_type r = fsm.exec(0, first, last);
@@ -766,9 +767,8 @@ public:
         if (r.first && r.second == last)
             return error_code();
 
-        if (r.first && r.second != last) {
+        if (r.first && r.second != last)
             context.ec = make_error_code(json_errc::excess_source);
-        }
 
         json j;
         this->swap(j);

@@ -1,10 +1,3 @@
-/*
- * split.hpp
- *
- *  Created on: Oct 21, 2015
- *      Author: wladt
- */
-
 #ifndef __PFS_ALGO_SPLIT_HPP__
 #define __PFS_ALGO_SPLIT_HPP__
 

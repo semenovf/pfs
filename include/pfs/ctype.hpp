@@ -1,11 +1,3 @@
-
-/* 
- * File:   ctype.hpp
- * Author: wladt
- *
- * Created on July 6, 2017, 11:32 AM
- */
-
 #ifndef __PFS_CTYPE_HPP__
 #define __PFS_CTYPE_HPP__
 

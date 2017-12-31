@@ -1,11 +1,3 @@
-
-/* 
- * File:   compare.hpp
- * Author: wladt
- *
- * Created on October 18, 2017, 10:30 AM
- */
-
 #ifndef __PFS_COMPARE_HPP__
 #define __PFS_COMPARE_HPP__
 
