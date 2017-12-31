@@ -84,7 +84,7 @@ void test_fsm ()
 //    TEST_OK(test_valid_entry<string_type>(pfs::json::number_fsm, 0, "-123e+543"));
 //    TEST_OK(test_valid_entry<string_type>(pfs::json::number_fsm, 0, "987.2345e+234"));
 
-#if __COMMENT__
+#if __FIXME__
     // exp = e [ minus / plus ] 1*DIGIT
     //
     TEST_OK(test_valid_entry<pfs::string>(pfs::json::exp_fsm, 0, _u8("e+1234")));
@@ -244,10 +244,10 @@ void test_parse ()
         TEST_OK(json.parse(json_null_str) == pfs::error_code());
         TEST_OK(json.is_null());
     }
-    
+
     {
         ADD_TESTS(3);
-        
+
         const char * json_true_str   = "true";
         JsonType json;
         TEST_OK(json.parse(json_true_str) == pfs::error_code());
@@ -267,7 +267,7 @@ void test_parse ()
 
     {
         ADD_TESTS(3);
-        
+
         const char * json_int_str    = "-800";
         JsonType json;
         TEST_OK(json.parse(json_int_str) == pfs::error_code());
@@ -277,7 +277,7 @@ void test_parse ()
 
     {
         ADD_TESTS(3);
-        
+
         const char * json_uint_str   = "800";
         JsonType json;
         TEST_OK(json.parse(json_uint_str) == pfs::error_code());
@@ -287,7 +287,7 @@ void test_parse ()
 
     {
         ADD_TESTS(3);
-        
+
         const char * json_real_str   = "-37.7668";
         JsonType json;
         TEST_OK(json.parse(json_real_str) == pfs::error_code());
@@ -297,7 +297,7 @@ void test_parse ()
 
     {
         ADD_TESTS(3);
-        
+
         const char * json_ureal_str  = "37.7668";
         JsonType json;
         TEST_OK(json.parse(json_ureal_str) == pfs::error_code());
@@ -307,7 +307,7 @@ void test_parse ()
 
     {
         ADD_TESTS(3);
-        
+
         const char * json_empty_str  = "\"\"";
         JsonType json;
         TEST_OK(json.parse(json_empty_str) == pfs::error_code());
@@ -343,10 +343,10 @@ void test_parse ()
         TEST_OK(!json_empty_array.is_null());
         TEST_OK(json_empty_array.is_array());
     }
-    
+
     {
         ADD_TESTS(21);
-        
+
         JsonType json_object_cyr;
         TEST_OK(json_object_cyr.parse("{\"ё\":\"й\"}") == pfs::error_code());
         TEST_OK(json_object_cyr["ё"].template get<string_type>() == "й");

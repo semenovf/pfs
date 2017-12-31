@@ -1,10 +1,3 @@
-/* 
- * File:   cxxversion.hpp
- * Author: wladt
- *
- * Created on September 6, 2016, 9:53 AM
- */
-
 #ifndef __PFS_CXXVERSION_HPP__
 #define __PFS_CXXVERSION_HPP__
 
