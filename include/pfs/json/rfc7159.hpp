@@ -1,8 +1,5 @@
-// IS OBSOLETE
-// use rfc7159.hpp instead
-
-#ifndef __PFS_JSON_RFC4627_HPP__
-#define __PFS_JSON_RFC4627_HPP__
+#ifndef __PFS_JSON_RFC7159_HPP__
+#define __PFS_JSON_RFC7159_HPP__
 
 #include <pfs/fsm/fsm.hpp>
 #include <pfs/lexical_cast.hpp>
@@ -14,95 +11,129 @@
 namespace pfs {
 namespace json {
 
-// XXX OBSOLETE
+/* In short the main difference between RFC 7159 and RFC 4627 in one rule:
+ *
+ * RFC 4627: JSON-text = object / array
+ * RFC 7159: JSON-text = ws value ws
+ *
+ */
 
 /*
-   RFC 4627:  The application/json Media Type for JavaScript Object Notation (JSON).
-   URL: http://www.ietf.org/rfc/rfc4627.txt
-  -----------------------------------------------------------------------
+    RFC 7159:  The JavaScript Object Notation (JSON) Data Interchange Format
+    URL: https://tools.ietf.org/html/rfc7159
+    -----------------------------------------------------------------------
 
-  A JSON text is a sequence of tokens.  The set of tokens includes six
-  structural characters, strings, numbers, and three literal names.
+    A JSON text is a sequence of tokens.  The set of tokens includes six
+    structural characters, strings, numbers, and three literal names.
 
-  A JSON text is a serialized object or array.
+    A JSON text is a serialized object or array.
 
-  JSON-text = object / array
+    RFC 4627: JSON-text = object / array
+    RFC 7159: JSON-text = ws value ws
 
-  ws = *(
-			%x20 /              ; Space
-			%x09 /              ; Horizontal tab
-			%x0A /              ; Line feed or New line
-			%x0D                ; Carriage return
-		)
+    RFC 4627:
+    RFC 7159:
+    ----------------
+    ws = *(
+        %x20 /              ; Space
+        %x09 /              ; Horizontal tab
+        %x0A /              ; Line feed or New line
+        %x0D                ; Carriage return
+    )
+    ----------------
 
-	begin-array     = ws %x5B ws  ; [ left square bracket
-	begin-object    = ws %x7B ws  ; { left curly bracket
-	end-array       = ws %x5D ws  ; ] right square bracket
-	end-object      = ws %x7D ws  ; } right curly bracket
-	name-separator  = ws %x3A ws  ; : colon
-	value-separator = ws %x2C ws  ; , comma
+    RFC 4627:
+    RFC 7159:
+    ----------------
+    begin-array     = ws %x5B ws  ; [ left square bracket
+    begin-object    = ws %x7B ws  ; { left curly bracket
+    end-array       = ws %x5D ws  ; ] right square bracket
+    end-object      = ws %x7D ws  ; } right curly bracket
+    name-separator  = ws %x3A ws  ; : colon
+    value-separator = ws %x2C ws  ; , comma
+    ----------------
 
-	Values.
-	------------------------------------------------------------------
-	A JSON value MUST be an object, array, number, or string, or one of
-	the following three literal names:
+    Values.
+    ===========================================================================
+    A JSON value MUST be an object, array, number, or string, or one of
+    the following three literal names:
 
-		false null true
+    RFC 4627:
+    RFC 7159:
+    ----------------
+        false null true
+    ----------------
 
-	The literal names MUST be lowercase.  No other literal names are
-	allowed.
+    The literal names MUST be lowercase.  No other literal names are
+    allowed.
 
-	value = false / null / true / object / array / number / string
-	false = %x66.61.6c.73.65   ; false
-	null  = %x6e.75.6c.6c      ; null
-	true  = %x74.72.75.65      ; true
+    RFC 4627:
+    RFC 7159:
+    ----------------
+    value = false / null / true / object / array / number / string
+    false = %x66.61.6c.73.65   ; false
+    null  = %x6e.75.6c.6c      ; null
+    true  = %x74.72.75.65      ; true
+    ----------------
 
+    Objects.
+    ===========================================================================
+    RFC 4627:
+    RFC 7159:
+    ----------------
+    object = begin-object [ member *( value-separator member ) ] end-object
 
-	Objects.
-	------------------------------------------------------------------
-	object = begin-object [ member *( value-separator member ) ] end-object
+    member = string name-separator value
+    ----------------
 
-	member = string name-separator value
+    Arrays.
+    ===========================================================================
+    RFC 4627:
+    RFC 7159:
+    ----------------
+    array = begin-array [ value *( value-separator value ) ] end-array
+    ----------------
 
-	Arrays.
-	------------------------------------------------------------------
-	array = begin-array [ value *( value-separator value ) ] end-array
-
-
-	Numbers.
-	------------------------------------------------------------------
+    Numbers.
+    ===========================================================================
+    RFC 4627:
+    RFC 7159:
+    ----------------
     number = [ minus ] int [ frac ] [ exp ]
     decimal-point = %x2E       ; .
-	digit1-9 = %x31-39         ; 1-9
-	e = %x65 / %x45            ; e E
-	exp = e [ minus / plus ] 1*DIGIT
-	minus = %x2D               ; -
-	plus = %x2B                ; +
-	zero = %x30                ; 0
-	frac = decimal-point 1*DIGIT
-	int = zero / ( digit1-9 *DIGIT )
+    digit1-9 = %x31-39         ; 1-9
+    e = %x65 / %x45            ; e E
+    exp = e [ minus / plus ] 1*DIGIT
+    frac = decimal-point 1*DIGIT
+    int = zero / ( digit1-9 *DIGIT )
+    minus = %x2D               ; -
+    plus = %x2B                ; +
+    zero = %x30                ; 0
+    ----------------
 
-	Strings.
-	------------------------------------------------------------------
-	string = quotation-mark *char quotation-mark
+    Strings.
+    ===========================================================================
+    RFC 4627:
+    RFC 7159:
+    ----------------
+    string = quotation-mark *char quotation-mark
 
-	char = unescaped /
-		escape (
-			%x22 /          ; "    quotation mark  U+0022
-			%x5C /          ; \    reverse solidus U+005C
-			%x2F /          ; /    solidus         U+002F
-			%x62 /          ; b    backspace       U+0008
-			%x66 /          ; f    form feed       U+000C
-			%x6E /          ; n    line feed       U+000A
-			%x72 /          ; r    carriage return U+000D
-			%x74 /          ; t    tab             U+0009
-			%x75 4HEXDIG )  ; uXXXX                U+XXXX
+    char = unescaped /
+        escape (
+            %x22 /          ; "    quotation mark  U+0022
+            %x5C /          ; \    reverse solidus U+005C
+            %x2F /          ; /    solidus         U+002F
+            %x62 /          ; b    backspace       U+0008
+            %x66 /          ; f    form feed       U+000C
+            %x6E /          ; n    line feed       U+000A
+            %x72 /          ; r    carriage return U+000D
+            %x74 /          ; t    tab             U+0009
+            %x75 4HEXDIG )  ; uXXXX                U+XXXX
 
-	escape = %x5C              ; \
-
-	quotation-mark = %x22      ; "
-
-	unescaped = %x20-21 / %x23-5B / %x5D-10FFFF
+    escape = %x5C              ; \
+    quotation-mark = %x22      ; "
+    unescaped = %x20-21 / %x23-5B / %x5D-10FFFF
+    ----------------
 */
 
 template <typename JsonType>
@@ -729,11 +760,20 @@ grammar<ValueT, StackT>::grammar ()
     value_tr[6].m = FSM_TR(array_tr);
 
     /* JSON-text = object / array */
+//     static transition_type const json_tr[] = {
+//           { 2, 1, FSM_TR(object_tr), fsm_type::normal, 0, 0 }
+//         , { 2, 3, FSM_TR(array_tr) , fsm_type::normal, 0, 0 }
+//         , {-1,-1, FSM_NOTHING      , fsm_type::accept, success_end_json, 0 }
+//         , {-1,-1, FSM_NOTHING      , fsm_type::reject, failed_end_json, 0 }
+//     };
+
+    /* JSON-text = ws value ws */
     static transition_type const json_tr[] = {
-          { 2, 1, FSM_TR(object_tr), fsm_type::normal, 0, 0 }
-        , { 2, 3, FSM_TR(array_tr) , fsm_type::normal, 0, 0 }
-        , {-1,-1, FSM_NOTHING      , fsm_type::accept, success_end_json, 0 }
-        , {-1,-1, FSM_NOTHING      , fsm_type::reject, failed_end_json, 0 }
+          { 1,-1, FSM_RPT_ONE_OF(WS, 0,-1) , fsm_type::normal, 0, 0 }
+        , { 2, 4, FSM_TR(value_tr)         , fsm_type::normal, 0, 0 }
+        , { 3,-1, FSM_RPT_ONE_OF(WS, 0,-1) , fsm_type::normal, 0, 0 }
+        , {-1,-1, FSM_NOTHING              , fsm_type::accept, success_end_json, 0 }
+        , {-1,-1, FSM_NOTHING              , fsm_type::reject, failed_end_json, 0 }
     };
 
 #if PFS_TEST
@@ -747,4 +787,4 @@ grammar<ValueT, StackT>::grammar ()
 
 }} // pfs::json
 
-#endif /* __PFS_JSON_RFC4627_HPP__ */
+#endif /* __PFS_JSON_RFC7159_HPP__ */

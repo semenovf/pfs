@@ -13,7 +13,7 @@
 #include <pfs/json/iterator.hpp>
 #include <pfs/json/exception.hpp>
 #include <pfs/json/cast.hpp>
-#include <pfs/json/rfc4627.hpp>
+#include <pfs/json/rfc7159.hpp>
 
 namespace pfs {
 namespace json {
@@ -631,11 +631,11 @@ public:
 
     iterator find (int index)
     {
-        return index < 0 
+        return index < 0
                 ? end()
                 : find(static_cast<size_type>(index));
     }
-    
+
     iterator find (size_type index)
     {
         if (is_array()) {
@@ -651,11 +651,11 @@ public:
 
     const_iterator find (int index) const
     {
-        return index < 0 
+        return index < 0
                 ? end()
                 : find(static_cast<size_type>(index));
     }
-    
+
     const_iterator find (size_type index) const
     {
         if (is_array()) {
@@ -668,7 +668,7 @@ public:
 
         return end();
     }
-    
+
     bool contains (key_type const & key) const
     {
         return find(key) != end();
@@ -699,7 +699,7 @@ public:
 //         default:
 //             break;
 //         }
-// 
+//
 //         return pfs::make_pair<bool,T>(false, cast_traits<T>::cast());
 //     }
 
@@ -1160,11 +1160,11 @@ template <typename JsonType>
 class reference_wrapper
 {
     JsonType * _p;
-    
+
 public:
     typedef typename JsonType::size_type size_type;
     typedef typename JsonType::key_type  key_type;
-    
+
 protected:
     reference_wrapper ()
         : _p(0)
@@ -1179,7 +1179,7 @@ public:
         : _p(& ref)
     {}
 
-    reference_wrapper (reference_wrapper<JsonType> const & ref) 
+    reference_wrapper (reference_wrapper<JsonType> const & ref)
         :_p(ref._p)
     {}
 
@@ -1189,11 +1189,11 @@ public:
         return *this;
     }
 
-    operator bool () const 
+    operator bool () const
     {
         return _p != 0;
     }
-    
+
     // For avoid ambiguous overload of operator[] with `0` value
     reference_wrapper operator [] (int index)
     {
@@ -1204,7 +1204,7 @@ public:
     {
         if (_p) {
             typename JsonType::iterator it = _p->find(index);
-            
+
             if (it != _p->end())
                 return reference_wrapper(*it);
         }
@@ -1226,11 +1226,11 @@ public:
     {
         return operator [] (key_type(key));
     }
-    
+
     template <typename T>
     T get (T const & default_value = T()) const
     {
-        return _p ? _p->get<T>() : default_value;
+        return _p ? _p->template get<T>() : default_value;
     }
 };
 
