@@ -12,6 +12,6 @@ install:
 script:
   - mkdir -p build
   - cd build
-  - cmake ..
+  - cmake -DCMAKE_CXX_STANDARD=98 ..
   - cmake --build .
   - make test
