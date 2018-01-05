@@ -3,7 +3,7 @@ sudo: false
 language: cpp
   
 script:
-  - make -p build
+  - mkdir -p build
   - cd build
   - cmake ..
   - cmake --build .
