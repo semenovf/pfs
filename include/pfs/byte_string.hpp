@@ -485,7 +485,8 @@ public:
 
     iterator erase (const_iterator position)
     {
-#if __cplusplus < 201103L || PFS_CC_GCC_VERSION <= 40800 // TODO Check for valid version
+#if __cplusplus < 201103L
+// || PFS_CC_GCC_VERSION <= 40800 // TODO Check for valid version
         size_type index = position - cbegin();
         if (index < size()) {
             erase(index, 1);
@@ -499,7 +500,8 @@ public:
 
     iterator erase (const_iterator first, const_iterator last)
     {
-#if __cplusplus < 201103L || PFS_CC_GCC_VERSION <= 40800 // TODO Check for valid version
+#if __cplusplus < 201103L
+// || PFS_CC_GCC_VERSION <= 40800 // TODO Check for valid version
         size_type pos1 = first - cbegin();
         size_type pos2 = last - cbegin();
         if (pos1 < pos2) {
