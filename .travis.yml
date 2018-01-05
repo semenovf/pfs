@@ -1,0 +1,10 @@
+dist: trusty
+sudo: false
+language: cpp
+  
+script:
+  - make -p build
+  - cd build
+  - cmake ..
+  - cmake --build .
+  - make test
