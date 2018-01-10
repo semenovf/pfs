@@ -644,7 +644,26 @@ inline path temp_directory_path (error_code & ec)
     return path(details::temp_directory_path(ec));
 }
 
-//
+inline path current_path ()
+{
+    return path(details::current_path());
+}
+
+inline path current_path (error_code & ec)
+{
+    return path(details::current_path(ec));
+}
+
+inline void current_path (path const & p)
+{
+    details::current_path(p.native_path());
+}
+
+inline void current_path (path const & p, error_code & ec)
+{
+    details::current_path(p.native_path(), ec);
+}
+
 //template <typename Source>
 //path u8path (Source const & source);
 //

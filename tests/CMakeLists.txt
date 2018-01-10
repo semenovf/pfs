@@ -77,4 +77,4 @@ endforeach(MY_TEST_TARGET)
 
 # Helper library for test `dynamic_library`
 add_library(shared_object SHARED dynamic_library/shared_object.c)
-set_property(TARGET shared_object PROPERTY CXX_STANDARD ${PFS_PREFERRED_CXX_STANDARD})
+#set_property(TARGET shared_object PROPERTY CXX_STANDARD ${PFS_PREFERRED_CXX_STANDARD})

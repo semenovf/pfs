@@ -101,6 +101,26 @@ inline ::boost::filesystem::path temp_directory_path (error_code & ec)
     return ::boost::filesystem::temp_directory_path(ec);
 }
 
+inline ::boost::filesystem::path current_path ()
+{
+    return ::boost::filesystem::current_path();
+}
+
+inline ::boost::filesystem::path current_path (error_code & ec)
+{
+    return ::boost::filesystem::current_path(ec);
+}
+
+inline void current_path (::boost::filesystem::path const & p)
+{
+    ::boost::filesystem::current_path(p);
+}
+
+inline void current_path (::boost::filesystem::path const & p, error_code & ec)
+{
+    ::boost::filesystem::current_path(p, ec);
+}
+
 }}} // pfs::filesystem::details
 
 #else
