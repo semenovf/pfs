@@ -1,11 +1,3 @@
-/**
- * @file   test.cpp
- * @author
- * @date
- *
- * @brief testing ...
- */
-
 #include <pfs/test/test.hpp>
 #include "test_duration.hpp"
 

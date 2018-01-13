@@ -39,6 +39,7 @@ list(APPEND MY_TEST_TARGETS smart_ptr)
 list(APPEND MY_TEST_TARGETS string)
 list(APPEND MY_TEST_TARGETS time)
 list(APPEND MY_TEST_TARGETS utf8)
+list(APPEND MY_TEST_TARGETS algo-tricks)
 
 set(test-db_SOURCES
     db/test.cpp

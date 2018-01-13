@@ -1,10 +1,3 @@
-/* 
- * File:   path.hpp
- * Author: wladt
- *
- * Created on June 20, 2017, 11:07 AM
- */
-
 #ifndef __PFS_CXX_CXX11_FILESYSTEM_PATH_HPP__
 #define __PFS_CXX_CXX11_FILESYSTEM_PATH_HPP__
 
@@ -103,6 +96,26 @@ inline path temp_directory_path ()
 inline path temp_directory_path (error_code & ec)
 {
     return std::experimental::filesystem::temp_directory_path(ec);
+}
+
+inline path current_path ()
+{
+    return std::experimental::filesystem::current_path();
+}
+
+inline path current_path (error_code & ec)
+{
+    return std::experimental::filesystem::current_path(ec);
+}
+
+inline void current_path (path const & p)
+{
+    std::experimental::filesystem::current_path(p);
+}
+
+inline void current_path (path const & p, error_code & ec)
+{
+    std::experimental::filesystem::current_path(p, ec);
 }
 
 #if __COMMENT__
