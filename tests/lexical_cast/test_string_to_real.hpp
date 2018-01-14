@@ -1,10 +1,3 @@
-/*
- * test.cpp
- *
- *  Created on: Oct 10, 2014
- *      Author: wladt
- */
-
 #ifndef TEST_STRING_TO_FLOAT_HPP
 #define TEST_STRING_TO_FLOAT_HPP
 

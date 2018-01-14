@@ -1,10 +1,3 @@
-/**
- * @file   test.cpp
- * @author
- * @date
- *
- * @brief testing ...
- */
 #include <pfs/test/test.hpp>
 #include <pfs/lexical_cast.hpp>
 #include <pfs/string.hpp>

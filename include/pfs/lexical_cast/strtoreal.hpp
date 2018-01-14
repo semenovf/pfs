@@ -1,10 +1,3 @@
-/*
- * strtoreal.cpp
- *
- *  Created on: Jan 2, 2016
- *      Author: wladt
- */
-
 #include <pfs/types.hpp>
 #include <pfs/assert.hpp>
 #include <pfs/math.hpp>
@@ -78,7 +71,7 @@ struct powersOf10<float>
           , 1.0e16
           , 1.0e32
         };
-        
+
         return a;
     }
 };
@@ -99,7 +92,7 @@ struct powersOf10<double>
           , 1.0e128
           , 1.0e256
         };
-        
+
         return a;
     }
 };
@@ -125,7 +118,7 @@ struct powersOf10<long double>
           , 1.0e2048L
           , 1.0e4096L
         };
-        
+
         return a;
     }
 };
@@ -135,7 +128,7 @@ namespace details {
 
 //
 // Emulates c-string iterator (pointer to char).
-// Increments wrapped iterator if current position is not at the end 
+// Increments wrapped iterator if current position is not at the end
 // and returns '\x0' at the end.
 //
 template <typename Iter>
@@ -147,7 +140,7 @@ struct char_iterator_wrapper
     Iter last;
 
     char_iterator_wrapper () {}
-    
+
     char_iterator_wrapper (char_iterator_wrapper const & rhs)
         : pos(rhs.pos)
         , last(rhs.last)
@@ -159,12 +152,12 @@ struct char_iterator_wrapper
         last = rhs.last;
         return *this;
     }
-    
+
     char_iterator_wrapper (Iter const & p, Iter const & l)
         : pos(p)
         , last(l)
     {}
-    
+
     value_type operator * () const
     {
     	return pos == last ? value_type(0) : *pos;
@@ -188,9 +181,12 @@ RealType string_to_real (CharIterator first
 {
     typedef typename iterator_traits<CharIterator>::value_type value_type;
     static RealType frac1_powers[] = {1.0e0, 1.0e1, 1.0e2, 1.0e3, 1.0e4, 1.0e5, 1.0e6, 1.0e7, 1.0e8, 1.0e9};
-    
+
 	CharIterator p(first);
-	RealType r = RealType(0.0f);
+
+    // double typed `r` gives more accuracy result when RealType is equal to `float`
+    double r = RealType(0.0f); //RealType r = RealType(0.0f);
+
 	int sign = 1;
     RealType dbl_exp = 1.0f;
     int exp_sign = 1;
@@ -209,7 +205,7 @@ RealType string_to_real (CharIterator first
     if (first == last) {
     	if (badpos)
             *badpos = first;
-	return RealType(0.0f);
+        return RealType(0.0f);
     }
 
     // Skip over any leading whitespace
@@ -275,28 +271,28 @@ RealType string_to_real (CharIterator first
             }
         }
     }
-    
+
     // Skip zeros
     //==========================================================================
     last_zero_pos = pos;
-    
+
     while (*pos == '0') {
         last_zero_pos = pos;
         ++pos;
     }
-    
+
     pos = last_zero_pos;
-    
+
     // Parse mantissa
     //==========================================================================
-    // For double type mantissa has 18 significant digits, 
-    // so extra digits could be considered zeros (they can't affect the 
+    // For double type mantissa has 18 significant digits,
+    // so extra digits could be considered zeros (they can't affect the
     // result value). And represent this 18 digits as two integer fractions
 
     for (value_type c = *pos
             ; c != value_type(0) && mantissa_size < 9
             ; ++pos, ++mantissa_size, c = *pos) {
-        
+
         if (!is_digit(c)) {
             if (c == decimal_point_char) {
                 if (decimal_point_size < 0) {
@@ -315,11 +311,11 @@ RealType string_to_real (CharIterator first
     }
 
     frac1_power = 0;
-            
+
     for (value_type c = *pos
             ; c != value_type(0) && mantissa_size < 18
             ; ++pos, ++mantissa_size, c = *pos) {
-        
+
         if (!is_digit(c)) {
             if (c == decimal_point_char) {
                 if (decimal_point_size < 0) {
@@ -333,7 +329,7 @@ RealType string_to_real (CharIterator first
                 break;
             }
         }
-        
+
         frac2 = 10 * frac2 + (to_ascii(c) - '0');
         ++frac1_power;
     }
@@ -369,9 +365,9 @@ RealType string_to_real (CharIterator first
     //==========================================================================
 
     if ((*pos == 'E') || (*pos == 'e')) {
-        
+
         exp_pos = pos;
-        
+
         ++pos;
 
         if (*pos == '-') {
@@ -437,7 +433,7 @@ RealType string_to_real (CharIterator first
     } else {
         r *= dbl_exp;
     }
-    
+
 done:
     if (badpos)
         *badpos = pos.pos;
@@ -453,11 +449,11 @@ RealType string_to_real (CharIterator first
 {
     error_code ec;
     RealType result = string_to_real<RealType, CharIterator>(first, last, decimal_point, badpos, ec);
-            
+
     if (ec.value() != static_cast<int>(lexical_cast_errc::success))
         throw bad_lexical_cast(ec);
-    
+
     return result;
 }
-    
+
 } // pfs
