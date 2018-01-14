@@ -1,11 +1,3 @@
-
-/* 
- * File:   command.hpp
- * Author: wladt
- *
- * Created on October 13, 2017, 11:43 AM
- */
-
 #ifndef __PFS_CLI_COMMAND_HPP__
 #define __PFS_CLI_COMMAND_HPP__
 

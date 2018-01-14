@@ -1,10 +1,3 @@
-/* 
- * File:   inet_server_posix.hpp
- * Author: wladt
- *
- * Created on November 15, 2016, 6:14 PM
- */
-
 #ifndef __PFS_INET_SERVER_POSIX_HPP__
 #define __PFS_INET_SERVER_POSIX_HPP__
 

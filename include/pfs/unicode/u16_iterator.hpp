@@ -1,10 +1,3 @@
-/* 
- * File:   u16_iterator.hpp
- * Author: wladt
- *
- * Created on August 2, 2017, 10:54 AM
- */
-
 #ifndef __PFS_UNICODE_U16_ITERATOR_HPP__
 #define __PFS_UNICODE_U16_ITERATOR_HPP__
 

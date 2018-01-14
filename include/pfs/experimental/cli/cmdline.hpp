@@ -1,10 +1,3 @@
-/* 
- * File:   cmdline.hpp
- * Author: wladt
- *
- * Created on December 20, 2016, 10:05 AM
- */
-
 /*
  * Command line arguments sources:
  * -----------------------------------------------------------------------------

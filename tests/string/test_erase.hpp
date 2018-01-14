@@ -1,10 +1,3 @@
-/* 
- * File:   test_erase.hpp
- * Author: wladt
- *
- * Created on February 9, 2017, 1:23 PM
- */
-
 #ifndef __TEST_ERASE_HPP__
 #define __TEST_ERASE_HPP__
 

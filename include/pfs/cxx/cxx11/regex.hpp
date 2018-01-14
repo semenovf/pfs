@@ -1,10 +1,3 @@
-/* 
- * File:   regex.hpp
- * Author: wladt
- *
- * Created on February 2, 2017, 10:10 AM
- */
-
 #ifndef __PFS_CXX11_REGEX_HPP__
 #define __PFS_CXX11_REGEX_HPP__
 

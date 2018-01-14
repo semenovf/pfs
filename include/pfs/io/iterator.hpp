@@ -1,11 +1,3 @@
-
-/* 
- * File:   iterator.hpp
- * Author: wladt
- *
- * Created on October 3, 2017, 12:06 PM
- */
-
 #ifndef __PFS_IO_ITERATOR_HPP__
 #define __PFS_IO_ITERATOR_HPP__
 

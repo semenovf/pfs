@@ -1,10 +1,3 @@
-/*
- * datetime_unix.cpp
- *
- *  Created on: Sep 13, 2013
- *      Author: wladt
- */
-
 #include <ctime>
 #include <cstring>
 #include <sys/time.h> // gettimeofday

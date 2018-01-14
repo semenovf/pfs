@@ -1,10 +1,3 @@
-/* 
- * File:   test_constructor.hpp
- * Author: wladt
- *
- * Created on May 07, 2017
- */
-
 #ifndef __PFS_TEST_CONSTRUCTOR_HPP__
 #define __PFS_TEST_CONSTRUCTOR_HPP__
 

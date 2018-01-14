@@ -1,10 +1,3 @@
-/* 
- * File:   test_route.hpp
- * Author: wladt
- *
- * Created on December 20, 2016, 9:50 AM
- */
-
 #ifndef __TEST_ROUTE_HPP__
 #define __TEST_ROUTE_HPP__
 

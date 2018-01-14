@@ -1,18 +1,7 @@
-/* 
- * File:   test_active_map.hpp
- * Author: wladt
- *
- * Created on Aug 22, 2017
- */
-
 #ifndef __TEST_ACTIVE_MAP_HPP__
 #define __TEST_ACTIVE_MAP_HPP__
 
-//#include <cstdlib>
 #include <pfs/test/test.hpp>
-//#include <pfs/types.hpp>
-//#include <pfs/limits.hpp>
-//#include <pfs/atomic.hpp>
 #include <pfs/thread.hpp>
 #include <pfs/traits/stdcxx/map.hpp>
 #include <pfs/active_map.hpp>

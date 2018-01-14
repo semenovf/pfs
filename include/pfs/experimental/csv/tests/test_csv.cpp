@@ -1,10 +1,3 @@
-/*
- * test_csv.cpp
- *
- *  Created on: 08.02.2013
- *      Author: wladt
- */
-
 #include <cwt/test.h>
 #include <cwt/csv.hpp>
 #include <cwt/io/textreader.hpp>

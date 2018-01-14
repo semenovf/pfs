@@ -1,10 +1,3 @@
-/* 
- * File:   widget.hpp
- * Author: wladt
- *
- * Created on September 9, 2017, 11:55 AM
- */
-
 #ifndef __PFS_GUI_WIDGET_HPP__
 #define __PFS_GUI_WIDGET_HPP__
 

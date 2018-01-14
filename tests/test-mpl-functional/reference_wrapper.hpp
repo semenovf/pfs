@@ -1,10 +1,3 @@
-/* 
- * File:   reference_wrapper.hpp
- * Author: wladt
- *
- * Created on May 2, 2017, 4:25 PM
- */
-
 #ifndef __TEST_REFERENCE_WRAPPER_HPP__
 #define __TEST_REFERENCE_WRAPPER_HPP__
 

@@ -1,10 +1,3 @@
-/* 
- * File:   i18n.hpp
- * Author: wladt
- *
- * Created on April 15, 2017, 4:35 PM
- */
-
 #ifndef __PFS_I18N_HPP__
 #define __PFS_I18N_HPP__
 

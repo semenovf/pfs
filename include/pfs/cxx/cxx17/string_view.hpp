@@ -1,10 +1,3 @@
-/* 
- * File:   string_view.hpp
- * Author: wladt
- *
- * Created on January 26, 2017, 9:04 AM
- */
-
 #ifndef __PFS_CXX17_STRING_VIEW_HPP__
 #define __PFS_CXX17_STRING_VIEW_HPP__
 

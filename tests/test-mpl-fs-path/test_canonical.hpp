@@ -1,10 +1,3 @@
-/*
- * fs_join.cpp
- *
- *  Created on: Oct 20, 2015
- *      Author: wladt
- */
-
 #include <sstream>
 
 namespace test {

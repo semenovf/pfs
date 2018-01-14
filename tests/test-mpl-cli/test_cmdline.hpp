@@ -1,10 +1,3 @@
-/* 
- * File:   test_cmdline.hpp
- * Author: wladt
- *
- * Created on December 14, 2016, 12:11 PM
- */
-
 #ifndef __TEST_CMDLINE_HPP__
 #define __TEST_CMDLINE_HPP__
 

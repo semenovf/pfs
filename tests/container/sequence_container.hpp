@@ -1,10 +1,3 @@
-/* 
- * File:   test_sequence_constructor.hpp
- * Author: wladt
- *
- * Created on May 08, 2017
- */
-
 #ifndef TEST_SEQUENCE_CONSTRUCTOR_HPP
 #define TEST_SEQUENCE_CONSTRUCTOR_HPP
 

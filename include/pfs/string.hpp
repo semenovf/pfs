@@ -1,10 +1,3 @@
-/* 
- * File:   string.hpp
- * Author: wladt
- *
- * Created on January 9, 2017, 10:49 AM
- */
-
 #ifndef __PFS_STRING_HPP__
 #define __PFS_STRING_HPP__
 

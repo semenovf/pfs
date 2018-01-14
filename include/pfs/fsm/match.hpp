@@ -1,10 +1,3 @@
-/* 
- * File:   match.hpp
- * Author: wladt
- *
- * Created on March 8, 2017, 12:13 PM
- */
-
 #ifndef __PFS_FSM_MATCH_HPP__
 #define __PFS_FSM_MATCH_HPP__
 

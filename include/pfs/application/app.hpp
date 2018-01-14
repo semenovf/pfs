@@ -1,10 +1,3 @@
-/*
- * app.hpp
- *
- *  Created on: Aug 15, 2013
- *      Author: wladt
- */
-
 #ifndef __PFS_APPLICATION_APP_HPP__
 #define __PFS_APPLICATION_APP_HPP__
 

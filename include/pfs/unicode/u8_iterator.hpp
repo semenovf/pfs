@@ -1,10 +1,3 @@
-/* 
- * File:   u8_iterator.hpp
- * Author: wladt
- *
- * Created on March 30, 2017, 3:18 PM
- */
-
 #ifndef __PFS_UNICODE_U8_ITERATOR_HPP__
 #define __PFS_UNICODE_U8_ITERATOR_HPP__
 

@@ -1,10 +1,3 @@
-/* 
- * File:   database.hpp
- * Author: wladt
- *
- * Created on Apr 27, 2017
- */
-
 #ifndef __PFS_DB_SQLITE3_DATABASE_HPP__
 #define __PFS_DB_SQLITE3_DATABASE_HPP__
 

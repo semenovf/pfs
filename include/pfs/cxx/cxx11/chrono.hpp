@@ -1,10 +1,3 @@
-/* 
- * File:   chrono.hpp
- * Author: wladt
- *
- * Created on June 19, 2017, 9:06 AM
- */
-
 #ifndef __PFS_CXX_CXX11_CHRONO_HPP__
 #define __PFS_CXX_CXX11_CHRONO_HPP__
 

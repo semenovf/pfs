@@ -1,10 +1,3 @@
-/* 
- * File:   test_compare.hpp
- * Author: wladt
- *
- * Created on January 10, 2017, 10:30 AM
- */
-
 #ifndef __PFS_TEST_COMPARE_HPP__
 #define __PFS_TEST_COMPARE_HPP__
 

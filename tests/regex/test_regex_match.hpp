@@ -1,10 +1,3 @@
-/* 
- * File:   test_regex_match.hpp
- * Author: wladt
- *
- * Created on July 4, 2017
- */
-
 #ifndef TEST_REGEX_MATCH_HPP
 #define TEST_REGEX_MATCH_HPP
 

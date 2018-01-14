@@ -1,10 +1,3 @@
-/* 
- * File:   statement.hpp
- * Author: wladt
- *
- * Created on April 27, 2017, 3:38 PM
- */
-
 #ifndef __PFS_DB_STATEMENT_HPP__
 #define __PFS_DB_STATEMENT_HPP__
 

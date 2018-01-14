@@ -1,10 +1,3 @@
-/* 
- * File:   logger.hpp
- * Author: wladt
- *
- * Created on July 9, 2017, 10:26 AM
- */
-
 #ifndef __PFS_LOGGER_HPP__
 #define __PFS_LOGGER_HPP__
 

@@ -1,10 +1,3 @@
-/* 
- * File:   char.hpp
- * Author: wladt
- *
- * Created on March 30, 2017, 3:23 PM
- */
-
 #ifndef __PFS_UNICODE_CHAR_HPP__
 #define __PFS_UNICODE_CHAR_HPP__
 

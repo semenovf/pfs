@@ -1,10 +1,3 @@
-/* 
- * File:   test_cast.hpp
- * Author: wladt
- *
- * Created on January 25, 2017, 3:20 PM
- */
-
 #ifndef TEST_CAST_HPP
 #define TEST_CAST_HPP
 

@@ -1,10 +1,3 @@
-/* 
- * File:   implicit_treap.hpp
- * Author: wladt
- *
- * Created on April 9, 2017, 7:48 PM
- */
-
 #ifndef __PFS_IMPLICIT_TREAP_HPP__
 #define __PFS_IMPLICIT_TREAP_HPP__
 

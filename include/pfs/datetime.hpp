@@ -1,10 +1,3 @@
-/*
- * datetime.hpp
- *
- *  Created on: Sep 13, 2013
- *      Author: wladt
- */
-
 #ifndef __PFS_DATETIME_HPP__
 #define __PFS_DATETIME_HPP__
 

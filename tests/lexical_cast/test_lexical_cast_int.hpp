@@ -1,10 +1,3 @@
-/* 
- * File:   test_integer.hpp
- * Author: wladt
- *
- * Created on March 15, 2017, 5:40 PM
- */
-
 #ifndef TEST_LEXICAL_CAST_INT_HPP
 #define TEST_LEXICAL_CAST_INT_HPP
 

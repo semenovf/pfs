@@ -1,10 +1,3 @@
-/* 
- * File:   uri.hpp
- * Author: wladt
- *
- * Created on March 10, 2017, 1:49 PM
- */
-
 #ifndef __PFS_NET_URI_HPP__
 #define __PFS_NET_URI_HPP__
 
@@ -13,7 +6,7 @@
 namespace pfs {
 namespace net {
 
-/* 
+/*
  * C#   System.Uri
  * Java java.net.URI
  * Qt   QUrl, QUrlQuery (for query string parsing)
@@ -27,11 +20,11 @@ public:
 
     struct data_rep
     {
-        data_rep ()
-            : port(0)
-            , is_raw_host(false)
+       data_rep ()
+            : port (0)
+            , is_raw_host (false)
         {}
-        
+
         void clear ()
         {
             scheme.clear();
@@ -49,134 +42,133 @@ public:
         string_type authority;
         string_type userinfo;
         string_type host;
-        uint16_t    port;
+        uint16_t port;
         string_type path;
         string_type query;
         string_type fragment;
-        bool        is_raw_host;
+        bool is_raw_host;
     };
 
 private:
-	data_rep _d;
+    data_rep _d;
 
 public:
-	uri ()
-	{}
+    uri ()
+    {}
 
-	/**
-	 * @return URI scheme as string.
-	 */
-	string_type const & scheme () const
-	{
-		return _d.scheme;
-	}
+    /**
+     * @return URI scheme as string.
+     */
+    string_type const & scheme () const
+    {
+        return _d.scheme;
+    }
 
-	/**
-	 * @return URI authority as string.
-	 */
-	string_type const & authority () const
-	{
-		return _d.authority;
-	}
+    /**
+     * @return URI authority as string.
+     */
+    string_type const & authority () const
+    {
+        return _d.authority;
+    }
 
-	/**
-	 * @return URI user info as string.
-	 */
-	string_type const & userinfo () const
-	{
-		return _d.userinfo;
-	}
+    /**
+     * @return URI user info as string.
+     */
+    string_type const & userinfo () const
+    {
+        return _d.userinfo;
+    }
 
-	/**
-	 * @return URI host as string.
-	 */
-	string_type const & host () const
-	{
-		return _d.host;
-	}
+    /**
+     * @return URI host as string.
+     */
+    string_type const & host () const
+    {
+        return _d.host;
+    }
 
-	/**
-	 * @return URI port.
-	 */
-	uint16_t port () const 
+    /**
+     * @return URI port.
+     */
+    uint16_t port () const
     {
         return _d.port;
     }
 
+    /**
+     * @return URI path as string.
+     */
+    string_type const & path () const
+    {
+        return _d.path;
+    }
 
-	/**
-	 * @return URI path as string.
-	 */
-	string_type const & path () const
-	{
-		return _d.path;
-	}
+    /**
+     * @return URI query as string.
+     */
+    string_type const & query () const
+    {
+        return _d.query;
+    }
 
-	/**
-	 * @return URI query as string.
-	 */
-	string_type const & query () const
-	{
-		return _d.query;
-	}
+    /**
+     * @return URI fragment as string.
+     */
+    string_type const & fragment () const
+    {
+        return _d.fragment;
+    }
 
-	/**
-	 * @return URI fragment as string.
-	 */
-	string_type const & fragment () const
-	{
-		return _d.fragment;
-	}
+    /**
+     * @brief Checks if host represented as IP address (as opposite to DNS name).
+     */
+    bool raw_host () const
+    {
+        return _d.is_raw_host;
+    }
 
-	/**
-	 * @brief Checks if host represented as IP address (as opposite to DNS name).
-	 */
-	bool raw_host () const
-	{
-		return _d.is_raw_host;
-	}
+    void set_scheme (string_type const & scheme)
+    {
+        _d.scheme = scheme;
+    }
 
-	void set_scheme (string_type const & scheme)
-	{
-		_d.scheme = scheme;
-	}
+    void set_authority (string_type const & authority)
+    {
+        _d.authority = authority;
+    }
 
-	void set_authority (string_type const & authority)
-	{
-		_d.authority = authority;
-	}
+    void set_userinfo (string_type const & userinfo)
+    {
+        _d.userinfo = userinfo;
+    }
 
-	void set_userinfo (string_type const & userinfo)
-	{
-		_d.userinfo = userinfo;
-	}
+    void set_host (string_type const & host)
+    {
+        _d.host = host;
+    }
 
-	void set_host (string_type const & host)
-	{
-		_d.host = host;
-	}
-
-	void set_port (uint16_t port)
+    void set_port (uint16_t port)
     {
         _d.port = port;
     }
 
-	void set_path (string_type const & path)
-	{
-		_d.path = path;
-	}
+    void set_path (string_type const & path)
+    {
+        _d.path = path;
+    }
 
-	void set_query (string_type const & query)
-	{
-		_d.query = query;
-	}
+    void set_query (string_type const & query)
+    {
+        _d.query = query;
+    }
 
-	void set_fragment (string_type const & fragment)
-	{
-		_d.fragment = fragment;
-	}
-    
-	string_type to_string () const
+    void set_fragment (string_type const & fragment)
+    {
+        _d.fragment = fragment;
+    }
+
+    string_type to_string () const
     {
         string_type r;
 
@@ -224,13 +216,13 @@ public:
         }
 
         return r;
-    }    
+    }
 
-	bool parse (string_type const & str)
+    bool parse (string_type const & str)
     {
         return parse(str.cbegin(), str.cend());
     }
-    
+
     bool parse (typename string_type::const_iterator first
             , typename string_type::const_iterator last);
 
@@ -241,4 +233,3 @@ public:
 #include <pfs/net/uri_parse.hpp>
 
 #endif /* __PFS_NET_URI_HPP__ */
-

@@ -1,11 +1,3 @@
-
-/* 
- * File:   utility_common.hpp
- * Author: wladt
- *
- * Created on August 16, 2017, 1:57 PM
- */
-
 #ifndef __PFS_CXX98_UTILITY_COMMON_HPP__
 #define __PFS_CXX98_UTILITY_COMMON_HPP__
 

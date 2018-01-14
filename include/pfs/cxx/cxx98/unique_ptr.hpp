@@ -1,10 +1,3 @@
-/*
- * unique_ptr.hpp
- *
- *  Created on: Mar 30, 2016
- *      Author: wladt
- */
-
 #ifndef __PFS_CXX98_UNIQUE_PTR_HPP__
 #define __PFS_CXX98_UNIQUE_PTR_HPP__
 
@@ -23,7 +16,7 @@ struct default_delete
 
     void operator() (T * p) const
     {
-		delete p;
+        delete p;
     }
 };
 
@@ -38,7 +31,7 @@ public:
 
     void operator () (T * p) const
     {
-    	delete [] p;
+        delete [] p;
     }
 };
 
@@ -69,19 +62,19 @@ private:
 public:
     // Default constructor, creates a unique_ptr that owns nothing.
     unique_ptr () pfs_noexcept
-    	: _value(0)
+        : _value(0)
     {
-    	// TODO Need to check null function pointer deleter
+        // TODO Need to check null function pointer deleter
     }
 
     unique_ptr (rval const & rhs) pfs_noexcept
-    	: _value(rhs._value)
+        : _value(rhs._value)
         , _deleter(rhs._deleter)
     {}
 
     unique_ptr & operator = (rval const & rhs) pfs_noexcept
     {
-    	_value = rhs._value;
+        _value = rhs._value;
         _deleter = rhs._deleter;
         return *this;
     }
@@ -93,9 +86,9 @@ public:
      * @param p  A pointer to an object of @c element_type
      */
     explicit unique_ptr (pointer p) pfs_noexcept
-    	: _value(p), _deleter(deleter_type())
+        : _value(p), _deleter(deleter_type())
     {
-    	// TODO Need to check null function pointer deleter
+        // TODO Need to check null function pointer deleter
     }
 
     /**
@@ -112,9 +105,9 @@ public:
     // Destructor, invokes the deleter if the stored pointer is not null.
     ~unique_ptr () pfs_noexcept
     {
-    	if (_value != 0)
-    		_deleter(_value);
-    	_value = 0;
+        if (_value != 0)
+            _deleter(_value);
+        _value = 0;
     }
 
     // Observers.
@@ -134,30 +127,30 @@ public:
 
     pointer get () const pfs_noexcept
     {
-    	return _value;
+        return _value;
     }
 
     deleter_type & get_deleter() pfs_noexcept
     {
-    	return _deleter;
+        return _deleter;
     }
 
     const deleter_type & get_deleter() const pfs_noexcept
     {
-    	return _deleter;
+        return _deleter;
     }
 
     operator bool () const pfs_noexcept
     {
-    	return get() == 0 ? false : true;
+        return get() == 0 ? false : true;
     }
 
     // Release ownership of any stored pointer.
     pointer release () pfs_noexcept
     {
-    	pointer p = get();
-    	_value = 0;
-    	return p;
+        pointer p = get();
+        _value = 0;
+        return p;
     }
 
     /**
@@ -168,17 +161,17 @@ public:
      */
     void reset (pointer p = 0) pfs_noexcept
     {
-    	pfs::swap(_value, p);
+        pfs::swap(_value, p);
 
-    	if (p != 0)
-    		get_deleter()(p);
-    	}
+        if (p != 0)
+            get_deleter()(p);
+        }
 
     /// Exchange the pointer and deleter with another object.
     void swap (unique_ptr & u) pfs_noexcept
     {
-    	pfs::swap(_value, u._value);
-    	pfs::swap(_deleter, u._deleter);
+        pfs::swap(_value, u._value);
+        pfs::swap(_deleter, u._deleter);
     }
 };
 
@@ -203,9 +196,9 @@ private:
 public:
     // Default constructor, creates a unique_ptr that owns nothing.
     unique_ptr () pfs_noexcept
-    	: _value(0)
+        : _value(0)
     {
-    	// TODO Need to check null function pointer deleter
+        // TODO Need to check null function pointer deleter
     }
 
     /**
@@ -215,9 +208,9 @@ public:
      * @param p  A pointer to an object of @c element_type
      */
     explicit unique_ptr (pointer p) pfs_noexcept
-    	: _value(p), _deleter(deleter_type())
+        : _value(p), _deleter(deleter_type())
     {
-    	// TODO Need to check null function pointer deleter
+        // TODO Need to check null function pointer deleter
     }
 
     /**
@@ -234,9 +227,9 @@ public:
     /// Destructor, invokes the deleter if the stored pointer is not null.
     ~unique_ptr()
     {
-		if (_value != 0)
-			_deleter(_value);
-		_value = 0;
+        if (_value != 0)
+            _deleter(_value);
+        _value = 0;
     }
 
     // Observers.
@@ -244,32 +237,32 @@ public:
     /// Access an element of owned array.
     T & operator [] (size_t i) const
     {
-    	PFS_ASSERT(_value != 0);
-    	return get()[i];
+        PFS_ASSERT(_value != 0);
+        return get()[i];
     }
 
     /// Return the stored pointer.
     pointer get () const pfs_noexcept
     {
-    	return _value;
+        return _value;
     }
 
     /// Return a reference to the stored deleter.
     deleter_type & get_deleter() pfs_noexcept
     {
-    	return _deleter;
+        return _deleter;
     }
 
     /// Return a reference to the stored deleter.
     const deleter_type & get_deleter() const pfs_noexcept
     {
-    	return _deleter;
+        return _deleter;
     }
 
     /// Return @c true if the stored pointer is not null.
     operator bool () const pfs_noexcept
     {
-    	return get() == 0 ? false : true;
+        return get() == 0 ? false : true;
     }
 
     // Modifiers.
@@ -277,9 +270,9 @@ public:
     /// Release ownership of any stored pointer.
     pointer release() pfs_noexcept
     {
-    	pointer p = get();
-    	_value = 0;
-    	return p;
+        pointer p = get();
+        _value = 0;
+        return p;
     }
 
     /**
@@ -291,60 +284,60 @@ public:
      */
     void reset (pointer p = 0) pfs_noexcept
     {
-    	pfs::swap(_value, p);
+        pfs::swap(_value, p);
 
-    	if (p != 0)
-    		get_deleter()(p);
+        if (p != 0)
+            get_deleter()(p);
     }
 
     /// Exchange the pointer and deleter with another object.
     void swap (unique_ptr & u) pfs_noexcept
     {
-    	pfs::swap(_value, u._value);
-    	pfs::swap(_deleter, u._deleter);
+        pfs::swap(_value, u._value);
+        pfs::swap(_deleter, u._deleter);
     }
 };
 
 template <typename T, typename Deleter>
 inline void swap (unique_ptr<T, Deleter> & x, unique_ptr<T, Deleter> & y) pfs_noexcept
 {
-	x.swap(y);
+    x.swap(y);
 }
 
 template<typename T, typename Deleter, typename U, typename Ep>
 inline bool operator == (const unique_ptr<T, Deleter> & x, const unique_ptr<U, Ep> & y)
 {
-	return x.get() == y.get();
+    return x.get() == y.get();
 }
 
 template<typename T, typename Deleter, typename U, typename Ep>
 inline bool operator != (const unique_ptr<T, Deleter> & x, const unique_ptr<U, Ep> & y)
 {
-	return x.get() != y.get();
+    return x.get() != y.get();
 }
 
 template<typename T, typename Deleter, typename U, typename Ep>
 inline bool operator < (const unique_ptr<T, Deleter> & x, const unique_ptr<U, Ep> & y)
 {
-	return x.get() < y.get();
+    return x.get() < y.get();
 }
 
 template<typename T, typename Deleter, typename U, typename Ep>
 inline bool operator <= (const unique_ptr<T, Deleter> & x, const unique_ptr<U, Ep> & y)
 {
-	return !(y < x);
+    return !(y < x);
 }
 
 template<typename T, typename Deleter, typename U, typename Ep>
 inline bool operator > (const unique_ptr<T, Deleter> & x, const unique_ptr<U, Ep> & y)
 {
-	return (y < x);
+    return (y < x);
 }
 
 template<typename T, typename Deleter, typename U, typename Ep>
 inline bool operator >= (const unique_ptr<T, Deleter> & x, const unique_ptr<U, Ep> & y)
 {
-	return !(x < y);
+    return !(x < y);
 }
 
 template <typename T>

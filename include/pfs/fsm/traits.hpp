@@ -1,10 +1,3 @@
-/*
- * traits.hpp
- *
- *  Created on: Mar 086, 2017
- *      Author: wladt
- */
-
 #ifndef __PFS_FSM_TRAITS_HPP__
 #define __PFS_FSM_TRAITS_HPP__
 

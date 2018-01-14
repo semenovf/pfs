@@ -1,10 +1,3 @@
-/* 
- * File:   test_iterator.hpp
- * Author: wladt
- *
- * Created on January 19, 2017, 2:15 PM
- */
-
 #ifndef __PFS_TEST_ITERATOR_HPP__
 #define __PFS_TEST_ITERATOR_HPP__
 

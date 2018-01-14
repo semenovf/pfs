@@ -1,10 +1,3 @@
-/*
- * inet_server.hpp
- *
- *  Created on: Jan 13, 2016
- *      Author: wladt
- */
-
 #ifndef __PFS_IO_INET_SERVER_HPP__
 #define __PFS_IO_INET_SERVER_HPP__
 
@@ -32,44 +25,43 @@ struct udp_server {};
 template <>
 struct open_params<inet_server>
 {
-	net::inet4_addr addr;
-	uint16_t port;
-	device::open_mode_flags oflags;
-   
+    net::inet4_addr addr;
+    uint16_t port;
+    device::open_mode_flags oflags;
+
     open_params (net::inet4_addr a, uint16_t p, device::open_mode_flags of)
         : addr(a)
-		, port(p)
-		, oflags(of)
-	{}
+        , port(p)
+        , oflags(of)
+    {}
 };
-
 
 template <>
 struct open_params<tcp_server> : public open_params<inet_server>
 {
     typedef open_params<inet_server> base_class;
-/*
-	the maximum length to which the queue of pending connections for  sockfd  may
-	grow.   If  a  connection  request arrives when the queue is full, the client may receive an error with an
-	indication of ECONNREFUSED or, if the underlying protocol supports  retransmission,  the  request  may  be
-	ignored so that a later reattempt at connection succeeds.
-*/
-	int npendingconn;
+    /*
+        the maximum length to which the queue of pending connections for  sockfd  may
+        grow.   If  a  connection  request arrives when the queue is full, the client may receive an error with an
+        indication of ECONNREFUSED or, if the underlying protocol supports  retransmission,  the  request  may  be
+        ignored so that a later reattempt at connection succeeds.
+    */
+    int npendingconn;
 
-	open_params ()
+    open_params ()
         : base_class(net::inet4_addr(), 0, read_write | non_blocking)
-		, npendingconn(0)
-	{}
+        , npendingconn(0)
+    {}
 
-	open_params (net::inet4_addr a, uint16_t p, int backlog, device::open_mode_flags of)
+    open_params (net::inet4_addr a, uint16_t p, int backlog, device::open_mode_flags of)
         : base_class(a, p, of)
-		, npendingconn(backlog)
-	{}
+        , npendingconn(backlog)
+    {}
 
-	open_params (net::inet4_addr a, uint16_t p, int backlog)
+    open_params (net::inet4_addr a, uint16_t p, int backlog)
         : base_class(a, p, read_write | non_blocking)
-		, npendingconn(backlog)
-	{}
+        , npendingconn(backlog)
+    {}
 };
 
 template <>
@@ -77,17 +69,17 @@ struct open_params<udp_server> : public open_params<inet_server>
 {
     typedef open_params<inet_server> base_class;
 
-	open_params ()
+    open_params ()
         : base_class(net::inet4_addr(), 0, read_write | non_blocking)
-	{}
+    {}
 
-	open_params (net::inet4_addr a, uint16_t p, device::open_mode_flags of)
+    open_params (net::inet4_addr a, uint16_t p, device::open_mode_flags of)
         : base_class(a, p, of)
-	{}
+    {}
 
-	open_params (net::inet4_addr a, uint16_t p)
+    open_params (net::inet4_addr a, uint16_t p)
         : base_class(a, p, read_write | non_blocking)
-	{}
+    {}
 };
 
 template <>

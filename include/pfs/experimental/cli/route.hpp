@@ -1,10 +1,3 @@
-/* 
- * File:   route.hpp
- * Author: wladt
- *
- * Created on December 14, 2016, 5:05 PM
- */
-
 #ifndef __PFS_CLI_ROUTE_HPP__
 #define __PFS_CLI_ROUTE_HPP__
 

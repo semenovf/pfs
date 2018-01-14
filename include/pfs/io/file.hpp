@@ -1,10 +1,3 @@
-/*
- * file.hpp
- *
- *  Created on: Jul 12, 2013
- *      Author: wladt
- */
-
 #ifndef __PFS_IO_FILE_HPP__
 #define __PFS_IO_FILE_HPP__
 
@@ -19,44 +12,45 @@ namespace io {
  * @brief File device implementation.
  * @see pfs::io::device.
  */
-struct file {};
+struct file
+{};
 
 template <>
 struct open_params<file>
 {
 #if __cplusplus >= 201103L
-	static filesystem::perms const default_create_perms;/* = filesystem::perms::owner_read
+    static filesystem::perms const default_create_perms; /* = filesystem::perms::owner_read
 			| filesystem::perms::owner_write
 			| filesystem::perms::group_read
 			| filesystem::perms::others_read;*/
 #else
-	static int const default_create_perms;/* = filesystem::perms::owner_read
+    static int const default_create_perms; /* = filesystem::perms::owner_read
 			| filesystem::perms::owner_write
 			| filesystem::perms::group_read
 			| filesystem::perms::others_read;*/
 #endif
 
-	filesystem::path path;
-	device::open_mode_flags oflags;
-	filesystem::perms permissions;
+    filesystem::path path;
+    device::open_mode_flags oflags;
+    filesystem::perms permissions;
 
-	open_params (filesystem::path const & s, device::open_mode_flags of, filesystem::perms perms)
-		: path(s)
-		, oflags(of)
-		, permissions(perms)
-	{}
+    open_params (filesystem::path const & s, device::open_mode_flags of, filesystem::perms perms)
+        : path (s)
+        , oflags (of)
+        , permissions (perms)
+    {}
 
-	open_params (filesystem::path const & s, device::open_mode_flags of)
-		: path(s)
-		, oflags(of)
-		, permissions(default_create_perms)
-	{}
+    open_params (filesystem::path const & s, device::open_mode_flags of)
+        : path (s)
+        , oflags (of)
+        , permissions (default_create_perms)
+    {}
 
-	open_params (filesystem::path const & s)
-		: path(s)
-		, oflags(read_write)
-		, permissions(default_create_perms)
-	{}
+    open_params (filesystem::path const & s)
+        : path (s)
+        , oflags (read_write)
+        , permissions (default_create_perms)
+    {}
 };
 
 

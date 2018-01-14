@@ -1,10 +1,3 @@
-/*
- * datetime.cpp
- *
- *  Created on: Sep 13, 2013
- *      Author: wladt
- */
-
 #include "pfs/datetime.hpp"
 
 namespace pfs {

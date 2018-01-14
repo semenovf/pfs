@@ -1,10 +1,3 @@
-/* 
- * File:   numeric.hpp
- * Author: wladt
- *
- * Created on May 2, 2017, 12:31 PM
- */
-
 #ifndef __PFS_CXX_CXX11_NUMERIC_HPP__
 #define __PFS_CXX_CXX11_NUMERIC_HPP__
 

@@ -1,10 +1,3 @@
-/* 
- * File:   ctype.hpp
- * Author: wladt
- *
- * Created on March 16, 2017, 7:34 PM
- */
-
 #ifndef __PFS_COMPILER_GNUC_CTYPE_HPP__
 #define __PFS_COMPILER_GNUC_CTYPE_HPP__
 

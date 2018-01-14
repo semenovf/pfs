@@ -1,10 +1,3 @@
-/* 
- * File:   uri_query.hpp
- * Author: wladt
- *
- * Created on April 28, 2017, 5:04 PM
- */
-
 #ifndef __PFS_NET_URI_QUERY_HPP__
 #define __PFS_NET_URI_QUERY_HPP__
 

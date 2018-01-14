@@ -1,10 +1,3 @@
-/* 
- * File:   thread_boost.hpp
- * Author: wladt
- *
- * Created on September 10, 2017, 1:31 PM
- */
-
 #ifndef __PFS_CXX_CXX98_THREAD_BOOST_HPP__
 #define __PFS_CXX_CXX98_THREAD_BOOST_HPP__
 

@@ -1,10 +1,3 @@
-/* 
- * File:   test_string_to_uint.hpp
- * Author: wladt
- *
- * Created on March 19, 2017, 1:37 PM
- */
-
 #ifndef TEST_STRING_TO_UINT_HPP
 #define TEST_STRING_TO_UINT_HPP
 

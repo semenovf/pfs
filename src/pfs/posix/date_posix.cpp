@@ -1,15 +1,8 @@
-/*
- * date_unix.cpp
- *
- *  Created on: Sep 13, 2013
- *      Author: wladt
- */
-
 #include <ctime>
 #include "pfs/date.hpp"
 
 //#if ! PFS_HAVE_LOCALTIME_R
-//#	include <pfs/mutex.hpp>
+//#    include <pfs/mutex.hpp>
 //#endif
 
 namespace pfs {

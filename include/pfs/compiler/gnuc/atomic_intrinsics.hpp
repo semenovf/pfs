@@ -1,9 +1,4 @@
 /* 
- * File:   atomic.hpp
- * Author: wladt
- *
- * Created on October 17, 2016, 10:20 AM
- * 
  * https://gcc.gnu.org/onlinedocs/gcc-4.4.5/gcc/Atomic-Builtins.html
  * 
  * type __sync_val_compare_and_swap (type *ptr, type oldval type newval, ...)

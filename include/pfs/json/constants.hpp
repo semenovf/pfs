@@ -1,10 +1,3 @@
-/* 
- * File:   constants.hpp
- * Author: wladt
- *
- * Created on February 26, 2017, 2:50 PM
- */
-
 #ifndef __PFS_JSON_CONSTANTS_HPP__
 #define __PFS_JSON_CONSTANTS_HPP__
 

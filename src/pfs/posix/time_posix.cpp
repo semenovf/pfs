@@ -1,10 +1,3 @@
-/*
- * time_posix.cpp
- *
- *  Created on: Sep 13, 2013
- *      Author: wladt
- */
-
 #include <ctime>
 #include <sys/time.h> // gettimeofday
 #include "pfs/assert.hpp"

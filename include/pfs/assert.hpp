@@ -1,10 +1,3 @@
-/*
- * File:   assert.hpp
- * Author: wladt
- *
- * Created on January 26, 2017, 2:56 PM
- */
-
 #ifndef __PFS_ASSERT_HPP__
 #define __PFS_ASSERT_HPP__
 

@@ -1,10 +1,3 @@
-/* 
- * File:   exception.hpp
- * Author: wladt
- *
- * Created on June 28, 2017, 8:28 AM
- */
-
 #ifndef __PFS_LEXICAL_CAST_EXCEPTION_HPP__
 #define __PFS_LEXICAL_CAST_EXCEPTION_HPP__
 

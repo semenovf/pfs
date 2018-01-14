@@ -1,10 +1,3 @@
-/* 
- * File:   associative_container.hpp
- * Author: wladt
- *
- * Created on June 23, 2017, 8:39 AM
- */
-
 #ifndef TEST_ASSOCIATIVE_CONTAINER_HPP
 #define TEST_ASSOCIATIVE_CONTAINER_HPP
 

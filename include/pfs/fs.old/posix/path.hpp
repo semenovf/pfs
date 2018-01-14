@@ -1,10 +1,3 @@
-/* 
- * File:   path.hpp
- * Author: wladt
- *
- * Created on January 25, 2017, 11:38 AM
- */
-
 #ifndef __PFS_FS_POSIX_PATH_HPP__
 #define __PFS_FS_POSIX_PATH_HPP__
 

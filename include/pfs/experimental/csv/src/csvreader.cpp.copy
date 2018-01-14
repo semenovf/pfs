@@ -1,10 +1,3 @@
-/*
- * csv.cpp
- *
- *  Created on: 08.02.2013
- *      Author: wladt
- */
-
 #include <cwt/csv.hpp>
 #include <cwt/logger.hpp>
 #include <cwt/safeformat.hpp>

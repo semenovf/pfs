@@ -1,10 +1,3 @@
-/*
- * server.cpp
- *
- *  Created on: Jan 13, 2016
- *      Author: wladt
- */
-
 #include "pfs/io/server.hpp"
 
 namespace pfs { namespace io {

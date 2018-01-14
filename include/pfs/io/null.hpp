@@ -1,10 +1,3 @@
-/* 
- * File:   null.hpp
- * Author: wladt
- *
- * Created on April 20, 2016, 11:01 AM
- */
-
 #ifndef __PFS_IO_NULL_HPP__
 #define __PFS_IO_NULL_HPP__
 
@@ -22,7 +15,7 @@ struct null {};
 template <>
 struct open_params<null>
 {
-	open_params () {}
+    open_params () {}
 };
 
 /**
@@ -32,7 +25,7 @@ struct open_params<null>
  *
  * @param op Open device parameters.
  *      @li open_params<null>()
- *      	Open null device.
+ *          Open null device.
  * @param ex Reference to store error code.
  * 
  * @return Device instance.

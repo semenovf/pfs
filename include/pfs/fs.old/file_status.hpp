@@ -1,10 +1,3 @@
-/*
- * file_status.hpp
- *
- *  Created on: Nov 9, 2015
- *      Author: wladt
- */
-
 #ifndef __PFS_FS_FILE_STATUS_HPP__
 #define __PFS_FS_FILE_STATUS_HPP__
 

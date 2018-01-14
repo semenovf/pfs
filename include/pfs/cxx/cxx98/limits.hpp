@@ -1,10 +1,3 @@
-/* 
- * File:   limits.hpp
- * Author: wladt
- *
- * Created on February 18, 2017, 4:10 PM
- */
-
 #ifndef __PFS_CXX_CXX98_LIMITS_HPP__
 #define __PFS_CXX_CXX98_LIMITS_HPP__
 

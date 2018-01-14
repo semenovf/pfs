@@ -1,10 +1,3 @@
-/*
- * time.hpp
- *
- *  Created on: Sep 13, 2013
- *      Author: wladt
- */
-
 #ifndef __PFS_TIME_HPP__
 #define __PFS_TIME_HPP__
 

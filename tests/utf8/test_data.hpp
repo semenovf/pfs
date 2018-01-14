@@ -1,10 +1,3 @@
-/*
- * test_data.hpp
- *
- *  Created on: Nov 7, 2015
- *      Author: wladt
- */
-
 #ifndef __TESTS_TEST_UTF8_TEST_DATA_HPP__
 #define __TESTS_TEST_UTF8_TEST_DATA_HPP__
 

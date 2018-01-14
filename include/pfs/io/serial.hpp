@@ -1,25 +1,19 @@
-/*
- * serial.hpp
- *
- *  Created on: Oct 23, 2008
- *  Renamed on: Apr 10, 2013
- *
- *  Author: wladt
- */
-
 #ifndef __PFS_IO_SERIAL_HPP__
 #define __PFS_IO_SERIAL_HPP__
 
 #include <pfs/string.hpp>
 #include <pfs/io/device.hpp>
 
-namespace pfs { namespace io {
+namespace pfs {
+namespace io {
 
 class DLL_API serial : public device
 {
 public:
-	enum baudrate_t {
-		  BaudrateUnknown = -1
+
+    enum baudrate_t
+    {
+        BaudrateUnknown = -1
         , BR1200 = 1200
         , BR2400 = 2400
         , BR4800 = 4800
@@ -28,57 +22,73 @@ public:
         , BR38400 = 38400
         , BR57600 = 57600
         , BR115200 = 115200
-		, BR576000 = 576000
-		, BR921600 = 921600
-	};
+        , BR576000 = 576000
+        , BR921600 = 921600
+    };
 
-	enum databits_t { DB5 = 5, DB6, DB7, DB8 };
-	enum stopbits_t { SB1 = 1, SB2 };
-	enum parity_t   { ParityNone, ParityOdd, ParityEven };
+    enum databits_t
+    {
+        DB5 = 5, DB6, DB7, DB8
+    };
 
-	enum flowcontrol_t {
-		  NoFlowControl = 0
-		, SoftwareFlowControl = 0x0004
-		, HardwareFlowControl = 0x0008
-	};
+    enum stopbits_t
+    {
+        SB1 = 1, SB2
+    };
 
-	enum format_t {
-		  Format8N1
-		, Format7E1
-		, Format7O1
-	};
+    enum parity_t
+    {
+        ParityNone, ParityOdd, ParityEven
+    };
+
+    enum flowcontrol_t
+    {
+        NoFlowControl = 0
+        , SoftwareFlowControl = 0x0004
+        , HardwareFlowControl = 0x0008
+    };
+
+    enum format_t
+    {
+        Format8N1
+        , Format7E1
+        , Format7O1
+    };
 
 public:
-	serial () : device() {}
-	virtual ~serial () {}
+    serial () : device ()
+    {}
 
-	bool open (const pfs::string & path, int32_t oflags);
-	bool open (const pfs::string & path, int32_t oflags
-			, int baudrate
-			, int databits
-			, int stopbits
-			, parity_t parity
-			, int flowControl = NoFlowControl);
+    virtual ~serial ()
+    {}
 
-	pfs::string name () const;
-	pfs::string path () const;
+    bool open (const pfs::string & path, int32_t oflags);
+    bool open (const pfs::string & path, int32_t oflags
+            , int baudrate
+            , int databits
+            , int stopbits
+            , parity_t parity
+            , int flowControl = NoFlowControl);
 
-	void settings (uint32_t * br, serial::databits_t * db, serial::stopbits_t * sb, serial::parity_t * parity) const;
-	pfs::string toString () const;
-//	pfs::string toStringDump ();
+    pfs::string name () const;
+    pfs::string path () const;
 
-	uint32_t   baudrate () const;
-	databits_t databits () const;
-	stopbits_t stopbits () const;
-	parity_t   parity   () const;
+    void settings (uint32_t * br, serial::databits_t * db, serial::stopbits_t * sb, serial::parity_t * parity) const;
+    pfs::string toString () const;
+    //	pfs::string toStringDump ();
 
-    bool setBaudrate    (uint32_t br);
-    bool setDatabits    (int);
-    bool setStopbits    (int);
-    bool setParity      (int);
+    uint32_t baudrate () const;
+    databits_t databits () const;
+    stopbits_t stopbits () const;
+    parity_t parity () const;
+
+    bool setBaudrate (uint32_t br);
+    bool setDatabits (int);
+    bool setStopbits (int);
+    bool setParity (int);
     bool setFlowControl (int);
-    bool setFormat      (format_t);
-    bool setFormat      (const pfs::string & format);
+    bool setFormat (format_t);
+    bool setFormat (const pfs::string & format);
 
 public:
     static pfs::string parityToString (parity_t);

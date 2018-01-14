@@ -1,10 +1,3 @@
-/* 
- * File:   test_append.hpp
- * Author: wladt
- *
- * Created on March 11, 2017, 1:25 PM
- */
-
 #ifndef __TEST_APPEND_HPP__
 #define __TEST_APPEND_HPP__
 

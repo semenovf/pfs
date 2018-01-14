@@ -1,10 +1,3 @@
-/* 
- * File:   pretty_print.hpp
- * Author: wladt
- *
- * Created on September 5, 2017, 11:51 AM
- */
-
 #ifndef __PFS_JSON_PRETTY_PRINTER_HPP__
 #define __PFS_JSON_PRETTY_PRINTER_HPP__
 

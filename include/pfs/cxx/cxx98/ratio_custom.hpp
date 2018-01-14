@@ -1,10 +1,3 @@
-/* 
- * File:   ratio.hpp
- * Author: wladt
- *
- * Created on July 11, 2016, 6:55 PM
- */
-
 #ifndef __PFS_CXX_CXX98_RATIO_CUSTOM_HPP__
 #define __PFS_CXX_CXX98_RATIO_CUSTOM_HPP__
 

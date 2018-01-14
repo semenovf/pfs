@@ -1,11 +1,3 @@
-
-/* 
- * File:   test_trim.hpp
- * Author: wladt
- *
- * Created on October 11, 2017, 10:49 AM
- */
-
 #ifndef __PFS_TEST_TRIM_HPP__
 #define __PFS_TEST_TRIM_HPP__
 

@@ -1,10 +1,3 @@
-/* 
- * File:   iota.hpp
- * Author: wladt
- *
- * Created on May 2, 2017, 1:25 PM
- */
-
 #ifndef __TEST_IOTA_HPP__
 #define __TEST_IOTA_HPP__
 

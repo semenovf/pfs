@@ -1,10 +1,3 @@
-/*
- * time.cpp
- *
- *  Created on: Sep 13, 2013
- *      Author: wladt
- */
-
 #include <pfs/test/test.hpp>
 #include <pfs/string.hpp>
 #include <pfs/traits/stdcxx/string.hpp>

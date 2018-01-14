@@ -1,10 +1,3 @@
-/*
- * csvwriter.cpp
- *
- *  Created on: Aug 13, 2013
- *      Author: wladt
- */
-
 #include <cwt/csv.hpp>
 
 CWT_NS_BEGIN

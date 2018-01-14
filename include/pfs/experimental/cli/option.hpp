@@ -1,10 +1,3 @@
-/* 
- * File:   option.hpp
- * Author: wladt
- *
- * Created on December 14, 2016, 5:05 PM
- */
-
 #ifndef __PFS_CLI_OPTION_HPP__
 #define __PFS_CLI_OPTION_HPP__
 

@@ -1,10 +1,3 @@
-/* 
- * File:   iterator.hpp
- * Author: wladt
- *
- * Created on January 26, 2017, 1:53 PM
- */
-
 #ifndef __PFS_FS_ITERATOR_HPP__
 #define __PFS_FS_ITERATOR_HPP__
 

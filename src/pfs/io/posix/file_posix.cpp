@@ -1,10 +1,3 @@
-/*
- * device.cpp
- *
- *  Created on: Jul 12, 2013
- *      Author: wladt
- */
-
 #include <cerrno>
 #include <fcntl.h>
 #include <unistd.h>
@@ -20,30 +13,31 @@ namespace details {
 
 struct file : public bits::device
 {
-	bits::device::native_handle_type _fd;
-	filesystem::path path;
-	int      oflags;
-	mode_t   omode;
+    bits::device::native_handle_type _fd;
+    filesystem::path path;
+    int oflags;
+    mode_t omode;
 
-	file ()
-		: _fd(-1)
-		, oflags(0)
-		, omode(0)
-	{}
+    file ()
+    : _fd (-1)
+    , oflags (0)
+    , omode (0)
+    {
+    }
 
-//	file (const file & other)
-//		: _fd(other._fd)
-//		, path(other.path)
-//		, oflags(other.oflags)
-//		, omode(other.omode)
-//	{}
+    //	file (const file & other)
+    //		: _fd(other._fd)
+    //		, path(other.path)
+    //		, oflags(other.oflags)
+    //		, omode(other.omode)
+    //	{}
 
-	~file ()
-	{
-		close();
-	}
+    ~file ()
+    {
+        close();
+    }
 
-	error_code open (filesystem::path const & path, int native_oflags, mode_t native_mode);
+    error_code open (filesystem::path const & path, int native_oflags, mode_t native_mode);
 
     virtual bool reopen () pfs_override
     {
@@ -64,15 +58,15 @@ struct file : public bits::device
 
     virtual bool opened () const pfs_override
     {
-    	return _fd >= 0;
+        return _fd >= 0;
     }
 
     virtual void flush () pfs_override
     {
 #if PFS_CC_GCC
-    	::fsync(_fd);
+        ::fsync(_fd);
 #else
-#   error "Don't know how to sync file"
+#error "Don't know how to sync file"
 #endif
     }
 
@@ -80,9 +74,9 @@ struct file : public bits::device
     {
         int flags = fcntl(_fd, F_GETFL, 0);
         if (on)
-        	flags |= O_NONBLOCK;
+            flags |= O_NONBLOCK;
         else
-        	flags &= ~O_NONBLOCK;
+            flags &= ~O_NONBLOCK;
         return fcntl(_fd, F_SETFL, flags) >= 0;
     }
 
@@ -90,17 +84,17 @@ struct file : public bits::device
     {
         return pfs::io::is_nonblocking(_fd);
     }
-    
+
     virtual native_handle_type native_handle () const pfs_override
     {
-    	return _fd;
+        return _fd;
     }
 
     virtual device_type type () const pfs_override
     {
-    	return device_file;
+        return device_file;
     }
-    
+
     virtual system_string url () const pfs_override
     {
         system_string r("file:/");
@@ -111,38 +105,37 @@ struct file : public bits::device
 
 error_code file::open (filesystem::path const & p, int of, mode_t om)
 {
-	int fd = ::open(p.native().c_str(), of, om);
+    int fd = ::open(p.native().c_str(), of, om);
 
-	if (fd < 0) {
+    if (fd < 0) {
         return error_code(errno, pfs::generic_category());
-	}
+    }
 
-	this->_fd    = fd;
-	this->path   = p;
-	this->oflags = of;
-	this->omode  = om;
+    this->_fd = fd;
+    this->path = p;
+    this->oflags = of;
+    this->omode = om;
 
-	return error_code();
+    return error_code();
 }
-
 
 bits::device::open_mode_flags file::open_mode () const
 {
-	bits::device::open_mode_flags r = 0;
-	char buf[1] = { 0 };
+    bits::device::open_mode_flags r = 0;
+    char buf[1] = {0};
 
-	if (::read(_fd, buf, 0) >= 0 && errno != EBADF)
-		r |= read_only;
+    if (::read(_fd, buf, 0) >= 0 && errno != EBADF)
+        r |= read_only;
 
-	if (::write(_fd, buf, 0) >= 0 && errno != EBADF)
-		r |= write_only;
+    if (::write(_fd, buf, 0) >= 0 && errno != EBADF)
+        r |= write_only;
 
-	return r;
+    return r;
 }
 
 ssize_t file::bytes_available () const
 {
-    PFS_ASSERT(_fd  >= 0);
+    PFS_ASSERT(_fd >= 0);
 
     off_t cur = ::lseek(_fd, off_t(0), SEEK_CUR);
     PFS_ASSERT(cur >= off_t(0));
@@ -153,26 +146,26 @@ ssize_t file::bytes_available () const
     PFS_ASSERT(::lseek(_fd, cur, SEEK_SET) >= off_t(0));
     PFS_ASSERT(total >= cur);
 
-    return static_cast<ssize_t>(total - cur);
+    return static_cast<ssize_t> (total - cur);
 }
 
 ssize_t file::read (byte_t * bytes, size_t n)
 {
     ssize_t sz = ::read(_fd, bytes, n);
-    
+
     if (sz < 0)
         this->_ec = error_code(errno, pfs::generic_category());
-    
+
     return sz;
 }
 
 ssize_t file::write (const byte_t * bytes, size_t n)
 {
     ssize_t sz = ::write(_fd, bytes, n);
-    
-    if( sz < 0)
+
+    if (sz < 0)
         this->_ec = error_code(errno, pfs::generic_category());
-    
+
     return sz;
 }
 
@@ -191,65 +184,68 @@ bool file::close ()
     return r;
 }
 
-}}} // pfs::io::details
+}
+}
+} // pfs::io::details
 
-namespace pfs { namespace io {
+namespace pfs {
+namespace io {
 
 static int __convert_to_native_perms (filesystem::perms perms)
 {
-	int r = 0;
+    int r = 0;
 
-	if ((perms & filesystem::perms::owner_read)   != filesystem::perms::none) r |= S_IRUSR;
-	if ((perms & filesystem::perms::owner_write)  != filesystem::perms::none) r |= S_IWUSR;
-	if ((perms & filesystem::perms::owner_exec)   != filesystem::perms::none) r |= S_IXUSR;
-	if ((perms & filesystem::perms::group_read)   != filesystem::perms::none) r |= S_IRGRP;
-	if ((perms & filesystem::perms::group_write)  != filesystem::perms::none) r |= S_IWGRP;
-	if ((perms & filesystem::perms::group_exec)   != filesystem::perms::none) r |= S_IXGRP;
-	if ((perms & filesystem::perms::others_read)  != filesystem::perms::none) r |= S_IROTH;
-	if ((perms & filesystem::perms::others_write) != filesystem::perms::none) r |= S_IWOTH;
-	if ((perms & filesystem::perms::others_exec)  != filesystem::perms::none) r |= S_IXOTH;
+    if ((perms & filesystem::perms::owner_read) != filesystem::perms::none) r |= S_IRUSR;
+    if ((perms & filesystem::perms::owner_write) != filesystem::perms::none) r |= S_IWUSR;
+    if ((perms & filesystem::perms::owner_exec) != filesystem::perms::none) r |= S_IXUSR;
+    if ((perms & filesystem::perms::group_read) != filesystem::perms::none) r |= S_IRGRP;
+    if ((perms & filesystem::perms::group_write) != filesystem::perms::none) r |= S_IWGRP;
+    if ((perms & filesystem::perms::group_exec) != filesystem::perms::none) r |= S_IXGRP;
+    if ((perms & filesystem::perms::others_read) != filesystem::perms::none) r |= S_IROTH;
+    if ((perms & filesystem::perms::others_write) != filesystem::perms::none) r |= S_IWOTH;
+    if ((perms & filesystem::perms::others_exec) != filesystem::perms::none) r |= S_IXOTH;
 
-	return r;
+    return r;
 }
 
 template <>
 device open_device<file> (const open_params<file> & op, error_code & ec)
 {
-	device result;
-	int native_oflags = 0;
-	mode_t native_mode = 0;
+    device result;
+    int native_oflags = 0;
+    mode_t native_mode = 0;
 
     if ((op.oflags & write_only) && (op.oflags & read_only)) {
-    	native_oflags |= O_RDWR;
-    	native_oflags |= O_CREAT;
-    	native_mode   |= __convert_to_native_perms(op.permissions);
+        native_oflags |= O_RDWR;
+        native_oflags |= O_CREAT;
+        native_mode |= __convert_to_native_perms(op.permissions);
     } else if (op.oflags & write_only) {
-    	native_oflags |= O_WRONLY;
-    	native_oflags |= O_CREAT;
-    	native_mode   |= __convert_to_native_perms(op.permissions);
+        native_oflags |= O_WRONLY;
+        native_oflags |= O_CREAT;
+        native_mode |= __convert_to_native_perms(op.permissions);
     } else if (op.oflags & read_only) {
-    	native_oflags |= O_RDONLY;
+        native_oflags |= O_RDONLY;
     }
 
-	if (op.oflags & non_blocking)
-		native_oflags |= O_NONBLOCK;
+    if (op.oflags & non_blocking)
+        native_oflags |= O_NONBLOCK;
 
-	if (op.oflags & truncate)
-		native_oflags |= O_TRUNC;
+    if (op.oflags & truncate)
+        native_oflags |= O_TRUNC;
 
 
-	details::file * f = new details::file;
+    details::file * f = new details::file;
 
-	ec = f->open(op.path, native_oflags, native_mode);
+    ec = f->open(op.path, native_oflags, native_mode);
 
-	if (!ec) {
-	    shared_ptr<bits::device> d(f);
-	    result._d.swap(d);
-	} else {
-		delete f;
-	}
+    if (!ec) {
+        shared_ptr<bits::device> d(f);
+        result._d.swap(d);
+    } else {
+        delete f;
+    }
 
-	return result;
+    return result;
 }
 
 }} // pfs::io

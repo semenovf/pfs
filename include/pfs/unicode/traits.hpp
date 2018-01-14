@@ -1,11 +1,3 @@
-
-/* 
- * File:   traits.hpp
- * Author: wladt
- *
- * Created on October 4, 2017, 2:47 PM
- */
-
 #ifndef __PFS_UNICODE_TRAITS_HPP__
 #define __PFS_UNICODE_TRAITS_HPP__
 

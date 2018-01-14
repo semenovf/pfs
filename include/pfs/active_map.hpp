@@ -1,11 +1,3 @@
-
-/* 
- * File:   active_map.hpp
- * Author: wladt
- *
- * Created on August 22, 2017, 9:41 AM
- */
-
 #ifndef __PFS_FUNCTION_MAP_HPP__
 #define __PFS_FUNCTION_MAP_HPP__
 

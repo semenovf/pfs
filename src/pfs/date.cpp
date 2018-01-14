@@ -1,11 +1,3 @@
-/*
- * date.cpp
- *
- *  Created on: Sep 12, 2013
- *      Author: wladt
- */
-
-//#include <cstring>
 #include "pfs/date.hpp"
 #include "pfs/math.hpp"
 #include "pfs/utility.hpp"

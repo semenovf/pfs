@@ -1,11 +1,3 @@
-/*
- * endian.cpp
- *
- *  Created on: Jan 27, 2009
- *  Modified on: Apr 10, 2014
- *      Author: wladt
- */
-
 #include "pfs/endian.hpp"
 
 namespace pfs {

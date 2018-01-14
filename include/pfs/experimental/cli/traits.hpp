@@ -1,10 +1,3 @@
-/* 
- * File:   traits.hpp
- * Author: wladt
- *
- * Created on January 23, 2017, 3:27 PM
- */
-
 #ifndef __PFS_CLI_TRAITS_HPP__
 #define __PFS_CLI_TRAITS_HPP__
 

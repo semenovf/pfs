@@ -1,11 +1,3 @@
-/*
- * uri-rfc3986.hpp
- *
- *  Created on: 12.10.2012
- *  Modified on: 10.03.2017
- */
-
-
 #ifndef __PFS_NET_URI_RFC3986_HPP__
 #define __PFS_NET_URI_RFC3986_HPP__
 
@@ -112,79 +104,76 @@ struct uri_grammar
     typedef typename fsm_type::transition_type   transition_type;
     typedef typename fsm_type::char_type         value_type;
     typedef typename UriType::data_rep           parse_context;
-    
+
     uri_grammar ();
-    
+
     static bool set_scheme (iterator first, iterator last, void * context, void * /*action_args*/)
-    {
     {
         if (context) {
             parse_context * ctx = static_cast<parse_context *>(context);
             ctx->scheme = string_type(first, last);
         }
-    	return true;
+        return true;
     }
-    }
-    
+
     static bool set_query (iterator first, iterator last, void * context, void * /*action_args*/)
     {
         if (context) {
             parse_context * ctx = static_cast<parse_context *>(context);
             ctx->query = string_type(first, last);
         }
-    	return true;
-    }    
-    
+        return true;
+    }
+
     static bool set_fragment (iterator first, iterator last, void * context, void * /*action_args*/)
     {
         if (context) {
             parse_context * ctx = static_cast<parse_context *>(context);
             ctx->fragment = string_type(first, last);
         }
-    	return true;
-    }    
-    
+        return true;
+    }
+
     static bool set_path (iterator first, iterator last, void * context, void * /*action_args*/)
     {
         if (context) {
             parse_context * ctx = static_cast<parse_context *>(context);
             ctx->path = string_type(first, last);
         }
-    	return true;
+        return true;
     }
-    
+
     static bool set_userinfo (iterator first, iterator last, void * context, void * /*action_args*/)
     {
         if (context) {
             parse_context * ctx = static_cast<parse_context *>(context);
             ctx->userinfo = string_type(first, last);
         }
-    	return true;
+        return true;
     }
-    
+
     static bool unset_userinfo (iterator /*first*/, iterator /*last*/, void * context, void * /*action_args*/)
     {
         if (context) {
             parse_context * ctx = static_cast<parse_context *>(context);
             ctx->userinfo.clear();
         }
-    	return true;
+        return true;
     }
-    
+
     static bool set_host (iterator first, iterator last, void * context, void * /*action_args*/)
     {
         if (context) {
             parse_context * ctx = static_cast<parse_context *>(context);
             ctx->host = string_type(first, last);
         }
-    	return true;
-
+        return true;
     }
-    
+
     static bool set_port (iterator first, iterator last, void * context, void * /*action_args*/)
     {
         if (!context) return true;
-        
+
         parse_context * ctx = static_cast<parse_context *>(context);
         string_type digits(first, last);
 
@@ -193,16 +182,18 @@ struct uri_grammar
         } catch (bad_lexical_cast ex) {
             return false;
         }
+
         return true;
     }
-    
+
     static bool set_raw_host (iterator /*first*/, iterator /*last*/, void * context, void * /*action_args*/)
     {
         if (context) {
             parse_context * ctx = static_cast<parse_context *>(context);
             ctx->is_raw_host = true;
         }
-    	return true;
+
+        return true;
     }
 
 #if PFS_TEST
@@ -269,7 +260,7 @@ struct uri_grammar
     transition_type const * p_hier_part_tr;
     transition_type const * p_uri_tr_1;
     transition_type const * p_uri_tr_2;
-#endif    
+#endif
     transition_type const * p_uri_tr;
     transition_type const * p_uri_reference_tr;
 };
@@ -307,13 +298,13 @@ uri_grammar<UriType>::uri_grammar ()
 
     /* ALPHA / DIGIT / "-" / "." / "_" / "~" */
     static string_type const UNRESERVED("-._~");
-    
+
     static transition_type const unreserved_tr[] = {
           {-1, 1, FSM_ONE_OF(ALPHA)     , fsm_type::accept, 0, 0 }
         , {-1, 2, FSM_ONE_OF(DIGIT)     , fsm_type::accept, 0, 0 }
         , {-1,-1, FSM_ONE_OF(UNRESERVED), fsm_type::accept, 0, 0 }
     };
-    
+
     static string_type const PERCENT_CHAR("%");
 
     /* "%" HEXDIG HEXDIG */
@@ -325,7 +316,7 @@ uri_grammar<UriType>::uri_grammar ()
 
     /* unreserved / pct-encoded / sub-delims / ":" / "@" */
     static string_type const PCHAR(":@");
-    
+
     static transition_type const pchar_tr[] = {
           {-1, 1, FSM_TR(unreserved_tr) , fsm_type::accept, 0, 0 }
         , {-1, 2, FSM_TR(pct_encoded_tr), fsm_type::accept, 0, 0 }
@@ -644,7 +635,7 @@ uri_grammar<UriType>::uri_grammar ()
           {-1, 1, FSM_TR(ipv6address_tr), fsm_type::accept, 0, 0 }
         , {-1,-1, FSM_TR(ipvfuture_tr)  , fsm_type::accept, 0, 0 }
     };
-    
+
     static string_type const LEFT_SQUARE_BRACKET("[");
     static string_type const RIGHT_SQUARE_BRACKET("]");
     static transition_type const ip_literal_tr[] = {
@@ -830,7 +821,7 @@ uri_grammar<UriType>::uri_grammar ()
           {-1, 1, FSM_TR(uri_tr)         , fsm_type::accept, 0, 0 }
         , {-1,-1, FSM_TR(relative_ref_tr), fsm_type::accept, 0, 0 }
     };
-    
+
 #if PFS_TEST
     p_unreserved_tr  = unreserved_tr;
     p_pct_encoded_tr = pct_encoded_tr;
@@ -913,18 +904,18 @@ bool uri<StringType>::parse (typename string_type::const_iterator first
 {
     typedef uri_grammar<uri<StringType> >   grammar_type;
     typedef typename grammar_type::fsm_type fsm_type;
-    
+
     // Initialize grammar's static members
     static grammar_type grammar;
 
     _d.clear();
-    
-	fsm_type fsm(grammar.p_uri_tr, & _d);
-	typename fsm_type::result_type r = fsm.exec(0, first, last);
+
+    fsm_type fsm(grammar.p_uri_tr, & _d);
+    typename fsm_type::result_type r = fsm.exec(0, first, last);
 
     if (r.first && r.second == last)
         return true;
-    
+
     return false;
 }
 

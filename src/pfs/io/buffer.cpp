@@ -1,10 +1,3 @@
-/*
- * buffer.cpp
- *
- *  Created on: Jul 16, 2013
- *      Author: wladt
- */
-
 #include "pfs/algorithm.hpp"
 #include "pfs/traits/stdcxx/vector.hpp"
 #include "pfs/io/buffer.hpp"
@@ -15,39 +8,39 @@ namespace details {
 
 struct buffer : public bits::device
 {
-	static const size_t default_buffer_size = 256;
+    static const size_t default_buffer_size = 256;
 
     typedef stdcxx::vector<byte_t> buffer_type;
 
     buffer_type _buffer;
-    size_t      _pos;
+    size_t _pos;
 
     buffer (byte_t a[], size_t n)
-        : _pos(0)
+    : _pos (0)
     {
         _buffer.resize(n);
         pfs::copy(a, a + n, & _buffer[0]);
     }
 
     buffer (size_t n)
-        : _pos(0)
+    : _pos (0)
     {
         _buffer.resize(n);
     }
 
     virtual bool reopen ()
     {
-    	return true;
+        return true;
     }
 
     virtual open_mode_flags open_mode () const
     {
-    	return read_write | non_blocking;
+        return read_write | non_blocking;
     }
 
     virtual ssize_t bytes_available () const
     {
-    	 return _buffer.size() - _pos;
+        return _buffer.size() - _pos;
     }
 
     virtual ssize_t read (byte_t * bytes, size_t n) pfs_override;
@@ -56,37 +49,38 @@ struct buffer : public bits::device
 
     virtual bool close ()
     {
-    	return true;
+        return true;
     }
 
     virtual bool opened () const
     {
-    	return true;
+        return true;
     }
 
     virtual void flush ()
-    { }
+    {
+    }
 
     virtual bool set_nonblocking (bool)
     {
-    	return true;
+        return true;
     }
 
     virtual bool is_nonblocking () const
     {
-    	return true;
+        return true;
     }
 
     virtual native_handle_type native_handle () const
     {
-    	return -1;
+        return -1;
     }
 
     virtual device_type type () const
     {
-    	return device_buffer;
+        return device_buffer;
     }
-    
+
     virtual system_string url () const
     {
         return system_string("buffer");
@@ -123,7 +117,9 @@ ssize_t buffer::write (const byte_t * bytes, size_t n)
     return integral_cast_check<ssize_t>(n);
 }
 
-}}} // pfs::io::details
+}
+}
+} // pfs::io::details
 
 namespace pfs {
 namespace io {
@@ -131,19 +127,19 @@ namespace io {
 template <>
 device open_device<buffer> (const open_params<buffer> & op, error_code & ec)
 {
-	device result;
+    device result;
 
     bits::device * p = 0;
 
     if (op.pbytes) {
-    	p = new details::buffer(op.pbytes, op.size);
+        p = new details::buffer(op.pbytes, op.size);
     } else if (op.size > 0) {
-    	p = new details::buffer(op.size);
+        p = new details::buffer(op.size);
     } else {
-    	p = new details::buffer(details::buffer::default_buffer_size);
+        p = new details::buffer(details::buffer::default_buffer_size);
     }
 
-	shared_ptr<bits::device> d(p);
+    shared_ptr<bits::device> d(p);
     result._d.swap(d);
 
     ec.clear();

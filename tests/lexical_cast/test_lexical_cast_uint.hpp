@@ -1,10 +1,3 @@
-/* 
- * File:   test_lexical_cast_uint.hpp
- * Author: wladt
- *
- * Created on July 2, 2017, 1:38 PM
- */
-
 #ifndef TEST_LEXICAL_CAST_UINT_HPP
 #define TEST_LEXICAL_CAST_UINT_HPP
 

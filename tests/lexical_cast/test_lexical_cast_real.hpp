@@ -1,10 +1,3 @@
-/* 
- * File:   test_lexical_cast_flost.hpp
- * Author: wladt
- *
- * Created on July 2, 2017, 1:36 PM
- */
-
 #ifndef TEST_LEXICAL_CAST_FLOST_HPP
 #define TEST_LEXICAL_CAST_FLOST_HPP
 

@@ -1,10 +1,3 @@
-/* 
- * File:   database.hpp
- * Author: wladt
- *
- * Created on February 8, 2017, 4:02 PM
- */
-
 #ifndef __PFS_DB_DATABASE_HPP__
 #define __PFS_DB_DATABASE_HPP__
 

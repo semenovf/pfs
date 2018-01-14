@@ -1,10 +1,3 @@
-/* 
- * File:   unicode_iterator.hpp
- * Author: wladt
- *
- * Created on June 27, 2017, 11:13 AM
- */
-
 #ifndef __PFS_UNICODE_UNICODE_ITERATOR_HPP__
 #define __PFS_UNICODE_UNICODE_ITERATOR_HPP__
 

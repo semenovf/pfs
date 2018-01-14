@@ -1,10 +1,3 @@
-/*
- * buffered_device.hpp
- *
- *  Created on: Mar 5, 2016
- *      Author: wladt
- */
-
 #ifndef __PFS_IO_BUFFERED_DEVICE_HPP__
 #define __PFS_IO_BUFFERED_DEVICE_HPP__
 
@@ -16,20 +9,20 @@ namespace io {
 
 class buffered_device
 {
-	device & _d;
-	byte_t * _buffer;
-    size_t   _bufsz;
-    size_t   _count;
-	size_t   _cursor;
+    device & _d;
+    byte_t * _buffer;
+    size_t _bufsz;
+    size_t _count;
+    size_t _cursor;
 
 private:
-	bool can_read (size_t count);
+    bool can_read (size_t count);
 
-	ssize_t upload_bytes (size_t max_size);
+    ssize_t upload_bytes (size_t max_size);
 
 public:
-	buffered_device (device & d, size_t initialSize = 256);
-    
+    buffered_device (device & d, size_t initialSize = 256);
+
     ~buffered_device ();
 
     /**
@@ -50,6 +43,6 @@ public:
     bool read_line (byte_string & line, size_t maxSize);
 };
 
-}}
+}} // pfs::io
 
 #endif /* __PFS_IO_BUFFERED_DEVICE_HPP__ */

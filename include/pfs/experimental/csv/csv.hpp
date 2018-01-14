@@ -1,10 +1,3 @@
-/*
- * csv.hpp
- *
- *  Created on: 08.02.2013
- *      Author: wladt
- */
-
 #ifndef __CWT_CSV_HPP__
 #define __CWT_CSV_HPP__
 

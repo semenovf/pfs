@@ -1,10 +1,3 @@
-/*
- * server.hpp
- *
- *  Created on: Jan 13, 2016
- *      Author: wladt
- */
-
 #ifndef __PFS_IO_BITS_SERVER_HPP__
 #define __PFS_IO_BITS_SERVER_HPP__
 
@@ -16,8 +9,8 @@ namespace io {
 
 enum server_type
 {
-	  server_unknown = 0
-	, server_tcp
+      server_unknown = 0
+    , server_tcp
     , server_udp
 };
 
@@ -29,12 +22,12 @@ namespace bits {
 
 struct server : public basic_device
 {
-	typedef device::native_handle_type native_handle_type;
+    typedef device::native_handle_type native_handle_type;
     typedef device::system_string      system_string;
 
     server ()
-		: basic_device()
-	{}
+        : basic_device()
+    {}
 
     virtual ~server () {}
 

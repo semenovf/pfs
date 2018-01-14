@@ -1,10 +1,3 @@
-/* 
- * File:   lexical_cast.hpp
- * Author: wladt
- *
- * Created on March 15, 2017, 5:29 PM
- */
-
 #ifndef __PFS_LEXICAL_CAST_STRTOINT_HPP__
 #define __PFS_LEXICAL_CAST_STRTOINT_HPP__
 

@@ -1,10 +1,3 @@
-/*
- * inet_socket_posix.hpp
- *
- *  Created on: Jan 13, 2016
- *      Author: wladt
- */
-
 #ifndef __PFS_INET_SOCKET_POSIX_HPP__
 #define __PFS_INET_SOCKET_POSIX_HPP__
 

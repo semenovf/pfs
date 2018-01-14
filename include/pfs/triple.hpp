@@ -1,10 +1,3 @@
-/* 
- * File:   triple.hpp
- * Author: wladt
- *
- * Created on July 12, 2016, 3:57 PM
- */
-
 #ifndef __PFS_TRIPLE_HPP__
 #define __PFS_TRIPLE_HPP__
 

@@ -1,10 +1,3 @@
-/* 
- * File:   dynamic_library.hpp
- * Author: wladt
- *
- * Created on June 21, 2017, 1:48 PM
- */
-
 #ifndef __PFS_DYNAMIC_LIBRARY_HPP__
 #define __PFS_DYNAMIC_LIBRARY_HPP__
 

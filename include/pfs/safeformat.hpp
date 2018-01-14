@@ -1,11 +1,3 @@
-
-/* 
- * File:   safeformat.hpp
- * Author: wladt
- *
- * Created on July 6, 2017, 4:09 PM
- */
-
 #ifndef __PFS_SAFEFORMAT_HPP__
 #define __PFS_SAFEFORMAT_HPP__
 

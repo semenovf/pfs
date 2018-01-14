@@ -1,10 +1,3 @@
-/*
- * inet_addr.cpp
- *
- *  Created on: Jun 25, 2015
- *      Author: wladt
- */
-
 #include <netinet/in.h>
 #include "pfs/utility.hpp"
 #include "pfs/lexical_cast.hpp"

@@ -1,10 +1,3 @@
-/* 
- * File:   test_byte_stream.hpp
- * Author: wladt
- *
- * Created on Aug 28, 2017
- */
-
 #ifndef __TEST_APPEND_HPP__
 #define __TEST_APPEND_HPP__
 
