@@ -46,4 +46,3 @@ public:
 }} // pfs::db
 
 #endif /* __PFS_DB_STATEMENT_HPP__ */
-

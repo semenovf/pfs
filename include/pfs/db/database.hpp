@@ -39,7 +39,7 @@ private:
 
 public:
     database () : _d() {}
-    
+
     bool open (string_type const & uri, error_code & ec, string_type * errstr = 0)
     {
         return _d.open(uri, ec, errstr);
@@ -55,54 +55,53 @@ public:
 
         return true;
     }
-    
+
     bool close ()
     {
         return _d.close();
     }
-    
+
     bool opened () const
     {
         return _d.opened();
     }
-    
+
     /**
-	 *
-	 * @param sql
-	 * @return
-	 *
-	 * @note Cannot be used for statements that contain binary data
-	 */
-	bool query (string_type const & sql, pfs::error_code & ec, string_type * errstr = 0)
+     * @param sql
+     * @return
+     *
+     * @note Cannot be used for statements that contain binary data
+     */
+    bool query (string_type const & sql, pfs::error_code & ec, string_type * errstr = 0)
     {
         return _d.query(sql, ec, errstr);
     }
 
-  	bool query (string_type const & sql);
+    bool query (string_type const & sql);
 
-//	statement prepare (string_type const & sql); // TODO move to statement (as static)
-//	stringlist tables () const;
-//	bool tableExists (const string & name) const;
+//  statement prepare (string_type const & sql); // TODO move to statement (as static)
+//  stringlist tables () const;
+//  bool tableExists (const string & name) const;
 
-	bool begin ()
+    bool begin ()
     {
         return _d.begin();
     }
-    
-	bool commit ()
+
+    bool commit ()
     {
         return _d.commit();
     }
-    
-	bool rollback ()
+
+    bool rollback ()
     {
         return _d.rallback();
     }
-    
-	bool end (bool success)
-	{
-		return success ? commit() : rollback();
-	}
+
+    bool end (bool success)
+    {
+        return success ? commit() : rollback();
+    }
 };
 
 template <typename Traits>
