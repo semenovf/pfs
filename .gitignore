@@ -1,8 +1,10 @@
 !.gitignore
 .settings/
 .kdev4/
+.idea/
 .project
 .cproject
+cmake-build-debug/
 debug/
 release/
 doxygen/

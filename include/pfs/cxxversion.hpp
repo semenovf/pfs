@@ -18,7 +18,7 @@
 #   elif __cplusplus == 201402L
 #       define __PFS_CXX_VERSION__  __PFS_CXX14__
 #       define __PFS_CXX_HPREFIX__  cxx14
-#   elif __cplusplus > 201402L
+#   elif __cplusplus == 201703L
 #       define __PFS_CXX_VERSION__  __PFS_CXX17__
 #       define __PFS_CXX_HPREFIX__  cxx17
 #   else

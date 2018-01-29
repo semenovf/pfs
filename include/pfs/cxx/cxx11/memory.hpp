@@ -42,7 +42,7 @@ inline shared_ptr<T> const_pointer_cast (shared_ptr<U> const & r) pfs_noexcept
     return std::const_pointer_cast<T,U>(r);
 }
 
-#if __cplusplus <= 201402L
+#if __cplusplus < 201703L
 
 template <typename T, typename U>
 inline shared_ptr<T> reinterpret_pointer_cast (shared_ptr<U> const & r)
@@ -51,6 +51,7 @@ inline shared_ptr<T> reinterpret_pointer_cast (shared_ptr<U> const & r)
 }
 
 #endif
+
 
 template <typename T, typename Deleter = std::default_delete<T> >
 using unique_ptr = std::unique_ptr<T, Deleter>;
