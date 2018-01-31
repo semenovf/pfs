@@ -755,7 +755,7 @@ public:
 
         dom_builder_context<json> sax(*this);
         typename grammar_type::parse_context context;
-        
+
         //context.is_json_begin = true;
         context.sax           = & sax;
 

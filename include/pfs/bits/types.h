@@ -105,7 +105,7 @@
         || defined(__LONG_LONG_MAX__)  // valid for gcc
 
 #   define PFS_HAVE_LONG_LONG 1
-#       define PFS_HAVE_LONGLONG 1
+#   define PFS_HAVE_LONGLONG 1
 #endif
 
 #if defined(LDBL_MIN) \
