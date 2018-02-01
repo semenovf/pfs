@@ -201,6 +201,32 @@ JsonType make_error (IdType const & id, int code
 }
 
 
+// TODO Implement
+template <typename JsonType>
+struct server
+{
+    server () {}
+
+    void register_method (char const * name, void (*) (JsonType const & request));
+    void register_notification (char const * name, void (*) (JsonType const & notification));
+};
+
+// TODO Implement
+template <typename JsonType>
+struct client
+{
+    client () {}
+
+    void register_result_handler (void (*) (JsonType const & result));
+    void register_error_handler (int code, void (*) (JsonType const & error));
+};
+
+// TODO Implement (if need)
+struct packet
+{
+
+};
+
 #if __FIXME__
 
 
