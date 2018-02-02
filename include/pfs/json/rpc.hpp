@@ -1,6 +1,8 @@
 #ifndef __PFS_JSON_RPC_HPP__
 #define __PFS_JSON_RPC_HPP__
 
+#include <pfs/traits/associative_container.hpp>
+
 // [JSON-RPC 2.0 Specification](http://www.jsonrpc.org/specification)
 
 namespace pfs {
@@ -32,6 +34,28 @@ static int const INTERNAL_ERROR = -32603;
 // -32000 to -32099 Reserved for implementation-defined server-errors.
 static int const SERVER_ERROR = -32000;
 
+template <typename JsonType
+    , typename StringType
+    , typename IdType
+    , template <typename> class AssociativeContainerImplType>
+struct traits
+{
+    typedef JsonType   json_type;
+    typedef StringType string_type;
+    typedef IdType     id_type;
+
+    template <typename Key, typename Value>
+    struct associative_container
+    {
+        typedef pfs::traits::associative_container<
+              pfs::traits::kv<Key, Value>
+            , AssociativeContainerImplType> type;
+
+        typedef Key key_type;
+        typedef Value value_type;
+    };
+};
+
 inline char const * jsonrpc () { return "2.0"; }
 
 //
@@ -61,16 +85,18 @@ inline char const * jsonrpc () { return "2.0"; }
 //      Numbers SHOULD NOT contain fractional parts.
 //
 
-template <typename JsonType>
-inline bool is_request (JsonType const & d)
+template <typename Traits>
+inline bool is_request (typename Traits::json_type const & d)
 {
     return d.contains("method") && d.contains("id");
 }
 
-template <typename JsonType, typename IdType>
-JsonType make_request (IdType const & id, char const * method)
+template <typename Traits>
+typename Traits::json_type make_request (typename Traits::id_type const & id, char const * method)
 {
-    JsonType r = JsonType::template make_object();
+    typedef typename Traits::json_type json_type;
+    
+    json_type r = json_type::template make_object();
     r["jsonrpc"] = jsonrpc();
     r["id"] = id;
     r["method"] = method;
@@ -87,16 +113,18 @@ JsonType make_request (IdType const & id, char const * method)
 // including those that are within a batch request.
 //
 
-template <typename JsonType>
-inline bool is_notification (JsonType const & d)
+template <typename Traits>
+inline bool is_notification (typename Traits::json_type const & d)
 {
     return d.contains("method") && !d.contains("id");
 }
 
-template <typename JsonType>
-JsonType make_notification (char const * method)
+template <typename Traits>
+typename Traits::json_type make_notification (char const * method)
 {
-    JsonType r = JsonType::template make_object();
+    typedef typename Traits::json_type json_type;
+    
+    json_type r = json_type::template make_object();
     r["jsonrpc"] = jsonrpc();
     r["method"] = method;
     return r;
@@ -130,22 +158,25 @@ JsonType make_notification (char const * method)
 //      (e.g. Parse error/Invalid Request), it MUST be Null.
 //
 
-template <typename JsonType>
-inline bool is_response (JsonType const & d)
+template <typename Traits>
+inline bool is_response (typename Traits::json_type const & d)
 {
     return d.contains("id") && (d.contains("result") || d.contains("error"));
 }
 
-template <typename JsonType>
-inline bool is_success (JsonType const & d)
+template <typename Traits>
+inline bool is_success (typename Traits::json_type const & d)
 {
     return d.contains("id") && d.contains("result");
 }
 
-template <typename JsonType, typename IdType>
-JsonType make_success (IdType const & id, JsonType const & result)
+template <typename Traits>
+typename Traits::json_type make_success (typename Traits::id_type const & id
+        , typename Traits::json_type const & result)
 {
-    JsonType r = JsonType::template make_object();
+    typedef typename Traits::json_type json_type;
+    
+    json_type r = json_type::template make_object();
     r["jsonrpc"] = jsonrpc();
     r["id"] = id;
     r["result"] = result;
@@ -175,18 +206,21 @@ JsonType make_success (IdType const & id, JsonType const & result)
 //      information, nested errors etc.).
 //
 
-template <typename JsonType>
-inline bool is_error (JsonType const & d)
+template <typename Traits>
+inline bool is_error (typename Traits::json_type const & d)
 {
     return d.contains("id") && d.contains("error");
 }
 
-template <typename JsonType, typename IdType>
-JsonType make_error (IdType const & id, int code
-        , typename JsonType::string_type const & message = JsonType::string_type()
-        , JsonType data = JsonType())
+template <typename Traits>
+typename Traits::json_type make_error (typename Traits::id_type const & id
+        , int code
+        , typename Traits::string_type const & message = Traits::string_type()
+        , typename Traits::json_type data = Traits::json_type())
 {
-    JsonType r = JsonType::template make_object();
+    typedef typename Traits::json_type json_type;
+    
+    json_type r = json_type::template make_object();
     r["jsonrpc"] = jsonrpc();
     r["id"] = id;
     r["code"] = code;
@@ -200,32 +234,53 @@ JsonType make_error (IdType const & id, int code
     return r;
 }
 
-
-// TODO Implement
-template <typename JsonType>
+template <typename Traits>
 struct server
 {
+    typedef typename Traits::json_type json_type;
+    typedef typename Traits::string_type string_type;
+    typedef void (* method_handler_type) (json_type const & request);
+    typedef void (* notification_handler_type) (json_type const & notification);
+    
     server () {}
 
-    void register_method (char const * name, void (*) (JsonType const & request));
-    void register_notification (char const * name, void (*) (JsonType const & notification));
+    void register_method (char const * name, method_handler_type);
+    void register_notification (char const * name, notification_handler_type);
+    
+protected:
+    typedef typename Traits::associative_container::template type<string_type
+            , method_handler_type>          method_map_type;
+    
+    typedef typename Traits::associative_container::template type<string_type
+            , method_handler_type>          notification_map_type;
 };
 
 // TODO Implement
-template <typename JsonType>
+template <typename Traits>
 struct client
 {
-    client () {}
+    typedef typename Traits::json_type json_type;
+    typedef typename Traits::string_type string_type;
+    typedef typename Traits::id_type id_type;
+    typedef void (* result_handler_type) (json_type const & request);
+    typedef void (* error_handler_type) (json_type const & error);
 
-    void register_result_handler (void (*) (JsonType const & result));
-    void register_error_handler (int code, void (*) (JsonType const & error));
+    client () : _default_error_handler(0) {}
+    
+    void register_result_handler (id_type id, result_handler_type);
+    void register_error_handler (int code, error_handler_type);
+    void set_default_error_handler (error_handler_type);
+    
+protected:
+    typedef typename Traits::associative_container::template type<id_type
+            , result_handler_type>          result_map_type;
+
+    typedef typename Traits::associative_container::template type<int
+            , error_handler_type>           error_map_type;
+    
+    error_handler_type _default_error_handler;
 };
 
-// TODO Implement (if need)
-struct packet
-{
-
-};
 
 #if __FIXME__
 
