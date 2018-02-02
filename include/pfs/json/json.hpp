@@ -39,7 +39,7 @@ struct traits
     struct array
     {
         typedef pfs::traits::sequence_container<T
-                , SequenceContainerImplType>          type;
+                , SequenceContainerImplType> type;
     };
 
     template <typename T>
@@ -47,9 +47,9 @@ struct traits
     {
         typedef pfs::traits::associative_container<
               pfs::traits::kv<string_type, T>
-            , AssociativeContainerImplType>       type;
+            , AssociativeContainerImplType> type;
 
-        typedef typename type::key_type           key_type;
+        typedef typename type::key_type key_type;
     };
 };
 

@@ -86,20 +86,32 @@ inline char const * jsonrpc () { return "2.0"; }
 //
 
 template <typename Traits>
+inline typename Traits::id_type id (typename Traits::json_type const & d)
+{
+    return d["id"].template get<typename Traits::id_type>();
+}
+
+template <typename Traits>
 inline bool is_request (typename Traits::json_type const & d)
 {
     return d.contains("method") && d.contains("id");
 }
 
 template <typename Traits>
-typename Traits::json_type make_request (typename Traits::id_type const & id, char const * method)
+typename Traits::json_type make_request (typename Traits::id_type const & id
+        , char const * method
+        , typename Traits::json_type const & params = typename Traits::json_type())
 {
     typedef typename Traits::json_type json_type;
-    
-    json_type r = json_type::template make_object();
+
+    json_type r = json_type::make_object();
     r["jsonrpc"] = jsonrpc();
     r["id"] = id;
     r["method"] = method;
+
+    if (!params.is_null())
+        r["params"] = params;
+
     return r;
 }
 
@@ -120,13 +132,18 @@ inline bool is_notification (typename Traits::json_type const & d)
 }
 
 template <typename Traits>
-typename Traits::json_type make_notification (char const * method)
+typename Traits::json_type make_notification (char const * method
+        , typename Traits::json_type const & params = typename Traits::json_type())
 {
     typedef typename Traits::json_type json_type;
-    
-    json_type r = json_type::template make_object();
+
+    json_type r = json_type::make_object();
     r["jsonrpc"] = jsonrpc();
     r["method"] = method;
+
+    if (!params.is_null())
+        r["params"] = params;
+
     return r;
 }
 
@@ -172,11 +189,11 @@ inline bool is_success (typename Traits::json_type const & d)
 
 template <typename Traits>
 typename Traits::json_type make_success (typename Traits::id_type const & id
-        , typename Traits::json_type const & result)
+        , typename Traits::json_type const & result = typename Traits::json_type())
 {
     typedef typename Traits::json_type json_type;
-    
-    json_type r = json_type::template make_object();
+
+    json_type r = json_type::make_object();
     r["jsonrpc"] = jsonrpc();
     r["id"] = id;
     r["result"] = result;
@@ -209,53 +226,112 @@ typename Traits::json_type make_success (typename Traits::id_type const & id
 template <typename Traits>
 inline bool is_error (typename Traits::json_type const & d)
 {
-    return d.contains("id") && d.contains("error");
+    return /*d.contains("id") && */d.contains("error");
 }
 
+//
+// Used if e.g. Parse error/Invalid Request
+//
 template <typename Traits>
-typename Traits::json_type make_error (typename Traits::id_type const & id
-        , int code
-        , typename Traits::string_type const & message = Traits::string_type()
-        , typename Traits::json_type data = Traits::json_type())
+typename Traits::json_type make_error (int code
+        , typename Traits::string_type const & message = typename Traits::string_type()
+        , typename Traits::json_type data = typename Traits::json_type())
 {
     typedef typename Traits::json_type json_type;
-    
-    json_type r = json_type::template make_object();
+
+    json_type r = json_type::make_object();
     r["jsonrpc"] = jsonrpc();
-    r["id"] = id;
-    r["code"] = code;
+    r["error"]["code"] = code;
 
     if (!message.empty())
-        r["message"] = message;
+        r["error"]["message"] = message;
 
     if (!data.is_null())
-        r["data"] = data;
+        r["error"]["data"] = data;
 
     return r;
 }
 
 template <typename Traits>
-struct server
+typename Traits::json_type make_error (typename Traits::id_type const & id
+        , int code
+        , typename Traits::string_type const & message = typename Traits::string_type()
+        , typename Traits::json_type data = typename Traits::json_type())
 {
     typedef typename Traits::json_type json_type;
+
+    json_type r = make_error<Traits>(code, message, data);
+    r["id"] = id;
+    return r;
+}
+
+template <typename Traits>
+inline int code (typename Traits::json_type const & error)
+{
+    return error["error"]["code"].template get<int>();
+}
+
+
+template <typename Traits>
+struct server
+{
+    typedef typename Traits::json_type   json_type;
     typedef typename Traits::string_type string_type;
-    typedef void (* method_handler_type) (json_type const & request);
+    typedef typename Traits::id_type     id_type;
+    typedef void (* method_handler_type) (json_type const & request, json_type & response);
     typedef void (* notification_handler_type) (json_type const & notification);
-    
+
     server () {}
 
-    void register_method (char const * name, method_handler_type);
-    void register_notification (char const * name, notification_handler_type);
-    
+    void register_method (char const * name, method_handler_type mh)
+    {
+        _methods.insert(string_type(name), mh);
+    }
+
+    void register_notification (char const * name, notification_handler_type nh)
+    {
+        _notifications.insert(string_type(name), nh);
+    }
+
+    void exec (json_type const & request, json_type & response);
+
 protected:
-    typedef typename Traits::associative_container::template type<string_type
-            , method_handler_type>          method_map_type;
-    
-    typedef typename Traits::associative_container::template type<string_type
-            , method_handler_type>          notification_map_type;
+    typedef typename Traits::template associative_container<string_type
+            , method_handler_type>::type       method_map_type;
+
+    typedef typename Traits::template associative_container<string_type
+            , notification_handler_type>::type notification_map_type;
+
+    method_map_type       _methods;
+    notification_map_type _notifications;
 };
 
-// TODO Implement
+template <typename Traits>
+void server<Traits>::exec (json_type const & request, json_type & response)
+{
+    response.clear();
+
+    if (is_request<Traits>(request)) {
+        typename method_map_type::const_iterator it = _methods.find(request["method"].get_string());
+
+        if (it != _methods.cend()) {
+            method_map_type::mapped_reference(it)(request, response);
+        } else {
+            response = make_error<Traits>(request["id"].template get<id_type>(), METHOD_NOT_FOUND);
+        }
+    } else if (is_notification<Traits>(request)) {
+        typename notification_map_type::const_iterator it = _notifications.find(request["method"].get_string());
+
+        if (it != _notifications.cend()) {
+            notification_map_type::mapped_reference(it)(request);
+        } else {
+            response = make_error<Traits>(METHOD_NOT_FOUND);
+        }
+    } else {
+        response = make_error<Traits>(INVALID_REQUEST);
+    }
+}
+
 template <typename Traits>
 struct client
 {
@@ -266,238 +342,63 @@ struct client
     typedef void (* error_handler_type) (json_type const & error);
 
     client () : _default_error_handler(0) {}
-    
-    void register_result_handler (id_type id, result_handler_type);
-    void register_error_handler (int code, error_handler_type);
-    void set_default_error_handler (error_handler_type);
-    
-protected:
-    typedef typename Traits::associative_container::template type<id_type
-            , result_handler_type>          result_map_type;
 
-    typedef typename Traits::associative_container::template type<int
-            , error_handler_type>           error_map_type;
-    
+    void register_result_handler (id_type id, result_handler_type h)
+    {
+        _result_handlers.insert(id, h);
+    }
+
+    void register_error_handler (int code, error_handler_type h)
+    {
+        _error_handlers.insert(code, h);
+    }
+
+    void set_default_error_handler (error_handler_type h)
+    {
+        _default_error_handler = h;
+    }
+
+    bool handle (json_type const & response);
+
+protected:
+    typedef typename Traits::template associative_container<id_type
+            , result_handler_type>::type result_map_type;
+
+    typedef typename Traits::template associative_container<int
+            , error_handler_type>::type  error_map_type;
+
     error_handler_type _default_error_handler;
+
+    result_map_type _result_handlers;
+    error_map_type  _error_handlers;
 };
 
-
-#if __FIXME__
-
-
-template <typename JsonType>
-struct basic_entity
+template <typename Traits>
+bool client<Traits>::handle (json_type const & response)
 {
-    typedef typename JsonType::string_type string_type;
+    if (is_success<Traits>(response)) {
+        typename result_map_type::const_iterator it
+                = _result_handlers.find(response["id"].template get<id_type>());
 
-    static string_type const & jsonrpc () { return "2.0"; }
+        if (it != _result_handlers.cend()) {
+            result_map_type::mapped_reference(it)(response);
+            return true;
+        }
+    } else if (is_error<Traits>(response)) {
+        typename error_map_type::const_iterator it
+                = _error_handlers.find(code<Traits>(response));
 
-    template <typename T>
-    T id () const
-    {
-        return _d["id"].get<T>();
+        if (it != _error_handlers.cend()) {
+            error_map_type::mapped_reference(it)(response);
+        } else {
+            _default_error_handler(response);
+        }
+
+        return true;
     }
 
-    void set_id (string_type const & v)
-    {
-        _d["id"] = v;
-    }
-
-    void set_id (int v)
-    {
-        _d["id"] = v;
-    }
-
-    void set_id (long int v)
-    {
-        _d["id"] = v;
-    }
-
-protected:
-    basic_entity ()
-    {
-        _d["jsonrpc"] = jsonrpc();
-    }
-
-protected:
-    JsonType _d;
-};
-
-template <typename JsonType>
-struct basic_request : basic_entity<JsonType>
-{
-    typedef basic_entity<JsonType>       base_class;
-    typedef typename JsonType::size_type size_type;
-    typedef typename JsonType::key_type  key_type;
-
-    string_type method () const
-    {
-        return _d["method"].get<string_type>();
-    }
-
-    void set_method (string_type const & m)
-    {
-        _d["method"] = m;
-    }
-
-    template <typename T>
-    void push_parameter (T const & v)
-    {
-        _d["params"].push_back(v);
-    }
-
-    template <typename T>
-    void insert_parameter (string_type const & name, T const & v)
-    {
-        _d["params"][name] = v;
-    }
-
-    bool has_params () const
-    {
-        return _d.contains("params");
-    }
-
-    JsonType const & params () const
-    {
-        return _d["params"];
-    }
-
-protected:
-    basic_request () : base_class() {}
-};
-
-template <typename JsonType>
-struct request : basic_request<JsonType>
-{
-    typedef basic_request<JsonType> base_class;
-
-    request () : base_class() {}
-};
-
-template <typename JsonType>
-struct notification : basic_request<JsonType>
-{
-    typedef basic_request<JsonType> base_class;
-
-    notification ()
-        : base_class()
-    {}
-};
-
-
-
-template <typename JsonType>
-struct basic_response : basic_entity<JsonType>
-{
-    typedef basic_entity<JsonType> base_class;
-
-    basic_response () : base_class() {}
-
-    bool is_error () const
-    {
-        return _d.contains("error");
-    }
-
-    JsonType const & result () const
-    {
-        return _d["result"];
-    }
-
-    JsonType & result ()
-    {
-        return _d["result"];
-    }
-
-    JsonType const & error () const
-    {
-        return _d["error"];
-    }
-
-    JsonType & error ()
-    {
-        return _d["error"];
-    }
-};
-
-template <typename JsonType>
-struct response : basic_entity<JsonType>
-{
-    typedef basic_entity<JsonType> base_class;
-
-    response () : base_class() {}
-
-    bool is_error () const
-    {
-        return _d.contains("error");
-    }
-
-    JsonType const & result () const
-    {
-        return _d["result"];
-    }
-
-    JsonType & result ()
-    {
-        return _d["result"];
-    }
-
-    JsonType const & error () const
-    {
-        return _d["error"];
-    }
-
-    JsonType & error ()
-    {
-        return _d["error"];
-    }
-};
-
-
-template <typename JsonType>
-struct error
-{
-    typedef typename JsonType::string_type string_type;
-
-
-    error (int c)
-    {
-        _d["code"] = c;
-    }
-
-    int code () const
-    {
-        return reference_wrapper(_d)["code"].get<int>(NO_ERROR);
-    }
-
-    string_type message () const
-    {
-        return reference_wrapper(_d)["message"].get<string_type>();
-    }
-
-    void set_message (string_type const & m)
-    {
-        _d["message"] = m;
-    }
-
-    bool has_data () const
-    {
-        return _d.contains("data");
-    }
-
-    JsonType const & data () const
-    {
-        return _d["data"];
-    }
-
-    void set_data (JsonType const & v)
-    {
-        _d["data"] = v;
-    }
-
-private:
-    JsonType _d;
-};
-#endif
+    return false;
+}
 
 }}} // pfs::json::rpc
 
