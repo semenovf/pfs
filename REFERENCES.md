@@ -119,6 +119,20 @@
 
 1. [SQLite ORM](https://github.com/fnc12/sqlite_orm)
 
+### CLI
+--------------------------------------------------------------------------------
+1. [Docopt](http://docopt.org/)
+2. [Optional](https://mulholland.xyz/docs/optional/index.html)
+
+### File system
+--------------------------------------------------------------------------------
+1. [Filesystem library (cppreference.com)](http://en.cppreference.com/w/cpp/experimental/fs)
+
+### Regex
+--------------------------------------------------------------------------------
+1. [Regular expressions library (cppreference.com)[(http://en.cppreference.com/w/cpp/regex)
+2. [Regex (cplusplus.com)](http://www.cplusplus.com/reference/regex/)
+
 ### Misc
 
 1. [Embedding resource files in a C++ program binary on Linux/*NIX](http://www.atwillys.de/content/cc/embedding-resource-files-in-a-c-plus-plus-program-binary-on-linux-unix/?lang=en)
