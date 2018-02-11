@@ -271,7 +271,6 @@ inline int code (typename Traits::json_type const & error)
     return error["error"]["code"].template get<int>();
 }
 
-
 template <typename Traits>
 struct server
 {

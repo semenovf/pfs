@@ -84,9 +84,7 @@ private:
     }
 
 public:
-    active_queue ()
-    : _count(0)
-    {}
+    active_queue () : _count(0) {}
 
     virtual ~active_queue ()
     {

@@ -13,8 +13,10 @@ class stringlist : public traits::sequence_container<StringType, ContainerValueR
     typedef traits::sequence_container<StringType, ContainerValueRef> base_class;
 
 public:
-    typedef typename base_class::value_type value_type;
+    typedef typename base_class::value_type      value_type;
     typedef typename base_class::difference_type difference_type;
+    typedef typename base_class::iterator        iterator;
+    typedef typename base_class::const_iterator  const_iterator;
     typedef StringType string_type;
 
 public:

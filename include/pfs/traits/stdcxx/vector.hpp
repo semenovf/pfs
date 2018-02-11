@@ -235,7 +235,7 @@ public:
         // erase() has signature `iterator erase(iterator first, iterator last)`
         //
         iterator it(this->begin());
-        pfs::advance(it, distance(this->cbegin(), pos));
+        pfs::advance(it, pfs::distance(this->cbegin(), pos));
         return _p->erase(it);
 #endif
     }
@@ -251,8 +251,8 @@ public:
         //
         iterator from(this->begin());
         iterator to(this->begin());
-        pfs::advance(from, distance(this->cbegin(), first));
-        pfs::advance(to, distance(this->cbegin(), last));
+        pfs::advance(from, pfs::distance(this->cbegin(), first));
+        pfs::advance(to, pfs::distance(this->cbegin(), last));
         return _p->erase(from, to);
 #endif
     }
