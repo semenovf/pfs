@@ -61,10 +61,10 @@ int main ()
     pfs::shared_ptr<pfs::command> hello_ann   = pfs::make_command<hello_command>("Ann");
     pfs::shared_ptr<pfs::command> hello_peter = pfs::make_command<hello_command>("Peter");
     pfs::shared_ptr<pfs::command> hello_mary  = pfs::make_command<hello_command>("Mary");
-    pfs::shared_ptr<pfs::command> hello_sam  = pfs::make_command<hello_command>("Sam");
+    pfs::shared_ptr<pfs::command> hello_sam   = pfs::make_command<hello_command>("Sam");
 
-    invoker.undo();
-    invoker.redo();
+    invoker.undo();  // Nothing happened
+    invoker.redo();  // Nothing happened
     invoker.exec(hello_john);
     invoker.exec(hello_ann);
     invoker.exec(hello_peter);

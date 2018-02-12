@@ -44,7 +44,6 @@ struct command
 };
 
 // TODO For C++11: Variadic templates
-//      For C++98: Add make_command() up to 8 arguments
 
 template <typename ConcreteCommand>
 shared_ptr<command> make_command ()
@@ -64,35 +63,78 @@ shared_ptr<command> make_command (A1 a1, A2 a2)
     return dynamic_pointer_cast<command>(make_shared<ConcreteCommand>(a1, a2));
 }
 
-// TODO Command limit support 
+template <typename ConcreteCommand, typename A1, typename A2, typename A3>
+shared_ptr<command> make_command (A1 a1, A2 a2, A3 a3)
+{
+    return dynamic_pointer_cast<command>(make_shared<ConcreteCommand>(a1, a2, a3));
+}
 
-template <template <typename> class SequenceContainerImpl>
+template <typename ConcreteCommand, typename A1, typename A2, typename A3, typename A4>
+shared_ptr<command> make_command (A1 a1, A2 a2, A3 a3, A4 a4)
+{
+    return dynamic_pointer_cast<command>(make_shared<ConcreteCommand>(a1, a2, a3, a4));
+}
+
+template <typename ConcreteCommand, typename A1, typename A2, typename A3, typename A4, typename A5>
+shared_ptr<command> make_command (A1 a1, A2 a2, A3 a3, A4 a4, A5 a5)
+{
+    return dynamic_pointer_cast<command>(make_shared<ConcreteCommand>(a1, a2, a3, a4, a5));
+}
+
+template <typename ConcreteCommand, typename A1, typename A2, typename A3, typename A4, typename A5, typename A6>
+shared_ptr<command> make_command (A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6)
+{
+    return dynamic_pointer_cast<command>(make_shared<ConcreteCommand>(a1, a2, a3, a4, a5, a6));
+}
+
+template <typename ConcreteCommand, typename A1, typename A2, typename A3, typename A4, typename A5, typename A6, typename A7>
+shared_ptr<command> make_command (A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7)
+{
+    return dynamic_pointer_cast<command>(make_shared<ConcreteCommand>(a1, a2, a3, a4, a5, a6, a7));
+}
+
+template <typename ConcreteCommand, typename A1, typename A2, typename A3, typename A4, typename A5, typename A6, typename A7, typename A8>
+shared_ptr<command> make_command (A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8)
+{
+    return dynamic_pointer_cast<command>(make_shared<ConcreteCommand>(a1, a2, a3, a4, a5, a6, a7, a8));
+}
+
+template <template <typename> class SequenceContainerImpl, size_t UndoLimit>
 struct invoker
 {
     invoker ()
-        : _pos(_command_queue.cend())
+        : _pos(_undo_queue.end())
     {}
 
     void exec (shared_ptr<command> cmd)
     {
         cmd->exec();
 
-        if (_pos != _command_queue.cend())
-            _command_queue.erase(_pos, _command_queue.cend());
+        if (_undo_queue.size() < UndoLimit) {
+           _undo_queue.push_back(cmd);
+           _pos = _undo_queue.end();
+        } else {
 
-        _command_queue.push_back(cmd);
-        _pos = _command_queue.cend();
+        }
+
+        *_pos++ = cmd;
+
+//        if (_pos != _undo_queue.cend())
+//            _undo_queue.erase(_pos, _undo_queue.cend());
+//
+//        _undo_queue.push_back(cmd);
+//        _pos = _undo_queue.cend();
     }
 
     void undo (int count = 1)
     {
-        while (count-- > 0 && _pos != _command_queue.begin())
+        while (count-- > 0 && _pos != _undo_queue.begin())
             (*--_pos)->undo();
     }
 
     void redo (int count = 1)
     {
-        while (count-- > 0 && _pos != _command_queue.end())
+        while (count-- > 0 && _pos != _undo_queue.end())
             (*_pos++)->exec();
     }
 
@@ -102,11 +144,10 @@ protected:
     typedef typename queue_type::iterator       iterator;
     typedef typename queue_type::const_iterator const_iterator;
 
-    queue_type     _command_queue;
-    const_iterator _pos;
+    queue_type _undo_queue;
+    iterator   _pos;
 };
 
 } // pfs::command
 
 #endif /* __PFS_COMMAND_HPP__ */
-
