@@ -28,40 +28,41 @@ static char const * output_sample =
     "Hello, Sam!\n";
 
 typedef pfs::invoker<pfs::stdcxx::vector> invoker_t;
-static std::stringstream output;
 
 struct hello_command : pfs::command
 {
-    hello_command (char const * name)
+    std::stringstream * output;
+    
+    hello_command (char const * name, std::stringstream * out)
         : _name(name)
+        , output(out)
     {}
 
     virtual void exec () const pfs_override
     {
-        output << "Hello, " << _name << "!\n";
+        (*output) << "Hello, " << _name << "!\n";
         std::cout << "Hello, " << _name << "!\n";
     }
 
     virtual void undo () const pfs_override
     {
-        output << "Bye, " << _name << "!\n";
+        (*output) << "Bye, " << _name << "!\n";
         std::cout << "Bye, " << _name << "!\n";
     }
 
     char const * _name;
 };
 
-int main ()
+bool test (size_t limit)
 {
-    BEGIN_TESTS(1);
+    invoker_t invoker(limit);
+    std::stringstream output;
 
-    invoker_t invoker;
-
-    pfs::shared_ptr<pfs::command> hello_john  = pfs::make_command<hello_command>("John");
-    pfs::shared_ptr<pfs::command> hello_ann   = pfs::make_command<hello_command>("Ann");
-    pfs::shared_ptr<pfs::command> hello_peter = pfs::make_command<hello_command>("Peter");
-    pfs::shared_ptr<pfs::command> hello_mary  = pfs::make_command<hello_command>("Mary");
-    pfs::shared_ptr<pfs::command> hello_sam   = pfs::make_command<hello_command>("Sam");
+    pfs::shared_ptr<pfs::command> hello_john  = pfs::make_command<hello_command>("John", & output);
+    pfs::shared_ptr<pfs::command> hello_ann   = pfs::make_command<hello_command>("Ann", & output);
+    pfs::shared_ptr<pfs::command> hello_peter = pfs::make_command<hello_command>("Peter", & output);
+    pfs::shared_ptr<pfs::command> hello_mary  = pfs::make_command<hello_command>("Mary", & output);
+    pfs::shared_ptr<pfs::command> hello_sam   = pfs::make_command<hello_command>("Sam", & output);
 
     invoker.undo();  // Nothing happened
     invoker.redo();  // Nothing happened
@@ -80,7 +81,20 @@ int main ()
     invoker.undo(10);
     invoker.redo(10);
 
-    TEST_OK(output.str() == output_sample);
+    return output.str() == output_sample;
+}
+
+
+int main ()
+{
+    size_t limit = 21;
+    BEGIN_TESTS(limit - 1);
+
+//    TEST_OK(test(100));
+    
+    while (--limit) {
+        TEST_OK(test(limit + 5));
+    }
 
     return END_TESTS;
 }

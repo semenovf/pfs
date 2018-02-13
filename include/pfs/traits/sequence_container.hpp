@@ -172,6 +172,16 @@ public:
     {
         base_class::_p.pop_back();
     }
+    
+    void resize (size_type count)
+    {
+        base_class::_p.resize(count);
+    }
+
+    void resize (size_type count, value_type const & value)
+    {
+        base_class::_p.resize(count, value);
+    }
 
     // *** NON-MEMBER FUNCTIONS (OPERATORS)***
     //
