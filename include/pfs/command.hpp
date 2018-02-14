@@ -4,6 +4,7 @@
 #include <pfs/memory.hpp>
 #include <pfs/ring_iterator.hpp>
 #include <pfs/traits/sequence_container.hpp>
+#include <pfs/traits/associative_container.hpp>
 
 //
 //                                         -----------------
@@ -49,7 +50,7 @@ struct command
 template <typename ConcreteCommand>
 shared_ptr<command> make_command ()
 {
-    return dynamic_pointer_cast<command>(make_shared<ConcreteCommand>());
+    return static_pointer_cast<command>(make_shared<ConcreteCommand>());
 }
 
 template <typename ConcreteCommand, typename A1>
@@ -148,6 +149,40 @@ protected:
     iterator   _first;
     iterator   _last;
 };
+
+#if __TODO__ // TODO
+struct command_factory_basic
+{
+    virtual shared_ptr<command> make () = 0;
+};
+
+template <typename ConcreteCommand>
+struct command_factory : command_factory_basic
+{
+    virtual shared_ptr<command> make () pfs_override
+    {
+        return make_command<ConcreteCommand>(); 
+    }
+};
+
+template <typename KeyType, template <typename> class AssociativeContainerImplType>
+struct command_mapper
+{
+    typedef KeyType key_type;
+    typedef pfs::traits::associative_container<
+              pfs::traits::kv<key_type, command_factory_basic *>
+            , AssociativeContainerImplType> map_type;
+
+    template <typename ConcreteCommand>
+    void insert (string_type const & key)
+    {
+        _mapping.insert(key, cfactory);
+    }
+    
+private:
+    map_type _mapping;
+};
+#endif
 
 } // pfs::command
 
