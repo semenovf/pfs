@@ -113,8 +113,9 @@ struct invoker
     {
         _undo_queue.resize(undo_limit);
         _pos = iterator(_undo_queue.begin(), _undo_queue.end());
-        _first = _pos;
         _last = _pos;
+        _first = _pos;
+        --_first;
     }
 
     void clear () 
@@ -122,6 +123,8 @@ struct invoker
         _undo_queue.clear();
         _pos = iterator(_undo_queue.begin(), _undo_queue.end());
         _last = _pos;
+        _first = _pos;
+        --_first;
     }
     
     void exec (shared_ptr<command> cmd)
@@ -129,12 +132,18 @@ struct invoker
         cmd->exec();
         *_pos++ = cmd;
         _last = _pos;
+        
+        if (_pos == _first)
+            ++_first;
     }
 
     void undo (int count = 1)
     {
-        while (count-- > 0 && _pos != _first)
-            (*--_pos)->undo();
+        while (count-- > 0 && --_pos != _first)
+            (*_pos)->undo();
+
+        if (_pos == _first)
+            ++_pos;
     }
 
     void redo (int count = 1)
@@ -150,40 +159,103 @@ protected:
     iterator   _last;
 };
 
-#if __TODO__ // TODO
-struct command_factory_basic
-{
-    virtual shared_ptr<command> make () = 0;
-};
+//template <template <typename> class SequenceContainerImpl>
+//struct command_history
+//{
+//    typedef traits::sequence_container<shared_ptr<command>
+//            , SequenceContainerImpl>                           queue_type;
+//    typedef ring_iterator<typename queue_type::iterator>       iterator;
+//    typedef ring_iterator<typename queue_type::const_iterator> const_iterator;
+//
+//    command_history (size_t limit)
+//    {
+//        _queue.resize(limit);
+//        _pos = iterator(_queue.begin(), _queue.end());
+//        _first = _pos;
+//        _last = _pos;
+//    }
+//
+//    void clear () 
+//    {
+//        _queue.clear();
+//        _pos = iterator(_queue.begin(), _queue.end());
+//        _last = _pos;
+//    }
+//    
+//    void push_back (shared_ptr<command> cmd)
+//    {
+//        *_last++ = cmd;
+//        _pos = _last;
+//    }
+//
+//    shared_ptr<command> back () const
+//    {
+//        return (_queue.size() > 0)
+//                ? _queue.back()
+//                : shared_ptr<command>();
+//    }
+//
+//    shared_ptr<command> last () const
+//    {
+//        return back();
+//    }
+//
+//    shared_ptr<command> front () const
+//    {
+//        return (_queue.size() > 0)
+//                ? _queue.front()
+//                : shared_ptr<command>();
+//    }
+//
+//    shared_ptr<command> first () const
+//    {
+//        return front();
+//    }
+//
+//    shared_ptr<command> pop (int count = 1) const
+//    {
+//        while (count-- > 0)
+//        return front();
+//    }
+//
+//protected:
+//    queue_type _queue;
+//    iterator   _pos;
+//    iterator   _first;
+//    iterator   _last;
+//};
 
-template <typename ConcreteCommand>
-struct command_factory : command_factory_basic
-{
-    virtual shared_ptr<command> make () pfs_override
-    {
-        return make_command<ConcreteCommand>(); 
-    }
-};
+//struct basic_command_factory
+//{
+//    virtual shared_ptr<command> make () = 0;
+//};
+//
+//template <typename ConcreteCommand>
+//struct command_factory : basic_command_factory
+//{
+//    virtual shared_ptr<command> make () pfs_override
+//    {
+//        return make_command<ConcreteCommand>(); 
+//    }
+//};
+//
+//template <typename KeyType, template <typename> class AssociativeContainerImplType>
+//struct command_mapper
+//{
+//    typedef KeyType key_type;
+//    typedef pfs::traits::associative_container<
+//              pfs::traits::kv<key_type, basic_command_factory const *>
+//            , AssociativeContainerImplType> map_type;
+//
+//    void insert (key_type const & key, basic_command_factory const * pcf)
+//    {
+//        _mapping.insert(key, pcf);
+//    }
+//    
+//private:
+//    map_type _mapping;
+//};
 
-template <typename KeyType, template <typename> class AssociativeContainerImplType>
-struct command_mapper
-{
-    typedef KeyType key_type;
-    typedef pfs::traits::associative_container<
-              pfs::traits::kv<key_type, command_factory_basic *>
-            , AssociativeContainerImplType> map_type;
-
-    template <typename ConcreteCommand>
-    void insert (string_type const & key)
-    {
-        _mapping.insert(key, cfactory);
-    }
-    
-private:
-    map_type _mapping;
-};
-#endif
-
-} // pfs::command
+} // pfs
 
 #endif /* __PFS_COMMAND_HPP__ */
