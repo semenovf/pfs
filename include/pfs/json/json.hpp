@@ -919,6 +919,8 @@ inline bool operator != (json<Traits> const & lhs, json<Traits> const & rhs)
 }
 
 
+// TODO Obsolete. Use pfs::json::xxx_archive.
+//
 // TODO Need to be portable.
 // Provide serialization of scalar type sizes too with scalar values
 //
