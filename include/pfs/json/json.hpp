@@ -416,6 +416,52 @@ public:
         return is_array() || is_object();
     }
 
+    boolean_type const & boolean_data () const
+    {
+        return _d.boolean;
+    }
+
+    integer_type const & integer_data () const
+    {
+        return _d.integer;
+    }
+    
+    real_type const & real_data () const
+    {
+        return _d.real;
+    }
+
+    /**
+     * For safety use this method if is_string() returns true.
+     * 
+     * @return const reference to string.
+     */
+    string_type const & string_data () const
+    {
+        return *_d.string;
+    }
+
+    /**
+     * For safety use this method if is_array() returns true.
+     * 
+     * @return const reference to array.
+     */
+    array_type const & array_data () const
+    {
+        return *_d.array;
+    }
+
+    /**
+     * For safety use this method if is_object() returns true.
+     * 
+     * @return const reference to object.
+     */
+    object_type const & object_data () const
+    {
+        return *_d.object;
+    }
+    
+    
     size_type size () const
     {
         switch (_d.type) {

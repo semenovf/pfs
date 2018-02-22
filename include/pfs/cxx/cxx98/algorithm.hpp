@@ -51,6 +51,32 @@ inline void replace (ForwardIt first
     std::replace(first, last, old_value, new_value);
 }
 
+template <typename InputIt, typename UnaryPredicate>
+bool all_of (InputIt first, InputIt last, UnaryPredicate p)
+{
+    for (; first != last; ++first) {
+        if (!p(*first)) return false;
+    }
+    return true;
+}
+
+template <typename InputIt, typename UnaryPredicate>
+bool any_of (InputIt first, InputIt last, UnaryPredicate p)
+{
+    for (; first != last; ++first) {
+        if (p(*first)) return true;
+    }
+    return false;
+}
+
+template <typename InputIt, typename UnaryPredicate>
+bool none_of (InputIt first, InputIt last, UnaryPredicate p)
+{
+    for (; first != last; ++first) {
+        if (p(*first)) return false;
+    }
+    return true;
+}
 } // pfs
 
 #endif /* __PFS_CXX_CXX98_ALGORITHM_HPP__ */

@@ -42,11 +42,7 @@ struct data_type
 #endif
 };
 
-//#if __cplusplus >= 201103L
-    typedef data_type data_type_t;
-//#else
-//    typedef data_type::type data_type_t;
-//#endif
+typedef data_type data_type_t;
 
 }} // pfs::json
 
