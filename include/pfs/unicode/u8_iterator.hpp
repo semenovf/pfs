@@ -34,7 +34,7 @@ class u8_input_iterator : public iterator_facade<input_iterator_tag
         , char_t
         , char_t *
         , char_t &> base_class;
-    
+
 public:
     typedef typename base_class::pointer         pointer;
     typedef typename base_class::reference       reference;
@@ -44,7 +44,7 @@ public:
 private:
     static int8_t const ATEND_FLAG  = 0x01;
     static int8_t const BROKEN_FLAG = 0x02;
-    
+
     OctetInputIt * _p;
     OctetInputIt _last;
     char_t       _value;
@@ -52,7 +52,8 @@ private:
 
 public:
     u8_input_iterator ()
-        : _flag(0)
+        : _p(0)
+        , _flag(0)
     {}
 
     u8_input_iterator (OctetInputIt & first, OctetInputIt last)
@@ -67,29 +68,19 @@ public:
             _flag |= (_flag & BROKEN_FLAG) ? ATEND_FLAG : 0;
         }
     }
-    
+
     u8_input_iterator (OctetInputIt last)
         : _p(0)
         , _last(last)
         , _flag(ATEND_FLAG)
     {}
 
-//    operator OctetInputIt ()
-//    {
-//        return *_p;
-//    }
-//    
-//    OctetInputIt base () const
-//    {
-//        return _p;
-//    }
-
 public:
     static reference ref (u8_input_iterator & it)
     {
         return it._value;
     }
-    
+
     static pointer ptr (u8_input_iterator & it)
     {
         return & it._value;
@@ -113,6 +104,44 @@ private:
         broken_sequence_action()();
     }
 };
+
+template <typename OctetOutputIt>
+class u8_output_iterator : public iterator_facade<output_iterator_tag
+        , u8_output_iterator<OctetOutputIt>
+        , char_t
+        , char_t *  // unused
+        , char_t &> // unused
+{
+    typedef iterator_facade<output_iterator_tag
+        , u8_output_iterator<OctetOutputIt>
+        , char_t
+        , char_t *
+        , char_t &> base_class;
+
+public:
+    typedef typename base_class::pointer         pointer;
+    typedef typename base_class::reference       reference;
+    typedef typename base_class::difference_type difference_type;
+
+private:
+    OctetOutputIt * _p;
+    char_t          _value;
+
+public:
+    u8_output_iterator (OctetOutputIt & first)
+        : _p(& first)
+        , _value(unicode::char_t::max_code_point) // invalidate
+    {}
+
+public:
+    static reference ref (u8_output_iterator & it)
+    {
+        return it._value;
+    }
+
+    static void increment (u8_output_iterator &, difference_type);
+};
+
 
 template <typename OctetInputIt, typename BrokenSeqAction>
 void u8_input_iterator<OctetInputIt, BrokenSeqAction>::increment (u8_input_iterator & it, difference_type)
@@ -174,8 +203,47 @@ void u8_input_iterator<OctetInputIt, BrokenSeqAction>::increment (u8_input_itera
     it._value = static_cast<intmax_t>(result);
 }
 
+template <typename OctetOutputIt>
+void u8_output_iterator<OctetOutputIt>::increment (u8_output_iterator & it, difference_type)
+{
+    if (!unicode::is_valid(it._value))
+        return;
 
-// TODO OBSOLETE Must be replaced by u8_input_iterator (see above) and u8_output_iterator
+    char_t::value_type v = it._value.value;
+
+    if (v < 0x80) {
+        *it._p++ = uint8_t(v);
+    } else if (v < 0x0800) {
+    	*it._p++ = 0xC0 | uint8_t(v >> 6);
+    	*it._p++ = 0x80 | uint8_t(v & 0x3f);
+    } else if (v < 0x10000) {
+    	*it._p++ = 0xE0 | uint8_t(v >> 12);
+    	*it._p++ = 0x80 | (uint8_t(v >> 6)  & 0x3F);
+    	*it._p++ = 0x80 | uint8_t(v & 0x3F);
+    } else if (v < 0x200000) {
+    	*it._p++ = 0xF0 | uint8_t(v >> 18);
+    	*it._p++ = 0x80 | (uint8_t(v >> 12) & 0x3F);
+    	*it._p++ = 0x80 | (uint8_t(v >> 6)  & 0x3F);
+    	*it._p++ = 0x80 | uint8_t(v & 0x3F);
+    } else if (v < 0x4000000) {
+    	*it._p++ = 0xF8 | uint8_t(v >> 24);
+    	*it._p++ = 0x80 | (uint8_t(v >> 18) & 0x3F);
+    	*it._p++ = 0x80 | (uint8_t(v >> 12) & 0x3F);
+    	*it._p++ = 0x80 | (uint8_t(v >> 6)  & 0x3F);
+    	*it._p++ = 0x80 | uint8_t(v & 0x3F);
+    } else if (v < 0x80000000) {
+    	*it._p++ = 0xFC | uint8_t(v >> 30);
+    	*it._p++ = 0x80 | (uint8_t(v >> 24) & 0x3F);
+    	*it._p++ = 0x80 | (uint8_t(v >> 18) & 0x3F);
+    	*it._p++ = 0x80 | (uint8_t(v >> 12) & 0x3F);
+    	*it._p++ = 0x80 | (uint8_t(v >> 6)  & 0x3F);
+    	*it._p++ = 0x80 | uint8_t(v & 0x3F);
+    }
+
+    unicode::invalidate(it._value);
+}
+
+// TODO OBSOLETE Must be reimplemented (replacing u8_input_iterator)
 template <typename OctetInputIt>
 class utf8_iterator : public iterator_facade<bidirectional_iterator_tag
         , utf8_iterator<OctetInputIt>
@@ -191,18 +259,18 @@ public:
         , char_t
         , char_t *
         , char_t> base_class;
-    
+
     typedef typename base_class::difference_type difference_type;
-    
+
 private:
     char_t * operator -> () const; // avoid '->' operator
-        
+
 public:
-    // It is no matter if _p (when it is a regular pointer) 
+    // It is no matter if _p (when it is a regular pointer)
     // will be initialized with 0 (zero) or uninitialized
     utf8_iterator ()
     {}
-    
+
     utf8_iterator (OctetInputIt p)
         : _p(p)
     {}
@@ -211,12 +279,12 @@ public:
     {
         return decode(_p, 0);
     }
-    
+
     operator OctetInputIt ()
     {
         return _p;
     }
-    
+
     OctetInputIt base () const
     {
         return _p;
@@ -234,11 +302,11 @@ protected:
 
         OctetInputIt prev = p;
         difference_type nprev = n;
-        
+
         while (n-- && p < end) {
             prev = p;
             nprev = n + 1;
-            
+
             if ((*p & 0x80) == 0x00) {
                 ++p;
             } else if ((*p & 0xE0) == 0xC0) {
@@ -255,7 +323,7 @@ protected:
                 ++p;
             }
         }
-        
+
         if (p > end) {
             p = prev;
             n = nprev;
@@ -273,11 +341,11 @@ protected:
 
         OctetInputIt prev = p;
         difference_type nprev = n;
-        
+
         while (n-- && p > begin) {
             prev = p;
             nprev = n + 1;
-            
+
             if ((*(p - 1) & 0x80) == 0x00) {
                 --p;
             } else if ((*(p - 2) & 0xE0) == 0xC0) {
@@ -294,23 +362,23 @@ protected:
                 --p;
             }
         }
-        
+
         if (p < begin) {
             p = prev;
             n = nprev;
         }
-    }    
+    }
 
     static void advance_forward (OctetInputIt & p, difference_type n)
     {
         advance_forward_safe(p, unicode_iterator_traits<OctetInputIt>::max(), n);
     }
-    
+
     static void advance_backward (OctetInputIt & p, difference_type n)
     {
         advance_backward_safe(p, unicode_iterator_traits<OctetInputIt>::min(), n);
     }
-    
+
     static char_t decode (OctetInputIt const & p, OctetInputIt * pnewpos)
     {
         OctetInputIt newpos = p;
@@ -359,7 +427,7 @@ protected:
             *pnewpos = newpos;
 
         return result;
-    }    
+    }
 
 public:
     static void increment (utf8_iterator & it, difference_type)
@@ -371,18 +439,18 @@ public:
     {
         return it1._p == it2._p;
     }
-    
+
     static void decrement (utf8_iterator & it, difference_type)
     {
         advance_backward(it._p, 1);
     }
-    
+
 public:
     void advance_safe (OctetInputIt end, difference_type & n)
     {
         advance_forward_safe(_p, end, n);
     }
-        
+
     static void advance (OctetInputIt & p, difference_type n)
     {
         advance_forward(p, n);
@@ -397,7 +465,7 @@ public:
     {
         return decode(p, & p);
     }
-    
+
     template <typename BackInsertIt>
     static BackInsertIt encode (char_t uc, BackInsertIt it);
 
@@ -466,17 +534,17 @@ template <typename StringType, typename OctetInputIt>
 StringType read_line_u8 (OctetInputIt & first, OctetInputIt last)
 {
     typedef unicode::u8_input_iterator<OctetInputIt> utf8_input_iterator;
-    
+
     StringType result;
     utf8_input_iterator it(first, last);
     utf8_input_iterator end(last);
-    
+
     while (it != end && *it != '\n') {
         if (*it != '\r')
             result.push_back(*it);
         ++it;
     }
-    
+
     return result;
 }
 
@@ -484,9 +552,9 @@ template <typename StringType, typename OctetInputIt>
 StringType read_all_u8 (OctetInputIt & first, OctetInputIt last)
 {
     typedef unicode::u8_input_iterator<OctetInputIt> utf8_input_iterator;
-    
+
     StringType result;
-    
+
     utf8_input_iterator it(first, last);
     utf8_input_iterator end(last);
 
@@ -495,7 +563,7 @@ StringType read_all_u8 (OctetInputIt & first, OctetInputIt last)
             result.push_back(*it);
         ++it;
     }
-    
+
     return result;
 }
 

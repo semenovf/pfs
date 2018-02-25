@@ -3,7 +3,8 @@
 #include <pfs/exception.hpp>
 #include <pfs/json/constants.hpp>
 
-namespace pfs { namespace json {
+namespace pfs {
+namespace json {
 
 template <typename JsonType>
 class scalar_iterator
@@ -31,18 +32,18 @@ protected:
     scalar_iterator (pointer pvalue)
         : _pvalue(pvalue)
     {}
-    
-public: 
+
+public:
     static reference ref (scalar_iterator & it)
     {
         return *it._pvalue;
     }
-    
+
     static pointer ptr (scalar_iterator & it)
     {
         return it._pvalue;
     }
-    
+
     static void increment (scalar_iterator &, difference_type /*n*/ = 1)
     {
         throw domain_error("json::scalar_iterator::increment()");
@@ -58,40 +59,40 @@ public:
     {
         return lhs._pvalue == rhs._pvalue;
     }
-    
+
     static int compare (scalar_iterator const & lhs
             , scalar_iterator const & rhs)
     {
         throw domain_error("json::scalar_iterator::compare()");
     }
-    
+
     static reference subscript (scalar_iterator & it
             , difference_type n)
     {
         throw domain_error("json::scalar_iterator::subscript()");
     }
-    
+
     static difference_type diff (scalar_iterator const & lhs
             , scalar_iterator const & rhs)
     {
         throw domain_error("json::scalar_iterator::diff()");
     }
-    
+
 public:
     scalar_iterator ()
         : _pvalue(0)
     {}
-        
+
     scalar_iterator & operator = (scalar_iterator const & rhs)
     {
         if (_pvalue != rhs._pvalue)
             _pvalue = rhs._pvalue;
         return *this;
     }
-    
+
     template <typename JsonTypeU>
     friend class scalar_iterator;
-    
+
     // Allow iterator to const_iterator assignment
 #if __cplusplus >= 201103L
     template <typename JsonTypeU, typename EnableIf = pfs::enable_if<pfs::is_same<pfs::remove_cv<JsonType>,JsonTypeU>::value> >
@@ -118,8 +119,8 @@ class basic_iterator
 {
     template <typename Traits>
     friend class json;
-    
-public:    
+
+public:
     typedef random_access_iterator_tag  iterator_category;
     typedef JsonType                    value_type;
     typedef JsonType *                  pointer;
@@ -132,13 +133,13 @@ protected:
     typedef typename JsonType::array_type::iterator  array_iterator_type;
     typedef typename JsonType::object_type::iterator object_iterator_type;
     typedef scalar_iterator<JsonType>                scalar_iterator_type;
-    
+
     pointer              _pvalue;
     array_iterator_type  _array_it;
     object_iterator_type _object_it;
     scalar_iterator_type _scalar_it;
 
-public: 
+public:
     static reference ref (basic_iterator & it);
     static pointer ptr (basic_iterator & it);
     static void increment (basic_iterator &, difference_type n = 1);
@@ -156,7 +157,7 @@ public:
 protected:
     struct set_begin {};
     struct set_end {};
-    
+
     basic_iterator (pointer pvalue, set_begin /*begin_tag*/)
         : _pvalue(pvalue)
     {
@@ -194,10 +195,10 @@ public:
 
     basic_iterator (basic_iterator const & rhs);
     basic_iterator & operator = (basic_iterator const & rhs);
-    
+
     template <typename JsonTypeU>
     friend class basic_iterator;
-    
+
     // Allow iterator to const_iterator conversion
 #if __cplusplus >= 201103L
     template <typename JsonTypeU, typename EnableIf = pfs::enable_if<pfs::is_same<pfs::remove_cv<JsonType>,JsonTypeU>::value> >
@@ -220,7 +221,7 @@ public:
 #endif
     {
         _pvalue = rhs._pvalue;
-        
+
         if (_pvalue) {
             switch (_pvalue->type()) {
             case data_type::object:
@@ -236,13 +237,13 @@ public:
                 break;
             }
         }
-        
+
         return *this;
     }
-    
+
     key_type key () const
     {
-        return _pvalue->type() == data_type::object 
+        return _pvalue->type() == data_type::object
                 ? object_type::key(_object_it)
                 : key_type();
     }
@@ -256,13 +257,13 @@ basic_iterator<JsonType>::basic_iterator (basic_iterator const & rhs)
 }
 
 template <typename JsonType>
-basic_iterator<JsonType> & 
+basic_iterator<JsonType> &
 basic_iterator<JsonType>::operator = (basic_iterator const & rhs)
 {
     if (this != & rhs) {
-        
+
         _pvalue = rhs._pvalue;
-        
+
         if (_pvalue) {
             switch (_pvalue->type()) {
             case data_type::object:
@@ -317,7 +318,7 @@ void basic_iterator<JsonType>::__set_end ()
 }
 
 template <typename JsonType>
-typename basic_iterator<JsonType>::reference 
+typename basic_iterator<JsonType>::reference
 basic_iterator<JsonType>::ref (basic_iterator & it)
 {
     switch (it._pvalue->type()) {
@@ -370,7 +371,7 @@ void basic_iterator<JsonType>::increment (basic_iterator & it, difference_type n
 	case data_type::array:
 		it._array_it += n;
         break;
-        
+
     default:
         it._scalar_it += n;
         break;
@@ -384,14 +385,14 @@ bool basic_iterator<JsonType>::equals (basic_iterator const & lhs
     switch (lhs._pvalue->type()) {
 	case data_type::object:
         return lhs._object_it == rhs._object_it;
-        
+
 	case data_type::array:
 		return lhs._array_it == rhs._array_it;
-        
+
     default:
         break;
     }
-    
+
     return lhs._scalar_it == rhs._scalar_it;
 }
 
@@ -402,14 +403,14 @@ int basic_iterator<JsonType>::compare (basic_iterator const & lhs
     switch (lhs._pvalue->type()) {
 	case data_type::object:
         throw domain_error("json::basic_iterator::compare(): object");
-        
+
 	case data_type::array:
 		return lhs._array_it - rhs._array_it;
 
     default:
         break;
     }
-    
+
     return scalar_iterator_type::compare(lhs._scalar_it, rhs._scalar_it);
 }
 
@@ -420,14 +421,14 @@ basic_iterator<JsonType>::subscript (basic_iterator & it, difference_type n)
     switch (it._pvalue->type()) {
 	case data_type::object:
         throw domain_error("json::basic_iterator::subscript(): object");
-        
+
 	case data_type::array:
 		return it._array_it[n];
 
     default:
         break;
     }
-    
+
     return scalar_iterator_type::subscript(it._scalar_it, n);
 }
 
@@ -439,14 +440,14 @@ basic_iterator<JsonType>::diff (basic_iterator const & lhs
     switch (lhs._pvalue->type()) {
 	case data_type::object:
         throw domain_error("json::basic_iterator::diff(): object");
-        
+
 	case data_type::array:
 		return lhs._array_it - rhs._array_it;
 
     default:
         break;
     }
-    
+
     return scalar_iterator_type::diff(lhs._scalar_it, rhs._scalar_it);
 }
 

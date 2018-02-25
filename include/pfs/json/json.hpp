@@ -425,7 +425,7 @@ public:
     {
         return _d.integer;
     }
-    
+
     real_type const & real_data () const
     {
         return _d.real;
@@ -433,7 +433,7 @@ public:
 
     /**
      * For safety use this method if is_string() returns true.
-     * 
+     *
      * @return const reference to string.
      */
     string_type const & string_data () const
@@ -443,7 +443,7 @@ public:
 
     /**
      * For safety use this method if is_array() returns true.
-     * 
+     *
      * @return const reference to array.
      */
     array_type const & array_data () const
@@ -453,15 +453,15 @@ public:
 
     /**
      * For safety use this method if is_object() returns true.
-     * 
+     *
      * @return const reference to object.
      */
     object_type const & object_data () const
     {
         return *_d.object;
     }
-    
-    
+
+
     size_type size () const
     {
         switch (_d.type) {
@@ -572,14 +572,12 @@ public:
 //        return _value.object->erase(key);
 //    }
 //
-//    bool empty () const
-//    {
-//        return _type == type_null
-//                || (_type == type_array && _value.array->empty())
-//                || (_type == type_object && _value.object->empty())
-//                ? true
-//                : false;
-//    }
+    bool empty () const
+    {
+        return (_d.type == data_type::null
+                || (_d.type == data_type::array && _d.array->empty())
+                || (_d.type == data_type::object && _d.object->empty()));
+    }
 
     /**
      * @brief Clear value content.
@@ -862,8 +860,12 @@ json<Traits> & json<Traits>::assign (json const & other)
         break;
 
     case data_type::integer:
+        _d = rep_type(other._d.integer);
+        break;
+
     case data_type::uinteger:
         _d = rep_type(other._d.integer);
+        _d.type = data_type::uinteger;
         break;
 
     case data_type::real:

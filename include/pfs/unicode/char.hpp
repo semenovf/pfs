@@ -7,20 +7,6 @@
 namespace pfs {
 namespace unicode {
 
-enum
-{
-      max_code_point = 0x0010ffff
-    , null_code_point = 0x00000000
-    , default_replacement_char = 0x0000FFFD
-    , max_bmp = 0x0000FFFF
-    , bom_charstatic = 0x0000FEFF
-    , hi_surrogate_start = 0x0000D800
-    , hi_surrogate_end = 0x0000DBFF
-    , low_surrogate_start = 0x0000DC00
-    , low_surrogate_end = 0x0000DFFF
-};
-
-
 template <typename T1, typename T2>
 inline T1 code_point_cast (T2 x)
 {
@@ -29,6 +15,16 @@ inline T1 code_point_cast (T2 x)
 
 struct char_t
 {
+    static uint32_t const max_code_point           = 0x0010ffff;
+    static uint32_t const null_code_point          = 0x00000000;
+    static uint32_t const default_replacement_char = 0x0000FFFD;
+    static uint32_t const max_bmp                  = 0x0000FFFF;
+    static uint32_t const bom_charstatic           = 0x0000FEFF;
+    static uint32_t const hi_surrogate_start       = 0x0000D800;
+    static uint32_t const hi_surrogate_end         = 0x0000DBFF;
+    static uint32_t const low_surrogate_start      = 0x0000DC00;
+    static uint32_t const low_surrogate_end        = 0x0000DFFF;
+
     static uint32_t const replacement_char = default_replacement_char;
     typedef uint32_t value_type;
 
@@ -80,7 +76,7 @@ struct char_t
         return lhs.value > rhs.value;
     }
 
-    friend bool operator>= (char_t const & lhs, char_t const & rhs)
+    friend bool operator >= (char_t const & lhs, char_t const & rhs)
     {
         return lhs.value >= rhs.value;
     }
@@ -126,12 +122,17 @@ inline bool is_hi_surrogate (char_t c)
  */
 inline bool is_surrogate (char_t c)
 {
-	return (c.value - hi_surrogate_start < 2048u);
+	return (c.value - char_t::hi_surrogate_start < 2048u);
 }
 
 inline bool is_valid (char_t c)
 {
-    return !(is_surrogate(c) || c.value >= max_code_point);
+    return !(is_surrogate(c) || c.value >= char_t::max_code_point);
+}
+
+inline void invalidate (char_t & c)
+{
+    c.value = char_t::max_code_point;
 }
 
 }} // pfs::unicode
@@ -215,7 +216,7 @@ inline bool is_ascii<unicode::char_t> (unicode::char_t c)
 template <>
 inline char to_ascii<unicode::char_t> (unicode::char_t c)
 {
-    return c.value <= 127 
+    return c.value <= 127
             ? static_cast<char>(c.value)
             : -1;
 }

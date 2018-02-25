@@ -64,14 +64,14 @@ template <typename Category
         , typename Pointer
         , typename Reference
         , typename Distance = ptrdiff_t>
-struct iterator_facade; 
+struct iterator_facade;
 
 template <typename Derived
         , typename T
         , typename Pointer
         , typename Reference
         , typename Distance>
-struct iterator_facade<input_iterator_tag, Derived, T, Pointer, Reference, Distance> 
+struct iterator_facade<input_iterator_tag, Derived, T, Pointer, Reference, Distance>
 {
     typedef input_iterator_tag iterator_category;
     typedef T                  value_type;
@@ -106,7 +106,7 @@ struct iterator_facade<input_iterator_tag, Derived, T, Pointer, Reference, Dista
         Derived::increment(static_cast<Derived &>(*this), 1);
 		return r;
 	}
-    
+
     friend inline bool operator == (Derived const & lhs, Derived const & rhs)
     {
         return Derived::equals(lhs, rhs);
@@ -123,7 +123,7 @@ template <typename Derived
         , typename Pointer
         , typename Reference
         , typename Distance>
-struct iterator_facade<output_iterator_tag, Derived, T, Pointer, Reference, Distance> 
+struct iterator_facade<output_iterator_tag, Derived, T, Pointer, Reference, Distance>
 {
     typedef output_iterator_tag iterator_category;
     typedef T                   value_type;
@@ -132,24 +132,20 @@ struct iterator_facade<output_iterator_tag, Derived, T, Pointer, Reference, Dist
     typedef Reference           reference;
 
     static reference ref (Derived &);
-    static void increment (Derived &, difference_type n = 1);
 
     reference operator * () const
     {
     	return Derived::ref(*const_cast<Derived *>(static_cast<Derived const *>(this)));
     }
-    
+
     Derived & operator ++ () // prefix increment
 	{
-    	Derived::increment(static_cast<Derived &>(*this), 1);
     	return static_cast<Derived &>(*this);
 	}
 
-    Derived operator ++ (int) // postfix increment
+    Derived const & operator ++ (int) // postfix increment
 	{
-        Derived r(static_cast<Derived &>(*this));
-        Derived::increment(static_cast<Derived &>(*this), 1);
-		return r;
+        return static_cast<Derived &>(*this);
 	}
 };
 
@@ -164,7 +160,7 @@ struct iterator_facade<forward_iterator_tag, Derived, T, Pointer, Reference, Dis
     typedef forward_iterator_tag iterator_category;
     typedef Reference            reference;
     typedef const Reference      const_reference;
-    
+
     reference operator * ()
     {
     	return Derived::ref(*static_cast<Derived *>(this));
@@ -186,7 +182,7 @@ struct iterator_facade<bidirectional_iterator_tag, Derived, T, Pointer, Referenc
 {
     typedef bidirectional_iterator_tag iterator_category;
     typedef Distance difference_type;
-    
+
     static void decrement (Derived &, difference_type n);
 
     Derived & operator -- () // prefix decrement
@@ -218,12 +214,12 @@ struct iterator_facade<random_access_iterator_tag, Derived, T, Pointer, Referenc
     static reference subscript (Derived &, difference_type n);
     static difference_type diff (Derived const & lhs, Derived const & rhs);
     static int compare (Derived const & lhs, Derived const & rhs);
-    
+
     static bool equals (Derived const & lhs, Derived const & rhs)
     {
         return Derived::compare(lhs, rhs) == 0;
     }
-    
+
   	Derived & operator += (difference_type n)
 	{
         Derived::increment(static_cast<Derived &>(*this), n);
@@ -306,13 +302,13 @@ template <typename Iterator>
 struct reverse_iterator : public std::reverse_iterator<Iterator>
 {
     typedef std::reverse_iterator<Iterator> base_class;
-    
+
     reverse_iterator () : base_class() {}
-    
+
     explicit reverse_iterator (Iterator x)
         : base_class(x)
     {}
-    
+
     template <typename U>
     reverse_iterator (reverse_iterator<U> const & other)
         : base_class(other)
@@ -360,15 +356,50 @@ public:
         return *this;
     }
 };
-    
+
 template <typename Container>
-inline back_insert_iterator<Container> 
+inline back_insert_iterator<Container>
 back_inserter (Container & c)
 {
     return back_insert_iterator<Container>(c);
 }
 
 #endif
+
+template <typename OStream>
+struct ostream_iterator
+{
+    typedef typename OStream::char_type char_type;
+
+    ostream_iterator (OStream & os)
+        : _pos(& os)
+    {}
+
+    ostream_iterator & operator = (char_type const & value)
+    {
+        *_pos << value;
+        return *this;
+    }
+
+    ostream_iterator & operator * ()
+    {
+        return *this;
+    }
+
+    ostream_iterator & operator ++ ()
+    {
+        return *this;
+    }
+
+    ostream_iterator& operator ++ (int)
+    {
+        return *this;
+    }
+
+private:
+    OStream * _pos;
+};
+
 
 template <typename CharT, typename Traits = std::char_traits<CharT> >
 class istreambuf_iterator : public std::istreambuf_iterator<CharT, Traits>
@@ -378,11 +409,11 @@ public:
     pfs_constexpr istreambuf_iterator () pfs_noexcept
         : base_class()
     {}
-        
+
     istreambuf_iterator (std::basic_istream<CharT,Traits> & is) pfs_noexcept
         : base_class(is)
     {}
-    
+
     istreambuf_iterator (std::basic_streambuf<CharT,Traits> * is) pfs_noexcept
         : base_class(is)
     {}

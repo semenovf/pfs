@@ -5,19 +5,6 @@
 
 namespace pfs {
 
-//template <typename Device>
-//struct binary_writer
-//{
-//    ssize_t write (char const * data, size_t n);
-//};
-
-//template <typename Device>
-//struct binary_reader
-//{
-//    ssize_t read(char * chars, size_t n)
-//};
-
-
 template <typename Device, typename T>
 ssize_t write_binary (Device & dev, endian order, T const & v);
 

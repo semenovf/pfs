@@ -4,7 +4,6 @@
 #include <pfs/traits/stdcxx/vector.hpp>
 #include <pfs/traits/stdcxx/map.hpp>
 
-// Enabled by `qt_enable`
 #ifdef HAVE_QT_CORE
 #   include <pfs/traits/qt/string.hpp>
 #   include <pfs/traits/qt/vector.hpp>
@@ -66,18 +65,19 @@ int main ()
     test_iterator::test<stdcxx::json>();
     test_reference_wrapper::test<stdcxx::json>();
     test_parse::test<stdcxx::json>();
-    test_serialize::test<stdcxx::json>();
     test_stringify::test<stdcxx::json>();
     test_pretty_printer::test<stdcxx::json>();
+    test_serialize::test<stdcxx::json>();
 
 #ifdef HAVE_QT_CORE
+    std::cout << "===== HAVE_QT_CORE =====" << std::endl;
     test_basic::test<qt::json>();
     test_iterator::test<qt::json>();
     test_reference_wrapper::test<qt::json>();
     test_parse::test<qt::json>();
-    test_serialize::test<qt::json>();
     test_stringify::test<qt::json>();
     test_pretty_printer::test<qt::json>();
+    test_serialize::test<qt::json>();
 #endif
 
     return END_TESTS;

@@ -3,7 +3,7 @@
 
 #include <system_error>
 #include <pfs/compiler.hpp>
-#include <pfs/string.hpp>
+//#include <pfs/string.hpp>
 
 // Creating custom error category:
 // [std::error_category](http://www.cplusplus.com/reference/system_error/error_category/)

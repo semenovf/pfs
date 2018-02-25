@@ -1,10 +1,13 @@
 #ifndef __PFS_TRAITS_STDCXX_STRING_HPP__
 #define __PFS_TRAITS_STDCXX_STRING_HPP__
 
+#include <ostream>
+#include <istream>
 #include <string>
 #include <cstring>
 #include <pfs/iterator.hpp>
 #include <pfs/cxxlang.hpp>
+#include <pfs/byte_string.hpp>
 #include <pfs/traits/string_value_ref.hpp>
 
 namespace pfs {
@@ -22,7 +25,7 @@ public:
     typedef typename internal_type::native_type            native_type;
     typedef typename internal_type::native_reference       native_reference;
     typedef typename internal_type::const_native_reference const_native_reference;
-    
+
     typedef typename native_type::value_type       value_type;
     typedef typename native_type::pointer          pointer;
     typedef typename native_type::const_pointer    const_pointer;
@@ -34,12 +37,12 @@ public:
     typedef typename native_type::const_reverse_iterator const_reverse_iterator;
     typedef typename native_type::difference_type  difference_type;
     typedef typename native_type::size_type        size_type;
-    
+
     static size_type const npos = size_type(-1);
 
 protected:
     internal_type _p;
-    
+
 public:
     basic_string ()
         : _p()
@@ -52,7 +55,7 @@ public:
     basic_string (const_native_reference rhs)
         : _p(rhs)
     {}
-    
+
     basic_string (const_pointer s, size_type n)
     {
         if (n != npos)
@@ -66,11 +69,11 @@ public:
     {
         this->_p.v = native_type(first, last);
     }
-    
+
     basic_string (size_type count, value_type ch)
         : _p(count, ch)
     {}
-    
+
     basic_string & operator = (native_reference rhs)
     {
         *_p = rhs;
@@ -89,17 +92,17 @@ public:
     {
         return *_p;
     }
-    
+
     size_type size () const
     {
         return _p->size();
     }
-    
+
     size_type max_size () const
     {
         return _p->max_size();
     }
-    
+
     const_pointer data () const
     {
         return _p->data();
@@ -109,7 +112,7 @@ public:
     {
         return _p->c_str();
     }
-    
+
     const_iterator begin () const
     {
         return _p->begin();
@@ -134,7 +137,7 @@ public:
     {
         return _p->empty();
     }
-    
+
     value_type at (size_type pos) const
     {
         return _p->at(pos);
@@ -145,44 +148,44 @@ public:
     {
         return _p->compare(pos1, count1, *rhs._p, pos2, count2) ;
     }
-    
+
     basic_string & append (size_type count, value_type ch)
     {
         _p->append(count, ch);
         return *this;
     }
-    
+
     basic_string & append (const_pointer str, size_type count)
     {
         _p->append(str, count);
         return *this;
     }
-    
+
     basic_string & append (const_native_reference s)
     {
         _p->append(s);
         return *this;
     }
-    
+
     void clear ()
     {
         _p->clear();
     }
-    
+
     const_iterator find (basic_string const & rhs, const_iterator pos) const
     {
         size_type from = pfs::distance(this->begin().base(), pos.base());
         size_type index = _p->find(*rhs._p, from);
         return index == npos ? this->end() : const_iterator(this->begin().base() + index);
     }
-    
+
     iterator erase (const_iterator first, const_iterator last)
     {
 #if __cplusplus >= 201103L
         return native_type::erase(first, last);
 #else
         //
-        // C++ prior to C++11 
+        // C++ prior to C++11
         // erase() has signature `iterator erase(iterator first, iterator last)`
         //
         const_iterator begin = _p->begin();
@@ -192,12 +195,12 @@ public:
         return _p->begin() + index;
 #endif
     }
-    
+
     void push_back (value_type ch)
     {
         _p->push_back(ch);
     }
-    
+
     basic_string & operator += (basic_string const & str)
     {
         *_p += *str._p;
@@ -209,7 +212,7 @@ public:
         *_p += s;
         return *this;
     }
-    
+
     friend inline bool operator == (basic_string const & lhs, basic_string const & rhs)
     {
         return *lhs._p == *rhs._p;
@@ -239,7 +242,7 @@ public:
     {
         return *lhs._p >= *rhs._p;
     }
-    
+
     friend inline string_value_type operator + (basic_string const & lhs, basic_string const & rhs)
     {
         string_value_type result;
@@ -274,7 +277,7 @@ public:
 //        *result._p = *lhs._p + rhs;
 //        return result;
 //    }
-    
+
     static size_type length (const_pointer str);
 };
 
@@ -282,6 +285,28 @@ typedef basic_string<traits::string_value<char, std::string> >     string;
 typedef basic_string<traits::string_value<wchar_t, std::wstring> > wstring;
 typedef basic_string<traits::string_ref<char, std::string> >       string_reference;
 typedef basic_string<traits::string_ref<wchar_t, std::wstring> >   wstring_reference;
+
+inline std::ostream & operator << (std::ostream & os, string const & s)
+{
+    return os << static_cast<string::const_native_reference>(s);
+}
+
+inline std::ostream & operator << (std::ostream & os, string_reference const & s)
+{
+    return os << static_cast<string_reference::const_native_reference>(s);
+}
+
+inline byte_ostream & operator << (byte_ostream & os, string const & s)
+{
+    std::string const & native = static_cast<string::const_native_reference>(s);
+    return os << buffer_wrapper<char const>(native.c_str(), native.size());
+}
+
+inline byte_ostream & operator << (byte_ostream & os, string_reference const & s)
+{
+    std::string const & native = static_cast<string_reference::const_native_reference>(s);
+    return os << buffer_wrapper<char const>(native.c_str(), native.size());
+}
 
 #if __cplusplus >= 201103L
 typedef basic_string<traits::string_value<char16_t, std::u16string>> u16string;

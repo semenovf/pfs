@@ -2,6 +2,7 @@
 #define __PFS_BYTE_STRING_HPP__
 
 #include <string>
+#include <ostream>
 #include <pfs/limits.hpp>
 #include <pfs/type_traits.hpp>
 #include <pfs/endian.hpp>
@@ -42,8 +43,7 @@ private:
     rep_type _d;
 
     explicit byte_string (const rep_type & d) : _d (d)
-    {
-    }
+    {}
 
     byte_string & assign (const rep_type & d)
     {
@@ -54,60 +54,49 @@ private:
 public:
 
     byte_string () : _d ()
-    {
-    }
+    {}
 
     byte_string (byte_string const & other)
-    : _d (other._d)
-    {
-    }
+        : _d (other._d)
+    {}
 
     byte_string (byte_string const & other,
             size_type pos,
             size_type count = npos)
-    : _d (other._d, pos, count)
-    {
-    }
+        : _d (other._d, pos, count)
+    {}
 
     explicit byte_string (const_pointer s)
-    : _d (s)
-    {
-    }
+        : _d (s)
+    {}
 
     byte_string (const_pointer s, size_type n)
-    : _d (s, n)
-    {
-    }
+        : _d (s, n)
+    {}
 
     explicit byte_string (const char * s)
-    : _d (reinterpret_cast<const uint8_t *> (s))
-    {
-    }
+        : _d (reinterpret_cast<const uint8_t *> (s))
+    {}
 
     byte_string (const char * s, size_type n)
-    : _d (reinterpret_cast<const uint8_t *> (s), n)
-    {
-    }
+        : _d (reinterpret_cast<const uint8_t *> (s), n)
+    {}
 
     byte_string (size_type n, uint8_t c)
-    : _d (n, c)
-    {
-    }
+        : _d (n, c)
+    {}
 
     byte_string (size_type n, char c)
-    : _d (n, static_cast<uint8_t> (c))
-    {
-    }
+        : _d (n, static_cast<uint8_t> (c))
+    {}
 
     template <typename InputIterator>
     byte_string (InputIterator first, InputIterator last)
-    : _d (first, last)
-    {
-    }
+        : _d (first, last)
+    {}
 
     ~byte_string ()
-    {
-    }
+    {}
 
     byte_string & operator= (byte_string const & s)
     {
@@ -185,7 +174,7 @@ public:
         return _d.operator[] (pos);
     }
 
-    const_reference operator[] (size_type pos) const
+    const_reference operator [] (size_type pos) const
     {
         return _d.operator[] (pos);
     }
@@ -583,32 +572,32 @@ public:
         return *this;
     }
 
-    byte_string & operator+= (byte_string const & s)
+    byte_string & operator += (byte_string const & s)
     {
-        _d.operator+= (s._d);
+        _d.operator += (s._d);
         return *this;
     }
 
-    byte_string & operator+= (value_type ch)
+    byte_string & operator += (value_type ch)
     {
-        _d.operator+= (ch);
+        _d.operator += (ch);
         return *this;
     }
 
-    byte_string & operator+= (char ch)
+    byte_string & operator += (char ch)
     {
-        return operator+= (static_cast<value_type> (ch));
+        return operator += (static_cast<value_type> (ch));
     }
 
-    byte_string & operator+= (const_pointer s)
+    byte_string & operator += (const_pointer s)
     {
         _d.operator+= (s);
         return *this;
     }
 
-    byte_string & operator+= (const char * s)
+    byte_string & operator += (const char * s)
     {
-        return operator+= (reinterpret_cast<const_pointer> (s));
+        return operator += (reinterpret_cast<const_pointer> (s));
     }
 
     int compare (byte_string const & s) const
@@ -769,9 +758,8 @@ struct byte_string_ref_n
     byte_string * p;
 
     byte_string_ref_n (byte_string * ptr)
-    : p (ptr)
-    {
-    }
+        : p (ptr)
+    {}
 
     size_type max_size () const
     {
@@ -785,16 +773,14 @@ struct byte_string_ref
     byte_string::size_type max_size;
 
     byte_string_ref (byte_string * ptr)
-    : p (ptr)
-    , max_size (ptr->size ())
-    {
-    }
+        : p (ptr)
+        , max_size (ptr->size ())
+    {}
 
     byte_string_ref (byte_string * ptr, byte_string::size_type sz)
-    : p (ptr)
-    , max_size (sz)
-    {
-    }
+        : p (ptr)
+        , max_size (sz)
+    {}
 };
 
 template <typename T>
@@ -804,23 +790,18 @@ struct buffer_wrapper
     size_t max_size;
 
     buffer_wrapper (T * ptr, byte_string::size_type n)
-    : p (ptr)
-    , max_size (n)
-    {
-    }
+        : p (ptr)
+        , max_size (n)
+    {}
 };
 
-class byte_ostream
+struct byte_ostream
 {
-    byte_string _buffer;
-    endian _o;
-
-public:
+    typedef byte_string::value_type char_type;
 
     byte_ostream (endian const & order = endian::native_order ())
-    : _o (order)
-    {
-    }
+        : _o (order)
+    {}
 
     endian const & order () const
     {
@@ -906,6 +887,10 @@ public:
     {
         _buffer.append(v, n);
     }
+
+private:
+    byte_string _buffer;
+    endian _o;
 };
 
 class byte_istream
@@ -919,11 +904,10 @@ public:
     byte_istream (byte_string::const_iterator begin
             , byte_string::const_iterator end
             , endian const & order = endian::native_order ())
-    : b (begin)
-    , e (end)
-    , o (order)
-    {
-    }
+        : b (begin)
+        , e (end)
+        , o (order)
+    {}
 
     byte_string::const_iterator begin () const
     {
@@ -1062,8 +1046,15 @@ public:
     }
 };
 
+inline std::ostream & operator << (std::ostream & os, byte_string const & v)
+{
+    os << v.c_str();
+    return os;
+}
+
+
 template <int N>
-inline byte_ostream & operator<< (byte_ostream & os, byte_string_ref_n<N> const & v)
+inline byte_ostream & operator << (byte_ostream & os, byte_string_ref_n<N> const & v)
 {
     typename byte_string_ref_n<N>::size_type n = pfs::min(v.max_size()
             , static_cast<typename byte_string_ref_n<N>::size_type> (v.p->size()));
@@ -1072,91 +1063,91 @@ inline byte_ostream & operator<< (byte_ostream & os, byte_string_ref_n<N> const 
     return os;
 }
 
-inline byte_ostream & operator<< (byte_ostream & os, byte_string_ref const & v)
+inline byte_ostream & operator << (byte_ostream & os, byte_string_ref const & v)
 {
     os.write(*v.p, v.max_size);
     return os;
 }
 
-inline byte_ostream & operator<< (byte_ostream & os, buffer_wrapper<byte_string::value_type const> const & v)
+inline byte_ostream & operator << (byte_ostream & os, buffer_wrapper<byte_string::value_type const> const & v)
 {
     os.write(v.p, v.max_size);
     return os;
 }
 
-inline byte_ostream & operator<< (byte_ostream & os, buffer_wrapper<char const> const & v)
+inline byte_ostream & operator << (byte_ostream & os, buffer_wrapper<char const> const & v)
 {
     os.write(v.p, v.max_size);
     return os;
 }
 
-inline byte_ostream & operator<< (byte_ostream & os, byte_string const & v)
+inline byte_ostream & operator << (byte_ostream & os, byte_string const & v)
 {
     os.write(v);
     return os;
 }
 
-inline byte_ostream & operator<< (byte_ostream & os, bool v)
+inline byte_ostream & operator << (byte_ostream & os, bool v)
 {
     os.write_integral(v);
     return os;
 }
 
-inline byte_ostream & operator<< (byte_ostream & os, char v)
+inline byte_ostream & operator << (byte_ostream & os, char v)
 {
     os.write_integral(v);
     return os;
 }
 
-inline byte_ostream & operator<< (byte_ostream & os, signed char v)
+inline byte_ostream & operator << (byte_ostream & os, signed char v)
 {
     os.write_integral(v);
     return os;
 }
 
-inline byte_ostream & operator<< (byte_ostream & os, unsigned char v)
+inline byte_ostream & operator << (byte_ostream & os, unsigned char v)
 {
     os.write_integral(v);
     return os;
 }
 
-inline byte_ostream & operator<< (byte_ostream & os, wchar_t v)
+inline byte_ostream & operator << (byte_ostream & os, wchar_t v)
 {
     os.write_integral(v);
     return os;
 }
 
-inline byte_ostream & operator<< (byte_ostream & os, short v)
+inline byte_ostream & operator << (byte_ostream & os, short v)
 {
     os.write_integral(v);
     return os;
 }
 
-inline byte_ostream & operator<< (byte_ostream & os, unsigned short v)
+inline byte_ostream & operator << (byte_ostream & os, unsigned short v)
 {
     os.write_integral(v);
     return os;
 }
 
-inline byte_ostream & operator<< (byte_ostream & os, int v)
+inline byte_ostream & operator << (byte_ostream & os, int v)
 {
     os.write_integral(v);
     return os;
 }
 
-inline byte_ostream & operator<< (byte_ostream & os, unsigned int v)
+inline byte_ostream & operator << (byte_ostream & os, unsigned int v)
 {
     os.write_integral(v);
     return os;
 }
 
-inline byte_ostream & operator<< (byte_ostream & os, long v)
+inline byte_ostream & operator << (byte_ostream & os, long v)
 {
     os.write_integral(v);
     return os;
 }
 
-inline byte_ostream & operator<< (byte_ostream & os, unsigned long v)
+inline byte_ostream & operator << (byte_ostream & os, unsigned long v)
 {
     os.write_integral(v);
     return os;
@@ -1164,13 +1155,13 @@ inline byte_ostream & operator<< (byte_ostream & os, unsigned long v)
 
 #if PFS_HAVE_LONGLONG
 
-inline byte_ostream & operator<< (byte_ostream & os, long long v)
+inline byte_ostream & operator << (byte_ostream & os, long long v)
 {
     os.write_integral(v);
     return os;
 }
 
-inline byte_ostream & operator<< (byte_ostream & os, unsigned long long v)
+inline byte_ostream & operator << (byte_ostream & os, unsigned long long v)
 {
     os.write_integral(v);
     return os;
@@ -1178,20 +1169,20 @@ inline byte_ostream & operator<< (byte_ostream & os, unsigned long long v)
 
 #endif
 
-inline byte_ostream & operator<< (byte_ostream & os, float v)
+inline byte_ostream & operator << (byte_ostream & os, float v)
 {
     os.write_real(v);
     return os;
 }
 
-inline byte_ostream & operator<< (byte_ostream & os, double v)
+inline byte_ostream & operator << (byte_ostream & os, double v)
 {
     os.write_real(v);
     return os;
 }
 
 template <int N>
-byte_istream & operator>> (byte_istream & is, byte_string_ref_n<N> const & v)
+byte_istream & operator >> (byte_istream & is, byte_string_ref_n<N> const & v)
 {
     typename byte_string_ref_n<N>::size_type sz = 0;
     is >> sz;
@@ -1199,85 +1190,85 @@ byte_istream & operator>> (byte_istream & is, byte_string_ref_n<N> const & v)
     return is;
 }
 
-inline byte_istream & operator>> (byte_istream & is, byte_string_ref const & v)
+inline byte_istream & operator >> (byte_istream & is, byte_string_ref const & v)
 {
     is.read(*v.p, v.max_size);
     return is;
 }
 
-inline byte_istream & operator>> (byte_istream & is, buffer_wrapper<byte_string::value_type> const & v)
+inline byte_istream & operator >> (byte_istream & is, buffer_wrapper<byte_string::value_type> const & v)
 {
     is.read(v.p, v.max_size);
     return is;
 }
 
-inline byte_istream & operator>> (byte_istream & is, buffer_wrapper<char> const & v)
+inline byte_istream & operator >> (byte_istream & is, buffer_wrapper<char> const & v)
 {
     is.read(v.p, v.max_size);
     return is;
 }
 
-inline byte_istream & operator>> (byte_istream & is, bool & v)
+inline byte_istream & operator >> (byte_istream & is, bool & v)
 {
     is.read_integral(v);
     return is;
 }
 
-inline byte_istream & operator>> (byte_istream & is, char & v)
+inline byte_istream & operator >> (byte_istream & is, char & v)
 {
     is.read_integral(v);
     return is;
 }
 
-inline byte_istream & operator>> (byte_istream & is, signed char & v)
+inline byte_istream & operator >> (byte_istream & is, signed char & v)
 {
     is.read_integral(v);
     return is;
 }
 
-inline byte_istream & operator>> (byte_istream & is, unsigned char & v)
+inline byte_istream & operator >> (byte_istream & is, unsigned char & v)
 {
     is.read_integral(v);
     return is;
 }
 
-inline byte_istream & operator>> (byte_istream & is, wchar_t & v)
+inline byte_istream & operator >> (byte_istream & is, wchar_t & v)
 {
     is.read_integral(v);
     return is;
 }
 
-inline byte_istream & operator>> (byte_istream & is, short & v)
+inline byte_istream & operator >> (byte_istream & is, short & v)
 {
     is.read_integral(v);
     return is;
 }
 
-inline byte_istream & operator>> (byte_istream & is, unsigned short & v)
+inline byte_istream & operator >> (byte_istream & is, unsigned short & v)
 {
     is.read_integral(v);
     return is;
 }
 
-inline byte_istream & operator>> (byte_istream & is, int & v)
+inline byte_istream & operator >> (byte_istream & is, int & v)
 {
     is.read_integral(v);
     return is;
 }
 
-inline byte_istream & operator>> (byte_istream & is, unsigned int & v)
+inline byte_istream & operator >> (byte_istream & is, unsigned int & v)
 {
     is.read_integral(v);
     return is;
 }
 
-inline byte_istream & operator>> (byte_istream & is, long & v)
+inline byte_istream & operator >> (byte_istream & is, long & v)
 {
     is.read_integral(v);
     return is;
 }
 
-inline byte_istream & operator>> (byte_istream & is, unsigned long & v)
+inline byte_istream & operator >> (byte_istream & is, unsigned long & v)
 {
     is.read_integral(v);
     return is;
@@ -1285,13 +1276,13 @@ inline byte_istream & operator>> (byte_istream & is, unsigned long & v)
 
 #if PFS_HAVE_LONGLONG
 
-inline byte_istream & operator>> (byte_istream & is, long long & v)
+inline byte_istream & operator >> (byte_istream & is, long long & v)
 {
     is.read_integral(v);
     return is;
 }
 
-inline byte_istream & operator>> (byte_istream & is, unsigned long long & v)
+inline byte_istream & operator >> (byte_istream & is, unsigned long long & v)
 {
     is.read_integral(v);
     return is;
@@ -1299,218 +1290,155 @@ inline byte_istream & operator>> (byte_istream & is, unsigned long long & v)
 
 #endif
 
-inline byte_istream & operator>> (byte_istream & is, float & v)
+inline byte_istream & operator >> (byte_istream & is, float & v)
 {
     is.read_real(v);
     return is;
 }
 
-inline byte_istream & operator>> (byte_istream & is, double & v)
+inline byte_istream & operator >> (byte_istream & is, double & v)
 {
     is.read_real(v);
     return is;
 }
 
-inline byte_string operator+ (byte_string const & lhs, byte_string const & rhs)
+inline byte_string operator + (byte_string const & lhs, byte_string const & rhs)
 {
     byte_string r(lhs);
     return r += rhs;
 }
 
-inline byte_string operator+ (byte_string const & lhs, byte_string::value_type ch)
+inline byte_string operator + (byte_string const & lhs, byte_string::value_type ch)
 {
     byte_string r(lhs);
     return r += ch;
 }
 
-inline byte_string operator+ (byte_string::value_type ch, byte_string const & rhs)
+inline byte_string operator + (byte_string::value_type ch, byte_string const & rhs)
 {
     byte_string r(1, ch);
     return r += rhs;
 }
 
-inline byte_string operator+ (char ch, byte_string const & rhs)
+inline byte_string operator + (char ch, byte_string const & rhs)
 {
     byte_string r(1, ch);
     return r += rhs;
 }
 
-inline byte_string operator+ (byte_string const & lhs, byte_string::const_pointer rhs)
+inline byte_string operator + (byte_string const & lhs, byte_string::const_pointer rhs)
 {
     byte_string r(lhs);
     return r += rhs;
 }
 
-inline byte_string operator+ (byte_string::const_pointer lhs, byte_string const & rhs)
+inline byte_string operator + (byte_string::const_pointer lhs, byte_string const & rhs)
 {
     byte_string r(lhs);
     return r += rhs;
 }
 
-inline byte_string operator+ (byte_string const & lhs, char const * rhs)
+inline byte_string operator + (byte_string const & lhs, char const * rhs)
 {
     byte_string r(lhs);
     return r += rhs;
 }
 
-inline byte_string operator+ (char const * lhs, byte_string const & rhs)
+inline byte_string operator + (char const * lhs, byte_string const & rhs)
 {
     byte_string r(lhs);
     return r += rhs;
 }
-
-#if __DEPRECATED__
-
-class unpack_committer
-{
-    unpack_context & _ctx;
-    byte_string::const_iterator _b;
-    bool _committed;
-
-public:
-
-    unpack_committer (unpack_context & ctx)
-    : _ctx (ctx)
-    , _b (ctx.b)
-    , _committed (false)
-    {
-    }
-
-    ~unpack_committer ()
-    {
-        if (not _committed)
-            _ctx.b = _b;
-    }
-
-    void commit ()
-    {
-        _b = _ctx.b;
-        _committed = true;
-    }
-};
-
-#endif // __DEPRECATED__
-
-//// TODO Obsolete
-//template <>
-//bool unpack (unpack_context & ctx, string & v);
-//
-//// TODO Obsolete
-//// UTF8 Specialization
-////
-//template <>
-//inline void pack (pack_context & ctx, string const & v)
-//{
-//    pack(ctx, v.size());
-//    ctx.buffer.append(v.c_str(), v.size());
-//}
-
-///**
-// * @brief Represents (convert) @c byte_string data as @c string.
-// *
-// * @param v Value for string representation.
-// * @param base Radix.
-// * @param zero_padded @c true if value should be zero padded.
-// * @param uppercase @c true if digit representaion characters should be in upper case.
-// * @param prefix Prefix prepended for converted value.
-// * @param separator String inserted bitween numbers.
-// * @return
-// */
-//string to_string (byte_string const & v, int base = 10
-//        , bool zero_padded = false
-//        , bool uppercase = false
-//        , string const & prefix = string()
-//        , string const & separator = string());
 
 byte_string & base64_encode (byte_string const & src, byte_string & result);
 byte_string & base64_decode (byte_string const & src, byte_string & result);
 
-inline bool operator== (byte_string const & lhs, byte_string const & rhs)
+inline bool operator == (byte_string const & lhs, byte_string const & rhs)
 {
     return lhs.compare(rhs) == 0;
 }
 
-inline bool operator!= (byte_string const & lhs, byte_string const & rhs)
+inline bool operator != (byte_string const & lhs, byte_string const & rhs)
 {
     return lhs.compare(rhs) != 0;
 }
 
-inline bool operator< (byte_string const & lhs, byte_string const & rhs)
+inline bool operator < (byte_string const & lhs, byte_string const & rhs)
 {
     return lhs.compare(rhs) < 0;
 }
 
-inline bool operator<= (byte_string const & lhs, byte_string const & rhs)
+inline bool operator <= (byte_string const & lhs, byte_string const & rhs)
 {
     return lhs.compare(rhs) <= 0;
 }
 
-inline bool operator> (byte_string const & lhs, byte_string const & rhs)
+inline bool operator > (byte_string const & lhs, byte_string const & rhs)
 {
     return lhs.compare(rhs) > 0;
 }
 
-inline bool operator>= (byte_string const & lhs, byte_string const & rhs)
+inline bool operator >= (byte_string const & lhs, byte_string const & rhs)
 {
     return lhs.compare(rhs) >= 0;
 }
 
-inline bool operator== (byte_string const & lhs, const char * rhs)
+inline bool operator == (byte_string const & lhs, const char * rhs)
 {
     return lhs.compare(rhs) == 0;
 }
 
-inline bool operator!= (byte_string const & lhs, const char * rhs)
+inline bool operator != (byte_string const & lhs, const char * rhs)
 {
     return lhs.compare(rhs) != 0;
 }
 
-inline bool operator< (byte_string const & lhs, const char * rhs)
+inline bool operator < (byte_string const & lhs, const char * rhs)
 {
     return lhs.compare(rhs) < 0;
 }
 
-inline bool operator<= (byte_string const & lhs, const char * rhs)
+inline bool operator <= (byte_string const & lhs, const char * rhs)
 {
     return lhs.compare(rhs) <= 0;
 }
 
-inline bool operator> (byte_string const & lhs, const char * rhs)
+inline bool operator > (byte_string const & lhs, const char * rhs)
 {
     return lhs.compare(rhs) > 0;
 }
 
-inline bool operator>= (byte_string const & lhs, const char * rhs)
+inline bool operator >= (byte_string const & lhs, const char * rhs)
 {
     return lhs.compare(rhs) >= 0;
 }
 
-inline bool operator== (const char * lhs, byte_string const & rhs)
+inline bool operator == (const char * lhs, byte_string const & rhs)
 {
     return rhs.compare(lhs) == 0;
 }
 
-inline bool operator!= (const char * lhs, byte_string const & rhs)
+inline bool operator != (const char * lhs, byte_string const & rhs)
 {
     return rhs.compare(lhs) != 0;
 }
 
-inline bool operator< (const char * lhs, byte_string const & rhs)
+inline bool operator < (const char * lhs, byte_string const & rhs)
 {
     return rhs.compare(lhs) > 0;
 }
 
-inline bool operator<= (const char * lhs, byte_string const & rhs)
+inline bool operator <= (const char * lhs, byte_string const & rhs)
 {
     return rhs.compare(lhs) >= 0;
 }
 
-inline bool operator> (const char * lhs, byte_string const & rhs)
+inline bool operator > (const char * lhs, byte_string const & rhs)
 {
     return rhs.compare(lhs) < 0;
 }
 
-inline bool operator>= (const char * lhs, byte_string const & rhs)
+inline bool operator >= (const char * lhs, byte_string const & rhs)
 {
     return rhs.compare(lhs) <= 0;
 }

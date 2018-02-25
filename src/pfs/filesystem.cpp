@@ -1,5 +1,6 @@
 #include "pfs/type_traits.hpp"
 #include "pfs/filesystem/path.hpp"
+#include "pfs/string.hpp"
 #include "pfs/traits/stdcxx/string.hpp"
 
 #if HAVE_QT_CORE

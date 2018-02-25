@@ -50,55 +50,55 @@ struct command
 template <typename ConcreteCommand>
 shared_ptr<command> make_command ()
 {
-    return static_pointer_cast<command>(make_shared<ConcreteCommand>());
+    return pfs::static_pointer_cast<command>(pfs::make_shared<ConcreteCommand>());
 }
 
 template <typename ConcreteCommand, typename A1>
 shared_ptr<command> make_command (A1 a1)
 {
-    return static_pointer_cast<command>(make_shared<ConcreteCommand>(a1));
+    return pfs::static_pointer_cast<command>(pfs::make_shared<ConcreteCommand>(a1));
 }
 
 template <typename ConcreteCommand, typename A1, typename A2>
 shared_ptr<command> make_command (A1 a1, A2 a2)
 {
-    return static_pointer_cast<command>(make_shared<ConcreteCommand>(a1, a2));
+    return pfs::static_pointer_cast<command>(pfs::make_shared<ConcreteCommand>(a1, a2));
 }
 
 template <typename ConcreteCommand, typename A1, typename A2, typename A3>
 shared_ptr<command> make_command (A1 a1, A2 a2, A3 a3)
 {
-    return static_pointer_cast<command>(make_shared<ConcreteCommand>(a1, a2, a3));
+    return pfs::static_pointer_cast<command>(pfs::make_shared<ConcreteCommand>(a1, a2, a3));
 }
 
 template <typename ConcreteCommand, typename A1, typename A2, typename A3, typename A4>
 shared_ptr<command> make_command (A1 a1, A2 a2, A3 a3, A4 a4)
 {
-    return static_pointer_cast<command>(make_shared<ConcreteCommand>(a1, a2, a3, a4));
+    return pfs::static_pointer_cast<command>(pfs::make_shared<ConcreteCommand>(a1, a2, a3, a4));
 }
 
 template <typename ConcreteCommand, typename A1, typename A2, typename A3, typename A4, typename A5>
 shared_ptr<command> make_command (A1 a1, A2 a2, A3 a3, A4 a4, A5 a5)
 {
-    return static_pointer_cast<command>(make_shared<ConcreteCommand>(a1, a2, a3, a4, a5));
+    return pfs::static_pointer_cast<command>(pfs::make_shared<ConcreteCommand>(a1, a2, a3, a4, a5));
 }
 
 template <typename ConcreteCommand, typename A1, typename A2, typename A3, typename A4, typename A5, typename A6>
 shared_ptr<command> make_command (A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6)
 {
-    return static_pointer_cast<command>(make_shared<ConcreteCommand>(a1, a2, a3, a4, a5, a6));
+    return pfs::static_pointer_cast<command>(pfs::make_shared<ConcreteCommand>(a1, a2, a3, a4, a5, a6));
 }
 
 template <typename ConcreteCommand, typename A1, typename A2, typename A3, typename A4, typename A5, typename A6, typename A7>
 shared_ptr<command> make_command (A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7)
 {
-    return static_pointer_cast<command>(make_shared<ConcreteCommand>(a1, a2, a3, a4, a5, a6, a7));
+    return pfs::static_pointer_cast<command>(pfs::make_shared<ConcreteCommand>(a1, a2, a3, a4, a5, a6, a7));
 }
 
 template <typename ConcreteCommand, typename A1, typename A2, typename A3, typename A4, typename A5, typename A6, typename A7, typename A8>
 shared_ptr<command> make_command (A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8)
 {
-    return static_pointer_cast<command>(make_shared<ConcreteCommand>(a1, a2, a3, a4, a5, a6, a7, a8));
+    return pfs::static_pointer_cast<command>(pfs::make_shared<ConcreteCommand>(a1, a2, a3, a4, a5, a6, a7, a8));
 }
 
 template <template <typename> class SequenceContainerImpl>
@@ -118,7 +118,7 @@ struct invoker
         --_first;
     }
 
-    void clear () 
+    void clear ()
     {
         _undo_queue.clear();
         _pos = iterator(_undo_queue.begin(), _undo_queue.end());
@@ -126,13 +126,13 @@ struct invoker
         _first = _pos;
         --_first;
     }
-    
+
     void exec (shared_ptr<command> cmd)
     {
         cmd->exec();
         *_pos++ = cmd;
         _last = _pos;
-        
+
         if (_pos == _first)
             ++_first;
     }
@@ -175,13 +175,13 @@ protected:
 //        _last = _pos;
 //    }
 //
-//    void clear () 
+//    void clear ()
 //    {
 //        _queue.clear();
 //        _pos = iterator(_queue.begin(), _queue.end());
 //        _last = _pos;
 //    }
-//    
+//
 //    void push_back (shared_ptr<command> cmd)
 //    {
 //        *_last++ = cmd;
@@ -235,7 +235,7 @@ protected:
 //{
 //    virtual shared_ptr<command> make () pfs_override
 //    {
-//        return make_command<ConcreteCommand>(); 
+//        return make_command<ConcreteCommand>();
 //    }
 //};
 //
@@ -251,7 +251,7 @@ protected:
 //    {
 //        _mapping.insert(key, pcf);
 //    }
-//    
+//
 //private:
 //    map_type _mapping;
 //};

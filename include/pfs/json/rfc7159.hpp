@@ -141,16 +141,18 @@ struct sax_context
 {
     typedef typename JsonType::string_type sequence_type;
 
-    virtual bool on_begin_json   () = 0;
-    virtual bool on_end_json     (bool) = 0;
-    virtual bool on_begin_object (sequence_type const &) = 0;
-    virtual bool on_end_object   (sequence_type const &) = 0;
-    virtual bool on_begin_array  (sequence_type const &) = 0;
-    virtual bool on_end_array    (sequence_type const &) = 0;
-    virtual bool on_null_value   (sequence_type const &) = 0;
-    virtual bool on_boolean_value(sequence_type const &, bool) = 0;
-    virtual bool on_number_value (sequence_type const &, real_t) = 0;
-    virtual bool on_string_value (sequence_type const &, sequence_type const &) = 0;
+    virtual bool on_begin_json     () = 0;
+    virtual bool on_end_json       (bool) = 0;
+    virtual bool on_begin_object   (sequence_type const &) = 0;
+    virtual bool on_end_object     (sequence_type const &) = 0;
+    virtual bool on_begin_array    (sequence_type const &) = 0;
+    virtual bool on_end_array      (sequence_type const &) = 0;
+    virtual bool on_null_value     (sequence_type const &) = 0;
+    virtual bool on_boolean_value  (sequence_type const &, bool) = 0;
+    virtual bool on_integer_value  (sequence_type const &, intmax_t) = 0;
+    virtual bool on_uinteger_value (sequence_type const &, uintmax_t) = 0;
+    virtual bool on_real_value     (sequence_type const &, real_t) = 0;
+    virtual bool on_string_value   (sequence_type const &, sequence_type const &) = 0;
 };
 
 template <typename JsonType, template <typename> class StackImplType = stdcxx::stack>
@@ -170,7 +172,7 @@ struct dom_builder_context : sax_context<JsonType>
     {
         s.push(& caller);
     }
-            
+
     json_type * add_value (string_type const & name, json_type const & v)
     {
         PFS_ASSERT(s.size() > 0);
@@ -191,11 +193,6 @@ struct dom_builder_context : sax_context<JsonType>
 
     virtual bool on_begin_json ()
     {
-//        json_type j = (t == data_type_t::object)
-//                ? json_type::make_object()
-//                : json_type::make_array();
-//        json_type * p = s.top();
-//        p->swap(j);
         return true;
     }
 
@@ -215,7 +212,7 @@ struct dom_builder_context : sax_context<JsonType>
         } else {
             s.push(add_value(name, j));
         }
-    	
+
     	return true;
     }
 
@@ -237,7 +234,7 @@ struct dom_builder_context : sax_context<JsonType>
         } else {
             s.push(add_value(name, j));
         }
-        
+
         return true;
     }
 
@@ -276,23 +273,10 @@ struct dom_builder_context : sax_context<JsonType>
         return true;
     }
 
-    virtual bool on_number_value (sequence_type const & name, real_t v)
+    template <typename NumberType>
+    bool on_number_value (sequence_type const & name, NumberType v)
     {
-        json_type j;
-
-        if (v > 0) {
-            // If v is unsigned integer
-            if (static_cast<real_t>(static_cast<uintmax_t>(v)) == v)
-                j = json_type(static_cast<uintmax_t>(v));
-            else
-                j = json_type(v);
-        } else {
-            // If v is signed integer
-            if (static_cast<real_t>(static_cast<intmax_t>(v)) == v)
-                j = json_type(static_cast<intmax_t>(v));
-            else
-                j = json_type(v);
-        }
+        json_type j(v);
 
         if (is_begin) {
             json_type * p = s.top();
@@ -304,6 +288,50 @@ struct dom_builder_context : sax_context<JsonType>
 
         return true;
     }
+
+    virtual bool on_integer_value  (sequence_type const & name, intmax_t v)
+    {
+        return on_number_value(name, v);
+    }
+
+    virtual bool on_uinteger_value (sequence_type const & name, uintmax_t v)
+    {
+        return on_number_value(name, v);
+    }
+
+    virtual bool on_real_value (sequence_type const & name, real_t v)
+    {
+        return on_number_value(name, v);
+    }
+
+//    virtual bool on_number_value (sequence_type const & name, real_t v)
+//    {
+//        json_type j;
+//
+//        if (v > 0) {
+//            // If v is unsigned integer
+//            if (static_cast<real_t>(static_cast<uintmax_t>(v)) == v)
+//                j = json_type(static_cast<uintmax_t>(v));
+//            else
+//                j = json_type(v);
+//        } else {
+//            // If v is signed integer
+//            if (static_cast<real_t>(static_cast<intmax_t>(v)) == v)
+//                j = json_type(static_cast<intmax_t>(v));
+//            else
+//                j = json_type(v);
+//        }
+//
+//        if (is_begin) {
+//            json_type * p = s.top();
+//            p->swap(j);
+//            is_begin = false;
+//        } else {
+//            add_value(name, j);
+//        }
+//
+//        return true;
+//    }
 
     virtual bool on_string_value (sequence_type const & name, sequence_type const & v)
     {
@@ -329,14 +357,22 @@ struct grammar
     typedef typename fsm_type::transition_type     transition_type;
     typedef typename fsm_type::char_type           value_type;
 
+    struct number_context
+    {
+        struct { iterator first, last; } sign;
+        struct { iterator first, last; } integral_part;
+        struct { iterator first, last; } frac_part;
+        struct { iterator first, last; } exp_part;
+    };
+
     struct parse_context
     {
-        //bool           is_json_begin;
-        string_type    member_name;
+        string_type                            member_name;
+        number_context                         number_ctx;
         pfs::stack<string_type, StackImplType> objects;
         pfs::stack<string_type, StackImplType> arrays;
-        sax_context<JsonType> * sax;
-        error_code     ec;
+        sax_context<JsonType> *                sax;
+        error_code                             ec;
     };
 
     grammar ();
@@ -412,27 +448,88 @@ struct grammar
         return result;
     }
 
-    static bool number_value (iterator first, iterator last, void * context, void * /*action_args*/)
+    static bool number_sign (iterator first, iterator last, void * context, void * /*action_args*/)
     {
         if (!context) return true;
 
         parse_context * ctx = static_cast<parse_context *>(context);
+        ctx->number_ctx.sign.first = first;
+        ctx->number_ctx.sign.last = last;
+        return true;
+    }
 
-        string_type number_str = string_type(first, last);
+    static bool number_integral_part (iterator first, iterator last, void * context, void * /*action_args*/)
+    {
+        if (!context) return true;
+
+        parse_context * ctx = static_cast<parse_context *>(context);
+        ctx->number_ctx.integral_part.first = first;
+        ctx->number_ctx.integral_part.last = last;
+        return true;
+    }
+
+    static bool number_frac_part (iterator first, iterator last, void * context, void * /*action_args*/)
+    {
+        if (!context) return true;
+
+        parse_context * ctx = static_cast<parse_context *>(context);
+        ctx->number_ctx.frac_part.first = first;
+        ctx->number_ctx.frac_part.last = last;
+        return true;
+    }
+
+    static bool number_exp_part (iterator first, iterator last, void * context, void * /*action_args*/)
+    {
+        if (!context) return true;
+
+        parse_context * ctx = static_cast<parse_context *>(context);
+        ctx->number_ctx.exp_part.first = first;
+        ctx->number_ctx.exp_part.last = last;
+        return true;
+    }
+
+    static bool number_value (iterator /*first*/, iterator /*last*/, void * context, void * /*action_args*/)
+    {
+        if (!context) return true;
+
+        parse_context * ctx = static_cast<parse_context *>(context);
         bool result = false;
-        real_t d;
+        iterator first = ctx->number_ctx.sign.first;
+        iterator last  = ctx->number_ctx.integral_part.last;
+        iterator badpos;
 
-        try {
-            d = lexical_cast<real_t, string_type>(number_str);
-        } catch (bad_lexical_cast ex) {
-            //throw json_exception(json_errc::bad_number);
-            ctx->ec = make_error_code(json_errc::bad_number);
-            return false;
+        // Integer number
+        if ((ctx->number_ctx.frac_part.first == ctx->number_ctx.frac_part.last)
+                && (ctx->number_ctx.exp_part.first == ctx->number_ctx.exp_part.last)) {
+
+            // Negative
+            if (ctx->number_ctx.sign.first != ctx->number_ctx.sign.last) {
+                intmax_t n = string_to_int<intmax_t>(first, last, & badpos, 10);
+
+                // Ok
+                if (badpos == last)
+                    result = ctx->sax->on_integer_value(ctx->member_name, n);
+            } else {
+                uintmax_t n = string_to_uint<uintmax_t>(first, last, & badpos, 10);
+
+                if (badpos == last)
+                    result = ctx->sax->on_uinteger_value(ctx->member_name, n);
+            }
         }
 
-        result = ctx->sax->on_number_value(ctx->member_name, d);
+        if (badpos != last) {
+            last = ctx->number_ctx.exp_part.last;
+
+            real_t d = string_to_real<real_t>(first, last, '.', & badpos);
+
+            if (badpos == last)
+                result = ctx->sax->on_real_value(ctx->member_name, d);
+            else
+                ctx->ec = make_error_code(json_errc::bad_number);
+        }
+
         ctx->member_name.clear();
-        return result;
+        return badpos == last;
     }
 
     static bool string_value (iterator begin, iterator end, void * context, void * /*action_args*/)
@@ -505,7 +602,7 @@ struct grammar
 //                ? ctx->sax->on_begin_json(data_type::object)
 //                : ctx->sax->on_begin_object(ctx->member_name);
 //        ctx->is_json_begin = false;
-        
+
         bool result = ctx->sax->on_begin_object(ctx->member_name);
 
         ctx->member_name.clear();
@@ -639,10 +736,10 @@ grammar<ValueT, StackT>::grammar ()
      * number = [ minus ] int [ frac ] [ exp ]
      */
     static transition_type const number_tr[] = {
-          { 1,  1, FSM_OPT_ONE_OF(MINUS), fsm_type::normal, 0, 0}
-        , { 2, -1, FSM_TR(int_tr)       , fsm_type::normal, 0, 0}
-        , { 3, -1, FSM_OPT_TR(frac_tr)  , fsm_type::normal, 0, 0}
-        , {-1, -1, FSM_OPT_TR(exp_tr)   , fsm_type::accept, 0, 0}
+          { 1,  1, FSM_OPT_ONE_OF(MINUS), fsm_type::normal, number_sign, 0}
+        , { 2, -1, FSM_TR(int_tr)       , fsm_type::normal, number_integral_part, 0}
+        , { 3, -1, FSM_OPT_TR(frac_tr)  , fsm_type::normal, number_frac_part, 0}
+        , {-1, -1, FSM_OPT_TR(exp_tr)   , fsm_type::accept, number_exp_part, 0}
     };
 
     /*
