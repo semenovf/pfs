@@ -106,17 +106,27 @@ private:
 };
 
 template <typename OctetOutputIt>
+struct u8_output_iterator_proxy 
+{
+    OctetOutputIt * _p;
+
+    u8_output_iterator_proxy (OctetOutputIt * p) : _p(p) {}
+    void operator = (unicode::char_t const & ch);
+};
+
+template <typename OctetOutputIt>
 class u8_output_iterator : public iterator_facade<output_iterator_tag
         , u8_output_iterator<OctetOutputIt>
-        , char_t
-        , char_t *  // unused
-        , char_t &> // unused
+        , void
+        , void
+        , u8_output_iterator_proxy<OctetOutputIt> > // unused
 {
+    typedef u8_output_iterator_proxy<OctetOutputIt> proxy_type;
     typedef iterator_facade<output_iterator_tag
         , u8_output_iterator<OctetOutputIt>
-        , char_t
-        , char_t *
-        , char_t &> base_class;
+        , void
+        , void
+        , proxy_type> base_class;
 
 public:
     typedef typename base_class::pointer         pointer;
@@ -125,21 +135,17 @@ public:
 
 private:
     OctetOutputIt * _p;
-    char_t          _value;
 
 public:
     u8_output_iterator (OctetOutputIt & first)
         : _p(& first)
-        , _value(unicode::char_t::max_code_point) // invalidate
     {}
 
 public:
     static reference ref (u8_output_iterator & it)
     {
-        return it._value;
+        return proxy_type(it._p);
     }
-
-    static void increment (u8_output_iterator &, difference_type);
 };
 
 
@@ -204,43 +210,39 @@ void u8_input_iterator<OctetInputIt, BrokenSeqAction>::increment (u8_input_itera
 }
 
 template <typename OctetOutputIt>
-void u8_output_iterator<OctetOutputIt>::increment (u8_output_iterator & it, difference_type)
+void u8_output_iterator_proxy<OctetOutputIt>::operator = (unicode::char_t const & ch)
 {
-    if (!unicode::is_valid(it._value))
+    if (!unicode::is_valid(ch))
         return;
 
-    char_t::value_type v = it._value.value;
-
-    if (v < 0x80) {
-        *it._p++ = uint8_t(v);
-    } else if (v < 0x0800) {
-    	*it._p++ = 0xC0 | uint8_t(v >> 6);
-    	*it._p++ = 0x80 | uint8_t(v & 0x3f);
-    } else if (v < 0x10000) {
-    	*it._p++ = 0xE0 | uint8_t(v >> 12);
-    	*it._p++ = 0x80 | (uint8_t(v >> 6)  & 0x3F);
-    	*it._p++ = 0x80 | uint8_t(v & 0x3F);
-    } else if (v < 0x200000) {
-    	*it._p++ = 0xF0 | uint8_t(v >> 18);
-    	*it._p++ = 0x80 | (uint8_t(v >> 12) & 0x3F);
-    	*it._p++ = 0x80 | (uint8_t(v >> 6)  & 0x3F);
-    	*it._p++ = 0x80 | uint8_t(v & 0x3F);
-    } else if (v < 0x4000000) {
-    	*it._p++ = 0xF8 | uint8_t(v >> 24);
-    	*it._p++ = 0x80 | (uint8_t(v >> 18) & 0x3F);
-    	*it._p++ = 0x80 | (uint8_t(v >> 12) & 0x3F);
-    	*it._p++ = 0x80 | (uint8_t(v >> 6)  & 0x3F);
-    	*it._p++ = 0x80 | uint8_t(v & 0x3F);
-    } else if (v < 0x80000000) {
-    	*it._p++ = 0xFC | uint8_t(v >> 30);
-    	*it._p++ = 0x80 | (uint8_t(v >> 24) & 0x3F);
-    	*it._p++ = 0x80 | (uint8_t(v >> 18) & 0x3F);
-    	*it._p++ = 0x80 | (uint8_t(v >> 12) & 0x3F);
-    	*it._p++ = 0x80 | (uint8_t(v >> 6)  & 0x3F);
-    	*it._p++ = 0x80 | uint8_t(v & 0x3F);
+    if (ch.value < 0x80) {
+        *_p++ = uint8_t(ch.value);
+    } else if (ch.value < 0x0800) {
+    	*_p++ = 0xC0 | uint8_t(ch.value >> 6);
+    	*_p++ = 0x80 | uint8_t(ch.value & 0x3f);
+    } else if (ch.value < 0x10000) {
+    	*_p++ = 0xE0 | uint8_t(ch.value >> 12);
+    	*_p++ = 0x80 | (uint8_t(ch.value >> 6)  & 0x3F);
+    	*_p++ = 0x80 | uint8_t(ch.value & 0x3F);
+    } else if (ch.value < 0x200000) {
+    	*_p++ = 0xF0 | uint8_t(ch.value >> 18);
+    	*_p++ = 0x80 | (uint8_t(ch.value >> 12) & 0x3F);
+    	*_p++ = 0x80 | (uint8_t(ch.value >> 6)  & 0x3F);
+    	*_p++ = 0x80 | uint8_t(ch.value & 0x3F);
+    } else if (ch.value < 0x4000000) {
+    	*_p++ = 0xF8 | uint8_t(ch.value >> 24);
+    	*_p++ = 0x80 | (uint8_t(ch.value >> 18) & 0x3F);
+    	*_p++ = 0x80 | (uint8_t(ch.value >> 12) & 0x3F);
+    	*_p++ = 0x80 | (uint8_t(ch.value >> 6)  & 0x3F);
+    	*_p++ = 0x80 | uint8_t(ch.value & 0x3F);
+    } else if (ch.value < 0x80000000) {
+    	*_p++ = 0xFC | uint8_t(ch.value >> 30);
+    	*_p++ = 0x80 | (uint8_t(ch.value >> 24) & 0x3F);
+    	*_p++ = 0x80 | (uint8_t(ch.value >> 18) & 0x3F);
+    	*_p++ = 0x80 | (uint8_t(ch.value >> 12) & 0x3F);
+    	*_p++ = 0x80 | (uint8_t(ch.value >> 6)  & 0x3F);
+    	*_p++ = 0x80 | uint8_t(ch.value & 0x3F);
     }
-
-    unicode::invalidate(it._value);
 }
 
 // TODO OBSOLETE Must be reimplemented (replacing u8_input_iterator)

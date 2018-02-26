@@ -13,10 +13,10 @@
 #include "test_basic.hpp"
 #include "test_iterator.hpp"
 #include "test_parse.hpp"
-#include "test_serialize.hpp"
 #include "test_stringify.hpp"
 #include "test_pretty_printer.hpp"
 #include "test_reference_wrapper.hpp"
+#include "test_serialize.hpp"
 //#include "test_compare.hpp"
 //#include "test_find.hpp"
 //#include "test_substr.hpp"
@@ -61,23 +61,23 @@ int main ()
 {
     BEGIN_TESTS(0);
 
-    test_basic::test<stdcxx::json>();
-    test_iterator::test<stdcxx::json>();
-    test_reference_wrapper::test<stdcxx::json>();
-    test_parse::test<stdcxx::json>();
-    test_stringify::test<stdcxx::json>();
-    test_pretty_printer::test<stdcxx::json>();
+//    test_basic::test<stdcxx::json>();
+//    test_iterator::test<stdcxx::json>();
+//    test_reference_wrapper::test<stdcxx::json>();
+//    test_parse::test<stdcxx::json>();
+//    test_stringify::test<stdcxx::json>();
+//    test_pretty_printer::test<stdcxx::json>();
     test_serialize::test<stdcxx::json>();
 
 #ifdef HAVE_QT_CORE
     std::cout << "===== HAVE_QT_CORE =====" << std::endl;
-    test_basic::test<qt::json>();
-    test_iterator::test<qt::json>();
-    test_reference_wrapper::test<qt::json>();
-    test_parse::test<qt::json>();
-    test_stringify::test<qt::json>();
-    test_pretty_printer::test<qt::json>();
-    test_serialize::test<qt::json>();
+//    test_basic::test<qt::json>();
+//    test_iterator::test<qt::json>();
+//    test_reference_wrapper::test<qt::json>();
+//    test_parse::test<qt::json>();
+//    test_stringify::test<qt::json>();
+//    test_pretty_printer::test<qt::json>();
+//    test_serialize::test_ubjson<qt::json>();
 #endif
 
     return END_TESTS;

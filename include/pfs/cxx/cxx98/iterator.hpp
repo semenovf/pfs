@@ -391,7 +391,7 @@ struct ostream_iterator
         return *this;
     }
 
-    ostream_iterator& operator ++ (int)
+    ostream_iterator const & operator ++ (int)
     {
         return *this;
     }
