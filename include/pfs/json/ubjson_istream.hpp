@@ -27,9 +27,15 @@ struct ubjson_istream
 
     ubjson_istream (IStreamType & is, endian order = endian::big_endian)
         : _is(is)
+        , _order(order)
     {}
 
-    ubjson_istream & operator >> (json_type & j);
+    ubjson_istream & operator >> (json_type & j)
+    {
+        return read(j);
+    }
+    
+    ubjson_istream & read (json_type & j);
 
 private:
 //    ubjson_istream & input_json (json_type & j);
@@ -65,7 +71,7 @@ private:
 
 template <typename IStreamType, typename JsonType>
 ubjson_istream<IStreamType, JsonType> & 
-ubjson_istream<IStreamType, JsonType>::operator >> (json_type & j)
+ubjson_istream<IStreamType, JsonType>::read (json_type & j)
 {
     int8_t type = -1;
 
@@ -84,28 +90,60 @@ ubjson_istream<IStreamType, JsonType>::operator >> (json_type & j)
         j = false;
         break;
 
-    case static_cast<int8_t>('i'):// {
-//        typename json<Traits>::uinteger_type d;
-//        is >> d;
-//        v = json<Traits>(d);
-//        break;
-//    }
+    case static_cast<int8_t>('i'): {
+        int8_t n;
+        _is >> n;
+        j = n;
         break;
+    }
 
-    case static_cast<int8_t>('U'):
+    case static_cast<int8_t>('U'): {
+        uint8_t n;
+        _is >> n;
+        j = n;
         break;
+    }
 
-    case static_cast<int8_t>('l'):
+    case static_cast<int8_t>('I'): {
+        int16_t n;
+        _is >> n;
+        j = _order.convert(n);
         break;
+    }
+
+    case static_cast<int8_t>('l'): {
+        int32_t n;
+        _is >> n;
+        j = _order.convert(n);
+        break;
+    }
         
-    case static_cast<int8_t>('L'):
+    case static_cast<int8_t>('L'): {
+#if PFS_HAVE_INT64
+        int64_t n;
+        _is >> n;
+        j = _order.convert(n);
+#else
+        throw json_exception(make_error_code(json_errc::range));
+#endif        
         break;
+    }
         
-    case static_cast<int8_t>('d'):
+    case static_cast<int8_t>('d'): {
+        union { real32_t f; int32_t d; } u;
+        _is >> u.d;
+        u.d = _order.convert(u.d);
+        j = u.f;
         break;
+    }
         
-    case static_cast<int8_t>('D'):
+    case static_cast<int8_t>('D'): {
+        union { real64_t f; int64_t d; } u;
+        _is >> u.d;
+        u.d = _order.convert(u.d);
+        j = u.f;
         break;
+    }
         
     case static_cast<int8_t>('C'):
         break;
@@ -180,7 +218,6 @@ ubjson_istream<IStreamType, JsonType>::operator >> (json_type & j)
     return *this;
 }
 
-
 template <typename JsonType>
 JsonType from_ubjson (pfs::byte_string const & bs)
 {
@@ -188,9 +225,8 @@ JsonType from_ubjson (pfs::byte_string const & bs)
 
     JsonType j;
     
-    pfs::byte_istream bis(bs.cbegin(), bs.cend());
-    ubjson_istream_t uis(bis);
-    uis >> j;
+    pfs::byte_istream bis(bs.cbegin(), bs.cend(), endian::native_order());
+    ubjson_istream_t(bis).read(j);
 
     return j;
 }

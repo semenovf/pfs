@@ -903,7 +903,7 @@ public:
 
     byte_istream (byte_string::const_iterator begin
             , byte_string::const_iterator end
-            , endian const & order = endian::native_order ())
+            , endian const & order = endian::native_order())
         : b (begin)
         , e (end)
         , o (order)

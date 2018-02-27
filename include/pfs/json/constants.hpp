@@ -15,7 +15,6 @@ struct data_type
           null = 0
         , boolean
         , integer
-        , uinteger
         , real
         , string
         , object

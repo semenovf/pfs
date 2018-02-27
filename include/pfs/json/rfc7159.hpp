@@ -384,7 +384,7 @@ struct grammar
         iterator it = first;
 
         while (it != last) {
-            typename string_type::value_type c = *it;
+            value_type c = *it;
 
             if (!escaped && c == value_type('\\')) {
                 escaped = true;
@@ -400,7 +400,21 @@ struct grammar
                         r.push_back(value_type('\r'));
                     else if (c == value_type('t'))
                         r.push_back(value_type('\t'));
-                    else
+                    else if (c == value_type('u') || c == value_type('U')) {
+                        iterator ufirst = ++it;
+                        iterator ulast = ufirst;
+                        iterator badpos;
+                        
+                        pfs::advance(ulast, 4);
+                        uint32_t uc = string_to_uint<uint32_t>(ufirst, ulast, & badpos, 16);
+                        
+                        if (badpos != ulast)
+                            throw json_exception(make_error_code(json_errc::bad_number));
+                        
+                        r.push_back(unicode::char_t(static_cast<intmax_t>(uc)));
+                        
+                        pfs::advance(it, 3);
+                    } else
                         r.push_back(c);
                 } else {
                     r.push_back(c);
@@ -410,12 +424,10 @@ struct grammar
             ++it;
         }
 
-        // TODO Replace by exception
-        PFS_ASSERT(!escaped);
+        if (escaped)
+            throw json_exception(make_error_code(json_errc::bad_number));
 
         return r;
-
-        // TODO unescape hexdigits in form: \uXXXX
     }
 
     static bool false_value (iterator /*first*/, iterator /*last*/, void * context, void * /*action_args*/)

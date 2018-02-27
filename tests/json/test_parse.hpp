@@ -316,6 +316,16 @@ void test_parse ()
     }
 
     {
+        ADD_TESTS(3);
+
+        const char * json_empty_str  = "\"\\u0023\\u0024\\u0025\\u0026\"";
+        JsonType json;
+        TEST_OK(json.parse(json_empty_str) == pfs::error_code());
+        TEST_OK(json.is_string());
+        TEST_OK(json.template get<string_type>() == string_type("#$%&"));
+    }
+
+    {
         const char * json_string_str = "\"View from 15th Floor\"";
         ADD_TESTS(3);
         JsonType json;

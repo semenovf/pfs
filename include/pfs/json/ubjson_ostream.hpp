@@ -45,21 +45,21 @@ struct ubjson_ostream
 
     ubjson_ostream & operator << (json_type const & j)
     {
-        return output_json(j, true);
+        return write_json(j, true);
+    }
+
+    ubjson_ostream & write (json_type const & j)
+    {
+        return write_json(j, true);
     }
 
 private:
-    ubjson_ostream & output_json (json_type const & v, bool with_prefix);
-
-    template <typename IntegerType>
-    ubjson_ostream & output_integer (IntegerType n, bool with_prefix);
-
-    template <typename RealType>
-    ubjson_ostream & output_real (RealType n, bool with_prefix);
-
-    ubjson_ostream & output_string (string_type const & s, bool with_prefix = true);
-    ubjson_ostream & output_array (json_type const & a);
-    ubjson_ostream & output_object (json_type const & o);
+    ubjson_ostream & write_json    (json_type const & v, bool with_prefix);
+    ubjson_ostream & write_integer (typename json_type::integer_type n, bool with_prefix);
+    ubjson_ostream & write_real    (typename json_type::real_type f, bool with_prefix);
+    ubjson_ostream & write_string  (string_type const & s, bool with_prefix = true);
+    ubjson_ostream & write_array   (json_type const & a);
+    ubjson_ostream & write_object  (json_type const & o);
 
     static int8_t prefix (json_type const & j);
 
@@ -81,72 +81,49 @@ private:
     endian        _order;
 };
 
-template <typename OStreamType, typename JsonTraits>
-template <typename IntegerType>
-ubjson_ostream<OStreamType, JsonTraits> &
-ubjson_ostream<OStreamType, JsonTraits>::output_integer (IntegerType n, bool with_prefix)
+template <typename OStreamType, typename JsonType>
+ubjson_ostream<OStreamType, JsonType> &
+ubjson_ostream<OStreamType, JsonType>::write_integer (typename json_type::integer_type n, bool with_prefix)
 {
-    if (pfs::is_unsigned<IntegerType>()) {
-        if (n <= pfs::numeric_limits<uint8_t>::max()) {
-            if (n <= numeric_limits<int8_t>::max())
-                _os << static_cast<int8_t>('i');
-            else
-                _os << static_cast<int8_t>('U');
-            _os << static_cast<uint8_t>(n);
-        } else if (n <= pfs::numeric_limits<uint16_t>::max()) {
-            _os << static_cast<int8_t>('I');
-            _os << _order.convert(static_cast<uint16_t>(n));
-        } else if (n <= pfs::numeric_limits<uint32_t>::max()) {
-            _os << static_cast<int8_t>('l');
-            _os << _order.convert(static_cast<uint32_t>(n));
-        }
+    if (pfs::numeric_limits<int8_t>::max() < n && n <= pfs::numeric_limits<uint8_t>::max()) {
+        _os << static_cast<int8_t>('U');
+        _os << static_cast<uint8_t>(n);
+    } else if (pfs::numeric_limits<int8_t>::min() <= n && n <= pfs::numeric_limits<int8_t>::max()) {
+        _os << static_cast<int8_t>('i');
+        _os << static_cast<int8_t>(n);
+    } else if (pfs::numeric_limits<int16_t>::min() <= n && n <= pfs::numeric_limits<int16_t>::max()) {
+        _os << static_cast<int8_t>('I');
+        _os << _order.convert(static_cast<int16_t>(n));
+    } else if (pfs::numeric_limits<int32_t>::min() <= n && n <= pfs::numeric_limits<int32_t>::max()) {
+        _os << static_cast<int8_t>('l');
+        _os << _order.convert(static_cast<int32_t>(n));
+    }
 #if PFS_HAVE_INT64
-        else if (n <= pfs::numeric_limits<uint64_t>::max()) {
-            _os << static_cast<int8_t>('L');
-            _os << _order.convert(static_cast<uint64_t>(n));
-        }
+    else if (pfs::numeric_limits<int64_t>::min() <= n && n <= pfs::numeric_limits<int64_t>::max()) {
+        _os << static_cast<int8_t>('L');
+        _os << _order.convert(static_cast<int64_t>(n));
+    }
 #endif
-        else {
-            throw json_exception(make_error_code(json_errc::range)
-                , "unexpected unsigned integer width");
-        }
-    } else {
-        if (pfs::numeric_limits<int8_t>::min() <= n && n <= pfs::numeric_limits<int8_t>::max()) {
-            _os << static_cast<int8_t>('i');
-            _os << static_cast<int8_t>(n);
-        } else if (pfs::numeric_limits<int16_t>::min() <= n && n <= pfs::numeric_limits<int16_t>::max()) {
-            _os << static_cast<int8_t>('I');
-            _os << _order.convert(static_cast<int16_t>(n));
-        } else if (pfs::numeric_limits<int32_t>::min() <= n && n <= pfs::numeric_limits<int32_t>::max()) {
-            _os << static_cast<int8_t>('l');
-            _os << _order.convert(static_cast<int32_t>(n));
-        }
-#if PFS_HAVE_INT64
-        else if (pfs::numeric_limits<int64_t>::min() <= n && n <= pfs::numeric_limits<int64_t>::max()) {
-            _os << static_cast<int8_t>('L');
-            _os << _order.convert(static_cast<int64_t>(n));
-        }
-#endif
-        else {
-            throw json_exception(make_error_code(json_errc::range)
-                , "unexpected signed integer width");
-        }
+    else {
+        throw json_exception(make_error_code(json_errc::range)
+            , "unexpected signed integer width");
     }
 
     return *this;
 }
 
-template <typename OStreamType, typename JsonTraits>
-template <typename RealType>
-ubjson_ostream<OStreamType, JsonTraits> &
-ubjson_ostream<OStreamType, JsonTraits>::output_real (RealType n, bool with_prefix)
+template <typename OStreamType, typename JsonType>
+ubjson_ostream<OStreamType, JsonType> &
+ubjson_ostream<OStreamType, JsonType>::write_real (typename json_type::real_type f, bool with_prefix)
 {
-    if (pfs::is_same<RealType, real32_t>()) {
+    if (pfs::is_same<typename json_type::real_type, real32_t>()) {
         _os << static_cast<int8_t>('d');
-        _os << _order.convert(static_cast<int32_t>(n));
-    } else if (pfs::is_same<RealType, real64_t>()) {
+        _os << _order.convert(static_cast<int32_t>(f));
+    } else if (pfs::is_same<typename json_type::real_type, real64_t>()) {
+        union { real64_t f; int64_t d; } u;
+        u.f = f;
         _os << static_cast<int8_t>('D');
-        _os << _order.convert(static_cast<int64_t>(n));
+        _os << _order.convert(u.d);
     } else {
         throw json_exception(make_error_code(json_errc::range)
             , "unexpected real type");
@@ -155,9 +132,9 @@ ubjson_ostream<OStreamType, JsonTraits>::output_real (RealType n, bool with_pref
     return *this;
 }
 
-template <typename OStreamType, typename JsonTraits>
-ubjson_ostream<OStreamType, JsonTraits> &
-ubjson_ostream<OStreamType, JsonTraits>::output_string (string_type const & s, bool with_prefix)
+template <typename OStreamType, typename JsonType>
+ubjson_ostream<OStreamType, JsonType> &
+ubjson_ostream<OStreamType, JsonType>::write_string (string_type const & s, bool with_prefix)
 {
     if (with_prefix) {
         // Using size is safe here (no matter the string encoding)
@@ -166,21 +143,21 @@ ubjson_ostream<OStreamType, JsonTraits>::output_string (string_type const & s, b
             _os << static_cast<int8_t>((*s.cbegin()).value);
         } else {
             _os << static_cast<int8_t>('S');
-            output_integer(s.size(), true);
+            write_integer(static_cast<typename json_type::integer_type>(s.size()), true);
             _os << s;
         }
     } else {
         // Used as key value in objects usually
-        output_integer(s.size(), true);
+        write_integer(static_cast<typename json_type::integer_type>(s.size()), true);
         _os << s;
     }
 
     return *this;
 }
 
-template <typename OStreamType, typename JsonTraits>
-ubjson_ostream<OStreamType, JsonTraits> &
-ubjson_ostream<OStreamType, JsonTraits>::output_array (json_type const & j)
+template <typename OStreamType, typename JsonType>
+ubjson_ostream<OStreamType, JsonType> &
+ubjson_ostream<OStreamType, JsonType>::write_array (json_type const & j)
 {
     _os << static_cast<int8_t>('[');
 
@@ -207,14 +184,14 @@ ubjson_ostream<OStreamType, JsonTraits>::output_array (json_type const & j)
 
     if (use_count_optimization) {
         _os << static_cast<int8_t>('#');
-        output_integer(j.size(), true);
+        write_integer(static_cast<typename json_type::integer_type>(j.size()), true);
     }
 
     typename json_type::const_iterator first = j.cbegin();
     typename json_type::const_iterator last  = j.cend();
 
     for (; first != last; ++first)
-        output_json(*first, !use_type_optimization);
+        write_json(*first, !use_type_optimization);
 
     // If a count is specified the container must not specify an end-marker.
     if (!use_count_optimization)
@@ -223,9 +200,9 @@ ubjson_ostream<OStreamType, JsonTraits>::output_array (json_type const & j)
     return *this;
 }
 
-template <typename OStreamType, typename JsonTraits>
-ubjson_ostream<OStreamType, JsonTraits> &
-ubjson_ostream<OStreamType, JsonTraits>::output_object (json_type const & j)
+template <typename OStreamType, typename JsonType>
+ubjson_ostream<OStreamType, JsonType> &
+ubjson_ostream<OStreamType, JsonType>::write_object (json_type const & j)
 {
     _os << static_cast<int8_t>('{');
 
@@ -250,7 +227,7 @@ ubjson_ostream<OStreamType, JsonTraits>::output_object (json_type const & j)
 
     if (use_count_optimization) {
         _os << static_cast<int8_t>('#');
-        output_integer(j.size(), true);
+        write_integer(static_cast<typename json_type::integer_type>(j.size()), true);
     }
 
     typename json_type::const_iterator first = j.cbegin();
@@ -261,8 +238,8 @@ ubjson_ostream<OStreamType, JsonTraits>::output_object (json_type const & j)
         // name/value pairings inside the object. The JSON specification does
         // not allow non-string name values, therefore the [S] marker
         // is redundant and must not be used.
-        output_string(first.key(), false);
-        output_json(*first, !use_type_optimization);
+        write_string(first.key(), false);
+        write_json(*first, !use_type_optimization);
     }
 
     // If a count is specified the container must not specify an end-marker.
@@ -272,8 +249,8 @@ ubjson_ostream<OStreamType, JsonTraits>::output_object (json_type const & j)
     return *this;
 }
 
-template <typename OStreamType, typename JsonTraits>
-int8_t ubjson_ostream<OStreamType, JsonTraits>::prefix (json_type const & j)
+template <typename OStreamType, typename JsonType>
+int8_t ubjson_ostream<OStreamType, JsonType>::prefix (json_type const & j)
 {
     switch (j.type()) {
     case data_type::null:
@@ -285,29 +262,15 @@ int8_t ubjson_ostream<OStreamType, JsonTraits>::prefix (json_type const & j)
     case data_type::integer: {
         typename json_type::integer_type const & n = j.integer_data();
 
-        if (pfs::numeric_limits<int8_t>::min() <= n && n <= pfs::numeric_limits<int8_t>::max())
+        if (pfs::numeric_limits<int8_t>::max() < n && n <= pfs::numeric_limits<uint8_t>::max())
+            return static_cast<int8_t>('U');
+        else if (pfs::numeric_limits<int8_t>::min() <= n && n <= pfs::numeric_limits<int8_t>::max())
             return static_cast<int8_t>('i');
         else if (pfs::numeric_limits<int16_t>::min() <= n && n <= pfs::numeric_limits<int16_t>::max())
             return static_cast<int8_t>('I');
         else if (pfs::numeric_limits<int32_t>::min() <= n && n <= pfs::numeric_limits<int32_t>::max())
             return static_cast<int8_t>('l');
         else //if (pfs::numeric_limits<int64_t>::min() <= n && n <= pfs::numeric_limits<int64_t>::max())
-            return static_cast<int8_t>('L');
-    }
-
-    case data_type::uinteger: {
-        typename json_type::uinteger_type const & n = static_cast<typename json_type::uinteger_type>(j.integer_data());
-
-        if (n <= pfs::numeric_limits<uint8_t>::max())
-            if (n <= numeric_limits<int8_t>::max())
-                return static_cast<int8_t>('i');
-            else
-                return static_cast<int8_t>('U');
-        else if (n <= pfs::numeric_limits<uint16_t>::max())
-            return static_cast<int8_t>('I');
-        else if (n <= pfs::numeric_limits<uint32_t>::max())
-            return static_cast<int8_t>('l');
-        else //if (n <= pfs::numeric_limits<uint64_t>::max()) {
             return static_cast<int8_t>('L');
     }
 
@@ -331,9 +294,9 @@ int8_t ubjson_ostream<OStreamType, JsonTraits>::prefix (json_type const & j)
     }
 }
 
-template <typename OStreamType, typename JsonTraits>
-ubjson_ostream<OStreamType, JsonTraits> &
-ubjson_ostream<OStreamType, JsonTraits>::output_json (json_type const & j, bool with_prefix)
+template <typename OStreamType, typename JsonType>
+ubjson_ostream<OStreamType, JsonType> &
+ubjson_ostream<OStreamType, JsonType>::write_json (json_type const & j, bool with_prefix)
 {
     switch (j.type()) {
     case data_type::null:
@@ -346,28 +309,23 @@ ubjson_ostream<OStreamType, JsonTraits>::output_json (json_type const & j, bool 
         break;
 
     case data_type::integer:
-        output_integer(j.integer_data(), with_prefix);
-        break;
-
-    case data_type::uinteger:
-        output_integer(static_cast<typename json_type::uinteger_type const &>(j.integer_data())
-                , with_prefix);
+        write_integer(j.integer_data(), with_prefix);
         break;
 
     case data_type::real:
-        output_real(j.real_data(), with_prefix);
+        write_real(j.real_data(), with_prefix);
         break;
 
     case data_type::string:
-        output_string(j.string_data(), with_prefix);
+        write_string(j.string_data(), with_prefix);
         break;
 
     case data_type::array:
-        output_array(j);
+        write_array(j);
         break;
 
     case data_type::object:
-        output_object(j);
+        write_object(j);
         break;
     }
 
@@ -380,8 +338,7 @@ pfs::byte_string to_ubjson (JsonType const & j)
     typedef pfs::json::ubjson_ostream<pfs::byte_ostream, JsonType> ubjson_ostream_t;
 
     pfs::byte_ostream os;
-    ubjson_ostream_t uos(os);
-    uos << j;
+    ubjson_ostream_t(os).write(j);
     return os.data();
 }
 

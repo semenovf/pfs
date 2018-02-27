@@ -97,7 +97,7 @@ public:
         {}
 
         value_rep (uinteger_type v)
-            : type(data_type::uinteger)
+            : type(data_type::integer)
             , integer(v)
         {}
 
@@ -374,8 +374,7 @@ public:
 
     bool is_integer () const
     {
-        return _d.type == data_type::integer
-                || _d.type == data_type::uinteger;
+        return _d.type == data_type::integer;
     }
 
     bool is_real () const
@@ -756,8 +755,7 @@ public:
 //         return r.first ? r.second : default_value;
         switch (type()) {
         case data_type::boolean:  return cast_traits<T>::cast(_d.boolean);
-        case data_type::integer:
-        case data_type::uinteger: return cast_traits<T>::cast(_d.integer);
+        case data_type::integer:  return cast_traits<T>::cast(_d.integer);
         case data_type::real:     return cast_traits<T>::cast(_d.real);
         case data_type::string:   return cast_traits<T>::cast(*_d.string);
         case data_type::array:    return cast_traits<T>::cast(*_d.array);
@@ -863,11 +861,6 @@ json<Traits> & json<Traits>::assign (json const & other)
         _d = rep_type(other._d.integer);
         break;
 
-    case data_type::uinteger:
-        _d = rep_type(other._d.integer);
-        _d.type = data_type::uinteger;
-        break;
-
     case data_type::real:
         _d = rep_type(other._d.real);
         break;
@@ -907,7 +900,6 @@ bool operator == (json<Traits> const & lhs, json<Traits> const & rhs)
         break;
 
     case data_type::integer:
-    case data_type::uinteger:
         if (lhs._d.integer != rhs._d.integer)
             return false;
         break;
@@ -990,10 +982,6 @@ pfs::byte_ostream & operator << (pfs::byte_ostream & os, json<Traits> const & v)
         os << v.template get<typename json<Traits>::integer_type>();
         break;
 
-    case data_type::uinteger:
-        os << v.template get<typename json<Traits>::uinteger_type>();
-        break;
-
     case data_type::real:
         os << v.template get<typename json<Traits>::real_type>();
         break;
@@ -1054,13 +1042,6 @@ pfs::byte_istream & operator >> (pfs::byte_istream & is, json<Traits> & v)
 
     case static_cast<int>(data_type::integer): {
         typename json<Traits>::integer_type d;
-        is >> d;
-        v = json<Traits>(d);
-        break;
-    }
-
-    case static_cast<int>(data_type::uinteger): {
-        typename json<Traits>::uinteger_type d;
         is >> d;
         v = json<Traits>(d);
         break;
@@ -1139,9 +1120,6 @@ typename json<Traits>::string_type json<Traits>::to_string () const
 
     case data_type::integer:
         return pfs::to_string<string_type>(get<integer_type>());
-
-    case data_type::uinteger:
-        return pfs::to_string<string_type>(get<uinteger_type>());
 
     case data_type::real:
         return pfs::to_string<string_type>(get<real_type>());
