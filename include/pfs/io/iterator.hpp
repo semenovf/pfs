@@ -27,7 +27,7 @@ public:
 
 private:
     static int8_t const ATEND_FLAG = 0x01;
-    
+
     device *  _pd;
     char_type _value;
     int8_t    _flag;
@@ -35,11 +35,13 @@ private:
 public:
     input_iterator ()
         : _pd(0)
+        , _value(0)
         , _flag(ATEND_FLAG)
     {}
-    
+
     input_iterator (device & d)
         : _pd(& d)
+        , _value(0)
         , _flag(0)
     {
         ++*this;
@@ -48,35 +50,44 @@ public:
     input_iterator (input_iterator const & rhs)
         : _pd(rhs._pd)
         , _value(rhs._value)
+        , _flag(rhs._flag)
     {}
+
+    input_iterator & operator = (input_iterator const & rhs)
+    {
+        _pd    = rhs._pd;
+        _value = rhs._value;
+        _flag  = rhs._flag;
+        return *this;
+    }
 
     static reference ref (input_iterator & it)
     {
         return it._value;
     }
-    
+
     static pointer ptr (input_iterator & it)
     {
         return & it._value;
     }
-    
+
     static void increment (input_iterator & it, difference_type)
     {
         it.read();
     }
-    
+
     static bool equals (input_iterator const & it1, input_iterator const & it2)
     {
         if (it1._pd == it2._pd) {
             if (it1._pd == 0)
                 return true;
-            
+
             if ((it1._flag & ATEND_FLAG) && (it2._flag & ATEND_FLAG))
                 return true;
         }
         return false;
     }
-    
+
 private:
     void read ()
     {
@@ -104,7 +115,7 @@ inline StringType read_all_u8 (io::device & dev)
 {
     io::input_iterator<char> first(dev);
     io::input_iterator<char> last;
-    
+
     return read_all_u8<StringType>(first, last);
 }
 

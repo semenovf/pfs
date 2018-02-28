@@ -293,6 +293,8 @@ int dispatcher::exec ()
 
     for (; irunnable != irunnable_last; ++irunnable) {
         // run module if it is not a master
+        
+        // TODO Simplify expression below
         if (!_master_module_ptr
                 || (_master_module_ptr && irunnable->get() != _master_module_ptr))
             thread_pool.push_back(pfs::make_shared<thread>((*irunnable)->run, irunnable->get()));

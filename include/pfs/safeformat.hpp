@@ -19,20 +19,20 @@
 /* Conversion specification grammar
  *==============================================================================
  * conversion_specification := '%' flags [ field_width ] [ prec ] [length_mod] conversion_specifier
- * 
+ *
  * flags = *flag
  * flag  = / '-' / '+' / ' ' / '#' / '0'
  *
  * field_width = '*' / 1*DIGIT ; // !!! asterisk unsupported yet
- * 
+ *
  * prec = '.' ?( '*' / ['-'] 1*DIGIT ) // !!! asterisk unsupported yet
- * 
+ *
  * length_mod = 'hh' / 'h' / 'll' / 'l' / 'j' / 'z' / 't' / 'L'
- * 
+ *
  * conversion_specifier = 'd' / 'i' / 'o' / 'u' / 'x' / 'X'
  *                      / 'f' / 'F' / 'e' / 'E' / 'g' / 'G'
  *                      / 'a' / 'A' / 'c' / 's' / 'p' / 'n'
- * 
+ *
  */
 
 namespace pfs {
@@ -58,34 +58,34 @@ struct conversion_specification
 
     // '-'
     //--------------------------------------------------------------------------
-    // The result of the conversion is left-justified within the field. 
+    // The result of the conversion is left-justified within the field.
     // (It is right-justified if this flag is not specified.)
     static int const FL_LEFT_JUSTIFIED = 0x0001;
 
     // '+'
     //--------------------------------------------------------------------------
-    // The result of a signed conversion always begins with a plus or minus sign. 
-    // (It begins with a sign only when a negative value is converted 
+    // The result of a signed conversion always begins with a plus or minus sign.
+    // (It begins with a sign only when a negative value is converted
     // if this flag is not specified)
     static int const FL_NEED_SIGN      = 0x0002;
 
     // '<space>'
     //--------------------------------------------------------------------------
-    // If the first character of a signed conversion is not a sign, or if a 
-    // signed conversion results in no characters, a space is prefixed to the 
+    // If the first character of a signed conversion is not a sign, or if a
+    // signed conversion results in no characters, a space is prefixed to the
     // result. If the 'space' and '+' flags both appear, the space flag is ignored.
     static int const FL_SPACE_PADDING = 0x0004;
 
     // '#'
     //--------------------------------------------------------------------------
-    // The result is converted to an 'alternative form'. For 'o' conversion, 
-    // it increases the precision, if and only if necessary, to force the 
-    // first digit of the result to be a zero (if the value and precision 
-    // are both 0, a single 0 is printed). For 'x' (or 'X') conversion, 
+    // The result is converted to an 'alternative form'. For 'o' conversion,
+    // it increases the precision, if and only if necessary, to force the
+    // first digit of the result to be a zero (if the value and precision
+    // are both 0, a single 0 is printed). For 'x' (or 'X') conversion,
     // a nonzero result has '0x' (or '0X') prefixed to it. For 'a', 'A', 'e',
-    // 'E', 'f', 'F', 'g', and 'G' conversions, the result of converting a 
-    // floating-point number always contains a decimal-point character, 
-    // even if no digits follow it. (Normally, a decimal-point character 
+    // 'E', 'f', 'F', 'g', and 'G' conversions, the result of converting a
+    // floating-point number always contains a decimal-point character,
+    // even if no digits follow it. (Normally, a decimal-point character
     // appears in the result of these conversions only if a digit follows it).
     // For 'g' and 'G' conversions, trailing zeros are not removed from the
     // result. For other conversions, the behavior is undefined.
@@ -93,17 +93,17 @@ struct conversion_specification
 
     // '0'
     //--------------------------------------------------------------------------
-    // For 'd', 'i', 'o', 'u', 'x', 'X', 'a', 'A', 'e', 'E', 'f', 'F', 'g', 
-    // and 'G' conversions, leading zeros (following any indication of sign 
-    // or base) are used to pad to the field width rather than performing space 
-    // padding, except when converting an infinity or NaN. If the '0' and '-' 
+    // For 'd', 'i', 'o', 'u', 'x', 'X', 'a', 'A', 'e', 'E', 'f', 'F', 'g',
+    // and 'G' conversions, leading zeros (following any indication of sign
+    // or base) are used to pad to the field width rather than performing space
+    // padding, except when converting an infinity or NaN. If the '0' and '-'
     // flags both appear, the '0' flag is ignored. For 'd', 'i', 'o', 'u', 'x',
-    // and 'X' conversions, if a precision is specified, the '0' flag is 
+    // and 'X' conversions, if a precision is specified, the '0' flag is
     // ignored. For other conversions, the behavior is undefined.
     static int const FL_ZERO_PADDING = 0x0010;
     //==========================================================================
-    
-    
+
+
     //
     // Length modifiers
     //==========================================================================
@@ -112,10 +112,10 @@ struct conversion_specification
     // 'hh'
     //--------------------------------------------------------------------------
     // Specifies that a following 'd', 'i', 'o', 'u', 'x', or 'X' conversion
-    // specifier applies to a 'signed char' or 'unsigned char' argument 
-    // (the argument will have been promoted according to the integer 
-    // promotions, but its value shall be converted to 'signed char' 
-    // or 'unsigned char' before printing); or that a following 'n' conversion 
+    // specifier applies to a 'signed char' or 'unsigned char' argument
+    // (the argument will have been promoted according to the integer
+    // promotions, but its value shall be converted to 'signed char'
+    // or 'unsigned char' before printing); or that a following 'n' conversion
     // specifier applies to a pointer to a 'signed char' argument.
     static int const LM_APPLY_CHAR       = 1;
 
@@ -147,7 +147,7 @@ struct conversion_specification
     //--------------------------------------------------------------------------
     static int const LM_APPLY_LONGDOUBLE = 8;
     //==========================================================================
-    
+
     bool good;
     char spec_char;
     int  flags;
@@ -170,13 +170,14 @@ struct conversion_specification
         , prec_asterisk(false)
         , prec(0)
         , prec_sign(1)
+        , length_mod(0)
     {}
 };
 
 template <typename T>
 struct printf_length_modifier
 {
-    static char const * value () { return ""; } 
+    static char const * value () { return ""; }
 };
 
 template <> struct printf_length_modifier<char>               { static char const * value () { return "hh"; } };
@@ -205,23 +206,23 @@ template <typename BackInsertIt>
 struct base_stringifier
 {
     typedef BackInsertIt back_insert_iterator;
-    
+
     void prepare_format (char * format
             , char const * length_modifier
             , conversion_specification const & conv_spec) const
     {
         char * p = format;
-        
+
         *p++ = '%';
         //
         // Flags
         //
         if (conv_spec.flags & conversion_specification::FL_LEFT_JUSTIFIED)
             *p++ = '-';
-        
+
         if (conv_spec.flags & conversion_specification::FL_NEED_SIGN)
             *p++ = '+';
-        
+
         //
         // There is no matter the placement order of '0' and ' ' flags
         // printf("%0 6d", 123) => ' 00123'
@@ -229,30 +230,30 @@ struct base_stringifier
         //
         if (conv_spec.flags & conversion_specification::FL_ZERO_PADDING)
             *p++ = '0';
-        
+
         if (conv_spec.flags & conversion_specification::FL_SPACE_PADDING)
             *p++ = ' ';
-        
+
         if (conv_spec.flags & conversion_specification::FL_ALTERN_FORM)
             *p++ = '#';
-        
+
         //*p = '\x0';
-        
+
         //
         // Field width
         //
         if (conv_spec.field_width > 0)
             p += sprintf(p, "%d", conv_spec.field_width);
-        
+
         //
         // Precision
         //
         if (conv_spec.prec_sign < 0 || conv_spec.prec > 0)
             *p++ = '.';
-        
+
         if (conv_spec.prec_sign < 0)
             *p++ = '-';
-        
+
         if (conv_spec.prec > 0)
             p += sprintf(p, "%d", conv_spec.prec);
 
@@ -260,15 +261,15 @@ struct base_stringifier
         // Length modifiers (determine from actual integer type)
         //
         p += sprintf(p, "%s", length_modifier);
-        
+
         //
         // Conversion specifier
         //
         *p++ = conv_spec.spec_char;
-        
+
         *p = '\x0';
     }
-    
+
     virtual void stringify (back_insert_iterator out
             , conversion_specification const & conv_spec) const = 0;
 };
@@ -277,11 +278,11 @@ template <typename BackInsertIt, typename T>
 struct stringifier : public base_stringifier<BackInsertIt>
 {
     typedef BackInsertIt back_insert_iterator;
-    
+
     T const & val;
-    
+
     stringifier (T const & v) : val(v) {}
-    
+
     virtual void stringify (back_insert_iterator out
             , conversion_specification const & conv_spec) const
     {
@@ -293,17 +294,17 @@ struct stringifier : public base_stringifier<BackInsertIt>
                                  + 1                /* conversion-specifier */ \
                                  + 1;                /*'\x0' */
         static size_t const SNPRINTF_DEFAULT_BUFSZ = 64;
-        
+
         char format[SPRINTF_CONV_SPEC_LENGTH];
         this->prepare_format(format, printf_length_modifier<T>::value(), conv_spec);
-                
+
         size_t bufsz = SNPRINTF_DEFAULT_BUFSZ;
         char buf[SNPRINTF_DEFAULT_BUFSZ];
         char * pbuf = buf;
-        
+
         // The glibc implementation of the functions snprintf() and vsnprintf()
-        // conforms to the C99 standard, that is, behaves as described above, 
-        // since glibc version 2.1. Until glibc 2.0.6 they would return -1 
+        // conforms to the C99 standard, that is, behaves as described above,
+        // since glibc version 2.1. Until glibc 2.0.6 they would return -1
         // when the output was truncated.
 
 #if PFS_CC_MSC
@@ -315,19 +316,19 @@ struct stringifier : public base_stringifier<BackInsertIt>
 #endif
         if (written < 0)
             throw pfs::runtime_error("safeformat: snprintf() error (a negative value is returned)");
-        
+
         // A return value of size or more means that the output was truncated.
         //
         if (static_cast<size_t>(written) >= SNPRINTF_DEFAULT_BUFSZ) {
             bufsz = static_cast<size_t>(written) + 1;
             pbuf = pfs::allocator<char>().allocate(bufsz);
-            
+
 #if PFS_CC_MSC
             written = _snprintf(pbuf, bufsz, format, this->val);
 #else
             written = snprintf(pbuf, bufsz, format, this->val);
 #endif
-            
+
             if (written < 0)
                 throw pfs::runtime_error("safeformat: snprintf() error (a negative value is returned)");
 
@@ -335,11 +336,11 @@ struct stringifier : public base_stringifier<BackInsertIt>
         }
 
         char * p = pbuf;
-        
+
         // Copy chars into container (using back insert iterator)
         while (*p)
             *out++ = *p++;
-        
+
         // Was dynamically allocated
         //
         if (bufsz > SNPRINTF_DEFAULT_BUFSZ)
@@ -352,11 +353,11 @@ struct string_stringifier : public base_stringifier<BackInsertIt>
 {
     typedef BackInsertIt back_insert_iterator;
     typedef StringType string_type;
-    
+
     string_type const & val;
-    
+
     string_stringifier (string_type const & v) : val(v) {}
-    
+
     virtual void stringify (back_insert_iterator out
             , conversion_specification const & conv_spec) const
     {
@@ -366,11 +367,11 @@ struct string_stringifier : public base_stringifier<BackInsertIt>
         case 'a': case 'A': case 'c': case 'p': /*case 'n':*/
             stringifier<BackInsertIt, void const *>(val.data()).stringify(out, conv_spec);
             return;
-            
+
         case 's':
             break;
         }
-        
+
         // Do padding
         //
         size_t vallen = val.length();
@@ -379,7 +380,7 @@ struct string_stringifier : public base_stringifier<BackInsertIt>
 
         if (vallen < static_cast<size_t>(conv_spec.field_width)) {
             padding_count = static_cast<size_t>(conv_spec.field_width) - vallen;
-            
+
             if (conv_spec.flags & conversion_specification::FL_ZERO_PADDING
                     && conv_spec.flags & conversion_specification::FL_SPACE_PADDING) {
                 *out++ = ' ';
@@ -422,17 +423,17 @@ class safeformat
     typedef StringType                           string_type;
     typedef typename string_type::const_iterator const_iterator;
     typedef typename string_type::value_type     value_type;
-    
+
     // Stores intermediate result (and complete at the ends)
     result_type        _result;
     back_inserter_type _out;
-    
+
     // Current position at format string
     const_iterator _p;
-    
+
     // End position at format string
     const_iterator _end;
-    
+
 public:
     safeformat (string_type const & format)
         : _out(_result)
@@ -446,15 +447,15 @@ private:
         while (_p != _end && to_ascii<value_type>(*_p) != '%')
             *_out++ = *_p++;
     }
-    
+
     void finalize ()
     {
         // TODO replace by string::append(_p, _end) after implementing according method
-        
+
         while (_p != _end)
             *_out++ = *_p++;
     }
-    
+
     // flags = *flag
     // flag  = / '-' / '+' / ' ' / '#' / '0'
     void parse_spec_flags (conversion_specification * conv_spec)
@@ -482,36 +483,36 @@ private:
             default:
                 return;
             }
-            
+
             ++_p;
         }
-        
+
         // If the '0' and '-' flags both appear, the '0' flag is ignored.
         if (conv_spec->flags & conversion_specification::FL_LEFT_JUSTIFIED) {
             conv_spec->flags &= ~conversion_specification::FL_ZERO_PADDING;
         }
     }
-    
+
     void parse_spec_field_width (conversion_specification * conv_spec)
     {
         if (! conv_spec->good)
             return;
-            
+
         if (to_ascii<value_type>(*_p) == '*') {
             conv_spec->field_width_asterisk = true;
             ++_p;
-            
+
             conv_spec->good = false; // asterisk unsupported yet
             return;
         }
-        
+
         if (is_digit(*_p) && to_ascii<value_type>(*_p) != '0') {
             const_iterator first = _p;
             ++_p;
-            
+
             while (_p != _end && is_digit(*_p))
                 ++_p;
-            
+
             if (_p != first) {
                 const_iterator badpos;
                 conv_spec->field_width = string_to_int<int, const_iterator>(first, _p, & badpos, 10);
@@ -522,28 +523,28 @@ private:
             }
         }
     }
-    
+
     void parse_spec_precision (conversion_specification * conv_spec)
     {
         if (! conv_spec->good)
             return;
-        
+
         if (to_ascii<value_type>(*_p) != '.')
             return;
-        
+
         ++_p;
-        
+
         if (_p == _end)
             return;
-        
+
         if (to_ascii<value_type>(*_p) == '*') {
             conv_spec->prec_asterisk = true;
             ++_p;
-            
+
             conv_spec->good = false; // asterisk unsupported yet
             return;
         }
-        
+
         if (to_ascii<value_type>(*_p) != '-') {
             conv_spec->prec_sign = -1;
             ++_p;
@@ -551,15 +552,15 @@ private:
             if (_p == _end)
                 return;
         }
-        
-        
+
+
         if (is_digit(*_p) && to_ascii<value_type>(*_p) != '0') {
             const_iterator first = _p;
             ++_p;
-            
+
             while (_p != _end && is_digit(*_p))
                 ++_p;
-            
+
             if (_p != first) {
                 const_iterator badpos;
                 conv_spec->prec = string_to_int<int, const_iterator>(first, _p, & badpos, 10);
@@ -580,7 +581,7 @@ private:
         case 'h':
             conv_spec->length_mod = conversion_specification::LM_APPLY_SHORT;
             ++_p;
-            
+
             if (_p != _end && *_p == value_type('h')) {
                 conv_spec->length_mod = conversion_specification::LM_APPLY_CHAR;
                 ++_p;
@@ -598,12 +599,12 @@ private:
                 }
 
                 break;
-                    
+
             case 'j':
                 conv_spec->length_mod = conversion_specification::LM_APPLY_INTMAX;
                 ++_p;
                 break;
-                   
+
             case 'z':
                 conv_spec->length_mod = conversion_specification::LM_APPLY_SIZE_T;
                 ++_p;
@@ -620,7 +621,7 @@ private:
                 break;
         }
     }
-    
+
     void parse_spec_conversion_specifier (conversion_specification * conv_spec)
     {
         if (! conv_spec->good)
@@ -633,14 +634,14 @@ private:
             conv_spec->spec_char = to_ascii<value_type>(*_p);
             ++_p;
             break;
-            
+
         case 'n': // unsupported yet
         default:
             conv_spec->good = false;
             break;
         }
     }
-   
+
     void parse_conversion_specification (conversion_specification * conv_spec)
     {
         if (! conv_spec->good)
@@ -678,69 +679,69 @@ private:
     {
         stringifier.stringify(_out, conv_spec);
     }
-    
+
 public:
     safeformat & operator () (char c)
     {
         advance(stringifier<back_inserter_type, char>(c));
         return *this;
     }
-    
+
     safeformat & operator () (signed char n)
     {
         advance(stringifier<back_inserter_type, signed char>(n));
         return *this;
     }
-    
+
     safeformat & operator () (unsigned char n)
     {
         advance(stringifier<back_inserter_type, unsigned char>(n));
         return *this;
     }
-    
+
     safeformat & operator () (short n)
     {
         advance(stringifier<back_inserter_type, short>(n));
         return *this;
     }
-    
+
     safeformat & operator () (unsigned short n)
     {
         advance(stringifier<back_inserter_type, unsigned short>(n));
         return *this;
     }
-    
+
     safeformat & operator () (int n)
     {
         advance(stringifier<back_inserter_type, int>(n));
         return *this;
     }
-    
+
     safeformat & operator () (unsigned int n)
     {
         advance(stringifier<back_inserter_type, unsigned int>(n));
         return *this;
     }
-    
+
     safeformat & operator () (long n)
     {
         advance(stringifier<back_inserter_type, long>(n));
         return *this;
     }
-    
+
     safeformat & operator () (unsigned long n)
     {
         advance(stringifier<back_inserter_type, unsigned long>(n));
         return *this;
     }
-    
+
 #ifdef PFS_HAVE_LONG_LONG
     safeformat & operator () (long long n)
     {
         advance(stringifier<back_inserter_type, long long>(n));
         return *this;
     }
-    
+
     safeformat & operator () (unsigned long long n)
     {
         advance(stringifier<back_inserter_type, unsigned long long>(n));
@@ -753,13 +754,13 @@ public:
         advance(stringifier<back_inserter_type, float>(n));
         return *this;
     }
-    
+
     safeformat & operator () (double n)
     {
         advance(stringifier<back_inserter_type, double>(n));
         return *this;
     }
-    
+
 #ifdef PFS_HAVE_LONG_DOUBLE
     safeformat & operator () (long double n)
     {
@@ -773,12 +774,12 @@ public:
         advance(string_stringifier<back_inserter_type, string_type>(s));
         return *this;
     }
-    
+
     safeformat & operator () (typename string_type::const_native_reference s)
     {
         return operator() (string_type(s));
     }
-    
+
     safeformat & operator () (char const * s)
     {
         string_type ss(s);
@@ -790,7 +791,7 @@ public:
         advance(stringifier<back_inserter_type, void const *>(p));
         return *this;
     }
-    
+
     operator string_type const & ()
     {
         return str();
@@ -891,7 +892,7 @@ public:
     {
         return operator() (p);
     }
-    
+
     //
     //--- Qt-like methods
     //
@@ -980,7 +981,7 @@ public:
     {
         return operator() (s);
     }
-    
+
     safeformat & arg (const char * s)
     {
         return operator() (s);
@@ -990,7 +991,7 @@ public:
     {
         return operator() (p);
     }
-    
+
     result_type const & str ()
     {
         finalize();
@@ -1011,7 +1012,7 @@ public:
 
 private:
     typedef safeformat_iterator<StringImplType>  iterator;
-        
+
 private:
         string_type _format;
         iterator _it;
