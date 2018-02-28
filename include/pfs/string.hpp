@@ -36,12 +36,9 @@ public:
     typedef typename impl_type::iterator               native_iterator;
     typedef typename impl_type::const_iterator         native_const_iterator;
 
-    typedef typename impl_type::value_type             code_unit_type;
-    typedef typename unicode::char_t                   value_type;
-//    typedef typename internal_type::reference              reference;
-//    typedef typename internal_type::const_reference        const_reference;
-//    typedef typename internal_type::pointer                pointer;
-    typedef typename impl_type::const_pointer           const_pointer;
+    typedef typename impl_type::value_type                code_unit_type;
+    typedef typename unicode::char_t                      value_type;
+    typedef typename impl_type::const_pointer             const_pointer;
 
     typedef typename unicode::unicode_iterator_traits<
             typename impl_type::iterator>::iterator       iterator;

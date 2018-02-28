@@ -16,7 +16,7 @@ pfs::byte_string hex (pfs::byte_string const & bs)
 
     if (first != last)
         r.push_back(*first++);
-    
+
     while (first != last) {
         char buf[3];
         std::sprintf(buf, "%02x", static_cast<unsigned char>(*first));
@@ -105,17 +105,17 @@ void test_number ()
 #endif
         , { pfs::byte_string("3.1415925"), pfs::byte_string("D\x40\x09\x21\xfb\x3f\xa6\xde\xfc", 9) }
     };
-    
+
     const int count = sizeof(tdi)/sizeof(tdi[0]);
 
     ADD_TESTS(2 * count);
 
     for (int i = 0; i < count; i++) {
         JsonType j;
-        
+
         pfs::byte_string const * sample = & tdi[i].s1;
         pfs::byte_string const * expected = & tdi[i].s2;
-        
+
         if (j.parse(sample->c_str()) != pfs::error_code()) {
             std::stringstream description;
             description << "json.parse(\"" << hex(*sample).c_str() << "\")";
@@ -123,18 +123,18 @@ void test_number ()
         }
 
         std::stringstream description1;
-        description1 << "to ubjson: \"" << sample->c_str() 
+        description1 << "to ubjson: \"" << sample->c_str()
                 << "\" => \"" << hex(*expected).c_str() << "\"";
-        
+
         TEST_OK2(pfs::json::to_ubjson(j) == *expected, description1.str().c_str());
 
         sample = & tdi[i].s2;
         expected = & tdi[i].s1;
-        
+
         std::stringstream description2;
-        description2 << "from ubjson: \"" << hex(*sample).c_str() << "\" => " 
+        description2 << "from ubjson: \"" << hex(*sample).c_str() << "\" => "
                 << "\"" << expected->c_str() << "\"";
-        
+
         TEST_OK2(pfs::json::from_ubjson<JsonType>(*sample) == j
                 , description2.str().c_str());
     }
@@ -143,20 +143,42 @@ void test_number ()
 template <typename JsonType>
 void test_string ()
 {
-    {
-        typename JsonType::string_type s1(1, '@');
-//
-//        std::stringstream description1;
-//        description1 << "to ubjson: \"" << sample->c_str() 
-//                    << "\" => \"" << hex(*expected).c_str() << "\"";
-    }
+    typedef typename JsonType::string_type string_type;
+
+    ADD_TESTS(6);
+
+    TEST_OK(pfs::json::to_ubjson(JsonType(string_type(1, '@')))
+            == pfs::byte_string("C@", 2));
+
+    TEST_OK(pfs::json::to_ubjson(JsonType(string_type("")))
+            == pfs::byte_string("Si\x00", 3));
+
+    TEST_OK(pfs::json::to_ubjson(JsonType(string_type("ABCD")))
+            == pfs::byte_string("Si\x04\x41\x42\x43\x44", 7));
+
+    TEST_OK(pfs::json::from_ubjson<JsonType>(pfs::byte_string("C@", 2))
+            == JsonType(string_type(1, '@')));
+
+    TEST_OK(pfs::json::from_ubjson<JsonType>(pfs::byte_string("Si\x00", 3))
+        == JsonType(string_type("")));
+
+    TEST_OK(pfs::json::from_ubjson<JsonType>(pfs::byte_string("Si\x04\x41\x42\x43\x44", 7))
+        == JsonType(string_type("ABCD")));
 }
+
+template <typename JsonType>
+void test_array ()
+{
+    typedef typename JsonType::array_type array_type;
+}
+
 
 template <typename JsonType>
 void test ()
 {
     test_number<JsonType>();
     test_string<JsonType>();
+    test_array<JsonType>();
 }
 
 }

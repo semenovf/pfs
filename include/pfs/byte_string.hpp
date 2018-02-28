@@ -945,18 +945,24 @@ public:
         pfs::advance(b, n);
     }
 
-    template <typename Integral>
-    void read_integral (Integral & v)
+    // TODO DEPRECATED
+    template <typename IntegerType>
+    void read_integral (IntegerType & v)
     {
+        read_integer<IntegerType>(v);
+    }
 
+    template <typename IntegerType>
+    void read_integer (IntegerType & v)
+    {
         union u
         {
-            Integral const v;
-            byte_string::value_type const b[sizeof (Integral)];
+            IntegerType const v;
+            byte_string::value_type const b[sizeof (IntegerType)];
         };
 
         byte_string::const_iterator pos(b);
-        pfs::advance(pos, sizeof (Integral));
+        pfs::advance(pos, sizeof (IntegerType));
 
         if (pos <= e) {
             u const * d = reinterpret_cast<u const *> (b.base());
@@ -970,7 +976,6 @@ public:
     template <typename Real>
     void read_real (Real & v)
     {
-
         union u
         {
             Real const v;
