@@ -45,21 +45,22 @@ struct ubjson_ostream
 
     ubjson_ostream & operator << (json_type const & j)
     {
-        return write_json(j, true);
+        write_json(j, true);
+        return *this;
     }
 
-    ubjson_ostream & write (json_type const & j)
+    void write (json_type const & j)
     {
-        return write_json(j, true);
+        write_json(j, true);
     }
 
 private:
-    ubjson_ostream & write_json    (json_type const & v, bool with_prefix);
-    ubjson_ostream & write_integer (typename json_type::integer_type n, bool with_prefix);
-    ubjson_ostream & write_real    (typename json_type::real_type f, bool with_prefix);
-    ubjson_ostream & write_string  (string_type const & s, bool with_prefix = true);
-    ubjson_ostream & write_array   (json_type const & a);
-    ubjson_ostream & write_object  (json_type const & o);
+    void write_json    (json_type const & v, bool with_prefix);
+    void write_integer (typename json_type::integer_type n, bool with_prefix);
+    void write_real    (typename json_type::real_type f, bool with_prefix);
+    void write_string  (string_type const & s, bool with_prefix = true);
+    void write_array   (json_type const & a);
+    void write_object  (json_type const & o);
 
     static int8_t prefix (json_type const & j);
 
@@ -82,8 +83,7 @@ private:
 };
 
 template <typename OStreamType, typename JsonType>
-ubjson_ostream<OStreamType, JsonType> &
-ubjson_ostream<OStreamType, JsonType>::write_integer (typename json_type::integer_type n, bool with_prefix)
+void ubjson_ostream<OStreamType, JsonType>::write_integer (typename json_type::integer_type n, bool with_prefix)
 {
     if (pfs::numeric_limits<int8_t>::max() < n && n <= pfs::numeric_limits<uint8_t>::max()) {
         _os << static_cast<int8_t>('U');
@@ -108,13 +108,10 @@ ubjson_ostream<OStreamType, JsonType>::write_integer (typename json_type::intege
         throw json_exception(make_error_code(json_errc::range)
             , "unexpected signed integer width");
     }
-
-    return *this;
 }
 
 template <typename OStreamType, typename JsonType>
-ubjson_ostream<OStreamType, JsonType> &
-ubjson_ostream<OStreamType, JsonType>::write_real (typename json_type::real_type f, bool with_prefix)
+void ubjson_ostream<OStreamType, JsonType>::write_real (typename json_type::real_type f, bool with_prefix)
 {
     if (pfs::is_same<typename json_type::real_type, real32_t>()) {
         _os << static_cast<int8_t>('d');
@@ -128,13 +125,10 @@ ubjson_ostream<OStreamType, JsonType>::write_real (typename json_type::real_type
         throw json_exception(make_error_code(json_errc::range)
             , "unexpected real type");
     }
-
-    return *this;
 }
 
 template <typename OStreamType, typename JsonType>
-ubjson_ostream<OStreamType, JsonType> &
-ubjson_ostream<OStreamType, JsonType>::write_string (string_type const & s, bool with_prefix)
+void ubjson_ostream<OStreamType, JsonType>::write_string (string_type const & s, bool with_prefix)
 {
     if (with_prefix) {
         // Using size is safe here (no matter the string encoding)
@@ -151,13 +145,10 @@ ubjson_ostream<OStreamType, JsonType>::write_string (string_type const & s, bool
         write_integer(static_cast<typename json_type::integer_type>(s.size()), true);
         _os << s;
     }
-
-    return *this;
 }
 
 template <typename OStreamType, typename JsonType>
-ubjson_ostream<OStreamType, JsonType> &
-ubjson_ostream<OStreamType, JsonType>::write_array (json_type const & j)
+void ubjson_ostream<OStreamType, JsonType>::write_array (json_type const & j)
 {
     _os << static_cast<int8_t>('[');
 
@@ -196,13 +187,10 @@ ubjson_ostream<OStreamType, JsonType>::write_array (json_type const & j)
     // If a count is specified the container must not specify an end-marker.
     if (!use_count_optimization)
         _os << static_cast<int8_t>(']');
-
-    return *this;
 }
 
 template <typename OStreamType, typename JsonType>
-ubjson_ostream<OStreamType, JsonType> &
-ubjson_ostream<OStreamType, JsonType>::write_object (json_type const & j)
+void ubjson_ostream<OStreamType, JsonType>::write_object (json_type const & j)
 {
     _os << static_cast<int8_t>('{');
 
@@ -245,8 +233,6 @@ ubjson_ostream<OStreamType, JsonType>::write_object (json_type const & j)
     // If a count is specified the container must not specify an end-marker.
     if (!use_count_optimization)
         _os << static_cast<int8_t>('}');
-
-    return *this;
 }
 
 template <typename OStreamType, typename JsonType>
@@ -295,8 +281,7 @@ int8_t ubjson_ostream<OStreamType, JsonType>::prefix (json_type const & j)
 }
 
 template <typename OStreamType, typename JsonType>
-ubjson_ostream<OStreamType, JsonType> &
-ubjson_ostream<OStreamType, JsonType>::write_json (json_type const & j, bool with_prefix)
+void ubjson_ostream<OStreamType, JsonType>::write_json (json_type const & j, bool with_prefix)
 {
     switch (j.type()) {
     case data_type::null:
@@ -328,8 +313,6 @@ ubjson_ostream<OStreamType, JsonType>::write_json (json_type const & j, bool wit
         write_object(j);
         break;
     }
-
-    return *this;
 }
 
 template <typename JsonType>

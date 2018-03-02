@@ -42,7 +42,6 @@ void test_number ()
     typedef pfs::json::ubjson_ostream<pfs::byte_ostream, JsonType> ubjson_ostream_t;
 
     test_data_item tdi[] = {
-        { pfs::byte_string("3.1415925"), pfs::byte_string("D\x40\x09\x21\xfb\x3f\xa6\xde\xfc", 9) },
           { pfs::byte_string("null")  , pfs::byte_string("Z") }
         , { pfs::byte_string("true")  , pfs::byte_string("T") }
         , { pfs::byte_string("false") , pfs::byte_string("F") }
@@ -169,9 +168,71 @@ void test_string ()
 template <typename JsonType>
 void test_array ()
 {
+    typedef typename JsonType::string_type string_type;
     typedef typename JsonType::array_type array_type;
+
+    ADD_TESTS(2);
+
+    TEST_OK(pfs::json::to_ubjson(JsonType::make_array())
+            == pfs::byte_string("[]", 2));
+
+    TEST_OK(pfs::json::from_ubjson<JsonType>(pfs::byte_string("[]", 2))
+            == JsonType::make_array());
+
+
 }
 
+template <typename JsonType>
+void test_object ()
+{
+    typedef typename JsonType::string_type string_type;
+    typedef typename JsonType::object_type object_type;
+
+    ADD_TESTS(3);
+
+    TEST_OK(pfs::json::to_ubjson(JsonType::make_object())
+            == pfs::byte_string("{}", 2));
+
+    TEST_OK(pfs::json::from_ubjson<JsonType>(pfs::byte_string("{}", 2))
+            == JsonType::make_object());
+
+    {
+        JsonType j;
+        TEST_OK(j.parse("{\"h\": 10}") == pfs::error_code());
+        TEST_OK(pfs::json::to_ubjson(j) == pfs::byte_string("{i\x01hi\x0a}"));
+    }
+
+    {
+        JsonType j;
+        TEST_OK(j.parse("{\"key\": \"str\"}") == pfs::error_code());
+        TEST_OK(pfs::json::to_ubjson(j) == pfs::byte_string("{i\x03keySi\x03str}"));
+    }
+
+    {
+        string_type sample("{"
+            "\"post\": {"
+                "\"id\": 1000"
+                ",\"author\": \"rkalla\""
+                ",\"timestamp\": 2147483647"
+                ",\"body\": \"I totally agree!\""
+                "}}");
+
+        pfs::byte_string expected("{"
+            "i\x04post{"
+            "i\u0006authorSi\x06rkalla"   // use \u0006 instead of \x06 to avoid interpretation \x06a as valid sequence
+            "i\u0004bodySi\x10I totally agree!"
+            "i\x02idI\x03\xe8"
+            "i\x09timestampl\x7f\xff\xff\xff"
+            "}}");
+
+        JsonType j;
+        TEST_OK(j.parse(sample) == pfs::error_code());
+
+//        std::cout << pfs::to_string<string_type>(j, pfs::json::style_plain) << std::endl;
+
+        TEST_OK(pfs::json::to_ubjson(j) == expected);
+    }
+}
 
 template <typename JsonType>
 void test ()
@@ -179,6 +240,7 @@ void test ()
     test_number<JsonType>();
     test_string<JsonType>();
     test_array<JsonType>();
+    test_object<JsonType>();
 }
 
 }
