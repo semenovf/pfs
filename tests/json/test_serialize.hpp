@@ -171,7 +171,7 @@ void test_array ()
     typedef typename JsonType::string_type string_type;
     typedef typename JsonType::array_type array_type;
 
-    ADD_TESTS(2);
+    ADD_TESTS(5);
 
     TEST_OK(pfs::json::to_ubjson(JsonType::make_array())
             == pfs::byte_string("[]", 2));
@@ -179,7 +179,31 @@ void test_array ()
     TEST_OK(pfs::json::from_ubjson<JsonType>(pfs::byte_string("[]", 2))
             == JsonType::make_array());
 
+    {
+        string_type sample("["
+            "\"post\",\"id\",1000,\"author\",\"rkalla\""
+            ",\"timestamp\", 2147483647,\"body\",   \"I totally agree!\""
+                "]");
 
+        pfs::byte_string expected("["
+            "Si\x04post"
+            "Si\x02idI\x03\xe8"
+            "Si\u0006authorSi\x06rkalla"   // use \u0006 instead of \x06 to avoid interpretation \x06a as valid sequence
+            "Si\x09timestampl\x7f\xff\xff\xff"
+            "Si\u0004bodySi\x10I totally agree!"
+            "]");
+
+        JsonType j;
+        TEST_OK(j.parse(sample) == pfs::error_code());
+
+//        std::cout << pfs::to_string<string_type>(j, pfs::json::style_plain) << std::endl;
+
+        TEST_OK(pfs::json::to_ubjson(j) == expected);
+
+//        std::cout << pfs::to_string<string_type>(pfs::json::from_ubjson<JsonType>(expected), pfs::json::style_plain) << std::endl;
+
+        TEST_OK(pfs::json::from_ubjson<JsonType>(expected) == j);
+    }
 }
 
 template <typename JsonType>
@@ -188,7 +212,7 @@ void test_object ()
     typedef typename JsonType::string_type string_type;
     typedef typename JsonType::object_type object_type;
 
-    ADD_TESTS(3);
+    ADD_TESTS(10);
 
     TEST_OK(pfs::json::to_ubjson(JsonType::make_object())
             == pfs::byte_string("{}", 2));
@@ -200,12 +224,14 @@ void test_object ()
         JsonType j;
         TEST_OK(j.parse("{\"h\": 10}") == pfs::error_code());
         TEST_OK(pfs::json::to_ubjson(j) == pfs::byte_string("{i\x01hi\x0a}"));
+        TEST_OK(pfs::json::from_ubjson<JsonType>(pfs::byte_string("{i\x01hi\x0a}")) == j);
     }
 
     {
         JsonType j;
         TEST_OK(j.parse("{\"key\": \"str\"}") == pfs::error_code());
         TEST_OK(pfs::json::to_ubjson(j) == pfs::byte_string("{i\x03keySi\x03str}"));
+        TEST_OK(pfs::json::from_ubjson<JsonType>(pfs::byte_string("{i\x03keySi\x03str}")) == j);
     }
 
     {

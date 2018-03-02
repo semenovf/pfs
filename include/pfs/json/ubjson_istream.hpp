@@ -29,7 +29,6 @@ struct ubjson_istream
     ubjson_istream (IStreamType & is, endian order = endian::big_endian)
         : _is(is)
         , _order(order)
-        , _current_type(-1)
     {}
 
     ubjson_istream & operator >> (json_type & j)
@@ -43,21 +42,22 @@ struct ubjson_istream
 private:
     void read_integer (integer_type & n, int8_t type = -1);
     void read_string (string_type & s, int8_t type = -1);
+    void read_key (string_type & s);
     void read_array (json_type & j);
     void read_object (json_type & j);
 
 private:
     IStreamType & _is;
     endian        _order;
-    int8_t        _current_type;
 };
 
 template <typename IStreamType, typename JsonType>
 void ubjson_istream<IStreamType, JsonType>::read (json_type & j)
 {
-    _is >> _current_type;
+    int8_t type = 0;
+    _is >> type;
 
-    switch (_current_type) {
+    switch (type) {
     case static_cast<int8_t>('Z'):
         j = json_type();
         break;
@@ -76,7 +76,7 @@ void ubjson_istream<IStreamType, JsonType>::read (json_type & j)
     case static_cast<int8_t>('l'):
     case static_cast<int8_t>('L'): {
         integer_type n;
-        read_integer(n, _current_type);
+        read_integer(n, type);
         j = n;
         break;
     }
@@ -100,7 +100,7 @@ void ubjson_istream<IStreamType, JsonType>::read (json_type & j)
     case static_cast<int8_t>('C'):
     case static_cast<int8_t>('S'): {
         string_type s;
-        read_string(s, _current_type);
+        read_string(s, type);
         j = s;
         break;
     }
@@ -176,9 +176,6 @@ void ubjson_istream<IStreamType, JsonType>::read_integer (integer_type & r, int8
 template <typename IStreamType, typename JsonType>
 void ubjson_istream<IStreamType, JsonType>::read_string (string_type & s, int8_t type)
 {
-    if (type < 0)
-        _is >> type;
-
     switch (type) {
     case static_cast<int8_t>('C'): {
         char c;
@@ -204,14 +201,31 @@ void ubjson_istream<IStreamType, JsonType>::read_string (string_type & s, int8_t
         break;
     }
 
-    case static_cast<int8_t>('}'): {
-        if (_current_type != static_cast<int8_t>('{')) {
-            throw json_exception(make_error_code(json_errc::object_expected));
-        } else {
-            _current_type = type;
-        }
-        break;
+//    case static_cast<int8_t>('}'): {
+//        if (_current_type != static_cast<int8_t>('{')) {
+//            throw json_exception(make_error_code(json_errc::object_expected));
+//        } else {
+//            _current_type = type;
+//        }
+//        break;
     }}
+}
+
+template <typename IStreamType, typename JsonType>
+void ubjson_istream<IStreamType, JsonType>::read_key (string_type & s)
+{
+    integer_type n;
+    read_integer(n);
+
+    byte_string bs;
+    byte_t c = 0;
+
+    while (n--) {
+        _is >> c;
+        bs.push_back(c);
+    }
+
+    s = string_type(bs.c_str());
 }
 
 template <typename IStreamType, typename JsonType>
@@ -226,7 +240,7 @@ void ubjson_istream<IStreamType, JsonType>::read_array (json_type & j)
         if(_current_type == static_cast<int8_t>(']'))
             break;
 
-        j.push_back(j);
+        j.push_back(jj);
     }
 }
 
@@ -238,7 +252,7 @@ void ubjson_istream<IStreamType, JsonType>::read_object (json_type & j)
     while (true) {
         string_type key;
 
-        read_string(key, -1);
+        read_key(key);
 
         // Here checks object is empty or object is finished
         if(_current_type == static_cast<int8_t>('}'))
