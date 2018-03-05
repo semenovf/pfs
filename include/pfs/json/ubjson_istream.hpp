@@ -33,18 +33,21 @@ struct ubjson_istream
 
     ubjson_istream & operator >> (json_type & j)
     {
-        read(j);
+        pfs::error_code ex = read(j, UBJSON_CHAR_UNSPEC);
+        if (ex)
+            throw json_exception(ex);
         return *this;
     }
 
-    void read (json_type & j);
+    pfs::error_code read (json_type & j, int8_t type);
 
 private:
-    void read_integer (integer_type & n, int8_t type = -1);
-    void read_string (string_type & s, int8_t type = -1);
-    void read_key (string_type & s);
-    void read_array (json_type & j);
-    void read_object (json_type & j);
+    int8_t read_type ();
+    pfs::error_code read_integer (integer_type & n, int8_t type);
+    pfs::error_code read_string (string_type & s, int8_t type);
+    pfs::error_code read_key (string_type & s, int8_t type);
+    pfs::error_code read_array (json_type & j);
+    pfs::error_code read_object (json_type & j);
 
 private:
     IStreamType & _is;
@@ -52,36 +55,48 @@ private:
 };
 
 template <typename IStreamType, typename JsonType>
-void ubjson_istream<IStreamType, JsonType>::read (json_type & j)
+int8_t ubjson_istream<IStreamType, JsonType>::read_type ()
 {
-    int8_t type = 0;
-    _is >> type;
+    int8_t type = UBJSON_CHAR_UNSPEC;
+
+    do {
+        _is >> type;
+    } while (type == UBJSON_CHAR_NOOP);
+
+    return type;
+}
+
+template <typename IStreamType, typename JsonType>
+pfs::error_code ubjson_istream<IStreamType, JsonType>::read (json_type & j, int8_t type)
+{
+    if (type == UBJSON_CHAR_UNSPEC)
+        type = read_type();
 
     switch (type) {
-    case static_cast<int8_t>('Z'):
+    case UBJSON_CHAR_NULL:
         j = json_type();
         break;
 
-    case static_cast<int8_t>('T'):
+    case UBJSON_CHAR_TRUE:
         j = true;
         break;
 
-    case static_cast<int8_t>('F'):
+    case UBJSON_CHAR_FALSE:
         j = false;
         break;
 
-    case static_cast<int8_t>('i'):
-    case static_cast<int8_t>('U'):
-    case static_cast<int8_t>('I'):
-    case static_cast<int8_t>('l'):
-    case static_cast<int8_t>('L'): {
+    case UBJSON_CHAR_INT8:
+    case UBJSON_CHAR_UINT8:
+    case UBJSON_CHAR_INT16:
+    case UBJSON_CHAR_INT32:
+    case UBJSON_CHAR_INT64: {
         integer_type n;
         read_integer(n, type);
         j = n;
         break;
     }
 
-    case static_cast<int8_t>('d'): {
+    case UBJSON_CHAR_REAL32: {
         union { real32_t f; int32_t d; } u;
         _is >> u.d;
         u.d = _order.convert(u.d);
@@ -89,7 +104,7 @@ void ubjson_istream<IStreamType, JsonType>::read (json_type & j)
         break;
     }
 
-    case static_cast<int8_t>('D'): {
+    case UBJSON_CHAR_REAL64: {
         union { real64_t f; int64_t d; } u;
         _is >> u.d;
         u.d = _order.convert(u.d);
@@ -97,96 +112,99 @@ void ubjson_istream<IStreamType, JsonType>::read (json_type & j)
         break;
     }
 
-    case static_cast<int8_t>('C'):
-    case static_cast<int8_t>('S'): {
+    case UBJSON_CHAR_CHAR:
+    case UBJSON_CHAR_STRING: {
         string_type s;
         read_string(s, type);
         j = s;
         break;
     }
 
-    case static_cast<int8_t>('['):
+    case UBJSON_CHAR_ARRAY_BEGIN:
         read_array(j);
         break;
 
-    case static_cast<int8_t>('{'):
+    case UBJSON_CHAR_OBJECT_BEGIN:
         read_object(j);
         break;
 
-    case static_cast<int8_t>(']'):
-    case static_cast<int8_t>('}'):
-        break;
-
     default:
-        throw json_exception(make_error_code(json_errc::bad_json));
+        return make_error_code(json_errc::bad_json);
     }
+
+    return pfs::error_code();
 }
 
 template <typename IStreamType, typename JsonType>
-void ubjson_istream<IStreamType, JsonType>::read_integer (integer_type & r, int8_t type)
+pfs::error_code ubjson_istream<IStreamType, JsonType>::read_integer (integer_type & r, int8_t type)
 {
-    if (type < 0)
+    if (type == UBJSON_CHAR_UNSPEC)
         _is >> type;
 
     switch (type) {
-    case static_cast<int8_t>('i'): {
+    case UBJSON_CHAR_INT8: {
         int8_t n;
         _is >> n;
         r = n;
         break;
     }
 
-    case static_cast<int8_t>('U'): {
+    case UBJSON_CHAR_UINT8: {
         uint8_t n;
         _is >> n;
         r = n;
         break;
     }
 
-    case static_cast<int8_t>('I'): {
+    case UBJSON_CHAR_INT16: {
         int16_t n;
         _is >> n;
         r = _order.convert(n);
         break;
     }
 
-    case static_cast<int8_t>('l'): {
+    case UBJSON_CHAR_INT32: {
         int32_t n;
         _is >> n;
         r = _order.convert(n);
         break;
     }
 
-    case static_cast<int8_t>('L'): {
+    case UBJSON_CHAR_INT64: {
 #if PFS_HAVE_INT64
         int64_t n;
         _is >> n;
         r = _order.convert(n);
 #else
-        throw json_exception(make_error_code(json_errc::range));
+        return make_error_code(json_errc::range);
 #endif
         break;
     }
 
     default:
-        throw json_exception(make_error_code(json_errc::range));
+        return make_error_code(json_errc::range);
     }
+
+    return pfs::error_code();
 }
 
 template <typename IStreamType, typename JsonType>
-void ubjson_istream<IStreamType, JsonType>::read_string (string_type & s, int8_t type)
+pfs::error_code ubjson_istream<IStreamType, JsonType>::read_string (string_type & s, int8_t type)
 {
+    if (type == UBJSON_CHAR_UNSPEC)
+        _is >> type;
+
     switch (type) {
-    case static_cast<int8_t>('C'): {
+    case UBJSON_CHAR_CHAR: {
         char c;
         _is >> c;
         s = string_type(1, c);
         break;
     }
 
-    case static_cast<int8_t>('S'): {
+    case UBJSON_CHAR_STRING: {
         integer_type n;
-        read_integer(n);
+        read_integer(n, UBJSON_CHAR_UNSPEC);
 
         byte_string bs;
 
@@ -199,23 +217,22 @@ void ubjson_istream<IStreamType, JsonType>::read_string (string_type & s, int8_t
         s = string_type(bs.c_str());
 
         break;
-    }
-
-//    case static_cast<int8_t>('}'): {
-//        if (_current_type != static_cast<int8_t>('{')) {
-//            throw json_exception(make_error_code(json_errc::object_expected));
-//        } else {
-//            _current_type = type;
-//        }
-//        break;
     }}
+
+    return pfs::error_code();
 }
 
 template <typename IStreamType, typename JsonType>
-void ubjson_istream<IStreamType, JsonType>::read_key (string_type & s)
+pfs::error_code ubjson_istream<IStreamType, JsonType>::read_key (string_type & s, int8_t type)
 {
+    if (type == UBJSON_CHAR_UNSPEC)
+        _is >> type;
+
     integer_type n;
-    read_integer(n);
+    pfs::error_code ex = read_integer(n, type);
+
+    if (ex)
+        return ex;
 
     byte_string bs;
     byte_t c = 0;
@@ -226,57 +243,78 @@ void ubjson_istream<IStreamType, JsonType>::read_key (string_type & s)
     }
 
     s = string_type(bs.c_str());
+
+    return pfs::error_code();
 }
 
 template <typename IStreamType, typename JsonType>
-void ubjson_istream<IStreamType, JsonType>::read_array (json_type & j)
+pfs::error_code ubjson_istream<IStreamType, JsonType>::read_array (json_type & j)
 {
     j = JsonType::make_array();
 
-    while (true) {
-        json_type jj;
-        read(jj);
+    int8_t type = UBJSON_CHAR_UNSPEC;
 
-        if(_current_type == static_cast<int8_t>(']'))
-            break;
+    while ((type = read_type()) != UBJSON_CHAR_ARRAY_END) {
+        json_type child;
 
-        j.push_back(jj);
+        pfs::error_code ex = read(child, type);
+
+        if (ex)
+            return ex;
+
+        j.push_back(child);
     }
+
+    return pfs::error_code();
 }
 
 template <typename IStreamType, typename JsonType>
-void ubjson_istream<IStreamType, JsonType>::read_object (json_type & j)
+pfs::error_code ubjson_istream<IStreamType, JsonType>::read_object (json_type & j)
 {
     j = JsonType::make_object();
 
-    while (true) {
+    int8_t type = UBJSON_CHAR_UNSPEC;
+
+    while ((type = read_type()) != UBJSON_CHAR_OBJECT_END) {
         string_type key;
 
-        read_key(key);
+        pfs::error_code ex = read_key(key, type);
 
-        // Here checks object is empty or object is finished
-        if(_current_type == static_cast<int8_t>('}'))
-            break;
+        if (ex)
+            return ex;
 
-        json_type jj;
-        read(jj);
+        json_type child;
 
-        if(_current_type == static_cast<int8_t>('}'))
-            throw json_exception(make_error_code(json_errc::object_expected));
+        ex = read(child, UBJSON_CHAR_UNSPEC);
 
-        j[key] = jj;
+        if (ex)
+            return ex;
+
+        j[key] = child;
     }
 }
 
 template <typename JsonType>
-JsonType from_ubjson (pfs::byte_string const & bs)
+JsonType from_ubjson (pfs::byte_string const & bs, pfs::error_code & ex)
 {
     typedef ubjson_istream<pfs::byte_istream, JsonType> ubjson_istream_t;
 
     JsonType j;
 
     pfs::byte_istream bis(bs.cbegin(), bs.cend(), endian::native_order());
-    ubjson_istream_t(bis).read(j);
+    ex = ubjson_istream_t(bis).read(j, UBJSON_CHAR_UNSPEC);
+
+    return j;
+}
+
+template <typename JsonType>
+JsonType from_ubjson (pfs::byte_string const & bs)
+{
+    pfs::error_code ex;
+    JsonType j = from_ubjson<JsonType>(bs, ex);
+
+    if (ex)
+        throw json_exception(ex);
 
     return j;
 }

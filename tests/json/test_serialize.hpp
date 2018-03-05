@@ -254,7 +254,7 @@ void test_object ()
         JsonType j;
         TEST_OK(j.parse(sample) == pfs::error_code());
 
-//        std::cout << pfs::to_string<string_type>(j, pfs::json::style_plain) << std::endl;
+        std::cout << pfs::to_string<string_type>(j, pfs::json::style_plain) << std::endl;
 
         TEST_OK(pfs::json::to_ubjson(j) == expected);
     }
