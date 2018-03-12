@@ -1,8 +1,6 @@
 #ifndef __PFS_JSON_UBJSON_ISTREAM_HPP__
 #define __PFS_JSON_UBJSON_ISTREAM_HPP__
 
-//#include <pfs/algorithm.hpp>
-//#include <pfs/limits.hpp>
 #include <pfs/endian.hpp>
 #include <pfs/byte_string.hpp>
 #include <pfs/json/json.hpp>
@@ -47,7 +45,11 @@ private:
     pfs::error_code read_string (string_type & s, int8_t type);
     pfs::error_code read_key (string_type & s, int8_t type);
     pfs::error_code read_array (json_type & j);
+    pfs::error_code read_nonoptimized_array (json_type & j, int8_t ch);
+    pfs::error_code read_optimized_array (json_type & j, integer_type count, int8_t type);
     pfs::error_code read_object (json_type & j);
+    pfs::error_code read_nonoptimized_object (json_type & j, int8_t ch);
+    pfs::error_code read_optimized_object (json_type & j, integer_type count, int8_t type);
 
 private:
     IStreamType & _is;
@@ -129,7 +131,7 @@ pfs::error_code ubjson_istream<IStreamType, JsonType>::read (json_type & j, int8
         break;
 
     default:
-        return make_error_code(json_errc::bad_json);
+        return make_error_code(json_errc::ubjson_parse);
     }
 
     return pfs::error_code();
@@ -176,13 +178,13 @@ pfs::error_code ubjson_istream<IStreamType, JsonType>::read_integer (integer_typ
         _is >> n;
         r = _order.convert(n);
 #else
-        return make_error_code(json_errc::range);
+        return make_error_code(json_errc::ubjson_parse);
 #endif
         break;
     }
 
     default:
-        return make_error_code(json_errc::range);
+        return make_error_code(json_errc::ubjson_parse);
     }
 
     return pfs::error_code();
@@ -252,9 +254,64 @@ pfs::error_code ubjson_istream<IStreamType, JsonType>::read_array (json_type & j
 {
     j = JsonType::make_array();
 
-    int8_t type = UBJSON_CHAR_UNSPEC;
+    int8_t ch = read_type();
 
-    while ((type = read_type()) != UBJSON_CHAR_ARRAY_END) {
+    if (ch == UBJSON_CHAR_TYPE) {
+        int8_t type = read_type();
+        ch = read_type();
+
+        if (ch == UBJSON_CHAR_SIZE) {
+            integer_type count = -1;
+            pfs::error_code ex  = read_integer(count, UBJSON_CHAR_UNSPEC);
+
+            if (ex)
+                return ex;
+
+            return read_optimized_array(j, count, type);
+        } else {
+            return make_error_code(json_errc::ubjson_parse);
+        }
+    } else if (ch == UBJSON_CHAR_SIZE) {
+        integer_type count = -1;
+        pfs::error_code ex = read_integer(count, UBJSON_CHAR_UNSPEC);
+
+        if (ex)
+            return ex;
+
+        return read_optimized_array(j, count, UBJSON_CHAR_UNSPEC);
+    } else {
+        return read_nonoptimized_array(j, ch);
+    }
+}
+
+template <typename IStreamType, typename JsonType>
+pfs::error_code
+ubjson_istream<IStreamType, JsonType>::read_nonoptimized_array (json_type & j
+        , int8_t ch)
+{
+    while (ch != UBJSON_CHAR_ARRAY_END) {
+        json_type child;
+
+        pfs::error_code ex = read(child, ch);
+
+        if (ex)
+            return ex;
+
+        j.push_back(child);
+
+        ch = read_type();
+    }
+
+    return pfs::error_code();
+}
+
+template <typename IStreamType, typename JsonType>
+pfs::error_code
+ubjson_istream<IStreamType, JsonType>::read_optimized_array (json_type & j
+        , integer_type count
+        , int8_t type)
+{
+    while (count-- > 0) {
         json_type child;
 
         pfs::error_code ex = read(child, type);
@@ -264,8 +321,6 @@ pfs::error_code ubjson_istream<IStreamType, JsonType>::read_array (json_type & j
 
         j.push_back(child);
     }
-
-    return pfs::error_code();
 }
 
 template <typename IStreamType, typename JsonType>
@@ -273,12 +328,45 @@ pfs::error_code ubjson_istream<IStreamType, JsonType>::read_object (json_type & 
 {
     j = JsonType::make_object();
 
-    int8_t type = UBJSON_CHAR_UNSPEC;
+    int8_t ch = read_type();
 
-    while ((type = read_type()) != UBJSON_CHAR_OBJECT_END) {
+    if (ch == UBJSON_CHAR_TYPE) {
+        int8_t type = read_type();
+        ch = read_type();
+
+        if (ch == UBJSON_CHAR_SIZE) {
+            integer_type count = -1;
+            pfs::error_code ex  = read_integer(count, UBJSON_CHAR_UNSPEC);
+
+            if (ex)
+                return ex;
+
+            return read_optimized_object(j, count, type);
+        } else {
+            return make_error_code(json_errc::ubjson_parse);
+        }
+    } else if (ch == UBJSON_CHAR_SIZE) {
+        integer_type count = -1;
+        pfs::error_code ex = read_integer(count, UBJSON_CHAR_UNSPEC);
+
+        if (ex)
+            return ex;
+
+        return read_optimized_object(j, count, UBJSON_CHAR_UNSPEC);
+    } else {
+        return read_nonoptimized_object(j, ch);
+    }
+}
+
+template <typename IStreamType, typename JsonType>
+pfs::error_code
+ubjson_istream<IStreamType, JsonType>::read_nonoptimized_object (json_type & j
+        , int8_t ch)
+{
+    while (ch != UBJSON_CHAR_OBJECT_END) {
         string_type key;
 
-        pfs::error_code ex = read_key(key, type);
+        pfs::error_code ex = read_key(key, ch);
 
         if (ex)
             return ex;
@@ -286,6 +374,34 @@ pfs::error_code ubjson_istream<IStreamType, JsonType>::read_object (json_type & 
         json_type child;
 
         ex = read(child, UBJSON_CHAR_UNSPEC);
+
+        if (ex)
+            return ex;
+
+        j[key] = child;
+
+        ch = read_type();
+    }
+    return pfs::error_code();
+}
+
+template <typename IStreamType, typename JsonType>
+pfs::error_code
+ubjson_istream<IStreamType, JsonType>::read_optimized_object (json_type & j
+        , integer_type count
+        , int8_t type)
+{
+    while (count-- > 0) {
+        string_type key;
+
+        pfs::error_code ex = read_key(key, UBJSON_CHAR_UNSPEC);
+
+        if (ex)
+            return ex;
+
+        json_type child;
+
+        ex = read(child, type);
 
         if (ex)
             return ex;

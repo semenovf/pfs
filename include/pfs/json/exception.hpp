@@ -22,6 +22,7 @@ struct json_errc
         , range
         , array_expected
         , object_expected
+        , ubjson_parse
 #if __cplusplus < 201103L
     };
 

@@ -171,7 +171,7 @@ void test_array ()
     typedef typename JsonType::string_type string_type;
     typedef typename JsonType::array_type array_type;
 
-    ADD_TESTS(5);
+    ADD_TESTS(11);
 
     TEST_OK(pfs::json::to_ubjson(JsonType::make_array())
             == pfs::byte_string("[]", 2));
@@ -204,6 +204,30 @@ void test_array ()
 
         TEST_OK(pfs::json::from_ubjson<JsonType>(expected) == j);
     }
+
+    // Test optimized with count
+    {
+        string_type sample("[123, 124, 125, 126, 127]");
+
+        pfs::byte_string expected("[#i\x05i\x7bi\x7ci\x7di\x7ei\x7f");
+
+        JsonType j;
+        TEST_OK(j.parse(sample) == pfs::error_code());
+        TEST_OK(pfs::json::to_ubjson(j, pfs::json::UBJSON_COUNT_OPTIMIZED) == expected);
+        TEST_OK(pfs::json::from_ubjson<JsonType>(expected) == j);
+    }
+
+    // Test optimized with type and count
+    {
+        string_type sample("[123, 124, 125, 126, 127]");
+
+        pfs::byte_string expected("[$i#i\x05\x7b\x7c\x7d\x7e\x7f");
+
+        JsonType j;
+        TEST_OK(j.parse(sample) == pfs::error_code());
+        TEST_OK(pfs::json::to_ubjson(j, pfs::json::UBJSON_FULL_OPTIMIZED) == expected);
+        TEST_OK(pfs::json::from_ubjson<JsonType>(expected) == j);
+    }
 }
 
 template <typename JsonType>
@@ -212,7 +236,7 @@ void test_object ()
     typedef typename JsonType::string_type string_type;
     typedef typename JsonType::object_type object_type;
 
-    ADD_TESTS(10);
+    ADD_TESTS(17);
 
     TEST_OK(pfs::json::to_ubjson(JsonType::make_object())
             == pfs::byte_string("{}", 2));
@@ -253,10 +277,56 @@ void test_object ()
 
         JsonType j;
         TEST_OK(j.parse(sample) == pfs::error_code());
-
-        std::cout << pfs::to_string<string_type>(j, pfs::json::style_plain) << std::endl;
-
         TEST_OK(pfs::json::to_ubjson(j) == expected);
+        TEST_OK(pfs::json::from_ubjson<JsonType>(expected) == j);
+    }
+
+    // Test optimized with count
+    {
+        string_type sample("{"
+            "\"k123\": 123"
+            ", \"k124\": 124"
+            ", \"k125\": 125"
+            ", \"k126\": 126"
+            ", \"k127\": 127"
+        "}");
+
+        pfs::byte_string expected("{#i\x05"
+            "i\x04k123i\x7b"
+            "i\x04k124i\x7c"
+            "i\x04k125i\x7d"
+            "i\x04k126i\x7e"
+            "i\x04k127i\x7f");
+
+        JsonType j;
+        TEST_OK(j.parse(sample) == pfs::error_code());
+        TEST_OK(pfs::json::to_ubjson(j, pfs::json::UBJSON_COUNT_OPTIMIZED) == expected);
+        TEST_OK(pfs::json::from_ubjson<JsonType>(expected) == j);
+        //std::cout << pfs::to_string<string_type>(pfs::json::from_ubjson<JsonType>(expected), pfs::json::style_plain) << std::endl;
+    }
+
+    // Test optimized with type and count
+    {
+        string_type sample("{"
+            "\"k123\": 123"
+            ", \"k124\": 124"
+            ", \"k125\": 125"
+            ", \"k126\": 126"
+            ", \"k127\": 127"
+        "}");
+
+        pfs::byte_string expected("{$i#i\x05"
+            "i\x04k123\x7b"
+            "i\x04k124\x7c"
+            "i\x04k125\x7d"
+            "i\x04k126\x7e"
+            "i\x04k127\x7f");
+
+        JsonType j;
+        TEST_OK(j.parse(sample) == pfs::error_code());
+        TEST_OK(pfs::json::to_ubjson(j, pfs::json::UBJSON_FULL_OPTIMIZED) == expected);
+        TEST_OK(pfs::json::from_ubjson<JsonType>(expected) == j);
+        //std::cout << pfs::to_string<string_type>(pfs::json::from_ubjson<JsonType>(expected), pfs::json::style_plain) << std::endl;
     }
 }
 

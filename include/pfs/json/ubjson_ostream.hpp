@@ -19,6 +19,7 @@ namespace json {
 template <typename OStreamType, typename JsonType>
 struct ubjson_ostream
 {
+private:
     enum falgs_enum {
           no_flags        = 0x00
         , type_optimized  = 0x01
@@ -26,6 +27,7 @@ struct ubjson_ostream
         , full_optimized  = type_optimized | count_optimized
     };
 
+public:
     typedef JsonType                        json_type;
     typedef typename json_type::string_type string_type;
     typedef typename json_type::array_type  array_type;
@@ -85,31 +87,81 @@ private:
 };
 
 template <typename OStreamType, typename JsonType>
+int8_t ubjson_ostream<OStreamType, JsonType>::prefix (json_type const & j)
+{
+    switch (j.type()) {
+    case data_type::null:
+        return UBJSON_CHAR_NULL;
+
+    case data_type::boolean:
+        return static_cast<int8_t>(j.boolean_data()
+                ? UBJSON_CHAR_TRUE
+                : UBJSON_CHAR_FALSE);
+
+    case data_type::integer: {
+        typename json_type::integer_type const & n = j.integer_data();
+
+        if (pfs::numeric_limits<int8_t>::max() < n && n <= pfs::numeric_limits<uint8_t>::max())
+            return UBJSON_CHAR_UINT8;
+        else if (pfs::numeric_limits<int8_t>::min() <= n && n <= pfs::numeric_limits<int8_t>::max())
+            return UBJSON_CHAR_INT8;
+        else if (pfs::numeric_limits<int16_t>::min() <= n && n <= pfs::numeric_limits<int16_t>::max())
+            return UBJSON_CHAR_INT16;
+        else if (pfs::numeric_limits<int32_t>::min() <= n && n <= pfs::numeric_limits<int32_t>::max())
+            return UBJSON_CHAR_INT32;
+        else //if (pfs::numeric_limits<int64_t>::min() <= n && n <= pfs::numeric_limits<int64_t>::max())
+            return UBJSON_CHAR_INT64;
+    }
+
+    case data_type::real:
+        return UBJSON_CHAR_REAL64;
+
+    case data_type::string: {
+        typename json_type::string_type const & s = j.string_data();
+
+        if (s.size() == 1 && *s.cbegin() <= numeric_limits<int8_t>::max())
+            return UBJSON_CHAR_CHAR;
+        else
+            return UBJSON_CHAR_STRING;
+    }
+
+    case data_type::array:
+        return UBJSON_CHAR_ARRAY_BEGIN;
+
+    case data_type::object:
+        return UBJSON_CHAR_OBJECT_BEGIN;
+    }
+}
+
+template <typename OStreamType, typename JsonType>
 pfs::error_code ubjson_ostream<OStreamType, JsonType>::write_integer (typename json_type::integer_type n, bool with_prefix)
 {
     if (pfs::numeric_limits<int8_t>::max() < n && n <= pfs::numeric_limits<uint8_t>::max()) {
-        _os << UBJSON_CHAR_UINT8;
+        if (with_prefix)
+            _os << UBJSON_CHAR_UINT8;
         _os << static_cast<uint8_t>(n);
     } else if (pfs::numeric_limits<int8_t>::min() <= n && n <= pfs::numeric_limits<int8_t>::max()) {
-        _os << UBJSON_CHAR_INT8;
+        if (with_prefix)
+            _os << UBJSON_CHAR_INT8;
         _os << static_cast<int8_t>(n);
     } else if (pfs::numeric_limits<int16_t>::min() <= n && n <= pfs::numeric_limits<int16_t>::max()) {
-        _os << UBJSON_CHAR_INT16;
+        if (with_prefix)
+            _os << UBJSON_CHAR_INT16;
         _os << _order.convert(static_cast<int16_t>(n));
     } else if (pfs::numeric_limits<int32_t>::min() <= n && n <= pfs::numeric_limits<int32_t>::max()) {
-        _os << UBJSON_CHAR_INT32;
+        if (with_prefix)
+            _os << UBJSON_CHAR_INT32;
         _os << _order.convert(static_cast<int32_t>(n));
     }
 #if PFS_HAVE_INT64
     else if (pfs::numeric_limits<int64_t>::min() <= n && n <= pfs::numeric_limits<int64_t>::max()) {
-        _os << UBJSON_CHAR_INT64;
+        if (with_prefix)
+            _os << UBJSON_CHAR_INT64;
         _os << _order.convert(static_cast<int64_t>(n));
     }
 #endif
     else {
-        make_error_code(json_errc::range);
-//        throw json_exception(make_error_code(json_errc::range)
-//            , "unexpected signed integer width");
+        return make_error_code(json_errc::range);
     }
 
     return pfs::error_code();
@@ -119,17 +171,18 @@ template <typename OStreamType, typename JsonType>
 pfs::error_code ubjson_ostream<OStreamType, JsonType>::write_real (typename json_type::real_type f, bool with_prefix)
 {
     if (pfs::is_same<typename json_type::real_type, real32_t>()) {
-        _os << static_cast<int8_t>('d');
+        if (with_prefix)
+            _os << static_cast<int8_t>('d');
         _os << _order.convert(static_cast<int32_t>(f));
     } else if (pfs::is_same<typename json_type::real_type, real64_t>()) {
         union { real64_t f; int64_t d; } u;
         u.f = f;
-        _os << static_cast<int8_t>('D');
+
+        if (with_prefix)
+            _os << static_cast<int8_t>('D');
         _os << _order.convert(u.d);
     } else {
-        make_error_code(json_errc::range);
-//        throw json_exception(make_error_code(json_errc::range)
-//            , "unexpected real type");
+        return make_error_code(json_errc::range);
     }
 
     return pfs::error_code();
@@ -149,7 +202,6 @@ pfs::error_code ubjson_ostream<OStreamType, JsonType>::write_string (string_type
             _os << s;
         }
     } else {
-        // Used as key value in objects usually
         write_integer(static_cast<typename json_type::integer_type>(s.size()), true);
         _os << s;
     }
@@ -250,53 +302,6 @@ pfs::error_code ubjson_ostream<OStreamType, JsonType>::write_object (json_type c
 }
 
 template <typename OStreamType, typename JsonType>
-int8_t ubjson_ostream<OStreamType, JsonType>::prefix (json_type const & j)
-{
-    switch (j.type()) {
-    case data_type::null:
-        return UBJSON_CHAR_NULL;
-
-    case data_type::boolean:
-        return static_cast<int8_t>(j.boolean_data()
-                ? UBJSON_CHAR_TRUE
-                : UBJSON_CHAR_FALSE);
-
-    case data_type::integer: {
-        typename json_type::integer_type const & n = j.integer_data();
-
-        if (pfs::numeric_limits<int8_t>::max() < n && n <= pfs::numeric_limits<uint8_t>::max())
-            return UBJSON_CHAR_UINT8;
-        else if (pfs::numeric_limits<int8_t>::min() <= n && n <= pfs::numeric_limits<int8_t>::max())
-            return UBJSON_CHAR_INT8;
-        else if (pfs::numeric_limits<int16_t>::min() <= n && n <= pfs::numeric_limits<int16_t>::max())
-            return UBJSON_CHAR_INT16;
-        else if (pfs::numeric_limits<int32_t>::min() <= n && n <= pfs::numeric_limits<int32_t>::max())
-            return UBJSON_CHAR_INT32;
-        else //if (pfs::numeric_limits<int64_t>::min() <= n && n <= pfs::numeric_limits<int64_t>::max())
-            return UBJSON_CHAR_INT64;
-    }
-
-    case data_type::real:
-        return UBJSON_CHAR_REAL64;
-
-    case data_type::string: {
-        typename json_type::string_type const & s = j.string_data();
-
-        if (s.size() == 1 && *s.cbegin() <= numeric_limits<int8_t>::max())
-            return UBJSON_CHAR_CHAR;
-        else
-            return UBJSON_CHAR_STRING;
-    }
-
-    case data_type::array:
-        return UBJSON_CHAR_ARRAY_BEGIN;
-
-    case data_type::object:
-        return UBJSON_CHAR_OBJECT_BEGIN;
-    }
-}
-
-template <typename OStreamType, typename JsonType>
 pfs::error_code ubjson_ostream<OStreamType, JsonType>::write_json (json_type const & j, bool with_prefix)
 {
     switch (j.type()) {
@@ -330,26 +335,39 @@ pfs::error_code ubjson_ostream<OStreamType, JsonType>::write_json (json_type con
 }
 
 template <typename JsonType>
-pfs::byte_string to_ubjson (JsonType const & j, pfs::error_code & ex)
+pfs::byte_string to_ubjson (JsonType const & j, int flags, pfs::error_code & ex)
 {
     typedef pfs::json::ubjson_ostream<pfs::byte_ostream, JsonType> ubjson_ostream_t;
 
     pfs::byte_ostream os;
-    ex = ubjson_ostream_t(os).write(j);
+    ex = ubjson_ostream_t(os, flags).write(j);
     return os.data();
 }
 
 template <typename JsonType>
-pfs::byte_string to_ubjson (JsonType const & j)
+inline pfs::byte_string to_ubjson (JsonType const & j, pfs::error_code & ex)
+{
+    return to_ubjson<JsonType>(j, 0, ex);
+}
+
+template <typename JsonType>
+pfs::byte_string to_ubjson (JsonType const & j, int flags)
 {
     pfs::error_code ex;
-    pfs::byte_string r = to_ubjson(j, ex);
+    pfs::byte_string r = to_ubjson<JsonType>(j, flags, ex);
 
     if (ex)
         throw json_exception(ex);
 
     return r;
 }
+
+template <typename JsonType>
+inline pfs::byte_string to_ubjson (JsonType const & j)
+{
+    return to_ubjson<JsonType>(j, 0);
+}
+
 
 }} // pfs::json
 
