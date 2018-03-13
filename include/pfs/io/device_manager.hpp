@@ -25,7 +25,7 @@ class device_manager : has_slots<>
 
         bool operator < (reopen_item const & x) const
         {
-            return (start + timeout) < (x.start + x.timeout);
+            return (start + timeout) <= (x.start + x.timeout);
         }
     };
 
