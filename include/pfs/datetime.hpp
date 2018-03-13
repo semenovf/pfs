@@ -174,7 +174,7 @@ public:
 	void set_millis_since_epoch (intmax_t millis);
 
     intmax_t to_intmax () const;
-    
+
 	/**
 	 *
 	 * @return
@@ -235,20 +235,20 @@ class timezone
 {
 public:
     typedef StringType string_type;
-    
+
 private:
     string_type _tzname;
     long int    _offset;
-    
+
 public:
-    timezone () 
+    timezone ()
         : _tzname("XXXX")
-        , _offset(0) 
+        , _offset(0)
     {}
-        
+
     timezone (string_type const & tzname, long int offset)
         : _tzname(tzname)
-        , _offset(offset) 
+        , _offset(offset)
     {}
 
     timezone (timezone const & other)
@@ -262,21 +262,21 @@ public:
         _offset = other._offset;
         return *this;
     }
-    
-    string_type const & tzname () const 
+
+    string_type const & tzname () const
     {
         return _tzname;
     }
-    
+
     long int offset () const
     {
         return _offset;
     }
 
     /*
-     * @brief Converts UTC offset to string. 
+     * @brief Converts UTC offset to string.
      * @param off UTC offset value.
-     * 
+     *
      * @return String in format '+hhmm' or '-hhmm' (that is, the hour and minute offset from UTC).
      */
     static string_type offset_to_string (long int off)
@@ -300,24 +300,24 @@ public:
 
         result += hh;
 
-        if (m < 0)
+        if (m < 10)
             result += '0';
 
         result += mm;
 
         return result;
     }
-    
+
     string_type offset_to_string () const
     {
         return offset_to_string(_offset);
     }
 };
 
-   
+
 /**
  * @brief Converts date and time to string according to @a format.
- * 
+ *
  * @param dt Date and time value.
  * @param format Format to convert @a dt.
  * @return String representation of @a dt.
@@ -334,7 +334,7 @@ StringType to_string (datetime const & dt, timezone<StringType> const & tz, Stri
 	bool need_spec = false; // true if conversion specifier character expected
 
     StringType r;
-    
+
 	while (p < end) {
 		if (*p == '%') {
 			if (need_spec) {
@@ -351,7 +351,7 @@ StringType to_string (datetime const & dt, timezone<StringType> const & tz, Stri
 				case 'Z':
 					r.append(tz.tzname());
 					break;
-                    
+
 				case 'z':
 					r.append(tz.offset_to_string());
 					break;
@@ -367,8 +367,8 @@ StringType to_string (datetime const & dt, timezone<StringType> const & tz, Stri
 		}
 		++p;
 	}
-    
-    return r;    
+
+    return r;
 }
 
 template <typename StringType>

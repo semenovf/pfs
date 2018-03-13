@@ -3,6 +3,7 @@
 #include <pfs/string.hpp>
 #include <pfs/traits/stdcxx/string.hpp>
 #include <pfs/date.hpp>
+#include <pfs/datetime.hpp>
 
 typedef pfs::string<pfs::stdcxx::string> string_type;
 typedef std::stringstream stringstream_type;
@@ -121,6 +122,16 @@ void test_stringify ()
     TEST_OK(pfs::to_string<string_type>(date_type(1, 2, 3)) == string_type("0001-02-03"));
 }
 
+void test_timezone ()
+{
+    ADD_TESTS(2);
+    
+    typedef pfs::timezone<string_type> timezone_t;
+    
+    TEST_OK(timezone_t::offset_to_string(0L) == string_type("+0000"));
+    TEST_OK(timezone_t::offset_to_string(18000L) == string_type("+0500"));
+}
+
 int main (int argc, char *argv[])
 {
     PFS_UNUSED2(argc, argv);
@@ -136,6 +147,7 @@ int main (int argc, char *argv[])
     TEST_OK(date_type::is_leap_year(2016));
     TEST_OK(!date_type::is_leap_year(2017));
 
+    test_timezone();
 
     return END_TESTS;
 }
