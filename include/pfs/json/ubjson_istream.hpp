@@ -40,7 +40,7 @@ struct ubjson_istream
     pfs::error_code read (json_type & j, int8_t type);
 
 private:
-    int8_t read_type ();
+    int8_t read_type (bool ignore_noop = true);
     pfs::error_code read_integer (integer_type & n, int8_t type);
     pfs::error_code read_string (string_type & s, int8_t type);
     pfs::error_code read_key (string_type & s, int8_t type);
@@ -57,13 +57,13 @@ private:
 };
 
 template <typename IStreamType, typename JsonType>
-int8_t ubjson_istream<IStreamType, JsonType>::read_type ()
+int8_t ubjson_istream<IStreamType, JsonType>::read_type (bool ignore_noop)
 {
     int8_t type = UBJSON_CHAR_UNSPEC;
 
     do {
         _is >> type;
-    } while (type == UBJSON_CHAR_NOOP);
+    } while (ignore_noop && type == UBJSON_CHAR_NOOP);
 
     return type;
 }
@@ -123,12 +123,10 @@ pfs::error_code ubjson_istream<IStreamType, JsonType>::read (json_type & j, int8
     }
 
     case UBJSON_CHAR_ARRAY_BEGIN:
-        read_array(j);
-        break;
+        return read_array(j);
 
     case UBJSON_CHAR_OBJECT_BEGIN:
-        read_object(j);
-        break;
+        return read_object(j);
 
     default:
         return make_error_code(json_errc::ubjson_parse);
@@ -252,12 +250,10 @@ pfs::error_code ubjson_istream<IStreamType, JsonType>::read_key (string_type & s
 template <typename IStreamType, typename JsonType>
 pfs::error_code ubjson_istream<IStreamType, JsonType>::read_array (json_type & j)
 {
-    j = JsonType::make_array();
-
     int8_t ch = read_type();
 
     if (ch == UBJSON_CHAR_TYPE) {
-        int8_t type = read_type();
+        int8_t type = read_type(false); // NO-OP can be valid type
         ch = read_type();
 
         if (ch == UBJSON_CHAR_SIZE) {
@@ -289,6 +285,8 @@ pfs::error_code
 ubjson_istream<IStreamType, JsonType>::read_nonoptimized_array (json_type & j
         , int8_t ch)
 {
+    j = JsonType::make_array();
+
     while (ch != UBJSON_CHAR_ARRAY_END) {
         json_type child;
 
@@ -311,27 +309,49 @@ ubjson_istream<IStreamType, JsonType>::read_optimized_array (json_type & j
         , integer_type count
         , int8_t type)
 {
-    while (count-- > 0) {
-        json_type child;
+    // Special cases: strongly-typed arrays of null, no-op and boolean values
 
-        pfs::error_code ex = read(child, type);
+    // Ignore values
+    if (type == UBJSON_CHAR_NOOP)
+        return pfs::error_code();
 
-        if (ex)
-            return ex;
+    j = JsonType::make_array();
 
-        j.push_back(child);
+    if (type == UBJSON_CHAR_NULL) {
+        // Simple add null values
+        while (count-- > 0)
+            j.push_back(json_type());
+    } else if (type == UBJSON_CHAR_TRUE) {
+        // Simple add boolean true values
+        while (count-- > 0)
+            j.push_back(json_type(true));
+    } else if (type == UBJSON_CHAR_FALSE) {
+        // Simple add boolean false values
+        while (count-- > 0)
+            j.push_back(json_type(false));
+    } else {
+        while (count-- > 0) {
+            json_type child;
+
+            pfs::error_code ex = read(child, type);
+
+            if (ex)
+                return ex;
+
+            j.push_back(child);
+        }
     }
+
+    return pfs::error_code();
 }
 
 template <typename IStreamType, typename JsonType>
 pfs::error_code ubjson_istream<IStreamType, JsonType>::read_object (json_type & j)
 {
-    j = JsonType::make_object();
-
     int8_t ch = read_type();
 
     if (ch == UBJSON_CHAR_TYPE) {
-        int8_t type = read_type();
+        int8_t type = read_type(false); // NO-OP can be valid type
         ch = read_type();
 
         if (ch == UBJSON_CHAR_SIZE) {
@@ -363,6 +383,8 @@ pfs::error_code
 ubjson_istream<IStreamType, JsonType>::read_nonoptimized_object (json_type & j
         , int8_t ch)
 {
+    j = JsonType::make_object();
+
     while (ch != UBJSON_CHAR_OBJECT_END) {
         string_type key;
 
@@ -391,23 +413,63 @@ ubjson_istream<IStreamType, JsonType>::read_optimized_object (json_type & j
         , integer_type count
         , int8_t type)
 {
-    while (count-- > 0) {
-        string_type key;
+    // Special cases: strongly-typed arrays of null, no-op and boolean values
 
-        pfs::error_code ex = read_key(key, UBJSON_CHAR_UNSPEC);
+    // Ignore values
+    if (type == UBJSON_CHAR_NOOP) {
+        while (count-- > 0) {
+            string_type key;
+            pfs::error_code ex = read_key(key, UBJSON_CHAR_UNSPEC);
+            if (ex) return ex;
+        }
 
-        if (ex)
-            return ex;
-
-        json_type child;
-
-        ex = read(child, type);
-
-        if (ex)
-            return ex;
-
-        j[key] = child;
+        return pfs::error_code();
     }
+
+    j = JsonType::make_object();
+
+    if (type == UBJSON_CHAR_NULL) {
+        while (count-- > 0) {
+            string_type key;
+            pfs::error_code ex = read_key(key, UBJSON_CHAR_UNSPEC);
+            if (ex) return ex;
+            j[key] = json_type();
+        }
+    } else if (type == UBJSON_CHAR_TRUE) {
+        while (count-- > 0) {
+            string_type key;
+            pfs::error_code ex = read_key(key, UBJSON_CHAR_UNSPEC);
+            if (ex) return ex;
+            j[key] = json_type(true);
+        }
+    } else if (type == UBJSON_CHAR_FALSE) {
+        while (count-- > 0) {
+            string_type key;
+            pfs::error_code ex = read_key(key, UBJSON_CHAR_UNSPEC);
+            if (ex) return ex;
+            j[key] = json_type(false);
+        }
+    } else {
+        while (count-- > 0) {
+            string_type key;
+
+            pfs::error_code ex = read_key(key, UBJSON_CHAR_UNSPEC);
+
+            if (ex)
+                return ex;
+
+            json_type child;
+
+            ex = read(child, type);
+
+            if (ex)
+                return ex;
+
+            j[key] = child;
+        }
+    }
+
+    return pfs::error_code();
 }
 
 template <typename JsonType>

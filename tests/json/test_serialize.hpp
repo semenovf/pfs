@@ -171,7 +171,7 @@ void test_array ()
     typedef typename JsonType::string_type string_type;
     typedef typename JsonType::array_type array_type;
 
-    ADD_TESTS(11);
+    ADD_TESTS(21);
 
     TEST_OK(pfs::json::to_ubjson(JsonType::make_array())
             == pfs::byte_string("[]", 2));
@@ -228,6 +228,42 @@ void test_array ()
         TEST_OK(pfs::json::to_ubjson(j, pfs::json::UBJSON_FULL_OPTIMIZED) == expected);
         TEST_OK(pfs::json::from_ubjson<JsonType>(expected) == j);
     }
+
+    // Special cases
+    {
+        pfs::byte_string expected("[$N#I\x00\x02", 7);
+        TEST_OK(pfs::json::from_ubjson<JsonType>(expected) == JsonType());
+    }
+
+    {
+        string_type sample("[null, null, null, null, null]");
+        pfs::byte_string expected("[$Z#i\x05");
+
+        JsonType j;
+        TEST_OK(j.parse(sample) == pfs::error_code());
+        TEST_OK(pfs::json::to_ubjson(j, pfs::json::UBJSON_FULL_OPTIMIZED) == expected);
+        TEST_OK(pfs::json::from_ubjson<JsonType>(expected) == j);
+    }
+
+    {
+        string_type sample("[true, true, true, true, true]");
+        pfs::byte_string expected("[$T#i\x05");
+
+        JsonType j;
+        TEST_OK(j.parse(sample) == pfs::error_code());
+        TEST_OK(pfs::json::to_ubjson(j, pfs::json::UBJSON_FULL_OPTIMIZED) == expected);
+        TEST_OK(pfs::json::from_ubjson<JsonType>(expected) == j);
+    }
+
+    {
+        string_type sample("[false, false, false, false, false]");
+        pfs::byte_string expected("[$F#i\x05");
+
+        JsonType j;
+        TEST_OK(j.parse(sample) == pfs::error_code());
+        TEST_OK(pfs::json::to_ubjson(j, pfs::json::UBJSON_FULL_OPTIMIZED) == expected);
+        TEST_OK(pfs::json::from_ubjson<JsonType>(expected) == j);
+    }
 }
 
 template <typename JsonType>
@@ -236,29 +272,31 @@ void test_object ()
     typedef typename JsonType::string_type string_type;
     typedef typename JsonType::object_type object_type;
 
-    ADD_TESTS(17);
+    ADD_TESTS(27);
 
-    TEST_OK(pfs::json::to_ubjson(JsonType::make_object())
-            == pfs::byte_string("{}", 2));
+    if (true) {
+        TEST_OK(pfs::json::to_ubjson(JsonType::make_object())
+                == pfs::byte_string("{}", 2));
 
-    TEST_OK(pfs::json::from_ubjson<JsonType>(pfs::byte_string("{}", 2))
-            == JsonType::make_object());
+        TEST_OK(pfs::json::from_ubjson<JsonType>(pfs::byte_string("{}", 2))
+                == JsonType::make_object());
+    }
 
-    {
+    if (true) {
         JsonType j;
         TEST_OK(j.parse("{\"h\": 10}") == pfs::error_code());
         TEST_OK(pfs::json::to_ubjson(j) == pfs::byte_string("{i\x01hi\x0a}"));
         TEST_OK(pfs::json::from_ubjson<JsonType>(pfs::byte_string("{i\x01hi\x0a}")) == j);
     }
 
-    {
+    if (true) {
         JsonType j;
         TEST_OK(j.parse("{\"key\": \"str\"}") == pfs::error_code());
         TEST_OK(pfs::json::to_ubjson(j) == pfs::byte_string("{i\x03keySi\x03str}"));
         TEST_OK(pfs::json::from_ubjson<JsonType>(pfs::byte_string("{i\x03keySi\x03str}")) == j);
     }
 
-    {
+    if (true) {
         string_type sample("{"
             "\"post\": {"
                 "\"id\": 1000"
@@ -282,7 +320,7 @@ void test_object ()
     }
 
     // Test optimized with count
-    {
+    if (true) {
         string_type sample("{"
             "\"k123\": 123"
             ", \"k124\": 124"
@@ -306,7 +344,7 @@ void test_object ()
     }
 
     // Test optimized with type and count
-    {
+    if (true) {
         string_type sample("{"
             "\"k123\": 123"
             ", \"k124\": 124"
@@ -327,6 +365,84 @@ void test_object ()
         TEST_OK(pfs::json::to_ubjson(j, pfs::json::UBJSON_FULL_OPTIMIZED) == expected);
         TEST_OK(pfs::json::from_ubjson<JsonType>(expected) == j);
         //std::cout << pfs::to_string<string_type>(pfs::json::from_ubjson<JsonType>(expected), pfs::json::style_plain) << std::endl;
+    }
+
+    // Special cases
+    if (true) {
+        pfs::byte_string expected("{$N#i\x05"
+            "i\x04k123"
+            "i\x04k124"
+            "i\x04k125"
+            "i\x04k126"
+            "i\x04k127");
+
+        TEST_OK(pfs::json::from_ubjson<JsonType>(expected) == JsonType());
+    }
+
+    if (true) {
+        string_type sample("{"
+            "\"k123\": null"
+            ", \"k124\": null"
+            ", \"k125\": null"
+            ", \"k126\": null"
+            ", \"k127\": null"
+        "}");
+
+        pfs::byte_string expected("{$Z#i\x05"
+            "i\x04k123"
+            "i\x04k124"
+            "i\x04k125"
+            "i\x04k126"
+            "i\x04k127");
+
+        JsonType j;
+        TEST_OK(j.parse(sample) == pfs::error_code());
+        TEST_OK(pfs::json::to_ubjson(j, pfs::json::UBJSON_FULL_OPTIMIZED) == expected);
+        TEST_OK(pfs::json::from_ubjson<JsonType>(expected) == j);
+    }
+
+    if (true) {
+        string_type sample("{"
+            "\"k123\": true"
+            ", \"k124\": true"
+            ", \"k125\": true"
+            ", \"k126\": true"
+            ", \"k127\": true"
+        "}");
+
+        pfs::byte_string expected("{$T#i\x05"
+            "i\x04k123"
+            "i\x04k124"
+            "i\x04k125"
+            "i\x04k126"
+            "i\x04k127");
+
+        JsonType j;
+        TEST_OK(j.parse(sample) == pfs::error_code());
+        TEST_OK(pfs::json::to_ubjson(j, pfs::json::UBJSON_FULL_OPTIMIZED) == expected);
+        TEST_OK(pfs::json::from_ubjson<JsonType>(expected) == j);
+    }
+
+    if (true) {
+        string_type sample("{"
+            "\"k123\": false"
+            ", \"k124\": false"
+            ", \"k125\": false"
+            ", \"k126\": false"
+            ", \"k127\": false"
+        "}");
+
+        pfs::byte_string expected("{$F#i\x05"
+            "i\x04k123"
+            "i\x04k124"
+            "i\x04k125"
+            "i\x04k126"
+            "i\x04k127");
+
+        JsonType j;
+        TEST_OK(j.parse(sample) == pfs::error_code());
+        TEST_OK(pfs::json::to_ubjson(j, pfs::json::UBJSON_FULL_OPTIMIZED) == expected);
+        TEST_OK(pfs::json::from_ubjson<JsonType>(expected) == j);
     }
 }
 

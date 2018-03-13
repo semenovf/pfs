@@ -215,6 +215,7 @@ pfs::error_code ubjson_ostream<OStreamType, JsonType>::write_array (json_type co
     _os << UBJSON_CHAR_ARRAY_BEGIN;
 
     bool use_count_optimization = ((_flags & count_optimized) && !j.empty());
+    bool is_special_case = false;
 
     // If a type is specified, a count must also be specified.
     // A type cannot be specified by itself.
@@ -232,6 +233,14 @@ pfs::error_code ubjson_ostream<OStreamType, JsonType>::write_array (json_type co
         if (use_type_optimization) {
             _os << UBJSON_CHAR_TYPE;
             _os << first_prefix;
+
+            // Check special cases
+            if (first_prefix == UBJSON_CHAR_NOOP
+                    || first_prefix == UBJSON_CHAR_NULL
+                    || first_prefix == UBJSON_CHAR_TRUE
+                    || first_prefix == UBJSON_CHAR_FALSE) {
+                is_special_case = true;
+            }
         }
     }
 
@@ -240,11 +249,14 @@ pfs::error_code ubjson_ostream<OStreamType, JsonType>::write_array (json_type co
         write_integer(static_cast<typename json_type::integer_type>(j.size()), true);
     }
 
-    typename json_type::const_iterator first = j.cbegin();
-    typename json_type::const_iterator last  = j.cend();
+    // Ignore special cases: strongly-typed arrays of null, no-op and boolean values
+    if (! is_special_case) {
+        typename json_type::const_iterator first = j.cbegin();
+        typename json_type::const_iterator last  = j.cend();
 
-    for (; first != last; ++first)
-        write_json(*first, !use_type_optimization);
+        for (; first != last; ++first)
+            write_json(*first, !use_type_optimization);
+    }
 
     // If a count is specified the container must not specify an end-marker.
     if (!use_count_optimization)
@@ -259,6 +271,7 @@ pfs::error_code ubjson_ostream<OStreamType, JsonType>::write_object (json_type c
     _os << UBJSON_CHAR_OBJECT_BEGIN;
 
     bool use_count_optimization = ((_flags & count_optimized) && !j.empty());
+    bool is_special_case = false;
 
     // If a type is specified, a count must also be specified.
     // A type cannot be specified by itself.
@@ -274,6 +287,14 @@ pfs::error_code ubjson_ostream<OStreamType, JsonType>::write_object (json_type c
         if (use_type_optimization) {
             _os << UBJSON_CHAR_TYPE;
             _os << first_prefix;
+
+            // Check special cases
+            if (first_prefix == UBJSON_CHAR_NOOP
+                    || first_prefix == UBJSON_CHAR_NULL
+                    || first_prefix == UBJSON_CHAR_TRUE
+                    || first_prefix == UBJSON_CHAR_FALSE) {
+                is_special_case = true;
+            }
         }
     }
 
@@ -285,13 +306,19 @@ pfs::error_code ubjson_ostream<OStreamType, JsonType>::write_object (json_type c
     typename json_type::const_iterator first = j.cbegin();
     typename json_type::const_iterator last = j.cend();
 
-    for (; first != last; ++first) {
-        // The [S] (string) marker is omitted from each of the names in the
-        // name/value pairings inside the object. The JSON specification does
-        // not allow non-string name values, therefore the [S] marker
-        // is redundant and must not be used.
-        write_string(first.key(), false);
-        write_json(*first, !use_type_optimization);
+    if (is_special_case) {
+        for (; first != last; ++first) {
+            // The [S] (string) marker is omitted from each of the names in the
+            // name/value pairings inside the object. The JSON specification does
+            // not allow non-string name values, therefore the [S] marker
+            // is redundant and must not be used.
+           write_string(first.key(), false);
+        }
+    } else {
+        for (; first != last; ++first) {
+            write_string(first.key(), false);
+            write_json(*first, !use_type_optimization);
+        }
     }
 
     // If a count is specified the container must not specify an end-marker.

@@ -33,6 +33,9 @@ std::string json_category::message (int ev) const
     case static_cast<int>(json_errc::object_expected):
         return "object expected";
 
+    case static_cast<int>(json_errc::ubjson_parse):
+        return "UBJSON parse error";
+
     default: return "unknown JSON error";
     }
 }
