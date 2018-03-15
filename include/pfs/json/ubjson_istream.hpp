@@ -37,7 +37,7 @@ struct ubjson_istream
         return *this;
     }
 
-    pfs::error_code read (json_type & j, int8_t type);
+    pfs::error_code read (json_type & j, int8_t type = UBJSON_CHAR_UNSPEC);
 
 private:
     int8_t read_type (bool ignore_noop = true);
@@ -479,8 +479,11 @@ JsonType from_ubjson (pfs::byte_string const & bs, pfs::error_code & ex)
 
     JsonType j;
 
+    // ubjson_istream_t has own order-------------------------
+    //                                                       |
+    //                                                       v
     pfs::byte_istream bis(bs.cbegin(), bs.cend(), endian::native_order());
-    ex = ubjson_istream_t(bis).read(j, UBJSON_CHAR_UNSPEC);
+    ex = ubjson_istream_t(bis).read(j);
 
     return j;
 }

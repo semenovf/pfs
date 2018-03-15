@@ -1185,8 +1185,9 @@ typename json<Traits>::string_type json<Traits>::to_string () const
 }
 
 template <typename JsonType>
-class reference_wrapper
+class reference_wrapper_basic
 {
+protected:
     JsonType * _p;
 
 public:
@@ -1194,24 +1195,24 @@ public:
     typedef typename JsonType::key_type  key_type;
 
 protected:
-    reference_wrapper ()
+    reference_wrapper_basic ()
         : _p(0)
     {}
 
-    reference_wrapper (JsonType * p)
+    reference_wrapper_basic (JsonType * p)
         : _p(p)
     {}
 
 public:
-    explicit reference_wrapper (JsonType & ref)
+    explicit reference_wrapper_basic (JsonType & ref)
         : _p(& ref)
     {}
 
-    reference_wrapper (reference_wrapper<JsonType> const & ref)
+    reference_wrapper_basic (reference_wrapper_basic<JsonType> const & ref)
         :_p(ref._p)
     {}
 
-    reference_wrapper & operator = (reference_wrapper<JsonType> const & ref)
+    reference_wrapper_basic & operator = (reference_wrapper_basic<JsonType> const & ref)
     {
         _p = ref._p;
         return *this;
@@ -1222,45 +1223,139 @@ public:
         return _p != 0;
     }
 
-    // For avoid ambiguous overload of operator[] with `0` value
-    reference_wrapper operator [] (int index)
-    {
-        return operator [] (size_type(index));
-    }
-
-    reference_wrapper operator [] (size_type index)
-    {
-        if (_p) {
-            typename JsonType::iterator it = _p->find(index);
-
-            if (it != _p->end())
-                return reference_wrapper(*it);
-        }
-        return reference_wrapper();
-    }
-
-    reference_wrapper operator [] (key_type const & key)
-    {
-        if (_p) {
-            typename JsonType::iterator it = _p->find(key);
-
-            if (it != _p->end())
-                return reference_wrapper(*it);
-        }
-        return reference_wrapper();
-    }
-
-    reference_wrapper operator [] (const char * key)
-    {
-        return operator [] (key_type(key));
-    }
-
     template <typename T>
     T get (T const & default_value = T()) const
     {
         return _p ? _p->template get<T>() : default_value;
     }
 };
+
+template <typename JsonType>
+class reference_wrapper : public reference_wrapper_basic<JsonType>
+{
+    typedef reference_wrapper_basic<JsonType> base_class;
+
+public:
+    typedef typename base_class::size_type size_type;
+    typedef typename base_class::key_type  key_type;
+
+protected:
+    reference_wrapper ()
+        : base_class()
+    {}
+
+ public:
+    explicit reference_wrapper (JsonType & ref)
+        : base_class(& ref)
+    {}
+
+    reference_wrapper (reference_wrapper<JsonType> const & ref)
+        :base_class(ref)
+    {}
+
+    // For avoid ambiguous overload of operator[] with `0` value
+    reference_wrapper operator [] (int index) const
+    {
+        return operator [] (size_type(index));
+    }
+
+    reference_wrapper operator [] (size_type index) const
+    {
+        if (this->_p) {
+            typename JsonType::iterator it = this->_p->find(index);
+
+            if (it != this->_p->end())
+                return reference_wrapper(*it);
+        }
+        return reference_wrapper();
+    }
+
+    reference_wrapper operator [] (key_type const & key) const
+    {
+        if (this->_p) {
+            typename JsonType::iterator it = this->_p->find(key);
+
+            if (it != this->_p->end())
+                return reference_wrapper(*it);
+        }
+        return reference_wrapper();
+    }
+
+    reference_wrapper operator [] (const char * key) const
+    {
+        return operator [] (key_type(key));
+    }
+};
+
+template <typename JsonType>
+class reference_wrapper<JsonType const> : public reference_wrapper_basic<JsonType const>
+{
+    typedef reference_wrapper_basic<JsonType const> base_class;
+
+public:
+    typedef typename base_class::size_type size_type;
+    typedef typename base_class::key_type  key_type;
+
+protected:
+    reference_wrapper ()
+        : base_class()
+    {}
+
+public:
+    explicit reference_wrapper (JsonType const & ref)
+        : base_class(& ref)
+    {}
+
+    reference_wrapper (reference_wrapper<JsonType> const & ref)
+        :base_class(ref)
+    {}
+
+    // For avoid ambiguous overload of operator[] with `0` value
+    reference_wrapper operator [] (int index) const
+    {
+        return operator [] (size_type(index));
+    }
+
+    reference_wrapper operator [] (size_type index) const
+    {
+        if (this->_p) {
+            typename JsonType::const_iterator it = this->_p->find(index);
+
+            if (it != this->_p->end())
+                return reference_wrapper(*it);
+        }
+        return reference_wrapper();
+    }
+
+    reference_wrapper operator [] (key_type const & key) const
+    {
+        if (this->_p) {
+            typename JsonType::const_iterator it = this->_p->find(key);
+
+            if (it != this->_p->end())
+                return reference_wrapper(*it);
+        }
+        return reference_wrapper();
+    }
+
+    reference_wrapper operator [] (const char * key) const
+    {
+        return operator [] (key_type(key));
+    }
+};
+
+//template <typename JsonType>
+//reference_wrapper<JsonType const> reference_wrapper<JsonType const>::operator [] (key_type const & key) const
+//{
+//    if (_p) {
+//        typename JsonType::const_iterator it = _p->find(key);
+//
+//        if (it != _p->end())
+//            return reference_wrapper(*it);
+//    }
+//    return reference_wrapper();
+//}
+
 
 }} // pfs::json
 

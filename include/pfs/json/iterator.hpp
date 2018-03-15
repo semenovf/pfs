@@ -19,7 +19,7 @@ class scalar_iterator
     friend class json;
 
 public:
-    typedef random_access_iterator_tag       iterator_category;
+    typedef random_access_iterator_tag         iterator_category;
     typedef typename JsonType::value_type      value_type;
     typedef typename JsonType::difference_type difference_type;
     typedef typename JsonType::pointer         pointer;

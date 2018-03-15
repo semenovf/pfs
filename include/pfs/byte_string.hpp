@@ -773,13 +773,13 @@ struct byte_string_ref
     byte_string::size_type max_size;
 
     byte_string_ref (byte_string * ptr)
-        : p (ptr)
-        , max_size (ptr->size ())
+        : p(ptr)
+        , max_size(ptr->size ())
     {}
 
     byte_string_ref (byte_string * ptr, byte_string::size_type sz)
-        : p (ptr)
-        , max_size (sz)
+        : p(ptr)
+        , max_size(sz)
     {}
 };
 
@@ -790,8 +790,8 @@ struct buffer_wrapper
     size_t max_size;
 
     buffer_wrapper (T * ptr, byte_string::size_type n)
-        : p (ptr)
-        , max_size (n)
+        : p(ptr)
+        , max_size(n)
     {}
 };
 
@@ -799,8 +799,8 @@ struct byte_ostream
 {
     typedef byte_string::value_type char_type;
 
-    byte_ostream (endian const & order = endian::native_order ())
-        : _o (order)
+    byte_ostream (endian const & order = endian::native_order())
+        : _o(order)
     {}
 
     endian const & order () const
@@ -842,7 +842,7 @@ struct byte_ostream
             return write_integral(u.i);
         } else
 #endif
-            if (sizeof (Real) == 4) {
+            if (sizeof(Real) == 4) {
 
             union
             {
@@ -856,19 +856,19 @@ struct byte_ostream
             union
             {
                 Real v;
-                byte_string::value_type b[sizeof (Real)];
+                byte_string::value_type b[sizeof(Real)];
             } d;
 
             if (_o != endian::native_order()) {
-                byte_string::value_type b[sizeof (Real)];
+                byte_string::value_type b[sizeof(Real)];
 
-                for (int i = 0, j = sizeof (Real) - 1; j >= 0; ++i, --j) {
+                for (int i = 0, j = sizeof(Real) - 1; j >= 0; ++i, --j) {
                     b[i] = d.b[j];
                 }
 
-                _buffer.append(byte_string(b, sizeof (Real)));
+                _buffer.append(byte_string(b, sizeof(Real)));
             } else {
-                _buffer.append(byte_string(d.b, sizeof (Real)));
+                _buffer.append(byte_string(d.b, sizeof(Real)));
             }
         }
     }
@@ -1028,7 +1028,7 @@ public:
 
     void read (byte_string & v, byte_string::size_type sz)
     {
-        if (static_cast<byte_string::size_type> (pfs::distance(b, e)) < sz)
+        if (static_cast<byte_string::size_type>(pfs::distance(b, e)) < sz)
             throw io_exception(make_error_code(io_errc::stream), NOT_ENOUGH_DATA_EXCEPTION_STR);
 
         byte_string::const_iterator last(b);
@@ -1048,6 +1048,12 @@ public:
     void read (char * v, byte_string::size_type sz)
     {
         read(reinterpret_cast<byte_string::pointer> (v), sz);
+    }
+
+    void read_tail (byte_string & v)
+    {
+        v.append(b, e);
+        b = e;
     }
 };
 
