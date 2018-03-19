@@ -206,7 +206,7 @@ public:
         reopen_item item;
         item.d       = d;
         item.timeout = reconn_timeout;
-        item.start   = time(0); // TODO may be need to use monotonic clock
+        item.start   = ::time(0); // TODO may be need to use monotonic clock
 
         _rq.insert(item);
     }
@@ -222,7 +222,7 @@ public:
         // Create temporary item to compare (device field does not matter in comparison)
         reopen_item item;
         item.timeout = 0;
-        item.start   = time(0); // TODO may be need to use monotonic clock
+        item.start   = ::time(0); // TODO may be need to use monotonic clock
 
         // Checking first item will be enough.
         return (*_rq.begin() < item) ? true : false;
@@ -239,7 +239,7 @@ public:
         // Create temporary item to compare (device field does not matter in comparison)
         reopen_item item;
         item.timeout = 0;
-        item.start   = time(0); // TODO may be need to use monotonic clock
+        item.start   = ::time(0); // TODO may be need to use monotonic clock
 
         typename reopen_queue::const_iterator it = _rq.begin();
         typename reopen_queue::const_iterator last = _rq.end();
@@ -253,6 +253,13 @@ public:
         }
 
         _rq.erase(_rq.cbegin(), it);
+    }
+
+    void close (device d)
+    {
+        _ctx1.disconnected(d);
+        _p1.delete_deferred(d);
+        d.close();
     }
 
     device_sequence fetch_devices (

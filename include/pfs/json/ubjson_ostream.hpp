@@ -366,10 +366,11 @@ pfs::byte_string to_ubjson (JsonType const & j, int flags, pfs::error_code & ex)
 {
     typedef pfs::json::ubjson_ostream<pfs::byte_ostream, JsonType> ubjson_ostream_t;
 
+    pfs::byte_string buffer;
     // ubjson_ostream_t has own order------
     //                                    |
     //                                    v
-    pfs::byte_ostream os(endian::native_order());
+    pfs::byte_ostream os(buffer, endian::native_order());
     ex = ubjson_ostream_t(os, flags).write(j);
     return os.data();
 }

@@ -799,8 +799,9 @@ struct byte_ostream
 {
     typedef byte_string::value_type char_type;
 
-    byte_ostream (endian const & order = endian::native_order())
-        : _o(order)
+    byte_ostream (byte_string & buffer, endian const & order = endian::native_order())
+        : _buffer(buffer)
+        , _o(order)
     {}
 
     endian const & order () const
@@ -889,7 +890,7 @@ struct byte_ostream
     }
 
 private:
-    byte_string _buffer;
+    byte_string & _buffer;
     endian _o;
 };
 

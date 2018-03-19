@@ -471,6 +471,13 @@ private:
             , pool::dispatcher_context & context
             , short revents)
     {
+        if (!dev.opened()) {
+            if (revents & poll_nval) {
+                // May occurred when device was closed before;
+            }
+            return;
+        }
+
         if (dev.available() == 0
                 && (revents & poll_in)) { // TODO Check if this event enough to decide to disconnect.
             //PFS_DEBUG(puts("pfs::io::pool::dispatch(): disconnected (1)"));
