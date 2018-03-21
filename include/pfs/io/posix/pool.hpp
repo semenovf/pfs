@@ -190,56 +190,66 @@ struct pool : public bits::pool
         return r;
     }
 
-    device_sequence fetch_devices (bool (* filter) (const device & d, void * context), void * context)
+    void fetch_devices (device_sequence & result
+            , bool (* filter) (device const & d, void * context)
+            , void * context)
     {
         pfs::lock_guard<pfs::mutex> locker(_mtx);
-
-        device_sequence r;
 
         if (_device_map.size() > 0) {
-            typename device_map::const_iterator it = _device_map.cbegin();
-            typename device_map::const_iterator it_end = _device_map.cend();
+            typename device_map::const_iterator first = _device_map.cbegin();
+            typename device_map::const_iterator last = _device_map.cend();
 
-            //r.reserve(device_map.size());
-
-            while (it != it_end) {
+            while (first != last) {
                 if (filter) {
-                    if (filter(it->second, context))
-                        r.push_back(it->second);
+                    if (filter(first->second, context))
+                        result.push_back(first->second);
                 } else {
-                    r.push_back(it->second);
+                    result.push_back(first->second);
                 }
-                ++it;
+                ++first;
             }
         }
-
-        return r;
     }
 
-    server_sequence fetch_servers (bool (* filter) (const server & s, void * context), void * context)
+    // TODO DEPRECATED
+    device_sequence fetch_devices (bool (* filter) (device const & d, void * context)
+            , void * context)
+    {
+        device_sequence result;
+        fetch_devices(result, filter, context);
+        return result;
+    }
+
+    void fetch_servers (server_sequence & servers
+            , bool (* filter) (server const & s, void * context)
+            , void * context)
     {
         pfs::lock_guard<pfs::mutex> locker(_mtx);
 
-        server_sequence r;
-
         if (_server_map.size() > 0) {
-            typename server_map::const_iterator it = _server_map.cbegin();
-            typename server_map::const_iterator it_end = _server_map.cend();
+            typename server_map::const_iterator first = _server_map.cbegin();
+            typename server_map::const_iterator last = _server_map.cend();
 
-            //r.reserve(server_map.size());
-
-            while (it != it_end) {
+            while (first != last) {
                 if (filter) {
-                    if (filter(it->second, context))
-                        r.push_back(it->second);
+                    if (filter(first->second, context))
+                        servers.push_back(first->second);
                 } else {
-                    r.push_back(it->second);
+                    servers.push_back(first->second);
                 }
-                ++it;
+                ++first;
             }
         }
+    }
 
-        return r;
+    // TODO DEPRECATED
+    server_sequence fetch_servers (bool (* filter) (server const & s, void * context)
+            , void * context)
+    {
+        server_sequence result;
+        fetch_servers(result, filter, context);
+        return result;
     }
 
     struct iterator : public bits::pool_iterator

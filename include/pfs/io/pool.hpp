@@ -300,8 +300,18 @@ public:
         pdp->delete_deferred(s);
     }
 
+    void fetch_devices (device_sequence & devices
+            , bool (* filter) (device const & d, void * context)
+            , void * context)
+    {
+        PFS_ASSERT(_d);
+        pool_impl * pdp = static_cast<pool_impl *>(_d.get());
+        pdp->fetch_devices(devices, filter, context);
+    }
+
+    // TODO DEPRECATED
     device_sequence fetch_devices (
-                bool (* filter) (device const & d, void * context)
+              bool (* filter) (device const & d, void * context)
             , void * context)
     {
         PFS_ASSERT(_d);
@@ -309,8 +319,18 @@ public:
         return  pdp->fetch_devices(filter, context);
     }
 
+    void fetch_servers (server_sequence & servers
+            , bool (* filter) (server const & s, void * context)
+            , void * context)
+    {
+        PFS_ASSERT(_d);
+        pool_impl * pdp = static_cast<pool_impl *>(_d.get());
+        pdp->fetch_servers(servers, filter, context);
+    }
+
+    // TODO DEPRECATED
     server_sequence fetch_servers (
-                bool (* filter) (server const & s, void * context)
+              bool (* filter) (server const & s, void * context)
             , void * context)
     {
         PFS_ASSERT(_d);

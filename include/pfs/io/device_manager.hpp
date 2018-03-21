@@ -262,6 +262,14 @@ public:
         d.close();
     }
 
+    void fetch_devices (device_sequence & devices
+            , bool (* filter) (device const & d, void * context)
+            , void * context)
+    {
+        _p1.fetch_devices(devices, filter, context);
+    }
+
+    // TODO DEPRECATED
     device_sequence fetch_devices (
               bool (* filter) (device const & d, void * context)
             , void * context)
@@ -269,6 +277,14 @@ public:
         return _p1.fetch_devices(filter, context);
     }
 
+  	void fetch_servers (server_sequence & servers
+            , bool (* filter) (server const & s, void * context)
+            , void * context)
+    {
+        _p1.fetch_servers(servers, filter, context);
+    }
+
+    // TODO DEPRECATED
 	server_sequence fetch_servers (
               bool (* filter) (server const & s, void * context)
             , void * context)
