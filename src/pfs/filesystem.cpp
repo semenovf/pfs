@@ -36,7 +36,7 @@ typedef string<qt::string>           qt_string_type;
 template <>
 template <>
 basic_path<details::path>::basic_path (qt_string_type const & source/*, format fmt = auto_format*/)
-    : _d(source.native().toStdWString())
+    : base_class(source.native().toStdWString())
 {}
 
 #   endif
@@ -45,16 +45,16 @@ basic_path<details::path>::basic_path (qt_string_type const & source/*, format f
 
 template <>
 template <>
-basic_path<details::path>::basic_path (stdcxx_string_type const & source/*, format fmt = auto_format*/)
-    : _d(source.native())
+path::path (stdcxx_string_type const & source/*, format fmt = auto_format*/)
+    : base_class(source.native())
 {}
 
 #   if HAVE_QT_CORE
 
 template <>
 template <>
-basic_path<details::path>::basic_path (qt_string_type const & source/*, format fmt = auto_format*/)
-    : _d(source.native().toStdString())
+path::path (qt_string_type const & source/*, format fmt = auto_format*/)
+    : base_class(source.native().toStdString())
 {}
 
 #   endif

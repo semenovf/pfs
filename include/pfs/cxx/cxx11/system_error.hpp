@@ -52,14 +52,10 @@ inline pfs::error_code get_last_system_error ()
 #endif // !PFS_CC_MSC
 }
 
-template <typename ErrorCode>
-ErrorCode lexical_cast (pfs::error_code const & ec);
-
 template <>
-inline std::error_code
-lexical_cast<std::error_code> (pfs::error_code const & ec)
+inline error_code_converter_helper<::std::error_code, ::std::error_code>::~error_code_converter_helper ()
 {
-    return ec;
+    targetref = origref;
 }
 
 } // pfs
@@ -76,46 +72,24 @@ namespace boost {
 
 pfs::error_category const & generic_category ();
 
-//struct ec_convert_wrapper
-//{
-//    pfs::error_code & result;
-//    ::boost::system::error_code ec;
-//
-//    ec_convert_wrapper (pfs::error_code & r)
-//        : result(r)
-//    {}
-//
-//    ~ec_convert_wrapper ()
-//    {
-//        result = pfs::lexical_cast(ec);
-//    }
-//};
-
 } // boost
 
-//template <typename Result>
-//Result lexical_cast (::boost::system::error_code const & ec);
-//
-//template <>
-//inline pfs::error_code
-//lexical_cast<pfs::error_code> (::boost::system::error_code const & ec)
-//{
-//    if (ec.category() == ::boost::system::generic_category())
-//        return pfs::error_code(ec.value(), generic_category());
-//
-//    PFS_ASSERT(false);
-//    return pfs::error_code();
-//}
+template <>
+inline error_code error_code_cast<::boost::system::error_code, error_code> (::boost::system::error_code const & ec)
+{
+    if (ec.category() != ::boost::system::generic_category())
+        PFS_ASSERT_X(false, "Can't cast `::boost::system::error_code` to `pfs::error_code`");
+
+    return pfs::error_code(ec.value(), pfs::generic_category());
+}
 
 template <>
-inline ::boost::system::error_code
-lexical_cast<::boost::system::error_code> (pfs::error_code const & ec)
+inline ::boost::system::error_code error_code_cast<error_code, ::boost::system::error_code> (error_code const & ec)
 {
-    if (ec.category() == std::generic_category())
-        return ::boost::system::error_code(ec.value(), ::boost::system::generic_category());
+    if (ec.category() != pfs::generic_category())
+        PFS_ASSERT_X(false, "Can't cast `pfs::error_code` to `::boost::system::error_code`");
 
-    PFS_ASSERT(false);
-    return ::boost::system::error_code();
+    return ::boost::system::error_code(ec.value(), ::boost::system::generic_category());
 }
 
 inline pfs::error_code make_error_code (::boost::system::errc::errc_t e)

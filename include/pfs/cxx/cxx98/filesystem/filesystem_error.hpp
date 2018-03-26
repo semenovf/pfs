@@ -9,40 +9,41 @@
 #include <boost/filesystem/path.hpp>
 
 namespace pfs {
-namespace filesystem { 
-namespace details {
+namespace filesystem {
 
-typedef ::boost::filesystem::filesystem_error filesystem_error;
-    
-//struct filesystem_error : public ::boost::filesystem::filesystem_error
-//{
-//    typedef ::boost::filesystem::filesystem_error base_class;
-//    
-//    filesystem_error (std::string const & what_arg
-//            , ::boost::system::error_code ec)
-//        : base_class(what_arg, ec)
-//    {}
-//            
-//    filesystem_error (std::string const & what_arg
-//            , ::boost::filesystem::path const & p1
-//            , ::boost::system::error_code ec)
-//       : base_class(what_arg, p1, ec)
-//    {}
-//            
-//    filesystem_error (std::string const & what_arg
-//            , ::boost::filesystem::path const & p1
-//            , ::boost::filesystem::path const & p2
-//            , ::boost::system::error_code ec)
-//        : base_class(what_arg, p1, p2, ec)
-//    {}
-//};
+struct filesystem_error : public ::boost::filesystem::filesystem_error
+{
+    typedef ::boost::filesystem::filesystem_error base_class;
 
-}}} // pfs::filesystem
+    filesystem_error (std::string const & what_arg
+            , error_code ec)
+        : base_class(what_arg
+                , error_code_cast<error_code, ::boost::system::error_code>(ec))
+    {}
+
+    filesystem_error (std::string const & what_arg
+            , path const & p1
+            , error_code ec)
+        : base_class(what_arg
+            , p1
+            , error_code_cast<error_code, ::boost::system::error_code>(ec))
+     {}
+
+    filesystem_error (std::string const & what_arg
+            , path const & p1
+            , path const & p2
+            , error_code ec)
+        : base_class(what_arg
+            , p1
+            , p2
+            , error_code_cast<error_code, ::boost::system::error_code>(ec))
+    {}
+};
+
+}} // pfs::filesystem
 
 #else
-
-#   error "Need to implement"
-
+#   error "Filesystem implementation not found"
 #endif
 
 #endif /* __PFS_CXX_CXX98_FILESYSTEM_FILESYSTEM_ERROR_HPP__ */

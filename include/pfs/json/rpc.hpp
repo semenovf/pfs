@@ -271,16 +271,18 @@ inline int code (typename Traits::json_type const & error)
     return error["error"]["code"].template get<int>();
 }
 
-template <typename Traits>
+template <typename Traits, typename Handler>
 struct server
 {
     typedef typename Traits::json_type   json_type;
     typedef typename Traits::string_type string_type;
     typedef typename Traits::id_type     id_type;
-    typedef void (* method_handler_type) (json_type const & request, json_type & response);
-    typedef void (* notification_handler_type) (json_type const & notification);
+    typedef void (Handler::*method_handler_type) (json_type const & request, json_type & response);
+    typedef void (Handler::*notification_handler_type) (json_type const & notification);
 
-    server () {}
+    server (Handler & handler)
+        : _handler(handler)
+    {}
 
     void register_method (char const * name, method_handler_type mh)
     {
@@ -301,12 +303,13 @@ protected:
     typedef typename Traits::template associative_container<string_type
             , notification_handler_type>::type notification_map_type;
 
+    Handler &             _handler;
     method_map_type       _methods;
     notification_map_type _notifications;
 };
 
-template <typename Traits>
-void server<Traits>::exec (json_type const & request, json_type & response)
+template <typename Traits, typename Handler>
+void server<Traits, Handler>::exec (json_type const & request, json_type & response)
 {
     response.clear();
 
@@ -331,16 +334,18 @@ void server<Traits>::exec (json_type const & request, json_type & response)
     }
 }
 
-template <typename Traits>
+template <typename Traits, typename Handler>
 struct client
 {
     typedef typename Traits::json_type json_type;
     typedef typename Traits::string_type string_type;
     typedef typename Traits::id_type id_type;
-    typedef void (* result_handler_type) (json_type const & request);
-    typedef void (* error_handler_type) (json_type const & error);
+    typedef void (Handler::*result_handler_type) (json_type const & request);
+    typedef void (Handler::*error_handler_type) (json_type const & error);
 
-    client () : _default_error_handler(0) {}
+    client (Handler & handler)
+        : _handler(handler)
+        , _default_error_handler(0) {}
 
     void register_result_handler (id_type id, result_handler_type h)
     {
@@ -368,12 +373,13 @@ protected:
 
     error_handler_type _default_error_handler;
 
+    Handler &       _handler;
     result_map_type _result_handlers;
     error_map_type  _error_handlers;
 };
 
-template <typename Traits>
-bool client<Traits>::handle (json_type const & response)
+template <typename Traits, typename Handler>
+bool client<Traits, Handler>::handle (json_type const & response)
 {
     if (is_success<Traits>(response)) {
         typename result_map_type::const_iterator it

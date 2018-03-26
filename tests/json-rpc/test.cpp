@@ -67,95 +67,94 @@ enum {
 };
 
 template <typename Traits>
-void method1 (typename Traits::json_type const & request
-        , typename Traits::json_type & response)
+struct server_handler
 {
-    std::cout << "method1: "
-            << pfs::to_string<typename Traits::string_type>(request)
-            << std::endl;
+    void method1 (typename Traits::json_type const & request
+            , typename Traits::json_type & response)
+    {
+        std::cout << "method1: "
+                << pfs::to_string<typename Traits::string_type>(request)
+                << std::endl;
 
-    response = pfs::json::rpc::make_success<Traits>(pfs::json::rpc::id<Traits>(request));
-    ++counter;
-}
+        response = pfs::json::rpc::make_success<Traits>(pfs::json::rpc::id<Traits>(request));
+        ++counter;
+    }
+
+    void method2 (typename Traits::json_type const & request
+            , typename Traits::json_type & response)
+    {
+        std::cout << "method2: "
+                << pfs::to_string<typename Traits::string_type>(request)
+                << std::endl;
+
+        response = pfs::json::rpc::make_success<Traits>(pfs::json::rpc::id<Traits>(request));
+        ++counter;
+    }
+
+    void faulty_method (typename Traits::json_type const & request
+            , typename Traits::json_type & response)
+    {
+        std::cout << "faulty_method: "
+                << pfs::to_string<typename Traits::string_type>(request)
+                << std::endl;
+
+        response = pfs::json::rpc::make_error<Traits>(pfs::json::rpc::id<Traits>(request)
+                , pfs::json::rpc::INVALID_PARAMS);
+        ++counter;
+    }
+
+    void notify1 (typename Traits::json_type const & n)
+    {
+        std::cout << "notify1: "
+                << pfs::to_string<typename Traits::string_type>(n)
+                << std::endl;
+        ++counter;
+    }
+
+    void notify2 (typename Traits::json_type const & n)
+    {
+        std::cout << "notify2: "
+                << pfs::to_string<typename Traits::string_type>(n)
+                << std::endl;
+        ++counter;
+    }
+};
 
 template <typename Traits>
-void method2 (typename Traits::json_type const & request
-        , typename Traits::json_type & response)
+struct client_handler
 {
-    std::cout << "method2: "
-            << pfs::to_string<typename Traits::string_type>(request)
-            << std::endl;
+    void method1_result_handler (typename Traits::json_type const & result)
+    {
+        std::cout << "method1_result_handler: "
+                << pfs::to_string<typename Traits::string_type>(result)
+                << std::endl;
+        ++counter;
+    }
 
-    response = pfs::json::rpc::make_success<Traits>(pfs::json::rpc::id<Traits>(request));
-    ++counter;
-}
+    void method2_result_handler (typename Traits::json_type const & result)
+    {
+        std::cout << "method2_result_handler: "
+                << pfs::to_string<typename Traits::string_type>(result)
+                << std::endl;
+        ++counter;
+    }
 
-template <typename Traits>
-void faulty_method (typename Traits::json_type const & request
-        , typename Traits::json_type & response)
-{
-    std::cout << "faulty_method: "
-            << pfs::to_string<typename Traits::string_type>(request)
-            << std::endl;
+    void default_error_handler (typename Traits::json_type const & error)
+    {
+        std::cout << "default_error_handler: "
+                << pfs::to_string<typename Traits::string_type>(error)
+                << std::endl;
+        ++counter;
+    }
 
-    response = pfs::json::rpc::make_error<Traits>(pfs::json::rpc::id<Traits>(request)
-            , pfs::json::rpc::INVALID_PARAMS);
-    ++counter;
-}
-
-template <typename Traits>
-void notify1 (typename Traits::json_type const & n)
-{
-    std::cout << "notify1: "
-            << pfs::to_string<typename Traits::string_type>(n)
-            << std::endl;
-    ++counter;
-}
-
-template <typename Traits>
-void notify2 (typename Traits::json_type const & n)
-{
-    std::cout << "notify2: "
-            << pfs::to_string<typename Traits::string_type>(n)
-            << std::endl;
-    ++counter;
-}
-
-template <typename Traits>
-void method1_result_handler (typename Traits::json_type const & result)
-{
-    std::cout << "method1_result_handler: "
-            << pfs::to_string<typename Traits::string_type>(result)
-            << std::endl;
-    ++counter;
-}
-
-template <typename Traits>
-void method2_result_handler (typename Traits::json_type const & result)
-{
-    std::cout << "method2_result_handler: "
-            << pfs::to_string<typename Traits::string_type>(result)
-            << std::endl;
-    ++counter;
-}
-
-template <typename Traits>
-void default_error_handler (typename Traits::json_type const & error)
-{
-    std::cout << "default_error_handler: "
-            << pfs::to_string<typename Traits::string_type>(error)
-            << std::endl;
-    ++counter;
-}
-
-template <typename Traits>
-void method_not_found_error_handler (typename Traits::json_type const & error)
-{
-    std::cout << "method_not_found_error_handler: "
-            << pfs::to_string<typename Traits::string_type>(error)
-            << std::endl;
-    ++counter;
-}
+    void method_not_found_error_handler (typename Traits::json_type const & error)
+    {
+        std::cout << "method_not_found_error_handler: "
+                << pfs::to_string<typename Traits::string_type>(error)
+                << std::endl;
+        ++counter;
+    }
+};
 
 template <typename Traits>
 void test ()
@@ -163,21 +162,23 @@ void test ()
     ADD_TESTS(1);
 
     typedef typename Traits::json_type     json_t;
-    typedef pfs::json::rpc::server<Traits> server_t;
-    typedef pfs::json::rpc::client<Traits> client_t;
+    typedef server_handler<Traits>         server_handler_t;
+    typedef pfs::json::rpc::server<Traits, server_handler_t> server_t;
+    typedef client_handler<Traits>         client_handler_t;
+    typedef pfs::json::rpc::client<Traits, client_handler_t> client_t;
 
     server_t server;
-    server.register_method("method1", method1<Traits>);
-    server.register_method("method2", method2<Traits>);
-    server.register_method("faulty_method", faulty_method<Traits>);
-    server.register_notification("notify1", notify1<Traits>);
-    server.register_notification("notify2", notify2<Traits>);
+    server.register_method("method1", & server_handler_t::method1);
+    server.register_method("method2", & server_handler_t::method2);
+    server.register_method("faulty_method", & server_handler_t::faulty_method);
+    server.register_notification("notify1", & server_handler_t::notify1);
+    server.register_notification("notify2", & server_handler_t::notify2);
 
     client_t client;
-    client.register_result_handler(RQ_METHOD1, method1_result_handler<Traits>);
-    client.register_result_handler(RQ_METHOD2, method2_result_handler<Traits>);
-    client.register_error_handler(pfs::json::rpc::METHOD_NOT_FOUND, method_not_found_error_handler<Traits>);
-    client.set_default_error_handler(default_error_handler<Traits>);
+    client.register_result_handler(RQ_METHOD1, & client_handler_t::method1_result_handler);
+    client.register_result_handler(RQ_METHOD2, & client_handler_t::method2_result_handler);
+    client.register_error_handler(pfs::json::rpc::METHOD_NOT_FOUND, & client_handler_t::method_not_found_error_handler);
+    client.set_default_error_handler(& client_handler_t::default_error_handler);
 
     json_t m1 = pfs::json::rpc::make_request<Traits>(RQ_METHOD1, "method1");
     json_t m2 = pfs::json::rpc::make_request<Traits>(RQ_METHOD2, "method2", json_t(123));

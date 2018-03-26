@@ -13,9 +13,8 @@ namespace pfs {
 typedef ::boost::system::error_code      error_code;
 typedef ::boost::system::error_category  error_category;
 typedef ::boost::system::error_condition error_condition;
-//typedef ::boost::system::errc::errc_t    errc;
 
-struct errc 
+struct errc
 {
     //typedef ::boost::system::errc::errc_t value_enum;
     enum value_enum {
@@ -99,7 +98,7 @@ struct errc
         , value_too_large                    = ::boost::system::errc::value_too_large
         , wrong_protocol_type                = ::boost::system::errc::wrong_protocol_type
     } v;
-    
+
     errc (value_enum x)
         : v(x)
     {}
@@ -109,7 +108,7 @@ struct errc
         v = x;
         return *this;
     }
-    
+
     operator int () const
     {
         return static_cast<int>(v);
@@ -131,6 +130,12 @@ inline error_code make_error_code (errc e) pfs_noexcept
     return error_code(e, system_category());
 }
 
+template <>
+inline error_code_converter_helper< ::boost::system::error_code, ::boost::system::error_code>::~error_code_converter_helper ()
+{
+    targetref = origref;
+}
+
 template <typename StringT>
 inline StringT to_string (error_code const & ec)
 {
@@ -149,22 +154,10 @@ inline error_code get_last_system_error ()
 #endif // !PFS_CC_MSC
 }
 
-template <typename ErrorCode>
-ErrorCode lexical_cast (pfs::error_code const & ec);
-
-template <>
-inline ::boost::system::error_code 
-lexical_cast< ::boost::system::error_code> (::boost::system::error_code const & ec)
-{
-    return ec;
-}
-
 } // pfs
 
 #else
-
-#   error "Need to implement system_error for C++98 or use Boost implementation (need BoostSystem)"
-
+#   error "system_error implementation not found"
 #endif // HAVE_BOOST_SYSTEM_ERROR
 
 #endif /* __PFS_CXX_CXX98_SYSTEM_ERROR_HPP__ */

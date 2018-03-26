@@ -3,7 +3,7 @@
 
 #include <pfs/compiler.hpp>
 
-#if PFS_CC_GCC_VERSION >= 50300
+#if PFS_CC_GCC_VERSION >= 50300 && HAVE_STDCXX_FS_EXPERIMENTAL
 
 //
 // [Experimental Library Extensions](https://gcc.gnu.org/onlinedocs/libstdc++/manual/using_dynamic_or_shared.html#manual.intro.using.linkage.experimental)
@@ -743,14 +743,12 @@ inline path u8path (InputIt first, InputIt last)
     return std::experimental::filesystem::u8path(first, last); 
 }
 
-
-
 #endif
 
 }}} // pfs::filesystem::details
 
 #else
-#   include <pfs/cxx/cxx98/filesystem/path.hpp>
+#include <pfs/cxx/cxx98/filesystem/path.hpp>
 #endif
 
 #endif /* __PFS_CXX_CXX11_FILESYSTEM_PATH_HPP__ */

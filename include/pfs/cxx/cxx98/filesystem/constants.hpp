@@ -68,9 +68,7 @@ struct perms
 }}} // pfs::filesystem::details
 
 #else
-
-#error  "Need to implement"
-
+#   error "Filesystem implementation not found"
 #endif
 
 #endif /* __PFS_CXX_CXX98_FILESYSTEM_CONSTANTS_HPP__ */

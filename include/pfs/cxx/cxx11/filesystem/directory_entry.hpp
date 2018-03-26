@@ -3,7 +3,7 @@
 
 #include <pfs/compiler.hpp>
 
-#if PFS_CC_GCC_VERSION >= 50300
+#if PFS_CC_GCC_VERSION >= 50300 && HAVE_STDCXX_FS_EXPERIMENTAL
 
 #include <experimental/filesystem>
 
@@ -65,9 +65,7 @@ public:
 }}} // pfs::filesystem::details
 
 #else
-
 #include <pfs/cxx/cxx98/filesystem/directory_entry.hpp>
-
 #endif
 
 #endif /* __PFS_CXX_CXX11_FILESYSTEM_DIRECTORY_ENTRY_HPP__ */
