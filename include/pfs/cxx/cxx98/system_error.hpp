@@ -131,9 +131,10 @@ inline error_code make_error_code (errc e) pfs_noexcept
 }
 
 template <>
-inline error_code_converter_helper< ::boost::system::error_code, ::boost::system::error_code>::~error_code_converter_helper ()
+inline ::boost::system::error_code
+error_code_cast< ::boost::system::error_code, ::boost::system::error_code> (::boost::system::error_code const & ec)
 {
-    targetref = origref;
+    return ec;
 }
 
 template <typename StringT>

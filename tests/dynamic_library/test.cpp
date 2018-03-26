@@ -22,7 +22,7 @@ int main(int argc, char *argv[])
 	typedef int (*dl_test_fn)(void);
 
 	dynamic_library dl;
-	path dlfile = pfs::build_so_filename("shared_object");
+	path dlfile = pfs::build_so_filename(path("shared_object"));
 	path * dlpath_ptr = 0;
 
 	pathlist searchdirs;
@@ -31,7 +31,7 @@ int main(int argc, char *argv[])
 	searchdirs.push_back(path(".."));
 
     path dlpath = pfs::filesystem::search_path(dlfile, searchdirs);
-    
+
 	if (!dlpath.empty()) {
 		dlpath_ptr = & dlpath;
 	}

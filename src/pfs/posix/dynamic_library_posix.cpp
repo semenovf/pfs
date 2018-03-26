@@ -22,7 +22,7 @@ bool dynamic_library::open (filesystem::path const & p, error_code & ec)
         return false;
     }
 
-    if (!filesystem::exists(p)) {
+    if (!filesystem::exists(p, ec)) {
         ec = pfs::make_error_code(dynamic_library_errc::file_not_found);
         return false;
     }

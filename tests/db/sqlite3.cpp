@@ -38,17 +38,18 @@ void sqlite3_test1 ()
 {
     ADD_TESTS(6);
 
+    pfs::error_code ec;
     pfs::filesystem::path path = pfs::filesystem::temp_directory_path();
     TEST_FAIL2(!path.empty(), "Get temporary directory path");
     path /= "test-db.sqlite3";
-    
+
     cout << "DB path: " << path << endl;
 
     bool ok = true;
-    
+
     if (ok) {
         try {
-            TEST_FAIL2(!pfs::filesystem::exists(path), "File not found");
+            TEST_FAIL2(!pfs::filesystem::exists(path, ec), "File not found");
 
             string_t dburi("sqlite3:");
             dburi.append(pfs::to_string<string_t>(path));
@@ -63,12 +64,12 @@ void sqlite3_test1 ()
             ok = false;
         }
     }
-    
+
     TEST_OK2(ok, "Attempt to create non-existence database for read-write");
 
     if (ok) {
         try {
-            TEST_FAIL2(pfs::filesystem::exists(path), "File found");
+            TEST_FAIL2(pfs::filesystem::exists(path, ec), "File found");
 
             string_t dburi("sqlite3:");
             dburi.append(pfs::to_string<string_t>(path));
@@ -81,7 +82,7 @@ void sqlite3_test1 ()
             ok = false;
         }
     }
-    
+
     TEST_OK2(ok, "Attempt to open existence database for read only");
-    TEST_FAIL2(pfs::filesystem::remove(path), "Remove DB file");
+    TEST_FAIL2(pfs::filesystem::remove(path, ec), "Remove DB file");
 }

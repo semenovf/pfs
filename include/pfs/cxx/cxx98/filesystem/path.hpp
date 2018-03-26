@@ -7,6 +7,7 @@
 
 #include <boost/filesystem/path.hpp>
 #include <boost/filesystem/operations.hpp>
+#include <pfs/cxxlang.hpp>
 #include <pfs/system_error.hpp>
 
 namespace pfs {
@@ -39,7 +40,7 @@ public:
     }
 
     template <typename Source>
-    explicit path (Source const & source)
+    path (Source const & source)
         : base_class(source)
     {}
 
@@ -47,17 +48,6 @@ public:
     path (InputIt first, InputIt last)
         : base_class(first, last)
     {}
-
-//    template <typename Source>
-//    path (Source const & source, std::locale const & loc)
-//        : base_class(source, loc)
-//    {}
-
-//    // FIXME fmt unused yet
-//    template <typename InputIt>
-//    path (InputIt first, InputIt last, std::locale const & loc)
-//        : base_class(first, last, loc)
-//    {}
 
     template <typename Source>
     path & operator = (Source const & source)
@@ -71,23 +61,6 @@ public:
         return base_class::native();
     }
 
-    // TODO Implement file_status
-    //bool exists (filesystem::file_status s) noexcept;
-
-    bool exists (error_code & ec) const pfs_noexcept
-    {
-        ::boost::system::error_code boost_ec;
-        error_code_converter_helper< ::boost::system::error_code, error_code> ch(boost_ec, ec);
-        return ::boost::filesystem::exists(*this, boost_ec);
-    }
-
-    bool remove (error_code & ec) const pfs_noexcept
-    {
-        ::boost::system::error_code boost_ec;
-        error_code_converter_helper< ::boost::system::error_code, error_code> ch(boost_ec, ec);
-        return ::boost::filesystem::remove(*this, boost_ec);
-    }
-
     path & replace_filename (path const & replacement)
     {
         remove_filename();
@@ -95,6 +68,20 @@ public:
         return *this;
     }
 };
+
+inline bool exists (path const & p, error_code & ec) pfs_noexcept
+{
+    ::boost::system::error_code boost_ec;
+    error_code_converter_helper< ::boost::system::error_code, error_code> conv(boost_ec, ec);
+    return ::boost::filesystem::exists(p, boost_ec);
+}
+
+inline bool remove (path const & p, error_code & ec) pfs_noexcept
+{
+    ::boost::system::error_code boost_ec;
+    error_code_converter_helper< ::boost::system::error_code, error_code> conv(boost_ec, ec);
+    return ::boost::filesystem::remove(p, boost_ec);
+}
 
 inline path temp_directory_path ()
 {
@@ -132,7 +119,7 @@ inline void current_path (path const & p, error_code & ec)
     ::boost::filesystem::current_path(p, boost_ec);
 }
 
-}}
+}} // pfs::filesystem
 
 #else
 #   error "Filesystem implementation not found"

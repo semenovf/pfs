@@ -217,17 +217,19 @@ void test_open_absent_file ()
 void test_write_read ()
 {
 	ADD_TESTS(8);
+    pfs::error_code ec;
+
 	// FIXME Use pfs::fs::unique() call to generate temporary file
     pfs::filesystem::path file_path("/tmp/test_io_file.tmp");
     TEST_FAIL2(!file_path.empty(), "Build temporary file name");
 
-    if (pfs::filesystem::exists(file_path))
-    	pfs::filesystem::remove(file_path);
+
+    if (pfs::filesystem::exists(file_path, ec))
+    	pfs::filesystem::remove(file_path, ec);
 
     device d;
-    pfs::error_code ex;
 
-    TEST_FAIL((d = open_device(open_params<file>(file_path, pfs::io::write_only), ex)));
+    TEST_FAIL((d = open_device(open_params<file>(file_path, pfs::io::write_only), ec)));
 
     TEST_FAIL(d.write(loremipsum, ::strlen(loremipsum)) == ssize_t(::strlen(loremipsum)));
     TEST_FAIL(d.close());
@@ -239,7 +241,7 @@ void test_write_read ()
     TEST_OK(d.close());
     TEST_OK(bs == loremipsum);
 
-    TEST_FAIL2(pfs::filesystem::remove(file_path), "Temporary file unlink");
+    TEST_FAIL2(pfs::filesystem::remove(file_path, ec), "Temporary file unlink");
 }
 
 //void test_bytes_available ()
@@ -294,19 +296,19 @@ void test_write_read ()
 void test_io_iterator ()
 {
 	ADD_TESTS(5);
-    
+
+    pfs::error_code ec;
     char const * hello = "Abcde";
-    
+
     // FIXME Use pfs::fs::unique() call to generate temporary file
     char const * filename = "/tmp/test_io_iterator.tmp";
 
     pfs::filesystem::path file_path(filename);
     TEST_FAIL2(!file_path.empty(), "Build temporary file name");
 
-    if (pfs::filesystem::exists(file_path))
-    	pfs::filesystem::remove(file_path);
+    if (pfs::filesystem::exists(file_path, ec))
+    	pfs::filesystem::remove(file_path, ec);
 
-    pfs::error_code ec;
     device d;
     TEST_FAIL((d = open_device(open_params<file>(file_path, pfs::io::write_only), ec)));
     TEST_FAIL(d.write(hello, ::strlen(hello)) == ssize_t(::strlen(hello)));
@@ -323,20 +325,20 @@ void test_io_iterator ()
         TEST_OK(*it1++ == 'A');
         TEST_OK(*it1++ == 'b');
         TEST_OK(*it1++ == 'c');
-        
+
         std::istreambuf_iterator<char> it2(in);
-        
+
         TEST_OK(*it2++ == 'd');
         TEST_OK(*it2++ == 'e');
         TEST_OK(it2 == last);
     }
-    
+
     // Failed because `pfs::io::input_iterator' is single-pass iterator
     if (0) {
         ADD_TESTS(6);
 
         std::cout << "*** `std::istream_iterator' with `std::istringstream'\n";
-        
+
         std::istringstream in(hello);
         std::istream_iterator<char> it1(in);
         std::istream_iterator<char> last;
@@ -344,7 +346,7 @@ void test_io_iterator ()
         TEST_OK(*it1++ == 'A');
         TEST_OK(*it1++ == 'b');
         TEST_OK(*it1++ == 'c');
-        
+
         std::istream_iterator<char> it2(in);
 
         std::cout << "*it2='" << *it2 << "'\n";
@@ -358,55 +360,55 @@ void test_io_iterator ()
         ADD_TESTS(6);
 
         std::cout << "*** `std::istreambuf_iterator' with `std::ifstream'\n";
-        
+
         std::ifstream in(filename);
-        
+
         std::istreambuf_iterator<char> it1(in);
         std::istreambuf_iterator<char> last;
 
         TEST_OK(*it1++ == 'A');
         TEST_OK(*it1++ == 'b');
         TEST_OK(*it1++ == 'c');
-        
+
         std::istreambuf_iterator<char> it2(in);
 
         TEST_OK(*it2++ == 'd');
         TEST_OK(*it2++ == 'e');
         TEST_OK(it2 == last);
-        
+
         in.close();
     }
-    
+
     // Failed because `pfs::io::input_iterator' is single-pass iterator
     if (0) {
         ADD_TESTS(6);
 
         std::cout << "*** `std::istream_iterator' with `std::ifstream'\n";
-        
+
         std::ifstream in(filename);
-        
+
         std::istream_iterator<char> it1(in);
         std::istream_iterator<char> last;
 
         TEST_OK(*it1++ == 'A');
         TEST_OK(*it1++ == 'b');
         TEST_OK(*it1++ == 'c');
-        
+
         std::istream_iterator<char> it2(in);
 
         TEST_OK(*it2++ == 'd');
         TEST_OK(*it2++ == 'e');
         TEST_OK(it2 == last);
-        
+
         in.close();
     }
-    
+
     // Failed because `pfs::io::input_iterator' is single-pass iterator
     if (0) {
         ADD_TESTS(8);
 
         std::cout << "*** `pfs::io::input_iterator' with `pfs::io::device'\n";
-        
+
         TEST_FAIL((d = open_device(open_params<file>(file_path, pfs::io::read_only))));
 
         pfs::io::input_iterator<char> it1(d);
@@ -415,21 +417,21 @@ void test_io_iterator ()
         TEST_OK(*it1++ == 'A');
         TEST_OK(*it1++ == 'b');
         TEST_OK(*it1++ == 'c');
-        
+
         pfs::io::input_iterator<char> it2(d);
-        
+
         TEST_OK(*it2++ == 'd');
         TEST_OK(*it2++ == 'e');
         TEST_OK(it2 == last);
 
         TEST_FAIL(d.close());
     }
-    
+
     if (1) {
         ADD_TESTS(8);
 
         std::cout << "*** `pfs::io::input_iterator' with `pfs::io::device'\n";
-        
+
         TEST_FAIL((d = open_device(open_params<file>(file_path, pfs::io::read_only))));
 
         pfs::io::input_iterator<char> it(d);
@@ -444,8 +446,8 @@ void test_io_iterator ()
 
         TEST_FAIL(d.close());
     }
-    
-    TEST_FAIL2(pfs::filesystem::remove(file_path), "Temporary file unlink");
+
+    TEST_FAIL2(pfs::filesystem::remove(file_path, ec), "Temporary file unlink");
 }
 
 int main(int argc, char *argv[])

@@ -26,14 +26,12 @@ typedef string<qt::string>           qt_string_type;
 
 // FIXME
 //template <>
-//template <>
 //basic_path<details::path>::basic_path (stdcxx_string_type const & source/*, format fmt = auto_format*/)
 //    : _d()
 //{}
 
 #   if HAVE_QT_CORE
 
-template <>
 template <>
 basic_path<details::path>::basic_path (qt_string_type const & source/*, format fmt = auto_format*/)
     : base_class(source.native().toStdWString())
@@ -44,14 +42,12 @@ basic_path<details::path>::basic_path (qt_string_type const & source/*, format f
 #else // Unix
 
 template <>
-template <>
 path::path (stdcxx_string_type const & source/*, format fmt = auto_format*/)
     : base_class(source.native())
 {}
 
 #   if HAVE_QT_CORE
 
-template <>
 template <>
 path::path (qt_string_type const & source/*, format fmt = auto_format*/)
     : base_class(source.native().toStdString())

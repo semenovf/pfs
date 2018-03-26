@@ -294,7 +294,7 @@ struct server
         _notifications.insert(string_type(name), nh);
     }
 
-    void exec (json_type const & request, json_type & response);
+    void exec (json_type const & request, json_type & response) pfs_noexcept;
 
 protected:
     typedef typename Traits::template associative_container<string_type
@@ -309,7 +309,7 @@ protected:
 };
 
 template <typename Traits, typename Handler>
-void server<Traits, Handler>::exec (json_type const & request, json_type & response)
+void server<Traits, Handler>::exec (json_type const & request, json_type & response) pfs_noexcept
 {
     response.clear();
 
@@ -317,7 +317,8 @@ void server<Traits, Handler>::exec (json_type const & request, json_type & respo
         typename method_map_type::const_iterator it = _methods.find(request["method"].get_string());
 
         if (it != _methods.cend()) {
-            method_map_type::mapped_reference(it)(request, response);
+            method_handler_type method = method_map_type::mapped_reference(it);
+            (_handler.*method)(request, response);
         } else {
             response = make_error<Traits>(request["id"].template get<id_type>(), METHOD_NOT_FOUND);
         }
@@ -325,7 +326,8 @@ void server<Traits, Handler>::exec (json_type const & request, json_type & respo
         typename notification_map_type::const_iterator it = _notifications.find(request["method"].get_string());
 
         if (it != _notifications.cend()) {
-            notification_map_type::mapped_reference(it)(request);
+            notification_handler_type method = notification_map_type::mapped_reference(it);
+            (_handler.*method)(request);
         } else {
             response = make_error<Traits>(METHOD_NOT_FOUND);
         }
@@ -386,7 +388,7 @@ bool client<Traits, Handler>::handle (json_type const & response)
                 = _result_handlers.find(response["id"].template get<id_type>());
 
         if (it != _result_handlers.cend()) {
-            result_map_type::mapped_reference(it)(response);
+            (_handler.*result_map_type::mapped_reference(it))(response);
             return true;
         }
     } else if (is_error<Traits>(response)) {
@@ -394,9 +396,9 @@ bool client<Traits, Handler>::handle (json_type const & response)
                 = _error_handlers.find(code<Traits>(response));
 
         if (it != _error_handlers.cend()) {
-            error_map_type::mapped_reference(it)(response);
+            (_handler.*error_map_type::mapped_reference(it))(response);
         } else {
-            _default_error_handler(response);
+            (_handler.*_default_error_handler)(response);
         }
 
         return true;

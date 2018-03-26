@@ -167,14 +167,16 @@ void test ()
     typedef client_handler<Traits>         client_handler_t;
     typedef pfs::json::rpc::client<Traits, client_handler_t> client_t;
 
-    server_t server;
+    server_handler_t server_handler;
+    server_t server(server_handler);
     server.register_method("method1", & server_handler_t::method1);
     server.register_method("method2", & server_handler_t::method2);
     server.register_method("faulty_method", & server_handler_t::faulty_method);
     server.register_notification("notify1", & server_handler_t::notify1);
     server.register_notification("notify2", & server_handler_t::notify2);
 
-    client_t client;
+    client_handler_t client_handler;
+    client_t client(client_handler);
     client.register_result_handler(RQ_METHOD1, & client_handler_t::method1_result_handler);
     client.register_result_handler(RQ_METHOD2, & client_handler_t::method2_result_handler);
     client.register_error_handler(pfs::json::rpc::METHOD_NOT_FOUND, & client_handler_t::method_not_found_error_handler);

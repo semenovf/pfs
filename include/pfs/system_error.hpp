@@ -11,15 +11,15 @@ struct error_code_converter_helper
 {
     OrigType   & origref;
     TargetType & targetref;
-    
+
     error_code_converter_helper (OrigType & orig, TargetType & target)
         : origref(orig)
         , targetref(target)
     {}
-    
+
     ~error_code_converter_helper ()
     {
-        targetref = error_code_cast<OrigType, TargetType>();
+        targetref = error_code_cast<OrigType, TargetType>(origref);
     }
 };
 

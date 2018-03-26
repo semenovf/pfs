@@ -8,8 +8,7 @@
 #include <experimental/filesystem>
 
 namespace pfs {
-namespace filesystem { 
-namespace details {
+namespace filesystem {
 
 using filesystem_error = std::experimental::filesystem::filesystem_error;
 
@@ -30,10 +29,10 @@ using filesystem_error = std::experimental::filesystem::filesystem_error;
  *          , pfs::error_code ec)
  */
 
-}}} // pfs::filesystem
+}} // pfs::filesystem
 
 #else
-#include <pfs/cxx/cxx98/filesystem/filesystem_error.hpp>
+#   include <pfs/cxx/cxx98/filesystem/filesystem_error.hpp>
 #endif
 
 #endif /* __PFS_CXX_CXX11_FILESYSTEM_FILESYSTEM_ERROR_HPP__ */
