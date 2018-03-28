@@ -35,14 +35,13 @@ static int const INTERNAL_ERROR = -32603;
 static int const SERVER_ERROR = -32000;
 
 template <typename JsonType
-    , typename StringType
     , typename IdType
     , template <typename> class AssociativeContainerImplType>
 struct traits
 {
-    typedef JsonType   json_type;
-    typedef StringType string_type;
-    typedef IdType     id_type;
+    typedef JsonType json_type;
+    typedef typename JsonType::string_type string_type;
+    typedef IdType   id_type;
 
     template <typename Key, typename Value>
     struct associative_container
@@ -89,6 +88,24 @@ template <typename Traits>
 inline typename Traits::id_type id (typename Traits::json_type const & d)
 {
     return d["id"].template get<typename Traits::id_type>();
+}
+
+template <typename Traits>
+inline typename Traits::string_type method (typename Traits::json_type const & d)
+{
+    return d["method"].get_string();
+}
+
+template <typename Traits>
+inline bool has_params (typename Traits::json_type const & d)
+{
+    return d.contains("params");
+}
+
+template <typename Traits>
+inline typename Traits::json_type const & params (typename Traits::json_type const & d)
+{
+    return d["params"];
 }
 
 template <typename Traits>

@@ -27,7 +27,6 @@ typedef pfs::json::traits<
 typedef pfs::json::json<json_traits> json_t;
 
 typedef pfs::json::rpc::traits<json_t
-        , string_t
         , int // id type
         , pfs::stdcxx::map> traits_t;
 
@@ -49,7 +48,6 @@ typedef pfs::json::traits<
 typedef pfs::json::json<json_traits> json_t;
 
 typedef pfs::json::rpc::traits<json_t
-        , string_t
         , int // id type
         , pfs::qt::map> traits_t;
 } // qt

@@ -438,32 +438,32 @@ ubjson_istream<IStreamType, JsonType>::read_optimized_object (json_type & j
     } else if (type == UBJSON_CHAR_TRUE) {
         while (count-- > 0) {
             string_type key;
-            pfs::error_code ex = read_key(key, UBJSON_CHAR_UNSPEC);
-            if (ex) return ex;
+            pfs::error_code ec = read_key(key, UBJSON_CHAR_UNSPEC);
+            if (ec) return ec;
             j[key] = json_type(true);
         }
     } else if (type == UBJSON_CHAR_FALSE) {
         while (count-- > 0) {
             string_type key;
-            pfs::error_code ex = read_key(key, UBJSON_CHAR_UNSPEC);
-            if (ex) return ex;
+            pfs::error_code ec = read_key(key, UBJSON_CHAR_UNSPEC);
+            if (ec) return ec;
             j[key] = json_type(false);
         }
     } else {
         while (count-- > 0) {
             string_type key;
 
-            pfs::error_code ex = read_key(key, UBJSON_CHAR_UNSPEC);
+            pfs::error_code ec = read_key(key, UBJSON_CHAR_UNSPEC);
 
-            if (ex)
-                return ex;
+            if (ec)
+                return ec;
 
             json_type child;
 
-            ex = read(child, type);
+            ec = read(child, type);
 
-            if (ex)
-                return ex;
+            if (ec)
+                return ec;
 
             j[key] = child;
         }
@@ -473,7 +473,7 @@ ubjson_istream<IStreamType, JsonType>::read_optimized_object (json_type & j
 }
 
 template <typename JsonType>
-JsonType from_ubjson (pfs::byte_string const & bs, pfs::error_code & ex)
+JsonType from_ubjson (pfs::byte_string const & bs, pfs::error_code & ec)
 {
     typedef ubjson_istream<pfs::byte_istream, JsonType> ubjson_istream_t;
 
@@ -483,7 +483,7 @@ JsonType from_ubjson (pfs::byte_string const & bs, pfs::error_code & ex)
     //                                                       |
     //                                                       v
     pfs::byte_istream bis(bs.cbegin(), bs.cend(), endian::native_order());
-    ex = ubjson_istream_t(bis).read(j);
+    ec = ubjson_istream_t(bis).read(j);
 
     return j;
 }
@@ -491,11 +491,11 @@ JsonType from_ubjson (pfs::byte_string const & bs, pfs::error_code & ex)
 template <typename JsonType>
 JsonType from_ubjson (pfs::byte_string const & bs)
 {
-    pfs::error_code ex;
-    JsonType j = from_ubjson<JsonType>(bs, ex);
+    pfs::error_code ec;
+    JsonType j = from_ubjson<JsonType>(bs, ec);
 
-    if (ex)
-        throw json_exception(ex);
+    if (ec)
+        throw json_exception(ec);
 
     return j;
 }
