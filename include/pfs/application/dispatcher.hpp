@@ -199,10 +199,30 @@ public:
 
 public: // signals
 	signal0<> emit_quit;
-	signal2<module const *, string_type const &> emit_info;
-	signal2<module const *, string_type const &> emit_debug;
-	signal2<module const *, string_type const &> emit_warn;
-	signal2<module const *, string_type const &> emit_error;
+	signal3<module const *, datetime const &, string_type const &> _emit_info;
+	signal3<module const *, datetime const &, string_type const &> _emit_debug;
+	signal3<module const *, datetime const &, string_type const &> _emit_warn;
+	signal3<module const *, datetime const &, string_type const &> _emit_error;
+
+    void emit_info (module const * m, string_type const & s)
+    {
+        _emit_info(m, current_datetime(), s);
+    }
+
+	void emit_debug (module const * m, string_type const & s)
+    {
+        _emit_debug(m, current_datetime(), s);
+    }
+
+	void emit_warn (module const * m, string_type const & s)
+    {
+        _emit_warn(m, current_datetime(), s);
+    }
+
+	void emit_error (module const * m, string_type const & s)
+    {
+        _emit_error(m, current_datetime(), s);
+    }
 
 public: // slots
 	void module_registered (string_type const & pname, bool & result)
@@ -225,10 +245,30 @@ public: // slots
         return _logger;
     }
 
-	void print_info  (module const * m, string_type const & s);
-	void print_debug (module const * m, string_type const & s);
-	void print_warn  (module const * m, string_type const & s);
-	void print_error (module const * m, string_type const & s);
+	void print_info  (module const * m, datetime const & dt, string_type const & s);
+	void print_debug (module const * m, datetime const & dt, string_type const & s);
+	void print_warn  (module const * m, datetime const & dt, string_type const & s);
+	void print_error (module const * m, datetime const & dt, string_type const & s);
+
+  	void print_info  (module const * m, string_type const & s)
+    {
+        print_info(m, current_datetime(), s);
+    }
+
+	void print_debug (module const * m, string_type const & s)
+    {
+        print_debug(m, current_datetime(), s);
+    }
+
+	void print_warn  (module const * m, string_type const & s)
+    {
+        print_warn(m, current_datetime(), s);
+    }
+
+	void print_error (module const * m, string_type const & s)
+    {
+        print_error(m, current_datetime(), s);
+    }
 
 protected:
 	module_spec module_for_path (filesystem::path const & path
@@ -259,11 +299,11 @@ bool dispatcher::register_modules (filesystem::path const & path)
 
     if (!pfs::filesystem::exists(path, ec)) {
         if (ec) {
-            print_error(0, fmt("`%s': %s")
+            print_error(0, current_datetime(), fmt("`%s': %s")
                     % pfs::to_string<string_type>(path)
                     % pfs::to_string<string_type>(ec));
         } else {
-            print_error(0, fmt("`%s': file not found")
+            print_error(0, current_datetime(), fmt("`%s': file not found")
                     % pfs::to_string<string_type>(path));
         }
         return false;
@@ -273,7 +313,7 @@ bool dispatcher::register_modules (filesystem::path const & path)
             pfs::io::open_params<pfs::io::file>(path, pfs::io::read_only), ec);
 
     if (ec) {
-        print_error(0, fmt("`%s`: file open failure: %s")
+        print_error(0, current_datetime(), fmt("`%s`: file open failure: %s")
                 % pfs::to_string<string_type>(path)
                 % pfs::to_string<string_type>(ec));
         return false;
@@ -287,7 +327,7 @@ bool dispatcher::register_modules (filesystem::path const & path)
     ec = conf.parse(content);
 
     if (ec) {
-    	print_error(0, fmt("%s: Invalid JSON: %s")
+    	print_error(0, current_datetime(), fmt("%s: Invalid JSON: %s")
                 (to_string<string_type>(path))
                 (to_string<string_type>(ec)).str());
     	return false;
@@ -304,7 +344,7 @@ bool dispatcher::register_modules (JsonType const & conf)
 
     if (! disp.is_null()) {
     	if (not disp.is_object()) {
-        	print_error(0, "Dispatcher configuration error");
+        	print_error(0, current_datetime(), "Dispatcher configuration error");
     		return false;
     	}
 
@@ -332,7 +372,7 @@ bool dispatcher::register_modules (JsonType const & conf)
 
                     if (! pappender->is_open()) {
                         pfs::error_code ec = pfs::get_last_system_error();
-    					print_error(0, fmt("Failed to create/open log file: %s: %s")
+    					print_error(0, current_datetime(), fmt("Failed to create/open log file: %s: %s")
     							(to_string<string_type>(path))
     							(to_string<string_type>(ec)).str());
     					return false;
@@ -377,8 +417,9 @@ bool dispatcher::register_modules (JsonType const & conf)
         			} else if (*pri == "fatal") {
         				logger.connect(logger::priority::fatal, *pappender);
         			} else {
-    					print_error(0, fmt("Invalid log level name (must be 'all', 'trace', 'debug', 'info', 'warn', 'error' or 'fatal'): '%s'")
-    							(*pri).str());
+    					print_error(0, current_datetime()
+                                , fmt("Invalid log level name (must be 'all', 'trace', 'debug', 'info', 'warn', 'error' or 'fatal'): '%s'")
+    							% *pri);
     					return false;
         			}
         		}
@@ -402,7 +443,7 @@ bool dispatcher::register_modules (JsonType const & conf)
     		bool is_master  = (*it)["master-module"].template get<bool>();
 
     		if (name_str.empty()) {
-    	    	print_error(0, "Found anonymous module");
+    	    	print_error(0, current_datetime(), "Found anonymous module");
     	    	return false;
     		}
 
@@ -422,7 +463,7 @@ bool dispatcher::register_modules (JsonType const & conf)
     				result = false;
     			}
     		} else {
-    			print_debug(0, fmt("%s: Module is inactive")(name_str).str());
+    			print_debug(0, current_datetime(), fmt("%s: Module is inactive")(name_str).str());
     		}
     	}
     }

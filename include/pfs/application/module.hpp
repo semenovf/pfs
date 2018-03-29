@@ -6,6 +6,7 @@
 #include <pfs/system_string.hpp>
 #include <pfs/sigslot.hpp>
 #include <pfs/atomic.hpp>
+#include <pfs/datetime.hpp>
 
 #define PFS_DETECTOR_CAST(slot) reinterpret_cast<pfs::application::detector_t>(& slot)
 #define PFS_EMITTER_CAST(e)     reinterpret_cast<void *>(& e)
@@ -32,46 +33,67 @@ class module : public has_slots<>
 
 public:
     typedef system_string string_type;
-    
+
 	struct log_consumer : public has_slots<>
 	{
 		friend class module;
-		virtual void on_info  (module const *, string_type const &) = 0; // {}
-		virtual void on_debug (module const *, string_type const &) = 0; // {}
-		virtual void on_warn  (module const *, string_type const &) = 0; // {}
-		virtual void on_error (module const *, string_type const &) = 0; // {}
+		virtual void on_info  (module const *, datetime const &, string_type const &) = 0; // {}
+		virtual void on_debug (module const *, datetime const &, string_type const &) = 0; // {}
+		virtual void on_warn  (module const *, datetime const &, string_type const &) = 0; // {}
+		virtual void on_error (module const *, datetime const &, string_type const &) = 0; // {}
 
 	private:
-		void _on_info  (module const * m, string_type const & s)
+		void _on_info  (module const * m, datetime const & dt, string_type const & s)
 		{
-			this->on_info(m, s);
+			this->on_info(m, dt, s);
 		}
 
-		void _on_debug (module const * m, string_type const & s)
+		void _on_debug (module const * m, datetime const & dt, string_type const & s)
 		{
-			this->on_debug(m, s);
+			this->on_debug(m, dt, s);
 		}
 
-		void _on_warn  (module const * m, string_type const & s)
+		void _on_warn  (module const * m, datetime const & dt, string_type const & s)
 		{
-			this->on_warn(m, s);
+			this->on_warn(m, dt, s);
 		}
 
-		void _on_error (module const * m, string_type const & s)
+		void _on_error (module const * m, datetime const & dt, string_type const & s)
 		{
-			this->on_error(m, s);
+			this->on_error(m, dt, s);
 		}
 	};
 
+protected:
+	signal3<module const *, datetime const &, string_type const &> _emit_info;
+	signal3<module const *, datetime const &, string_type const &> _emit_debug;
+	signal3<module const *, datetime const &, string_type const &> _emit_warn;
+	signal3<module const *, datetime const &, string_type const &> _emit_error;
+
 public: // signals
+    signal0<>                            emit_quit;
 	signal2<string_type const &, bool &> emit_module_registered;
 
-	signal0<>                                    emit_quit;
-	signal2<module const *, string_type const &> emit_info;
-	signal2<module const *, string_type const &> emit_debug;
-	signal2<module const *, string_type const &> emit_warn;
-	signal2<module const *, string_type const &> emit_error;
-    
+    void emit_info (module const * m, string_type const & s)
+    {
+        _emit_info(m, current_datetime(), s);
+    }
+
+	void emit_debug (module const * m, string_type const & s)
+    {
+        _emit_debug(m, current_datetime(), s);
+    }
+
+	void emit_warn (module const * m, string_type const & s)
+    {
+        _emit_warn(m, current_datetime(), s);
+    }
+
+	void emit_error (module const * m, string_type const & s)
+    {
+        _emit_error(m, current_datetime(), s);
+    }
+
 private:
 	string_type  _name;
 	dispatcher * _pdispatcher;
@@ -125,11 +147,11 @@ public:
 	void connect_warn  (log_consumer * p);
 	void connect_error (log_consumer * p);
 
-      	void disconnect_info  (log_consumer * p);
+   	void disconnect_info  (log_consumer * p);
 	void disconnect_debug (log_consumer * p);
 	void disconnect_warn  (log_consumer * p);
 	void disconnect_error (log_consumer * p);
-        void disconnect_all_loggers (log_consumer * p);
+    void disconnect_all_loggers (log_consumer * p);
 
 	virtual emitter_mapping const * get_emitters (int & count)
 	{
@@ -150,7 +172,7 @@ public:
 
     /**
      * @brief Module's on_loaded() method called after loaded and before registration.
-     * @return 
+     * @return
      */
     virtual bool on_loaded ()
     {

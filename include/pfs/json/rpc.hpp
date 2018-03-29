@@ -294,19 +294,19 @@ struct server
     typedef typename Traits::json_type   json_type;
     typedef typename Traits::string_type string_type;
     typedef typename Traits::id_type     id_type;
-    typedef void (Handler::*method_handler_type) (json_type const & request, json_type & response);
-    typedef void (Handler::*notification_handler_type) (json_type const & notification);
+    typedef void (Handler::*method_handler) (json_type const & request, json_type & response);
+    typedef void (Handler::*notification_handler) (json_type const & notification);
 
     server (Handler & handler)
         : _handler(handler)
     {}
 
-    void register_method (char const * name, method_handler_type mh)
+    void register_method (char const * name, method_handler mh)
     {
         _methods.insert(string_type(name), mh);
     }
 
-    void register_notification (char const * name, notification_handler_type nh)
+    void register_notification (char const * name, notification_handler nh)
     {
         _notifications.insert(string_type(name), nh);
     }
@@ -315,10 +315,10 @@ struct server
 
 protected:
     typedef typename Traits::template associative_container<string_type
-            , method_handler_type>::type       method_map_type;
+            , method_handler>::type       method_map_type;
 
     typedef typename Traits::template associative_container<string_type
-            , notification_handler_type>::type notification_map_type;
+            , notification_handler>::type notification_map_type;
 
     Handler &             _handler;
     method_map_type       _methods;
@@ -334,7 +334,7 @@ void server<Traits, Handler>::exec (json_type const & request, json_type & respo
         typename method_map_type::const_iterator it = _methods.find(request["method"].get_string());
 
         if (it != _methods.cend()) {
-            method_handler_type method = method_map_type::mapped_reference(it);
+            method_handler method = method_map_type::mapped_reference(it);
             (_handler.*method)(request, response);
         } else {
             response = make_error<Traits>(request["id"].template get<id_type>(), METHOD_NOT_FOUND);
@@ -343,7 +343,7 @@ void server<Traits, Handler>::exec (json_type const & request, json_type & respo
         typename notification_map_type::const_iterator it = _notifications.find(request["method"].get_string());
 
         if (it != _notifications.cend()) {
-            notification_handler_type method = notification_map_type::mapped_reference(it);
+            notification_handler method = notification_map_type::mapped_reference(it);
             (_handler.*method)(request);
         } else {
             response = make_error<Traits>(METHOD_NOT_FOUND);
