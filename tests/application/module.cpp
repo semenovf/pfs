@@ -1,11 +1,3 @@
-/**
- * @file   petaloid_tmpl.cpp
- * @author wladt
- * @date   Feb 15, 2013 12:03:15 PM
- *
- * @brief
- */
-
 #include <cstdio>
 #include <pfs/module.hpp>
 
