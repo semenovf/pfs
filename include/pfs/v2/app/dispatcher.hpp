@@ -1,6 +1,9 @@
 #ifndef __PFS_V2_APP_DISPATCHER_HPP__
 #define __PFS_V2_APP_DISPATCHER_HPP__
 
+#include "modulus.hpp"
+
+
 namespace pfs {
 namespace app {
 
@@ -10,8 +13,25 @@ modulus<PFS_MODULUS_TEMPLETE_ARGS>::dispatcher::dispatcher (
         , int n)
     : basic_dispatcher()
     , _master_module_ptr(0)
+    , _quitfl(0)
 {
-    init_default_logger();
+    // Initialize default logger
+    typename logger_type::appender_type & cout_appender
+            = _logger.template add_appender<logger::stdout_appender<string_type> >();
+    typename logger_type::appender_type & cerr_appender
+            = _logger.template add_appender<logger::stderr_appender<string_type> >();
+    cout_appender.set_pattern("%d{ABSOLUTE} [%p]: %m");
+    cerr_appender.set_pattern("%d{ABSOLUTE} [%p]: %m");
+
+    _logger.connect(pfs::logger::priority::trace   , cout_appender);
+    _logger.connect(pfs::logger::priority::debug   , cout_appender);
+    _logger.connect(pfs::logger::priority::info    , cout_appender);
+    _logger.connect(pfs::logger::priority::warn    , cerr_appender);
+    _logger.connect(pfs::logger::priority::error   , cerr_appender);
+    _logger.connect(pfs::logger::priority::critical, cerr_appender);
+
+    this->emit_quit.connect(this, & dispatcher::on_quit);
+
     register_api(mapper, n);
 }
 
@@ -37,6 +57,19 @@ void modulus<PFS_MODULUS_TEMPLETE_ARGS>::dispatcher::connect_all ()
 }
 
 template <PFS_MODULUS_TEMPLETE_SIGNATURE>
+void modulus<PFS_MODULUS_TEMPLETE_ARGS>::dispatcher::run ()
+{
+    while (! _quitfl) {
+        // FIXME Use condition_variable to wait until _callback_queue will not be empty.
+        if (_callback_queue.empty()) {
+            pfs::this_thread::sleep_for(pfs::chrono::milliseconds(100));
+            continue;
+        }
+        _callback_queue.call_all();
+    }
+}
+
+template <PFS_MODULUS_TEMPLETE_SIGNATURE>
 bool modulus<PFS_MODULUS_TEMPLETE_ARGS>::dispatcher::start ()
 {
     bool r = true;
@@ -49,7 +82,7 @@ bool modulus<PFS_MODULUS_TEMPLETE_ARGS>::dispatcher::start ()
         shared_ptr<module> pmodule = modspec.pmodule;
 
         if (! pmodule->on_start()) {
-            print_error(pmodule.get(), current_datetime(), "Failed to start module");
+            _logger.error(fmt("failed to start module: %s") % pmodule->name());
             r = false;
         }
     }
@@ -80,7 +113,7 @@ void modulus<PFS_MODULUS_TEMPLETE_ARGS>::dispatcher::unregister_all ()
         module_spec & modspec = first->second;
         shared_ptr<module> & pmodule = modspec.pmodule;
         pmodule->emit_module_registered.disconnect(this);
-        print_debug(fmt("%s: unregistered") % (pmodule->name()));
+        _logger.debug(fmt("%s: unregistered") % (pmodule->name()));
 
         // Need to destroy pmodule before dynamic library will be destroyed automatically
         pmodule.reset();
@@ -96,109 +129,6 @@ void modulus<PFS_MODULUS_TEMPLETE_ARGS>::dispatcher::finalize ()
         disconnect_all();
         unregister_all();
     }
-}
-
-template <PFS_MODULUS_TEMPLETE_SIGNATURE>
-int modulus<PFS_MODULUS_TEMPLETE_ARGS>::dispatcher::exec_main ()
-{
-    int r = exit_status::success;
-
-    thread_sequence_type thread_pool;
-
-    typename runnable_sequence_type::iterator irunnable      = _runnable_modules.begin();
-    typename runnable_sequence_type::iterator irunnable_last = _runnable_modules.end();
-
-    for (; irunnable != irunnable_last; ++irunnable) {
-        // run module if it is not a master
-
-        // TODO Simplify expression below
-        if (!_master_module_ptr
-                || (_master_module_ptr && irunnable->get() != _master_module_ptr))
-            thread_pool.push_back(pfs::make_shared<thread>((*irunnable)->run, irunnable->get()));
-    }
-
-    if (_master_module_ptr && _master_module_ptr->run) {
-        r = _master_module_ptr->run(_master_module_ptr);
-    }
-
-    typename thread_sequence_type::iterator ithread      = thread_pool.begin();
-    typename thread_sequence_type::iterator ithread_last = thread_pool.end();
-
-    for (; ithread != ithread_last; ++ithread) {
-        (*ithread)->join();
-    }
-
-    typename module_spec_map_type::iterator imodule      = _module_spec_map.begin();
-    typename module_spec_map_type::iterator imodule_last = _module_spec_map.end();
-
-    for (; imodule != imodule_last; ++imodule) {
-        module_spec modspec = imodule->second;
-        shared_ptr<module> pmodule = modspec.pmodule;
-        pmodule->on_finish();
-
-//        pmodule->_emit_info.disconnect(this);
-//        pmodule->_emit_debug.disconnect(this);
-//        pmodule->_emit_warn.disconnect(this);
-//        pmodule->_emit_error.disconnect(this);
-    }
-
-    return r;
-}
-
-template <PFS_MODULUS_TEMPLETE_SIGNATURE>
-int modulus<PFS_MODULUS_TEMPLETE_ARGS>::dispatcher::exec ()
-{
-    int r = exit_status::failure;
-
-    connect_all();
-
-    if (start()) {
-        r = exec_main();
-    }
-
-    finalize();
-
-    return r;
-}
-
-template <PFS_MODULUS_TEMPLETE_SIGNATURE>
-void modulus<PFS_MODULUS_TEMPLETE_ARGS>::dispatcher::print_info (
-          module const * m
-        , datetime const & dt
-        , string_type const & s)
-{
-    _logger.info(m != 0 ? m->name() + ": " + s : s);
-    _emit_info(m, dt, s);
-}
-
-template <PFS_MODULUS_TEMPLETE_SIGNATURE>
-void modulus<PFS_MODULUS_TEMPLETE_ARGS>::dispatcher::print_debug (
-          module const * m
-        , datetime const & dt
-        , string_type const & s)
-{
-    _logger.debug(m != 0 ? m->name() + ": " + s : s);
-    _emit_debug(m, dt, s);
-}
-
-template <PFS_MODULUS_TEMPLETE_SIGNATURE>
-void modulus<PFS_MODULUS_TEMPLETE_ARGS>::dispatcher::print_warn (
-          module const * m
-        , datetime const & dt
-        , string_type const & s)
-{
-    _logger.warn(m != 0 ? m->name() + ": " + s : s);
-    _emit_warn(m, dt, s);
-}
-
-template <PFS_MODULUS_TEMPLETE_SIGNATURE>
-void modulus<PFS_MODULUS_TEMPLETE_ARGS>::dispatcher::print_error (
-          module const * m
-        , datetime const & dt
-        , string_type const & s)
-{
-    _logger.error(m != 0 ? m->name() + ": " + s : s);
-    _emit_error(m, dt, s);
 }
 
 template <PFS_MODULUS_TEMPLETE_SIGNATURE>
@@ -244,7 +174,7 @@ modulus<PFS_MODULUS_TEMPLETE_ARGS>::dispatcher::module_for_path (
     }
 
     if (!pdl->open(dlpath, _searchdirs, ec)) {
-        print_error(fmt("%s: %s")
+        _logger.error(fmt("%s: %s")
                 % (to_string<string_type>(dlpath))
                 % (to_string<string_type>(ec)));
         return module_spec();
@@ -253,7 +183,7 @@ modulus<PFS_MODULUS_TEMPLETE_ARGS>::dispatcher::module_for_path (
     dynamic_library::symbol_type ctor = pdl->resolve(PFS_MODULE_CTOR_NAME, ec);
 
     if (!ctor) {
-        print_error(0, current_datetime(), fmt("%s: Failed to resolve `ctor' for module: %s")
+        _logger.error(fmt("%s: failed to resolve `ctor' for module: %s")
                 % (to_string<string_type>(dlpath))
                 % (to_string<string_type>(ec)));
 
@@ -263,7 +193,7 @@ modulus<PFS_MODULUS_TEMPLETE_ARGS>::dispatcher::module_for_path (
     dynamic_library::symbol_type dtor = pdl->resolve(PFS_MODULE_DTOR_NAME, ec);
 
     if (!dtor) {
-        print_error(0, current_datetime(), fmt("%s: Failed to resolve `dtor' for module: %s")
+        _logger.error(fmt("%s: failed to resolve `dtor' for module: %s")
                 % (to_string<string_type>(dlpath))
                 % (to_string<string_type>(ec)));
 
@@ -274,7 +204,7 @@ modulus<PFS_MODULUS_TEMPLETE_ARGS>::dispatcher::module_for_path (
     module_dtor_t module_dtor = pfs::void_func_ptr_cast<module_dtor_t>(dtor);
 
     //module * ptr = reinterpret_cast<module *>(module_ctor(class_name, mod_data));
-    module * ptr = module_ctor(class_name, mod_data);
+    module * ptr = module_ctor(this, class_name, mod_data);
 
     if (!ptr)
         return module_spec();
@@ -298,22 +228,15 @@ bool modulus<PFS_MODULUS_TEMPLETE_ARGS>::dispatcher::register_module (
     shared_ptr<module> pmodule = modspec.pmodule;
 
     if (_module_spec_map.find(pmodule->name()) != _module_spec_map.end()) {
-        print_error(fmt("%s: Module already registered") % (pmodule->name()));
+        _logger.error(fmt("%s: module already registered") % (pmodule->name()));
         return false;
     }
-
-    pmodule->set_dispatcher(this);
 
     pmodule->emit_quit.connect(this, & dispatcher::broadcast_quit);
     this->emit_quit.connect(pmodule.get(), & module::on_quit);
 
-//    pmodule->_emit_info.connect(this, & dispatcher::print_info);
-//    pmodule->_emit_debug.connect(this, & dispatcher::print_debug);
-//    pmodule->_emit_warn.connect(this, & dispatcher::print_warn);
-//    pmodule->_emit_error.connect(this, & dispatcher::print_error);
-
     if (!pmodule->on_loaded()) {
-        print_error(pmodule.get(), "on_loaded stage failed");
+        _logger.error(fmt("%s: on_loaded stage failed") % pmodule->name());
         return false;
     }
 
@@ -330,7 +253,7 @@ bool modulus<PFS_MODULUS_TEMPLETE_ARGS>::dispatcher::register_module (
             if (it != it_end) {
                 it->second->mapper->append_emitter(reinterpret_cast<emitter_type *>(emitters[i].emitter));
             } else {
-                print_warn(fmt("%s: Emitter '%s' not found while registering module, "
+                _logger.warn(fmt("%s: emitter '%s' not found while registering module, "
                         "may be signal/slot mapping is not supported for this application")
                         % (pmodule->name())
                         % (to_string<string_type>(emitters[i].id)));
@@ -346,7 +269,7 @@ bool modulus<PFS_MODULUS_TEMPLETE_ARGS>::dispatcher::register_module (
             if (it != it_end) {
                 it->second->mapper->append_detector(pmodule.get(), detectors[i].detector);
             } else {
-                print_warn(0, current_datetime(), fmt("%s: Detector '%s' not found while registering module, "
+                _logger.warn(fmt("%s: detector '%s' not found while registering module, "
                         "may be signal/slot mapping is not supported for this application")
                         % (pmodule->name())
                         % (to_string<string_type>(detectors[i].id)));
@@ -359,12 +282,12 @@ bool modulus<PFS_MODULUS_TEMPLETE_ARGS>::dispatcher::register_module (
 
     // Module must be run in a separate thread.
     //
-    if (pmodule->run) {
-        _runnable_modules.push_back(pmodule);
-        print_debug(0, current_datetime(), fmt("%s: registered as threaded") % (pmodule->name()));
-    } else {
-        print_debug(0, current_datetime(), fmt("%s: registered") % (pmodule->name()));
-    }
+//    if (pmodule->run) {
+//        _runnable_modules.push_back(pmodule);
+//        print_debug(0, current_datetime(), fmt("%s: registered as threaded") % (pmodule->name()));
+//    } else {
+        _logger.debug(fmt("%s: registered") % (pmodule->name()));
+//    }
 
     return true;
 }
@@ -384,11 +307,11 @@ bool modulus<PFS_MODULUS_TEMPLETE_ARGS>::dispatcher::register_modules (
 
     if (!pfs::filesystem::exists(path, ec)) {
         if (ec) {
-            print_error(fmt("`%s': %s")
+            _logger.error(fmt("`%s': %s")
                     % pfs::to_string<string_type>(path)
                     % pfs::to_string<string_type>(ec));
         } else {
-            print_error(fmt("`%s': file not found")
+            _logger.error(fmt("`%s': file not found")
                     % pfs::to_string<string_type>(path));
         }
         return false;
@@ -398,7 +321,7 @@ bool modulus<PFS_MODULUS_TEMPLETE_ARGS>::dispatcher::register_modules (
             pfs::io::open_params<pfs::io::file>(path, pfs::io::read_only), ec);
 
     if (ec) {
-        print_error(fmt("`%s`: file open failure: %s")
+        _logger.error(fmt("`%s`: file open failure: %s")
                 % pfs::to_string<string_type>(path)
                 % pfs::to_string<string_type>(ec));
         return false;
@@ -412,7 +335,7 @@ bool modulus<PFS_MODULUS_TEMPLETE_ARGS>::dispatcher::register_modules (
     ec = conf.parse(content);
 
     if (ec) {
-    	print_error(fmt("%s: invalid JSON: %s")
+    	_logger.error(fmt("%s: invalid JSON: %s")
                 (to_string<string_type>(path))
                 (to_string<string_type>(ec)).str());
     	return false;
@@ -430,7 +353,7 @@ bool modulus<PFS_MODULUS_TEMPLETE_ARGS>::dispatcher::register_modules (
 
     if (! disp.is_null()) {
     	if (not disp.is_object()) {
-        	print_error("Dispatcher configuration error");
+        	_logger.error("dispatcher configuration error");
     		return false;
     	}
 
@@ -458,7 +381,7 @@ bool modulus<PFS_MODULUS_TEMPLETE_ARGS>::dispatcher::register_modules (
 
                     if (! pappender->is_open()) {
                         pfs::error_code ec = pfs::get_last_system_error();
-    					print_error(fmt("Failed to create/open log file: %s: %s")
+    					_logger.error(fmt("Failed to create/open log file: %s: %s")
     							(to_string<string_type>(path))
     							(to_string<string_type>(ec)).str());
     					return false;
@@ -503,7 +426,7 @@ bool modulus<PFS_MODULUS_TEMPLETE_ARGS>::dispatcher::register_modules (
         			} else if (*pri == "fatal") {
         				logger.connect(logger::priority::fatal, *pappender);
         			} else {
-    					print_error(fmt("Invalid log level name "
+    					_logger.error(fmt("Invalid log level name "
                                 "(must be 'all', 'trace', 'debug', 'info', 'warn', 'error' or 'fatal'): '%s'")
     							% *pri);
     					return false;
@@ -529,7 +452,7 @@ bool modulus<PFS_MODULUS_TEMPLETE_ARGS>::dispatcher::register_modules (
     		bool is_master  = (*it)["master-module"].template get<bool>();
 
     		if (name_str.empty()) {
-    	    	print_error("Found anonymous module");
+    	    	_logger.error("found anonymous module");
     	    	return false;
     		}
 
@@ -551,7 +474,7 @@ bool modulus<PFS_MODULUS_TEMPLETE_ARGS>::dispatcher::register_modules (
     				result = false;
     			}
     		} else {
-    			print_debug(fmt("%s: Module is inactive")(name_str).str());
+    			_logger.debug(fmt("%s: module is inactive")(name_str).str());
     		}
     	}
     }
@@ -591,6 +514,74 @@ void modulus<PFS_MODULUS_TEMPLETE_ARGS>::dispatcher::set_master_module (
     }
 }
 
+template <PFS_MODULUS_TEMPLETE_SIGNATURE>
+int modulus<PFS_MODULUS_TEMPLETE_ARGS>::dispatcher::exec_main ()
+{
+    int r = exit_status::success;
+
+    thread_sequence_type thread_pool;
+
+    typename runnable_sequence_type::iterator irunnable      = _runnable_modules.begin();
+    typename runnable_sequence_type::iterator irunnable_last = _runnable_modules.end();
+
+    thread_function master_thread_function = 0;
+
+    for (; irunnable != irunnable_last; ++irunnable) {
+        module * m = irunnable->first;
+        thread_function tfunc = irunnable->second;
+
+        // Run module if it is not a master
+        if (m != _master_module_ptr)
+            thread_pool.push_back(pfs::make_shared<thread>(tfunc, m));
+        else
+            master_thread_function = tfunc;
+    }
+
+    // Run module if it is a master
+    if (master_thread_function) {
+        // Run dispatcher loop in separate thread
+        thread dthread(& dispatcher::run, this);
+
+        // And call master function
+        r = (_master_module_ptr->*master_thread_function)();
+    } else {
+        this->run();
+    }
+
+    typename thread_sequence_type::iterator ithread      = thread_pool.begin();
+    typename thread_sequence_type::iterator ithread_last = thread_pool.end();
+
+    for (; ithread != ithread_last; ++ithread) {
+        (*ithread)->join();
+    }
+
+    typename module_spec_map_type::iterator imodule      = _module_spec_map.begin();
+    typename module_spec_map_type::iterator imodule_last = _module_spec_map.end();
+
+    for (; imodule != imodule_last; ++imodule) {
+        module_spec modspec = imodule->second;
+        shared_ptr<module> pmodule = modspec.pmodule;
+        pmodule->on_finish();
+    }
+
+    return r;
+}
+
+template <PFS_MODULUS_TEMPLETE_SIGNATURE>
+int modulus<PFS_MODULUS_TEMPLETE_ARGS>::dispatcher::exec ()
+{
+    int r = exit_status::failure;
+
+    connect_all();
+
+    if (start()) {
+        r = exec_main();
+    }
+
+    finalize();
+
+    return r;
+}
 
 }} // pfs::app
 

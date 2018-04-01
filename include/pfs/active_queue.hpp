@@ -240,6 +240,23 @@ public:
         push_helper(shared_ptr<binder_base<void> >(new binder_signal1<Arg1>(sig, a1)));
     }
 
+    template <typename Arg1, typename Arg2>
+    void push_signal (signal1<Arg1> * sig, Arg1 a1, Arg2 a2)
+    {
+        push_helper(shared_ptr<binder_base<void> >(new binder_signal2<Arg1, Arg2>(sig, a1, a2)));
+    }
+
+    template <typename Arg1, typename Arg2, typename Arg3>
+    void push_signal (signal1<Arg1> * sig, Arg1 a1, Arg2 a2, Arg3 a3)
+    {
+        push_helper(shared_ptr<binder_base<void> >(new binder_signal3<Arg1, Arg2, Arg3>(sig, a1, a2, a3)));
+    }
+
+    template <typename Arg1, typename Arg2, typename Arg3, typename Arg4>
+    void push_signal (signal1<Arg1> * sig, Arg1 a1, Arg2 a2, Arg3 a3, Arg3 a4)
+    {
+        push_helper(shared_ptr<binder_base<void> >(new binder_signal4<Arg1, Arg2, Arg3, Arg4>(sig, a1, a2, a3, a4)));
+    }
 //#endif
 
     void call ()

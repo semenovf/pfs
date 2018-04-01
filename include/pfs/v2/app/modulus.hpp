@@ -27,7 +27,7 @@ namespace app {
 
 struct basic_dispatcher
 {
-    signal0<> emit_quit;
+    signal0<>  emit_quit;
 
 #if PFS_OS_POSIX
     bool activate_posix_signal_handling ();
@@ -35,18 +35,18 @@ struct basic_dispatcher
 
     basic_dispatcher ()
     {
-        activate_posix_signal_handling();
+        (void)activate_posix_signal_handling();
     }
-    
+
     virtual ~basic_dispatcher ()
     {
         this->deactivate_posix_signal_handling();
     }
 #else
-    
+
     basic_dispatcher ()
     {}
-    
+
     virtual ~basic_dispatcher ()
     {}
 #endif // PFS_OS_POSIX
@@ -81,7 +81,7 @@ struct modulus
 {
     class module;
     class dispatcher;
-    
+
     typedef StringType      string_type;
     typedef signal1<void *> emitter_type;
 
@@ -89,7 +89,7 @@ struct modulus
     typedef struct { int id; void * emitter; }            emitter_mapper_pair;
     typedef struct { int id; detector_handler detector; } detector_mapper_pair;
 
-    typedef module * (* module_ctor_t)(char const * name, void *);
+    typedef module * (* module_ctor_t)(dispatcher * pdisp, char const * name, void *);
     typedef void  (* module_dtor_t)(module *);
 
     struct detector_pair
@@ -184,7 +184,7 @@ struct modulus
             detectors.push_back(detector_pair(m, d));
         }
     };
-    
+
     typedef traits::associative_container<
                traits::kv<int, api_item_type *>
             ,  AssociativeContainer>            api_map_type;
@@ -193,7 +193,9 @@ struct modulus
               traits::kv<string_type, module_spec>
             , AssociativeContainer>             module_spec_map_type;
 
-    typedef traits::sequence_container<shared_ptr<module>
+    typedef int (module::*thread_function)();
+
+    typedef traits::sequence_container<pfs::pair<module *, thread_function>
             , SequenceContainer>                runnable_sequence_type;
 
     typedef traits::sequence_container<shared_ptr<pfs::thread>
@@ -212,42 +214,7 @@ struct modulus
         typedef modulus::emitter_mapper_pair  emitter_mapper_pair;
         typedef modulus::detector_mapper_pair detector_mapper_pair;
         typedef modulus::detector_handler     detector_handler;
-    //
-    //	struct log_consumer : public has_slots<>
-    //	{
-    //		friend class module;
-    //		virtual void on_info  (module const *, datetime const &, string_type const &) = 0; // {}
-    //		virtual void on_debug (module const *, datetime const &, string_type const &) = 0; // {}
-    //		virtual void on_warn  (module const *, datetime const &, string_type const &) = 0; // {}
-    //		virtual void on_error (module const *, datetime const &, string_type const &) = 0; // {}
-    //
-    //	private:
-    //		void _on_info  (module const * m, datetime const & dt, string_type const & s)
-    //		{
-    //			this->on_info(m, dt, s);
-    //		}
-    //
-    //		void _on_debug (module const * m, datetime const & dt, string_type const & s)
-    //		{
-    //			this->on_debug(m, dt, s);
-    //		}
-    //
-    //		void _on_warn  (module const * m, datetime const & dt, string_type const & s)
-    //		{
-    //			this->on_warn(m, dt, s);
-    //		}
-    //
-    //		void _on_error (module const * m, datetime const & dt, string_type const & s)
-    //		{
-    //			this->on_error(m, dt, s);
-    //		}
-    //	};
-
-    protected:
-    //	signal3<module const *, datetime const &, string_type const &> _emit_info;
-    //	signal3<module const *, datetime const &, string_type const &> _emit_debug;
-    //	signal3<module const *, datetime const &, string_type const &> _emit_warn;
-    //	signal3<module const *, datetime const &, string_type const &> _emit_error;
+        typedef modulus::thread_function      thread_function;
 
     public: // signals
         signal0<>                            emit_quit;
@@ -256,37 +223,33 @@ struct modulus
     public:
         void print_info (module const * m, string_type const & s)
         {
-            _pdispatcher->print_info(m, current_datetime(), s);
-        }
-    
-    	void print_debug (module const * m, string_type const & s)
-        {
-            _pdispatcher->print_debug(m, current_datetime(), s);
-        }
-    
-    	void print_warn (module const * m, string_type const & s)
-        {
-            _pdispatcher->print_warn(m, current_datetime(), s);
-        }
-    
-    	void print_error (module const * m, string_type const & s)
-        {
-            _pdispatcher->print_error(m, current_datetime(), s);
+            _pdispatcher->print_info(m, s);
         }
 
-    private:
+    	void print_debug (module const * m, string_type const & s)
+        {
+            _pdispatcher->print_debug(m, s);
+        }
+
+    	void print_warn (module const * m, string_type const & s)
+        {
+            _pdispatcher->print_warn(m, s);
+        }
+
+    	void print_error (module const * m, string_type const & s)
+        {
+            _pdispatcher->print_error(m, s);
+        }
+
+    protected:
         string_type  _name;
         dispatcher * _pdispatcher;
         atomic_int   _quitfl; // quit flag
 
-    public:
-        int (* run) (module *);
-
     protected:
-        module ()
-            : _pdispatcher(0)
+        module (dispatcher * pdisp)
+            : _pdispatcher(pdisp)
             , _quitfl(0)
-            , run(0)
         {}
 
         void set_name (string_type const & name)
@@ -307,11 +270,6 @@ struct modulus
             return _pdispatcher != 0 ? true : false;
         }
 
-        void set_dispatcher (dispatcher * pdispatcher)
-        {
-            _pdispatcher = pdispatcher;
-        }
-
         dispatcher * get_dispatcher ()
         {
             return _pdispatcher;
@@ -322,16 +280,21 @@ struct modulus
             return _pdispatcher;
         }
 
-    //	void connect_info  (log_consumer * p);
-    //	void connect_debug (log_consumer * p);
-    //	void connect_warn  (log_consumer * p);
-    //	void connect_error (log_consumer * p);
-    //
-    //   	void disconnect_info  (log_consumer * p);
-    //	void disconnect_debug (log_consumer * p);
-    //	void disconnect_warn  (log_consumer * p);
-    //	void disconnect_error (log_consumer * p);
-    //    void disconnect_all_loggers (log_consumer * p);
+        void register_thread_function (thread_function tfunc);
+
+        typedef void (module::* log_consumer)(module const *, datetime const &, string_type const &);
+
+//        template <typename ConcreteModule>
+//        log_consumer cast_log_consumer (void (ConcreteModule::* logconsumer)(module const *, datetime const &, string_type const &))
+//        {
+//            return static_cast<log_consumer>(logconsumer);
+//        }
+
+//        void register_log_consumer (logger::priority priority
+//                , void (module::* consumer)(module const *, datetime const &, string_type const &));
+//
+//        void unregister_log_consumer (logger::priority priority
+//                , void (module::* consumer)(module const *, datetime const &, string_type const &));
 
         virtual emitter_mapper_pair const * get_emitters (int & count)
         {
@@ -407,14 +370,10 @@ struct modulus
 
     class dispatcher : basic_dispatcher, public has_slots<>
     {
-    //    typedef typename Traits::active_queue_type      active_queue_type;
-    //    typedef typename Traits::api_map_type           api_map_type
-    //    typedef typename Traits::module_spec_map_type   module_spec_map_type;
-    //    typedef typename Traits::api_item_type          api_item_type;
-    //    typedef typename Traits::runnable_sequence_type runnable_sequence_type;
-    //    typedef typename Traits::thread_sequence_type   thread_sequence_type;
+        friend class module;
+
         typedef logger::logger<StringType> logger_type;
-        typedef safeformat<StringType>     fmt;
+        typedef safeformat<StringType> fmt;
 
     public:
         typedef StringType string_type;
@@ -428,15 +387,6 @@ struct modulus
         };
 
     private:
-        filesystem::pathlist   _searchdirs;
-        api_map_type           _api;
-        module_spec_map_type   _module_spec_map;
-        runnable_sequence_type _runnable_modules; // modules run in a separate threads
-        module *               _master_module_ptr;
-        logger_type            _logger;
-        active_queue_type      _callback_queue;
-
-    private:
     #if __cplusplus >= 201103L
         dispatcher (dispatcher const &) = delete;
         dispatcher & operator = (dispatcher const &) = delete;
@@ -446,29 +396,18 @@ struct modulus
     #endif
 
     private:
-        void init_default_logger ()
-        {
-            typename logger_type::appender_type & cout_appender 
-                    = _logger.template add_appender<logger::stdout_appender<string_type> >();
-            typename logger_type::appender_type & cerr_appender 
-                    = _logger.template add_appender<logger::stderr_appender<string_type> >();
-            cout_appender.set_pattern("%d{ABSOLUTE} [%p]: %m");
-            cerr_appender.set_pattern("%d{ABSOLUTE} [%p]: %m");
-    
-            _logger.connect(pfs::logger::priority::trace   , cout_appender);
-            _logger.connect(pfs::logger::priority::debug   , cout_appender);
-            _logger.connect(pfs::logger::priority::info    , cout_appender);
-            _logger.connect(pfs::logger::priority::warn    , cerr_appender);
-            _logger.connect(pfs::logger::priority::error   , cerr_appender);
-            _logger.connect(pfs::logger::priority::critical, cerr_appender);
-        }
-
         void connect_all ();
         void disconnect_all ();
         void unregister_all ();
         bool start ();
         void finalize ();
-        int exec_main ();
+
+        /**
+         * @brief Internal dispatcher loop.
+         */
+        void run ();
+
+        int  exec_main ();
 
     public:
         dispatcher (api_item_type * mapper, int n);
@@ -481,13 +420,13 @@ struct modulus
         int exec ();
 
         void register_api (api_item_type * mapper, int n);
-    
+
         void add_search_path (filesystem::path const & dir)
         {
             if (!dir.empty())
                 _searchdirs.push_back(dir);
         }
-    
+
     //    /**
     //     * @brief Output summary of emitters/detectors utilization.
     //     * TODO Implement
@@ -499,7 +438,7 @@ struct modulus
     //     * TODO Implement
     //     */
     //    void print_api_incomplete_connections () {}
-    
+
         /**
          * @brief Register modules enumerated in configuration file (JSON) specified by @a path.
          *
@@ -508,7 +447,7 @@ struct modulus
          */
         template <typename JsonType>
         bool register_modules (filesystem::path const & path);
-    
+
         /**
          * @brief Register modules enumerated in JSON instance specified by @a conf.
          *
@@ -517,127 +456,96 @@ struct modulus
          */
         template <typename Json>
         bool register_modules (Json const & conf);
-    
+
     	bool register_local_module (module * pmodule, string_type const & name);
-    
+
     	bool register_module_for_path (filesystem::path const & path
     			, string_type const & name
     			, const char * class_name = 0
     			, void * mod_data = 0);
-    
+
         bool register_module_for_name (string_type const & name
                 , char const * class_name = 0
                 , void * mod_data = 0);
-    
+
     	void set_master_module (string_type const & name);
-    
+
     	size_t count () const
     	{
     		return _module_spec_map.size();
     	}
-    
+
     	bool is_module_registered (string_type const & modname) const
     	{
     		return _module_spec_map.find(modname) != _module_spec_map.end();
     	}
 
-    protected: // signals
-    	signal3<module const *, datetime const &, string_type const &> _emit_info;
-    	signal3<module const *, datetime const &, string_type const &> _emit_debug;
-    	signal3<module const *, datetime const &, string_type const &> _emit_warn;
-    	signal3<module const *, datetime const &, string_type const &> _emit_error;
-    
-    //    void emit_info (module const * m, string_type const & s)
-    //    {
-    //        _emit_info(m, current_datetime(), s);
-    //    }
-    //
-    //	void emit_debug (module const * m, string_type const & s)
-    //    {
-    //        _emit_debug(m, current_datetime(), s);
-    //    }
-    //
-    //	void emit_warn (module const * m, string_type const & s)
-    //    {
-    //        _emit_warn(m, current_datetime(), s);
-    //    }
-    //
-    //	void emit_error (module const * m, string_type const & s)
-    //    {
-    //        _emit_error(m, current_datetime(), s);
-    //    }
+    protected: // slots
+        void on_quit ()
+        {
+            _quitfl = 1;
+        }
 
     public: // slots
     	void module_registered (string_type const & pname, bool & result)
     	{
     		result = is_module_registered(pname);
     	}
-    
+
     	void broadcast_quit ()
     	{
     		emit_quit();
     	}
-    
-        logger_type const & logger () const
+
+        void print_info (module const * m, string_type const & s)
         {
-            return _logger;
-        }
-    
-        logger_type & logger ()
-        {
-            return _logger;
-        }
-    
-    	void print_info  (module const * m, datetime const & dt, string_type const & s);
-    	void print_debug (module const * m, datetime const & dt, string_type const & s);
-    	void print_warn  (module const * m, datetime const & dt, string_type const & s);
-    	void print_error (module const * m, datetime const & dt, string_type const & s);
-    
-      	void print_info (module const * m, string_type const & s)
-        {
-            print_info(m, current_datetime(), s);
-        }
-    
-      	void print_info (string_type const & s)
-        {
-            print_info(0, current_datetime(), s);
+            _callback_queue.template push_method<logger_type, string_type const &>(
+                    & logger_type::info, & _logger, (m != 0 ? m->name() + ": " + s : s));
         }
 
-    	void print_debug (module const * m, string_type const & s)
+        void print_debug (module const * m, string_type const & s)
         {
-            print_debug(m, current_datetime(), s);
-        }
-    
-    	void print_debug (string_type const & s)
-        {
-            print_debug(0, current_datetime(), s);
-        }
-        
-    	void print_warn (module const * m, string_type const & s)
-        {
-            print_warn(m, current_datetime(), s);
+            _callback_queue.template push_method<logger_type, string_type const &>(
+                    & logger_type::debug, & _logger, (m != 0 ? m->name() + ": " + s : s));
         }
 
-    	void print_warn (string_type const & s)
+        void print_warn (module const * m, string_type const & s)
         {
-            print_warn(0, current_datetime(), s);
+            _callback_queue.template push_method<logger_type, string_type const &>(
+                    & logger_type::warn, & _logger, (m != 0 ? m->name() + ": " + s : s));
         }
 
         void print_error (module const * m, string_type const & s)
         {
-            print_error(m, current_datetime(), s);
+            _callback_queue.template push_method<logger_type, string_type const &>(
+                    & logger_type::error, & _logger, (m != 0 ? m->name() + ": " + s : s));
+        }
+
+      	void print_info (string_type const & s)
+        {
+            print_info(0, s);
+        }
+
+    	void print_debug (string_type const & s)
+        {
+            print_debug(0, s);
+        }
+
+    	void print_warn (string_type const & s)
+        {
+            print_warn(0, s);
         }
 
         void print_error (string_type const & s)
         {
-            print_error(0, current_datetime(), s);
+            print_error(0, s);
         }
 
     protected:
     	module_spec module_for_path (filesystem::path const & path
     			, char const * class_name = 0
     			, void * mod_data = 0);
-    
+
     	module_spec module_for_name (string_type const & name
     			, char const * class_name = 0
     			, void * mod_data = 0)
@@ -645,196 +553,20 @@ struct modulus
     		filesystem::path modpath = build_so_filename(name.native());
     		return module_for_path(modpath, class_name, mod_data);
     	}
-    
+
     	bool register_module (module_spec const & modspec);
+
+    private:
+        atomic_int _quitfl; // quit flag
+        filesystem::pathlist   _searchdirs;
+        api_map_type           _api;
+        module_spec_map_type   _module_spec_map;
+        runnable_sequence_type _runnable_modules; // modules run in a separate threads
+        module *               _master_module_ptr;
+        logger_type            _logger;
+        active_queue_type      _callback_queue;
     }; // class dispatcher
 }; // struct modulus
-
-
-/**
- * @brief Load module descriptions in JSON format from UTF-8-encoded file
- *        and register specified modules.
- * @param path Path to file.
- * @return @c true on successful loading and registration, @c false otherwise.
- */
-//template <typename JsonType>
-//bool dispatcher::register_modules (filesystem::path const & path)
-//{
-//    pfs::error_code ec;
-//
-//    if (!pfs::filesystem::exists(path, ec)) {
-//        if (ec) {
-//            print_error(0, current_datetime(), fmt("`%s': %s")
-//                    % pfs::to_string<string_type>(path)
-//                    % pfs::to_string<string_type>(ec));
-//        } else {
-//            print_error(0, current_datetime(), fmt("`%s': file not found")
-//                    % pfs::to_string<string_type>(path));
-//        }
-//        return false;
-//    }
-//
-//    pfs::io::device file = pfs::io::open_device<pfs::io::file>(
-//            pfs::io::open_params<pfs::io::file>(path, pfs::io::read_only), ec);
-//
-//    if (ec) {
-//        print_error(0, current_datetime(), fmt("`%s`: file open failure: %s")
-//                % pfs::to_string<string_type>(path)
-//                % pfs::to_string<string_type>(ec));
-//        return false;
-//    }
-//
-//    io::input_iterator<char> first(file);
-//    io::input_iterator<char> last;
-//    string_type content = read_all_u8<string_type>(first, last);
-//
-//    JsonType conf;
-//    ec = conf.parse(content);
-//
-//    if (ec) {
-//    	print_error(0, current_datetime(), fmt("%s: Invalid JSON: %s")
-//                (to_string<string_type>(path))
-//                (to_string<string_type>(ec)).str());
-//    	return false;
-//    }
-//
-//    return register_modules<JsonType>(conf);
-//}
-
-
-//template <typename JsonType>
-//bool dispatcher::register_modules (JsonType const & conf)
-//{
-//    JsonType disp = conf["dispatcher"];
-//
-//    if (! disp.is_null()) {
-//    	if (not disp.is_object()) {
-//        	print_error(0, current_datetime(), "Dispatcher configuration error");
-//    		return false;
-//    	}
-//
-//    	JsonType dlog = disp["log"];
-//
-//    	if (dlog.is_object()) {
-//    		logger::logger<string_type> logger;
-//    		typename JsonType::const_iterator it = dlog.cbegin();
-//    		typename JsonType::const_iterator last = dlog.cend();
-//
-//    		for (; it != last; ++it) {
-//    			string_type name = it.key();
-//    			JsonType priority = *it;
-//    			stringlist<string_type> priorities;
-//    			logger::appender<typename JsonType::string_type> * pappender = 0;
-//
-//    			if (name == "stdout") {
-//    				pappender = & logger.add_appender<logger::stdout_appender<string_type> >();
-//    			} else if (name == "stderr") {
-//    				pappender = & logger.add_appender<logger::stderr_appender<string_type> >();
-//    			} else {
-//                    // Construct path from pattern
-//    				filesystem::path path(to_string<string_type>(current_datetime(), name).native()); // `name` is a pattern here
-//    				pappender = & logger.add_appender<logger::file_appender<string_type> >(path);
-//
-//                    if (! pappender->is_open()) {
-//                        pfs::error_code ec = pfs::get_last_system_error();
-//    					print_error(0, current_datetime(), fmt("Failed to create/open log file: %s: %s")
-//    							(to_string<string_type>(path))
-//    							(to_string<string_type>(ec)).str());
-//    					return false;
-//                    }
-//    			}
-//
-//    			PFS_ASSERT(pappender);
-//
-//                // FIXME must be configurable {
-//                pappender->set_pattern("%d{ABSOLUTE} [%p]: %m");
-//                pappender->set_priority_text(logger::priority::trace, "T");
-//                pappender->set_priority_text(logger::priority::debug, "D");
-//                pappender->set_priority_text(logger::priority::info , "I");
-//                pappender->set_priority_text(logger::priority::warn , "W");
-//                pappender->set_priority_text(logger::priority::error, "E");
-//                pappender->set_priority_text(logger::priority::fatal, "F");
-//                // }
-//
-//    			if (priority.is_string()) {
-//    				priorities.push_back(priority.template get<string_type>());
-//    			} else if (priority.is_array()) {
-//    				for (typename JsonType::const_iterator pri = priority.cbegin()
-//                            ; pri != priority.cend(); ++pri) {
-//    					priorities.push_back(pri->template get<string_type>());
-//    				}
-//    			}
-//
-//        		for (stringlist<string_type>::const_iterator pri = priorities.cbegin()
-//                        ; pri != priorities.cend(); ++pri) {
-//        			if (*pri == "all") {
-//        				logger.connect(*pappender);
-//        			} else if (*pri == "trace") {
-//        				logger.connect(logger::priority::trace, *pappender);
-//        			} else if (*pri == "debug") {
-//        				logger.connect(logger::priority::debug, *pappender);
-//        			} else if (*pri == "info") {
-//        				logger.connect(logger::priority::info, *pappender);
-//        			} else if (*pri == "warn") {
-//        				logger.connect(logger::priority::warn, *pappender);
-//        			} else if (*pri == "error") {
-//        				logger.connect(logger::priority::error, *pappender);
-//        			} else if (*pri == "fatal") {
-//        				logger.connect(logger::priority::fatal, *pappender);
-//        			} else {
-//    					print_error(0, current_datetime()
-//                                , fmt("Invalid log level name (must be 'all', 'trace', 'debug', 'info', 'warn', 'error' or 'fatal'): '%s'")
-//    							% *pri);
-//    					return false;
-//        			}
-//        		}
-//    		}
-//
-//    		_logger.swap(logger);
-//    	}
-//    }
-//
-//    JsonType modules = conf["modules"];
-//    typename JsonType::iterator it = modules.begin();
-//    typename JsonType::iterator it_end = modules.end();
-//
-//    bool result = true;
-//
-//    for (; it != it_end; ++it) {
-//    	if (it->is_object()) {
-//    		string_type name_str = (*it)["name"].template get<string_type>();
-//    		string_type path_str = (*it)["path"].template get<string_type>();
-//    		bool is_active  = (*it)["active"].template get<bool>();
-//    		bool is_master  = (*it)["master-module"].template get<bool>();
-//
-//    		if (name_str.empty()) {
-//    	    	print_error(0, current_datetime(), "Found anonymous module");
-//    	    	return false;
-//    		}
-//
-//    		if (is_active) {
-//    			bool rc = false;
-//
-//    			if (path_str.empty())
-//    				rc = register_module_for_name(name_str, 0, & *it);
-//    			else
-//    				rc = register_module_for_path(pfs::filesystem::path(path_str.native()), name_str, 0, & *it);
-//
-//    			if (rc) {
-//    				if (is_master) {
-//    					set_master_module(name_str);
-//    				}
-//    			} else {
-//    				result = false;
-//    			}
-//    		} else {
-//    			print_debug(0, current_datetime(), fmt("%s: Module is inactive")(name_str).str());
-//    		}
-//    	}
-//    }
-//
-//    return result;
-//}
 
 }} // pfs::app
 

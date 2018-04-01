@@ -12,7 +12,7 @@ typedef modulus_t::dispatcher            dispatcher_t;
 class module : public module_t
 {
 public:
-	module () : module_t()
+	module (dispatcher_t * pdisp) : module_t(pdisp)
 	{}
 
 	~module ()
@@ -139,12 +139,12 @@ int main (int argc, char *argv[])
 {
     PFS_UNUSED(argc);
     BEGIN_TESTS(12);
-    
+
     dispatcher_t dispatcher(API, sizeof(API)/sizeof(API[0]));
     dispatcher.add_search_path(pfs::filesystem::path("."));
 
     TEST_OK(dispatcher.register_module_for_name("module-for-test-app"));
-    TEST_OK(dispatcher.register_local_module(new module, "mod-local-for-test-app"));
+    TEST_OK(dispatcher.register_local_module(new module(& dispatcher), "mod-local-for-test-app"));
     TEST_OK(!dispatcher.register_module_for_name("module-for-test-app-nonexistence"));
 
     TEST_OK(dispatcher.count() == 2);

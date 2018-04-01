@@ -22,7 +22,7 @@ static int const signal_list[] = {
     , SIGFPE
 };
 
-static void __signal_handler (int signum) 
+static void __signal_handler (int signum)
 {
     if (__active_dispatcher) {
         switch (signum)  {
@@ -47,20 +47,20 @@ static bool __set_posix_signal_handling (basic_dispatcher * disp
 
     // Block every signal during the handler
     sigfillset(& act.sa_mask);
-            
+
     int count = sizeof(signal_list)/sizeof(signal_list[0]);
-    
+
     for (int i = 0; i < count; ++i) {
         PFS_ASSERT(sigaction(signal_list[i], & act, NULL) >= 0);
 //        if (sigaction(signal_list[i], & act, NULL) < 0) {
 //            disp->print_error(0, current_datetime(), dispatcher::fmt("sigaction(%d): %s")
 //                    (signal_list[i])
 //                    (to_string<dispatcher::string_type>(pfs::get_last_system_error())));
-//            
+//
 //            return false;
 //        }
     }
-    
+
     return true;
 }
 
@@ -70,9 +70,9 @@ bool basic_dispatcher::activate_posix_signal_handling ()
 {
     if (! __set_posix_signal_handling(this, & __signal_handler))
         return false;
-    
+
     __active_dispatcher = this;
-    
+
     return true;
 }
 
@@ -90,9 +90,9 @@ namespace pfs {
 namespace application {
 
 //static int  __pipefd[2];
-//static void __sigaction (int signum) 
+//static void __sigaction (int signum)
 //{
-//    write(__pipefd[1], & signum, sizeof(int)); 
+//    write(__pipefd[1], & signum, sizeof(int));
 //}
 
 static dispatcher * __active_dispatcher = 0;
@@ -106,7 +106,7 @@ static int const signal_list[] = {
     , SIGFPE
 };
 
-static void __signal_handler (int signum) 
+static void __signal_handler (int signum)
 {
     if (__active_dispatcher) {
         switch (signum)  {
@@ -131,19 +131,19 @@ static bool __set_posix_signal_handling (dispatcher * disp
 
     // Block every signal during the handler
     sigfillset(& act.sa_mask);
-            
+
     int count = sizeof(signal_list)/sizeof(signal_list[0]);
-    
+
     for (int i = 0; i < count; ++i) {
         if (sigaction(signal_list[i], & act, NULL) < 0) {
             disp->print_error(0, current_datetime(), dispatcher::fmt("sigaction(%d): %s")
                     (signal_list[i])
                     (to_string<dispatcher::string_type>(pfs::get_last_system_error())));
-            
+
             return false;
         }
     }
-    
+
     return true;
 }
 
@@ -153,9 +153,9 @@ bool dispatcher::activate_posix_signal_handling ()
 {
     if (! __set_posix_signal_handling(this, & __signal_handler))
         return false;
-    
+
     __active_dispatcher = this;
-    
+
     return true;
 }
 
