@@ -63,7 +63,7 @@ private:
 	typedef traits::sequence_container<
               appender_type *
             , SequenceContainerImplType>           appender_sequence;
-	typedef signal2<priority, string_type const &> emitter_type;
+	typedef signal3<priority, datetime const &, string_type const &> emitter_type;
 
 private:
 	struct data_t
@@ -186,10 +186,10 @@ public:
 //#	error "Need to implement `add_appender` using variadic templates"
 //#endif
 
-	void print (priority level, string_type const & msg)
+	void print (priority level, datetime const & dt, string_type const & msg)
 	{
 		if (level.value >= _d->_priority && level.value != priority::no_priority)
-			_d->_emitters[level](level, msg);
+			_d->_emitters[level](level, dt, msg);
 	}
 
 	void connect (priority level, appender_type & ap)
@@ -232,32 +232,32 @@ public:
 
 	void trace (string_type const & text)
 	{
-		print(priority::trace, text);
+		print(priority::trace, current_datetime(), text);
 	}
 
 	void debug (string_type const & text)
 	{
-		print(priority::debug, text);
+		print(priority::debug, current_datetime(), text);
 	}
 
 	void info  (string_type const & text)
 	{
-		print(priority::info, text);
+		print(priority::info, current_datetime(), text);
 	}
 
 	void warn  (string_type const & text)
 	{
-		print(priority::warn, text);
+		print(priority::warn, current_datetime(), text);
 	}
 
 	void error (string_type const & text)
 	{
-		print(priority::error, text);
+		print(priority::error, current_datetime(), text);
 	}
     
 	void critical (string_type const & text)
 	{
-		print(priority::critical, text);
+		print(priority::critical, current_datetime(), text);
 		abort();
 	}
 
@@ -282,13 +282,13 @@ protected:
     string_type _priority_text[static_cast<size_t>(priority::count) - 1]; // excluding no_priority
 
 protected:
-	virtual void print (string_type const & msg) = 0;
+	virtual void print (datetime const & dt, string_type const & msg) = 0;
 
-	void print_helper (priority level, string_type const & msg)
+	void print_helper (priority level, datetime const & dt, string_type const & msg)
 	{
-		print(_pattern.empty()
+		print(dt, _pattern.empty()
 				? msg
-				: patternify(this, level, _pattern, msg));
+				: patternify(this, level, dt, _pattern, msg));
 	}
     
     void init ()
@@ -344,6 +344,7 @@ protected:
         {
             appender *          appender_ptr;
             priority            level;
+            datetime            dt; 
             string_type         result;
             string_type const * msg_ptr;
             specifier           spec;
@@ -388,16 +389,16 @@ protected:
                     break;
 
                 case 'd': {
-                    datetime dt = pfs::current_datetime();
+                    //datetime dt = pfs::current_datetime();
 
                     if (ctx->spec.fspec == "ABSOLUTE") {
-                        result = pfs::to_string<string_type>(dt, "%H:%M:%S.%Q");
+                        result = pfs::to_string<string_type>(ctx->dt, "%H:%M:%S.%Q");
                     } else if (ctx->spec.fspec == "DATE") {
-                        result = pfs::to_string<string_type>(dt, "%d %b %Y %H:%M:%S.%Q");
+                        result = pfs::to_string<string_type>(ctx->dt, "%d %b %Y %H:%M:%S.%Q");
                     } else if (ctx->spec.fspec == "ISO8601") {
-                        result = pfs::to_string<string_type>(dt, "%Y-%m-%d %H:%M:%S.%Q");
+                        result = pfs::to_string<string_type>(ctx->dt, "%Y-%m-%d %H:%M:%S.%Q");
                     } else {
-                        result = pfs::to_string(dt, ctx->spec.fspec);
+                        result = pfs::to_string(ctx->dt, ctx->spec.fspec);
                     }
 
                     break;
@@ -509,6 +510,7 @@ protected:
     
 	static string_type patternify (appender * a
         , priority level
+        , datetime const & dt
         , string_type const & pattern
         , string_type const & text)
     {
@@ -519,6 +521,7 @@ protected:
         context.appender_ptr = a;
         context.level        = level;
         context.msg_ptr      = & text;
+        context.dt           = dt;
     
         fsm_type fsm(grammar.p_pattern_tr, & context);
         typename fsm_type::result_type r = fsm.exec(0, pattern.cbegin(), pattern.cend());
@@ -584,7 +587,7 @@ public:
     }
 
 protected:
-	virtual void print (StringType const & msg) pfs_override
+	virtual void print (datetime const & dt, StringType const & msg) pfs_override
 	{
 		std::cout << msg << std::endl;
 	}
@@ -604,7 +607,7 @@ public:
     }
 
 protected:
-	virtual void print (StringType const & msg) pfs_override
+	virtual void print (datetime const & dt, StringType const & msg) pfs_override
 	{
 		std::cerr << msg << std::endl;
 	}
@@ -635,7 +638,7 @@ public:
     }
     
 protected:
-	virtual void print (StringType const & msg) pfs_override
+	virtual void print (datetime const & dt, StringType const & msg) pfs_override
 	{
         _d << msg.native() << "\n";
 	}
