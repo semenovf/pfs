@@ -20,6 +20,9 @@ public:
     static const int MILLIS_PER_HOUR    = 3600000;
     static const int MILLIS_PER_DAY     = 86400000;
 
+protected:
+    time (int32_t millis) : _millis(millis) {}
+
 public:
 	time ()
 		: _millis(NULL_TIME)
@@ -121,6 +124,13 @@ public:
 	{
 		return MILLIS_PER_HOUR * hour + MILLIS_PER_MINUTE * min + 1000 * sec + millis;
 	}
+
+    static time from_millis_from_midnight (int32_t millis)
+    {
+        time r;
+        r._millis = millis;
+        return r;
+    }
 };
 
 
@@ -191,49 +201,49 @@ StringType to_string (time const & t, StringType const & format)
 				case 'n':
 					r.push_back('\n');
 					break;
-                    
+
 				case 't':
 					r.push_back('\t');
 					break;
-                    
+
 				case 'H':
 					details::time::append_prefixed2(r, '0', t.hour());
 					break;
-                    
+
 				case 'I':
 					details::time::append_prefixed2(r, '0', t.hour() % 12);
 					break;
-                    
+
 				case 'k':
 					details::time::append_prefixed2(r, ' ', t.hour());
 					break;
-                    
+
 				case 'l':
 					details::time::append_prefixed2(r, ' ', t.hour() % 12);
 					break;
-                    
+
 				case 'M':
 					details::time::append_prefixed2(r, '0', t.minute());
 					break;
-                    
+
 				case 'q':
 					r.append(to_string<StringType>(t.millis()));
 					break;
-                    
+
 				case 'Q':
 					details::time::append_prefixed3(r, '0', t.millis());
 					break;
-                    
+
 				case 'S':
 					details::time::append_prefixed2(r, '0', t.second());
 					break;
-                    
+
 				case 'R':
 					details::time::append_prefixed2(r, '0', t.hour());
 					r.push_back(':');
 					details::time::append_prefixed2(r, '0', t.minute());
 					break;
-                    
+
 				case 'T':
 					details::time::append_prefixed2(r, '0', t.hour());
 					r.push_back(':');
@@ -241,7 +251,7 @@ StringType to_string (time const & t, StringType const & format)
 					r.push_back(':');
 					details::time::append_prefixed2(r, '0', t.second());
 					break;
-                    
+
 				case 'J':
 					details::time::append_prefixed2(r, '0', t.hour());
 					r.push_back(':');
@@ -251,11 +261,11 @@ StringType to_string (time const & t, StringType const & format)
 					r.push_back('.');
 					details::time::append_prefixed3(r, '0', t.millis());
 					break;
-                    
+
 				case 'p':
 					r.append(t.hour() < 12 ? StringType("AM") : StringType("PM"));
 					break;
-                    
+
 				default:
 					r.push_back('%');
 					r.push_back(*p);
@@ -268,7 +278,7 @@ StringType to_string (time const & t, StringType const & format)
 		++p;
 	}
 
-	return r;    
+	return r;
 }
 
 /**

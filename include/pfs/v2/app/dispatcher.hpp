@@ -559,9 +559,8 @@ int modulus<PFS_MODULUS_TEMPLETE_ARGS>::dispatcher::exec_main ()
     typename module_spec_map_type::iterator imodule_last = _module_spec_map.end();
 
     for (; imodule != imodule_last; ++imodule) {
-        module_spec modspec = imodule->second;
-        shared_ptr<module> pmodule = modspec.pmodule;
-        pmodule->on_finish();
+        module_spec & modspec = imodule->second;
+        modspec.pmodule->on_finish();
     }
 
     return r;

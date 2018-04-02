@@ -1,7 +1,8 @@
 #ifndef __PFS_DYNAMIC_LIBRARY_HPP__
 #define __PFS_DYNAMIC_LIBRARY_HPP__
 
-/* see http://en.wikipedia.org/wiki/Dynamic_loading */
+// see http://en.wikipedia.org/wiki/Dynamic_loading
+// [Dynamically Loaded C++ Objects](http://www.drdobbs.com/dynamically-loaded-c-objects/184401900?pgno=1)
 
 #include <pfs/cxxlang.hpp>
 #include <pfs/compiler.hpp>
@@ -22,7 +23,7 @@ class dynamic_library
 {
 public:
     typedef filesystem::path::string_type system_string;
-    
+
 #ifdef PFS_CC_MSC
 	typedef HMODULE native_handle_type;
 	typedef FARPROC symbol_type;
@@ -36,14 +37,14 @@ private:
     filesystem::path   _path;   // contains path to dynamic library
 
 private:
-#if __cplusplus >= 201103L    
+#if __cplusplus >= 201103L
     dynamic_library (dynamic_library const &) = delete;
     dynamic_library & operator = (dynamic_library const &) = delete;
 #else
     dynamic_library (dynamic_library const &);
     dynamic_library & operator = (dynamic_library const &);
 #endif
-    
+
 public:
 	dynamic_library ()
 		: _handle(0)
@@ -84,7 +85,7 @@ public:
 filesystem::path build_so_filename (filesystem::path const & name) pfs_noexcept;
 
 #if __cplusplus >= 201103L
-enum class dynamic_library_errc 
+enum class dynamic_library_errc
 {
 #else
 struct dynamic_library_errc
@@ -96,11 +97,11 @@ struct dynamic_library_errc
         , file_not_found
         , open_failed
         , symbol_not_found
-#if __cplusplus < 201103L                  
+#if __cplusplus < 201103L
     };
-    
+
     value_enum v;
-    
+
     dynamic_library_errc (value_enum x)
         : v(x)
     {}
@@ -110,16 +111,16 @@ struct dynamic_library_errc
         v = x;
         return *this;
     }
-    
+
     operator int () const
     {
         return static_cast<int>(v);
     }
-#endif    
+#endif
 };
 
 namespace details {
-class dynamic_library_category : public pfs::error_category 
+class dynamic_library_category : public pfs::error_category
 {
 public:
     virtual char const * name () const pfs_noexcept pfs_override;
@@ -149,7 +150,7 @@ inline FuncPtr void_func_ptr_cast (void * p)
 }
 
 template <typename FuncPtr>
-inline void * func_void_ptr_cast (FuncPtr f) 
+inline void * func_void_ptr_cast (FuncPtr f)
 {
     static_assert(sizeof(void *) == sizeof(void (*)(void)),
                   "object pointer and function pointer sizes must be equal");
@@ -167,7 +168,7 @@ namespace std {
 
 template<>
 struct is_error_code_enum<pfs::dynamic_library_errc>
-        : public std::true_type 
+        : public std::true_type
 {};
 
 #endif

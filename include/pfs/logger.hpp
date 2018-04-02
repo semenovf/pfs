@@ -28,21 +28,21 @@ struct priority
 		, no_priority
 		, count
     } value;
-    
+
     priority ()
         : value(trace)
     {}
-            
+
     priority (type v)
         : value(v)
     {}
-    
+
     priority & operator = (type v)
     {
         value = v;
         return *this;
     }
-    
+
     operator int () const
     {
         return value;
@@ -59,7 +59,7 @@ class logger
 public:
     typedef StringType            string_type;
     typedef appender<string_type> appender_type;
-private:    
+private:
 	typedef traits::sequence_container<
               appender_type *
             , SequenceContainerImplType>           appender_sequence;
@@ -77,7 +77,7 @@ private:
 
 public:
 	logger ()
-#if __cplusplus >= 201103L    
+#if __cplusplus >= 201103L
 		: _d(make_unique<data_t>())
 #else
         : _d(new data_t)
@@ -90,10 +90,10 @@ public:
 	{
         typename appender_sequence::iterator it   = _d->_appenders.begin();
         typename appender_sequence::iterator last = _d->_appenders.end();
-        
+
         for (; it != last; ++it)
             delete *it;
-        
+
     	_d->_appenders.clear();
 	}
 
@@ -110,8 +110,8 @@ public:
 		return *_d->_appenders.back();
 	}
 
-    // TODO Implement add_appender using C++ variadic templates 
-//#if __cplusplus < 201103L    
+    // TODO Implement add_appender using C++ variadic templates
+//#if __cplusplus < 201103L
 	template <typename Appender, typename Arg1>
 	appender_type & add_appender (Arg1 a1)
 	{
@@ -190,7 +190,7 @@ public:
         PFS_ASSERT(level >= 0 && level < priority::count);
       	_d->_emitters[level].connect(& ap, & appender_type::print_helper);
     }
-    
+
 	void connect (appender_type & ap)
     {
         _d->_emitters[priority::trace].connect(& ap, & appender_type::print_helper);
@@ -216,27 +216,25 @@ public:
         PFS_ASSERT(level >= 0 && level < priority::count);
         _d->_emitters[level].disconnect_all();
     }
-    
+
 	void disconnect_all ()
     {
       	for (int i = 0; i < priority::count; ++i)
     		_d->_emitters[i].disconnect_all();
     }
-    
+
     void remove_disconnected ()
     {
         typename appender_sequence::iterator it   = _d->_appenders.begin();
-        
+
         for (; it != _d->_appenders.end(); ) {
-            if ((*it)->count()) {
+            if ((*it)->count() == 0) { // No signal connected
                 delete *it;
                 it = _d->_appenders.erase(it);
             } else {
                 ++it;
             }
         }
-        
-    	_d->_appenders.clear();
     }
 
 	void set_priority (priority pri)
@@ -273,7 +271,7 @@ public:
 	{
 		print(priority::error, current_datetime(), text);
 	}
-    
+
 	void critical (string_type const & text)
 	{
 		print(priority::critical, current_datetime(), text);
@@ -309,7 +307,7 @@ protected:
 				? msg
 				: patternify(this, level, dt, _pattern, msg));
 	}
-    
+
     void init ()
     {
         set_priority_text(priority::trace, "T");
@@ -328,7 +326,7 @@ protected:
      * %20m 	        false        	20 				none 			Left pad with spaces if the message is less than 20 characters long.
      * %-20m 			true 			20 				none 			Right pad with spaces if the message is less than 20 characters long.
      * %.30m 			NA 				none 			30 				Truncate from the beginning if the message is longer than 30 characters.
-     * %20.30m 			false 			20 				30 				Left pad with spaces if the message is shorter than 20 characters. 
+     * %20.30m 			false 			20 				30 				Left pad with spaces if the message is shorter than 20 characters.
      *                                                                  However, if message is longer than 30 characters, then truncate from the beginning.
      * %-20.30m 		true 			20 				30 				Right pad with spaces if the message is shorter than 20 characters.
      *                                                                  However, if message is longer than 30 characters, then truncate from the beginning.
@@ -363,7 +361,7 @@ protected:
         {
             appender *          appender_ptr;
             priority            level;
-            datetime            dt; 
+            datetime            dt;
             string_type         result;
             string_type const * msg_ptr;
             specifier           spec;
@@ -383,7 +381,7 @@ protected:
             }
             return true;
         }
-        
+
         static bool end_spec (iterator /*first*/, iterator /*last*/, void * context, void * /*action_args*/)
         {
             if (context) {
@@ -435,7 +433,7 @@ protected:
                 /* pad */
                 if (ctx->spec.min_width > 0 && result.length() < ctx->spec.min_width) {
                     string_type padding(ctx->spec.min_width - result.length(), ' ');
-                    
+
                     if (ctx->spec.left_justify) {
                         result.append(padding);
                     } else {
@@ -444,11 +442,11 @@ protected:
                 }
 
                 ctx->result.append(result);
-                
+
             }
             return true;
         }
-        
+
         static bool append_plain_char (iterator first, iterator last, void * context, void * /*action_args*/)
         {
             if (context) {
@@ -469,12 +467,12 @@ protected:
             }
             return true;
         }
-        
+
         static bool set_min_width (iterator first, iterator last, void * context, void * /*action_args*/)
         {
             if (context) {
                 parse_context * ctx = static_cast<parse_context *>(context);
-                
+
                 if (first != last) {
                     string_type n(first, last);
                     try {
@@ -486,12 +484,12 @@ protected:
             }
             return true;
         }
-        
+
         static bool set_max_width (iterator first, iterator last, void * context, void * /*action_args*/)
         {
             if (context) {
                 parse_context * ctx = static_cast<parse_context *>(context);
-                
+
                 if (first != last) {
                     string_type n(first, last);
                     try {
@@ -503,7 +501,7 @@ protected:
             }
             return true;
         }
-        
+
         static bool set_spec_char (iterator first, iterator /*last*/, void * context, void * /*action_args*/)
         {
             if (context) {
@@ -512,7 +510,7 @@ protected:
             }
             return true;
         }
-        
+
         static bool set_format_spec (iterator first, iterator last, void * context, void * /*action_args*/)
         {
             if (context) {
@@ -523,10 +521,10 @@ protected:
         }
 
 #if PFS_TEST
-#endif    
+#endif
         transition_type const * p_pattern_tr;
-    };    
-    
+    };
+
 	static string_type patternify (appender * a
         , priority level
         , datetime const & dt
@@ -534,14 +532,14 @@ protected:
         , string_type const & text)
     {
         typedef typename pattern_grammar::fsm_type fsm_type;
-        
+
         static pattern_grammar grammar;
         typename pattern_grammar::parse_context context;
         context.appender_ptr = a;
         context.level        = level;
         context.msg_ptr      = & text;
         context.dt           = dt;
-    
+
         fsm_type fsm(grammar.p_pattern_tr, & context);
         typename fsm_type::result_type r = fsm.exec(0, pattern.cbegin(), pattern.cend());
 
@@ -571,7 +569,7 @@ public:
 	{}
 
     virtual bool is_open () const = 0;
-    
+
 	string_type pattern () const
 	{
 		return _pattern;
@@ -581,13 +579,13 @@ public:
 	{
 		_pattern = pattern;
 	}
-    
+
     string_type priority_text (priority pri) const
     {
         return _priority_text[pri];
     }
-    
-    void set_priority_text (priority pri, string_type const & text) 
+
+    void set_priority_text (priority pri, string_type const & text)
     {
         _priority_text[pri] = text;
     }
@@ -616,7 +614,7 @@ template <typename StringType>
 class stderr_appender : public appender<StringType>
 {
     typedef appender<StringType> base_class;
-    
+
 public:
 	stderr_appender () : base_class() {}
 
@@ -637,7 +635,7 @@ class file_appender : public appender<StringType>
 {
     typedef appender<StringType> base_class;
     typedef std::basic_fstream<typename StringType::code_unit_type> fstream_type;
-    
+
     fstream_type _d;
 
 public:
@@ -655,7 +653,7 @@ public:
     {
         return _d.is_open();
     }
-    
+
 protected:
 	virtual void print (priority, datetime const &, StringType const & msg) pfs_override
 	{
@@ -680,7 +678,7 @@ appender<StringType>::pattern_grammar::pattern_grammar ()
 #   define FSM_OPT_ONE_OF(x)     fsm_type::opt_one_of(x.begin(),x.end())
 #   define FSM_RPT_ONE_OF(x,a,b) fsm_type::rpt_one_of(x.begin(),x.end(),a,b)
 #   define FSM_RANGE(a,b)        fsm_type::range(a,b)
-    
+
     static string_type const DIGIT("0123456789");
     static string_type const PERIOD(".");
     static string_type const DASH("-");
@@ -717,13 +715,13 @@ appender<StringType>::pattern_grammar::pattern_grammar ()
         , 0x7Cu, 0x7Cu
         , 0x7Eu, 0x10FFFFu
     };
-    
+
     static transition_type const format_spec_char_tr[] = {
           {-1, 1, FSM_RANGE(format_spec_char[0], format_spec_char[1]), fsm_type::accept, 0, 0}
         , {-1, 2, FSM_RANGE(format_spec_char[2], format_spec_char[3]), fsm_type::accept, 0, 0}
         , {-1,-1, FSM_RANGE(format_spec_char[4], format_spec_char[5]), fsm_type::accept, 0, 0}
     };
-    
+
     static transition_type const format_spec_tr[] = {
           { 1, -1, FSM_ONE_OF(LEFT_CURLY_BRACKET)         , fsm_type::normal, 0, 0}
         , { 2, -1, FSM_RPT_TR(format_spec_char_tr, 0, 256), fsm_type::normal, set_format_spec, 0}
@@ -731,7 +729,7 @@ appender<StringType>::pattern_grammar::pattern_grammar ()
     };
 
     static string_type const SPEC_CHARS("mdpnt");
-    
+
     /* spec = "%" [ format-mod ] ( "m" / "d" / "p" ) [ format-spec ]*/
     static transition_type const spec_tr[] = {
           { 1, -1, FSM_ONE_OF(PERCENT_SIGN)  , fsm_type::normal, begin_spec, 0}
@@ -750,7 +748,7 @@ appender<StringType>::pattern_grammar::pattern_grammar ()
     static transition_type const pattern_tr[] = {
         {-1, -1, FSM_RPT_TR(pattern_unit_tr, 0, -1), fsm_type::accept, 0, 0}
     };
-    
+
     p_pattern_tr = pattern_tr;
 }
 
