@@ -83,6 +83,7 @@ struct modulus
     class dispatcher;
 
     typedef StringType      string_type;
+    typedef logger::logger<StringType> logger_type;
     typedef signal1<void *> emitter_type;
 
     typedef void (module::* detector_handler)(void *);
@@ -372,11 +373,11 @@ struct modulus
     {
         friend class module;
 
-        typedef logger::logger<StringType> logger_type;
         typedef safeformat<StringType> fmt;
 
     public:
-        typedef StringType string_type;
+        typedef modulus::string_type string_type;
+        typedef modulus::logger_type logger_type;
 
         struct exit_status
         {
@@ -480,6 +481,9 @@ struct modulus
     		return _module_spec_map.find(modname) != _module_spec_map.end();
     	}
 
+        logger_type & get_logger () { return _logger; }
+        logger_type const & get_logger () const { return _logger; }
+        
     protected: // slots
         void on_quit ()
         {

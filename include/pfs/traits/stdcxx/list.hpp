@@ -2,6 +2,7 @@
 #define __PFS_TRAITS_STDCXX_LIST_HPP__
 
 #include <list>
+#include <pfs/iterator.hpp>
 #include <pfs/traits/value_ref.hpp>
 
 namespace pfs {
@@ -230,12 +231,35 @@ public:
 
     iterator erase (const_iterator pos)
     {
+#if __cplusplus >= 201103L
         return _p->erase(pos);
+#else
+        //
+        // C++ prior to C++11
+        // erase() has signature `iterator erase(iterator pos)`
+        //
+        iterator it(this->begin());
+        pfs::advance(it, pfs::distance(this->cbegin(), pos));
+        return _p->erase(it);
+#endif
+
     }
 
     iterator erase (const_iterator first, const_iterator last)
     {
+#if __cplusplus >= 201103L
         return _p->erase(first, last);
+#else
+        //
+        // C++ prior to C++11
+        // erase() has signature `iterator erase(iterator first, iterator last)`
+        //
+        iterator from(this->begin());
+        iterator to(this->begin());
+        pfs::advance(from, pfs::distance(this->cbegin(), first));
+        pfs::advance(to, pfs::distance(this->cbegin(), last));
+        return _p->erase(from, to);
+#endif
     }
 
     iterator insert (const_iterator pos, const_reference value)

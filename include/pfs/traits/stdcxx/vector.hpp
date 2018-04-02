@@ -232,7 +232,7 @@ public:
 #else
         //
         // C++ prior to C++11
-        // erase() has signature `iterator erase(iterator first, iterator last)`
+        // erase() has signature `iterator erase(iterator pos)`
         //
         iterator it(this->begin());
         pfs::advance(it, pfs::distance(this->cbegin(), pos));

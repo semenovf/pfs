@@ -94,15 +94,8 @@ public:
         for (; it != last; ++it)
             delete *it;
         
-		if (_d) {
-			clear();
-		}
+    	_d->_appenders.clear();
 	}
-
-	void clear ()
-    {
-        _d->_appenders.clear();
-    }
 
     void swap (logger & other)
     {
@@ -208,6 +201,16 @@ public:
         _d->_emitters[priority::fatal].connect(& ap, & appender_type::print_helper);
     }
 
+  	void disconnect (appender_type & ap)
+    {
+        _d->_emitters[priority::trace].disconnect(& ap);
+        _d->_emitters[priority::debug].disconnect(& ap);
+        _d->_emitters[priority::info].disconnect(& ap);
+        _d->_emitters[priority::warn].disconnect(& ap);
+        _d->_emitters[priority::error].disconnect(& ap);
+        _d->_emitters[priority::fatal].disconnect(& ap);
+    }
+
 	void disconnect (int level)
     {
         PFS_ASSERT(level >= 0 && level < priority::count);
@@ -218,6 +221,22 @@ public:
     {
       	for (int i = 0; i < priority::count; ++i)
     		_d->_emitters[i].disconnect_all();
+    }
+    
+    void remove_disconnected ()
+    {
+        typename appender_sequence::iterator it   = _d->_appenders.begin();
+        
+        for (; it != _d->_appenders.end(); ) {
+            if ((*it)->count()) {
+                delete *it;
+                it = _d->_appenders.erase(it);
+            } else {
+                ++it;
+            }
+        }
+        
+    	_d->_appenders.clear();
     }
 
 	void set_priority (priority pri)
@@ -282,11 +301,11 @@ protected:
     string_type _priority_text[static_cast<size_t>(priority::count) - 1]; // excluding no_priority
 
 protected:
-	virtual void print (datetime const & dt, string_type const & msg) = 0;
+	virtual void print (priority level, datetime const & dt, string_type const & msg) = 0;
 
 	void print_helper (priority level, datetime const & dt, string_type const & msg)
 	{
-		print(dt, _pattern.empty()
+		print(level, dt, _pattern.empty()
 				? msg
 				: patternify(this, level, dt, _pattern, msg));
 	}
@@ -587,7 +606,7 @@ public:
     }
 
 protected:
-	virtual void print (datetime const & dt, StringType const & msg) pfs_override
+	virtual void print (priority, datetime const &, StringType const & msg) pfs_override
 	{
 		std::cout << msg << std::endl;
 	}
@@ -607,7 +626,7 @@ public:
     }
 
 protected:
-	virtual void print (datetime const & dt, StringType const & msg) pfs_override
+	virtual void print (priority, datetime const &, StringType const & msg) pfs_override
 	{
 		std::cerr << msg << std::endl;
 	}
@@ -638,7 +657,7 @@ public:
     }
     
 protected:
-	virtual void print (datetime const & dt, StringType const & msg) pfs_override
+	virtual void print (priority, datetime const &, StringType const & msg) pfs_override
 	{
         _d << msg.native() << "\n";
 	}

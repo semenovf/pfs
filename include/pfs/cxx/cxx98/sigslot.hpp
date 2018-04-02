@@ -326,6 +326,11 @@ public:
 
         _senders.erase(_senders.begin(), _senders.end());
     }
+    
+    size_t count () const
+    {
+        return _senders.size();
+    }
 
 private:
 
