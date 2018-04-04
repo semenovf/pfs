@@ -10,60 +10,67 @@
 #include <pfs/fsm/fsm.hpp>
 #include <pfs/filesystem.hpp>
 #include <pfs/traits/sequence_container.hpp>
+#include <pfs/traits/stdcxx/string.hpp>
 #include <pfs/traits/stdcxx/list.hpp>
 
 namespace pfs {
-namespace logger {
 
-struct priority
+#define PFS_LOG_TEMPLETE_SIGNATURE typename StringType    \
+            , typename SigslotNS                          \
+            , template <typename> class SequenceContainer
+#define PFS_LOG_TEMPLETE_ARGS       StringType, SigslotNS, SequenceContainer
+
+template <typename StringType = string<stdcxx::string>
+    , typename SigslotNS = sigslot<>
+    , template <typename> class SequenceContainer = stdcxx::list>
+struct log
 {
-    enum type {
-		  trace
-		, debug
-		, info
-		, warn
-		, error
-		, fatal
-        , critical = fatal
-		, no_priority
-		, count
-    } value;
+    typedef StringType string_type;
+    typedef SigslotNS sigslot_ns;
 
-    priority ()
-        : value(trace)
-    {}
-
-    priority (type v)
-        : value(v)
-    {}
-
-    priority & operator = (type v)
+    struct priority
     {
-        value = v;
-        return *this;
-    }
+        enum type {
+            trace
+            , debug
+            , info
+            , warn
+            , error
+            , fatal
+            , critical = fatal
+            , no_priority
+            , count
+        } value;
 
-    operator int () const
-    {
-        return value;
-    }
-};
+        priority ()
+            : value(trace)
+        {}
 
-template <typename StringType>
+        priority (type v)
+            : value(v)
+        {}
+
+        priority & operator = (type v)
+        {
+            value = v;
+            return *this;
+        }
+
+        operator int () const
+        {
+            return value;
+        }
+    };
+
 class appender;
 
-template <typename StringType
-    , template <typename> class SequenceContainerImplType = stdcxx::list>
 class logger
 {
-public:
-    typedef StringType            string_type;
-    typedef appender<string_type> appender_type;
 private:
 	typedef traits::sequence_container<
-              appender_type *
-            , SequenceContainerImplType>           appender_sequence;
-	typedef signal3<priority, datetime const &, string_type const &> emitter_type;
+              appender *
+            , SequenceContainer>           appender_sequence;
+	typedef typename sigslot_ns::template signal3<priority, datetime const &, string_type const &> emitter_type;
 
 private:
 	struct data_t
@@ -103,7 +110,7 @@ public:
     }
 
 	template <typename Appender>
-	appender_type & add_appender ()
+	appender & add_appender ()
 	{
 		//_d->_appenders.emplace_back(make_shared<Appender>());
         _d->_appenders.push_back(new Appender);
@@ -113,7 +120,7 @@ public:
     // TODO Implement add_appender using C++ variadic templates
 //#if __cplusplus < 201103L
 	template <typename Appender, typename Arg1>
-	appender_type & add_appender (Arg1 a1)
+	appender & add_appender (Arg1 a1)
 	{
 		//_d->_appenders.emplace_back(make_shared<Appender>(a1)); // Valid for C++11
         _d->_appenders.push_back(new Appender(a1));
@@ -121,7 +128,7 @@ public:
 	}
 
 	template <typename Appender, typename Arg1, typename Arg2>
-	appender_type & add_appender (Arg1 a1, Arg2 a2)
+	appender & add_appender (Arg1 a1, Arg2 a2)
 	{
 		//_d->_appenders.emplace_back(make_shared<Appender>(a1, a2)); // Valid for C++11
         _d->_appenders.push_back(new Appender(a1, a2));
@@ -129,7 +136,7 @@ public:
 	}
 
 	template <typename Appender, typename Arg1, typename Arg2, typename Arg3>
-	appender_type & add_appender (Arg1 a1, Arg2 a2, Arg3 a3)
+	appender & add_appender (Arg1 a1, Arg2 a2, Arg3 a3)
 	{
 		//_d->_appenders.emplace_back(make_shared<Appender>(a1, a2, a3)); // Valid for C++11
         _d->_appenders.push_back(new Appender(a1, a2, a3));
@@ -137,7 +144,7 @@ public:
 	}
 
 	template <typename Appender, typename Arg1, typename Arg2, typename Arg3, typename Arg4>
-	appender_type & add_appender (Arg1 a1, Arg2 a2, Arg3 a3, Arg4 a4)
+	appender & add_appender (Arg1 a1, Arg2 a2, Arg3 a3, Arg4 a4)
 	{
 		//_d->_appenders.emplace_back(make_shared<Appender>(a1, a2, a3, a4)); // Valid for C++11
         _d->_appenders.push_back(new Appender(a1, a2, a3, a4));
@@ -145,7 +152,7 @@ public:
 	}
 
 	template <typename Appender, typename Arg1, typename Arg2, typename Arg3, typename Arg4, typename Arg5>
-	appender_type & add_appender (Arg1 a1, Arg2 a2, Arg3 a3, Arg4 a4, Arg5 a5)
+	appender & add_appender (Arg1 a1, Arg2 a2, Arg3 a3, Arg4 a4, Arg5 a5)
 	{
 		//_d->_appenders.emplace_back(make_shared<Appender>(a1, a2, a3, a4, a5)); // Valid for C++11
         _d->_appenders.push_back(new Appender(a1, a2, a3, a4, a5));
@@ -153,7 +160,7 @@ public:
 	}
 
 	template <typename Appender, typename Arg1, typename Arg2, typename Arg3, typename Arg4, typename Arg5, typename Arg6>
-	appender_type & add_appender (Arg1 a1, Arg2 a2, Arg3 a3, Arg4 a4, Arg5 a5, Arg6 a6)
+	appender & add_appender (Arg1 a1, Arg2 a2, Arg3 a3, Arg4 a4, Arg5 a5, Arg6 a6)
 	{
 		//_d->_appenders.emplace_back(make_shared<Appender>(a1, a2, a3, a4, a5, a6)); // Valid for C++11
         _d->_appenders.push_back(new Appender(a1, a2, a3, a4, a5, a6));
@@ -161,7 +168,7 @@ public:
 	}
 
 	template <typename Appender, typename Arg1, typename Arg2, typename Arg3, typename Arg4, typename Arg5, typename Arg6, typename Arg7>
-	appender_type & add_appender (Arg1 a1, Arg2 a2, Arg3 a3, Arg4 a4, Arg5 a5, Arg6 a6, Arg7 a7)
+	appender & add_appender (Arg1 a1, Arg2 a2, Arg3 a3, Arg4 a4, Arg5 a5, Arg6 a6, Arg7 a7)
 	{
 		//_d->_appenders.emplace_back(make_shared<Appender>(a1, a2, a3, a4, a5, a6, a7)); // Valid for C++11
         _d->_appenders.push_back(new Appender(a1, a2, a3, a4, a5, a6, a7));
@@ -169,7 +176,7 @@ public:
 	}
 
 	template <typename Appender, typename Arg1, typename Arg2, typename Arg3, typename Arg4, typename Arg5, typename Arg6, typename Arg7, typename Arg8>
-	appender_type & add_appender (Arg1 a1, Arg2 a2, Arg3 a3, Arg4 a4, Arg5 a5, Arg6 a6, Arg7 a7, Arg8 a8)
+	appender & add_appender (Arg1 a1, Arg2 a2, Arg3 a3, Arg4 a4, Arg5 a5, Arg6 a6, Arg7 a7, Arg8 a8)
 	{
 		//_d->_appenders.emplace_back(make_shared<Appender>(a1, a2, a3, a4, a5, a6, a7, a8)); // Valid for C++11
         _d->_appenders.push_back(new Appender(a1, a2, a3, a4, a5, a6, a7, a8));
@@ -185,23 +192,23 @@ public:
 			_d->_emitters[level](level, dt, msg);
 	}
 
-	void connect (priority level, appender_type & ap)
+	void connect (priority level, appender & ap)
     {
         PFS_ASSERT(level >= 0 && level < priority::count);
-      	_d->_emitters[level].connect(& ap, & appender_type::print_helper);
+      	_d->_emitters[level].connect(& ap, & appender::print_helper);
     }
 
-	void connect (appender_type & ap)
+	void connect (appender & ap)
     {
-        _d->_emitters[priority::trace].connect(& ap, & appender_type::print_helper);
-        _d->_emitters[priority::debug].connect(& ap, & appender_type::print_helper);
-        _d->_emitters[priority::info].connect(& ap, & appender_type::print_helper);
-        _d->_emitters[priority::warn].connect(& ap, & appender_type::print_helper);
-        _d->_emitters[priority::error].connect(& ap, & appender_type::print_helper);
-        _d->_emitters[priority::fatal].connect(& ap, & appender_type::print_helper);
+        _d->_emitters[priority::trace].connect(& ap, & appender::print_helper);
+        _d->_emitters[priority::debug].connect(& ap, & appender::print_helper);
+        _d->_emitters[priority::info].connect(& ap, & appender::print_helper);
+        _d->_emitters[priority::warn].connect(& ap, & appender::print_helper);
+        _d->_emitters[priority::error].connect(& ap, & appender::print_helper);
+        _d->_emitters[priority::fatal].connect(& ap, & appender::print_helper);
     }
 
-  	void disconnect (appender_type & ap)
+  	void disconnect (appender & ap)
     {
         _d->_emitters[priority::trace].disconnect(& ap);
         _d->_emitters[priority::debug].disconnect(& ap);
@@ -284,11 +291,8 @@ public:
 	}
 };
 
-template <typename StringType>
-class appender : public has_slots<>
+class appender : public sigslot_ns::has_slots
 {
-	template <typename String
-        , template <typename> class SequenceContainer>
     friend class logger;
 
 public:
@@ -591,12 +595,10 @@ public:
     }
 };
 
-template <typename StringType>
-class stdout_appender : public appender<StringType>
+class stdout_appender : public appender
 {
-    typedef appender<StringType> base_class;
 public:
-	stdout_appender () : base_class() {}
+    stdout_appender () : appender() {}
 
     virtual bool is_open () const
     {
@@ -604,19 +606,16 @@ public:
     }
 
 protected:
-	virtual void print (priority, datetime const &, StringType const & msg) pfs_override
+	virtual void print (priority, datetime const &, string_type const & msg) pfs_override
 	{
 		std::cout << msg << std::endl;
 	}
 };
 
-template <typename StringType>
-class stderr_appender : public appender<StringType>
+class stderr_appender : public appender
 {
-    typedef appender<StringType> base_class;
-
 public:
-	stderr_appender () : base_class() {}
+    stderr_appender () : appender() {}
 
     virtual bool is_open () const
     {
@@ -624,22 +623,20 @@ public:
     }
 
 protected:
-	virtual void print (priority, datetime const &, StringType const & msg) pfs_override
+	virtual void print (priority, datetime const &, string_type const & msg) pfs_override
 	{
 		std::cerr << msg << std::endl;
 	}
 };
 
-template <typename StringType>
-class file_appender : public appender<StringType>
+class file_appender : public appender
 {
-    typedef appender<StringType> base_class;
-    typedef std::basic_fstream<typename StringType::code_unit_type> fstream_type;
+    typedef std::basic_fstream<typename string_type::code_unit_type> fstream_type;
 
     fstream_type _d;
 
 public:
-	file_appender () : base_class() {}
+	file_appender () : appender() {}
 
 	file_appender (filesystem::path const & path)
 #if __cplusplus >= 201103L
@@ -661,8 +658,10 @@ protected:
 	}
 };
 
-template <typename StringType>
-appender<StringType>::pattern_grammar::pattern_grammar ()
+}; // log
+
+template <PFS_LOG_TEMPLETE_SIGNATURE>
+log<PFS_LOG_TEMPLETE_ARGS>::appender::pattern_grammar::pattern_grammar ()
 {
 #   undef FSM_ONE_OF
 #   undef FSM_TR
@@ -752,6 +751,6 @@ appender<StringType>::pattern_grammar::pattern_grammar ()
     p_pattern_tr = pattern_tr;
 }
 
-}} // pfs::logger
+} // pfs
 
 #endif /* __PFS_LOGGER_HPP__ */

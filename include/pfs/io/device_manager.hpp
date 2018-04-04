@@ -12,10 +12,11 @@ namespace io {
 
 // All devices must be in non-blocking mode.
 
-template <template <typename> class SequenceContainerImpl
+template <typename SigslotNS
+        , template <typename> class SequenceContainerImpl
         , template <typename> class ContigousContainerImpl
         , template <typename> class AssociativeContainerImpl>
-class device_manager : has_slots<>
+class device_manager : SigslotNS::has_slots
 {
     struct reopen_item
     {
@@ -305,16 +306,16 @@ public:
     }
 
 public: // signals
-    signal2<device, server>     accepted;     ///<! accept connection (for connection based server devices)
-    signal1<device>             ready_read;   ///<! device is ready for read
-    signal1<device>             opened;       ///<! opened (for regular files, servers) or connected (for connection based client devices)
-    signal1<device>             disconnected; ///<! disconnection for connection based devices, including peer devices
-    signal1<device>             opening;      ///<! open (connection) in progress (for connection based client devices)
-    signal2<device, error_code> open_failed;
-    signal1<server>             server_opened;
-    signal1<server>             server_opening;
-    signal2<server, error_code> server_open_failed;
-    signal1<error_code>         error;
+    typename SigslotNS::template signal2<device, server>     accepted;     ///<! accept connection (for connection based server devices)
+    typename SigslotNS::template signal1<device>             ready_read;   ///<! device is ready for read
+    typename SigslotNS::template signal1<device>             opened;       ///<! opened (for regular files, servers) or connected (for connection based client devices)
+    typename SigslotNS::template signal1<device>             disconnected; ///<! disconnection for connection based devices, including peer devices
+    typename SigslotNS::template signal1<device>             opening;      ///<! open (connection) in progress (for connection based client devices)
+    typename SigslotNS::template signal2<device, error_code> open_failed;
+    typename SigslotNS::template signal1<server>             server_opened;
+    typename SigslotNS::template signal1<server>             server_opening;
+    typename SigslotNS::template signal2<server, error_code> server_open_failed;
+    typename SigslotNS::template signal1<error_code>         error;
 };
 
 }} // pfs::io

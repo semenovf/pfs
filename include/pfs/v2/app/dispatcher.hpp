@@ -30,7 +30,7 @@ modulus<PFS_MODULUS_TEMPLETE_ARGS>::dispatcher::dispatcher (
     _logger.connect(pfs::logger::priority::error   , cerr_appender);
     _logger.connect(pfs::logger::priority::critical, cerr_appender);
 
-    this->emit_quit.connect(this, & dispatcher::on_quit);
+    this->_emit_quit.connect(this, & dispatcher::on_quit);
 
     register_api(mapper, n);
 }
@@ -233,7 +233,7 @@ bool modulus<PFS_MODULUS_TEMPLETE_ARGS>::dispatcher::register_module (
     }
 
     pmodule->emit_quit.connect(this, & dispatcher::broadcast_quit);
-    this->emit_quit.connect(pmodule.get(), & basic_module::on_quit);
+    this->_emit_quit.connect(pmodule.get(), & basic_module::on_quit);
 
     if (!pmodule->on_loaded()) {
         _logger.error(fmt("%s: on_loaded stage failed") % pmodule->name());

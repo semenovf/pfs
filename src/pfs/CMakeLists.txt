@@ -26,10 +26,6 @@ set(PFS_LIB_COMMON_SOURCES
     time.cpp
     u8string.cpp
 
-#   Application
-    application/app.cpp
-    application/dispatcher.cpp
-
 #   Db
     db/exception.cpp
     db/sqlite3.c
@@ -52,7 +48,7 @@ if (UNIX)
         posix/datetime_posix.cpp
         posix/dynamic_library_posix.cpp
         posix/time_posix.cpp
-        application/posix/signal.cpp
+        app/posix/signal.cpp
         io/posix/file_posix.cpp
         io/posix/inet_server_posix.cpp
         io/posix/inet_socket_posix.cpp

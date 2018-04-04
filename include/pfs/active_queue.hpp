@@ -23,6 +23,7 @@ private:
         , PROCESSING
     };
 
+public:
     typedef pfs::pair<int8_t, pfs::shared_ptr<binder_base<void> > > value_type;
     typedef BasicLockable mutex_type;
     typedef traits::sequence_container<value_type, SequenceContainer> sequence_container_type;
@@ -229,34 +230,34 @@ public:
         push_helper(shared_ptr<binder_base<void> >(new binder_method8<C, void, Arg1, Arg2, Arg3, Arg4, Arg5, Arg6, Arg7, Arg8>(f, c, a1, a2, a3, a4, a5, a6, a7, a8)));
     }
 
-    void push_signal (signal0<> * sig)
-    {
-        push_helper(shared_ptr<binder_base<void> >(new binder_signal0(sig)));
-    }
-
-    template <typename Arg1>
-    void push_signal (signal1<Arg1> * sig, Arg1 a1)
-    {
-        push_helper(shared_ptr<binder_base<void> >(new binder_signal1<Arg1>(sig, a1)));
-    }
-
-    template <typename Arg1, typename Arg2>
-    void push_signal (signal1<Arg1> * sig, Arg1 a1, Arg2 a2)
-    {
-        push_helper(shared_ptr<binder_base<void> >(new binder_signal2<Arg1, Arg2>(sig, a1, a2)));
-    }
-
-    template <typename Arg1, typename Arg2, typename Arg3>
-    void push_signal (signal1<Arg1> * sig, Arg1 a1, Arg2 a2, Arg3 a3)
-    {
-        push_helper(shared_ptr<binder_base<void> >(new binder_signal3<Arg1, Arg2, Arg3>(sig, a1, a2, a3)));
-    }
-
-    template <typename Arg1, typename Arg2, typename Arg3, typename Arg4>
-    void push_signal (signal1<Arg1> * sig, Arg1 a1, Arg2 a2, Arg3 a3, Arg3 a4)
-    {
-        push_helper(shared_ptr<binder_base<void> >(new binder_signal4<Arg1, Arg2, Arg3, Arg4>(sig, a1, a2, a3, a4)));
-    }
+//     void push_signal (signal0<> * sig)
+//     {
+//         push_helper(shared_ptr<binder_base<void> >(new binder_signal0(sig)));
+//     }
+//
+//     template <typename Arg1>
+//     void push_signal (signal1<Arg1> * sig, Arg1 a1)
+//     {
+//         push_helper(shared_ptr<binder_base<void> >(new binder_signal1<Arg1>(sig, a1)));
+//     }
+//
+//     template <typename Arg1, typename Arg2>
+//     void push_signal (signal1<Arg1> * sig, Arg1 a1, Arg2 a2)
+//     {
+//         push_helper(shared_ptr<binder_base<void> >(new binder_signal2<Arg1, Arg2>(sig, a1, a2)));
+//     }
+//
+//     template <typename Arg1, typename Arg2, typename Arg3>
+//     void push_signal (signal1<Arg1> * sig, Arg1 a1, Arg2 a2, Arg3 a3)
+//     {
+//         push_helper(shared_ptr<binder_base<void> >(new binder_signal3<Arg1, Arg2, Arg3>(sig, a1, a2, a3)));
+//     }
+//
+//     template <typename Arg1, typename Arg2, typename Arg3, typename Arg4>
+//     void push_signal (signal1<Arg1> * sig, Arg1 a1, Arg2 a2, Arg3 a3, Arg3 a4)
+//     {
+//         push_helper(shared_ptr<binder_base<void> >(new binder_signal4<Arg1, Arg2, Arg3, Arg4>(sig, a1, a2, a3, a4)));
+//     }
 //#endif
 
     void call ()

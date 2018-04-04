@@ -41,7 +41,8 @@ template <typename T>
 struct list_traits : public pfs::stdcxx::list<T>
 {};
 
-typedef pfs::io::device_manager<list_traits
+typedef pfs::io::device_manager<pfs::sigslot<>
+        , list_traits
         , vector_traits
         , map_traits> device_manager;
 

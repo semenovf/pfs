@@ -1,10 +1,9 @@
-#ifndef __DEVICE_MANAGER_SLOTS__
-#define __DEVICE_MANAGER_SLOTS__
+#pragma once
 
 #include <pfs/sigslot.hpp>
 #include <iostream>
 
-struct device_manager_slots : pfs::has_slots<>
+struct device_manager_slots : pfs::sigslot<>::has_slots
 {
     void device_accepted (pfs::io::device d, pfs::io::server s)
     {
@@ -58,7 +57,3 @@ struct device_manager_slots : pfs::has_slots<>
         std::cout << "device_io_error\n";
     }
 };
-
-#endif // __DEVICE_MANAGER_SLOTS__
-
-
