@@ -1,4 +1,86 @@
-#pragma once
+// sigslot.h: Signal/Slot classes
+//
+// Written by Sarah Thompson (sarah@telergy.com) 2002.
+//
+// License: Public domain. You are free to use this code however you like, with the proviso that
+//          the author takes on no responsibility or liability for any use.
+//
+// QUICK DOCUMENTATION
+//
+//				(see also the full documentation at http://sigslot.sourceforge.net/)
+//
+//		#define switches
+//			SIGSLOT_PURE_ISO			- Define this to force ISO C++ compliance. This also disables
+//										  all of the thread safety support on platforms where it is
+//										  available.
+//
+//			SIGSLOT_USE_POSIX_THREADS	- Force use of Posix threads when using a C++ compiler other than
+//										  gcc on a platform that supports Posix threads. (When using gcc,
+//										  this is the default - use SIGSLOT_PURE_ISO to disable this if
+//										  necessary)
+//
+//			PFS_DEFAULT_MT_POLICY	    - Where thread support is enabled, this defaults to multi_threaded_global.
+//										  Otherwise, the default is single_threaded. #define this yourself to
+//										  override the default. In pure ISO mode, anything other than
+//										  single_threaded will cause a compiler error.
+//
+//		PLATFORM NOTES
+//
+//			Win32						- On Win32, the WIN32 symbol must be #defined. Most mainstream
+//										  compilers do this by default, but you may need to define it
+//										  yourself if your build environment is less standard. This causes
+//										  the Win32 thread support to be compiled in and used automatically.
+//
+//			Unix/Linux/BSD, etc.		- If you're using gcc, it is assumed that you have Posix threads
+//										  available, so they are used automatically. You can override this
+//										  (as under Windows) with the SIGSLOT_PURE_ISO switch. If you're using
+//										  something other than gcc but still want to use Posix threads, you
+//										  need to #define SIGSLOT_USE_POSIX_THREADS.
+//
+//			ISO C++						- If none of the supported platforms are detected, or if
+//										  SIGSLOT_PURE_ISO is defined, all multithreading support is turned off,
+//										  along with any code that might cause a pure ISO C++ environment to
+//										  complain. Before you ask, gcc -ansi -pedantic won't compile this
+//										  library, but gcc -ansi is fine. Pedantic mode seems to throw a lot of
+//										  errors that aren't really there. If you feel like investigating this,
+//										  please contact the author.
+//
+//
+//		THREADING MODES
+//
+//			single_threaded				- Your program is assumed to be single threaded from the point of view
+//										  of signal/slot usage (i.e. all objects using signals and slots are
+//										  created and destroyed from a single thread). Behaviour if objects are
+//										  destroyed concurrently is undefined (i.e. you'll get the occasional
+//										  segmentation fault/memory exception).
+//
+//			multi_threaded_global		- Your program is assumed to be multi threaded. Objects using signals and
+//										  slots can be safely created and destroyed from any thread, even when
+//										  connections exist. In multi_threaded_global mode, this is achieved by a
+//										  single global mutex (actually a critical section on Windows because they
+//										  are faster). This option uses less OS resources, but results in more
+//										  opportunities for contention, possibly resulting in more context switches
+//										  than are strictly necessary.
+//
+//			multi_threaded_local		- Behaviour in this mode is essentially the same as multi_threaded_global,
+//										  except that each signal, and each object that inherits has_slots, all
+//										  have their own mutex/critical section. In practice, this means that
+//										  mutex collisions (and hence context switches) only happen if they are
+//										  absolutely essential. However, on some platforms, creating a lot of
+//										  mutexes can slow down the whole OS, so use this option with care.
+//
+//		USING THE LIBRARY
+//
+//			See the full documentation at http://sigslot.sourceforge.net/
+//
+//
+
+//
+// !!! Do not name methods with same name as for signals and regular methods
+//
+
+#ifndef __PFS_CXX98_SIGSLOT_HPP__
+#define __PFS_CXX98_SIGSLOT_HPP__
 
 #include <set>
 #include <list>
@@ -9,183 +91,175 @@
 #endif
 
 namespace pfs {
-    
+
+/*
+	template <class Mutex>
+	class lock_guard
+	{
+	public:
+		Mutex *_mutex;
+
+		lock_guard(Mutex *mtx)
+			: _mutex(mtx)
+		{
+			_mutex->lock();
+		}
+
+		~lock_guard()
+		{
+			_mutex->unlock();
+		}
+	};
+*/
+
 template <class Mutex>
-class basic_has_slots;
+class has_slots;
 
 template <class Mutex>
 class _connection_base0
 {
 public:
     virtual ~_connection_base0() {}
-    virtual basic_has_slots<Mutex>* getdest() const = 0;
+    virtual has_slots<Mutex>* getdest() const = 0;
     virtual void emit_() = 0;
-    virtual void sync_emit() = 0;
-    virtual void async_emit() = 0;
     virtual _connection_base0* clone() = 0;
-    virtual _connection_base0* duplicate(basic_has_slots<Mutex>* pnewdest) = 0;
+    virtual _connection_base0* duplicate(has_slots<Mutex>* pnewdest) = 0;
 };
 
-template <class Arg1
+template <class arg1_type
         , class Mutex>
 class _connection_base1
 {
 public:
     virtual ~_connection_base1() {}
-    virtual basic_has_slots<Mutex>* getdest() const = 0;
-    virtual void emit_(Arg1) = 0;
-    virtual void sync_emit(Arg1) = 0;
-    virtual void async_emit(Arg1) = 0;
-    virtual _connection_base1<Arg1, Mutex>* clone() = 0;
-    virtual _connection_base1<Arg1, Mutex>* duplicate(basic_has_slots<Mutex>* pnewdest) = 0;
+    virtual has_slots<Mutex>* getdest() const = 0;
+    virtual void emit_(arg1_type) = 0;
+    virtual _connection_base1<arg1_type, Mutex>* clone() = 0;
+    virtual _connection_base1<arg1_type, Mutex>* duplicate(has_slots<Mutex>* pnewdest) = 0;
 };
 
-template <class Arg1
-        , class Arg2
+template <class arg1_type
+        , class arg2_type
         , class Mutex>
 class _connection_base2
 {
 public:
     virtual ~_connection_base2() {}
-    virtual basic_has_slots<Mutex>* getdest() const = 0;
-    virtual void emit_(Arg1, Arg2) = 0;
-    virtual void sync_emit(Arg1, Arg2) = 0;
-    virtual void async_emit(Arg1, Arg2) = 0;
-    virtual _connection_base2<Arg1, Arg2, Mutex>* clone() = 0;
-    virtual _connection_base2<Arg1, Arg2, Mutex>* duplicate(basic_has_slots<Mutex>* pnewdest) = 0;
+    virtual has_slots<Mutex>* getdest() const = 0;
+    virtual void emit_(arg1_type, arg2_type) = 0;
+    virtual _connection_base2<arg1_type, arg2_type, Mutex>* clone() = 0;
+    virtual _connection_base2<arg1_type, arg2_type, Mutex>* duplicate(has_slots<Mutex>* pnewdest) = 0;
 };
 
-template <class Arg1
-        , class Arg2
-        , class Arg3
+template <class arg1_type
+        , class arg2_type
+        , class arg3_type
         , class Mutex>
 class _connection_base3
 {
 public:
     virtual ~_connection_base3() {}
-    virtual basic_has_slots<Mutex>* getdest() const = 0;
-    virtual void emit_(Arg1, Arg2, Arg3) = 0;
-    virtual void sync_emit(Arg1, Arg2, Arg3) = 0;
-    virtual void async_emit(Arg1, Arg2, Arg3) = 0;
-    virtual _connection_base3<Arg1, Arg2, Arg3, Mutex>* clone() = 0;
-    virtual _connection_base3<Arg1, Arg2, Arg3, Mutex>* duplicate(basic_has_slots<Mutex>* pnewdest) = 0;
+    virtual has_slots<Mutex>* getdest() const = 0;
+    virtual void emit_(arg1_type, arg2_type, arg3_type) = 0;
+    virtual _connection_base3<arg1_type, arg2_type, arg3_type, Mutex>* clone() = 0;
+    virtual _connection_base3<arg1_type, arg2_type, arg3_type, Mutex>* duplicate(has_slots<Mutex>* pnewdest) = 0;
 };
 
-template <class Arg1
-        , class Arg2
-        , class Arg3
-        , class Arg4
+template <class arg1_type
+        , class arg2_type
+        , class arg3_type
+        , class arg4_type
         , class Mutex>
 class _connection_base4
 {
 public:
     virtual ~_connection_base4() {}
-    virtual basic_has_slots<Mutex>* getdest() const = 0;
-    virtual void emit_(Arg1, Arg2, Arg3, Arg4) = 0;
-    virtual void sync_emit(Arg1, Arg2, Arg3, Arg4) = 0;
-    virtual void async_emit(Arg1, Arg2, Arg3, Arg4) = 0;
-    virtual _connection_base4<Arg1, Arg2, Arg3, Arg4, Mutex>* clone() = 0;
-    virtual _connection_base4<Arg1, Arg2, Arg3, Arg4, Mutex>* duplicate(basic_has_slots<Mutex>* pnewdest) = 0;
+    virtual has_slots<Mutex>* getdest() const = 0;
+    virtual void emit_(arg1_type, arg2_type, arg3_type, arg4_type) = 0;
+    virtual _connection_base4<arg1_type, arg2_type, arg3_type, arg4_type, Mutex>* clone() = 0;
+    virtual _connection_base4<arg1_type, arg2_type, arg3_type, arg4_type, Mutex>* duplicate(has_slots<Mutex>* pnewdest) = 0;
 };
 
-template <class Arg1
-        , class Arg2
-        , class Arg3
-        , class Arg4
-        , class Arg5
+template <class arg1_type
+        , class arg2_type
+        , class arg3_type
+        , class arg4_type
+        , class arg5_type
         , class Mutex>
 class _connection_base5
 {
 public:
     virtual ~_connection_base5() {}
-    virtual basic_has_slots<Mutex>* getdest() const = 0;
-    virtual void emit_(Arg1, Arg2, Arg3, Arg4,
-        Arg5) = 0;
-    virtual void sync_emit(Arg1, Arg2, Arg3, Arg4,
-        Arg5) = 0;
-    virtual void async_emit(Arg1, Arg2, Arg3, Arg4,
-        Arg5) = 0;
-
-    virtual _connection_base5<Arg1, Arg2, Arg3, Arg4,
-        Arg5, Mutex>* clone() = 0;
-    virtual _connection_base5<Arg1, Arg2, Arg3, Arg4,
-        Arg5, Mutex>* duplicate(basic_has_slots<Mutex>* pnewdest) = 0;
+    virtual has_slots<Mutex>* getdest() const = 0;
+    virtual void emit_(arg1_type, arg2_type, arg3_type, arg4_type,
+        arg5_type) = 0;
+    virtual _connection_base5<arg1_type, arg2_type, arg3_type, arg4_type,
+        arg5_type, Mutex>* clone() = 0;
+    virtual _connection_base5<arg1_type, arg2_type, arg3_type, arg4_type,
+        arg5_type, Mutex>* duplicate(has_slots<Mutex>* pnewdest) = 0;
 };
 
-template <class Arg1
-        , class Arg2
-        , class Arg3
-        , class Arg4
-        , class Arg5
-        , class Arg6
+template <class arg1_type
+        , class arg2_type
+        , class arg3_type
+        , class arg4_type
+        , class arg5_type
+        , class arg6_type
         , class Mutex>
 class _connection_base6
 {
 public:
     virtual ~_connection_base6() {}
-    virtual basic_has_slots<Mutex>* getdest() const = 0;
-    virtual void emit_(Arg1, Arg2, Arg3, Arg4, Arg5,
-        Arg6) = 0;
-    virtual void sync_emit(Arg1, Arg2, Arg3, Arg4, Arg5, Arg6) = 0;
-    virtual void async_emit(Arg1, Arg2, Arg3, Arg4, Arg5, Arg6) = 0;
-
-    virtual _connection_base6<Arg1, Arg2, Arg3, Arg4, Arg5
-            , Arg6, Mutex>* clone() = 0;
-    virtual _connection_base6<Arg1, Arg2, Arg3, Arg4, Arg5
-            , Arg6, Mutex>* duplicate(basic_has_slots<Mutex>* pnewdest) = 0;
+    virtual has_slots<Mutex>* getdest() const = 0;
+    virtual void emit_(arg1_type, arg2_type, arg3_type, arg4_type, arg5_type,
+        arg6_type) = 0;
+    virtual _connection_base6<arg1_type, arg2_type, arg3_type, arg4_type,
+        arg5_type, arg6_type, Mutex>* clone() = 0;
+    virtual _connection_base6<arg1_type, arg2_type, arg3_type, arg4_type,
+        arg5_type, arg6_type, Mutex>* duplicate(has_slots<Mutex>* pnewdest) = 0;
 };
 
-template <class Arg1
-        , class Arg2
-        , class Arg3
-        , class Arg4
-        , class Arg5
-        , class Arg6
-        , class Arg7
+template <class arg1_type
+        , class arg2_type
+        , class arg3_type
+        , class arg4_type
+        , class arg5_type
+        , class arg6_type
+        , class arg7_type
         , class Mutex>
 class _connection_base7
 {
 public:
     virtual ~_connection_base7() {}
-    virtual basic_has_slots<Mutex>* getdest() const = 0;
-    virtual void emit_(Arg1, Arg2, Arg3, Arg4, Arg5
-            , Arg6, Arg7) = 0;
-    virtual void sync_emit(Arg1, Arg2, Arg3, Arg4, Arg5
-            , Arg6, Arg7) = 0;
-    virtual void async_emit(Arg1, Arg2, Arg3, Arg4, Arg5
-            , Arg6, Arg7) = 0;
-        
-    virtual _connection_base7<Arg1, Arg2, Arg3, Arg4
-            , Arg5, Arg6, Arg7, Mutex>* clone() = 0;
-    virtual _connection_base7<Arg1, Arg2, Arg3, Arg4
-            , Arg5, Arg6, Arg7, Mutex>* duplicate(basic_has_slots<Mutex>* pnewdest) = 0;
+    virtual has_slots<Mutex>* getdest() const = 0;
+    virtual void emit_(arg1_type, arg2_type, arg3_type, arg4_type, arg5_type,
+        arg6_type, arg7_type) = 0;
+    virtual _connection_base7<arg1_type, arg2_type, arg3_type, arg4_type,
+        arg5_type, arg6_type, arg7_type, Mutex>* clone() = 0;
+    virtual _connection_base7<arg1_type, arg2_type, arg3_type, arg4_type,
+        arg5_type, arg6_type, arg7_type, Mutex>* duplicate(has_slots<Mutex>* pnewdest) = 0;
 };
 
-template <class Arg1
-        , class Arg2
-        , class Arg3
-        , class Arg4
-        , class Arg5
-        , class Arg6
-        , class Arg7
-        , class Arg8
+template <class arg1_type
+        , class arg2_type
+        , class arg3_type
+        , class arg4_type
+        , class arg5_type
+        , class arg6_type
+        , class arg7_type
+        , class arg8_type
         , class Mutex>
 class _connection_base8
 {
 public:
     virtual ~_connection_base8() {}
-    virtual basic_has_slots<Mutex>* getdest() const = 0;
-    virtual void emit_(Arg1, Arg2, Arg3, Arg4, Arg5
-            , Arg6, Arg7, Arg8) = 0;
-    virtual void sync_emit(Arg1, Arg2, Arg3, Arg4, Arg5
-            , Arg6, Arg7, Arg8) = 0;
-    virtual void async_emit(Arg1, Arg2, Arg3, Arg4, Arg5
-            , Arg6, Arg7, Arg8) = 0;
-
-    virtual _connection_base8<Arg1, Arg2, Arg3, Arg4
-            , Arg5, Arg6, Arg7, Arg8, Mutex>* clone() = 0;
-    virtual _connection_base8<Arg1, Arg2, Arg3, Arg4
-            , Arg5, Arg6, Arg7, Arg8, Mutex>* duplicate(basic_has_slots<Mutex>* pnewdest) = 0;
+    virtual has_slots<Mutex>* getdest() const = 0;
+    virtual void emit_(arg1_type, arg2_type, arg3_type, arg4_type, arg5_type,
+        arg6_type, arg7_type, arg8_type) = 0;
+    virtual _connection_base8<arg1_type, arg2_type, arg3_type, arg4_type,
+        arg5_type, arg6_type, arg7_type, arg8_type, Mutex>* clone() = 0;
+    virtual _connection_base8<arg1_type, arg2_type, arg3_type, arg4_type,
+        arg5_type, arg6_type, arg7_type, arg8_type, Mutex>* duplicate(has_slots<Mutex>* pnewdest) = 0;
 };
 
 template <class Mutex>
@@ -193,73 +267,37 @@ class _signal_base : public Mutex
 {
 public:
     virtual ~_signal_base() {}
-    virtual void slot_disconnect(basic_has_slots<Mutex>* pslot) = 0;
+    virtual void slot_disconnect(has_slots<Mutex>* pslot) = 0;
     
     // Used inside has_slots copy constructor
-    virtual void slot_duplicate(const basic_has_slots<Mutex>* poldslot, basic_has_slots<Mutex>* pnewslot) = 0;
-};
-
-// For use by has_slots class
-class fake_callback_queue
-{
-public:
-    fake_callback_queue () {}
-
-//#if __cplusplus >= 201103L
-//#   error Implement using variadic templates
-//#else
-
-    template <typename C>
-    void push_method (void (C::*) (), C *)
-    {}
-
-    template <typename C, typename Arg1>
-    void push_method (void (C::*) (Arg1), C *,  Arg1)
-    {}
-
-    template <typename C, typename Arg1, typename Arg2>
-    void push_method (void (C::*) (Arg1, Arg2), C *, Arg1, Arg2)
-    {}
-
-    template <typename C, typename Arg1, typename Arg2, typename Arg3>
-    void push_method (void (C::* f) (Arg1, Arg2, Arg3), C * c, Arg1 a1, Arg2 a2, Arg3 a3)
-    {}
-
-    template <typename C, typename Arg1, typename Arg2, typename Arg3, typename Arg4>
-    void push_method (void (C::* f) (Arg1, Arg2, Arg3, Arg4), C * c, Arg1 a1, Arg2 a2, Arg3 a3, Arg4 a4)
-    {}
-
-    template <typename C, typename Arg1, typename Arg2, typename Arg3, typename Arg4, typename Arg5>
-    void push_method (void (C::* f) (Arg1, Arg2, Arg3, Arg4, Arg5), C * c, Arg1 a1, Arg2 a2, Arg3 a3, Arg4 a4, Arg5 a5)
-    {}
-
-    template <typename C, typename Arg1, typename Arg2, typename Arg3, typename Arg4, typename Arg5, typename Arg6>
-    void push_method (void (C::* f) (Arg1, Arg2, Arg3, Arg4, Arg5, Arg6), C * c, Arg1 a1, Arg2 a2, Arg3 a3, Arg4 a4, Arg5 a5, Arg6 a6)
-    {}
-
-    template <typename C, typename Arg1, typename Arg2, typename Arg3, typename Arg4, typename Arg5, typename Arg6, typename Arg7>
-    void push_method (void (C::* f) (Arg1, Arg2, Arg3, Arg4, Arg5, Arg6, Arg7), C * c, Arg1 a1, Arg2 a2, Arg3 a3, Arg4 a4, Arg5 a5, Arg6 a6, Arg7 a7)
-    {}
-
-    template <typename C, typename Arg1, typename Arg2, typename Arg3, typename Arg4, typename Arg5, typename Arg6, typename Arg7, typename Arg8>
-    void push_method (void (C::* f) (Arg1, Arg2, Arg3, Arg4, Arg5, Arg6, Arg7, Arg8), C * c, Arg1 a1, Arg2 a2, Arg3 a3, Arg4 a4, Arg5 a5, Arg6 a6, Arg7 a7, Arg8 a8)
-    {}
-//#endif
+    virtual void slot_duplicate(const has_slots<Mutex>* poldslot, has_slots<Mutex>* pnewslot) = 0;
 };
 
 template <class Mutex = PFS_DEFAULT_MT_POLICY>
-class basic_has_slots : public Mutex
+class has_slots : public Mutex
 {
 private:
     typedef std::set<_signal_base<Mutex> *> sender_set;
     typedef typename sender_set::const_iterator const_iterator;
 
 public:
-    basic_has_slots()
+    has_slots()
     {}
 
-    virtual bool use_async_slots () const = 0;
-    
+    has_slots (const has_slots & hs)
+        : Mutex(hs)
+    {
+        lock_guard<Mutex> lock(*this);
+        const_iterator it = hs._senders.begin();
+        const_iterator itEnd = hs._senders.end();
+
+        while(it != itEnd) {
+            (*it)->slot_duplicate(&hs, this);
+            _senders.insert(*it);
+            ++it;
+        }
+    }
+
     void signal_connect(_signal_base<Mutex>* sender)
     {
         lock_guard<Mutex> lock(*this);
@@ -272,7 +310,7 @@ public:
         _senders.erase(sender);
     }
 
-    virtual ~basic_has_slots()
+    virtual ~has_slots()
     {
         disconnect_all();
     }
@@ -297,44 +335,18 @@ public:
     }
 
 private:
+
+// See http://www.unknownroad.com/rtfm/VisualStudio/warningC4251.html
+//#ifdef PFS_CC_MSVC
+//#	pragma warning(push)
+//#	pragma warning(disable:4251)
+//#endif
+
     sender_set _senders;
-};
 
-template <class Mutex = PFS_DEFAULT_MT_POLICY>
-class has_slots : public basic_has_slots<Mutex>
-{
-    typedef basic_has_slots<Mutex> base_class;
-
-public:
-    typedef fake_callback_queue callback_queue_type;
-    
-    has_slots () : base_class () {}
-    
-    virtual bool use_async_slots () const pfs_override { return false; }
-    
-    // Stub for use inside _connectionN::emit_() method
-    callback_queue_type & callback_queue () { return _queue; }
-    
-protected:
-    fake_callback_queue _queue;
-};
-
-template <typename CallbackQueue, class Mutex = PFS_DEFAULT_MT_POLICY>
-class has_async_slots : public basic_has_slots<Mutex>
-{
-    typedef basic_has_slots<Mutex> base_class;
-    
-public:
-    typedef CallbackQueue callback_queue_type;
-    
-    has_async_slots () : base_class () {}
-    
-    virtual bool use_async_slots () const pfs_override { return true; }
-    
-    callback_queue_type & callback_queue () { return _queue; }
-    
-protected:
-    callback_queue_type _queue;
+//#ifdef PFS_CC_MSVC
+//#	pragma warning(pop)
+//#endif
 };
 
 template <class Mutex>
@@ -366,21 +378,6 @@ public:
     {
         disconnect_all();
     }
-    
-    void slot_duplicate(const basic_has_slots<Mutex>* oldtarget, basic_has_slots<Mutex>* newtarget)
-    {
-        lock_guard<Mutex> lock(*this);
-        typename connections_list::iterator it = _connected_slots.begin();
-        typename connections_list::iterator itEnd = _connected_slots.end();
-
-        while(it != itEnd) {
-            if((*it)->getdest() == oldtarget) {
-                _connected_slots.push_back((*it)->duplicate(newtarget));
-            }
-
-            ++it;
-        }
-    }
 
     void disconnect_all()
     {
@@ -398,7 +395,7 @@ public:
         _connected_slots.erase(_connected_slots.begin(), _connected_slots.end());
     }
 
-    void disconnect(basic_has_slots<Mutex>* pclass)
+    void disconnect(has_slots<Mutex>* pclass)
     {
         lock_guard<Mutex> lock(*this);
         typename connections_list::iterator it = _connected_slots.begin();
@@ -416,7 +413,7 @@ public:
         }
     }
 
-    void slot_disconnect(basic_has_slots<Mutex>* pslot)
+    void slot_disconnect(has_slots<Mutex>* pslot)
     {
         lock_guard<Mutex> lock(*this);
         typename connections_list::iterator it = _connected_slots.begin();
@@ -435,113 +432,37 @@ public:
         }
     }
 
+    void slot_duplicate(const has_slots<Mutex>* oldtarget, has_slots<Mutex>* newtarget)
+    {
+        lock_guard<Mutex> lock(*this);
+        typename connections_list::iterator it = _connected_slots.begin();
+        typename connections_list::iterator itEnd = _connected_slots.end();
+
+        while(it != itEnd) {
+            if((*it)->getdest() == oldtarget) {
+                _connected_slots.push_back((*it)->duplicate(newtarget));
+            }
+
+            ++it;
+        }
+    }
+
     bool isConnected() const { return _connected_slots.size() > 0; }
 
 protected:
     connections_list _connected_slots;
 };
 
-template <class Arg1, class Mutex>
+template <class arg1_type, class Mutex>
 class _signal_base1 : public _signal_base<Mutex>
 {
 public:
-    typedef std::list<_connection_base1<Arg1, Mutex> *>  connections_list;
+    typedef std::list<_connection_base1<arg1_type, Mutex> *>  connections_list;
 
     _signal_base1()
     {}
 
-    ~_signal_base1()
-    {
-        disconnect_all();
-    }
-
-    void slot_duplicate(const basic_has_slots<Mutex>* oldtarget, basic_has_slots<Mutex>* newtarget)
-    {
-        lock_guard<Mutex> lock(*this);
-        typename connections_list::iterator it = _connected_slots.begin();
-        typename connections_list::iterator itEnd = _connected_slots.end();
-
-        while(it != itEnd) {
-            if((*it)->getdest() == oldtarget) {
-                _connected_slots.push_back((*it)->duplicate(newtarget));
-            }
-
-            ++it;
-        }
-    }
-
-    void disconnect_all()
-    {
-        lock_guard<Mutex> lock(*this);
-        typename connections_list::const_iterator it = _connected_slots.begin();
-        typename connections_list::const_iterator itEnd = _connected_slots.end();
-
-        while(it != itEnd) {
-            (*it)->getdest()->signal_disconnect(this);
-            delete *it;
-
-            ++it;
-        }
-
-        _connected_slots.erase(_connected_slots.begin(), _connected_slots.end());
-    }
-
-    void disconnect(basic_has_slots<Mutex>* pclass)
-    {
-        lock_guard<Mutex> lock(*this);
-        typename connections_list::iterator it = _connected_slots.begin();
-        typename connections_list::iterator itEnd = _connected_slots.end();
-
-        while(it != itEnd) {
-            if((*it)->getdest() == pclass) {
-                delete *it;
-                _connected_slots.erase(it);
-                pclass->signal_disconnect(this);
-                return;
-            }
-
-            ++it;
-        }
-    }
-
-    void slot_disconnect(basic_has_slots<Mutex>* pslot)
-    {
-        lock_guard<Mutex> lock(*this);
-        typename connections_list::iterator it = _connected_slots.begin();
-        typename connections_list::iterator itEnd = _connected_slots.end();
-
-        while(it != itEnd) {
-            typename connections_list::iterator itNext = it;
-            ++itNext;
-
-            if((*it)->getdest() == pslot) {
-                _connected_slots.erase(it);
-                //			delete *it;
-            }
-
-            it = itNext;
-        }
-    }
-
-    bool isConnected() const { return _connected_slots.size() > 0; }
-
-protected:
-    connections_list _connected_slots;
-};
-
-template <class Arg1
-        , class Arg2
-        , class Mutex>
-class _signal_base2 : public _signal_base<Mutex>
-{
-public:
-    typedef std::list<_connection_base2<Arg1, Arg2, Mutex> *>
-        connections_list;
-
-    _signal_base2()
-    {}
-
-    _signal_base2(const _signal_base2<Arg1, Arg2, Mutex>& s)
+    _signal_base1(const _signal_base1<arg1_type, Mutex>& s)
         : _signal_base<Mutex>(s)
     {
         lock_guard<Mutex> lock(*this);
@@ -556,7 +477,113 @@ public:
         }
     }
 
-    void slot_duplicate (const basic_has_slots<Mutex> * oldtarget, basic_has_slots<Mutex>* newtarget)
+    void slot_duplicate(const has_slots<Mutex>* oldtarget, has_slots<Mutex>* newtarget)
+    {
+        lock_guard<Mutex> lock(*this);
+        typename connections_list::iterator it = _connected_slots.begin();
+        typename connections_list::iterator itEnd = _connected_slots.end();
+
+        while(it != itEnd) {
+            if((*it)->getdest() == oldtarget) {
+                _connected_slots.push_back((*it)->duplicate(newtarget));
+            }
+
+            ++it;
+        }
+    }
+
+    ~_signal_base1()
+    {
+        disconnect_all();
+    }
+
+    void disconnect_all()
+    {
+        lock_guard<Mutex> lock(*this);
+        typename connections_list::const_iterator it = _connected_slots.begin();
+        typename connections_list::const_iterator itEnd = _connected_slots.end();
+
+        while(it != itEnd) {
+            (*it)->getdest()->signal_disconnect(this);
+            delete *it;
+
+            ++it;
+        }
+
+        _connected_slots.erase(_connected_slots.begin(), _connected_slots.end());
+    }
+
+    void disconnect(has_slots<Mutex>* pclass)
+    {
+        lock_guard<Mutex> lock(*this);
+        typename connections_list::iterator it = _connected_slots.begin();
+        typename connections_list::iterator itEnd = _connected_slots.end();
+
+        while(it != itEnd) {
+            if((*it)->getdest() == pclass) {
+                delete *it;
+                _connected_slots.erase(it);
+                pclass->signal_disconnect(this);
+                return;
+            }
+
+            ++it;
+        }
+    }
+
+    void slot_disconnect(has_slots<Mutex>* pslot)
+    {
+        lock_guard<Mutex> lock(*this);
+        typename connections_list::iterator it = _connected_slots.begin();
+        typename connections_list::iterator itEnd = _connected_slots.end();
+
+        while(it != itEnd) {
+            typename connections_list::iterator itNext = it;
+            ++itNext;
+
+            if((*it)->getdest() == pslot) {
+                _connected_slots.erase(it);
+                //			delete *it;
+            }
+
+            it = itNext;
+        }
+    }
+
+    bool isConnected() const { return _connected_slots.size() > 0; }
+
+protected:
+    connections_list _connected_slots;
+};
+
+template <class arg1_type
+        , class arg2_type
+        , class Mutex>
+class _signal_base2 : public _signal_base<Mutex>
+{
+public:
+    typedef std::list<_connection_base2<arg1_type, arg2_type, Mutex> *>
+        connections_list;
+
+    _signal_base2()
+    {}
+
+    _signal_base2(const _signal_base2<arg1_type, arg2_type, Mutex>& s)
+        : _signal_base<Mutex>(s)
+    {
+        lock_guard<Mutex> lock(*this);
+        typename connections_list::const_iterator it = s._connected_slots.begin();
+        typename connections_list::const_iterator itEnd = s._connected_slots.end();
+
+        while(it != itEnd) {
+            (*it)->getdest()->signal_connect(this);
+            _connected_slots.push_back((*it)->clone());
+
+            ++it;
+        }
+    }
+
+    void slot_duplicate (const has_slots<Mutex> * oldtarget, has_slots<Mutex>* newtarget)
     {
         lock_guard<Mutex> lock(*this);
         typename connections_list::iterator it = _connected_slots.begin();
@@ -592,7 +619,7 @@ public:
         _connected_slots.erase(_connected_slots.begin(), _connected_slots.end());
     }
 
-    void disconnect (basic_has_slots<Mutex> * pclass)
+    void disconnect (has_slots<Mutex> * pclass)
     {
         lock_guard<Mutex> lock(*this);
         typename connections_list::iterator it = _connected_slots.begin();
@@ -610,7 +637,7 @@ public:
         }
     }
 
-    void slot_disconnect(basic_has_slots<Mutex>* pslot)
+    void slot_disconnect(has_slots<Mutex>* pslot)
     {
         lock_guard<Mutex> lock(*this);
         typename connections_list::iterator it = _connected_slots.begin();
@@ -635,20 +662,20 @@ protected:
     connections_list _connected_slots;
 };
 
-template <class Arg1
-        , class Arg2
-        , class Arg3
+template <class arg1_type
+        , class arg2_type
+        , class arg3_type
         , class Mutex>
 class _signal_base3 : public _signal_base<Mutex>
 {
 public:
-    typedef std::list<_connection_base3<Arg1, Arg2, Arg3, Mutex> *>
+    typedef std::list<_connection_base3<arg1_type, arg2_type, arg3_type, Mutex> *>
         connections_list;
 
     _signal_base3()
     {}
 
-    _signal_base3(const _signal_base3<Arg1, Arg2, Arg3, Mutex>& s)
+    _signal_base3(const _signal_base3<arg1_type, arg2_type, arg3_type, Mutex>& s)
         : _signal_base<Mutex>(s)
     {
         lock_guard<Mutex> lock(*this);
@@ -663,7 +690,7 @@ public:
         }
     }
 
-    void slot_duplicate(const basic_has_slots<Mutex>* oldtarget, basic_has_slots<Mutex>* newtarget)
+    void slot_duplicate(const has_slots<Mutex>* oldtarget, has_slots<Mutex>* newtarget)
     {
         lock_guard<Mutex> lock(*this);
         typename connections_list::iterator it = _connected_slots.begin();
@@ -699,7 +726,7 @@ public:
         _connected_slots.erase(_connected_slots.begin(), _connected_slots.end());
     }
 
-    void disconnect(basic_has_slots<Mutex>* pclass)
+    void disconnect(has_slots<Mutex>* pclass)
     {
         lock_guard<Mutex> lock(*this);
         typename connections_list::iterator it = _connected_slots.begin();
@@ -717,7 +744,7 @@ public:
         }
     }
 
-    void slot_disconnect(basic_has_slots<Mutex>* pslot)
+    void slot_disconnect(has_slots<Mutex>* pslot)
     {
         lock_guard<Mutex> lock(*this);
         typename connections_list::iterator it = _connected_slots.begin();
@@ -742,21 +769,21 @@ protected:
     connections_list _connected_slots;
 };
 
-template <class Arg1
-        , class Arg2
-        , class Arg3
-        , class Arg4
+template <class arg1_type
+        , class arg2_type
+        , class arg3_type
+        , class arg4_type
         , class Mutex>
 class _signal_base4 : public _signal_base<Mutex>
 {
 public:
-    typedef std::list<_connection_base4<Arg1, Arg2, Arg3,
-        Arg4, Mutex> *>  connections_list;
+    typedef std::list<_connection_base4<arg1_type, arg2_type, arg3_type,
+        arg4_type, Mutex> *>  connections_list;
 
     _signal_base4()
     {}
 
-    _signal_base4 (const _signal_base4<Arg1, Arg2, Arg3, Arg4, Mutex>& s)
+    _signal_base4 (const _signal_base4<arg1_type, arg2_type, arg3_type, arg4_type, Mutex>& s)
         : _signal_base<Mutex>(s)
     {
         lock_guard<Mutex> lock(*this);
@@ -771,7 +798,7 @@ public:
         }
     }
 
-    void slot_duplicate(const basic_has_slots<Mutex>* oldtarget, basic_has_slots<Mutex>* newtarget)
+    void slot_duplicate(const has_slots<Mutex>* oldtarget, has_slots<Mutex>* newtarget)
     {
         lock_guard<Mutex> lock(*this);
         typename connections_list::iterator it = _connected_slots.begin();
@@ -807,7 +834,7 @@ public:
         _connected_slots.erase(_connected_slots.begin(), _connected_slots.end());
     }
 
-    void disconnect(basic_has_slots<Mutex>* pclass)
+    void disconnect(has_slots<Mutex>* pclass)
     {
         lock_guard<Mutex> lock(*this);
         typename connections_list::iterator it = _connected_slots.begin();
@@ -825,7 +852,7 @@ public:
         }
     }
 
-    void slot_disconnect(basic_has_slots<Mutex>* pslot)
+    void slot_disconnect(has_slots<Mutex>* pslot)
     {
         lock_guard<Mutex> lock(*this);
         typename connections_list::iterator it = _connected_slots.begin();
@@ -850,23 +877,23 @@ protected:
     connections_list _connected_slots;
 };
 
-template <class Arg1
-        , class Arg2
-        , class Arg3
-        , class Arg4
-        , class Arg5
+template <class arg1_type
+        , class arg2_type
+        , class arg3_type
+        , class arg4_type
+        , class arg5_type
         , class Mutex>
 class _signal_base5 : public _signal_base<Mutex>
 {
 public:
-    typedef std::list<_connection_base5<Arg1, Arg2, Arg3,
-        Arg4, Arg5, Mutex> *>  connections_list;
+    typedef std::list<_connection_base5<arg1_type, arg2_type, arg3_type,
+        arg4_type, arg5_type, Mutex> *>  connections_list;
 
     _signal_base5()
     {}
 
-    _signal_base5(const _signal_base5<Arg1, Arg2, Arg3, Arg4,
-        Arg5, Mutex>& s)
+    _signal_base5(const _signal_base5<arg1_type, arg2_type, arg3_type, arg4_type,
+        arg5_type, Mutex>& s)
         : _signal_base<Mutex>(s)
     {
         lock_guard<Mutex> lock(*this);
@@ -881,7 +908,7 @@ public:
         }
     }
 
-    void slot_duplicate(const basic_has_slots<Mutex>* oldtarget, basic_has_slots<Mutex>* newtarget)
+    void slot_duplicate(const has_slots<Mutex>* oldtarget, has_slots<Mutex>* newtarget)
     {
         lock_guard<Mutex> lock(*this);
         typename connections_list::iterator it = _connected_slots.begin();
@@ -917,7 +944,7 @@ public:
         _connected_slots.erase(_connected_slots.begin(), _connected_slots.end());
     }
 
-    void disconnect(basic_has_slots<Mutex>* pclass)
+    void disconnect(has_slots<Mutex>* pclass)
     {
         lock_guard<Mutex> lock(*this);
         typename connections_list::iterator it = _connected_slots.begin();
@@ -935,7 +962,7 @@ public:
         }
     }
 
-    void slot_disconnect(basic_has_slots<Mutex>* pslot)
+    void slot_disconnect(has_slots<Mutex>* pslot)
     {
         lock_guard<Mutex> lock(*this);
         typename connections_list::iterator it = _connected_slots.begin();
@@ -960,19 +987,19 @@ protected:
     connections_list _connected_slots;
 };
 
-template <class Arg1, class Arg2, class Arg3, class Arg4,
-class Arg5, class Arg6, class Mutex>
+template <class arg1_type, class arg2_type, class arg3_type, class arg4_type,
+class arg5_type, class arg6_type, class Mutex>
 class _signal_base6 : public _signal_base<Mutex>
 {
 public:
-    typedef std::list<_connection_base6<Arg1, Arg2, Arg3,
-        Arg4, Arg5, Arg6, Mutex> *>  connections_list;
+    typedef std::list<_connection_base6<arg1_type, arg2_type, arg3_type,
+        arg4_type, arg5_type, arg6_type, Mutex> *>  connections_list;
 
     _signal_base6()
     {}
 
-    _signal_base6(const _signal_base6<Arg1, Arg2, Arg3, Arg4,
-        Arg5, Arg6, Mutex>& s)
+    _signal_base6(const _signal_base6<arg1_type, arg2_type, arg3_type, arg4_type,
+        arg5_type, arg6_type, Mutex>& s)
         : _signal_base<Mutex>(s)
     {
         lock_guard<Mutex> lock(*this);
@@ -987,7 +1014,7 @@ public:
         }
     }
 
-    void slot_duplicate(const basic_has_slots<Mutex>* oldtarget, basic_has_slots<Mutex>* newtarget)
+    void slot_duplicate(const has_slots<Mutex>* oldtarget, has_slots<Mutex>* newtarget)
     {
         lock_guard<Mutex> lock(*this);
         typename connections_list::iterator it = _connected_slots.begin();
@@ -1023,7 +1050,7 @@ public:
         _connected_slots.erase(_connected_slots.begin(), _connected_slots.end());
     }
 
-    void disconnect(basic_has_slots<Mutex>* pclass)
+    void disconnect(has_slots<Mutex>* pclass)
     {
         lock_guard<Mutex> lock(*this);
         typename connections_list::iterator it = _connected_slots.begin();
@@ -1041,7 +1068,7 @@ public:
         }
     }
 
-    void slot_disconnect(basic_has_slots<Mutex>* pslot)
+    void slot_disconnect(has_slots<Mutex>* pslot)
     {
         lock_guard<Mutex> lock(*this);
         typename connections_list::iterator it = _connected_slots.begin();
@@ -1066,19 +1093,19 @@ protected:
     connections_list _connected_slots;
 };
 
-template <class Arg1, class Arg2, class Arg3, class Arg4,
-class Arg5, class Arg6, class Arg7, class Mutex>
+template <class arg1_type, class arg2_type, class arg3_type, class arg4_type,
+class arg5_type, class arg6_type, class arg7_type, class Mutex>
 class _signal_base7 : public _signal_base<Mutex>
 {
 public:
-    typedef std::list<_connection_base7<Arg1, Arg2, Arg3,
-        Arg4, Arg5, Arg6, Arg7, Mutex> *>  connections_list;
+    typedef std::list<_connection_base7<arg1_type, arg2_type, arg3_type,
+        arg4_type, arg5_type, arg6_type, arg7_type, Mutex> *>  connections_list;
 
     _signal_base7()
     {}
 
-    _signal_base7(const _signal_base7<Arg1, Arg2, Arg3, Arg4,
-        Arg5, Arg6, Arg7, Mutex>& s)
+    _signal_base7(const _signal_base7<arg1_type, arg2_type, arg3_type, arg4_type,
+        arg5_type, arg6_type, arg7_type, Mutex>& s)
         : _signal_base<Mutex>(s)
     {
         lock_guard<Mutex> lock(*this);
@@ -1093,7 +1120,7 @@ public:
         }
     }
 
-    void slot_duplicate(const basic_has_slots<Mutex>* oldtarget, basic_has_slots<Mutex>* newtarget)
+    void slot_duplicate(const has_slots<Mutex>* oldtarget, has_slots<Mutex>* newtarget)
     {
         lock_guard<Mutex> lock(*this);
         typename connections_list::iterator it = _connected_slots.begin();
@@ -1129,7 +1156,7 @@ public:
         _connected_slots.erase(_connected_slots.begin(), _connected_slots.end());
     }
 
-    void disconnect(basic_has_slots<Mutex>* pclass)
+    void disconnect(has_slots<Mutex>* pclass)
     {
         lock_guard<Mutex> lock(*this);
         typename connections_list::iterator it = _connected_slots.begin();
@@ -1147,7 +1174,7 @@ public:
         }
     }
 
-    void slot_disconnect(basic_has_slots<Mutex>* pslot)
+    void slot_disconnect(has_slots<Mutex>* pslot)
     {
         lock_guard<Mutex> lock(*this);
         typename connections_list::iterator it = _connected_slots.begin();
@@ -1172,20 +1199,20 @@ protected:
     connections_list _connected_slots;
 };
 
-template <class Arg1, class Arg2, class Arg3, class Arg4,
-class Arg5, class Arg6, class Arg7, class Arg8, class Mutex>
+template <class arg1_type, class arg2_type, class arg3_type, class arg4_type,
+class arg5_type, class arg6_type, class arg7_type, class arg8_type, class Mutex>
 class _signal_base8 : public _signal_base<Mutex>
 {
 public:
-    typedef std::list<_connection_base8<Arg1, Arg2, Arg3,
-        Arg4, Arg5, Arg6, Arg7, Arg8, Mutex> *>
+    typedef std::list<_connection_base8<arg1_type, arg2_type, arg3_type,
+        arg4_type, arg5_type, arg6_type, arg7_type, arg8_type, Mutex> *>
         connections_list;
 
     _signal_base8()
     {}
 
-    _signal_base8(const _signal_base8<Arg1, Arg2, Arg3, Arg4,
-        Arg5, Arg6, Arg7, Arg8, Mutex>& s)
+    _signal_base8(const _signal_base8<arg1_type, arg2_type, arg3_type, arg4_type,
+        arg5_type, arg6_type, arg7_type, arg8_type, Mutex>& s)
         : _signal_base<Mutex>(s)
     {
         lock_guard<Mutex> lock(*this);
@@ -1200,7 +1227,7 @@ public:
         }
     }
 
-    void slot_duplicate(const basic_has_slots<Mutex>* oldtarget, basic_has_slots<Mutex>* newtarget)
+    void slot_duplicate(const has_slots<Mutex>* oldtarget, has_slots<Mutex>* newtarget)
     {
         lock_guard<Mutex> lock(*this);
         typename connections_list::iterator it = _connected_slots.begin();
@@ -1238,7 +1265,7 @@ public:
         _connected_slots.erase(_connected_slots.begin(), _connected_slots.end());
     }
 
-    void disconnect(basic_has_slots<Mutex>* pclass)
+    void disconnect(has_slots<Mutex>* pclass)
     {
         lock_guard<Mutex> lock(*this);
         typename connections_list::iterator it = _connected_slots.begin();
@@ -1256,7 +1283,7 @@ public:
         }
     }
 
-    void slot_disconnect(basic_has_slots<Mutex>* pslot)
+    void slot_disconnect(has_slots<Mutex>* pslot)
     {
         lock_guard<Mutex> lock(*this);
         typename connections_list::iterator it = _connected_slots.begin();
@@ -1283,6 +1310,7 @@ protected:
     connections_list _connected_slots;
 };
 
+
 template <class dest_type, class Mutex>
 class _connection0 : public _connection_base0<Mutex>
 {
@@ -1304,30 +1332,17 @@ public:
         return new _connection0<dest_type, Mutex>(*this);
     }
 
-    virtual _connection_base0<Mutex>* duplicate(basic_has_slots<Mutex>* pnewdest)
+    virtual _connection_base0<Mutex>* duplicate(has_slots<Mutex>* pnewdest)
     {
         return new _connection0<dest_type, Mutex>(static_cast<dest_type *>(pnewdest), _pmemfun);
     }
 
     virtual void emit_()
     {
-        if (_pobject->use_async_slots())
-            _pobject->callback_queue().template push_method<dest_type>(_pmemfun, _pobject);
-        else
-            (_pobject->*_pmemfun)();
-    }
-
-    virtual void sync_emit () pfs_override
-    {
         (_pobject->*_pmemfun)();
     }
-    
-    virtual void async_emit () pfs_override
-    {
-        _pobject->callback_queue().template push_method<dest_type>(_pmemfun, _pobject);
-    }
 
-    virtual basic_has_slots<Mutex>* getdest() const
+    virtual has_slots<Mutex>* getdest() const
     {
         return _pobject;
     }
@@ -1337,62 +1352,49 @@ private:
     void (dest_type::* _pmemfun)();
 };
 
-template <class dest_type, class Arg1, class Mutex>
-class _connection1 : public _connection_base1<Arg1, Mutex>
+template <class dest_type, class arg1_type, class Mutex>
+class _connection1 : public _connection_base1<arg1_type, Mutex>
 {
 public:
     _connection1()
-        : _pobject(0)
-        , _pmemfun(0)
-    {}
-
-    _connection1 (dest_type* pobject, void (dest_type::*pmemfun)(Arg1))
-        : _pobject(pobject)
-        , _pmemfun(pmemfun)
-    {}
-
-    virtual _connection_base1<Arg1, Mutex>* clone()
     {
-        return new _connection1<dest_type, Arg1, Mutex>(*this);
+        _pobject = NULL;
+        _pmemfun = NULL;
     }
 
-    virtual _connection_base1<Arg1, Mutex>* duplicate(basic_has_slots<Mutex>* pnewdest)
+    _connection1(dest_type* pobject, void (dest_type::*pmemfun)(arg1_type))
     {
-        return new _connection1<dest_type, Arg1, Mutex>(static_cast<dest_type *>(pnewdest), _pmemfun);
+        _pobject = pobject;
+        _pmemfun = pmemfun;
     }
-    
-    virtual void emit_(Arg1 a1)
+
+    virtual _connection_base1<arg1_type, Mutex>* clone()
     {
-        if (_pobject->use_async_slots())
-            _pobject->callback_queue().template push_method<dest_type
-                    , Arg1>(_pmemfun, _pobject, a1);
-        else
-            (_pobject->*_pmemfun)(a1);
+        return new _connection1<dest_type, arg1_type, Mutex>(*this);
     }
-    
-    virtual void sync_emit (Arg1 a1) pfs_override
+
+    virtual _connection_base1<arg1_type, Mutex>* duplicate(has_slots<Mutex>* pnewdest)
+    {
+        return new _connection1<dest_type, arg1_type, Mutex>(static_cast<dest_type *>(pnewdest), _pmemfun);
+    }
+
+    virtual void emit_(arg1_type a1)
     {
         (_pobject->*_pmemfun)(a1);
     }
-    
-    virtual void async_emit (Arg1 a1) pfs_override
-    {
-        _pobject->callback_queue().template push_method<dest_type
-                , Arg1>(_pmemfun, _pobject, a1);
-    }
 
-    virtual basic_has_slots<Mutex>* getdest() const
+    virtual has_slots<Mutex>* getdest() const
     {
         return _pobject;
     }
 
 private:
     dest_type* _pobject;
-    void (dest_type::* _pmemfun)(Arg1);
+    void (dest_type::* _pmemfun)(arg1_type);
 };
 
-template <class dest_type, class Arg1, class Arg2, class Mutex>
-class _connection2 : public _connection_base2<Arg1, Arg2, Mutex>
+template <class dest_type, class arg1_type, class arg2_type, class Mutex>
+class _connection2 : public _connection_base2<arg1_type, arg2_type, Mutex>
 {
 public:
     _connection2()
@@ -1401,8 +1403,8 @@ public:
         _pmemfun = NULL;
     }
 
-    _connection2(dest_type* pobject, void (dest_type::*pmemfun)(Arg1,
-        Arg2))
+    _connection2(dest_type* pobject, void (dest_type::*pmemfun)(arg1_type,
+        arg2_type))
     {
         _pobject = pobject;
         _pmemfun = pmemfun;
@@ -1410,50 +1412,33 @@ public:
 
     //~_connection2() {}
 
-    virtual _connection_base2<Arg1, Arg2, Mutex>* clone()
+    virtual _connection_base2<arg1_type, arg2_type, Mutex>* clone()
     {
-        return new _connection2<dest_type, Arg1, Arg2, Mutex>(*this);
+        return new _connection2<dest_type, arg1_type, arg2_type, Mutex>(*this);
     }
 
-    virtual _connection_base2<Arg1, Arg2, Mutex>* duplicate(basic_has_slots<Mutex>* pnewdest)
+    virtual _connection_base2<arg1_type, arg2_type, Mutex>* duplicate(has_slots<Mutex>* pnewdest)
     {
-        return new _connection2<dest_type, Arg1, Arg2, Mutex>(static_cast<dest_type *>(pnewdest), _pmemfun);
+        return new _connection2<dest_type, arg1_type, arg2_type, Mutex>(static_cast<dest_type *>(pnewdest), _pmemfun);
     }
 
-    virtual void emit_(Arg1 a1, Arg2 a2)
-    {
-        if (_pobject->use_async_slots())
-            _pobject->callback_queue().template push_method<dest_type
-                    , Arg1
-                    , Arg2>(_pmemfun, _pobject, a1, a2);
-        else
-            (_pobject->*_pmemfun)(a1, a2);
-    }
-
-    virtual void sync_emit (Arg1 a1, Arg2 a2) pfs_override
+    virtual void emit_(arg1_type a1, arg2_type a2)
     {
         (_pobject->*_pmemfun)(a1, a2);
     }
-    
-    virtual void async_emit (Arg1 a1, Arg2 a2) pfs_override
-    {
-        _pobject->callback_queue().template push_method<dest_type
-                , Arg1
-                , Arg2>(_pmemfun, _pobject, a1, a2);
-    }
 
-    virtual basic_has_slots<Mutex>* getdest() const
+    virtual has_slots<Mutex>* getdest() const
     {
         return _pobject;
     }
 
 private:
     dest_type* _pobject;
-    void (dest_type::* _pmemfun)(Arg1, Arg2);
+    void (dest_type::* _pmemfun)(arg1_type, arg2_type);
 };
 
-template <class dest_type, class Arg1, class Arg2, class Arg3, class Mutex>
-class _connection3 : public _connection_base3<Arg1, Arg2, Arg3, Mutex>
+template <class dest_type, class arg1_type, class arg2_type, class arg3_type, class Mutex>
+class _connection3 : public _connection_base3<arg1_type, arg2_type, arg3_type, Mutex>
 {
 public:
     _connection3()
@@ -1462,61 +1447,42 @@ public:
         _pmemfun = NULL;
     }
 
-    _connection3(dest_type* pobject, void (dest_type::*pmemfun)(Arg1,
-        Arg2, Arg3))
+    _connection3(dest_type* pobject, void (dest_type::*pmemfun)(arg1_type,
+        arg2_type, arg3_type))
     {
         _pobject = pobject;
         _pmemfun = pmemfun;
     }
 
-    virtual _connection_base3<Arg1, Arg2, Arg3, Mutex>* clone()
+    virtual _connection_base3<arg1_type, arg2_type, arg3_type, Mutex>* clone()
     {
-        return new _connection3<dest_type, Arg1, Arg2, Arg3, Mutex>(*this);
+        return new _connection3<dest_type, arg1_type, arg2_type, arg3_type, Mutex>(*this);
     }
 
-    virtual _connection_base3<Arg1, Arg2, Arg3, Mutex>* duplicate(basic_has_slots<Mutex>* pnewdest)
+    virtual _connection_base3<arg1_type, arg2_type, arg3_type, Mutex>* duplicate(has_slots<Mutex>* pnewdest)
     {
-        return new _connection3<dest_type, Arg1, Arg2, Arg3, Mutex>(static_cast<dest_type *>(pnewdest), _pmemfun);
+        return new _connection3<dest_type, arg1_type, arg2_type, arg3_type, Mutex>(static_cast<dest_type *>(pnewdest), _pmemfun);
     }
 
-    virtual void emit_(Arg1 a1, Arg2 a2, Arg3 a3)
-    {
-        if (_pobject->use_async_slots())
-            _pobject->callback_queue().template push_method<dest_type
-                , Arg1
-                , Arg2
-                , Arg3>(_pmemfun, _pobject, a1, a2, a3);
-        else
-            (_pobject->*_pmemfun)(a1, a2, a3);
-    }
-    
-    virtual void sync_emit (Arg1 a1, Arg2 a2, Arg3 a3) pfs_override
+    virtual void emit_(arg1_type a1, arg2_type a2, arg3_type a3)
     {
         (_pobject->*_pmemfun)(a1, a2, a3);
     }
-    
-    virtual void async_emit (Arg1 a1, Arg2 a2, Arg3 a3) pfs_override
-    {
-        _pobject->callback_queue().template push_method<dest_type
-            , Arg1
-            , Arg2
-            , Arg3>(_pmemfun, _pobject, a1, a2, a3);
-    }
 
-    virtual basic_has_slots<Mutex>* getdest() const
+    virtual has_slots<Mutex>* getdest() const
     {
         return _pobject;
     }
 
 private:
     dest_type* _pobject;
-    void (dest_type::* _pmemfun)(Arg1, Arg2, Arg3);
+    void (dest_type::* _pmemfun)(arg1_type, arg2_type, arg3_type);
 };
 
-template <class dest_type, class Arg1, class Arg2, class Arg3,
-class Arg4, class Mutex>
-class _connection4 : public _connection_base4<Arg1, Arg2,
-    Arg3, Arg4, Mutex>
+template <class dest_type, class arg1_type, class arg2_type, class arg3_type,
+class arg4_type, class Mutex>
+class _connection4 : public _connection_base4<arg1_type, arg2_type,
+    arg3_type, arg4_type, Mutex>
 {
 public:
     _connection4()
@@ -1525,64 +1491,44 @@ public:
         _pmemfun = NULL;
     }
 
-    _connection4(dest_type* pobject, void (dest_type::*pmemfun)(Arg1,
-        Arg2, Arg3, Arg4))
+    _connection4(dest_type* pobject, void (dest_type::*pmemfun)(arg1_type,
+        arg2_type, arg3_type, arg4_type))
     {
         _pobject = pobject;
         _pmemfun = pmemfun;
     }
 
-    virtual _connection_base4<Arg1, Arg2, Arg3, Arg4, Mutex>* clone()
+    virtual _connection_base4<arg1_type, arg2_type, arg3_type, arg4_type, Mutex>* clone()
     {
-        return new _connection4<dest_type, Arg1, Arg2, Arg3, Arg4, Mutex>(*this);
+        return new _connection4<dest_type, arg1_type, arg2_type, arg3_type, arg4_type, Mutex>(*this);
     }
 
-    virtual _connection_base4<Arg1, Arg2, Arg3, Arg4, Mutex>* duplicate(basic_has_slots<Mutex>* pnewdest)
+    virtual _connection_base4<arg1_type, arg2_type, arg3_type, arg4_type, Mutex>* duplicate(has_slots<Mutex>* pnewdest)
     {
-        return new _connection4<dest_type, Arg1, Arg2, Arg3, Arg4, Mutex>(static_cast<dest_type *>(pnewdest), _pmemfun);
+        return new _connection4<dest_type, arg1_type, arg2_type, arg3_type, arg4_type, Mutex>(static_cast<dest_type *>(pnewdest), _pmemfun);
     }
 
-    virtual void emit_(Arg1 a1, Arg2 a2, Arg3 a3, Arg4 a4)
-    {
-        if (_pobject->use_async_slots())
-            _pobject->callback_queue().template push_method<dest_type
-                , Arg1
-                , Arg2
-                , Arg3
-                , Arg4>(_pmemfun, _pobject, a1, a2, a3, a4);
-        else
-            (_pobject->*_pmemfun)(a1, a2, a3, a4);
-    }
-    
-    virtual void sync_emit (Arg1 a1, Arg2 a2, Arg3 a3, Arg4 a4) pfs_override
+    virtual void emit_(arg1_type a1, arg2_type a2, arg3_type a3,
+        arg4_type a4)
     {
         (_pobject->*_pmemfun)(a1, a2, a3, a4);
     }
-    
-    virtual void async_emit (Arg1 a1, Arg2 a2, Arg3 a3, Arg4 a4) pfs_override
-    {
-        _pobject->callback_queue().template push_method<dest_type
-            , Arg1
-            , Arg2
-            , Arg3
-            , Arg4>(_pmemfun, _pobject, a1, a2, a3, a4);
-    }
 
-    virtual basic_has_slots<Mutex>* getdest() const
+    virtual has_slots<Mutex>* getdest() const
     {
         return _pobject;
     }
 
 private:
     dest_type* _pobject;
-    void (dest_type::* _pmemfun)(Arg1, Arg2, Arg3,
-        Arg4);
+    void (dest_type::* _pmemfun)(arg1_type, arg2_type, arg3_type,
+        arg4_type);
 };
 
-template <class dest_type, class Arg1, class Arg2, class Arg3,
-class Arg4, class Arg5, class Mutex>
-class _connection5 : public _connection_base5<Arg1, Arg2,
-    Arg3, Arg4, Arg5, Mutex>
+template <class dest_type, class arg1_type, class arg2_type, class arg3_type,
+class arg4_type, class arg5_type, class Mutex>
+class _connection5 : public _connection_base5<arg1_type, arg2_type,
+    arg3_type, arg4_type, arg5_type, Mutex>
 {
 public:
     _connection5()
@@ -1591,70 +1537,48 @@ public:
         _pmemfun = NULL;
     }
 
-    _connection5(dest_type* pobject, void (dest_type::*pmemfun)(Arg1,
-        Arg2, Arg3, Arg4, Arg5))
+    _connection5(dest_type* pobject, void (dest_type::*pmemfun)(arg1_type,
+        arg2_type, arg3_type, arg4_type, arg5_type))
     {
         _pobject = pobject;
         _pmemfun = pmemfun;
     }
 
-    virtual _connection_base5<Arg1, Arg2, Arg3, Arg4,
-        Arg5, Mutex>* clone()
+    virtual _connection_base5<arg1_type, arg2_type, arg3_type, arg4_type,
+        arg5_type, Mutex>* clone()
     {
-        return new _connection5<dest_type, Arg1, Arg2, Arg3, Arg4,
-            Arg5, Mutex>(*this);
+        return new _connection5<dest_type, arg1_type, arg2_type, arg3_type, arg4_type,
+            arg5_type, Mutex>(*this);
     }
 
-    virtual _connection_base5<Arg1, Arg2, Arg3, Arg4,
-        Arg5, Mutex>* duplicate(basic_has_slots<Mutex>* pnewdest)
+    virtual _connection_base5<arg1_type, arg2_type, arg3_type, arg4_type,
+        arg5_type, Mutex>* duplicate(has_slots<Mutex>* pnewdest)
     {
-        return new _connection5<dest_type, Arg1, Arg2, Arg3, Arg4,
-            Arg5, Mutex>(static_cast<dest_type *>(pnewdest), _pmemfun);
+        return new _connection5<dest_type, arg1_type, arg2_type, arg3_type, arg4_type,
+            arg5_type, Mutex>(static_cast<dest_type *>(pnewdest), _pmemfun);
     }
 
-    virtual void emit_(Arg1 a1, Arg2 a2, Arg3 a3, Arg4 a4, Arg5 a5)
-    {
-        if (_pobject->use_async_slots())
-            _pobject->callback_queue().template push_method<dest_type
-                , Arg1
-                , Arg2
-                , Arg3
-                , Arg4
-                , Arg5>(_pmemfun, _pobject, a1, a2, a3, a4, a5);
-        else
-            (_pobject->*_pmemfun)(a1, a2, a3, a4, a5);
-    }
-    
-    virtual void sync_emit (Arg1 a1, Arg2 a2, Arg3 a3, Arg4 a4, Arg5 a5) pfs_override
+    virtual void emit_(arg1_type a1, arg2_type a2, arg3_type a3, arg4_type a4,
+        arg5_type a5)
     {
         (_pobject->*_pmemfun)(a1, a2, a3, a4, a5);
     }
-    
-    virtual void async_emit (Arg1 a1, Arg2 a2, Arg3 a3, Arg4 a4, Arg5 a5) pfs_override
-    {
-        _pobject->callback_queue().template push_method<dest_type
-            , Arg1
-            , Arg2
-            , Arg3
-            , Arg4
-            , Arg5>(_pmemfun, _pobject, a1, a2, a3, a4, a5);
-    }
 
-    virtual basic_has_slots<Mutex>* getdest() const
+    virtual has_slots<Mutex>* getdest() const
     {
         return _pobject;
     }
 
 private:
     dest_type* _pobject;
-    void (dest_type::* _pmemfun)(Arg1, Arg2, Arg3, Arg4,
-        Arg5);
+    void (dest_type::* _pmemfun)(arg1_type, arg2_type, arg3_type, arg4_type,
+        arg5_type);
 };
 
-template <class dest_type, class Arg1, class Arg2, class Arg3,
-class Arg4, class Arg5, class Arg6, class Mutex>
-class _connection6 : public _connection_base6<Arg1, Arg2,
-    Arg3, Arg4, Arg5, Arg6, Mutex>
+template <class dest_type, class arg1_type, class arg2_type, class arg3_type,
+class arg4_type, class arg5_type, class arg6_type, class Mutex>
+class _connection6 : public _connection_base6<arg1_type, arg2_type,
+    arg3_type, arg4_type, arg5_type, arg6_type, Mutex>
 {
 public:
     _connection6()
@@ -1663,72 +1587,48 @@ public:
         _pmemfun = NULL;
     }
 
-    _connection6(dest_type* pobject, void (dest_type::*pmemfun)(Arg1,
-        Arg2, Arg3, Arg4, Arg5, Arg6))
+    _connection6(dest_type* pobject, void (dest_type::*pmemfun)(arg1_type,
+        arg2_type, arg3_type, arg4_type, arg5_type, arg6_type))
     {
         _pobject = pobject;
         _pmemfun = pmemfun;
     }
 
-    virtual _connection_base6<Arg1, Arg2, Arg3, Arg4,
-        Arg5, Arg6, Mutex>* clone()
+    virtual _connection_base6<arg1_type, arg2_type, arg3_type, arg4_type,
+        arg5_type, arg6_type, Mutex>* clone()
     {
-        return new _connection6<dest_type, Arg1, Arg2, Arg3, Arg4,
-            Arg5, Arg6, Mutex>(*this);
+        return new _connection6<dest_type, arg1_type, arg2_type, arg3_type, arg4_type,
+            arg5_type, arg6_type, Mutex>(*this);
     }
 
-    virtual _connection_base6<Arg1, Arg2, Arg3, Arg4,
-        Arg5, Arg6, Mutex>* duplicate(basic_has_slots<Mutex>* pnewdest)
+    virtual _connection_base6<arg1_type, arg2_type, arg3_type, arg4_type,
+        arg5_type, arg6_type, Mutex>* duplicate(has_slots<Mutex>* pnewdest)
     {
-        return new _connection6<dest_type, Arg1, Arg2, Arg3, Arg4,
-            Arg5, Arg6, Mutex>(static_cast<dest_type *>(pnewdest), _pmemfun);
+        return new _connection6<dest_type, arg1_type, arg2_type, arg3_type, arg4_type,
+            arg5_type, arg6_type, Mutex>(static_cast<dest_type *>(pnewdest), _pmemfun);
     }
 
-    virtual void emit_(Arg1 a1, Arg2 a2, Arg3 a3, Arg4 a4, Arg5 a5, Arg6 a6)
-    {
-        if (_pobject->use_async_slots())
-            _pobject->callback_queue().template push_method<dest_type
-                , Arg1
-                , Arg2
-                , Arg3
-                , Arg4
-                , Arg5
-                , Arg6>(_pmemfun, _pobject, a1, a2, a3, a4, a5, a6);
-        else
-            (_pobject->*_pmemfun)(a1, a2, a3, a4, a5, a6);
-    }
-    
-    virtual void sync_emit (Arg1 a1, Arg2 a2, Arg3 a3, Arg4 a4, Arg5 a5, Arg6 a6) pfs_override
+    virtual void emit_(arg1_type a1, arg2_type a2, arg3_type a3, arg4_type a4,
+        arg5_type a5, arg6_type a6)
     {
         (_pobject->*_pmemfun)(a1, a2, a3, a4, a5, a6);
     }
-    
-    virtual void async_emit (Arg1 a1, Arg2 a2, Arg3 a3, Arg4 a4, Arg5 a5, Arg6 a6) pfs_override
-    {
-        _pobject->callback_queue().template push_method<dest_type
-            , Arg1
-            , Arg2
-            , Arg3
-            , Arg4
-            , Arg5
-            , Arg6>(_pmemfun, _pobject, a1, a2, a3, a4, a5, a6);
-    }
 
-    virtual basic_has_slots<Mutex>* getdest() const
+    virtual has_slots<Mutex>* getdest() const
     {
         return _pobject;
     }
 
 private:
     dest_type* _pobject;
-    void (dest_type::* _pmemfun)(Arg1, Arg2, Arg3, Arg4,
-        Arg5, Arg6);
+    void (dest_type::* _pmemfun)(arg1_type, arg2_type, arg3_type, arg4_type,
+        arg5_type, arg6_type);
 };
 
-template <class dest_type, class Arg1, class Arg2, class Arg3,
-class Arg4, class Arg5, class Arg6, class Arg7, class Mutex>
-class _connection7 : public _connection_base7<Arg1, Arg2,
-    Arg3, Arg4, Arg5, Arg6, Arg7, Mutex>
+template <class dest_type, class arg1_type, class arg2_type, class arg3_type,
+class arg4_type, class arg5_type, class arg6_type, class arg7_type, class Mutex>
+class _connection7 : public _connection_base7<arg1_type, arg2_type,
+    arg3_type, arg4_type, arg5_type, arg6_type, arg7_type, Mutex>
 {
 public:
     _connection7()
@@ -1737,78 +1637,49 @@ public:
         _pmemfun = NULL;
     }
 
-    _connection7(dest_type* pobject, void (dest_type::*pmemfun)(Arg1,
-        Arg2, Arg3, Arg4, Arg5, Arg6, Arg7))
+    _connection7(dest_type* pobject, void (dest_type::*pmemfun)(arg1_type,
+        arg2_type, arg3_type, arg4_type, arg5_type, arg6_type, arg7_type))
     {
         _pobject = pobject;
         _pmemfun = pmemfun;
     }
 
-    virtual _connection_base7<Arg1, Arg2, Arg3, Arg4,
-        Arg5, Arg6, Arg7, Mutex>* clone()
+    virtual _connection_base7<arg1_type, arg2_type, arg3_type, arg4_type,
+        arg5_type, arg6_type, arg7_type, Mutex>* clone()
     {
-        return new _connection7<dest_type, Arg1, Arg2, Arg3, Arg4,
-            Arg5, Arg6, Arg7, Mutex>(*this);
+        return new _connection7<dest_type, arg1_type, arg2_type, arg3_type, arg4_type,
+            arg5_type, arg6_type, arg7_type, Mutex>(*this);
     }
 
-    virtual _connection_base7<Arg1, Arg2, Arg3, Arg4,
-        Arg5, Arg6, Arg7, Mutex>* duplicate(basic_has_slots<Mutex>* pnewdest)
+    virtual _connection_base7<arg1_type, arg2_type, arg3_type, arg4_type,
+        arg5_type, arg6_type, arg7_type, Mutex>* duplicate(has_slots<Mutex>* pnewdest)
     {
-        return new _connection7<dest_type, Arg1, Arg2, Arg3, Arg4,
-            Arg5, Arg6, Arg7, Mutex>(static_cast<dest_type *>(pnewdest), _pmemfun);
+        return new _connection7<dest_type, arg1_type, arg2_type, arg3_type, arg4_type,
+            arg5_type, arg6_type, arg7_type, Mutex>(static_cast<dest_type *>(pnewdest), _pmemfun);
     }
 
-    virtual void emit_(Arg1 a1, Arg2 a2, Arg3 a3, Arg4 a4
-            , Arg5 a5, Arg6 a6, Arg7 a7)
-    {
-        if (_pobject->use_async_slots())
-            _pobject->callback_queue().template push_method<dest_type                
-                , Arg1
-                , Arg2
-                , Arg3
-                , Arg4
-                , Arg5
-                , Arg6
-                , Arg7>(_pmemfun, _pobject, a1, a2, a3, a4, a5, a6, a7);
-        else
-            (_pobject->*_pmemfun)(a1, a2, a3, a4, a5, a6, a7);
-    }
-    
-    virtual void sync_emit (Arg1 a1, Arg2 a2, Arg3 a3, Arg4 a4
-            , Arg5 a5, Arg6 a6, Arg7 a7) pfs_override
+    virtual void emit_(arg1_type a1, arg2_type a2, arg3_type a3, arg4_type a4,
+        arg5_type a5, arg6_type a6, arg7_type a7)
     {
         (_pobject->*_pmemfun)(a1, a2, a3, a4, a5, a6, a7);
     }
-    
-    virtual void async_emit (Arg1 a1, Arg2 a2, Arg3 a3, Arg4 a4
-            , Arg5 a5, Arg6 a6, Arg7 a7) pfs_override
-    {
-        _pobject->callback_queue().template push_method<dest_type                
-            , Arg1
-            , Arg2
-            , Arg3
-            , Arg4
-            , Arg5
-            , Arg6
-            , Arg7>(_pmemfun, _pobject, a1, a2, a3, a4, a5, a6, a7);
-    }
 
-    virtual basic_has_slots<Mutex>* getdest() const
+    virtual has_slots<Mutex>* getdest() const
     {
         return _pobject;
     }
 
 private:
     dest_type* _pobject;
-    void (dest_type::* _pmemfun)(Arg1, Arg2, Arg3, Arg4,
-        Arg5, Arg6, Arg7);
+    void (dest_type::* _pmemfun)(arg1_type, arg2_type, arg3_type, arg4_type,
+        arg5_type, arg6_type, arg7_type);
 };
 
-template <class dest_type, class Arg1, class Arg2, class Arg3,
-class Arg4, class Arg5, class Arg6, class Arg7,
-class Arg8, class Mutex>
-class _connection8 : public _connection_base8<Arg1, Arg2,
-    Arg3, Arg4, Arg5, Arg6, Arg7, Arg8, Mutex>
+template <class dest_type, class arg1_type, class arg2_type, class arg3_type,
+class arg4_type, class arg5_type, class arg6_type, class arg7_type,
+class arg8_type, class Mutex>
+class _connection8 : public _connection_base8<arg1_type, arg2_type,
+    arg3_type, arg4_type, arg5_type, arg6_type, arg7_type, arg8_type, Mutex>
 {
 public:
     _connection8()
@@ -1817,74 +1688,43 @@ public:
         _pmemfun = NULL;
     }
 
-    _connection8(dest_type* pobject, void (dest_type::*pmemfun)(Arg1,
-        Arg2, Arg3, Arg4, Arg5, Arg6,
-        Arg7, Arg8))
+    _connection8(dest_type* pobject, void (dest_type::*pmemfun)(arg1_type,
+        arg2_type, arg3_type, arg4_type, arg5_type, arg6_type,
+        arg7_type, arg8_type))
     {
         _pobject = pobject;
         _pmemfun = pmemfun;
     }
 
-    virtual _connection_base8<Arg1, Arg2, Arg3, Arg4,
-        Arg5, Arg6, Arg7, Arg8, Mutex>* clone()
+    virtual _connection_base8<arg1_type, arg2_type, arg3_type, arg4_type,
+        arg5_type, arg6_type, arg7_type, arg8_type, Mutex>* clone()
     {
-        return new _connection8<dest_type, Arg1, Arg2, Arg3, Arg4,
-            Arg5, Arg6, Arg7, Arg8, Mutex>(*this);
+        return new _connection8<dest_type, arg1_type, arg2_type, arg3_type, arg4_type,
+            arg5_type, arg6_type, arg7_type, arg8_type, Mutex>(*this);
     }
 
-    virtual _connection_base8<Arg1, Arg2, Arg3, Arg4,
-        Arg5, Arg6, Arg7, Arg8, Mutex>* duplicate(basic_has_slots<Mutex>* pnewdest)
+    virtual _connection_base8<arg1_type, arg2_type, arg3_type, arg4_type,
+        arg5_type, arg6_type, arg7_type, arg8_type, Mutex>* duplicate(has_slots<Mutex>* pnewdest)
     {
-        return new _connection8<dest_type, Arg1, Arg2, Arg3, Arg4,
-            Arg5, Arg6, Arg7, Arg8, Mutex>(static_cast<dest_type *>(pnewdest), _pmemfun);
+        return new _connection8<dest_type, arg1_type, arg2_type, arg3_type, arg4_type,
+            arg5_type, arg6_type, arg7_type, arg8_type, Mutex>(static_cast<dest_type *>(pnewdest), _pmemfun);
     }
 
-    virtual void emit_(Arg1 a1, Arg2 a2, Arg3 a3, Arg4 a4
-            , Arg5 a5, Arg6 a6, Arg7 a7, Arg8 a8)
-    {
-        if (_pobject->use_async_slots())
-            _pobject->callback_queue().template push_method<dest_type
-                , Arg1
-                , Arg2
-                , Arg3
-                , Arg4
-                , Arg5
-                , Arg6
-                , Arg7
-                , Arg8>(_pmemfun, _pobject, a1, a2, a3, a4, a5, a6, a7, a8);
-        else
-            (_pobject->*_pmemfun)(a1, a2, a3, a4, a5, a6, a7, a8);
-    }
-    
-    virtual void sync_emit (Arg1 a1, Arg2 a2, Arg3 a3, Arg4 a4
-            , Arg5 a5, Arg6 a6, Arg7 a7, Arg8 a8) pfs_override
+    virtual void emit_(arg1_type a1, arg2_type a2, arg3_type a3, arg4_type a4,
+        arg5_type a5, arg6_type a6, arg7_type a7, arg8_type a8)
     {
         (_pobject->*_pmemfun)(a1, a2, a3, a4, a5, a6, a7, a8);
     }
-    
-    virtual void async_emit (Arg1 a1, Arg2 a2, Arg3 a3, Arg4 a4
-            , Arg5 a5, Arg6 a6, Arg7 a7, Arg8 a8) pfs_override
-    {
-        _pobject->callback_queue().template push_method<dest_type
-            , Arg1
-            , Arg2
-            , Arg3
-            , Arg4
-            , Arg5
-            , Arg6
-            , Arg7
-            , Arg8>(_pmemfun, _pobject, a1, a2, a3, a4, a5, a6, a7, a8);
-    }
 
-    virtual basic_has_slots<Mutex>* getdest() const
+    virtual has_slots<Mutex>* getdest() const
     {
         return _pobject;
     }
 
 private:
     dest_type* _pobject;
-    void (dest_type::* _pmemfun)(Arg1, Arg2, Arg3, Arg4,
-        Arg5, Arg6, Arg7, Arg8);
+    void (dest_type::* _pmemfun)(arg1_type, arg2_type, arg3_type, arg4_type,
+        arg5_type, arg6_type, arg7_type, arg8_type);
 };
 
 template <class Mutex = PFS_DEFAULT_MT_POLICY>
@@ -1943,30 +1783,30 @@ public:
     }
 };
 
-template <class Arg1, class Mutex = PFS_DEFAULT_MT_POLICY>
-class signal1 : public _signal_base1<Arg1, Mutex>
+template <class arg1_type, class Mutex = PFS_DEFAULT_MT_POLICY>
+class signal1 : public _signal_base1<arg1_type, Mutex>
 {
-    typedef _signal_base1<Arg1, Mutex> __base_class;
+    typedef _signal_base1<arg1_type, Mutex> __base_class;
 
 public:
     signal1()
     {}
 
-    signal1(const signal1<Arg1, Mutex>& s)
-        : _signal_base1<Arg1, Mutex>(s)
+    signal1(const signal1<arg1_type, Mutex>& s)
+        : _signal_base1<arg1_type, Mutex>(s)
     {}
 
     template <class desttype>
-        void connect(desttype* pclass, void (desttype::*pmemfun)(Arg1))
+        void connect(desttype* pclass, void (desttype::*pmemfun)(arg1_type))
     {
         lock_guard<Mutex> lock(*this);
-        _connection1<desttype, Arg1, Mutex>* conn =
-            new _connection1<desttype, Arg1, Mutex>(pclass, pmemfun);
+        _connection1<desttype, arg1_type, Mutex>* conn =
+            new _connection1<desttype, arg1_type, Mutex>(pclass, pmemfun);
         this->_connected_slots.push_back(conn);
         pclass->signal_connect(this);
     }
 
-    void emit_(Arg1 a1)
+    void emit_(arg1_type a1)
     {
         lock_guard<Mutex> lock(*this);
         typename __base_class::connections_list::const_iterator itNext, it = this->_connected_slots.begin();
@@ -1982,7 +1822,7 @@ public:
         }
     }
 
-    void operator()(Arg1 a1)
+    void operator()(arg1_type a1)
     {
         lock_guard<Mutex> lock(*this);
         typename __base_class::connections_list::const_iterator itNext, it = this->_connected_slots.begin();
@@ -1999,30 +1839,30 @@ public:
     }
 };
 
-template <class Arg1, class Arg2, class Mutex = PFS_DEFAULT_MT_POLICY>
-class signal2 : public _signal_base2<Arg1, Arg2, Mutex>
+template <class arg1_type, class arg2_type, class Mutex = PFS_DEFAULT_MT_POLICY>
+class signal2 : public _signal_base2<arg1_type, arg2_type, Mutex>
 {
-    typedef _signal_base2<Arg1, Arg2, Mutex> __base_class;
+    typedef _signal_base2<arg1_type, arg2_type, Mutex> __base_class;
 public:
     signal2()
     {}
 
-    signal2(const signal2<Arg1, Arg2, Mutex>& s)
-        : _signal_base2<Arg1, Arg2, Mutex>(s)
+    signal2(const signal2<arg1_type, arg2_type, Mutex>& s)
+        : _signal_base2<arg1_type, arg2_type, Mutex>(s)
     {}
 
     template <class desttype>
-        void connect(desttype* pclass, void (desttype::*pmemfun)(Arg1,
-        Arg2))
+        void connect(desttype* pclass, void (desttype::*pmemfun)(arg1_type,
+        arg2_type))
     {
         lock_guard<Mutex> lock(*this);
-        _connection2<desttype, Arg1, Arg2, Mutex>* conn = new
-            _connection2<desttype, Arg1, Arg2, Mutex>(pclass, pmemfun);
+        _connection2<desttype, arg1_type, arg2_type, Mutex>* conn = new
+            _connection2<desttype, arg1_type, arg2_type, Mutex>(pclass, pmemfun);
             this->_connected_slots.push_back(conn);
         pclass->signal_connect(this);
     }
 
-    void emit_(Arg1 a1, Arg2 a2)
+    void emit_(arg1_type a1, arg2_type a2)
     {
         lock_guard<Mutex> lock(*this);
         typename __base_class::connections_list::const_iterator itNext, it = this->_connected_slots.begin();
@@ -2039,7 +1879,7 @@ public:
         }
     }
 
-    void operator()(Arg1 a1, Arg2 a2)
+    void operator()(arg1_type a1, arg2_type a2)
     {
         lock_guard<Mutex> lock(*this);
         typename __base_class::connections_list::const_iterator itNext, it = this->_connected_slots.begin();
@@ -2057,31 +1897,31 @@ public:
     }
 };
 
-template <class Arg1, class Arg2, class Arg3, class Mutex = PFS_DEFAULT_MT_POLICY>
-class signal3 : public _signal_base3<Arg1, Arg2, Arg3, Mutex>
+template <class arg1_type, class arg2_type, class arg3_type, class Mutex = PFS_DEFAULT_MT_POLICY>
+class signal3 : public _signal_base3<arg1_type, arg2_type, arg3_type, Mutex>
 {
-    typedef  _signal_base3<Arg1, Arg2, Arg3, Mutex> __base_class;
+    typedef  _signal_base3<arg1_type, arg2_type, arg3_type, Mutex> __base_class;
 public:
     signal3()
     {}
 
-    signal3(const signal3<Arg1, Arg2, Arg3, Mutex>& s)
-        : _signal_base3<Arg1, Arg2, Arg3, Mutex>(s)
+    signal3(const signal3<arg1_type, arg2_type, arg3_type, Mutex>& s)
+        : _signal_base3<arg1_type, arg2_type, arg3_type, Mutex>(s)
     {}
 
     template <class desttype>
-        void connect(desttype* pclass, void (desttype::*pmemfun)(Arg1,
-        Arg2, Arg3))
+        void connect(desttype* pclass, void (desttype::*pmemfun)(arg1_type,
+        arg2_type, arg3_type))
     {
         lock_guard<Mutex> lock(*this);
-        _connection3<desttype, Arg1, Arg2, Arg3, Mutex>* conn =
-            new _connection3<desttype, Arg1, Arg2, Arg3, Mutex>(pclass,
+        _connection3<desttype, arg1_type, arg2_type, arg3_type, Mutex>* conn =
+            new _connection3<desttype, arg1_type, arg2_type, arg3_type, Mutex>(pclass,
             pmemfun);
             this->_connected_slots.push_back(conn);
         pclass->signal_connect(this);
     }
 
-    void emit_(Arg1 a1, Arg2 a2, Arg3 a3)
+    void emit_(arg1_type a1, arg2_type a2, arg3_type a3)
     {
         lock_guard<Mutex> lock(*this);
         typename __base_class::connections_list::const_iterator itNext, it = this->_connected_slots.begin();
@@ -2098,7 +1938,7 @@ public:
         }
     }
 
-    void operator () (Arg1 a1, Arg2 a2, Arg3 a3)
+    void operator () (arg1_type a1, arg2_type a2, arg3_type a3)
     {
         lock_guard<Mutex> lock(*this);
         typename __base_class::connections_list::const_iterator itNext, it = this->_connected_slots.begin();
@@ -2115,33 +1955,33 @@ public:
     }
 };
 
-template <class Arg1, class Arg2, class Arg3, class Arg4, class Mutex = PFS_DEFAULT_MT_POLICY>
-class signal4 : public _signal_base4<Arg1, Arg2, Arg3,
-    Arg4, Mutex>
+template <class arg1_type, class arg2_type, class arg3_type, class arg4_type, class Mutex = PFS_DEFAULT_MT_POLICY>
+class signal4 : public _signal_base4<arg1_type, arg2_type, arg3_type,
+    arg4_type, Mutex>
 {
-    typedef _signal_base4<Arg1, Arg2, Arg3,
-    Arg4, Mutex> __base_class;
+    typedef _signal_base4<arg1_type, arg2_type, arg3_type,
+    arg4_type, Mutex> __base_class;
 public:
     signal4()
     {;}
 
-    signal4(const signal4<Arg1, Arg2, Arg3, Arg4, Mutex>& s)
-        : _signal_base4<Arg1, Arg2, Arg3, Arg4, Mutex>(s)
+    signal4(const signal4<arg1_type, arg2_type, arg3_type, arg4_type, Mutex>& s)
+        : _signal_base4<arg1_type, arg2_type, arg3_type, arg4_type, Mutex>(s)
     {;}
 
     template <class desttype>
-        void connect(desttype* pclass, void (desttype::*pmemfun)(Arg1,
-        Arg2, Arg3, Arg4))
+        void connect(desttype* pclass, void (desttype::*pmemfun)(arg1_type,
+        arg2_type, arg3_type, arg4_type))
     {
         lock_guard<Mutex> lock(*this);
-        _connection4<desttype, Arg1, Arg2, Arg3, Arg4, Mutex>*
-            conn = new _connection4<desttype, Arg1, Arg2, Arg3,
-            Arg4, Mutex>(pclass, pmemfun);
+        _connection4<desttype, arg1_type, arg2_type, arg3_type, arg4_type, Mutex>*
+            conn = new _connection4<desttype, arg1_type, arg2_type, arg3_type,
+            arg4_type, Mutex>(pclass, pmemfun);
             this->_connected_slots.push_back(conn);
         pclass->signal_connect(this);
     }
 
-    void emit_(Arg1 a1, Arg2 a2, Arg3 a3, Arg4 a4)
+    void emit_(arg1_type a1, arg2_type a2, arg3_type a3, arg4_type a4)
     {
         lock_guard<Mutex> lock(*this);
         typename __base_class::connections_list::const_iterator itNext, it = this->_connected_slots.begin();
@@ -2157,7 +1997,7 @@ public:
         }
     }
 
-    void operator()(Arg1 a1, Arg2 a2, Arg3 a3, Arg4 a4)
+    void operator()(arg1_type a1, arg2_type a2, arg3_type a3, arg4_type a4)
     {
         lock_guard<Mutex> lock(*this);
         typename __base_class::connections_list::const_iterator itNext, it = this->_connected_slots.begin();
@@ -2174,37 +2014,37 @@ public:
     }
 };
 
-template <class Arg1, class Arg2, class Arg3, class Arg4,
-class Arg5, class Mutex = PFS_DEFAULT_MT_POLICY>
-class signal5 : public _signal_base5<Arg1, Arg2, Arg3,
-    Arg4, Arg5, Mutex>
+template <class arg1_type, class arg2_type, class arg3_type, class arg4_type,
+class arg5_type, class Mutex = PFS_DEFAULT_MT_POLICY>
+class signal5 : public _signal_base5<arg1_type, arg2_type, arg3_type,
+    arg4_type, arg5_type, Mutex>
 {
-    typedef _signal_base5<Arg1, Arg2, Arg3,
-    Arg4, Arg5, Mutex> __base_class;
+    typedef _signal_base5<arg1_type, arg2_type, arg3_type,
+    arg4_type, arg5_type, Mutex> __base_class;
 
 public:
     signal5()
     {;}
 
-    signal5(const signal5<Arg1, Arg2, Arg3, Arg4,
-        Arg5, Mutex>& s)
-        : _signal_base5<Arg1, Arg2, Arg3, Arg4,
-        Arg5, Mutex>(s)
+    signal5(const signal5<arg1_type, arg2_type, arg3_type, arg4_type,
+        arg5_type, Mutex>& s)
+        : _signal_base5<arg1_type, arg2_type, arg3_type, arg4_type,
+        arg5_type, Mutex>(s)
     {;}
 
     template <class desttype>
-        void connect(desttype* pclass, void (desttype::*pmemfun)(Arg1,
-        Arg2, Arg3, Arg4, Arg5))
+        void connect(desttype* pclass, void (desttype::*pmemfun)(arg1_type,
+        arg2_type, arg3_type, arg4_type, arg5_type))
     {
         lock_guard<Mutex> lock(*this);
-        _connection5<desttype, Arg1, Arg2, Arg3, Arg4,
-            Arg5, Mutex>* conn = new _connection5<desttype, Arg1, Arg2,
-            Arg3, Arg4, Arg5, Mutex>(pclass, pmemfun);
+        _connection5<desttype, arg1_type, arg2_type, arg3_type, arg4_type,
+            arg5_type, Mutex>* conn = new _connection5<desttype, arg1_type, arg2_type,
+            arg3_type, arg4_type, arg5_type, Mutex>(pclass, pmemfun);
             this->_connected_slots.push_back(conn);
         pclass->signal_connect(this);
     }
 
-    void emit_(Arg1 a1, Arg2 a2, Arg3 a3, Arg4 a4, Arg5 a5)
+    void emit_(arg1_type a1, arg2_type a2, arg3_type a3, arg4_type a4, arg5_type a5)
     {
         lock_guard<Mutex> lock(*this);
         typename __base_class::connections_list::const_iterator itNext, it = this->_connected_slots.begin();
@@ -2220,8 +2060,8 @@ public:
         }
     }
 
-    void operator()(Arg1 a1, Arg2 a2, Arg3 a3, Arg4 a4,
-        Arg5 a5)
+    void operator()(arg1_type a1, arg2_type a2, arg3_type a3, arg4_type a4,
+        arg5_type a5)
     {
         lock_guard<Mutex> lock(*this);
         typename __base_class::connections_list::const_iterator itNext, it = this->_connected_slots.begin();
@@ -2239,42 +2079,42 @@ public:
 };
 
 
-template <class Arg1, class Arg2, class Arg3, class Arg4,
-class Arg5, class Arg6, class Mutex = PFS_DEFAULT_MT_POLICY>
-class signal6 : public _signal_base6<Arg1, Arg2, Arg3,
-    Arg4, Arg5, Arg6, Mutex>
+template <class arg1_type, class arg2_type, class arg3_type, class arg4_type,
+class arg5_type, class arg6_type, class Mutex = PFS_DEFAULT_MT_POLICY>
+class signal6 : public _signal_base6<arg1_type, arg2_type, arg3_type,
+    arg4_type, arg5_type, arg6_type, Mutex>
 {
-    typedef _signal_base6<Arg1, Arg2, Arg3,
-            Arg4, Arg5, Arg6, Mutex> __base_class;
+    typedef _signal_base6<arg1_type, arg2_type, arg3_type,
+            arg4_type, arg5_type, arg6_type, Mutex> __base_class;
 public:
     signal6 ()
     {
         ;
     }
 
-    signal6(const signal6<Arg1, Arg2, Arg3, Arg4,
-        Arg5, Arg6, Mutex>& s)
-        : _signal_base6<Arg1, Arg2, Arg3, Arg4,
-        Arg5, Arg6, Mutex>(s)
+    signal6(const signal6<arg1_type, arg2_type, arg3_type, arg4_type,
+        arg5_type, arg6_type, Mutex>& s)
+        : _signal_base6<arg1_type, arg2_type, arg3_type, arg4_type,
+        arg5_type, arg6_type, Mutex>(s)
     {
         ;
     }
 
     template <class desttype>
-        void connect(desttype* pclass, void (desttype::*pmemfun)(Arg1,
-        Arg2, Arg3, Arg4, Arg5, Arg6))
+        void connect(desttype* pclass, void (desttype::*pmemfun)(arg1_type,
+        arg2_type, arg3_type, arg4_type, arg5_type, arg6_type))
     {
         lock_guard<Mutex> lock(*this);
-        _connection6<desttype, Arg1, Arg2, Arg3, Arg4,
-            Arg5, Arg6, Mutex>* conn =
-            new _connection6<desttype, Arg1, Arg2, Arg3,
-            Arg4, Arg5, Arg6, Mutex>(pclass, pmemfun);
+        _connection6<desttype, arg1_type, arg2_type, arg3_type, arg4_type,
+            arg5_type, arg6_type, Mutex>* conn =
+            new _connection6<desttype, arg1_type, arg2_type, arg3_type,
+            arg4_type, arg5_type, arg6_type, Mutex>(pclass, pmemfun);
             this->_connected_slots.push_back(conn);
         pclass->signal_connect(this);
     }
 
-    void emit_(Arg1 a1, Arg2 a2, Arg3 a3, Arg4 a4,
-        Arg5 a5, Arg6 a6)
+    void emit_(arg1_type a1, arg2_type a2, arg3_type a3, arg4_type a4,
+        arg5_type a5, arg6_type a6)
     {
         lock_guard<Mutex> lock(*this);
         typename __base_class::connections_list::const_iterator itNext, it = this->_connected_slots.begin();
@@ -2290,8 +2130,8 @@ public:
         }
     }
 
-    void operator()(Arg1 a1, Arg2 a2, Arg3 a3, Arg4 a4,
-        Arg5 a5, Arg6 a6)
+    void operator()(arg1_type a1, arg2_type a2, arg3_type a3, arg4_type a4,
+        arg5_type a5, arg6_type a6)
     {
         lock_guard<Mutex> lock(*this);
         typename __base_class::connections_list::const_iterator itNext, it = this->_connected_slots.begin();
@@ -2308,49 +2148,49 @@ public:
     }
 };
 
-template <class Arg1
-        , class Arg2
-        , class Arg3
-        , class Arg4
-        , class Arg5
-        , class Arg6
-        , class Arg7
+template <class arg1_type
+        , class arg2_type
+        , class arg3_type
+        , class arg4_type
+        , class arg5_type
+        , class arg6_type
+        , class arg7_type
         , class Mutex = PFS_DEFAULT_MT_POLICY>
-class signal7 : public _signal_base7<Arg1, Arg2, Arg3,
-    Arg4, Arg5, Arg6, Arg7, Mutex>
+class signal7 : public _signal_base7<arg1_type, arg2_type, arg3_type,
+    arg4_type, arg5_type, arg6_type, arg7_type, Mutex>
 {
-    typedef _signal_base7<Arg1, Arg2, Arg3,
-            Arg4, Arg5, Arg6, Arg7, Mutex> __base_class;
+    typedef _signal_base7<arg1_type, arg2_type, arg3_type,
+            arg4_type, arg5_type, arg6_type, arg7_type, Mutex> __base_class;
 public:
     signal7()
     {
         ;
     }
 
-    signal7(const signal7<Arg1, Arg2, Arg3, Arg4,
-        Arg5, Arg6, Arg7, Mutex>& s)
-        : _signal_base7<Arg1, Arg2, Arg3, Arg4,
-        Arg5, Arg6, Arg7, Mutex>(s)
+    signal7(const signal7<arg1_type, arg2_type, arg3_type, arg4_type,
+        arg5_type, arg6_type, arg7_type, Mutex>& s)
+        : _signal_base7<arg1_type, arg2_type, arg3_type, arg4_type,
+        arg5_type, arg6_type, arg7_type, Mutex>(s)
     {
         ;
     }
 
     template <class desttype>
-        void connect(desttype* pclass, void (desttype::*pmemfun)(Arg1,
-        Arg2, Arg3, Arg4, Arg5, Arg6,
-        Arg7))
+        void connect(desttype* pclass, void (desttype::*pmemfun)(arg1_type,
+        arg2_type, arg3_type, arg4_type, arg5_type, arg6_type,
+        arg7_type))
     {
         lock_guard<Mutex> lock(*this);
-        _connection7<desttype, Arg1, Arg2, Arg3, Arg4,
-            Arg5, Arg6, Arg7, Mutex>* conn =
-            new _connection7<desttype, Arg1, Arg2, Arg3,
-            Arg4, Arg5, Arg6, Arg7, Mutex>(pclass, pmemfun);
+        _connection7<desttype, arg1_type, arg2_type, arg3_type, arg4_type,
+            arg5_type, arg6_type, arg7_type, Mutex>* conn =
+            new _connection7<desttype, arg1_type, arg2_type, arg3_type,
+            arg4_type, arg5_type, arg6_type, arg7_type, Mutex>(pclass, pmemfun);
             this->_connected_slots.push_back(conn);
         pclass->signal_connect(this);
     }
 
-    void emit_(Arg1 a1, Arg2 a2, Arg3 a3, Arg4 a4,
-        Arg5 a5, Arg6 a6, Arg7 a7)
+    void emit_(arg1_type a1, arg2_type a2, arg3_type a3, arg4_type a4,
+        arg5_type a5, arg6_type a6, arg7_type a7)
     {
         lock_guard<Mutex> lock(*this);
         typename __base_class::connections_list::const_iterator itNext, it = this->_connected_slots.begin();
@@ -2367,8 +2207,8 @@ public:
         }
     }
 
-    void operator()(Arg1 a1, Arg2 a2, Arg3 a3, Arg4 a4,
-        Arg5 a5, Arg6 a6, Arg7 a7)
+    void operator()(arg1_type a1, arg2_type a2, arg3_type a3, arg4_type a4,
+        arg5_type a5, arg6_type a6, arg7_type a7)
     {
         lock_guard<Mutex> lock(*this);
         typename __base_class::connections_list::const_iterator itNext, it = this->_connected_slots.begin();
@@ -2386,20 +2226,20 @@ public:
     }
 };
 
-template <class Arg1
-        , class Arg2
-        , class Arg3
-        , class Arg4
-        , class Arg5
-        , class Arg6
-        , class Arg7
-        , class Arg8
+template <class arg1_type
+        , class arg2_type
+        , class arg3_type
+        , class arg4_type
+        , class arg5_type
+        , class arg6_type
+        , class arg7_type
+        , class arg8_type
         , class Mutex = PFS_DEFAULT_MT_POLICY>
-class signal8 : public _signal_base8<Arg1, Arg2, Arg3,
-    Arg4, Arg5, Arg6, Arg7, Arg8, Mutex>
+class signal8 : public _signal_base8<arg1_type, arg2_type, arg3_type,
+    arg4_type, arg5_type, arg6_type, arg7_type, arg8_type, Mutex>
 {
-    typedef _signal_base8<Arg1, Arg2, Arg3,
-    Arg4, Arg5, Arg6, Arg7, Arg8, Mutex> __base_class;
+    typedef _signal_base8<arg1_type, arg2_type, arg3_type,
+    arg4_type, arg5_type, arg6_type, arg7_type, arg8_type, Mutex> __base_class;
 
 public:
     signal8()
@@ -2407,31 +2247,31 @@ public:
         ;
     }
 
-    signal8 (const signal8<Arg1, Arg2, Arg3, Arg4,
-        Arg5, Arg6, Arg7, Arg8, Mutex>& s)
-        : _signal_base8<Arg1, Arg2, Arg3, Arg4,
-        Arg5, Arg6, Arg7, Arg8, Mutex>(s)
+    signal8 (const signal8<arg1_type, arg2_type, arg3_type, arg4_type,
+        arg5_type, arg6_type, arg7_type, arg8_type, Mutex>& s)
+        : _signal_base8<arg1_type, arg2_type, arg3_type, arg4_type,
+        arg5_type, arg6_type, arg7_type, arg8_type, Mutex>(s)
     {
         ;
     }
 
     template <class desttype>
-        void connect(desttype* pclass, void (desttype::*pmemfun)(Arg1,
-        Arg2, Arg3, Arg4, Arg5, Arg6,
-        Arg7, Arg8))
+        void connect(desttype* pclass, void (desttype::*pmemfun)(arg1_type,
+        arg2_type, arg3_type, arg4_type, arg5_type, arg6_type,
+        arg7_type, arg8_type))
     {
         lock_guard<Mutex> lock(*this);
-        _connection8<desttype, Arg1, Arg2, Arg3, Arg4,
-            Arg5, Arg6, Arg7, Arg8, Mutex>* conn =
-            new _connection8<desttype, Arg1, Arg2, Arg3,
-            Arg4, Arg5, Arg6, Arg7,
-            Arg8, Mutex>(pclass, pmemfun);
+        _connection8<desttype, arg1_type, arg2_type, arg3_type, arg4_type,
+            arg5_type, arg6_type, arg7_type, arg8_type, Mutex>* conn =
+            new _connection8<desttype, arg1_type, arg2_type, arg3_type,
+            arg4_type, arg5_type, arg6_type, arg7_type,
+            arg8_type, Mutex>(pclass, pmemfun);
             this->_connected_slots.push_back(conn);
         pclass->signal_connect(this);
     }
 
-    void emit_(Arg1 a1, Arg2 a2, Arg3 a3, Arg4 a4,
-        Arg5 a5, Arg6 a6, Arg7 a7, Arg8 a8)
+    void emit_(arg1_type a1, arg2_type a2, arg3_type a3, arg4_type a4,
+        arg5_type a5, arg6_type a6, arg7_type a7, arg8_type a8)
     {
         lock_guard<Mutex> lock(*this);
         typename __base_class::connections_list::const_iterator itNext, it = this->_connected_slots.begin();
@@ -2447,8 +2287,8 @@ public:
         }
     }
 
-    void operator()(Arg1 a1, Arg2 a2, Arg3 a3, Arg4 a4,
-        Arg5 a5, Arg6 a6, Arg7 a7, Arg8 a8)
+    void operator()(arg1_type a1, arg2_type a2, arg3_type a3, arg4_type a4,
+        arg5_type a5, arg6_type a6, arg7_type a7, arg8_type a8)
     {
         lock_guard<Mutex> lock(*this);
         typename __base_class::connections_list::const_iterator itNext, it = this->_connected_slots.begin();
@@ -2465,5 +2305,7 @@ public:
     }
 };
 
-} // pfs::v2
+} // pfs
+
+#endif // __PFS_CXX98_SIGSLOT_HPP__
 

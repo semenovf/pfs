@@ -60,57 +60,10 @@ namespace pfs {
 namespace app {
 
 template <PFS_MODULUS_TEMPLETE_SIGNATURE>
-inline void modulus<PFS_MODULUS_TEMPLETE_ARGS>::module::register_thread_function (thread_function tfunc)
+inline void modulus<PFS_MODULUS_TEMPLETE_ARGS>::basic_module::register_thread_function (thread_function tfunc)
 {
     _pdispatcher->_runnable_modules.push_back(pfs::make_pair(this, tfunc));
 }
-
-//template <PFS_MODULUS_TEMPLETE_SIGNATURE>
-//void modulus<PFS_MODULUS_TEMPLETE_ARGS>::module::register_log_consumer (logger::priority priority
-//        , void (module::* log_consumer)(module const *, datetime const &, string_type const &))
-//{
-//    switch (priority.value) {
-//    case logger::priority::debug:
-//        _pdispatcher->_emit_debug.connect(this, log_consumer);
-//        break;
-//    case logger::priority::info:
-//        _pdispatcher->_emit_info.connect(this, log_consumer);
-//        break;
-//    case logger::priority::warn:
-//        _pdispatcher->_emit_warn.connect(this, log_consumer);
-//        break;
-//    case logger::priority::error:
-//    case logger::priority::fatal:
-//        _pdispatcher->_emit_error.connect(this, log_consumer);
-//        break;
-//    default:
-//		break;
-//    }
-//}
-
-//template <PFS_MODULUS_TEMPLETE_SIGNATURE>
-//void modulus<PFS_MODULUS_TEMPLETE_ARGS>::module::unregister_log_consumer (logger::priority priority
-//        , void (module::* log_consumer)(module const *, datetime const &, string_type const &))
-//{
-//    switch (priority.value) {
-//    case logger::priority::debug:
-//        this->_pdispatcher->_emit_debug.disconnect(this, log_consumer);
-//        break;
-//    case logger::priority::info:
-//        this->_pdispatcher->_emit_info.disconnect(this, log_consumer);
-//        break;
-//    case logger::priority::warn:
-//        this->_pdispatcher->_emit_warn.disconnect(this, log_consumer);
-//        break;
-//    case logger::priority::error:
-//    case logger::priority::fatal:
-//        this->_pdispatcher->_emit_error.disconnect(this, log_consumer);
-//        break;
-//    default:
-//		break;
-//    }
-//}
-
 
 }}
 #endif /* __PFS_V2_MODULE_HPP__ */

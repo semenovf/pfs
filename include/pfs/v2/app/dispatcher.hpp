@@ -79,7 +79,7 @@ bool modulus<PFS_MODULUS_TEMPLETE_ARGS>::dispatcher::start ()
 
     for (; first != last; ++first) {
         module_spec modspec = first->second;
-        shared_ptr<module> pmodule = modspec.pmodule;
+        shared_ptr<basic_module> pmodule = modspec.pmodule;
 
         if (! pmodule->on_start()) {
             _logger.error(fmt("failed to start module: %s") % pmodule->name());
@@ -111,7 +111,7 @@ void modulus<PFS_MODULUS_TEMPLETE_ARGS>::dispatcher::unregister_all ()
 
     for (; first != last; ++first) {
         module_spec & modspec = first->second;
-        shared_ptr<module> & pmodule = modspec.pmodule;
+        shared_ptr<basic_module> & pmodule = modspec.pmodule;
         pmodule->emit_module_registered.disconnect(this);
         _logger.debug(fmt("%s: unregistered") % (pmodule->name()));
 
@@ -133,11 +133,11 @@ void modulus<PFS_MODULUS_TEMPLETE_ARGS>::dispatcher::finalize ()
 
 template <PFS_MODULUS_TEMPLETE_SIGNATURE>
 bool modulus<PFS_MODULUS_TEMPLETE_ARGS>::dispatcher::register_local_module (
-          module * pmodule
+          basic_module * pmodule
         , string_type const & name)
 {
     module_spec modspec;
-    modspec.pmodule = shared_ptr<module>(pmodule);
+    modspec.pmodule = shared_ptr<basic_module>(pmodule);
     modspec.pmodule->set_name(name);
     return register_module(modspec);
 }
@@ -204,14 +204,14 @@ modulus<PFS_MODULUS_TEMPLETE_ARGS>::dispatcher::module_for_path (
     module_dtor_t module_dtor = pfs::void_func_ptr_cast<module_dtor_t>(dtor);
 
     //module * ptr = reinterpret_cast<module *>(module_ctor(class_name, mod_data));
-    module * ptr = module_ctor(this, class_name, mod_data);
+    basic_module * ptr = module_ctor(this, class_name, mod_data);
 
     if (!ptr)
         return module_spec();
 
     module_spec result;
     result.pdl = pdl;
-    result.pmodule = shared_ptr<module>(ptr, module_deleter(module_dtor));
+    result.pmodule = shared_ptr<basic_module>(ptr, module_deleter(module_dtor));
 
     return result;
 }
@@ -225,7 +225,7 @@ bool modulus<PFS_MODULUS_TEMPLETE_ARGS>::dispatcher::register_module (
     if (!modspec.pmodule)
         return false;
 
-    shared_ptr<module> pmodule = modspec.pmodule;
+    shared_ptr<basic_module> pmodule = modspec.pmodule;
 
     if (_module_spec_map.find(pmodule->name()) != _module_spec_map.end()) {
         _logger.error(fmt("%s: module already registered") % (pmodule->name()));
@@ -233,7 +233,7 @@ bool modulus<PFS_MODULUS_TEMPLETE_ARGS>::dispatcher::register_module (
     }
 
     pmodule->emit_quit.connect(this, & dispatcher::broadcast_quit);
-    this->emit_quit.connect(pmodule.get(), & module::on_quit);
+    this->emit_quit.connect(pmodule.get(), & basic_module::on_quit);
 
     if (!pmodule->on_loaded()) {
         _logger.error(fmt("%s: on_loaded stage failed") % pmodule->name());
@@ -507,7 +507,7 @@ void modulus<PFS_MODULUS_TEMPLETE_ARGS>::dispatcher::set_master_module (
 
     for (; first != last; ++first) {
         module_spec modspec = first->second;
-        shared_ptr<module> pmodule = modspec.pmodule;
+        shared_ptr<basic_module> pmodule = modspec.pmodule;
 
         if (pmodule->name() == name)
             _master_module_ptr = pmodule.get();
@@ -527,7 +527,7 @@ int modulus<PFS_MODULUS_TEMPLETE_ARGS>::dispatcher::exec_main ()
     thread_function master_thread_function = 0;
 
     for (; irunnable != irunnable_last; ++irunnable) {
-        module * m = irunnable->first;
+        basic_module * m = irunnable->first;
         thread_function tfunc = irunnable->second;
 
         // Run module if it is not a master

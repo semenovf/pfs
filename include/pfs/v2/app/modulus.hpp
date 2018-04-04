@@ -79,32 +79,34 @@ template <typename StringType
     , int GcThreshold = 256>
 struct modulus
 {
+    class basic_module;
     class module;
+    class async_module;
     class dispatcher;
 
     typedef StringType      string_type;
     typedef logger::logger<StringType> logger_type;
     typedef signal1<void *> emitter_type;
 
-    typedef void (module::* detector_handler)(void *);
+    typedef void (basic_module::* detector_handler)(void *);
     typedef struct { int id; void * emitter; }            emitter_mapper_pair;
     typedef struct { int id; detector_handler detector; } detector_mapper_pair;
 
-    typedef module * (* module_ctor_t)(dispatcher * pdisp, char const * name, void *);
-    typedef void  (* module_dtor_t)(module *);
+    typedef basic_module * (* module_ctor_t)(dispatcher * pdisp, char const * name, void *);
+    typedef void  (* module_dtor_t)(basic_module *);
 
     struct detector_pair
     {
-        module *         mod;
+        basic_module *   mod;
         detector_handler detector;
 
-        detector_pair () : module(0), detector(0) {}
-        detector_pair (module * p, detector_handler d) : mod(p), detector(d) {}
+        detector_pair () : mod(0), detector(0) {}
+        detector_pair (basic_module * p, detector_handler d) : mod(p), detector(d) {}
     };
 
     struct module_spec
     {
-        shared_ptr<module>          pmodule;
+        shared_ptr<basic_module>    pmodule;
         shared_ptr<dynamic_library> pdl;
     };
 
@@ -116,7 +118,7 @@ struct modulus
             : _deleter(deleter)
         {}
 
-        void operator () (module * p) const
+        void operator () (basic_module * p) const
         {
             _deleter(p);
         }
@@ -127,7 +129,7 @@ struct modulus
         virtual void connect_all () = 0;
         virtual void disconnect_all () = 0;
         virtual void append_emitter (emitter_type *e) = 0;
-        virtual void append_detector (module * m, detector_handler d) = 0;
+        virtual void append_detector (basic_module * m, detector_handler d) = 0;
     };
 
     struct api_item_type
@@ -180,7 +182,7 @@ struct modulus
             emitters.push_back(reinterpret_cast<EmitterType*>(e));
         }
 
-        virtual void append_detector (module * m, detector_handler d)
+        virtual void append_detector (basic_module * m, detector_handler d)
         {
             detectors.push_back(detector_pair(m, d));
         }
@@ -194,9 +196,9 @@ struct modulus
               traits::kv<string_type, module_spec>
             , AssociativeContainer>             module_spec_map_type;
 
-    typedef int (module::*thread_function)();
+    typedef int (basic_module::*thread_function)();
 
-    typedef traits::sequence_container<pfs::pair<module *, thread_function>
+    typedef traits::sequence_container<pfs::pair<basic_module *, thread_function>
             , SequenceContainer>                runnable_sequence_type;
 
     typedef traits::sequence_container<shared_ptr<pfs::thread>
@@ -206,7 +208,7 @@ struct modulus
             , BasicLockable
             , GcThreshold>                      active_queue_type;
 
-    class module : public has_slots<>
+    class basic_module// : public basic_has_slots<>
     {
         friend class dispatcher;
 
@@ -222,22 +224,22 @@ struct modulus
         signal2<string_type const &, bool &> emit_module_registered;
 
     public:
-        void print_info (module const * m, string_type const & s)
+        void print_info (basic_module const * m, string_type const & s)
         {
             _pdispatcher->print_info(m, s);
         }
 
-    	void print_debug (module const * m, string_type const & s)
+    	void print_debug (basic_module const * m, string_type const & s)
         {
             _pdispatcher->print_debug(m, s);
         }
 
-    	void print_warn (module const * m, string_type const & s)
+    	void print_warn (basic_module const * m, string_type const & s)
         {
             _pdispatcher->print_warn(m, s);
         }
 
-    	void print_error (module const * m, string_type const & s)
+    	void print_error (basic_module const * m, string_type const & s)
         {
             _pdispatcher->print_error(m, s);
         }
@@ -248,7 +250,7 @@ struct modulus
         atomic_int   _quitfl; // quit flag
 
     protected:
-        module (dispatcher * pdisp)
+        basic_module (dispatcher * pdisp)
             : _pdispatcher(pdisp)
             , _quitfl(0)
         {}
@@ -259,7 +261,7 @@ struct modulus
         }
 
     public:
-        virtual ~module () {}
+        virtual ~basic_module () {}
 
         string_type const & name() const
         {
@@ -282,20 +284,6 @@ struct modulus
         }
 
         void register_thread_function (thread_function tfunc);
-
-        typedef void (module::* log_consumer)(module const *, datetime const &, string_type const &);
-
-//        template <typename ConcreteModule>
-//        log_consumer cast_log_consumer (void (ConcreteModule::* logconsumer)(module const *, datetime const &, string_type const &))
-//        {
-//            return static_cast<log_consumer>(logconsumer);
-//        }
-
-//        void register_log_consumer (logger::priority priority
-//                , void (module::* consumer)(module const *, datetime const &, string_type const &));
-//
-//        void unregister_log_consumer (logger::priority priority
-//                , void (module::* consumer)(module const *, datetime const &, string_type const &));
 
         virtual emitter_mapper_pair const * get_emitters (int & count)
         {
@@ -341,37 +329,51 @@ struct modulus
         {
             _quitfl = 1;
         }
-    };// module
+    };// basic_module
 
-    struct sigslot_mapping0 : sigslot_mapper<signal0<>, void (module::*)()> {};
+    class module : public basic_module, public has_slots<>
+    {
+    public:
+        module (dispatcher * pdisp) : basic_module(pdisp), has_slots<>() {}
+    };
+
+    class async_module : public basic_module, public has_async_slots<active_queue_type>
+    {
+    public:
+        async_module (dispatcher * pdisp) : basic_module(pdisp), has_async_slots<active_queue_type>() {}
+    };
+
+    struct sigslot_mapping0 : sigslot_mapper<signal0<>, void (basic_module::*)()> {};
 
     template <typename a1>
-    struct sigslot_mapping1 : sigslot_mapper<signal1<a1>, void (module::*)(a1)> {};
+    struct sigslot_mapping1 : sigslot_mapper<signal1<a1>, void (basic_module::*)(a1)> {};
 
     template <typename a1, typename a2>
-    struct sigslot_mapping2 : sigslot_mapper<signal2<a1, a2>, void (module::*)(a1, a2)> {};
+    struct sigslot_mapping2 : sigslot_mapper<signal2<a1, a2>, void (basic_module::*)(a1, a2)> {};
 
     template <typename a1, typename a2, typename a3>
-    struct sigslot_mapping3 : sigslot_mapper<signal3<a1, a2, a3>, void (module::*)(a1, a2, a3)> {};
+    struct sigslot_mapping3 : sigslot_mapper<signal3<a1, a2, a3>, void (basic_module::*)(a1, a2, a3)> {};
 
     template <typename a1, typename a2, typename a3, typename a4>
-    struct sigslot_mapping4 : sigslot_mapper<signal4<a1, a2, a3, a4>, void (module::*)(a1, a2, a3, a4)> {};
+    struct sigslot_mapping4 : sigslot_mapper<signal4<a1, a2, a3, a4>, void (basic_module::*)(a1, a2, a3, a4)> {};
 
     template <typename a1, typename a2, typename a3, typename a4, typename a5>
-    struct sigslot_mapping5 : sigslot_mapper<signal5<a1, a2, a3, a4, a5>, void (module::*)(a1, a2, a3, a4, a5)> {};
+    struct sigslot_mapping5 : sigslot_mapper<signal5<a1, a2, a3, a4, a5>, void (basic_module::*)(a1, a2, a3, a4, a5)> {};
 
     template <typename a1, typename a2, typename a3, typename a4, typename a5, typename a6>
-    struct sigslot_mapping6 : sigslot_mapper<signal6<a1, a2, a3, a4, a5, a6>, void (module::*)(a1, a2, a3, a4, a5, a6)> {};
+    struct sigslot_mapping6 : sigslot_mapper<signal6<a1, a2, a3, a4, a5, a6>, void (basic_module::*)(a1, a2, a3, a4, a5, a6)> {};
 
     template <typename a1, typename a2, typename a3, typename a4, typename a5, typename a6, typename a7>
-    struct sigslot_mapping7 : sigslot_mapper<signal7<a1, a2, a3, a4, a5, a6, a7>, void (module::*)(a1, a2, a3, a4, a5, a6, a7)> {};
+    struct sigslot_mapping7 : sigslot_mapper<signal7<a1, a2, a3, a4, a5, a6, a7>, void (basic_module::*)(a1, a2, a3, a4, a5, a6, a7)> {};
 
     template <typename a1, typename a2, typename a3, typename a4, typename a5, typename a6, typename a7, typename a8>
-    struct sigslot_mapping8 : sigslot_mapper<signal8<a1, a2, a3, a4, a5, a6, a7, a8>, void (module::*)(a1, a2, a3, a4, a5, a6, a7, a8)> {};
+    struct sigslot_mapping8 : sigslot_mapper<signal8<a1, a2, a3, a4, a5, a6, a7, a8>, void (basic_module::*)(a1, a2, a3, a4, a5, a6, a7, a8)> {};
 
     class dispatcher : basic_dispatcher, public has_slots<>
     {
+        friend class basic_module;
         friend class module;
+        friend class async_module;
 
         typedef safeformat<StringType> fmt;
 
@@ -458,7 +460,7 @@ struct modulus
         template <typename Json>
         bool register_modules (Json const & conf);
 
-    	bool register_local_module (module * pmodule, string_type const & name);
+    	bool register_local_module (basic_module * pmodule, string_type const & name);
 
     	bool register_module_for_path (filesystem::path const & path
     			, string_type const & name
@@ -501,25 +503,25 @@ struct modulus
     		emit_quit();
     	}
 
-        void print_info (module const * m, string_type const & s)
+        void print_info (basic_module const * m, string_type const & s)
         {
             _callback_queue.template push_method<logger_type, string_type const &>(
                     & logger_type::info, & _logger, (m != 0 ? m->name() + ": " + s : s));
         }
 
-        void print_debug (module const * m, string_type const & s)
+        void print_debug (basic_module const * m, string_type const & s)
         {
             _callback_queue.template push_method<logger_type, string_type const &>(
                     & logger_type::debug, & _logger, (m != 0 ? m->name() + ": " + s : s));
         }
 
-        void print_warn (module const * m, string_type const & s)
+        void print_warn (basic_module const * m, string_type const & s)
         {
             _callback_queue.template push_method<logger_type, string_type const &>(
                     & logger_type::warn, & _logger, (m != 0 ? m->name() + ": " + s : s));
         }
 
-        void print_error (module const * m, string_type const & s)
+        void print_error (basic_module const * m, string_type const & s)
         {
             _callback_queue.template push_method<logger_type, string_type const &>(
                     & logger_type::error, & _logger, (m != 0 ? m->name() + ": " + s : s));
@@ -566,7 +568,7 @@ struct modulus
         api_map_type           _api;
         module_spec_map_type   _module_spec_map;
         runnable_sequence_type _runnable_modules; // modules run in a separate threads
-        module *               _master_module_ptr;
+        basic_module *         _master_module_ptr;
         logger_type            _logger;
         active_queue_type      _callback_queue;
     }; // class dispatcher

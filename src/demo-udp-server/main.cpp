@@ -6,7 +6,7 @@
 #include <pfs/traits/stdcxx/vector.hpp>
 #include <pfs/traits/stdcxx/map.hpp>
 #include <pfs/safeformat.hpp>
-#include <pfs/sigslot.hpp>
+#include <pfs/v2/sigslot.hpp>
 #include <pfs/io/device_manager.hpp>
 #include <pfs/io/inet_server.hpp>
 #include <pfs/net/inet4_addr.hpp>

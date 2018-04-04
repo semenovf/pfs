@@ -109,6 +109,12 @@ inline typename Traits::json_type const & params (typename Traits::json_type con
 }
 
 template <typename Traits>
+inline typename Traits::json_type const & result (typename Traits::json_type const & d)
+{
+    return d["result"];
+}
+
+template <typename Traits>
 inline bool is_request (typename Traits::json_type const & d)
 {
     return d.contains("method") && d.contains("id");
