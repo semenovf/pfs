@@ -67,228 +67,227 @@ class appender;
 class logger
 {
 private:
-	typedef traits::sequence_container<
+    typedef traits::sequence_container<
               appender *
             , SequenceContainer>           appender_sequence;
-	typedef typename sigslot_ns::template signal3<priority, datetime const &, string_type const &> emitter_type;
+    typedef typename sigslot_ns::template signal3<priority, datetime const &, string_type const &> emitter_type;
 
 private:
-	struct data_t
-	{
-		priority          _priority;
-		appender_sequence _appenders;
-		emitter_type      _emitters[static_cast<size_t>(priority::count)];
-	};
+    struct data_t {
+        priority          _priority;
+        appender_sequence _appenders;
+        emitter_type      _emitters[static_cast<size_t> ( priority::count )];
+    };
 
-	unique_ptr<data_t> _d;
+    unique_ptr<data_t> _d;
 
 public:
-	logger ()
+    logger ()
 #if __cplusplus >= 201103L
-		: _d(make_unique<data_t>())
+        : _d(make_unique<data_t>())
 #else
         : _d(new data_t)
 #endif
-	{
-		_d->_priority = priority::trace;
-	}
+    {
+        _d->_priority = priority::trace;
+    }
 
-	~logger ()
-	{
+    ~logger ()
+    {
         typename appender_sequence::iterator it   = _d->_appenders.begin();
         typename appender_sequence::iterator last = _d->_appenders.end();
 
         for (; it != last; ++it)
             delete *it;
 
-    	_d->_appenders.clear();
-	}
+        _d->_appenders.clear();
+    }
 
     void swap (logger & other)
     {
         _d.swap(other._d);
     }
 
-	template <typename Appender>
-	appender & add_appender ()
-	{
-		//_d->_appenders.emplace_back(make_shared<Appender>());
-        _d->_appenders.push_back(new Appender);
-		return *_d->_appenders.back();
-	}
+    template <typename Appender>
+    appender & add_appender ()
+    {
+        //_d->_appenders.emplace_back(make_shared<Appender>());
+        _d->_appenders.push_back ( new Appender );
+        return *_d->_appenders.back();
+    }
 
     // TODO Implement add_appender using C++ variadic templates
 //#if __cplusplus < 201103L
-	template <typename Appender, typename Arg1>
-	appender & add_appender (Arg1 a1)
-	{
-		//_d->_appenders.emplace_back(make_shared<Appender>(a1)); // Valid for C++11
-        _d->_appenders.push_back(new Appender(a1));
-		return *_d->_appenders.back();
-	}
+    template <typename Appender, typename Arg1>
+    appender & add_appender ( Arg1 a1 )
+    {
+        //_d->_appenders.emplace_back(make_shared<Appender>(a1)); // Valid for C++11
+        _d->_appenders.push_back ( new Appender ( a1 ) );
+        return *_d->_appenders.back();
+    }
 
-	template <typename Appender, typename Arg1, typename Arg2>
-	appender & add_appender (Arg1 a1, Arg2 a2)
-	{
-		//_d->_appenders.emplace_back(make_shared<Appender>(a1, a2)); // Valid for C++11
-        _d->_appenders.push_back(new Appender(a1, a2));
-		return *_d->_appenders.back();
-	}
+    template <typename Appender, typename Arg1, typename Arg2>
+    appender & add_appender ( Arg1 a1, Arg2 a2 )
+    {
+        //_d->_appenders.emplace_back(make_shared<Appender>(a1, a2)); // Valid for C++11
+        _d->_appenders.push_back ( new Appender ( a1, a2 ) );
+        return *_d->_appenders.back();
+    }
 
-	template <typename Appender, typename Arg1, typename Arg2, typename Arg3>
-	appender & add_appender (Arg1 a1, Arg2 a2, Arg3 a3)
-	{
-		//_d->_appenders.emplace_back(make_shared<Appender>(a1, a2, a3)); // Valid for C++11
-        _d->_appenders.push_back(new Appender(a1, a2, a3));
-		return *_d->_appenders.back();
-	}
+    template <typename Appender, typename Arg1, typename Arg2, typename Arg3>
+    appender & add_appender ( Arg1 a1, Arg2 a2, Arg3 a3 )
+    {
+        //_d->_appenders.emplace_back(make_shared<Appender>(a1, a2, a3)); // Valid for C++11
+        _d->_appenders.push_back ( new Appender ( a1, a2, a3 ) );
+        return *_d->_appenders.back();
+    }
 
-	template <typename Appender, typename Arg1, typename Arg2, typename Arg3, typename Arg4>
-	appender & add_appender (Arg1 a1, Arg2 a2, Arg3 a3, Arg4 a4)
-	{
-		//_d->_appenders.emplace_back(make_shared<Appender>(a1, a2, a3, a4)); // Valid for C++11
-        _d->_appenders.push_back(new Appender(a1, a2, a3, a4));
-		return *_d->_appenders.back();
-	}
+    template <typename Appender, typename Arg1, typename Arg2, typename Arg3, typename Arg4>
+    appender & add_appender ( Arg1 a1, Arg2 a2, Arg3 a3, Arg4 a4 )
+    {
+        //_d->_appenders.emplace_back(make_shared<Appender>(a1, a2, a3, a4)); // Valid for C++11
+        _d->_appenders.push_back ( new Appender ( a1, a2, a3, a4 ) );
+        return *_d->_appenders.back();
+    }
 
-	template <typename Appender, typename Arg1, typename Arg2, typename Arg3, typename Arg4, typename Arg5>
-	appender & add_appender (Arg1 a1, Arg2 a2, Arg3 a3, Arg4 a4, Arg5 a5)
-	{
-		//_d->_appenders.emplace_back(make_shared<Appender>(a1, a2, a3, a4, a5)); // Valid for C++11
-        _d->_appenders.push_back(new Appender(a1, a2, a3, a4, a5));
-		return *_d->_appenders.back();
-	}
+    template <typename Appender, typename Arg1, typename Arg2, typename Arg3, typename Arg4, typename Arg5>
+    appender & add_appender ( Arg1 a1, Arg2 a2, Arg3 a3, Arg4 a4, Arg5 a5 )
+    {
+        //_d->_appenders.emplace_back(make_shared<Appender>(a1, a2, a3, a4, a5)); // Valid for C++11
+        _d->_appenders.push_back ( new Appender ( a1, a2, a3, a4, a5 ) );
+        return *_d->_appenders.back();
+    }
 
-	template <typename Appender, typename Arg1, typename Arg2, typename Arg3, typename Arg4, typename Arg5, typename Arg6>
-	appender & add_appender (Arg1 a1, Arg2 a2, Arg3 a3, Arg4 a4, Arg5 a5, Arg6 a6)
-	{
-		//_d->_appenders.emplace_back(make_shared<Appender>(a1, a2, a3, a4, a5, a6)); // Valid for C++11
-        _d->_appenders.push_back(new Appender(a1, a2, a3, a4, a5, a6));
-		return *_d->_appenders.back();
-	}
+    template <typename Appender, typename Arg1, typename Arg2, typename Arg3, typename Arg4, typename Arg5, typename Arg6>
+    appender & add_appender ( Arg1 a1, Arg2 a2, Arg3 a3, Arg4 a4, Arg5 a5, Arg6 a6 )
+    {
+        //_d->_appenders.emplace_back(make_shared<Appender>(a1, a2, a3, a4, a5, a6)); // Valid for C++11
+        _d->_appenders.push_back ( new Appender ( a1, a2, a3, a4, a5, a6 ) );
+        return *_d->_appenders.back();
+    }
 
-	template <typename Appender, typename Arg1, typename Arg2, typename Arg3, typename Arg4, typename Arg5, typename Arg6, typename Arg7>
-	appender & add_appender (Arg1 a1, Arg2 a2, Arg3 a3, Arg4 a4, Arg5 a5, Arg6 a6, Arg7 a7)
-	{
-		//_d->_appenders.emplace_back(make_shared<Appender>(a1, a2, a3, a4, a5, a6, a7)); // Valid for C++11
-        _d->_appenders.push_back(new Appender(a1, a2, a3, a4, a5, a6, a7));
-		return *_d->_appenders.back();
-	}
+    template <typename Appender, typename Arg1, typename Arg2, typename Arg3, typename Arg4, typename Arg5, typename Arg6, typename Arg7>
+    appender & add_appender ( Arg1 a1, Arg2 a2, Arg3 a3, Arg4 a4, Arg5 a5, Arg6 a6, Arg7 a7 )
+    {
+        //_d->_appenders.emplace_back(make_shared<Appender>(a1, a2, a3, a4, a5, a6, a7)); // Valid for C++11
+        _d->_appenders.push_back ( new Appender ( a1, a2, a3, a4, a5, a6, a7 ) );
+        return *_d->_appenders.back();
+    }
 
-	template <typename Appender, typename Arg1, typename Arg2, typename Arg3, typename Arg4, typename Arg5, typename Arg6, typename Arg7, typename Arg8>
-	appender & add_appender (Arg1 a1, Arg2 a2, Arg3 a3, Arg4 a4, Arg5 a5, Arg6 a6, Arg7 a7, Arg8 a8)
-	{
-		//_d->_appenders.emplace_back(make_shared<Appender>(a1, a2, a3, a4, a5, a6, a7, a8)); // Valid for C++11
-        _d->_appenders.push_back(new Appender(a1, a2, a3, a4, a5, a6, a7, a8));
-		return *_d->_appenders.back();
-	}
+    template <typename Appender, typename Arg1, typename Arg2, typename Arg3, typename Arg4, typename Arg5, typename Arg6, typename Arg7, typename Arg8>
+    appender & add_appender ( Arg1 a1, Arg2 a2, Arg3 a3, Arg4 a4, Arg5 a5, Arg6 a6, Arg7 a7, Arg8 a8 )
+    {
+        //_d->_appenders.emplace_back(make_shared<Appender>(a1, a2, a3, a4, a5, a6, a7, a8)); // Valid for C++11
+        _d->_appenders.push_back ( new Appender ( a1, a2, a3, a4, a5, a6, a7, a8 ) );
+        return *_d->_appenders.back();
+    }
 //#else
 //#	error "Need to implement `add_appender` using variadic templates"
 //#endif
 
-	void print (priority level, datetime const & dt, string_type const & msg)
-	{
-		if (level.value >= _d->_priority && level.value != priority::no_priority)
-			_d->_emitters[level](level, dt, msg);
-	}
-
-	void connect (priority level, appender & ap)
+    void print ( priority level, datetime const & dt, string_type const & msg )
     {
-        PFS_ASSERT(level >= 0 && level < priority::count);
-      	_d->_emitters[level].connect(& ap, & appender::print_helper);
+        if ( level.value >= _d->_priority && level.value != priority::no_priority )
+            _d->_emitters[level] ( level, dt, msg );
     }
 
-	void connect (appender & ap)
+    void connect ( priority level, appender & ap )
     {
-        _d->_emitters[priority::trace].connect(& ap, & appender::print_helper);
-        _d->_emitters[priority::debug].connect(& ap, & appender::print_helper);
-        _d->_emitters[priority::info].connect(& ap, & appender::print_helper);
-        _d->_emitters[priority::warn].connect(& ap, & appender::print_helper);
-        _d->_emitters[priority::error].connect(& ap, & appender::print_helper);
-        _d->_emitters[priority::fatal].connect(& ap, & appender::print_helper);
+        PFS_ASSERT ( level >= 0 && level < priority::count );
+        _d->_emitters[level].connect ( & ap, & appender::print_helper );
     }
 
-  	void disconnect (appender & ap)
+    void connect ( appender & ap )
     {
-        _d->_emitters[priority::trace].disconnect(& ap);
-        _d->_emitters[priority::debug].disconnect(& ap);
-        _d->_emitters[priority::info].disconnect(& ap);
-        _d->_emitters[priority::warn].disconnect(& ap);
-        _d->_emitters[priority::error].disconnect(& ap);
-        _d->_emitters[priority::fatal].disconnect(& ap);
+        _d->_emitters[priority::trace].connect ( & ap, & appender::print_helper );
+        _d->_emitters[priority::debug].connect ( & ap, & appender::print_helper );
+        _d->_emitters[priority::info].connect ( & ap, & appender::print_helper );
+        _d->_emitters[priority::warn].connect ( & ap, & appender::print_helper );
+        _d->_emitters[priority::error].connect ( & ap, & appender::print_helper );
+        _d->_emitters[priority::fatal].connect ( & ap, & appender::print_helper );
     }
 
-	void disconnect (int level)
+    void disconnect ( appender & ap )
     {
-        PFS_ASSERT(level >= 0 && level < priority::count);
+        _d->_emitters[priority::trace].disconnect ( & ap );
+        _d->_emitters[priority::debug].disconnect ( & ap );
+        _d->_emitters[priority::info].disconnect ( & ap );
+        _d->_emitters[priority::warn].disconnect ( & ap );
+        _d->_emitters[priority::error].disconnect ( & ap );
+        _d->_emitters[priority::fatal].disconnect ( & ap );
+    }
+
+    void disconnect ( int level )
+    {
+        PFS_ASSERT ( level >= 0 && level < priority::count );
         _d->_emitters[level].disconnect_all();
     }
 
-	void disconnect_all ()
+    void disconnect_all ()
     {
-      	for (int i = 0; i < priority::count; ++i)
-    		_d->_emitters[i].disconnect_all();
+        for ( int i = 0; i < priority::count; ++i )
+            _d->_emitters[i].disconnect_all();
     }
 
     void remove_disconnected ()
     {
         typename appender_sequence::iterator it   = _d->_appenders.begin();
 
-        for (; it != _d->_appenders.end(); ) {
-            if ((*it)->count() == 0) { // No signal connected
+        for ( ; it != _d->_appenders.end(); ) {
+            if ( ( *it )->count() == 0 ) { // No signal connected
                 delete *it;
-                it = _d->_appenders.erase(it);
+                it = _d->_appenders.erase ( it );
             } else {
                 ++it;
             }
         }
     }
 
-	void set_priority (priority pri)
-	{
-		_d->_priority = pri;
-	}
+    void set_priority ( priority pri )
+    {
+        _d->_priority = pri;
+    }
 
-	int get_priority ()
-	{
-		return _d->_priority;
-	}
+    int get_priority ()
+    {
+        return _d->_priority;
+    }
 
-	void trace (string_type const & text)
-	{
-		print(priority::trace, current_datetime(), text);
-	}
+    void trace ( string_type const & text )
+    {
+        print ( priority::trace, current_datetime(), text );
+    }
 
-	void debug (string_type const & text)
-	{
-		print(priority::debug, current_datetime(), text);
-	}
+    void debug ( string_type const & text )
+    {
+        print ( priority::debug, current_datetime(), text );
+    }
 
-	void info  (string_type const & text)
-	{
-		print(priority::info, current_datetime(), text);
-	}
+    void info ( string_type const & text )
+    {
+        print ( priority::info, current_datetime(), text );
+    }
 
-	void warn  (string_type const & text)
-	{
-		print(priority::warn, current_datetime(), text);
-	}
+    void warn ( string_type const & text )
+    {
+        print ( priority::warn, current_datetime(), text );
+    }
 
-	void error (string_type const & text)
-	{
-		print(priority::error, current_datetime(), text);
-	}
+    void error ( string_type const & text )
+    {
+        print ( priority::error, current_datetime(), text );
+    }
 
-	void critical (string_type const & text)
-	{
-		print(priority::critical, current_datetime(), text);
-		abort();
-	}
+    void critical ( string_type const & text )
+    {
+        print ( priority::critical, current_datetime(), text );
+        abort();
+    }
 
-	void fatal (string_type const & text)
-	{
-		critical(text);
-	}
+    void fatal ( string_type const & text )
+    {
+        critical ( text );
+    }
 };
 
 class appender : public sigslot_ns::has_slots
@@ -299,18 +298,18 @@ public:
     typedef StringType string_type;
 
 protected:
-	string_type _pattern;
+    string_type _pattern;
     string_type _priority_text[static_cast<size_t>(priority::count) - 1]; // excluding no_priority
 
 protected:
-	virtual void print (priority level, datetime const & dt, string_type const & msg) = 0;
+    virtual void print ( priority level, datetime const & dt, string_type const & msg ) = 0;
 
-	void print_helper (priority level, datetime const & dt, string_type const & msg)
-	{
-		print(level, dt, _pattern.empty()
-				? msg
-				: patternify(this, level, dt, _pattern, msg));
-	}
+    void print_helper ( priority level, datetime const & dt, string_type const & msg )
+    {
+        print ( level, dt, _pattern.empty()
+                ? msg
+                : patternify ( this, level, dt, _pattern, msg ) );
+    }
 
     void init ()
     {
@@ -326,21 +325,21 @@ protected:
      * Each conversion specifier starts with a percent sign (%)
      * and is followed by optional format modifiers and a conversion character.
      *
-     * Format modifier 	left justify 	minimum width 	maximum width 	comment
-     * %20m 	        false        	20 				none 			Left pad with spaces if the message is less than 20 characters long.
-     * %-20m 			true 			20 				none 			Right pad with spaces if the message is less than 20 characters long.
-     * %.30m 			NA 				none 			30 				Truncate from the beginning if the message is longer than 30 characters.
-     * %20.30m 			false 			20 				30 				Left pad with spaces if the message is shorter than 20 characters.
+     * Format modifier  left justify    minimum width   maximum width   comment
+     * %20m             false           20              none            Left pad with spaces if the message is less than 20 characters long.
+     * %-20m            true            20              none            Right pad with spaces if the message is less than 20 characters long.
+     * %.30m            NA              none            30              Truncate from the beginning if the message is longer than 30 characters.
+     * %20.30m          false           20              30              Left pad with spaces if the message is shorter than 20 characters.
      *                                                                  However, if message is longer than 30 characters, then truncate from the beginning.
-     * %-20.30m 		true 			20 				30 				Right pad with spaces if the message is shorter than 20 characters.
+     * %-20.30m         true            20              30              Right pad with spaces if the message is shorter than 20 characters.
      *                                                                  However, if message is longer than 30 characters, then truncate from the beginning.
      *
      * Conversation characters
-     * m 	message associated with the logging event.
-     * d	date of the logging event. The date conversion specifier may be followed
-     * 		by a date format specifier enclosed between braces.
-     * 		For example, %d{HH:mm:ss,SSS} or %d{dd MMM yyyy HH:mm:ss,SSS}.
-     * 		If no date format specifier is given then ISO8601 format is assumed.
+     * m    message associated with the logging event.
+     * d    date of the logging event. The date conversion specifier may be followed
+     *      by a date format specifier enclosed between braces.
+     *      For example, %d{HH:mm:ss,SSS} or %d{dd MMM yyyy HH:mm:ss,SSS}.
+     *      If no date format specifier is given then ISO8601 format is assumed.
      * p    Priority (Trace, Debug, Info etc.).
      * n    new line
      * t    horizontal tab
@@ -529,7 +528,7 @@ protected:
         transition_type const * p_pattern_tr;
     };
 
-	static string_type patternify (appender * a
+    static string_type patternify (appender * a
         , priority level
         , datetime const & dt
         , string_type const & pattern
@@ -557,32 +556,32 @@ protected:
     }
 
 public:
-	appender ()
-		: _pattern("%m")
-	{
+    appender ()
+        : _pattern ( "%m" )
+    {
         init();
     }
 
-	appender (string_type const & pattern)
-		: _pattern(pattern)
-	{
+    appender ( string_type const & pattern )
+        : _pattern ( pattern )
+    {
         init();
     }
 
-	virtual ~appender ()
-	{}
+    virtual ~appender ()
+    {}
 
     virtual bool is_open () const = 0;
 
-	string_type pattern () const
-	{
-		return _pattern;
-	}
+    string_type pattern () const
+    {
+        return _pattern;
+    }
 
-	void set_pattern (string_type const & pattern)
-	{
-		_pattern = pattern;
-	}
+    void set_pattern ( string_type const & pattern )
+    {
+        _pattern = pattern;
+    }
 
     string_type priority_text (priority pri) const
     {
@@ -636,9 +635,9 @@ class file_appender : public appender
     fstream_type _d;
 
 public:
-	file_appender () : appender() {}
+    file_appender () : appender() {}
 
-	file_appender (filesystem::path const & path)
+    file_appender (filesystem::path const & path)
 #if __cplusplus >= 201103L
         : _d(path.native(), std::ios::out)
 #else
@@ -652,10 +651,10 @@ public:
     }
 
 protected:
-	virtual void print (priority, datetime const &, StringType const & msg) pfs_override
-	{
+    virtual void print (priority, datetime const &, StringType const & msg) pfs_override
+    {
         _d << msg.native() << "\n";
-	}
+    }
 };
 
 }; // log

@@ -278,7 +278,7 @@ public:
         return _p1.fetch_devices(filter, context);
     }
 
-  	void fetch_servers (server_sequence & servers
+    void fetch_servers (server_sequence & servers
             , bool (* filter) (server const & s, void * context)
             , void * context)
     {

@@ -6,7 +6,6 @@
 #include "pfs/v2/app/modulus.hpp"
 #include "pfs/assert.hpp"
 
-
 namespace pfs {
 namespace app {
 
@@ -31,7 +30,7 @@ static void __signal_handler (int signum)
         case SIGABRT:
         case SIGILL:
         case SIGFPE:
-            __active_dispatcher->emit_quit();
+            __active_dispatcher->quit();
             break;
         }
     }

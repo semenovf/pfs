@@ -3,7 +3,6 @@
 
 #include "modulus.hpp"
 
-
 namespace pfs {
 namespace app {
 
@@ -16,19 +15,19 @@ modulus<PFS_MODULUS_TEMPLETE_ARGS>::dispatcher::dispatcher (
     , _quitfl(0)
 {
     // Initialize default logger
-    typename logger_type::appender_type & cout_appender
-            = _logger.template add_appender<logger::stdout_appender<string_type> >();
-    typename logger_type::appender_type & cerr_appender
-            = _logger.template add_appender<logger::stderr_appender<string_type> >();
+    typename log_ns::appender & cout_appender
+            = _logger.template add_appender<typename log_ns::stdout_appender>();
+    typename log_ns::appender & cerr_appender
+            = _logger.template add_appender<typename log_ns::stderr_appender>();
     cout_appender.set_pattern("%d{ABSOLUTE} [%p]: %m");
     cerr_appender.set_pattern("%d{ABSOLUTE} [%p]: %m");
 
-    _logger.connect(pfs::logger::priority::trace   , cout_appender);
-    _logger.connect(pfs::logger::priority::debug   , cout_appender);
-    _logger.connect(pfs::logger::priority::info    , cout_appender);
-    _logger.connect(pfs::logger::priority::warn    , cerr_appender);
-    _logger.connect(pfs::logger::priority::error   , cerr_appender);
-    _logger.connect(pfs::logger::priority::critical, cerr_appender);
+    _logger.connect(log_ns::priority::trace   , cout_appender);
+    _logger.connect(log_ns::priority::debug   , cout_appender);
+    _logger.connect(log_ns::priority::info    , cout_appender);
+    _logger.connect(log_ns::priority::warn    , cerr_appender);
+    _logger.connect(log_ns::priority::error   , cerr_appender);
+    _logger.connect(log_ns::priority::critical, cerr_appender);
 
     this->_emit_quit.connect(this, & dispatcher::on_quit);
 
@@ -61,11 +60,11 @@ void modulus<PFS_MODULUS_TEMPLETE_ARGS>::dispatcher::run ()
 {
     while (! _quitfl) {
         // FIXME Use condition_variable to wait until _callback_queue will not be empty.
-        if (_callback_queue.empty()) {
+        if (this->_queue_ptr->empty()) {
             pfs::this_thread::sleep_for(pfs::chrono::milliseconds(100));
             continue;
         }
-        _callback_queue.call_all();
+        this->_queue_ptr->call_all();
     }
 }
 
@@ -232,7 +231,7 @@ bool modulus<PFS_MODULUS_TEMPLETE_ARGS>::dispatcher::register_module (
         return false;
     }
 
-    pmodule->emit_quit.connect(this, & dispatcher::broadcast_quit);
+    pmodule->emit_quit.connect(this, & dispatcher::quit);
     this->_emit_quit.connect(pmodule.get(), & basic_module::on_quit);
 
     if (!pmodule->on_loaded()) {
@@ -352,90 +351,90 @@ bool modulus<PFS_MODULUS_TEMPLETE_ARGS>::dispatcher::register_modules (
     JsonType disp = conf["dispatcher"];
 
     if (! disp.is_null()) {
-    	if (not disp.is_object()) {
-        	_logger.error("dispatcher configuration error");
-    		return false;
-    	}
+        if (not disp.is_object()) {
+            _logger.error("dispatcher configuration error");
+            return false;
+        }
 
-    	JsonType dlog = disp["log"];
+        JsonType dlog = disp["log"];
 
-    	if (dlog.is_object()) {
-    		logger::logger<string_type> logger;
-    		typename JsonType::const_iterator it = dlog.cbegin();
-    		typename JsonType::const_iterator last = dlog.cend();
+        if (dlog.is_object()) {
+            logger_type logger;
+            typename JsonType::const_iterator it = dlog.cbegin();
+            typename JsonType::const_iterator last = dlog.cend();
 
-    		for (; it != last; ++it) {
-    			string_type name = it.key();
-    			JsonType priority = *it;
-    			stringlist<string_type> priorities;
-    			logger::appender<typename JsonType::string_type> * pappender = 0;
+            for (; it != last; ++it) {
+                string_type name = it.key();
+                JsonType priority = *it;
+                stringlist<string_type> priorities;
+                typename log_ns::appender * pappender = 0;
 
-    			if (name == "stdout") {
-    				pappender = & logger.template add_appender<logger::stdout_appender<string_type> >();
-    			} else if (name == "stderr") {
-    				pappender = & logger.template add_appender<logger::stderr_appender<string_type> >();
-    			} else {
+                if (name == "stdout") {
+                    pappender = & logger.template add_appender<typename log_ns::stdout_appender>();
+                } else if (name == "stderr") {
+                    pappender = & logger.template add_appender<typename log_ns::stderr_appender>();
+                } else {
                     // Construct path from pattern
-    				filesystem::path path(to_string<string_type>(current_datetime(), name).native()); // `name` is a pattern here
-    				pappender = & logger.template add_appender<logger::file_appender<string_type> >(path);
+                    filesystem::path path(to_string<string_type>(current_datetime(), name).native()); // `name` is a pattern here
+                    pappender = & logger.template add_appender<typename log_ns::file_appender>(path);
 
                     if (! pappender->is_open()) {
                         pfs::error_code ec = pfs::get_last_system_error();
-    					_logger.error(fmt("Failed to create/open log file: %s: %s")
-    							(to_string<string_type>(path))
-    							(to_string<string_type>(ec)).str());
-    					return false;
+                        _logger.error(fmt("Failed to create/open log file: %s: %s")
+                                     (to_string<string_type>(path))
+                                     (to_string<string_type>(ec)).str());
+                        return false;
                     }
-    			}
+                }
 
-    			PFS_ASSERT(pappender);
+                PFS_ASSERT(pappender);
 
                 // FIXME must be configurable {
                 pappender->set_pattern("%d{ABSOLUTE} [%p]: %m");
-                pappender->set_priority_text(logger::priority::trace, "T");
-                pappender->set_priority_text(logger::priority::debug, "D");
-                pappender->set_priority_text(logger::priority::info , "I");
-                pappender->set_priority_text(logger::priority::warn , "W");
-                pappender->set_priority_text(logger::priority::error, "E");
-                pappender->set_priority_text(logger::priority::fatal, "F");
+                pappender->set_priority_text(log_ns::priority::trace, "T");
+                pappender->set_priority_text(log_ns::priority::debug, "D");
+                pappender->set_priority_text(log_ns::priority::info , "I");
+                pappender->set_priority_text(log_ns::priority::warn , "W");
+                pappender->set_priority_text(log_ns::priority::error, "E");
+                pappender->set_priority_text(log_ns::priority::fatal, "F");
                 // }
 
-    			if (priority.is_string()) {
-    				priorities.push_back(priority.template get<string_type>());
-    			} else if (priority.is_array()) {
-    				for (typename JsonType::const_iterator pri = priority.cbegin()
+                if (priority.is_string()) {
+                    priorities.push_back(priority.template get<string_type>());
+                } else if (priority.is_array()) {
+                    for (typename JsonType::const_iterator pri = priority.cbegin()
                             ; pri != priority.cend(); ++pri) {
-    					priorities.push_back(pri->template get<string_type>());
-    				}
-    			}
+                        priorities.push_back(pri->template get<string_type>());
+                    }
+                }
 
-        		for (typename stringlist<string_type>::const_iterator pri = priorities.cbegin()
+                for (typename stringlist<string_type>::const_iterator pri = priorities.cbegin()
                         ; pri != priorities.cend(); ++pri) {
-        			if (*pri == "all") {
-        				logger.connect(*pappender);
-        			} else if (*pri == "trace") {
-        				logger.connect(logger::priority::trace, *pappender);
-        			} else if (*pri == "debug") {
-        				logger.connect(logger::priority::debug, *pappender);
-        			} else if (*pri == "info") {
-        				logger.connect(logger::priority::info, *pappender);
-        			} else if (*pri == "warn") {
-        				logger.connect(logger::priority::warn, *pappender);
-        			} else if (*pri == "error") {
-        				logger.connect(logger::priority::error, *pappender);
-        			} else if (*pri == "fatal") {
-        				logger.connect(logger::priority::fatal, *pappender);
-        			} else {
-    					_logger.error(fmt("Invalid log level name "
-                                "(must be 'all', 'trace', 'debug', 'info', 'warn', 'error' or 'fatal'): '%s'")
-    							% *pri);
-    					return false;
-        			}
-        		}
-    		}
+                    if (*pri == "all") {
+                        logger.connect(*pappender);
+                    } else if (*pri == "trace") {
+                        logger.connect(log_ns::priority::trace, *pappender);
+                    } else if (*pri == "debug") {
+                        logger.connect(log_ns::priority::debug, *pappender);
+                    } else if (*pri == "info") {
+                        logger.connect(log_ns::priority::info, *pappender);
+                    } else if (*pri == "warn") {
+                        logger.connect(log_ns::priority::warn, *pappender);
+                    } else if (*pri == "error") {
+                        logger.connect(log_ns::priority::error, *pappender);
+                    } else if (*pri == "fatal") {
+                        logger.connect(log_ns::priority::fatal, *pappender);
+                    } else {
+                        _logger.error(fmt("Invalid log level name "
+                                         "(must be 'all', 'trace', 'debug', 'info', 'warn', 'error' or 'fatal'): '%s'")
+                                     % *pri);
+                        return false;
+                    }
+                }
+            }
 
-    		_logger.swap(logger);
-    	}
+            _logger.swap(logger);
+        }
     }
 
     JsonType modules = conf["modules"];
@@ -445,38 +444,38 @@ bool modulus<PFS_MODULUS_TEMPLETE_ARGS>::dispatcher::register_modules (
     bool result = true;
 
     for (; it != it_end; ++it) {
-    	if (it->is_object()) {
-    		string_type name_str = (*it)["name"].template get<string_type>();
-    		string_type path_str = (*it)["path"].template get<string_type>();
-    		bool is_active  = (*it)["active"].template get<bool>();
-    		bool is_master  = (*it)["master-module"].template get<bool>();
+        if (it->is_object()) {
+            string_type name_str = (*it)["name"].template get<string_type>();
+            string_type path_str = (*it)["path"].template get<string_type>();
+            bool is_active  = (*it)["active"].template get<bool>();
+            bool is_master  = (*it)["master-module"].template get<bool>();
 
-    		if (name_str.empty()) {
-    	    	_logger.error("found anonymous module");
-    	    	return false;
-    		}
+            if (name_str.empty()) {
+                _logger.error("found anonymous module");
+                return false;
+            }
 
-    		if (is_active) {
-    			bool rc = false;
+            if (is_active) {
+                bool rc = false;
 
-    			if (path_str.empty())
-    				rc = register_module_for_name(name_str, 0, & *it);
-    			else
-    				rc = register_module_for_path(
-                              pfs::filesystem::path(path_str.native())
-                            , name_str, 0, & *it);
+                if (path_str.empty())
+                    rc = register_module_for_name(name_str, 0, & *it);
+                else
+                    rc = register_module_for_path(
+                             filesystem::path(path_str.native())
+                             , name_str, 0, & *it);
 
-    			if (rc) {
-    				if (is_master) {
-    					set_master_module(name_str);
-    				}
-    			} else {
-    				result = false;
-    			}
-    		} else {
-    			_logger.debug(fmt("%s: module is inactive")(name_str).str());
-    		}
-    	}
+                if (rc) {
+                    if (is_master) {
+                        set_master_module(name_str);
+                    }
+                } else {
+                    result = false;
+                }
+            } else {
+                _logger.debug(fmt("%s: module is inactive")(name_str).str());
+            }
+        }
     }
 
     return result;

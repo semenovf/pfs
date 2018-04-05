@@ -91,7 +91,8 @@ struct modulus
     typedef sigslot<callback_queue_type, BasicLockable> sigslot_ns;
 
     typedef StringType      string_type;
-    typedef typename log<StringType, sigslot_ns, SequenceContainer>::logger logger_type;
+    typedef log<StringType, sigslot_ns, SequenceContainer> log_ns;
+    typedef typename log_ns::logger logger_type;
     typedef typename sigslot_ns::template signal1<void *> emitter_type;
 
     typedef void (basic_module::* detector_handler)(void *);
@@ -214,7 +215,7 @@ struct modulus
     {
         friend class dispatcher;
 
-        typedef typename sigslot_ns::basic_has_slots base_class;
+        //typedef typename sigslot_ns::basic_has_slots base_class;
 
     public:
         typedef StringType string_type;
@@ -224,7 +225,7 @@ struct modulus
         typedef modulus::thread_function      thread_function;
 
     public: // signals
-        typename sigslot_ns::template signal0<>                            emit_quit;
+        typename sigslot_ns::signal0  emit_quit;
         typename sigslot_ns::template signal2<string_type const &, bool &> emit_module_registered;
 
     public:
@@ -255,8 +256,8 @@ struct modulus
 
     protected:
         basic_module (dispatcher * pdisp)
-            : base_class()
-            , _pdispatcher(pdisp)
+            //: base_class()
+            : _pdispatcher(pdisp)
             , _quitfl(0)
         {}
 
@@ -340,7 +341,7 @@ struct modulus
     // Body must be identical to sigslot's has_slots
     // TODO Reimeplement to avoid code duplication
     //
-    class module : public basic_module
+    class module : public basic_module//, public sigslot_ns::has_slots
     {
     public:
         module (dispatcher * pdisp) : basic_module(pdisp) {}
@@ -351,42 +352,69 @@ struct modulus
     // Body must be identical to sigslot's has_async_slots
     // TODO Reimeplement to avoid code duplication
     //
-    class async_module : public basic_module
+    class async_module : public basic_module//, public sigslot_ns::has_async_slots
     {
     public:
         async_module (dispatcher * pdisp) : basic_module(pdisp)
         {
-            _queue_ptr = make_unique<callback_queue_type>();
+            this->_queue_ptr = make_unique<callback_queue_type>();
         }
 
         virtual bool use_async_slots () const pfs_override { return true; }
     };
 
-    struct sigslot_mapping0 : sigslot_mapper<typename sigslot_ns::signal0, void (basic_module::*)()> {};
+    struct sigslot_mapping0
+        : sigslot_mapper<typename sigslot_ns::signal0
+                , void (basic_module::*)()>
+    {};
 
-    template <typename a1>
-    struct sigslot_mapping1 : sigslot_mapper<typename sigslot_ns::template signal1<a1>, void (basic_module::*)(a1)> {};
+    template <typename A1>
+    struct sigslot_mapping1
+        : sigslot_mapper<typename sigslot_ns::template signal1<A1>
+                , void (basic_module::*)(A1)>
+    {};
 
-    template <typename a1, typename a2>
-    struct sigslot_mapping2 : sigslot_mapper<typename sigslot_ns::template signal2<a1, a2>, void (basic_module::*)(a1, a2)> {};
+    template <typename A1, typename A2>
+    struct sigslot_mapping2
+        : sigslot_mapper<typename sigslot_ns::template signal2<A1, A2>
+                , void (basic_module::*)(A1, A2)>
+    {};
 
-    template <typename a1, typename a2, typename a3>
-    struct sigslot_mapping3 : sigslot_mapper<typename sigslot_ns::template signal3<a1, a2, a3>, void (basic_module::*)(a1, a2, a3)> {};
+    template <typename A1, typename A2, typename A3>
+    struct sigslot_mapping3
+        : sigslot_mapper<typename sigslot_ns::template signal3<A1, A2, A3>
+                , void (basic_module::*)(A1, A2, A3)>
+    {};
 
-    template <typename a1, typename a2, typename a3, typename a4>
-    struct sigslot_mapping4 : sigslot_mapper<typename sigslot_ns::template signal4<a1, a2, a3, a4>, void (basic_module::*)(a1, a2, a3, a4)> {};
+    template <typename A1, typename A2, typename A3, typename A4>
+    struct sigslot_mapping4
+        : sigslot_mapper<typename sigslot_ns::template signal4<A1, A2, A3, A4>
+                , void (basic_module::*)(A1, A2, A3, A4)>
+    {};
 
-//     template <typename a1, typename a2, typename a3, typename a4, typename a5>
-//     struct sigslot_mapping5 : sigslot_mapper<sigslot_ns::signal5<a1, a2, a3, a4, a5>, void (basic_module::*)(a1, a2, a3, a4, a5)> {};
-//
-//     template <typename a1, typename a2, typename a3, typename a4, typename a5, typename a6>
-//     struct sigslot_mapping6 : sigslot_mapper<sigslot_ns::signal6<a1, a2, a3, a4, a5, a6>, void (basic_module::*)(a1, a2, a3, a4, a5, a6)> {};
-//
-//     template <typename a1, typename a2, typename a3, typename a4, typename a5, typename a6, typename a7>
-//     struct sigslot_mapping7 : sigslot_mapper<sigslot_ns::signal7<a1, a2, a3, a4, a5, a6, a7>, void (basic_module::*)(a1, a2, a3, a4, a5, a6, a7)> {};
-//
-//     template <typename a1, typename a2, typename a3, typename a4, typename a5, typename a6, typename a7, typename a8>
-//     struct sigslot_mapping8 : sigslot_mapper<sigslot_ns::signal8<a1, a2, a3, a4, a5, a6, a7, a8>, void (basic_module::*)(a1, a2, a3, a4, a5, a6, a7, a8)> {};
+    template <typename A1, typename A2, typename A3, typename A4, typename A5>
+    struct sigslot_mapping5
+        : sigslot_mapper<typename sigslot_ns::template signal5<A1, A2, A3, A4, A5>
+                , void (basic_module::*)(A1, A2, A3, A4, A5)>
+    {};
+
+    template <typename A1, typename A2, typename A3, typename A4, typename A5, typename A6>
+    struct sigslot_mapping6
+        : sigslot_mapper<typename sigslot_ns::template signal6<A1, A2, A3, A4, A5, A6>
+                , void (basic_module::*)(A1, A2, A3, A4, A5, A6)>
+    {};
+
+    template <typename A1, typename A2, typename A3, typename A4, typename A5, typename A6, typename A7>
+    struct sigslot_mapping7
+        : sigslot_mapper<typename sigslot_ns::template signal7<A1, A2, A3, A4, A5, A6, A7>
+                , void (basic_module::*)(A1, A2, A3, A4, A5, A6, A7)>
+    {};
+
+    template <typename A1, typename A2, typename A3, typename A4, typename A5, typename A6, typename A7, typename A8>
+    struct sigslot_mapping8
+        : sigslot_mapper<typename sigslot_ns::template signal8<A1, A2, A3, A4, A5, A6, A7, A8>
+                , void (basic_module::*)(A1, A2, A3, A4, A5, A6, A7, A8)>
+    {};
 
     class dispatcher : basic_dispatcher, public sigslot_ns::has_async_slots
     {
@@ -517,37 +545,32 @@ struct modulus
         }
 
     public: // slots
-    	void module_registered (string_type const & pname, bool & result)
-    	{
-    		result = is_module_registered(pname);
-    	}
-
-    	void broadcast_quit ()
-    	{
-    		_emit_quit();
-    	}
+        void module_registered ( string_type const & pname, bool & result )
+        {
+            result = is_module_registered ( pname );
+        }
 
         void print_info (basic_module const * m, string_type const & s)
         {
-            _callback_queue.template push_method<logger_type, string_type const &>(
+            this->_queue_ptr->template push_method<logger_type, string_type const &>(
                     & logger_type::info, & _logger, (m != 0 ? m->name() + ": " + s : s));
         }
 
         void print_debug (basic_module const * m, string_type const & s)
         {
-            _callback_queue.template push_method<logger_type, string_type const &>(
+            this->_queue_ptr->template push_method<logger_type, string_type const &>(
                     & logger_type::debug, & _logger, (m != 0 ? m->name() + ": " + s : s));
         }
 
         void print_warn (basic_module const * m, string_type const & s)
         {
-            _callback_queue.template push_method<logger_type, string_type const &>(
+            this->_queue_ptr->template push_method<logger_type, string_type const &>(
                     & logger_type::warn, & _logger, (m != 0 ? m->name() + ": " + s : s));
         }
 
         void print_error (basic_module const * m, string_type const & s)
         {
-            _callback_queue.template push_method<logger_type, string_type const &>(
+            this->_queue_ptr->template push_method<logger_type, string_type const &>(
                     & logger_type::error, & _logger, (m != 0 ? m->name() + ": " + s : s));
         }
 
@@ -572,22 +595,22 @@ struct modulus
         }
 
     protected:
-    	module_spec module_for_path (filesystem::path const & path
-    			, char const * class_name = 0
-    			, void * mod_data = 0);
+        module_spec module_for_path ( filesystem::path const & path
+                , char const * class_name = 0
+                , void * mod_data = 0 );
 
-    	module_spec module_for_name (string_type const & name
-    			, char const * class_name = 0
-    			, void * mod_data = 0)
-    	{
-    		filesystem::path modpath = build_so_filename(name.native());
-    		return module_for_path(modpath, class_name, mod_data);
-    	}
+        module_spec module_for_name ( string_type const & name
+                , char const * class_name = 0
+                , void * mod_data = 0 )
+        {
+            filesystem::path modpath = build_so_filename ( name.native() );
+            return module_for_path ( modpath, class_name, mod_data );
+        }
 
-    	bool register_module (module_spec const & modspec);
+        bool register_module ( module_spec const & modspec );
 
     private:
-        sigslot_ns::signal0    _emit_quit;
+        typename sigslot_ns::signal0    _emit_quit;
         atomic_int _quitfl; // quit flag
         filesystem::pathlist   _searchdirs;
         api_map_type           _api;
@@ -595,7 +618,6 @@ struct modulus
         runnable_sequence_type _runnable_modules; // modules run in a separate threads
         basic_module *         _master_module_ptr;
         logger_type            _logger;
-        callback_queue_type    _callback_queue;
     }; // class dispatcher
 }; // struct modulus
 
