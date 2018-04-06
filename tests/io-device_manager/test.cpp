@@ -23,7 +23,8 @@ using vector_traits = pfs::stdcxx::vector<T>;
 template <typename T>
 using list_traits = pfs::stdcxx::list<T>;
 
-using device_manager = pfs::io::device_manager<list_traits
+using device_manager = pfs::io::device_manager<pfs::sigslot<>
+        ,list_traits
         , vector_traits
         , map_traits>;
 

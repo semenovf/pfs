@@ -3,11 +3,10 @@
 #include <unistd.h>
 #include "pfs/system_error.hpp"
 #include "pfs/safeformat.hpp"
-#include "pfs/v2/app/modulus.hpp"
+#include "pfs/modulus.hpp"
 #include "pfs/assert.hpp"
 
 namespace pfs {
-namespace app {
 
 static basic_dispatcher * __active_dispatcher = 0;
 
@@ -80,5 +79,5 @@ void basic_dispatcher::deactivate_posix_signal_handling ()
     __active_dispatcher = 0;
 }
 
-}}
+} // pfs
 

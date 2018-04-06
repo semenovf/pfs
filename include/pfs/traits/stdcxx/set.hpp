@@ -1,5 +1,4 @@
-#ifndef __PFS_TRAITS_STDCXX_SET_HPP__
-#define __PFS_TRAITS_STDCXX_SET_HPP__
+#pragma once
 
 #include <set>
 #include <pfs/traits/value_ref.hpp>
@@ -21,11 +20,11 @@ class basic_set
 public:
     typedef basic_set<T, traits::container_value<T, set_wrapper> >     container_value_type;
     typedef basic_set<T, traits::container_reference<T, set_wrapper> > container_reference_type;
-    
+
     typedef typename internal_type::native_type            native_type;
     typedef typename internal_type::native_reference       native_reference;
     typedef typename internal_type::const_native_reference const_native_reference;
-    
+
     typedef typename native_type::value_type       value_type;
     //typedef typename native_type::const_pointer    const_pointer;
     //typedef typename native_type::reference        reference;
@@ -36,15 +35,15 @@ public:
     typedef typename native_type::const_reverse_iterator const_reverse_iterator;
     typedef typename native_type::difference_type  difference_type;
     typedef typename native_type::size_type        size_type;
-    
+
     typedef typename native_type::key_type         key_type;
-    
+
     typedef typename native_type::key_compare      key_compare;
     typedef typename native_type::value_compare    value_compare;
 
 protected:
     internal_type _p;
-    
+
 public:
     basic_set ()
     {}
@@ -56,7 +55,7 @@ public:
     basic_set (const_native_reference rhs)
         : _p(rhs)
     {}
-    
+
 //    set (const_pointer s)
 //        : _p(s)
 //    {}
@@ -65,7 +64,7 @@ public:
 //    basic_string (InputIt first, InputIt last)
 //        : _p(first, last)
 //    {}
-    
+
     basic_set & operator = (native_reference rhs)
     {
         *_p = rhs;
@@ -96,28 +95,28 @@ public:
     {
         return _p->begin();
     }
-    
+
     const_iterator begin () const
     {
         return _p->begin();
     }
-    
+
     iterator end ()
     {
         return _p->end();
     }
-    
+
     const_iterator end () const
     {
         return _p->end();
     }
-    
+
 #if __cplusplus >= 201103L
     const_iterator cbegin () const
     {
         return _p->cbegin();
     }
-    
+
     const_iterator cend () const
     {
         return _p->cend();
@@ -127,55 +126,55 @@ public:
     {
         return _p->begin();
     }
-    
+
     const_iterator cend () const
     {
         return _p->end();
     }
-#endif    
+#endif
 
     // *** CAPACITY ***
-    // 
+    //
 
     size_type size () const pfs_noexcept
     {
         return _p->size();
     }
-    
+
     size_type max_size () const pfs_noexcept
     {
         return _p->max_size();
     }
-    
+
     bool empty () const pfs_noexcept
     {
         return _p->empty();
     }
-    
+
     // *** MODIFIERS ***
     //
-    
+
     void clear() pfs_noexcept
     {
         _p->clear();
     }
-    
+
     std::pair<iterator,bool> insert (value_type const & value)
     {
         return _p->insert(value);
     }
-    
+
     iterator erase (const_iterator pos)
     {
 #if __cplusplus >= 201103L
         return _p->erase(pos);
-#else        
+#else
         //
-        // C++ prior to C++11 
+        // C++ prior to C++11
         // erase() has signature `void erase(iterator pos)`
         //
         iterator it(pos);
-        
+
         if (pos != end()) {
             ++it;
             _p->erase(it);
@@ -183,7 +182,7 @@ public:
         return it;
 #endif
     }
-    
+
     iterator erase (const_iterator first, const_iterator last)
     {
 #if __cplusplus >= 201103L
@@ -195,16 +194,16 @@ public:
         return l;
 #endif
     }
-    
+
     // FIXME
 //    void swap (container & rhs)
 //    {
 //        _p->swap(*rhs._p);
 //    }
-    
+
     // *** NON-MEMBER FUNCTIONS (OPERATORS) ***
     //
-    
+
     friend inline bool operator == (basic_set const & lhs
         , basic_set const & rhs)
     {
@@ -227,17 +226,17 @@ public:
 
     // *** LOOKUP ***
     //
-    
+
     iterator find (key_type const & key)
     {
         return _p->find(key);
     }
-    
+
     const_iterator find (key_type const & key) const
     {
         return _p->find(key);
     }
-    
+
     // *************************************************************************
     // } END Requirements for associative container traits
     // *************************************************************************
@@ -252,7 +251,7 @@ public:
     typedef typename base_class::native_type            native_type;
     typedef typename base_class::native_reference       native_reference;
     typedef typename base_class::const_native_reference const_native_reference;
-    
+
 public:
     set ()
         : base_class()
@@ -276,7 +275,7 @@ public:
     typedef typename base_class::native_type            native_type;
     typedef typename base_class::native_reference       native_reference;
     typedef typename base_class::const_native_reference const_native_reference;
-    
+
 public:
     set_reference ()
         : base_class()
@@ -292,5 +291,3 @@ public:
 };
 
 }} // pfs::stdcxx
-
-#endif /* __PFS_TRAITS_STDCXX_SET_HPP__ */

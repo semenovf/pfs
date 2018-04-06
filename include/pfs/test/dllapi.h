@@ -1,8 +1,8 @@
-#ifndef __PFS_DLLAPI_H__
-#define __PFS_DLLAPI_H__
+#pragma once
 
-// http://support.microsoft.com/default.aspx?scid=KB;EN-US;168958
-// see pfs/global.h
+//
+// [Microsoft Support: What is a DLL?](https://support.microsoft.com/en-us/help/815065/what-is-a-dll)
+//
 #ifdef DLL_API
 #    undef DLL_API
 #endif
@@ -19,5 +19,3 @@
 #   define DLL_API_IMPORT
 #   define DLL_API
 #endif
-
-#endif /* __PFS_DLLAPI_H__ */

@@ -1,5 +1,7 @@
 !.gitignore
+
 .settings/
+.build/
 .kdev4/
 .idea/
 .project

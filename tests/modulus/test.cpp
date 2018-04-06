@@ -2,18 +2,18 @@
 #include <pfs/test/test.hpp>
 #include <pfs/string.hpp>
 #include <pfs/traits/stdcxx/string.hpp>
-#include <pfs/v2/app/modulus.hpp>
+#include <pfs/modulus.hpp>
 
 typedef pfs::string<pfs::stdcxx::string> string_t;
-typedef pfs::app::modulus<string_t>      modulus_t;
-typedef modulus_t::module                module_t;
-typedef modulus_t::async_module          async_module_t;
-typedef modulus_t::dispatcher            dispatcher_t;
+typedef pfs::modulus<string_t>      modulus_ns;
+// typedef modulus_t::module           module_t;
+// typedef modulus_t::async_module     async_module_t;
+//typedef modulus_t::dispatcher       dispatcher_t;
 
-class module : public module_t
+class module : public modulus_ns::module
 {
 public:
-    module (dispatcher_t * pdisp) : module_t(pdisp)
+    module (modulus_ns::dispatcher * pdisp) : modulus_ns::module(pdisp)
     {}
 
     ~module ()
@@ -58,13 +58,13 @@ public:
     PFS_V2_MODULE_DETECTORS_END
 
 public: /*signal*/
-    modulus_t::sigslot_ns::signal0 emitZeroArg;
-    modulus_t::sigslot_ns::signal1<bool> emitOneArg;
-    modulus_t::sigslot_ns::signal2<bool, char> emitTwoArgs;
-    modulus_t::sigslot_ns::signal3<bool, char, short> emitThreeArgs;
-    modulus_t::sigslot_ns::signal4<bool, char, short, int> emitFourArgs;
-    modulus_t::sigslot_ns::signal5<bool, char, short, int, long> emitFiveArgs;
-    modulus_t::sigslot_ns::signal6<bool, char, short, int, long, const char*> emitSixArgs;
+    modulus_ns::sigslot_ns::signal0 emitZeroArg;
+    modulus_ns::sigslot_ns::signal1<bool> emitOneArg;
+    modulus_ns::sigslot_ns::signal2<bool, char> emitTwoArgs;
+    modulus_ns::sigslot_ns::signal3<bool, char, short> emitThreeArgs;
+    modulus_ns::sigslot_ns::signal4<bool, char, short, int> emitFourArgs;
+    modulus_ns::sigslot_ns::signal5<bool, char, short, int, long> emitFiveArgs;
+    modulus_ns::sigslot_ns::signal6<bool, char, short, int, long, const char*> emitSixArgs;
 
 public: /*slots*/
     void onZeroArg ();
@@ -111,41 +111,41 @@ inline void module::onSixArgs ( bool ok, char, short, int, long, const char *hel
     TEST_OK2 ( ok == true && strcmp ( "Hello, World!", hello ) == 0, "onSixArgs(bool,...\"Hello, World!\")" );
 }
 
-class async_module : public async_module_t
+class async_module : public modulus_ns::async_module
 {
 public:
-    async_module (dispatcher_t * pdisp) : async_module_t(pdisp) 
+    async_module (modulus_ns::dispatcher * pdisp) : modulus_ns::async_module(pdisp)
     {
-        this->register_thread_function(static_cast<async_module_t::thread_function>(& async_module::run));
+        this->register_thread_function(static_cast<modulus_ns::async_module::thread_function>(& async_module::run));
     }
-    
+
     int run ()
     {
         int i = 3;
         while (! is_quit() && i--) {
             pfs::this_thread::sleep_for(pfs::chrono::milliseconds(500));
-            this->callback_queue().call_all();
+            call_all();
         }
-        
+
         emit_quit();
     }
 };
 
-static modulus_t::api_item_type API[] = {
-    { 0 , new modulus_t::sigslot_mapping0, "ZeroArg()" }
-    , { 1 , new modulus_t::sigslot_mapping1<bool>, "OneArg(bool b)\n\t boolean value" }
-    , { 2 , new modulus_t::sigslot_mapping2<bool, char>, "TwoArgs(bool b, char ch)" }
-    , { 3 , new modulus_t::sigslot_mapping3<bool, char, short>, "ThreeArgs(bool b, char ch, short n)" }
-    , { 4 , new modulus_t::sigslot_mapping4<bool, char, short, int>, "FourArgs description" }
-    , { 5 , new modulus_t::sigslot_mapping5<bool, char, short, int, long>, "FiveArgs description" }
-    , { 6 , new modulus_t::sigslot_mapping6<bool, char, short, int, long, const char*>, "SixArgs description" }
+static modulus_ns::api_item_type API[] = {
+      { 0 , new modulus_ns::sigslot_mapping0, "ZeroArg()" }
+    , { 1 , new modulus_ns::sigslot_mapping1<bool>, "OneArg(bool b)\n\t boolean value" }
+    , { 2 , new modulus_ns::sigslot_mapping2<bool, char>, "TwoArgs(bool b, char ch)" }
+    , { 3 , new modulus_ns::sigslot_mapping3<bool, char, short>, "ThreeArgs(bool b, char ch, short n)" }
+    , { 4 , new modulus_ns::sigslot_mapping4<bool, char, short, int>, "FourArgs description" }
+    , { 5 , new modulus_ns::sigslot_mapping5<bool, char, short, int, long>, "FiveArgs description" }
+    , { 6 , new modulus_ns::sigslot_mapping6<bool, char, short, int, long, const char*>, "SixArgs description" }
 };
 
 int main ()
 {
     BEGIN_TESTS(12);
 
-    dispatcher_t dispatcher ( API, sizeof ( API ) /sizeof ( API[0] ) );
+    modulus_ns::dispatcher dispatcher(API, sizeof(API) / sizeof(API[0]));
     dispatcher.add_search_path(pfs::filesystem::path( "." ));
 
     //TEST_OK(dispatcher.register_module_for_name("module-for-test-app"));

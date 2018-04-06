@@ -1,10 +1,8 @@
-#ifndef __PFS_CXX98_ATOMIC_HPP__
-#define __PFS_CXX98_ATOMIC_HPP__
+#pragma once
 
 #include <pfs/types.hpp>
 #include <pfs/compiler.hpp>
 #include PFS_CC_HEADER(atomic_intrinsics)
-
 
 namespace pfs {
 
@@ -13,38 +11,38 @@ struct atomic
 {
     typedef Integral value_type;
 
-private:    
+private:
     value_type value;
-    
+
 private:
     atomic (atomic const &);              // Is not CopyConstructible
     atomic & operator = (atomic const &); // Is not CopyAssignable
-        
+
 public:
-    atomic () 
-        : value(0) 
+    atomic ()
+        : value(0)
     {}
-    
+
     atomic (value_type v)
         : value(v)
     {}
-    
+
     value_type operator = (value_type v)
     {
         store(v);
         return v;
     }
-    
+
     operator value_type () const
     {
         return load();
     }
-    
+
     void store (value_type v)
     {
         atomic_store(& value, v);
     }
-    
+
     value_type load () const
     {
         return atomic_load(const_cast<value_type *>(& value));
@@ -59,7 +57,7 @@ public:
     {
         return atomic_fetch_add(& value, static_cast<value_type>(1));
     }
-    
+
     value_type operator -- ()
     {
         return atomic_sub_fetch(& value, static_cast<value_type>(1));
@@ -69,10 +67,10 @@ public:
     {
         return fetch_sub(& value, static_cast<value_type>(1));
     }
-    
+
     value_type operator += (value_type n)
     {
-        return atomic_add_fetch(& value, n); 
+        return atomic_add_fetch(& value, n);
     }
 
     value_type operator -= (value_type n)
@@ -91,10 +89,10 @@ public:
     }
 
     value_type operator ^= (value_type n)
-    { 
+    {
         return atomic_xor_fetch(& value, n);
     }
-    
+
     value_type fetch_add (value_type n)
     {
         return atomic_fetch_add(& value, n);
@@ -104,12 +102,12 @@ public:
     {
         return atomic_fetch_sub(& value, n);
     }
-    
+
     value_type fetch_and (value_type n)
     {
-        return atomic_fetch_and(& value, n); 
+        return atomic_fetch_and(& value, n);
     }
-    
+
     value_type fetch_or (value_type n)
     {
         return atomic_fetch_or(& value, n);
@@ -124,9 +122,9 @@ public:
     {
         return atomic_exchange (& value, v);
     }
-    
+
     //bool is_lock_free() const; // TODO Implement
-};        
+};
 
 // Partial specialization for pointer types.
 //
@@ -138,31 +136,31 @@ private:
 
     pointer_type _p;
 
-private:    
-    ptrdiff_t type_size (ptrdiff_t d) const 
-    { 
+private:
+    ptrdiff_t type_size (ptrdiff_t d) const
+    {
         return d * sizeof(T);
     }
 
 private:
     atomic (atomic const &);
     atomic & operator = (atomic const &);
-    
+
 public:
-    atomic () 
-        : _p(0)  
+    atomic ()
+        : _p(0)
     {}
-        
+
     ~atomic ()
     {}
 
-    atomic (pointer_type p) 
-        : _p (p) 
+    atomic (pointer_type p)
+        : _p (p)
     {}
 
     operator pointer_type () const
     {
-        return load(); 
+        return load();
     }
 
     pointer_type operator = (pointer_type p)
@@ -177,32 +175,32 @@ public:
     }
 
     pointer_type operator -- (int)
-    { 
+    {
         return fetch_sub(1);
     }
 
     pointer_type operator ++ ()
     {
-        return atomic_add_fetch(& _p, type_size(1)); 
+        return atomic_add_fetch(& _p, type_size(1));
     }
 
     pointer_type operator -- ()
-    { 
+    {
         return atomic_sub_fetch(& _p, type_size(1));
     }
 
     pointer_type operator += (ptrdiff_t d)
     {
-        return atomic_add_fetch(& _p, type_size(d)); 
+        return atomic_add_fetch(& _p, type_size(d));
     }
 
     pointer_type operator -= (ptrdiff_t d)
     {
-        return atomic_sub_fetch(& _p, type_size(d)); 
+        return atomic_sub_fetch(& _p, type_size(d));
     }
 
 //    bool is_lock_free () const
-//    { 
+//    {
 //        return __atomic_is_lock_free(sizeof(__pointer_type), nullptr);
 //    }
 
@@ -231,7 +229,7 @@ public:
         return atomic_fetch_sub(& _p, type_size(d));
     }
 };
-      
+
 template <typename SourceType, typename DestType>
 inline DestType atomic_cast_helper (SourceType const & from)
 {
@@ -277,6 +275,3 @@ typedef atomic<uintmax_t>          atomic_uintmax_t;
 typedef atomic<ptrdiff_t>          atomic_ptrdiff_t;
 
 } // pfs
-
-#endif /* __PFS_CXX98_ATOMIC_HPP__ */
-
