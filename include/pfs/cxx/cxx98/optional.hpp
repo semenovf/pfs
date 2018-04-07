@@ -2,8 +2,7 @@
 #include <pfs/config.h>
 
 #if defined(HAVE_BOOST_RATIO)
-#   include "ratio_boost.hpp"
+#   include "optional_boost.hpp"
 #else
-#   include "ratio_custom.hpp"
+#   error "optional: no implementation yet"
 #endif
-
