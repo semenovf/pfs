@@ -1,11 +1,10 @@
-#ifndef __PFS_CXX_CXX11_FILESYSTEM_PATH_HPP__
-#define __PFS_CXX_CXX11_FILESYSTEM_PATH_HPP__
-
+#pragma once
 #include <pfs/config.h>
 #include <pfs/cxxversion.hpp>
 #include <pfs/compiler.hpp>
 
-#if PFS_CC_GCC_VERSION >= 50300 && HAVE_STDCXX_FS_EXPERIMENTAL
+//#if PFS_CC_GCC_VERSION >= 50300 && HAVE_STDCXX_FS_EXPERIMENTAL
+#if HAVE_STDCXX_FS_EXPERIMENTAL
 
 //
 // [Experimental Library Extensions](https://gcc.gnu.org/onlinedocs/libstdc++/manual/using_dynamic_or_shared.html#manual.intro.using.linkage.experimental)
@@ -746,6 +745,3 @@ inline path u8path (InputIt first, InputIt last)
 #else
 #   include <pfs/cxx/cxx98/filesystem/path.hpp>
 #endif
-
-#endif /* __PFS_CXX_CXX11_FILESYSTEM_PATH_HPP__ */
-

@@ -1,6 +1,4 @@
-#ifndef __PFS_CXX_CXX98_FILESYSTEM_PATH_HPP__
-#define __PFS_CXX_CXX98_FILESYSTEM_PATH_HPP__
-
+#pragma once
 #include <pfs/config.h>
 
 #if HAVE_BOOST_FILESYSTEM
@@ -124,5 +122,3 @@ inline void current_path (path const & p, error_code & ec)
 #else
 #   error "Filesystem implementation not found"
 #endif
-
-#endif /* __PFS_CXX_CXX98_FILESYSTEM_PATH_HPP__ */

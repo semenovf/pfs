@@ -1,6 +1,4 @@
-#ifndef __PFS_CXX_CXX98_FILESYSTEM_FILESYSTEM_ERROR_HPP__
-#define __PFS_CXX_CXX98_FILESYSTEM_FILESYSTEM_ERROR_HPP__
-
+#pragma once
 #include <pfs/config.h>
 
 #if HAVE_BOOST_FILESYSTEM
@@ -45,6 +43,3 @@ struct filesystem_error : public ::boost::filesystem::filesystem_error
 #else
 #   error "Filesystem implementation not found"
 #endif
-
-#endif /* __PFS_CXX_CXX98_FILESYSTEM_FILESYSTEM_ERROR_HPP__ */
-
