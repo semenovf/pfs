@@ -7,6 +7,7 @@
 #include <pfs/types.hpp>
 #include <pfs/safeformat.hpp>
 #include <pfs/optional.hpp>
+#include <pfs/v2/stdcxx/list.hpp>
 #include <pfs/v2/stdcxx/map.hpp>
 
 namespace pfs {
@@ -17,12 +18,14 @@ namespace pfs {
 
 // AssociativeContainer requirements:
 //     insert(KEY, VALUE)
+//     find(KEY)
 
 template <int MajorVersion, int MinorVersion
         , typename String        = std::string
         , typename MethodType    = String
         , typename IdType        = int32_t
         , typename AssociativeContainerTag = stdcxx::map
+        , typename SequenceContainerTag = stdcxx::list
         , typename OStreamType   = std::ostream
         , typename IStreamType   = std::istream>
 struct rpc
@@ -252,16 +255,6 @@ public:
         return shared_response();
     }
 
-    static shared_request make_request (id_type const & id, method_type const & method)
-    {
-        return pfs::make_shared<request>(id, method);
-    }
-
-    static shared_request make_notification (method_type const & method)
-    {
-        return pfs::make_shared<request>(method);
-    }
-
     static shared_response make_success (id_type const & id)
     {
         return pfs::make_shared<response>(id);
@@ -286,7 +279,7 @@ public:
         typedef typename rpc::id_type     id_type;
         typedef shared_response (HandlerPool::*method_handler) (request const & requ);
 
-        struct method_repository : public associative_container::type_trait<
+        struct method_repository : public associative_container::type_traits<
                                           method_type
                                         , method_handler
                                         , AssociativeContainerTag>::type
@@ -346,33 +339,87 @@ public:
     };
 
     template <typename HandlerPool>
-    struct client
+    class client
     {
         typedef typename rpc::string_type string_type;
         typedef typename rpc::id_type     id_type;
-        typedef void (HandlerPool::*success_handler) (response const & rp);
-        typedef void (HandlerPool::*error_handler) (response const & rp);
+        typedef void (HandlerPool::*handler) (response const & rp);
 
+        struct method_cache : public sequence_container::type_traits<
+                                  handler
+                                , SequenceContainerTag>::type
+        {
+            typedef sequence_container::iterators<
+                          handler
+                        , SequenceContainerTag> iterators;
+//             typedef sequence_container::inserter<
+//                           handler
+//                         , SequenceContainerTag> inserter;
+//             typedef sequence_container::finder<
+//                           handler
+//                         , SequenceContainerTag> finder;
+
+            typedef typename iterators::iterator       iterator;
+            typedef typename iterators::const_iterator const_iterator;
+        };
+
+        struct method_cache_mapper : public associative_container::type_traits<
+                                          id_type
+                                        , typename method_cache::iterator
+                                        , AssociativeContainerTag>::type
+        {
+            typedef associative_container::iterators<
+                          id_type
+                        , typename method_cache::iterator
+                        , AssociativeContainerTag> iterators;
+            typedef associative_container::inserter<
+                          id_type
+                        , typename method_cache::iterator
+                        , AssociativeContainerTag> inserter;
+            typedef associative_container::finder<
+                          id_type
+                        , typename method_cache::iterator
+                        , AssociativeContainerTag> finder;
+
+            typedef typename iterators::iterator       iterator;
+            typedef typename iterators::const_iterator const_iterator;
+        };
+
+    public:
         client (HandlerPool & hpool)
              : _ph(& hpool)
-//             , _default_error_handler(0) {}
         {}
-//         void register_result_handler (id_type id, result_handler_type h)
+
+        shared_request make_request (id_type const & id, method_type const & method)
+        {
+            shared_request rq = pfs::make_shared<request>(id, method);
+
+            //_cache.insert
+
+            return rq;
+        }
+
+        static shared_request make_notification (method_type const & method)
+        {
+            return pfs::make_shared<request>(method);
+        }
+
+//         void register_success_handler (id_type const & id, success_handler sh)
 //         {
 //             _result_handlers.insert(id, h);
 //         }
 //
-//         void register_error_handler (int code, error_handler_type h)
+//         void register_error_handler (error_code_type ec, error_handler eh)
 //         {
 //             _error_handlers.insert(code, h);
 //         }
-//
+
 //         void set_default_error_handler (error_handler_type h)
 //         {
 //             _default_error_handler = h;
 //         }
 //
-//         bool handle (json_type const & response);
+        bool process (response const & rp);
 
     protected:
 //         typedef typename Traits::template associative_container<id_type
@@ -384,6 +431,8 @@ public:
 //         error_handler_type _default_error_handler;
 //
         HandlerPool *       _ph;
+        method_cache        _cache;
+        method_cache_mapper _cache_mapper;
 //         result_map_type _result_handlers;
 //         error_map_type  _error_handlers;
     };

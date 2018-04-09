@@ -73,14 +73,14 @@ int main ()
     server.register_method("faulty_method", & server_handler_pool::faulty_method);
     server.register_method("faulty_notify", & server_handler_pool::faulty_notify);
 
-    rpc_ns::shared_request rq1 = rpc_ns::make_request(++idc, "method1");
-    rpc_ns::shared_request rq2 = rpc_ns::make_request(++idc, "method2");
-    rpc_ns::shared_request rq3 = rpc_ns::make_request(++idc, "faulty_method");
-    rpc_ns::shared_request rq4 = rpc_ns::make_request(++idc, "unknown_method");
-    rpc_ns::shared_request nq1 = rpc_ns::make_notification("notify1");
-    rpc_ns::shared_request nq2 = rpc_ns::make_notification("notify2");
-    rpc_ns::shared_request nq3 = rpc_ns::make_notification("faulty_notify");
-    rpc_ns::shared_request nq4 = rpc_ns::make_notification("unknown_notify");
+    rpc_ns::shared_request rq1 = client.make_request(++idc, "method1");
+    rpc_ns::shared_request rq2 = client.make_request(++idc, "method2");
+    rpc_ns::shared_request rq3 = client.make_request(++idc, "faulty_method");
+    rpc_ns::shared_request rq4 = client.make_request(++idc, "unknown_method");
+    rpc_ns::shared_request nq1 = client.make_notification("notify1");
+    rpc_ns::shared_request nq2 = client.make_notification("notify2");
+    rpc_ns::shared_request nq3 = client.make_notification("faulty_notify");
+    rpc_ns::shared_request nq4 = client.make_notification("unknown_notify");
 
     rpc_ns::shared_response rp1 = server.exec(rq1);
     rpc_ns::shared_response rp2 = server.exec(rq2);

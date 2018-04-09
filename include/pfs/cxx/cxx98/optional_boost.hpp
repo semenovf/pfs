@@ -109,12 +109,12 @@ public:
 
     pfs_constexpr operator bool () const pfs_noexcept
     {
-        return base_class::operator bool();
+        return base_class::is_initialized();
     }
 
     pfs_constexpr bool has_value () const pfs_noexcept
     {
-        return bool>(*this);
+        return bool(*this);
     }
 
     /**
@@ -140,7 +140,7 @@ public:
      *     pfs_constexpr T value_or (U const & default_value) const;
      * @note for prior to C++11
      */
-}
+};
 
 // template <typename T>
 // constexpr std::optional<std::decay_t<T>> make_optional( T&& value );

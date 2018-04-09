@@ -1,105 +1,69 @@
 #pragma once
 #include <map>
 #include <pfs/cxxlang.hpp>
-#include <pfs/v2/container.hpp>
 #include <pfs/v2/associative_container.hpp>
 
 namespace pfs {
 
-namespace stdcxx { struct map {}; } //  stdcxx
+namespace stdcxx { struct map {}; }
 
 namespace associative_container {
 
 template <typename Key, typename T>
-struct type_trait<Key, T, stdcxx::map>
+struct type_traits<Key, T, stdcxx::map>
 {
     typedef std::map<Key, T> type;
+    typedef Key key_type;
+    typedef T value_type;
+};
+
+template <typename Key
+        , typename T>
+struct container_ref<Key, T, std::map<Key, T> > : details::container_ref<Key, T, std::map<Key, T> >
+{
+    typedef details::container_ref<Key, T, std::map<Key, T> > base_class;
+    typedef typename base_class::container_type container_type;
+    typedef typename container_type::mapped_type value_type;
+    container_ref (container_type & ac) : base_class(ac) {}
 };
 
 template <typename Key, typename T>
-struct iterators<Key, T, stdcxx::map>
+struct iterators<Key, T, std::map<Key, T> > : details::iterators<Key, T, std::map<Key, T> >
 {
-    typedef typename std::map<Key, T>::iterator iterator;
-    typedef typename std::map<Key, T>::const_iterator const_iterator;
+    typedef details::iterators<Key, T, std::map<Key, T> > base_class;
+    typedef typename base_class::container_type container_type;
+    typedef typename base_class::iterator iterator;
+    typedef typename base_class::const_iterator const_iterator;
+    typedef typename base_class::value_type value_type;
 
-    std::map<Key, T> * p;
+    iterators (container_type & ac) : base_class(ac) {}
 
-    iterators (std::map<Key, T> & ac) : p(& ac) {}
-
-    inline iterator begin ()
-    {
-        p->begin();
-    }
-
-    inline const_iterator begin () const
-    {
-        p->begin();
-    }
-
-    inline const_iterator cbegin () const
-    {
-        p->begin();
-    }
-
-    inline iterator end ()
-    {
-        p->end();
-    }
-
-    inline const_iterator end () const
-    {
-        p->end();
-    }
-
-    inline const_iterator cend () const
-    {
-        p->end();
-    }
-
-    T & value (iterator it)
+    value_type & value (iterator it)
     {
         return it->second;
     }
 
-    T const & value (iterator it) const
+    value_type const & value (iterator it) const
     {
         return it->second;
     }
 
-    T const & value (const_iterator it) const
+    value_type const & value (const_iterator it) const
     {
         return it->second;
     }
 };
 
 template <typename Key, typename T>
-struct inserter<Key, T, stdcxx::map>
+struct inserter<Key, T, std::map<Key, T> > : details::inserter<Key, T, std::map<Key, T> >
 {
-    std::map<Key, T> * p;
+    typedef details::inserter<Key, T, std::map<Key, T> > base_class;
 
-    inserter (std::map<Key, T> & ac) : p(& ac) {}
+    inserter (typename base_class::container_type & ac) : base_class(ac) {}
 
     void insert (Key const & key, T const & value)
     {
-        p->insert(std::make_pair(key, value));
-    }
-};
-
-template <typename Key, typename T>
-struct finder<Key, T, stdcxx::map>
-{
-    std::map<Key, T> * p;
-
-    finder (std::map<Key, T> & ac) : p(& ac) {}
-
-    typename std::map<Key, T>::iterator find (Key const & key)
-    {
-        return p->find(key);
-    }
-
-    typename std::map<Key, T>::const_iterator find (Key const & key) const
-    {
-        return p->find(key);
+        this->p->insert(std::make_pair(key, value));
     }
 };
 
