@@ -6,54 +6,61 @@ typedef pfs::rpc<1, 0> rpc_ns;
 
 static int server_counter = 0;
 
-struct server_handler_pool
+struct method_pool
 {
+    rpc_ns::server<method_pool> & server;
+    
+    method_pool (rpc_ns::server<method_pool> & s) : server(s) {}
+    
     rpc_ns::shared_response method1 (rpc_ns::request const & requ)
     {
         std::cout << "server_handler_pool::method1()" << std::endl;
         ++server_counter;
-        return rpc_ns::make_success(requ.id());
+        return server.make_success(requ.id());
     }
 
     rpc_ns::shared_response method2 (rpc_ns::request const & requ)
     {
         std::cout << "server_handler_pool::method2()" << std::endl;
         ++server_counter;
-        return rpc_ns::make_success(requ.id());
+        return server.make_success(requ.id());
     }
 
     rpc_ns::shared_response notify1 (rpc_ns::request const & requ)
     {
         std::cout << "server_handler_pool::notify1()" << std::endl;
         ++server_counter;
-        return rpc_ns::null_response();
+        return server.null_response();
     }
 
     rpc_ns::shared_response notify2 (rpc_ns::request const & requ)
     {
         std::cout << "server_handler_pool::notify2()" << std::endl;
         ++server_counter;
-        return rpc_ns::null_response();
+        return server.null_response();
     }
 
     rpc_ns::shared_response faulty_method (rpc_ns::request const & requ)
     {
         std::cout << "server_handler_pool::faulty_method()" << std::endl;
          ++server_counter;
-        return rpc_ns::make_error(requ.id(), rpc_ns::INVALID_PARAMS);
+        return server.make_error(requ.id(), rpc_ns::INVALID_PARAMS);
     }
 
     rpc_ns::shared_response faulty_notify (rpc_ns::request const & requ)
     {
         std::cout << "server_handler_pool::faulty_notify()" << std::endl;
          ++server_counter;
-        return rpc_ns::make_error(rpc_ns::INVALID_PARAMS);
+        return server.make_error(rpc_ns::INVALID_PARAMS);
     }
-
 };
 
-struct client_handler_pool
-{};
+struct result_pool
+{
+    rpc_ns::client<result_pool> & client;
+    
+    result_pool (rpc_ns::client<result_pool> & c) : client(c) {}
+};
 
 int main ()
 {
@@ -61,17 +68,15 @@ int main ()
 
     rpc_ns::id_type idc = 0;
 
-    server_handler_pool shp;
-    client_handler_pool chp;
-    rpc_ns::server<server_handler_pool> server(shp);
-    rpc_ns::client<client_handler_pool> client(chp);
+    rpc_ns::server<method_pool> server;
+    rpc_ns::client<result_pool> client;
 
-    server.register_method("method1", & server_handler_pool::method1);
-    server.register_method("method2", & server_handler_pool::method2);
-    server.register_method("notify1", & server_handler_pool::notify1);
-    server.register_method("notify2", & server_handler_pool::notify2);
-    server.register_method("faulty_method", & server_handler_pool::faulty_method);
-    server.register_method("faulty_notify", & server_handler_pool::faulty_notify);
+    server.register_method("method1", & method_pool::method1);
+    server.register_method("method2", & method_pool::method2);
+    server.register_method("notify1", & method_pool::notify1);
+    server.register_method("notify2", & method_pool::notify2);
+    server.register_method("faulty_method", & method_pool::faulty_method);
+    server.register_method("faulty_notify", & method_pool::faulty_notify);
 
     rpc_ns::shared_request rq1 = client.make_request(++idc, "method1");
     rpc_ns::shared_request rq2 = client.make_request(++idc, "method2");

@@ -250,66 +250,67 @@ public:
     typedef shared_ptr<request>  shared_request;
     typedef shared_ptr<response> shared_response;
 
-    static shared_ptr<response> null_response ()
-    {
-        return shared_response();
-    }
-
-    static shared_response make_success (id_type const & id)
-    {
-        return pfs::make_shared<response>(id);
-    }
-
-    static shared_response make_error (error_code_type code)
-    {
-        shared_response r = pfs::make_shared<response>();
-        r->set_code(code);
-        return r;
-    }
-
-    static shared_response make_error (id_type const & id, error_code_type code)
-    {
-        return pfs::make_shared<response>(id, code);
-    }
-
-    template <typename HandlerPool>
+    template <typename MethodPool>
     class server
     {
         typedef typename rpc::string_type string_type;
         typedef typename rpc::id_type     id_type;
-        typedef shared_response (HandlerPool::*method_handler) (request const & requ);
+        typedef shared_response (MethodPool::*method) (request const & requ);
 
-        struct method_repository : public associative_container::type_traits<
-                                          method_type
-                                        , method_handler
-                                        , AssociativeContainerTag>::type
+        struct repository_traits
         {
+            typedef typename associative_container::type_traits<
+                      method_type
+                    , method
+                    , AssociativeContainerTag>::type type;
+           
             typedef associative_container::iterators<
-                          method_type
-                        , method_handler
-                        , AssociativeContainerTag> iterators;
+                      method_type
+                    , method
+                    , type> iterators;
+                
             typedef associative_container::inserter<
-                          method_type
-                        , method_handler
-                        , AssociativeContainerTag> inserter;
+                      method_type
+                    , method
+                    , type> inserter;
+                    
             typedef associative_container::finder<
-                          method_type
-                        , method_handler
-                        , AssociativeContainerTag> finder;
-
-            typedef typename iterators::iterator       iterator;
+                      method_type
+                    , method
+                    , type> finder;
+                    
+            typedef typename iterators::iterator iterator;
             typedef typename iterators::const_iterator const_iterator;
         };
 
     public:
-        server (HandlerPool & hpool)
-            : _ph(& hpool)
-        {}
+        server () : _method_pool(*this) {}
 
-        inline void register_method (method_type const & name, method_handler mh)
+        inline void register_method (method_type const & name, method m)
         {
-            typename method_repository::inserter ins(_method_repo);
-            ins.insert(name, mh);
+            typename repository_traits::inserter(_method_repo).insert(name, m);
+        }
+
+        shared_ptr<response> null_response () const
+        {
+            return shared_response();
+        }   
+
+        shared_response make_success (id_type const & id) const
+        {
+            return pfs::make_shared<response>(id);
+        }
+
+        shared_response make_error (error_code_type code) const
+        {
+            shared_response r = pfs::make_shared<response>();
+            r->set_code(code);
+            return r;
+        }
+
+        shared_response make_error (id_type const & id, error_code_type code) const
+        {
+            return pfs::make_shared<response>(id, code);
         }
 
         inline shared_response exec (shared_request const & requ)
@@ -319,9 +320,9 @@ public:
 
         shared_response exec (request const & requ)
         {
-            typename method_repository::finder finder(_method_repo);
-            typename method_repository::iterators iterators(_method_repo);
-            typename method_repository::const_iterator it = finder.find(requ.method());
+            typename repository_traits::finder finder(_method_repo);
+            typename repository_traits::iterators iterators(_method_repo);
+            typename repository_traits::const_iterator it = finder.find(requ.method());
 
             if (it == iterators.cend()) {
                 if (requ.is_request())
@@ -329,66 +330,64 @@ public:
                 return make_error(METHOD_NOT_FOUND);
             }
 
-            method_handler const & method = iterators.value(it);
-            return (_ph->*method)(requ);
+            method const & m = iterators.value(it);
+            return (_method_pool.*m)(requ);
         }
 
     private:
-        HandlerPool *     _ph;
-        method_repository _method_repo;
+        MethodPool _method_pool;
+        typename repository_traits::type _method_repo;
     };
 
-    template <typename HandlerPool>
+    template <typename ResultPool>
     class client
     {
         typedef typename rpc::string_type string_type;
         typedef typename rpc::id_type     id_type;
-        typedef void (HandlerPool::*handler) (response const & rp);
+        typedef void (ResultPool::*result_handler) (response const & rp);
 
-        struct method_cache : public sequence_container::type_traits<
-                                  handler
-                                , SequenceContainerTag>::type
+        struct cache_traits 
         {
-            typedef sequence_container::iterators<
-                          handler
-                        , SequenceContainerTag> iterators;
-//             typedef sequence_container::inserter<
-//                           handler
-//                         , SequenceContainerTag> inserter;
-//             typedef sequence_container::finder<
-//                           handler
-//                         , SequenceContainerTag> finder;
+            typedef typename sequence_container::type_traits<
+                      result_handler
+                    , SequenceContainerTag>::type type;
 
-            typedef typename iterators::iterator       iterator;
+            typedef sequence_container::iterators<
+                      result_handler
+                    , type> iterators;
+
+            typedef typename iterators::iterator iterator;
             typedef typename iterators::const_iterator const_iterator;
         };
 
-        struct method_cache_mapper : public associative_container::type_traits<
-                                          id_type
-                                        , typename method_cache::iterator
-                                        , AssociativeContainerTag>::type
+        struct cache_mapper_traits
         {
+            typedef typename associative_container::type_traits<
+                      id_type
+                    , typename cache_traits::iterator
+                    , AssociativeContainerTag>::type type;
+                    
             typedef associative_container::iterators<
-                          id_type
-                        , typename method_cache::iterator
-                        , AssociativeContainerTag> iterators;
+                      id_type
+                    , typename cache_traits::iterator
+                    , type> iterators;
+
             typedef associative_container::inserter<
-                          id_type
-                        , typename method_cache::iterator
-                        , AssociativeContainerTag> inserter;
+                      id_type
+                    , typename cache_traits::iterator
+                    , type> inserter;
+                    
             typedef associative_container::finder<
-                          id_type
-                        , typename method_cache::iterator
-                        , AssociativeContainerTag> finder;
+                      id_type
+                    , typename cache_traits::iterator
+                    , type> finder;
 
             typedef typename iterators::iterator       iterator;
             typedef typename iterators::const_iterator const_iterator;
         };
 
     public:
-        client (HandlerPool & hpool)
-             : _ph(& hpool)
-        {}
+        client () : _result_pool(*this) {}
 
         shared_request make_request (id_type const & id, method_type const & method)
         {
@@ -430,9 +429,9 @@ public:
 //
 //         error_handler_type _default_error_handler;
 //
-        HandlerPool *       _ph;
-        method_cache        _cache;
-        method_cache_mapper _cache_mapper;
+        ResultPool                         _result_pool;
+        typename cache_traits::type        _cache;
+        typename cache_mapper_traits::type _cache_mapper;
 //         result_map_type _result_handlers;
 //         error_map_type  _error_handlers;
     };
