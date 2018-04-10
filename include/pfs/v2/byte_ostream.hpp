@@ -1,11 +1,17 @@
 #pragma once
 #include <pfs/v2/byte_string.hpp>
+#include <pfs/v2/binary_ostream.hpp>
 
 namespace pfs {
 
+// template <>
+// //        , typename OStreamTag>
+// struct binary_ostream<byte_string, >;
+    
 struct byte_ostream
 {
-    typedef byte_string::value_type char_type;
+    //typedef byte_string::value_type char_type;
+    typedef byte_string::const_pointer const_pointer;
 
     byte_ostream (byte_string & buffer, endian const & order = endian::native_order())
         : _buffer(buffer)
@@ -21,68 +27,15 @@ struct byte_ostream
     {
         return _buffer;
     }
-
-    template <typename Integral>
-    void write_integral (Integral v)
+    
+    ssize_t write (const_pointer p, size_t n)
     {
-        Integral a = _o.convert(v);
-
-        union
-        {
-            Integral v;
-            byte_string::value_type b[sizeof (Integral)];
-        } u;
-        u.v = a;
-        _buffer.append(byte_string(u.b, sizeof (Integral)));
+        _buffer.append(p, n);
     }
 
-    template <typename Real>
-    void write_real (Real v)
-    {
-#ifdef PFS_HAVE_INT64
-        if (sizeof (Real) == 8) {
 
-            union
-            {
-                uint64_t i;
-                real64_t f;
-            } u;
-            u.f = v;
-            return write_integral(u.i);
-        } else
-#endif
-            if (sizeof(Real) == 4) {
-
-            union
-            {
-                uint32_t i;
-                real32_t f;
-            } u;
-            u.f = v;
-            return write_integral(u.i);
-        } else {
-
-            union
-            {
-                Real v;
-                byte_string::value_type b[sizeof(Real)];
-            } d;
-
-            if (_o != endian::native_order()) {
-                byte_string::value_type b[sizeof(Real)];
-
-                for (int i = 0, j = sizeof(Real) - 1; j >= 0; ++i, --j) {
-                    b[i] = d.b[j];
-                }
-
-                _buffer.append(byte_string(b, sizeof(Real)));
-            } else {
-                _buffer.append(byte_string(d.b, sizeof(Real)));
-            }
-        }
-    }
-
-    void write (byte_string const & v, byte_string::size_type n = byte_string::npos)
+    template <typename T>
+    void write (T const & v)
     {
         _buffer.append(v, 0, n);
     }

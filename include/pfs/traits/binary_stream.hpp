@@ -1,6 +1,4 @@
-#ifndef __PFS_TRAITS_BINARY_STREAM_HPP__
-#define __PFS_TRAITS_BINARY_STREAM_HPP__
-
+#pragma once
 #include <pfs/endian.hpp>
 
 namespace pfs {
@@ -393,8 +391,4 @@ inline ssize_t read_binary (Device & dev, endian order, long double & v)
 
 #endif
 
-
 }
-
-#endif /* __PFS_TRAITS_BINARY_STREAM_HPP__ */
-

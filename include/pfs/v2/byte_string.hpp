@@ -3,14 +3,13 @@
 #include <ostream>
 #include <pfs/limits.hpp>
 #include <pfs/type_traits.hpp>
-#include <pfs/endian.hpp>
 #include <pfs/memory.hpp>
 #include <pfs/algorithm.hpp>
 #include <pfs/iterator.hpp>
 #include <pfs/utility.hpp>
 #include <pfs/io/exception.hpp>
 #include <pfs/traits/binary_stream.hpp>
-#include <pfs/compiler.hpp>
+#include <pfs/v2/binary_stream.hpp>
 
 namespace pfs {
 
@@ -21,16 +20,16 @@ class byte_string : std::basic_string<uint8_t>
     using base_class::append;
 
 public:
-    typedef uint8_t value_type;
-    typedef typename base_class::traits_type traits_type;
-    typedef typename base_class::size_type size_type;
-    typedef typename base_class::difference_type difference_type;
-    typedef typename base_class::reference reference;
-    typedef typename base_class::const_reference const_reference;
-    typedef typename base_class::pointer pointer;
-    typedef typename base_class::const_pointer const_pointer;
-    typedef typename base_class::iterator iterator;
-    typedef typename base_class::const_iterator const_iterator;
+    typedef base_class::value_type                value_type;
+    typedef typename base_class::traits_type      traits_type;
+    typedef typename base_class::size_type        size_type;
+    typedef typename base_class::difference_type  difference_type;
+    typedef typename base_class::reference        reference;
+    typedef typename base_class::const_reference  const_reference;
+    typedef typename base_class::pointer          pointer;
+    typedef typename base_class::const_pointer    const_pointer;
+    typedef typename base_class::iterator         iterator;
+    typedef typename base_class::const_iterator   const_iterator;
     typedef typename base_class::reverse_iterator reverse_iterator;
     typedef typename base_class::const_reverse_iterator const_reverse_iterator;
 
@@ -264,15 +263,15 @@ public:
     }
 #endif
 
-    reverse_iterator rend ()
-    {
-        return _d.rend();
-    }
+//     reverse_iterator rend ()
+//     {
+//         return _d.rend();
+//     }
 
-    const_reverse_iterator rend () const
-    {
-        return _d.rend();
-    }
+//     const_reverse_iterator rend () const
+//     {
+//         return _d.rend();
+//     }
 
 #if __cplusplus < 201103L
     const_reverse_iterator crend () const
@@ -348,13 +347,13 @@ public:
      * @param ch Character to insert.
      * @return @code *this @endcode
      */
-    byte_string & insert (size_type index, size_type count, value_type ch)
-    {
-        PFS_ASSERT(index <= size());
-        PFS_ASSERT(max_size() - count >= size());
-        base_class::insert(index, count, ch);
-        return *this;
-    }
+//     byte_string & insert (size_type index, size_type count, value_type ch)
+//     {
+//         PFS_ASSERT(index <= size());
+//         PFS_ASSERT(max_size() - count >= size());
+//         base_class::insert(index, count, ch);
+//         return *this;
+//     }
 
     /**
      * @brief Inserts @c count copies of character @c ch at the position @c index.
@@ -363,10 +362,10 @@ public:
      * @param ch Character to insert.
      * @return @code *this @endcode
      */
-    byte_string & insert (size_type index, size_type count, char ch)
-    {
-        return insert(index, count, static_cast<value_type> (ch));
-    }
+//     byte_string & insert (size_type index, size_type count, char ch)
+//     {
+//         return insert(index, count, static_cast<value_type> (ch));
+//     }
 
     /**
      * @brief Inserts null-terminated character string pointed to by @c s at the position @c index.
@@ -375,13 +374,13 @@ public:
      * @param s Pointer to the character string to insert.
      * @return @code *this @endcode
      */
-    byte_string & insert (size_type index, const_pointer s)
-    {
-        PFS_ASSERT(index <= size());
-        PFS_ASSERT(max_size() - traits_type::length(s) >= size());
-        base_class::insert(index, s);
-        return *this;
-    }
+//     byte_string & insert (size_type index, const_pointer s)
+//     {
+//         PFS_ASSERT(index <= size());
+//         PFS_ASSERT(max_size() - traits_type::length(s) >= size());
+//         base_class::insert(index, s);
+//         return *this;
+//     }
 
     /**
      * @brief Inserts null-terminated character string pointed to by @c s at the position @c index.
@@ -390,10 +389,10 @@ public:
      * @param s Pointer to the character string to insert.
      * @return @code *this @endcode
      */
-    byte_string & insert (size_type index, const char * s)
-    {
-        return insert(index, reinterpret_cast<const_pointer> (s));
-    }
+//     byte_string & insert (size_type index, const char * s)
+//     {
+//         return insert(index, reinterpret_cast<const_pointer> (s));
+//     }
 
 //     byte_string & insert (size_type index, const_pointer s, size_type count)
 //     {
@@ -500,10 +499,10 @@ public:
 //         return *this;
 //     }
 
-    byte_string & append (size_type count, char ch)
-    {
-        return append(count, static_cast<value_type> (ch));
-    }
+//     byte_string & append (size_type count, char ch)
+//     {
+//         return append(count, static_cast<value_type> (ch));
+//     }
 
 //     byte_string & append (byte_string const & s)
 //     {
@@ -536,10 +535,10 @@ public:
 //         return *this;
 //     }
 
-    byte_string & append (const char * s)
-    {
-        return append(reinterpret_cast<const_pointer> (s));
-    }
+//     byte_string & append (const char * s)
+//     {
+//         return append(reinterpret_cast<const_pointer> (s));
+//     }
 
 //     template <typename InputIterator>
 //     byte_string & append (InputIterator first, InputIterator last)
@@ -560,10 +559,10 @@ public:
 //         return *this;
 //     }
 
-    byte_string & operator += (char ch)
-    {
-        return operator += (static_cast<value_type> (ch));
-    }
+//     byte_string & operator += (char ch)
+//     {
+//         return operator += (static_cast<value_type> (ch));
+//     }
 
 //     byte_string & operator += (const_pointer s)
 //     {
@@ -571,10 +570,10 @@ public:
 //         return *this;
 //     }
 
-    byte_string & operator += (const char * s)
-    {
-        return operator += (reinterpret_cast<const_pointer> (s));
-    }
+//     byte_string & operator += (const char * s)
+//     {
+//         return operator += (reinterpret_cast<const_pointer> (s));
+//     }
 
 //     int compare (byte_string const & s) const
 //     {
@@ -706,10 +705,10 @@ public:
 //         return _d.copy(dest, count, pos);
 //     }
 
-    size_type copy (char * dest, size_type count, size_type pos = 0) const
-    {
-        return copy(reinterpret_cast<pointer> (dest), count, pos);
-    }
+//     size_type copy (char * dest, size_type count, size_type pos = 0) const
+//     {
+//         return copy(reinterpret_cast<pointer> (dest), count, pos);
+//     }
 
 //     void resize (size_type count)
 //     {
@@ -822,117 +821,117 @@ inline byte_string operator + (char const * lhs, byte_string const & rhs)
 byte_string & base64_encode (byte_string const & src, byte_string & result);
 byte_string & base64_decode (byte_string const & src, byte_string & result);
 
-inline bool operator == (byte_string const & lhs, byte_string const & rhs)
-{
-    return lhs.compare(rhs) == 0;
-}
+// inline bool operator == (byte_string const & lhs, byte_string const & rhs)
+// {
+//     return lhs.compare(rhs) == 0;
+// }
+// 
+// inline bool operator != (byte_string const & lhs, byte_string const & rhs)
+// {
+//     return lhs.compare(rhs) != 0;
+// }
+// 
+// inline bool operator < (byte_string const & lhs, byte_string const & rhs)
+// {
+//     return lhs.compare(rhs) < 0;
+// }
+// 
+// inline bool operator <= (byte_string const & lhs, byte_string const & rhs)
+// {
+//     return lhs.compare(rhs) <= 0;
+// }
+// 
+// inline bool operator > (byte_string const & lhs, byte_string const & rhs)
+// {
+//     return lhs.compare(rhs) > 0;
+// }
+// 
+// inline bool operator >= (byte_string const & lhs, byte_string const & rhs)
+// {
+//     return lhs.compare(rhs) >= 0;
+// }
+// 
+// inline bool operator == (byte_string const & lhs, const char * rhs)
+// {
+//     return lhs.compare(rhs) == 0;
+// }
+// 
+// inline bool operator != (byte_string const & lhs, const char * rhs)
+// {
+//     return lhs.compare(rhs) != 0;
+// }
+// 
+// inline bool operator < (byte_string const & lhs, const char * rhs)
+// {
+//     return lhs.compare(rhs) < 0;
+// }
+// 
+// inline bool operator <= (byte_string const & lhs, const char * rhs)
+// {
+//     return lhs.compare(rhs) <= 0;
+// }
+// 
+// inline bool operator > (byte_string const & lhs, const char * rhs)
+// {
+//     return lhs.compare(rhs) > 0;
+// }
+// 
+// inline bool operator >= (byte_string const & lhs, const char * rhs)
+// {
+//     return lhs.compare(rhs) >= 0;
+// }
+// 
+// inline bool operator == (const char * lhs, byte_string const & rhs)
+// {
+//     return rhs.compare(lhs) == 0;
+// }
+// 
+// inline bool operator != (const char * lhs, byte_string const & rhs)
+// {
+//     return rhs.compare(lhs) != 0;
+// }
+// 
+// inline bool operator < (const char * lhs, byte_string const & rhs)
+// {
+//     return rhs.compare(lhs) > 0;
+// }
+// 
+// inline bool operator <= (const char * lhs, byte_string const & rhs)
+// {
+//     return rhs.compare(lhs) >= 0;
+// }
+// 
+// inline bool operator > (const char * lhs, byte_string const & rhs)
+// {
+//     return rhs.compare(lhs) < 0;
+// }
+// 
+// inline bool operator >= (const char * lhs, byte_string const & rhs)
+// {
+//     return rhs.compare(lhs) <= 0;
+// }
 
-inline bool operator != (byte_string const & lhs, byte_string const & rhs)
-{
-    return lhs.compare(rhs) != 0;
-}
-
-inline bool operator < (byte_string const & lhs, byte_string const & rhs)
-{
-    return lhs.compare(rhs) < 0;
-}
-
-inline bool operator <= (byte_string const & lhs, byte_string const & rhs)
-{
-    return lhs.compare(rhs) <= 0;
-}
-
-inline bool operator > (byte_string const & lhs, byte_string const & rhs)
-{
-    return lhs.compare(rhs) > 0;
-}
-
-inline bool operator >= (byte_string const & lhs, byte_string const & rhs)
-{
-    return lhs.compare(rhs) >= 0;
-}
-
-inline bool operator == (byte_string const & lhs, const char * rhs)
-{
-    return lhs.compare(rhs) == 0;
-}
-
-inline bool operator != (byte_string const & lhs, const char * rhs)
-{
-    return lhs.compare(rhs) != 0;
-}
-
-inline bool operator < (byte_string const & lhs, const char * rhs)
-{
-    return lhs.compare(rhs) < 0;
-}
-
-inline bool operator <= (byte_string const & lhs, const char * rhs)
-{
-    return lhs.compare(rhs) <= 0;
-}
-
-inline bool operator > (byte_string const & lhs, const char * rhs)
-{
-    return lhs.compare(rhs) > 0;
-}
-
-inline bool operator >= (byte_string const & lhs, const char * rhs)
-{
-    return lhs.compare(rhs) >= 0;
-}
-
-inline bool operator == (const char * lhs, byte_string const & rhs)
-{
-    return rhs.compare(lhs) == 0;
-}
-
-inline bool operator != (const char * lhs, byte_string const & rhs)
-{
-    return rhs.compare(lhs) != 0;
-}
-
-inline bool operator < (const char * lhs, byte_string const & rhs)
-{
-    return rhs.compare(lhs) > 0;
-}
-
-inline bool operator <= (const char * lhs, byte_string const & rhs)
-{
-    return rhs.compare(lhs) >= 0;
-}
-
-inline bool operator > (const char * lhs, byte_string const & rhs)
-{
-    return rhs.compare(lhs) < 0;
-}
-
-inline bool operator >= (const char * lhs, byte_string const & rhs)
-{
-    return rhs.compare(lhs) <= 0;
-}
-
-template <typename Device>
-inline ssize_t write_binary (Device & dev, endian order, byte_string const & v)
-{
-    return details::sequence::write_binary<Device>(dev, order, v.c_str(), v.size());
-}
-
-template <typename Device>
-ssize_t read_binary (Device & dev, endian order, byte_string & v)
-{
-    char * buffer = 0;
-    size_t size = 0;
-
-    ssize_t result = details::sequence::read_binary<Device>(dev, order, & buffer, & size);
-
-    if (buffer) {
-        v.append(buffer, size);
-        delete buffer;
-    }
-
-    return result;
-}
+// template <typename Device>
+// inline ssize_t write_binary (Device & dev, endian order, byte_string const & v)
+// {
+//     return details::sequence::write_binary<Device>(dev, order, v.c_str(), v.size());
+// }
+// 
+// template <typename Device>
+// ssize_t read_binary (Device & dev, endian order, byte_string & v)
+// {
+//     char * buffer = 0;
+//     size_t size = 0;
+// 
+//     ssize_t result = details::sequence::read_binary<Device>(dev, order, & buffer, & size);
+// 
+//     if (buffer) {
+//         v.append(buffer, size);
+//         delete buffer;
+//     }
+// 
+//     return result;
+// }
 
 // TODO Must be deprecated
 

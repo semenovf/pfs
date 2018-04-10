@@ -1,55 +1,52 @@
 #pragma once
-
 #include <string>
 #include <pfs/endian.hpp>
 #include <pfs/memory.hpp>
 #include <pfs/types.hpp>
 #include <pfs/safeformat.hpp>
 #include <pfs/optional.hpp>
-#include <pfs/v2/byte_istream.hpp>
-#include <pfs/v2/byte_ostream.hpp>
+#include <pfs/v2/binary_ostream.hpp>
+#include <pfs/v2/binary_istream.hpp>
+#include <pfs/v2/byte_string.hpp>
 #include <pfs/v2/stdcxx/list.hpp>
 #include <pfs/v2/stdcxx/map.hpp>
 
 namespace pfs {
 
-inline pfs::byte_ostream & operator << (
-          pfs::byte_ostream & out
-        , std::string const & s)
-{
-    size_t n = s.size();
-    out << n;
-    for (size_t i = 0; i < n; i++)
-        out << s[i];
-    return out;
-}
-
-inline pfs::byte_istream & operator >> (
-              pfs::byte_istream & in
-            , std::string & s)
-{
-    size_t n;
-    char ch;
-    in >> n;
-
-    while (n--) {
-        in >> ch;
-        s.push_back(ch);
-    }
-    return in;
-}
-
-// AssociativeContainer requirements:
-//     insert(KEY, VALUE)
-//     find(KEY)
+// inline pfs::byte_ostream & operator << (
+//           pfs::byte_ostream & out
+//         , std::string const & s)
+// {
+//     size_t n = s.size();
+//     out << n;
+//     for (size_t i = 0; i < n; i++)
+//         out << s[i];
+//     return out;
+// }
+// 
+// inline pfs::byte_istream & operator >> (
+//               pfs::byte_istream & in
+//             , std::string & s)
+// {
+//     size_t n;
+//     char ch;
+//     in >> n;
+// 
+//     while (n--) {
+//         in >> ch;
+//         s.push_back(ch);
+//     }
+//     return in;
+// }
 
 template <uint8_t MajorVersion, uint8_t MinorVersion
         , typename String                  = std::string
         , typename MethodName              = String
         , typename Id                      = int32_t
-        , typename Order                   = pfs::endian::network_order()
         , typename AssociativeContainerTag = stdcxx::map
-        , typename SequenceContainerTag    = stdcxx::list>
+        , typename SequenceContainerTag    = stdcxx::list
+        , typename Order                   = endian::network_endian
+        , typename Archive                 = byte_string>
 struct rpc
 {
     typedef uint16_t   version_type;
@@ -57,6 +54,7 @@ struct rpc
     typedef MethodName method_name_type;
     typedef Id         id_type;
     typedef int32_t    error_code_type;
+    typedef Archive    archive_type;
 
     typedef safeformat<string_type> fmt;
 
@@ -183,40 +181,35 @@ public:
     //
 
 public:
-    typedef shared_ptr<byte_ostream> shared_response;
-    typedef shared_ptr<byte_ostream> shared_request;
+    typedef shared_ptr<archive_type> shared_archive;
 
-    static shared_response make_none ()
+    static shared_archive make_none ()
     {
         return shared_response();
     }
 
-    static shared_response make_success (id_type const & id)
+    static shared_archive make_success (id_type const & id)
     {
-        shared_response r = pfs::make_shared<byte_ostream>();
-        *r << MAJOR_VERSION << MINOR_VERSION << RPC_SUCCESS << id;
+        shared_archive r = pfs::make_shared<archive_type>();
+        binary_ostream(*r, Order) bos;
+        bos << MAJOR_VERSION << MINOR_VERSION << RPC_SUCCESS << id;
         return r;
     }
 
-    static shared_response make_error (id_type const & id, error_code_type ec)
+    static shared_archive make_error (id_type const & id, error_code_type ec)
     {
-        shared_response r = pfs::make_shared<byte_ostream>();
-        *r << MAJOR_VERSION << MINOR_VERSION << RPC_ERROR << id << ec;
+        shared_archive r = pfs::make_shared<archive_type>();
+        binary_ostream(*r, Order) bos;
+        bos << MAJOR_VERSION << MINOR_VERSION << RPC_ERROR << id << ec;
         return r;
     }
 
-    static shared_response make_error (error_code_type ec)
+    static shared_archive make_error (error_code_type ec)
     {
-        shared_response r = pfs::make_shared<byte_ostream>();
-        *r << MAJOR_VERSION << MINOR_VERSION << RPC_ERROR << ec;
+        shared_archive r = pfs::make_shared<archive_type>();
+        binary_ostream(*r, Order) bos;
+        bos << MAJOR_VERSION << MINOR_VERSION << RPC_ERROR << ec;
         return r;
-    }
-
-    template <typename T>
-    friend shared_response operator << (shared_response & rp, T const & x)
-    {
-        *rp << x;
-        return rp;
     }
 
 protected:
@@ -237,7 +230,7 @@ protected:
 //             return (*_f)(params);
 //         }
 
-        virtual shared_response call (id_type id, byte_istream & params) pfs_override
+        virtual shared_archive call (id_type id, byte_istream & params) pfs_override
         {
             return (*_f)(id, params);
         }
@@ -255,7 +248,7 @@ protected:
 //             return (_c.*_f)(params);
 //         }
 
-        virtual shared_response call (id_type id, byte_istream & params) pfs_override
+        virtual shared_archive call (id_type id, byte_istream & params) pfs_override
         {
             return (_c.*_f)(id, params);
         }
