@@ -98,5 +98,8 @@ struct iterators : details::iterators<T, Container>
     iterators (typename base_class::container_type & ac) : base_class(ac) {}
 };
 
+template <typename C>
+size_t size (C const & c) { return c.size(); }
+
 }} // pfs::container
 

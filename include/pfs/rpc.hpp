@@ -1,49 +1,79 @@
 #pragma once
 
 #include <string>
-#include <iostream>
-#include <map>
+#include <pfs/endian.hpp>
 #include <pfs/memory.hpp>
 #include <pfs/types.hpp>
 #include <pfs/safeformat.hpp>
 #include <pfs/optional.hpp>
+#include <pfs/v2/byte_istream.hpp>
+#include <pfs/v2/byte_ostream.hpp>
 #include <pfs/v2/stdcxx/list.hpp>
 #include <pfs/v2/stdcxx/map.hpp>
 
 namespace pfs {
 
-//
-// Based on [JSON-RPC 2.0 Specification](http://www.jsonrpc.org/specification)
-//
+inline pfs::byte_ostream & operator << (
+          pfs::byte_ostream & out
+        , std::string const & s)
+{
+    size_t n = s.size();
+    out << n;
+    for (size_t i = 0; i < n; i++)
+        out << s[i];
+    return out;
+}
+
+inline pfs::byte_istream & operator >> (
+              pfs::byte_istream & in
+            , std::string & s)
+{
+    size_t n;
+    char ch;
+    in >> n;
+
+    while (n--) {
+        in >> ch;
+        s.push_back(ch);
+    }
+    return in;
+}
 
 // AssociativeContainer requirements:
 //     insert(KEY, VALUE)
 //     find(KEY)
 
-template <int MajorVersion, int MinorVersion
-        , typename String        = std::string
-        , typename MethodType    = String
-        , typename IdType        = int32_t
+template <uint8_t MajorVersion, uint8_t MinorVersion
+        , typename String                  = std::string
+        , typename MethodName              = String
+        , typename Id                      = int32_t
+        , typename Order                   = pfs::endian::network_order()
         , typename AssociativeContainerTag = stdcxx::map
-        , typename SequenceContainerTag = stdcxx::list
-        , typename OStreamType   = std::ostream
-        , typename IStreamType   = std::istream>
+        , typename SequenceContainerTag    = stdcxx::list>
 struct rpc
 {
-    typedef uint16_t      version_type;
-    typedef String        string_type;
-    typedef MethodType    method_type;
-    typedef IdType        id_type;
-    typedef int32_t       error_code_type;
-    typedef OStreamType   ostream_type;
-    typedef IStreamType   istream_type;
+    typedef uint16_t   version_type;
+    typedef String     string_type;
+    typedef MethodName method_name_type;
+    typedef Id         id_type;
+    typedef int32_t    error_code_type;
 
     typedef safeformat<string_type> fmt;
+
+    static uint8_t const MAJOR_VERSION = MajorVersion;
+    static uint8_t const MINOR_VERSION = MinorVersion;
+
+    static uint8_t const RPC_METHOD       = 1;
+    static uint8_t const RPC_NOTIFICATION = 2;
+    static uint8_t const RPC_SUCCESS      = 3;
+    static uint8_t const RPC_ERROR        = 4;
 
     //
     // Error codes
     //
     static error_code_type const NO_ERROR = 0;
+
+    static error_code_type const BAD_VERSION = 1;
 
     // Invalid JSON was received by the server.
     // An error occurred on the server while parsing
@@ -65,9 +95,6 @@ struct rpc
     // -32000 to -32099 Reserved for implementation-defined server-errors.
     static error_code_type const SERVER_ERROR = -32000;
 
-    static error_code_type const MAJOR_VERSION = MajorVersion;
-    static error_code_type const MINOR_VERSION = MinorVersion;
-
     static inline string_type version_s ()
     {
         return fmt("%d.%d")
@@ -79,25 +106,6 @@ struct rpc
     {
         return MAJOR_VERSION * 100 + MINOR_VERSION;
     }
-
-//     struct basic_params {};
-//     struct basic_result {};
-//     struct basic_error_data {};
-
-private:
-    struct entity
-    {
-        version_type      _version;
-        optional<id_type> _id;
-
-        entity () : _version(version()) {}
-        entity (id_type const & id) : _version(version()), _id(id) {}
-
-        inline id_type const & id () const
-        {
-            return *_id;
-        }
-    };
 
 public:
     //
@@ -126,41 +134,6 @@ public:
     //      to be a notification. The value SHOULD normally not be Null and
     //      Numbers SHOULD NOT contain fractional parts.
     //
-    class request : public entity
-    {
-    protected:
-        method_type _method;
-//        optional<basic_params> _params;
-
-    public:
-        // Construct notification
-        request (method_type const & method)
-            : entity()
-            , _method(method)
-        {}
-
-        // Construct request
-        request (id_type const & id, method_type const & method)
-            : entity(id)
-            , _method(method)
-        {}
-
-        inline bool is_request () const pfs_noexcept
-        {
-            return this->_id.has_value();
-        }
-
-        inline bool is_notification () const pfs_noexcept
-        {
-            return !this->_id.has_value();
-        }
-
-        inline method_type const & method () const pfs_noexcept
-        {
-            return _method;
-        }
-    };
-
     //
     // Response object
     // -----------------------------------------------------------------------------
@@ -208,178 +181,222 @@ public:
     //      The value of this member is defined by the Server (e.g. detailed error
     //      information, nested errors etc.).
     //
-    class response : public entity
+
+public:
+    typedef shared_ptr<byte_ostream> shared_response;
+    typedef shared_ptr<byte_ostream> shared_request;
+
+    static shared_response make_none ()
     {
-        error_code_type       _ec;
-        optional<string_type> _msg;
-        // optional<error_data>  _data;
+        return shared_response();
+    }
 
-    public:
-        response () : entity(), _ec(NO_ERROR) {}
-        response (id_type const & id, error_code_type ec = NO_ERROR)
-            : entity(id)
-            , _ec(ec)
-        {}
+    static shared_response make_success (id_type const & id)
+    {
+        shared_response r = pfs::make_shared<byte_ostream>();
+        *r << MAJOR_VERSION << MINOR_VERSION << RPC_SUCCESS << id;
+        return r;
+    }
 
-        bool is_success () const pfs_noexcept
+    static shared_response make_error (id_type const & id, error_code_type ec)
+    {
+        shared_response r = pfs::make_shared<byte_ostream>();
+        *r << MAJOR_VERSION << MINOR_VERSION << RPC_ERROR << id << ec;
+        return r;
+    }
+
+    static shared_response make_error (error_code_type ec)
+    {
+        shared_response r = pfs::make_shared<byte_ostream>();
+        *r << MAJOR_VERSION << MINOR_VERSION << RPC_ERROR << ec;
+        return r;
+    }
+
+    template <typename T>
+    friend shared_response operator << (shared_response & rp, T const & x)
+    {
+        *rp << x;
+        return rp;
+    }
+
+protected:
+    struct basic_binder
+    {
+        //virtual shared_response call (byte_istream &) = 0;
+        virtual shared_response call (id_type, byte_istream &) = 0;
+    };
+
+    template <typename F>
+    struct function_binder : basic_binder
+    {
+        F _f;
+        function_binder (F f) : _f(f) {}
+
+//         virtual shared_response call (byte_istream & params) pfs_override
+//         {
+//             return (*_f)(params);
+//         }
+
+        virtual shared_response call (id_type id, byte_istream & params) pfs_override
         {
-            return _ec == NO_ERROR;
-        }
-
-        bool is_error () const pfs_noexcept
-        {
-            return _ec != NO_ERROR;
-        }
-
-        error_code_type code () const pfs_noexcept
-        {
-            return _ec;
-        }
-
-        void set_code (error_code_type ec)
-        {
-            _ec = ec;
-        }
-
-        void set_message (string_type const & m)
-        {
-            _msg = m;
+            return (*_f)(id, params);
         }
     };
 
-    typedef shared_ptr<request>  shared_request;
-    typedef shared_ptr<response> shared_response;
+    template <typename F, typename C>
+    struct method_binder : basic_binder
+    {
+        F _f;
+        C & _c;
+        method_binder (F f, C & c) : _f(f), _c(c) {}
 
-    template <typename MethodPool>
+//         virtual shared_response call (byte_istream & params) pfs_override
+//         {
+//             return (_c.*_f)(params);
+//         }
+
+        virtual shared_response call (id_type id, byte_istream & params) pfs_override
+        {
+            return (_c.*_f)(id, params);
+        }
+    };
+
+    typedef shared_ptr<basic_binder> shared_binder;
+
+public:
     class server
     {
+    public:
+        typedef byte_istream request;
+
+    private:
         typedef typename rpc::string_type string_type;
         typedef typename rpc::id_type     id_type;
-        typedef shared_response (MethodPool::*method) (request const & requ);
 
         struct repository_traits
         {
             typedef typename associative_container::type_traits<
-                      method_type
-                    , method
+                      method_name_type
+                    , shared_binder
                     , AssociativeContainerTag>::type type;
-           
+
             typedef associative_container::iterators<
-                      method_type
-                    , method
+                      method_name_type
+                    , shared_binder
                     , type> iterators;
-                
+
             typedef associative_container::inserter<
-                      method_type
-                    , method
+                      method_name_type
+                    , shared_binder
                     , type> inserter;
-                    
+
             typedef associative_container::finder<
-                      method_type
-                    , method
+                      method_name_type
+                    , shared_binder
                     , type> finder;
-                    
+
             typedef typename iterators::iterator iterator;
             typedef typename iterators::const_iterator const_iterator;
         };
 
     public:
-        server () : _method_pool(*this) {}
+        server () {}
 
-        inline void register_method (method_type const & name, method m)
+        template <typename F>
+        inline void bind (method_name_type const & method_name, F f)
         {
-            typename repository_traits::inserter(_method_repo).insert(name, m);
+              typename repository_traits::inserter(_method_repo).insert(method_name
+                      , pfs::static_pointer_cast<basic_binder>(pfs::make_shared<function_binder<F>, F>(f)));
         }
 
-        shared_ptr<response> null_response () const
+        template <typename F, typename C>
+        inline void bind (method_name_type const & method_name, F f, C & c)
         {
-            return shared_response();
-        }   
-
-        shared_response make_success (id_type const & id) const
-        {
-            return pfs::make_shared<response>(id);
+            typename repository_traits::inserter(_method_repo).insert(method_name
+                    , pfs::static_pointer_cast<basic_binder>(pfs::make_shared<method_binder<F, C>, F, C>(f, c)));
         }
 
-        shared_response make_error (error_code_type code) const
-        {
-            shared_response r = pfs::make_shared<response>();
-            r->set_code(code);
-            return r;
-        }
-
-        shared_response make_error (id_type const & id, error_code_type code) const
-        {
-            return pfs::make_shared<response>(id, code);
-        }
-
-        inline shared_response exec (shared_request const & requ)
-        {
-            return this->exec(*requ);
-        }
-
-        shared_response exec (request const & requ)
+        shared_response exec (request & rq)
         {
             typename repository_traits::finder finder(_method_repo);
             typename repository_traits::iterators iterators(_method_repo);
-            typename repository_traits::const_iterator it = finder.find(requ.method());
+
+            uint8_t major_version;
+            uint8_t minor_version;
+            uint8_t rpc_type;
+            id_type id;
+            method_name_type method_name;
+
+            rq >> major_version >> minor_version >> rpc_type;
+
+            if (!(major_version == MAJOR_VERSION && minor_version == MINOR_VERSION))
+                return make_error(BAD_VERSION);
+
+            if (rpc_type == RPC_METHOD)
+                rq >> id;
+            else if (rpc_type == RPC_NOTIFICATION) {
+                ;
+            } else {
+                return make_error();
+            }
+
+            rq >> method_name;
+
+            typename repository_traits::const_iterator it = finder.find(method_name);
 
             if (it == iterators.cend()) {
-                if (requ.is_request())
-                    return make_error(requ.id(), METHOD_NOT_FOUND);
+                if (rpc_type == RPC_METHOD)
+                    return make_error(id, METHOD_NOT_FOUND);
                 return make_error(METHOD_NOT_FOUND);
             }
 
-            method const & m = iterators.value(it);
-            return (_method_pool.*m)(requ);
+            shared_binder const & m = iterators.value(it);
+            return m->call(rq);
         }
 
     private:
-        MethodPool _method_pool;
         typename repository_traits::type _method_repo;
     };
 
-    template <typename ResultPool>
     class client
     {
         typedef typename rpc::string_type string_type;
         typedef typename rpc::id_type     id_type;
-        typedef void (ResultPool::*result_handler) (response const & rp);
 
-        struct cache_traits 
+        struct calls_traits
         {
-            typedef typename sequence_container::type_traits<
-                      result_handler
-                    , SequenceContainerTag>::type type;
+             typedef typename sequence_container::type_traits<
+                       shared_binder
+                     , SequenceContainerTag>::type type;
 
-            typedef sequence_container::iterators<
-                      result_handler
-                    , type> iterators;
+             typedef sequence_container::iterators<
+                       shared_binder
+                     , type> iterators;
 
-            typedef typename iterators::iterator iterator;
-            typedef typename iterators::const_iterator const_iterator;
+             typedef typename iterators::iterator iterator;
+             typedef typename iterators::const_iterator const_iterator;
         };
 
-        struct cache_mapper_traits
+        struct calls_mapper_traits
         {
-            typedef typename associative_container::type_traits<
-                      id_type
-                    , typename cache_traits::iterator
-                    , AssociativeContainerTag>::type type;
-                    
+             typedef typename associative_container::type_traits<
+                       id_type
+                     , typename calls_traits::iterator
+                     , AssociativeContainerTag>::type type;
+
             typedef associative_container::iterators<
                       id_type
-                    , typename cache_traits::iterator
+                    , typename calls_traits::iterator
                     , type> iterators;
 
             typedef associative_container::inserter<
                       id_type
-                    , typename cache_traits::iterator
+                    , typename calls_traits::iterator
                     , type> inserter;
-                    
+
             typedef associative_container::finder<
                       id_type
-                    , typename cache_traits::iterator
+                    , typename calls_traits::iterator
                     , type> finder;
 
             typedef typename iterators::iterator       iterator;
@@ -387,20 +404,20 @@ public:
         };
 
     public:
-        client () : _result_pool(*this) {}
+        client () {}
 
-        shared_request make_request (id_type const & id, method_type const & method)
+        shared_request make_request (id_type const & id, method_name_type const & method_name)
         {
-            shared_request rq = pfs::make_shared<request>(id, method);
-
-            //_cache.insert
-
-            return rq;
+            shared_request r = pfs::make_shared<byte_ostream>();
+            *r << MAJOR_VERSION << MINOR_VERSION << RPC_METHOD << id << method_name;
+            return r;
         }
 
-        static shared_request make_notification (method_type const & method)
+        shared_request make_notification (method_name_type const & method_name)
         {
-            return pfs::make_shared<request>(method);
+            shared_request r = pfs::make_shared<byte_ostream>();
+            *r << MAJOR_VERSION << MINOR_VERSION << RPC_NOTIFICATION << method_name;
+            return r;
         }
 
 //         void register_success_handler (id_type const & id, success_handler sh)
@@ -418,7 +435,9 @@ public:
 //             _default_error_handler = h;
 //         }
 //
-        bool process (response const & rp);
+  //      bool process (response const & rp);
+
+        void call ();
 
     protected:
 //         typedef typename Traits::template associative_container<id_type
@@ -429,11 +448,10 @@ public:
 //
 //         error_handler_type _default_error_handler;
 //
-        ResultPool                         _result_pool;
-        typename cache_traits::type        _cache;
-        typename cache_mapper_traits::type _cache_mapper;
-//         result_map_type _result_handlers;
-//         error_map_type  _error_handlers;
+         typename calls_traits::type        _calls;
+         typename calls_mapper_traits::type _cache_mapper;
+// //         result_map_type _result_handlers;
+// //         error_map_type  _error_handlers;
     };
 };
 
