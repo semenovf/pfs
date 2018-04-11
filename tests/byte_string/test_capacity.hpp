@@ -2,7 +2,7 @@
 
 void test_capacity ()
 {
-    ADD_TESTS(12);
+    ADD_TESTS(13);
 
     pfs::byte_string bs_empty;
     pfs::byte_string bs_empty1("");
@@ -30,8 +30,6 @@ void test_capacity ()
     TEST_OK(bs.size() < bs.capacity());
     bs.shrink_to_fit();
 
-#if __cplusplus >= 201103L
-    ADD_TESTS(1);
-    TEST_OK(bs.size() == bs.capacity())
-#endif
+    // It is a non-binding request to reduce capacity() to size()
+    TEST_OK(bs.size() <= bs.capacity())
 }
