@@ -1,12 +1,11 @@
-#ifndef __PFS_JSON_JSON_HPP__
-#define __PFS_JSON_JSON_HPP__
-
+#pragma once
 #include <cstring>
 #include <pfs/assert.hpp>
 #include <pfs/utility.hpp>
 #include <pfs/memory.hpp>
 #include <pfs/string.hpp>
 #include <pfs/byte_string.hpp>
+#include <pfs/byte_istream.hpp>
 #include <pfs/traits/associative_container.hpp>
 #include <pfs/traits/sequence_container.hpp>
 #include <pfs/json/constants.hpp>
@@ -1372,5 +1371,3 @@ to_string (json::json<JsonTraits> const & v)
 }
 
 } // pfs
-
-#endif /* __PFS_JSON_JSON_HPP__ */

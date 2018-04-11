@@ -1,6 +1,4 @@
-#ifndef __PFS_STRING_HPP__
-#define __PFS_STRING_HPP__
-
+#pragma once
 #include <ostream>
 #include <istream>
 #include <string>
@@ -12,6 +10,7 @@
 #include <pfs/exception.hpp>
 #include <pfs/iterator.hpp>
 #include <pfs/byte_string.hpp>
+#include <pfs/byte_ostream.hpp>
 #include <pfs/unicode/char.hpp>
 #include <pfs/unicode/unicode_iterator.hpp>
 
@@ -1063,5 +1062,3 @@ template <typename U32StringType, typename StringType>
 U32StringType u32string (StringType const & s);
 
 } // pfs
-
-#endif /* __PFS_STRING_HPP__ */

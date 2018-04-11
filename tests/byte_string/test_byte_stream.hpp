@@ -1,9 +1,5 @@
-#ifndef __TEST_APPEND_HPP__
-#define __TEST_APPEND_HPP__
-
-#include "pfs/compiler.hpp"
+#pragma once
 #include "pfs/limits.hpp"
-
 #include <iostream>
 
 void test_byte_ostream_integral ()

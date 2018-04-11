@@ -1,6 +1,4 @@
-#ifndef __PFS_TRAITS_STDCXX_STRING_HPP__
-#define __PFS_TRAITS_STDCXX_STRING_HPP__
-
+#pragma once
 #include <ostream>
 #include <istream>
 #include <string>
@@ -8,6 +6,7 @@
 #include <pfs/iterator.hpp>
 #include <pfs/cxxlang.hpp>
 #include <pfs/byte_string.hpp>
+#include <pfs/byte_ostream.hpp>
 #include <pfs/traits/string_value_ref.hpp>
 
 namespace pfs {
@@ -328,5 +327,3 @@ inline wstring::size_type wstring::length (const_pointer str)
 }
 
 }} // pfs::stdcxx
-
-#endif /* __PFS_TRAITS_STDCXX_STRING_HPP__ */
