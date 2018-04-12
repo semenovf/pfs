@@ -8,10 +8,9 @@ install:
   - sudo apt-get install -qq libboost-thread-dev
   - sudo apt-get install -qq libboost-chrono-dev
   - sudo apt-get install -qq libboost-regex-dev
-  
+
 script:
   - mkdir -p build
   - cd build
   - cmake -DCMAKE_CXX_STANDARD=98 ..
-  - cmake --build .
-  - make test
+  - cmake --build . && make test

@@ -24,7 +24,7 @@ public:
 
 #if __cplusplus >= 201103L
     pfs_constexpr optional (optional && rhs) pfs_noexcept
-        : base_class(std::forward(rhs))
+        : base_class(std::forward<optional>(rhs))
     {}
 #endif
 
@@ -66,7 +66,7 @@ public:
 #if __cplusplus >= 201103L
     optional & operator = (optional && rhs) pfs_noexcept
     {
-        base_class::operator = (std::move(rhs));
+        base_class::operator = (std::forward<optional>(rhs));
         return *this;
     }
 #endif
@@ -75,7 +75,7 @@ public:
     template <typename U = T>
     optional & operator = (U && value)
     {
-        base_class::operator = (std::forward(value));
+        base_class::operator = (std::forward<U>(value));
         return *this;
     }
 #endif
@@ -89,23 +89,22 @@ public:
 
 #if __cplusplus >= 201103L
     template <typename U>
-    optional & operator = (optional<U> && rhs);
+    optional & operator = (optional<U> && rhs)
     {
+        base_class::operator = (std::forward<U>(rhs));
         return *this;
     }
 #endif
 
     //
-    // Boost specific constructors and copy opertators
+    // Boost specific constructors and copy operators
     //
-#if __cplusplus < 201103L
     optional (T const & v) : base_class(v) {}
     optional & operator = (T const & v)
     {
         base_class::operator = (v);
         return *this;
     }
-#endif
 
     pfs_constexpr operator bool () const pfs_noexcept
     {
@@ -117,6 +116,7 @@ public:
         return bool(*this);
     }
 
+#if __cplusplus >= 201103L
     /**
      * @fn template<typename U>
      *     pfs_constexpr T value_or (U && default_value) const &;
@@ -128,7 +128,9 @@ public:
      *     constexpr T value_or (U && default_value) &&;
      * @note for >= C++11
      */
+#endif
 
+#if __cplusplus < 201103L
     /**
      * @fn template<typename U>
      *     pfs_constexpr T value_or (U & default_value) const;
@@ -140,6 +142,7 @@ public:
      *     pfs_constexpr T value_or (U const & default_value) const;
      * @note for prior to C++11
      */
+#endif
 };
 
 // template <typename T>

@@ -23,6 +23,7 @@ typedef byte_string::const_reverse_iterator const_reverse_iterator;
 #include "test_iterators.hpp"
 #include "test_capacity.hpp"
 #include "test_operations.hpp"
+#include "test_search.hpp"
 
 int main (int argc, char *argv[])
 {
@@ -37,6 +38,7 @@ int main (int argc, char *argv[])
     test_iterators();
     test_capacity();
     test_operations();
+    test_search();
 
     return END_TESTS;
 }
