@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+#include <iterator>
 #include <pfs/types.hpp>
 //#include <pfs/limits.hpp>
 //#include <pfs/type_traits.hpp>
@@ -22,18 +23,18 @@ public:
     using base_class::erase;
     using base_class::insert;
 
-    typedef base_class::value_type                value_type;
-    typedef typename base_class::traits_type      traits_type;
-    typedef typename base_class::size_type        size_type;
-    typedef typename base_class::difference_type  difference_type;
-    typedef typename base_class::reference        reference;
-    typedef typename base_class::const_reference  const_reference;
-    typedef typename base_class::pointer          pointer;
-    typedef typename base_class::const_pointer    const_pointer;
-    typedef typename base_class::iterator         iterator;
-    typedef typename base_class::const_iterator   const_iterator;
-    typedef typename base_class::reverse_iterator reverse_iterator;
-    typedef typename base_class::const_reverse_iterator const_reverse_iterator;
+    typedef base_class::value_type       value_type;
+    typedef base_class::traits_type      traits_type;
+    typedef base_class::size_type        size_type;
+    typedef base_class::difference_type  difference_type;
+    typedef base_class::reference        reference;
+    typedef base_class::const_reference  const_reference;
+    typedef base_class::pointer          pointer;
+    typedef base_class::const_pointer    const_pointer;
+    typedef base_class::iterator         iterator;
+    typedef base_class::const_iterator   const_iterator;
+    typedef base_class::reverse_iterator reverse_iterator;
+    typedef base_class::const_reverse_iterator const_reverse_iterator;
 
     typedef pfs::shared_ptr<byte_string> shared_type;
 
@@ -417,7 +418,23 @@ public:
     }
 
     /**
-     *
+     * @fn byte_string & insert (size_type index, const_pointer s, size_type count)
+     */
+
+    /**
+     * @fn byte_string & insert (size_type index, char const * s, size_type count)
+     */
+    byte_string & insert (size_type index, char const * s, size_type count)
+    {
+        base_class::insert(index, reinterpret_cast<const_pointer>(s), count);
+        return *this;
+    }
+
+    /**
+     * @fn byte_string & insert (size_type index, byte_string const & s)
+     */
+
+    /**
      */
     byte_string & insert (size_type index, std::string const & s)
     {
@@ -425,58 +442,117 @@ public:
         return *this;
     }
 
+    /**
+     * @fn basic_string& insert (size_type index, basic_string const & str
+     *              , size_type index_str, size_type count)
+     */
+#if __cplusplus < 201402L
+    // Reimplement to meet C++14 
+    basic_string & insert (size_type index, basic_string const & str
+                   , size_type index_str, size_type count)
+    {
+        base_class::insert(index, str, index_str, count);
+        return *this;
+    }
+#endif
 
-//     byte_string & insert (size_type index, const_pointer s, size_type count)
-//     {
-//         base_class::insert(index, s, count);
-//         return *this;
-//     }
+    basic_string & insert (size_type index, std::string const & str
+                   , size_type index_str, size_type count)
+    {
+        base_class::insert(index
+                , reinterpret_cast<const_pointer>(str.data() + index_str)
+                , count);
+        return *this;
+    }
 
-//     byte_string & insert (size_type index, byte_string const & s)
-//     {
-//         base_class::insert(index, s._d);
-//         return *this;
-//     }
+    /**
+     * @fn iterator insert (const_iterator pos, value_type ch)
+     */
+    //
+    // http://en.cppreference.com/w/cpp/string/basic_string/insert
+    // says 
+    //      iterator insert (iterator pos, CharT ch ); (until C++11)
+    // but gcc implements it as meet C++11 standard
+    //      iterator insert (iterator pos, CharT ch ); (since C++11)
+    // so need checks with various versions of standard C++ library
+    //
+#if __cplusplus < 201103L
+    iterator insert (const_iterator pos, value_type ch)
+    {
+        size_type index = pos - begin();
+        byte_string::insert(index, 1, ch);
+        return iterator(begin() + index);
+    }
+#endif
 
-//     byte_string & insert (size_type index, byte_string const & s
-//             , size_type index_str, size_type count = npos)
-//     {
-//         base_classinsert(index, s._d, index_str, count);
-//         return *this;
-//     }
+    /**
+     */
+    iterator insert (const_iterator pos, char ch)
+    {
+        // Do not use base_class::insert here.
+        // Will be used above method for C++ prior to C++11
+        return byte_string::insert(pos, value_type(ch));
+    }
 
-    // FIXME
-    //	iterator insert (const_iterator pos, value_type ch)
-    //	{
-    //#if __cplusplus < 201103L
-    //		size_type index = pos - cbegin();
-    //		insert(index, ch);
-    //		return iterator(begin() + index);
-    //#else
-    //		return _d.insert(pos, ch);
-    //#endif
-    //	}
+    /**
+     * @fn iterator insert (const_iterator pos, size_type count, value_type ch);
+     */
+#if __cplusplus < 201103L
+    iterator insert (const_iterator pos, size_type count, value_type ch)
+    {
+        size_type index = std::distance(cbegin(), pos);
+        base_class::insert(begin() + index, count, ch);
+        return begin() + index;
+    }
+#endif
 
-    // FIXME
-    //	iterator insert (const_iterator pos, size_type count, value_type ch)
-    //	{
-    //#if __cplusplus < 201103L
-    //		iterator it(begin());
-    //		std::advance(it, std::distance<const_iterator>(begin(), pos));
-    //		_d.insert(it, count, ch);
-    //		it = begin();
-    //		std::advance(it, std::distance<const_iterator>(begin(), pos));
-    //		return it;
-    //#else
-    //		return _d.insert(pos, count, ch);
-    //#endif
-    //	}
+    iterator insert (const_iterator pos, size_type count, char ch)
+    {
+        return byte_string::insert(pos, count, value_type(ch));
+    }
 
-//     template <typename InputIterator>
-//     iterator insert (const_iterator pos, InputIterator first, InputIterator last)
-//     {
-//         return _d.insert<InputIterator>(pos, first, last);
-//     }
+    /**
+     * @fn template <typename InputIt>
+     *     iterator insert (const_iterator pos, InputIt first, InputIt last);
+     */
+#if __cplusplus < 201103L
+    template <typename InputIt>
+    iterator insert (const_iterator pos, InputIt first, InputIt last)
+    {
+        size_type index = std::distance(cbegin(), pos);
+        base_class::insert(begin() + index, first, last);
+        return begin() + index;
+    }
+#endif
+
+#if __cplusplus >= 201103L
+    /**
+    * @fn iterator insert (const_iterator pos, std::initializer_list<value_type> ilist)
+    */
+    
+    /**
+     */
+    iterator insert (const_iterator pos, std::initializer_list<char> ilist)
+    {
+        return base_class::insert(pos, ilist.begin(), ilist.end());
+    }
+#endif
+
+#if __cplusplus > 201402L
+    /**
+     * @fn template <typename T>
+     *     basic_string & insert (size_type pos, T const & t)
+     */
+    
+    /**
+     * /@fn template <typename T>
+     *      basic_string & insert (size_type index, T const & t
+     *              , size_type index_str, size_type count = npos)
+     */
+#endif
+
+
+
 
 //     byte_string & erase (size_type index = 0, size_type count = npos)
 //     {

@@ -2,10 +2,14 @@
 
 void test_capacity ()
 {
+    std::cout << "///////////////////////////////////////////////////////////////////////////\n";
+    std::cout << "//                              Capacity                                 //\n";
+    std::cout << "///////////////////////////////////////////////////////////////////////////\n";
+
     ADD_TESTS(13);
 
-    pfs::byte_string bs_empty;
-    pfs::byte_string bs_empty1("");
+    byte_string bs_empty;
+    byte_string bs_empty1("");
 
     TEST_OK(!bs_sample.empty());
     TEST_OK(bs_empty.empty());
@@ -22,8 +26,8 @@ void test_capacity ()
     TEST_OK(bs_sample.max_size() == bs_empty.max_size()
             && bs_empty.max_size() == bs_empty1.max_size());
 
-    pfs::byte_string bs(bs_sample);
-    pfs::byte_string::size_type newcap = bs.capacity() + 10;
+    byte_string bs(bs_sample);
+    size_type newcap = bs.capacity() + 10;
     bs.reserve(newcap);
     TEST_OK(bs.capacity() >= newcap);
 

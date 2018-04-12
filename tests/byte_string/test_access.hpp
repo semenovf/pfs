@@ -2,10 +2,14 @@
 
 void test_access ()
 {
+    std::cout << "///////////////////////////////////////////////////////////////////////////\n";
+    std::cout << "//                               Access                                  //\n";
+    std::cout << "///////////////////////////////////////////////////////////////////////////\n";
+    
     ADD_TESTS(21);
 
-    pfs::byte_string const bs_const(bs_sample);
-    pfs::byte_string bs_mutable(bs_sample);
+    byte_string const bs_const(bs_sample);
+    byte_string bs_mutable(bs_sample);
 
     TEST_OK(bs_sample.at(0) == 'b');
     TEST_OK(bs_sample.at(1) == 'y');
@@ -33,8 +37,8 @@ void test_access ()
     TEST_OK(bs_sample.back() == 'g');
     TEST_OK(bs_const.back() == 'g');
 
-    pfs::byte_string::const_pointer raw_const = bs_const.data();
-    pfs::byte_string::pointer raw_mutable = bs_mutable.data();
+    const_pointer raw_const = bs_const.data();
+    pointer raw_mutable = bs_mutable.data();
 
     raw_mutable[0] = 'e';
     raw_mutable[1] = 't';

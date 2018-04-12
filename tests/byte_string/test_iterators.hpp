@@ -8,11 +8,11 @@ void test_iterators ()
     std::cout << "//                             Iterators                                 //\n";
     std::cout << "///////////////////////////////////////////////////////////////////////////\n";
 
-    pfs::byte_string bs_mutable(bs_sample);
-    pfs::byte_string const bs_const(bs_sample);
+    byte_string bs_mutable(bs_sample);
+    byte_string const bs_const(bs_sample);
 
-    pfs::byte_string::iterator first1 = bs_mutable.begin();
-    pfs::byte_string::iterator last1  = bs_mutable.end();
+    iterator first1 = bs_mutable.begin();
+    iterator last1  = bs_mutable.end();
 
     TEST_OK(*first1++ == 'b');
     TEST_OK(*first1++ == 'y');
@@ -43,21 +43,21 @@ void test_iterators ()
     *--last1 = 'g';
     TEST_OK(std::strcmp(bs_mutable.c_str(), "etyb_gnirts") == 0)
 
-    pfs::byte_string::const_iterator first2 = bs_mutable.cbegin();
-    pfs::byte_string::const_iterator last2  = bs_mutable.cend();
+    const_iterator first2 = bs_mutable.cbegin();
+    const_iterator last2  = bs_mutable.cend();
 
     TEST_OK(first2 < last2);
     TEST_OK(last2 > first2);
 
-    pfs::byte_string::const_iterator first3 = bs_const.begin();
-    pfs::byte_string::const_iterator last3 = bs_const.end();
+    const_iterator first3 = bs_const.begin();
+    const_iterator last3 = bs_const.end();
 
     TEST_OK(first3 + 5 == last3 - 6);
     TEST_OK(*(first3 + 5) == 's');
     TEST_OK(*(last3 - 6) == 's');
 
-    pfs::byte_string::const_iterator first4 = bs_const.cbegin();
-    pfs::byte_string::const_iterator last4 = bs_const.cend();
+    const_iterator first4 = bs_const.cbegin();
+    const_iterator last4 = bs_const.cend();
 
     TEST_OK(first4 != last4);
 
@@ -65,8 +65,8 @@ void test_iterators ()
     //
     // Reverse iterator
     //
-    pfs::byte_string::reverse_iterator first5 = bs_mutable.rbegin();
-    pfs::byte_string::reverse_iterator last5  = bs_mutable.rend();
+    reverse_iterator first5 = bs_mutable.rbegin();
+    reverse_iterator last5  = bs_mutable.rend();
 
     TEST_OK(*first5++ == 's');
     TEST_OK(*first5++ == 't');
@@ -97,8 +97,8 @@ void test_iterators ()
     *--last5 = 'e';
     TEST_OK(std::strcmp(bs_mutable.c_str(), "byte_string") == 0)
 
-    pfs::byte_string::const_reverse_iterator first6 = bs_mutable.crbegin();
-    pfs::byte_string::const_reverse_iterator last6  = bs_mutable.crend();
+    const_reverse_iterator first6 = bs_mutable.crbegin();
+    const_reverse_iterator last6  = bs_mutable.crend();
 
     TEST_OK(first6 < last6);
     TEST_OK(last6 > first6);
