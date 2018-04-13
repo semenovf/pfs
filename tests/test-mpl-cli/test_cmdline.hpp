@@ -2,7 +2,7 @@
 #define __TEST_CMDLINE_HPP__
 
 #include <cstring>
-#include <pfs/test/test.hpp>
+#include <pfs/test.hpp>
 #include <pfs/mpl/impl/stdc/string.hpp>
 #include <pfs/mpl/cli/cmdline.hpp>
 

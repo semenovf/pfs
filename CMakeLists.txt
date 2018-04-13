@@ -8,6 +8,5 @@ enable_testing()
 set(PFS_TARGET_SHARED_LIB_NAME pfs)
 set(PFS_TARGET_STATIC_LIB_NAME pfs-static)
 
-add_subdirectory(src/pfs-test)
 add_subdirectory(src/pfs)
 add_subdirectory(tests)

@@ -1,4 +1,4 @@
-#include <pfs/test/test.hpp>
+#include <pfs/test.hpp>
 #include <pfs/thread.hpp>
 #include <pfs/byte_string.hpp>
 #include <pfs/io/device.hpp>

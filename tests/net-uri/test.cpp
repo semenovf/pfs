@@ -1,4 +1,4 @@
-#include "pfs/test/test.hpp"
+#include "pfs/test.hpp"
 #include "pfs/string.hpp"
 #include "pfs/net/uri.hpp"
 #include "pfs/traits/stdcxx/string.hpp"
@@ -34,221 +34,220 @@ typedef pfs::net::uri_grammar<uri> uri_grammar;
 
 static pfs::fsm::test_entry __test_entries[] = {
 
+        /* "!" / "$" / "&" / "'" / "(" / ")"
+                / "*" / "+" / "," / ";" / "=" */
+        , { VHEADER(sub_delims_tr)
+            , { "!", "$", "&", "'", VNULL }
+            , { INULL }}
 
-		/* "!" / "$" / "&" / "'" / "(" / ")"
-		       / "*" / "+" / "," / ";" / "=" */
-		, { VHEADER(sub_delims_tr)
-			, { "!", "$", "&", "'", VNULL }
-			, { INULL }}
+        , { VHEADER(sub_delims_tr)
+            , { "(", ")", "*", "+", VNULL }
+            , { INULL }}
 
-		, { VHEADER(sub_delims_tr)
-			, { "(", ")", "*", "+", VNULL }
-			, { INULL }}
-
-		, { VHEADER(sub_delims_tr)
-			, { ",", ";", "=", VNULL }
-			, {   {-1, ":" }
-				, {-1, "~" }
-				, {-1, "\\" }
-				, INULL }}
-
-
-		/* unreserved / pct-encoded / sub-delims / ":" / "@" */
-		, { VHEADER(pchar_tr)
-			, { "A", ":", "&", "%DE", VNULL }
-			, {   {-1, "%AR" }
-				, {-1, "[" }
-				, INULL }}
-
-		/* 1*pchar */
-		, { VHEADER(segment_nz_tr)
-			, { "ABCDE", "@", "@:", "%DE", VNULL }
-			, { { 3, "%BE%AR" }
-				, {-1, "}" }
-				, {-1, "%AR" }
-				, INULL}}
+        , { VHEADER(sub_delims_tr)
+            , { ",", ";", "=", VNULL }
+            , {   {-1, ":" }
+                , {-1, "~" }
+                , {-1, "\\" }
+                , INULL }}
 
 
-		/* 1*( unreserved / pct-encoded / sub-delims / "@" )
-		   		; non-zero-length segment without any colon ":" */
-		, { VHEADER(segment_nz_nc_tr)
-			, { "@", "@@", "%DE%AD", "$@;", VNULL }
-			, { { -1, "{}" }
-				, INULL }}
+        /* unreserved / pct-encoded / sub-delims / ":" / "@" */
+        , { VHEADER(pchar_tr)
+            , { "A", ":", "&", "%DE", VNULL }
+            , {   {-1, "%AR" }
+                , {-1, "[" }
+                , INULL }}
 
-		/* segment-nz-nc *( "/" segment ) */
-		, { VHEADER(path_noscheme_tr)
-			, { "%DE%AD", "name@domain", "name@domain/%DE%AD%BE%EF", VNULL }
-			, { {12, "name@domain/{}" }
-				, INULL }}
-
-		/* 1*4HEXDIG */
-		, { VHEADER(h16_tr)
-			, { "A", "AB", "ABC", "ABCD", VNULL }
-			, {   {-1, "WBCD" }
-				, { 1, "AWCD" }
-				, { 2, "ABWD" }
-				, { 3, "ABCW" }
-				, INULL }}
+        /* 1*pchar */
+        , { VHEADER(segment_nz_tr)
+            , { "ABCDE", "@", "@:", "%DE", VNULL }
+            , { { 3, "%BE%AR" }
+                , {-1, "}" }
+                , {-1, "%AR" }
+                , INULL}}
 
 
-		/* dec-octet "." dec-octet "." dec-octet "." dec-octet */
-		, { VHEADER(ipv4address_tr)
-			, { "192.168.0.1", "255.255.255.0", "127.0.0.1" }
-			, {   { -1, "W92.168.0.1" }
-				, { -1, "192.168.0" }
-				, { -1, "192.168" }
-				, { -1, "192" }
-				, INULL } }
+        /* 1*( unreserved / pct-encoded / sub-delims / "@" )
+                ; non-zero-length segment without any colon ":" */
+        , { VHEADER(segment_nz_nc_tr)
+            , { "@", "@@", "%DE%AD", "$@;", VNULL }
+            , { { -1, "{}" }
+                , INULL }}
 
-		/* [ h16 ] "::" 4( h16 ":" ) ls32 */
-		, { VHEADER(ipv6address_tr_3)
-			, { "::1B:2C:3D:4E:192.168.1.1", "AB::1B:2C:3D:4E:192.168.1.1", VNULL }
-			, { { -1, "AR::1B:2C:3D:4E:192.168.1.1" }, INULL } }
+        /* segment-nz-nc *( "/" segment ) */
+        , { VHEADER(path_noscheme_tr)
+            , { "%DE%AD", "name@domain", "name@domain/%DE%AD%BE%EF", VNULL }
+            , { {12, "name@domain/{}" }
+                , INULL }}
 
-		/* *1( h16 ":" ) h16 */
-		, { VHEADER(ipv6address_tr_4_1)
-			, { "AB", "AB:CD", VNULL }
-			, {   {-1, ":AB" }
-			    , { 2, "AB:??" }
-				, INULL }}
-
-		/* [ *1( h16 ":" ) h16 ] "::" 3( h16 ":" ) ls32 */
-		, { VHEADER(ipv6address_tr_4)
-			, {   "::1B:2C:3D:192.168.1.1"
-				, "AB::01:23:45:192.168.1.1"
-				, "AB:CD::1B:2C:3D:192.168.1.1", VNULL }
-			, {   { -1, "AR::1B:2C:3D:4E:192.168.1.1" }
-			 	, { -1, "AB:BC::1B:2C:192.168.1.1" }
-				, INULL } }
+        /* 1*4HEXDIG */
+        , { VHEADER(h16_tr)
+            , { "A", "AB", "ABC", "ABCD", VNULL }
+            , {   {-1, "WBCD" }
+                , { 1, "AWCD" }
+                , { 2, "ABWD" }
+                , { 3, "ABCW" }
+                , INULL }}
 
 
-		/* *2( h16 ":" ) h16 */
-		, { VHEADER(ipv6address_tr_5_1)
-			, {"AB", "AB:CD", "AB:CD:EF", VNULL }
-			, {   {-1, "$F" }
-			    , { 2, "AB:??" }
-				, INULL }}
+        /* dec-octet "." dec-octet "." dec-octet "." dec-octet */
+        , { VHEADER(ipv4address_tr)
+            , { "192.168.0.1", "255.255.255.0", "127.0.0.1" }
+            , {   { -1, "W92.168.0.1" }
+                , { -1, "192.168.0" }
+                , { -1, "192.168" }
+                , { -1, "192" }
+                , INULL } }
 
-		/* *3( h16 ":" ) h16 */
-		, { VHEADER(ipv6address_tr_6_1)
-			, {"AB", "AB:CD", "AB:CD:EF", "AB:CD:EF:01", VNULL }
-			, { {-1, "$F" }
-				, INULL }}
+        /* [ h16 ] "::" 4( h16 ":" ) ls32 */
+        , { VHEADER(ipv6address_tr_3)
+            , { "::1B:2C:3D:4E:192.168.1.1", "AB::1B:2C:3D:4E:192.168.1.1", VNULL }
+            , { { -1, "AR::1B:2C:3D:4E:192.168.1.1" }, INULL } }
 
-		/*
-									     6( h16 ":" ) ls32
-			/                       "::" 5( h16 ":" ) ls32
-			/ [               h16 ] "::" 4( h16 ":" ) ls32
-			/ [ *1( h16 ":" ) h16 ] "::" 3( h16 ":" ) ls32
-			/ [ *2( h16 ":" ) h16 ] "::" 2( h16 ":" ) ls32
-			/ [ *3( h16 ":" ) h16 ] "::"    h16 ":"   ls32
-			/ [ *4( h16 ":" ) h16 ] "::"              ls32
-			/ [ *5( h16 ":" ) h16 ] "::"              h16
-			/ [ *6( h16 ":" ) h16 ] "::"
-		*/
-		, { VHEADER(ipv6address_tr)
-			, {   "AB:CD:EF:01:23:45:192.168.1.1"
-				, "::CD:EF:01:23:45:192.168.1.1"
-				, "AB::CD:EF:01:23:192.168.1.1"
-				, VNULL }
-			, { INULL }
-		}
+        /* *1( h16 ":" ) h16 */
+        , { VHEADER(ipv6address_tr_4_1)
+            , { "AB", "AB:CD", VNULL }
+            , {   {-1, ":AB" }
+                , { 2, "AB:??" }
+                , INULL }}
 
-		/* "v" 1*HEXDIG "." 1*( unreserved / sub-delims / ":" ) */
-		, { VHEADER(ipvfuture_tr)
-			, {   "vAB.:"
-				, "vAB.::::::::"
-				, VNULL }
-				, { {-1, "vA."}
-				, INULL }}
+        /* [ *1( h16 ":" ) h16 ] "::" 3( h16 ":" ) ls32 */
+        , { VHEADER(ipv6address_tr_4)
+            , {   "::1B:2C:3D:192.168.1.1"
+                , "AB::01:23:45:192.168.1.1"
+                , "AB:CD::1B:2C:3D:192.168.1.1", VNULL }
+            , {   { -1, "AR::1B:2C:3D:4E:192.168.1.1" }
+                , { -1, "AB:BC::1B:2C:192.168.1.1" }
+                , INULL } }
 
-		/* "[" ( IPv6address / IPvFuture  ) "]" */
-		, { VHEADER(ip_literal_tr)
-			, {   "[::CD:EF:01:23:45:192.168.1.1]"
-				, "[vAB.::::::::]"
-				, VNULL }
-				, { {-1, "[?]"}
-				, INULL }}
 
-		/* *( unreserved / pct-encoded / sub-delims ) */
-		, { VHEADER(reg_name_tr)
-			, {   ""
-				, "%AB"
-				, "%AB%CD%EF"
-				, "Hello_World."
-				, VNULL }
-				, { {0, "?AB"}
-				, { 3, "%AB%"}
-				, INULL }}
+        /* *2( h16 ":" ) h16 */
+        , { VHEADER(ipv6address_tr_5_1)
+            , {"AB", "AB:CD", "AB:CD:EF", VNULL }
+            , {   {-1, "$F" }
+                , { 2, "AB:??" }
+                , INULL }}
 
-		/*  host = IP-literal / IPv4address / reg-name */
-		, { VHEADER(host_tr)
-			, {   "[::CD:EF:01:23:45:192.168.1.1]"
-				, "192.168.1.1"
-				, "~domain.com"
-				, VNULL }
-				, { {0, "?AB"}
-				, { 3, "%AB%"}
-				, INULL }}
+        /* *3( h16 ":" ) h16 */
+        , { VHEADER(ipv6address_tr_6_1)
+            , {"AB", "AB:CD", "AB:CD:EF", "AB:CD:EF:01", VNULL }
+            , { {-1, "$F" }
+                , INULL }}
 
-		/* ":" port */
-		, { VHEADER(authority_tr_2)
-			, { ":2", ":25", ":"
-				, VNULL }
-				, { {1, ":AB"}
-				, {-1, "AB"}
-				, INULL }}
+        /*
+                                            6( h16 ":" ) ls32
+            /                       "::" 5( h16 ":" ) ls32
+            / [               h16 ] "::" 4( h16 ":" ) ls32
+            / [ *1( h16 ":" ) h16 ] "::" 3( h16 ":" ) ls32
+            / [ *2( h16 ":" ) h16 ] "::" 2( h16 ":" ) ls32
+            / [ *3( h16 ":" ) h16 ] "::"    h16 ":"   ls32
+            / [ *4( h16 ":" ) h16 ] "::"              ls32
+            / [ *5( h16 ":" ) h16 ] "::"              h16
+            / [ *6( h16 ":" ) h16 ] "::"
+        */
+        , { VHEADER(ipv6address_tr)
+            , {   "AB:CD:EF:01:23:45:192.168.1.1"
+                , "::CD:EF:01:23:45:192.168.1.1"
+                , "AB::CD:EF:01:23:192.168.1.1"
+                , VNULL }
+            , { INULL }
+        }
 
-		/* [ userinfo "@" ] host [ ":" port ] */
-		/* [ authority_tr_1 ] host [ authority_tr_2 ] */
-		, { VHEADER(authority_tr)
-			, { "192.168.1.1", "192.168.1.1:", "192.168.1.1:25", "user@192.168.1.1"
-				, VNULL }
-				, { INULL }}
+        /* "v" 1*HEXDIG "." 1*( unreserved / sub-delims / ":" ) */
+        , { VHEADER(ipvfuture_tr)
+            , {   "vAB.:"
+                , "vAB.::::::::"
+                , VNULL }
+                , { {-1, "vA."}
+                , INULL }}
 
-		/*  *( "/" segment ) */
-		, { VHEADER(path_abempty_tr)
-			, { "/", "/segment", "/path/to", "/path/to/", VNULL }
-				, { INULL }}
+        /* "[" ( IPv6address / IPvFuture  ) "]" */
+        , { VHEADER(ip_literal_tr)
+            , {   "[::CD:EF:01:23:45:192.168.1.1]"
+                , "[vAB.::::::::]"
+                , VNULL }
+                , { {-1, "[?]"}
+                , INULL }}
+
+        /* *( unreserved / pct-encoded / sub-delims ) */
+        , { VHEADER(reg_name_tr)
+            , {   ""
+                , "%AB"
+                , "%AB%CD%EF"
+                , "Hello_World."
+                , VNULL }
+                , { {0, "?AB"}
+                , { 3, "%AB%"}
+                , INULL }}
+
+        /*  host = IP-literal / IPv4address / reg-name */
+        , { VHEADER(host_tr)
+            , {   "[::CD:EF:01:23:45:192.168.1.1]"
+                , "192.168.1.1"
+                , "~domain.com"
+                , VNULL }
+                , { {0, "?AB"}
+                , { 3, "%AB%"}
+                , INULL }}
+
+        /* ":" port */
+        , { VHEADER(authority_tr_2)
+            , { ":2", ":25", ":"
+                , VNULL }
+                , { {1, ":AB"}
+                , {-1, "AB"}
+                , INULL }}
+
+        /* [ userinfo "@" ] host [ ":" port ] */
+        /* [ authority_tr_1 ] host [ authority_tr_2 ] */
+        , { VHEADER(authority_tr)
+            , { "192.168.1.1", "192.168.1.1:", "192.168.1.1:25", "user@192.168.1.1"
+                , VNULL }
+                , { INULL }}
+
+        /*  *( "/" segment ) */
+        , { VHEADER(path_abempty_tr)
+            , { "/", "/segment", "/path/to", "/path/to/", VNULL }
+                , { INULL }}
 
         /* relative-part = "//" authority path-abempty
-		              / path-absolute
-		              / path-noscheme
-		              / path-empty
-		*/
-		, { VHEADER(relative_part_tr)
-			, { "//user@host", "//user@host/", VNULL }
-				, { INULL }}
+                        / path-absolute
+                        / path-noscheme
+                        / path-empty
+        */
+        , { VHEADER(relative_part_tr)
+            , { "//user@host", "//user@host/", VNULL }
+                , { INULL }}
 
-		/* *( pchar / "/" / "?" ) */
-		, { VHEADER(query_tr)
-			, { "/?", "/", "?query%20string", VNULL }
-				, { INULL }}
+        /* *( pchar / "/" / "?" ) */
+        , { VHEADER(query_tr)
+            , { "/?", "/", "?query%20string", VNULL }
+                , { INULL }}
 
-		/* relative-part [ "?" query ] [ "#" fragment ] */
-		, { VHEADER(relative_ref_tr)
-			, { "//user@host/?query%20string", "#fragment%20string"
-				, "//user@host/?query%20string#fragment%20string"
-				, VNULL }
-				, { INULL }}
+        /* relative-part [ "?" query ] [ "#" fragment ] */
+        , { VHEADER(relative_ref_tr)
+            , { "//user@host/?query%20string", "#fragment%20string"
+                , "//user@host/?query%20string#fragment%20string"
+                , VNULL }
+                , { INULL }}
 
-		/* ALPHA *( ALPHA / DIGIT / "+" / "-" / "." ) */
-		, { VHEADER(scheme_tr)
-			, { "a", "aA", "A2", "A+"
-				, VNULL }
-				, {   {-1, "2a" }
-					, {-1, "+A" }
-					, {-1, ".A" }
-					, {-1, "-a" }
-				    , INULL }}
+        /* ALPHA *( ALPHA / DIGIT / "+" / "-" / "." ) */
+        , { VHEADER(scheme_tr)
+            , { "a", "aA", "A2", "A+"
+                , VNULL }
+                , {   {-1, "2a" }
+                    , {-1, "+A" }
+                    , {-1, ".A" }
+                    , {-1, "-a" }
+                    , INULL }}
 
-		/* scheme ":" hier-part [ "?" query ] [ "#" fragment ] */
-		, { VHEADER(uri_tr)
-		, { "http://user@host/?query%20string", "http://user@host/#fragment%20string"
-			, "ftp://user@host/path/to?query%20string#fragment%20string"
-			, VNULL }
-			, { INULL }}
+        /* scheme ":" hier-part [ "?" query ] [ "#" fragment ] */
+        , { VHEADER(uri_tr)
+        , { "http://user@host/?query%20string", "http://user@host/#fragment%20string"
+            , "ftp://user@host/path/to?query%20string#fragment%20string"
+            , VNULL }
+            , { INULL }}
 
 };
 
@@ -313,17 +312,15 @@ static pfs::fsm::test_entry __test_entries[] = {
 //	TEST_OK(uri.parse(_u8("https://webcache.googleusercontent.com/search?client=ubuntu&channel=fs&q=cache:Aaap4fYxHwAJ:http://toriava.ru/category/11/47/b1067/b2047/%2BCrystalMedia+%D0%B5%D0%BA%D0%B0%D1%82%D0%B5%D1%80%D0%B8%D0%BD%D0%B1%D1%83%D1%80%D0%B3&oe=utf-8&redir_esc=&hl=ru&ct=clnk")));
 //}
 
-int main(int argc, char *argv[])
+int main ()
 {
-	PFS_UNUSED2(argc, argv);
+    BEGIN_TESTS(0);
 
-	BEGIN_TESTS(0);
+    test_grammar<stdcxx::uri_grammar>();
 
-	test_grammar<stdcxx::uri_grammar>();
-    
 #if HAVE_QT_CORE
     test_grammar<qt::uri_grammar>();
 #endif
 
-	return END_TESTS;
+    return END_TESTS;
 }

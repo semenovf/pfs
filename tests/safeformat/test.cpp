@@ -4,8 +4,7 @@
 
 #include <iostream>
 #include <sstream>
-#include "pfs/test/test.hpp"
-#include "pfs/test/profiler.hpp"
+#include "pfs/test.hpp"
 #include "pfs/typeinfo.hpp"
 #include "pfs/traits/stdcxx/string.hpp"
 #include "pfs/safeformat.hpp"
@@ -24,10 +23,10 @@ bool testCase (char const * fmt1, std::string const & fmt2, T value)
 #else
     typedef pfs::safeformat<string_type, string_type, pfs::safeformat_compat_gcc> fmt;
 #endif
-    
+
     char buf[5020];
     string_type s = fmt(string_type(fmt1)).arg(value).str();
-    
+
 #ifdef PFS_CC_MSC
     int i2 =_snprintf(buf, sizeof(buf), fmt2.c_str(), value);
 #else
@@ -93,7 +92,7 @@ void testCaseFloat (std::string const & length_modifier)
 {
 	ADD_TESTS(10);
 	std::cout << "\nTesting with [T = " << pfs::type_name<T>() << "]\n";
-    
+
 	TEST_FAIL((testCase<T, StringImplType>("%e", std::string("%") + length_modifier + 'e', pfs::numeric_limits<T>::min())));
 	TEST_FAIL((testCase<T, StringImplType>("%e", std::string("%") + length_modifier + 'e', pfs::numeric_limits<T>::max())));
 	TEST_FAIL((testCase<T, StringImplType>("%E", std::string("%") + length_modifier + 'E', pfs::numeric_limits<T>::min())));
@@ -110,10 +109,10 @@ template <typename StringImplType>
 void testCaseString ()
 {
     typedef pfs::string<StringImplType>  string_type;
-    
+
 	ADD_TESTS(1);
 	std::cout << "\nTesting with [T = " << pfs::type_name<string_type>() << "]\n";
-    
+
 	TEST_FAIL((testCase<char const *, StringImplType>("%s", "%s", "Hello")));
 }
 
@@ -141,7 +140,7 @@ void test0 ()
 #ifdef PFS_HAVE_LONG_DOUBLE
 	testCaseFloat<long double, StringImplType>(pfs::printf_length_modifier<long double>::value());
 #endif
-    
+
     testCaseString<StringImplType>();
 }
 
@@ -247,7 +246,7 @@ void test2 (unsigned limit)
 //            if (typeSpec != 's' && randomInt(0, 1)) {
 //                formatSpec += prefix[randomInt(0u, prefix.size() - 1)];
 //            }
-        
+
         formatSpec += typeSpec;
         formatSpec += '|';
         formatSpec += randomString(100);
@@ -304,63 +303,62 @@ void test2 (unsigned limit)
 void test3 ()
 {
     typedef pfs::string<pfs::stdcxx::string> string_type;
-    
-	char buf[512];
-	using pfs::test::profiler;
-	profiler sw;
 
-	int loop = 100;
+    char buf[512];
+    pfs::test::profiler sw;
 
-	double ellapsed_sprintf;
-	double ellapsed_safeformat;
-	double ellapsed_sstream;
+    int loop = 100;
+
+    double ellapsed_sprintf;
+    double ellapsed_safeformat;
+    double ellapsed_sstream;
 #ifdef HAVE_QT_CORE
-	double ellapsed_qstring;
+    double ellapsed_qstring;
 #endif
 
-	sw.start();
-	for (int i = loop; i > 0; --i)
-		sprintf(buf, "Hey, %u frobnicators and %u twiddlicators\n", i, i);
-	ellapsed_sprintf = sw.ellapsed();
+    sw.start();
+    for (int i = loop; i > 0; --i)
+        sprintf(buf, "Hey, %u frobnicators and %u twiddlicators\n", i, i);
+    ellapsed_sprintf = sw.ellapsed();
 
-	sw.start();
-	for (int i = loop; i > 0; --i)
-		pfs::safeformat<string_type>("Hey, %u frobnicators and %u twiddlicators\n")(i)(i);
-	ellapsed_safeformat = sw.ellapsed();
+    sw.start();
+    for (int i = loop; i > 0; --i)
+        pfs::safeformat<string_type>("Hey, %u frobnicators and %u twiddlicators\n")(i)(i);
+    ellapsed_safeformat = sw.ellapsed();
 
-	sw.start();
-	for (int i = loop; i > 0; --i)
-		std::stringstream() << "Hey, " << i << " frobnicators and " << i <<" twiddlicators\n";
-	ellapsed_sstream = sw.ellapsed();
+    sw.start();
+    for (int i = loop; i > 0; --i)
+        std::stringstream() << "Hey, " << i << " frobnicators and " << i <<" twiddlicators\n";
+    ellapsed_sstream = sw.ellapsed();
 
 #ifdef HAVE_QT_CORE
-	sw.start();
-	for (int i = loop; i > 0; --i) {
-		QString s = QString("Hey, %1 frobnicators and %2 twiddlicators\n").arg(i).arg(i);
+    sw.start();
+    for (int i = loop; i > 0; --i) {
+        QString s = QString("Hey, %1 frobnicators and %2 twiddlicators\n").arg(i).arg(i);
         (void)s;
     }
-	ellapsed_qstring = sw.ellapsed();
+    ellapsed_qstring = sw.ellapsed();
 #endif
 
-	std::cout << std::endl << "Elapsed time for " << loop << " outputs:" << std::endl
-	     << "\tprintf       = " << ellapsed_sprintf    << std::endl
-	     << "\tsafeformat   = " << ellapsed_safeformat << std::endl
-		 << "\tstringstream = " << ellapsed_sstream    << std::endl
+    std::cout << std::endl << "Elapsed time for " << loop << " outputs:" << std::endl
+            << "\tprintf       = " << ellapsed_sprintf    << std::endl
+            << "\tsafeformat   = " << ellapsed_safeformat << std::endl
+            << "\tstringstream = " << ellapsed_sstream    << std::endl
 #ifdef HAVE_QT_CORE
-		 << "\tQString      = " << ellapsed_qstring    << std::endl
+            << "\tQString      = " << ellapsed_qstring    << std::endl
 #endif
-		 ;
+    ;
 }
 
-int main (int argc, char * [])
+int main (int argc, char **)
 {
-	BEGIN_TESTS(0);
-    
+    BEGIN_TESTS(0);
+
 //#
 //#ifdef PFS_CC_MSC
-//	safeformat::set_global_compat(safeformat::compat_msc);
+//  safeformat::set_global_compat(safeformat::compat_msc);
 //#else
-//	safeformat::set_global_compat(safeformat::compat_gcc);
+//  safeformat::set_global_compat(safeformat::compat_gcc);
 //#endif
 
     test0<pfs::stdcxx::string>();

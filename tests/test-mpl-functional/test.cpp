@@ -6,7 +6,7 @@
  * @brief testing ...
  */
 
-#include <pfs/test/test.hpp>
+#include <pfs/test.hpp>
 #include "reference_wrapper.hpp"
 
 int main(int argc, char *argv[])

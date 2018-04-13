@@ -1,5 +1,5 @@
 #include <sstream>
-#include <pfs/test/test.hpp>
+#include <pfs/test.hpp>
 #include <pfs/string.hpp>
 #include <pfs/traits/stdcxx/string.hpp>
 #include <pfs/date.hpp>
@@ -125,16 +125,15 @@ void test_stringify ()
 void test_timezone ()
 {
     ADD_TESTS(2);
-    
+
     typedef pfs::timezone<string_type> timezone_t;
-    
+
     TEST_OK(timezone_t::offset_to_string(0L) == string_type("+0000"));
     TEST_OK(timezone_t::offset_to_string(18000L) == string_type("+0500"));
 }
 
-int main (int argc, char *argv[])
+int main ()
 {
-    PFS_UNUSED2(argc, argv);
     BEGIN_TESTS(54);
 
     test_min_max();

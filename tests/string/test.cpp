@@ -3,7 +3,7 @@
 #include <iostream>
 #include <sstream>
 #include <pfs/config.h>
-#include <pfs/test/test.hpp>
+#include <pfs/test.hpp>
 #include <pfs/string.hpp>
 #include <pfs/limits.hpp>
 #include <pfs/traits/stdcxx/string.hpp>
@@ -137,11 +137,8 @@ QChar const * string_samples<QChar const *> (int i)
 #include "test_u8string.hpp"
 #include "test_trim.hpp"
 
-int main (int argc, char *argv[])
+int main ()
 {
-    PFS_UNUSED(argc);
-    PFS_UNUSED(argv);
-
     BEGIN_TESTS(0);
 
     test_basic<pfs::stdcxx::string>();

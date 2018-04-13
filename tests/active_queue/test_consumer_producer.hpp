@@ -6,7 +6,7 @@
  * @brief testing ...
  */
 
-#include <pfs/test/test.hpp>
+#include <pfs/test.hpp>
 #include <pfs/thread.hpp>
 #include <pfs/atomic.hpp>
 #include <pfs/active_queue.hpp>

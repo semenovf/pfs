@@ -1,5 +1,5 @@
 #include <cstdio>
-#include <pfs/test/test.hpp>
+#include <pfs/test.hpp>
 
 #if __cplusplus >= 201103L
 

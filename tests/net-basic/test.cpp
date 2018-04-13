@@ -1,7 +1,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <string>
-#include "pfs/test/test.hpp"
+#include "pfs/test.hpp"
 #include "pfs/system_string.hpp"
 #include "pfs/net/inet4_addr.hpp"
 #include "inet_interface.hpp"
@@ -29,56 +29,56 @@ static pfs::system_string build_inet_addr_str (int addrClass
         , uint32_t d
         , int base)
 {
-	pfs::system_char_t buffer[64];
+    pfs::system_char_t buffer[64];
 
     if (addrClass == 1) {
-    	switch (base) {
-    	case 8:
-    		PFS_SPRINTF(buffer, PFS_LITERAL("0%o"), a);
-    		break;
-    	case 10:
-    		PFS_SPRINTF(buffer, PFS_LITERAL("%u"), a);
-    		break;
-    	case 16:
-    		PFS_SPRINTF(buffer, PFS_LITERAL("0x%X"), a);
-    		break;
-    	}
+        switch (base) {
+        case 8:
+            PFS_SPRINTF(buffer, PFS_LITERAL("0%o"), a);
+            break;
+        case 10:
+            PFS_SPRINTF(buffer, PFS_LITERAL("%u"), a);
+            break;
+        case 16:
+            PFS_SPRINTF(buffer, PFS_LITERAL("0x%X"), a);
+            break;
+        }
     } else if (addrClass == 2) {
-    	switch (base) {
-    	case 8:
-    		PFS_SPRINTF(buffer, PFS_LITERAL("0%03o.0%o"), a, b);
-    		break;
-    	case 10:
-    		PFS_SPRINTF(buffer, PFS_LITERAL("%u.%u"), a, b);
-    		break;
-    	case 16:
-    		PFS_SPRINTF(buffer, PFS_LITERAL("0x%02X.0x%X"), a, b);
-    		break;
-    	}
+        switch (base) {
+        case 8:
+            PFS_SPRINTF(buffer, PFS_LITERAL("0%03o.0%o"), a, b);
+            break;
+        case 10:
+            PFS_SPRINTF(buffer, PFS_LITERAL("%u.%u"), a, b);
+            break;
+        case 16:
+            PFS_SPRINTF(buffer, PFS_LITERAL("0x%02X.0x%X"), a, b);
+            break;
+        }
     } else if (addrClass == 3) {
-    	switch (base) {
-    	case 8:
-    		PFS_SPRINTF(buffer, PFS_LITERAL("0%03o.0%03o.0%o"), a, b, c);
-    		break;
-    	case 10:
-    		PFS_SPRINTF(buffer, PFS_LITERAL("%u.%u.%u"), a, b, c);
-    		break;
-    	case 16:
-    		PFS_SPRINTF(buffer, PFS_LITERAL("0x%02X.0x%02X.0x%X"), a, b, c);
-    		break;
-    	}
+        switch (base) {
+        case 8:
+            PFS_SPRINTF(buffer, PFS_LITERAL("0%03o.0%03o.0%o"), a, b, c);
+            break;
+        case 10:
+            PFS_SPRINTF(buffer, PFS_LITERAL("%u.%u.%u"), a, b, c);
+            break;
+        case 16:
+            PFS_SPRINTF(buffer, PFS_LITERAL("0x%02X.0x%02X.0x%X"), a, b, c);
+            break;
+        }
     } else if (addrClass == 4) {
-    	switch (base) {
-    	case 8:
-    		PFS_SPRINTF(buffer, PFS_LITERAL("0%03o.0%03o.0%03o.0%03o"), a, b, c, d);
-    		break;
-    	case 10:
-    		PFS_SPRINTF(buffer, PFS_LITERAL("%u.%u.%u.%u"), a, b, c, d);
-    		break;
-    	case 16:
-    		PFS_SPRINTF(buffer, PFS_LITERAL("0x%02X.0x%02X.0x%02X.0x%02X"), a, b, c, d);
-    		break;
-    	}
+        switch (base) {
+        case 8:
+            PFS_SPRINTF(buffer, PFS_LITERAL("0%03o.0%03o.0%03o.0%03o"), a, b, c, d);
+            break;
+        case 10:
+            PFS_SPRINTF(buffer, PFS_LITERAL("%u.%u.%u.%u"), a, b, c, d);
+            break;
+        case 16:
+            PFS_SPRINTF(buffer, PFS_LITERAL("0x%02X.0x%02X.0x%02X.0x%02X"), a, b, c, d);
+            break;
+        }
     }
 
     return pfs::system_string(buffer);
@@ -212,9 +212,8 @@ bool test_check_to_string (pfs::system_string const & format, int ntests)
     return ok;
 }
 
-int main(int argc, char *argv[])
+int main ()
 {
-    PFS_UNUSED2(argc, argv);
     BEGIN_TESTS(8);
 
     static const int CHECK_VALID_NTESTS  = 10000;

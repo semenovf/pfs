@@ -1,4 +1,4 @@
-#include <pfs/test/test.hpp>
+#include <pfs/test.hpp>
 #include <pfs/string.hpp>
 #include <pfs/traits/stdcxx/string.hpp>
 #include <pfs/time.hpp>

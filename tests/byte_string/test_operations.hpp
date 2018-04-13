@@ -338,10 +338,72 @@ void test_compare ()
     std::cout << "//                          Operations (compare)                         //\n";
     std::cout << "///////////////////////////////////////////////////////////////////////////\n";
 
-    ADD_TESTS(0);
+    ADD_TESTS(35);
     //
     // int compare (byte_string const & s) const
     //
+    byte_string bs("12345678");
+    byte_string bs_equal("12345678");
+    byte_string bs_less("012345678");
+    byte_string bs_greater("2345678");
+
+    TEST_OK(bs.compare(bs_equal) == 0);
+    TEST_OK(bs.compare(bs_less) > 0);
+    TEST_OK(bs.compare(bs_less) >= 0);
+    TEST_OK(bs.compare(bs_greater) < 0);
+    TEST_OK(bs.compare(bs_greater) <= 0);
+
+    //
+    // int compare (size_type pos1, size_type count1, byte_string const & s) const
+    //
+    TEST_OK(bs.compare(0, 8, bs_equal) == 0);
+    TEST_OK(bs.compare(0, 8, bs_less) > 0);
+    TEST_OK(bs.compare(0, 8, bs_less) >= 0);
+    TEST_OK(bs.compare(0, 8, bs_greater) < 0);
+    TEST_OK(bs.compare(0, 8, bs_greater) <= 0);
+
+    //
+    // int compare (size_type pos1, size_type count1
+    //          , byte_string const & s
+    //          , size_type pos2, size_type count2 = npos) const
+    //
+    TEST_OK(bs.compare(0, 8, bs_equal, 0) == 0);
+    TEST_OK(bs.compare(0, 8, bs_less, 0) > 0);
+    TEST_OK(bs.compare(0, 8, bs_less, 0) >= 0);
+    TEST_OK(bs.compare(0, 8, bs_greater, 0) < 0);
+    TEST_OK(bs.compare(0, 8, bs_greater, 0) <= 0);
+    TEST_OK(bs.compare(0, 8, bs_equal, 0, 8) == 0);
+    TEST_OK(bs.compare(0, 8, bs_less, 0, 9) > 0);
+    TEST_OK(bs.compare(0, 8, bs_less, 0, 9) >= 0);
+    TEST_OK(bs.compare(0, 8, bs_greater, 0, 7) < 0);
+    TEST_OK(bs.compare(0, 8, bs_greater, 0, 7) <= 0);
+
+    //
+    // int compare (const_pointer s) const
+    //
+    TEST_OK(bs.compare(bs_equal.data()) == 0);
+    TEST_OK(bs.compare(bs_less.data()) > 0);
+    TEST_OK(bs.compare(bs_less.data()) >= 0);
+    TEST_OK(bs.compare(bs_greater.data()) < 0);
+    TEST_OK(bs.compare(bs_greater.data()) <= 0);
+
+    //
+    // int compare (size_type pos1, size_type count1, const_pointer s) const
+    //
+    TEST_OK(bs.compare(0, 8, bs_equal.data()) == 0);
+    TEST_OK(bs.compare(0, 8, bs_less.data()) > 0);
+    TEST_OK(bs.compare(0, 8, bs_less.data()) >= 0);
+    TEST_OK(bs.compare(0, 8, bs_greater.data()) < 0);
+    TEST_OK(bs.compare(0, 8, bs_greater.data()) <= 0);
+
+    //
+    // int compare (size_type pos1, size_type count1, const_pointer s, size_type count2) const
+    //
+    TEST_OK(bs.compare(0, 8, bs_equal.data(), 0, 8) == 0);
+    TEST_OK(bs.compare(0, 8, bs_less.data(), 0, 9) > 0);
+    TEST_OK(bs.compare(0, 8, bs_less.data(), 0, 9) >= 0);
+    TEST_OK(bs.compare(0, 8, bs_greater.data(), 0, 7) < 0);
+    TEST_OK(bs.compare(0, 8, bs_greater.data(), 0, 7) <= 0);
 }
 
 void test_starts_with ()
@@ -350,7 +412,33 @@ void test_starts_with ()
     std::cout << "//                        Operations (starts_with)                       //\n";
     std::cout << "///////////////////////////////////////////////////////////////////////////\n";
 
-    ADD_TESTS(0);
+    ADD_TESTS(12);
+
+    byte_string bs("0123456789");
+
+    //
+    // bool starts_with (byte_string const & rhs) const
+    //
+    TEST_OK(bs.starts_with(byte_string("0")));
+    TEST_OK(bs.starts_with(byte_string("0123")));
+    TEST_OK(bs.starts_with(byte_string("0123456789")));
+    TEST_OK(!bs.starts_with(byte_string("1")));
+    TEST_OK(!bs.starts_with(byte_string("123456789")));
+
+    //
+    // bool starts_with (value_type ch) const
+    //
+    TEST_OK(bs.starts_with(value_type('0')));
+    TEST_OK(!bs.starts_with(value_type('1')));
+
+    //
+    // bool starts_with (const_pointer s) const
+    //
+    TEST_OK(bs.starts_with(byte_string("0").data()));
+    TEST_OK(bs.starts_with(byte_string("0123").data()));
+    TEST_OK(bs.starts_with(byte_string("0123456789").data()));
+    TEST_OK(!bs.starts_with(byte_string("1").data()));
+    TEST_OK(!bs.starts_with(byte_string("123456789").data()));
 }
 
 void test_ends_with ()
@@ -359,7 +447,34 @@ void test_ends_with ()
     std::cout << "//                        Operations (ends_with)                         //\n";
     std::cout << "///////////////////////////////////////////////////////////////////////////\n";
 
-    ADD_TESTS(0);
+    ADD_TESTS(12);
+
+    byte_string bs("0123456789");
+
+    //
+    // bool ends_with (byte_string const & rhs) const
+    //
+    TEST_OK(bs.ends_with(byte_string("9")));
+    TEST_OK(bs.ends_with(byte_string("6789")));
+    TEST_OK(bs.ends_with(byte_string("0123456789")));
+    TEST_OK(!bs.ends_with(byte_string("0")));
+    TEST_OK(!bs.ends_with(byte_string("689")));
+
+    //
+    // bool ends_with (value_type ch) const
+    //
+    TEST_OK(bs.ends_with(value_type('9')));
+    TEST_OK(!bs.ends_with(value_type('1')));
+
+    //
+    // bool ends_with (const_pointer s) const
+    //
+    TEST_OK(bs.ends_with(byte_string("9").data()));
+    TEST_OK(bs.ends_with(byte_string("6789").data()));
+    TEST_OK(bs.ends_with(byte_string("0123456789").data()));
+    TEST_OK(!bs.ends_with(byte_string("0").data()));
+    TEST_OK(!bs.ends_with(byte_string("689").data()));
+
 }
 
 void test_replace ()
@@ -368,7 +483,154 @@ void test_replace ()
     std::cout << "//                        Operations (replace)                           //\n";
     std::cout << "///////////////////////////////////////////////////////////////////////////\n";
 
-    ADD_TESTS(0);
+    ADD_TESTS(11);
+
+    byte_string sample("The quick brown fox jumps over the lazy dog.");
+    char const * result = "The quick red fox jumps over the lazy dog.";
+
+    //
+    // byte_string & replace (size_type pos, size_type count, byte_string const & s)
+    //
+    byte_string bs(sample);
+    byte_string & bs_ref = bs.replace(10, 5, byte_string("red"));
+    TEST_OK2(std::strcmp(bs_ref.c_str(), result) == 0
+            , "byte_string & replace (size_type pos\n\t, size_type count\n\t, byte_string const & s)");
+
+    //
+    // byte_string & replace (const_iterator first, const_iterator last, byte_string const & s)
+    //
+    bs = sample;
+    bs_ref = bs.replace(bs.cbegin() + 10, bs.cbegin() + 15, byte_string("red"));
+    TEST_OK2(std::strcmp(bs_ref.c_str(), result) == 0
+            , "byte_string & replace (const_iterator first\n\t, const_iterator last\n\t, byte_string const & s)");
+
+    //
+    // byte_string & replace (size_type pos, size_type count
+    //        , byte_string const & s
+    //        , size_type pos2, size_type count2 = npos)
+    //
+    bs = sample;
+    bs_ref = bs.replace(10, 5, byte_string("quick red fox"), 6, 3);
+    TEST_OK2(std::strcmp(bs_ref.c_str(), result) == 0
+            , "byte_string & replace (size_type pos"
+            "\n\t, size_type count"
+            "\n\t, byte_string const & s"
+            "\n\t, size_type pos2"
+            "\n\t, size_type count2)");
+
+    bs = sample;
+    bs_ref = bs.replace(10, 5, byte_string("quick red"), 6);
+    TEST_OK2(std::strcmp(bs_ref.c_str(), result) == 0
+            , "byte_string & replace (size_type pos"
+            "\n\t, size_type count"
+            "\n\t, byte_string const & s"
+            "\n\t, size_type pos2"
+            "\n\t, size_type count2 = npos)");
+
+    //
+    // template <typename InputIterator>
+    // byte_string & replace (const_iterator first, const_iterator last
+    //        , InputIterator first2, InputIterator last2)
+    //
+    bs = sample;
+    std::string str("red");
+    bs_ref = bs.replace(bs.cbegin() + 10, bs.cbegin() + 15, str.begin(), str.end());
+    TEST_OK2(std::strcmp(bs_ref.c_str(), result) == 0
+            , "template <typename InputIterator>"
+            "\n\tbyte_string & replace (const_iterator first"
+            "\n\t\t, const_iterator last"
+            "\n\t\t, InputIterator first2"
+            "\n\t\t, InputIterator last2)");
+
+    //
+    // byte_string & replace (size_type pos, size_type count, const_pointer s, size_type count2)
+    //
+    bs = sample;
+    byte_string bs1("red fox");
+    bs_ref = bs.replace(10, 5, bs1.data(), 3);
+    TEST_OK2(std::strcmp(bs_ref.c_str(), result) == 0
+            , "byte_string & replace (size_type pos"
+            "\n\t, size_type count"
+            "\n\t, const_pointer s"
+            "\n\t, size_type count2)");
+
+    //
+    // byte_string & replace (const_iterator first, const_iterator last, const_pointer s, size_type count2)
+    //
+    bs = sample;
+    bs1 = "red fox";
+    bs_ref = bs.replace(bs.cbegin() + 10, bs.cbegin() + 15, bs1.data(), 3);
+    TEST_OK2(std::strcmp(bs_ref.c_str(), result) == 0
+            , "byte_string & replace (const_iterator first"
+            "\n\t, const_iterator last"
+            "\n\t, const_pointer s"
+            "\n\t, size_type count2)");
+
+    //
+    // byte_string & replace (size_type pos, size_type count, const_pointer s)
+    //
+    bs = sample;
+    bs1 = "red";
+    bs_ref = bs.replace(10, 5, bs1.data());
+    TEST_OK2(std::strcmp(bs_ref.c_str(), result) == 0
+            , "byte_string & replace (size_type pos"
+            "\n\t, size_type count"
+            "\n\t, const_pointer s)");
+
+    //
+    // byte_string & replace (const_iterator first, const_iterator last, const_pointer s)
+    //
+    bs = sample;
+    bs1 = "red";
+    bs_ref = bs.replace(bs.cbegin() + 10, bs.cbegin() + 15, bs1.data(), 3);
+    TEST_OK2(std::strcmp(bs_ref.c_str(), result) == 0
+            , "byte_string & replace (const_iterator first"
+            "\n\t, const_iterator last"
+            "\n\t, const_pointer s)");
+
+    //
+    // byte_string & replace (size_type pos, size_type count, size_type count2, value_type ch)
+    //
+    bs = sample;
+    bs_ref = bs.replace(10, 5, 3, value_type('r'));
+    bs_ref = bs.replace(11, 2, 2, value_type('e'));
+    bs_ref = bs.replace(12, 1, 1, value_type('d'));
+    TEST_OK2(std::strcmp(bs_ref.c_str(), result) == 0
+            , "byte_string & replace (size_type pos"
+            "\n\t, size_type count"
+            "\n\t, size_type count2"
+            "\n\t, value_type ch)");
+
+    //
+    // byte_string & replace (const_iterator first, const_iterator last, size_type count2, value_type ch)
+    //
+    bs = sample;
+    bs_ref = bs.replace(bs.cbegin() + 10, bs.cbegin() + 15, 3, value_type('r'));
+    bs_ref = bs.replace(bs.cbegin() + 11, bs.cbegin() + 13, 2, value_type('e'));
+    bs_ref = bs.replace(bs.cbegin() + 12, bs.cbegin() + 13, 1, value_type('d'));
+    TEST_OK2(std::strcmp(bs_ref.c_str(), result) == 0
+            , "byte_string & replace (const_iterator first"
+            "\n\t, const_iterator last"
+            "\n\t, size_type count2"
+            "\n\t, value_type ch)");
+
+#if __cplusplus >= 201103L
+    ADD_TESTS(1)
+
+    //
+    // basic_string & replace (const_iterator first, const_iterator last
+    //            , initializer_list<value_type> ilist)
+    //
+    bs = sample;
+    bs_ref = bs.replace(bs.cbegin() + 10, bs.cbegin() + 15
+            , { value_type('r'), value_type('e'), value_type('d') });
+    TEST_OK2(std::strcmp(bs_ref.c_str(), result) == 0
+            , "byte_string & replace (const_iterator first"
+            "\n\t, const_iterator last"
+            "\n\t, initializer_list<value_type> ilist)");
+
+#endif
+
 }
 
 void test_substr ()

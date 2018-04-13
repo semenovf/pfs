@@ -1,5 +1,5 @@
 #include <iostream>
-#include "pfs/test/test.hpp"
+#include "pfs/test.hpp"
 #include <pfs/traits/stdcxx/string.hpp>
 #include <pfs/string.hpp>
 #include <pfs/db/sqlite3/database.hpp>

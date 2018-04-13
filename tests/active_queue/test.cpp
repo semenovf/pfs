@@ -1,12 +1,9 @@
-#include <pfs/test/test.hpp>
+#include <pfs/test.hpp>
 #include "test_active_queue.hpp"
 #include "test_consumer_producer.hpp"
 
-int main(int argc, char *argv[])
+int main ()
 {
-    PFS_UNUSED(argc);
-    PFS_UNUSED(argv);
-
     BEGIN_TESTS(0);
 
     test::active_queue::test0::test();

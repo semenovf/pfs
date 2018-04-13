@@ -1,4 +1,4 @@
-#include <pfs/test/test.hpp>
+#include <pfs/test.hpp>
 #include <pfs/byte_string.hpp>
 #include "pfs/io/buffer.hpp"
 #include <cstring>
@@ -100,9 +100,8 @@ void test_write ()
     TEST_OK(static_cast<size_t>(d.available()) == strlen(loremipsum) + 1);
  }
 
-int main(int argc, char *argv[])
+int main ()
 {
-    PFS_UNUSED2(argc, argv);
     BEGIN_TESTS(16);
 
     test_read();

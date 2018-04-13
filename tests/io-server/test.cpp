@@ -1,12 +1,9 @@
-#include <pfs/test/test.hpp>
+#include <pfs/test.hpp>
 
 extern void test_pool_dispatcher ();
 
-int main(int argc, char *argv[])
+int main ()
 {
-    PFS_UNUSED(argc);
-    PFS_UNUSED(argv);
-
     BEGIN_TESTS(0);
 
     test_pool_dispatcher();

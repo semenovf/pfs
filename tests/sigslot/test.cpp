@@ -1,6 +1,6 @@
 //#include <cstring>
 #include <iostream>
-#include <pfs/test/test.hpp>
+#include <pfs/test.hpp>
 #include <pfs/traits/stdcxx/deque.hpp>
 #include <pfs/active_queue.hpp>
 #include <pfs/sigslot.hpp>

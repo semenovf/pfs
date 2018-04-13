@@ -1,7 +1,7 @@
 #ifndef __TEST_ROUTE_HPP__
 #define __TEST_ROUTE_HPP__
 
-#include <pfs/test/test.hpp>
+#include <pfs/test.hpp>
 #include <pfs/string.hpp>
 #include <pfs/cli/route.hpp>
 #include <pfs/traits/stdcxx/string.hpp>

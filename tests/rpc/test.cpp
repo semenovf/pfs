@@ -1,5 +1,5 @@
 #include <iostream>
-#include <pfs/test/test.hpp>
+#include <pfs/test.hpp>
 #include <pfs/rpc.hpp>
 
 typedef pfs::rpc<1, 0> rpc_ns;

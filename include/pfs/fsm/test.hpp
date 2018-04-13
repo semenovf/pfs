@@ -10,7 +10,7 @@
 #ifndef __PFS_FSM_TEST_HPP__
 #define __PFS_FSM_TEST_HPP__
 
-#include <pfs/test/test.hpp>
+#include <pfs/test.hpp>
 #include <pfs/fsm/fsm.hpp>
 
 namespace pfs { namespace fsm {

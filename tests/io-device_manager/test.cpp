@@ -1,6 +1,5 @@
 #include <ctime>
-#include <pfs/test/test.hpp>
-#include <pfs/test/profiler.hpp>
+#include <pfs/test.hpp>
 #include <pfs/traits/associative_container.hpp>
 #include <pfs/traits/contigous_container.hpp>
 #include <pfs/traits/sequence_container.hpp>

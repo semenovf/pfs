@@ -1,5 +1,5 @@
 #include <cstdio>
-#include <pfs/test/test.hpp>
+#include <pfs/test.hpp>
 #include <pfs/memory.hpp>
 #include <pfs/debug.hpp>
 #include <pfs/assert.hpp>
@@ -400,19 +400,18 @@ void test_cast ()
 }
 
 
-int main(int argc, char *argv[])
+int main ()
 {
-    PFS_UNUSED2(argc, argv);
-	BEGIN_TESTS(0);
+    BEGIN_TESTS(0);
 
-	test_empty_ptr();
-	test_basic_ptr();
-	test_reset_ptr();
-	test_compare_ptr();
-	test_swap_ptr();
-	test_unique();
+    test_empty_ptr();
+    test_basic_ptr();
+    test_reset_ptr();
+    test_compare_ptr();
+    test_swap_ptr();
+    test_unique();
     test_cast();
-//	test_deep_swap_ptr();
+//  test_deep_swap_ptr();
 
-	return END_TESTS;
+    return END_TESTS;
 }

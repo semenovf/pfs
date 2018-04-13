@@ -8,7 +8,7 @@
 
 #include <cstdlib>
 #include <vector>
-#include <pfs/test/test.hpp>
+#include <pfs/test.hpp>
 #include <pfs/experimental/implicit_treap.hpp>
 #include <iostream>
 

@@ -6,7 +6,7 @@
  * @brief testing ...
  */
 
-#include <pfs/test/test.hpp>
+#include <pfs/test.hpp>
 #include <pfs.hpp>
 
 #include <pfs/traits/stdcxx/list.hpp>

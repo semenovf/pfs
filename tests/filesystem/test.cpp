@@ -6,7 +6,7 @@
  * @brief testing ...
  */
 
-#include <pfs/test/test.hpp>
+#include <pfs/test.hpp>
 #include "test_path.hpp"
 #include "test_directory_entry.hpp"
 

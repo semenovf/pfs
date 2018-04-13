@@ -6,7 +6,7 @@
  * @brief testing ...
  */
 
-#include <pfs/test/test.hpp>
+#include <pfs/test.hpp>
 #include <pfs.hpp>
 #include "test_cmdline.hpp"
 #include "test_route.hpp"

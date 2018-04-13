@@ -1,5 +1,5 @@
 #include <iostream>
-#include <pfs/test/test.hpp>
+#include <pfs/test.hpp>
 #include <pfs/json/json.hpp>
 #include <pfs/json/rpc.hpp>
 #include <pfs/traits/stdcxx/string.hpp>

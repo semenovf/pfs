@@ -6,7 +6,7 @@
  * @brief Testing numeric features
  */
 
-#include <pfs/test/test.hpp>
+#include <pfs/test.hpp>
 #include "iota.hpp"
 
 int main (int argc, char * argv[])

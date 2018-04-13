@@ -6,7 +6,7 @@
  * @brief testing ...
  */
 
-#include <pfs/test/test.hpp>
+#include <pfs/test.hpp>
 #include <pfs.hpp>
 #include <pfs/traits/stdcxx/string.hpp>
 #include <pfs/traits/stdcxx/string_builder.hpp>

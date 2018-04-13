@@ -6,7 +6,7 @@
  * @brief Testing pfs::mpl::byte_string.hpp.
  */
 
-#include <pfs/test/test.hpp>
+#include <pfs/test.hpp>
 #include <pfs/byte_string.hpp>
 #include "test_byte_stream.hpp"
 

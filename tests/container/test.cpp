@@ -1,4 +1,4 @@
-#include "pfs/test/test.hpp"
+#include "pfs/test.hpp"
 // #include "pfs/utility.hpp"
 //
 // #include "pfs/traits/stdcxx/vector.hpp"

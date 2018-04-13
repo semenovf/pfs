@@ -1,5 +1,4 @@
-#ifndef __PFS_ASSERT_HPP__
-#define __PFS_ASSERT_HPP__
+#pragma once
 
 template <typename StringT>
 void pfs_backtrace (StringT file, int line, StringT text);
@@ -55,6 +54,3 @@ void pfs_check_error (StringT file, int line, StringT text);
  * Used when need to implement some code.
  */
 #define PFS_ASSERT_TODO() PFS_ASSERT_X(false, "Need to implement")
-
-#endif /* __PFS_ASSERT_HPP__ */
-

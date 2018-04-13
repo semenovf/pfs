@@ -3,7 +3,7 @@
 #include <iostream>
 #include <sstream>
 #include <pfs/config.h>
-#include <pfs/test/test.hpp>
+#include <pfs/test.hpp>
 #include <pfs/limits.hpp>
 #include <pfs/v2/string.hpp>
 #include <pfs/traits/stdcxx/string.hpp>
@@ -128,11 +128,8 @@ QChar const * string_samples<QChar const *> (int i)
 
 #include "test_01_constructors.hpp"
 
-int main (int argc, char *argv[])
+int main ()
 {
-    PFS_UNUSED(argc);
-    PFS_UNUSED(argv);
-
     BEGIN_TESTS(0);
 
     test_constructors<pfs::stdcxx::string>();

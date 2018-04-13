@@ -136,12 +136,22 @@ public:
      *     pfs_constexpr T value_or (U & default_value) const;
      * @note for prior to C++11
      */
+    template <typename U>
+    pfs_constexpr T value_or (U & default_value) const
+    {
+        return base_class::template value_or<U>(default_value);
+    }
 
     /**
      * @fn template<typename U>
      *     pfs_constexpr T value_or (U const & default_value) const;
      * @note for prior to C++11
      */
+     template<typename U>
+     pfs_constexpr T value_or (U const & default_value) const
+     {
+         return base_class::template value_or<U>(default_value);
+     }
 #endif
 };
 

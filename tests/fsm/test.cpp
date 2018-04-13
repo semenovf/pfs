@@ -6,7 +6,7 @@
  * @brief
  */
 
-#include <pfs/test/test.hpp>
+#include <pfs/test.hpp>
 #include <pfs/fsm/fsm.hpp>
 #include <pfs/fsm/traits.hpp>
 #include <pfs/iterator.hpp>
@@ -27,18 +27,18 @@ static fsm_type::transition_type hexdig_tr[] = {
 static void test_alternatives_simple ()
 {
     ADD_TESTS(4);
-    
+
 	string_type const hexdig("F");
 	string_type const digit("9");
 	string_type const notdigit("w");
-    
+
 	fsm_type fsm(hexdig_tr);
     fsm_type::result_type r = fsm.exec(0, hexdig.begin()
             , hexdig.begin());
 	TEST_FAIL(r.first == false);
 
 	string_type::const_iterator it_end;
-	
+
 	it_end = hexdig.begin();
 	pfs::advance(it_end, 1);
 	r = fsm.exec(0, hexdig.begin(), it_end);
@@ -84,7 +84,7 @@ static fsm_type::transition_type z_pos_tr[] = {
 void test_length ()
 {
     ADD_TESTS(2);
-    
+
 	fsm_type fsm1(alphabet_length_tr);
 	fsm_type fsm2(z_pos_tr);
 
@@ -118,7 +118,7 @@ static fsm_type::transition_type subseq_tr[] = {
 void test_subseq ()
 {
     ADD_TESTS(3);
-    
+
 	fsm_type fsm(subseq_tr);
 
 	TEST_OK(fsm.exec(0, alphabet.begin(), alphabet.end())
@@ -136,9 +136,9 @@ static fsm_type::transition_type range_tr[] = {
 void test_range ()
 {
     ADD_TESTS(2);
-    
+
     fsm_type fsm(range_tr);
-    
+
     TEST_OK(fsm.exec(0, alphabet.begin(), alphabet.end()).first == true);
     TEST_OK(fsm.exec(0, _DIGITS.begin(), _DIGITS.end()).first == false);
 }
@@ -147,17 +147,15 @@ void test_range ()
 static fsm_type::result_type is_alphabet (
                           fsm_type::iterator begin
                         , fsm_type::iterator end
-                        , void * parse_context
-                        , void * fn_context)
+                        , void * /*parse_context*/
+                        , void * /*fn_context*/)
 {
-    PFS_UNUSED2(parse_context, fn_context);
-    
     string_type sample(begin, end);
-            
+
     if (sample == alphabet) {
         return fsm_type::result_type(true, begin + alphabet.size());
     }
-    
+
     return fsm_type::result_type(false, end);
 }
 
@@ -168,9 +166,9 @@ static fsm_type::transition_type alphabet_func_tr[] = {
 void test_func ()
 {
     ADD_TESTS(2);
-    
+
     fsm_type fsm(alphabet_func_tr);
-    
+
     TEST_OK(fsm.exec(0, alphabet.begin(), alphabet.end()).first == true);
     TEST_OK(fsm.exec(0, _DIGITS.begin(), _DIGITS.end()).first == false);
 }
@@ -184,10 +182,10 @@ static fsm_type::transition_type decimal0more_tr[] = {
 static void test_repetition_0more ()
 {
     ADD_TESTS(11);
-    
+
 	string_type const dec("1972");
 	string_type const notdec("x1972");
-    
+
 	fsm_type fsm(decimal0more_tr);
 
 	string_type::const_iterator it_end;
@@ -257,7 +255,7 @@ static fsm_type::transition_type hex_tr[] = {
 static void test_repetition_1or2more ()
 {
     ADD_TESTS(23);
-    
+
 	string_type const dec("1972");
 	string_type const notdec("x1972");
 	string_type const hex("BEAF");
@@ -391,18 +389,18 @@ static void test_alternatives ()
 	string_type const hex("0xDEAD");
 	string_type const decimal("1972");
 	string_type const notnumber("[number]");
-    
+
 	fsm_type fsm(number_tr, 0);
 
 	string_type::const_iterator it_end;
 	fsm_type::result_type r;
 
 	it_end = hex.begin();
-	TEST_FAIL(fsm.exec(0, hex.begin(), it_end) 
+	TEST_FAIL(fsm.exec(0, hex.begin(), it_end)
             == fsm_type::result_type(false, it_end));
 
 	pfs::advance(it_end, 1);
-	TEST_FAIL(fsm.exec(0, hex.begin(), it_end) 
+	TEST_FAIL(fsm.exec(0, hex.begin(), it_end)
             == fsm_type::result_type(false, it_end));
 
 	pfs::advance(it_end, 1);
@@ -426,7 +424,7 @@ static void test_alternatives ()
 	TEST_FAIL(r.first && pfs::distance(hex.begin(), r.second) == 6);
 
 	it_end = decimal.begin();
-	TEST_FAIL(fsm.exec(0, decimal.begin(), it_end) 
+	TEST_FAIL(fsm.exec(0, decimal.begin(), it_end)
             == fsm_type::result_type(false, it_end));
 
 	pfs::advance(it_end, 1);
@@ -451,7 +449,7 @@ static void test_alternatives ()
             == fsm_type::result_type(false, it_end));
 
 	pfs::advance(it_end, 1);
-	TEST_FAIL(fsm.exec(0, notnumber.begin(), it_end) 
+	TEST_FAIL(fsm.exec(0, notnumber.begin(), it_end)
             == fsm_type::result_type(false, it_end));
 
 	pfs::advance(it_end, 1);
@@ -459,7 +457,7 @@ static void test_alternatives ()
             == fsm_type::result_type(false, it_end));
 
 	pfs::advance(it_end, 5);
-	TEST_FAIL(fsm.exec(0, notnumber.begin(), it_end) 
+	TEST_FAIL(fsm.exec(0, notnumber.begin(), it_end)
             == fsm_type::result_type(false, it_end));
 }
 
@@ -472,10 +470,10 @@ static fsm_type::transition_type rpt_tr[] = {
 void test_rpt ()
 {
     ADD_TESTS(1);
-    
+
     static string_type const rpt_chars("_ABC_ABC_ABC_ABC");
 	fsm_type fsm(rpt_tr, 0);
-    
+
 	TEST_FAIL(fsm.exec(0, rpt_chars.begin(), rpt_chars.end())
 			== fsm_type::result_type(true, rpt_chars.end()));
 }

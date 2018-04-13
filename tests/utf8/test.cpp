@@ -1,12 +1,11 @@
-#include <pfs/test/test.hpp>
+#include <pfs/test.hpp>
 
 extern void test_iterator ();
 extern void test_decode ();
 extern void test_encode ();
 
-int main (int argc, char *argv[])
+int main ()
 {
-    PFS_UNUSED2(argc, argv);
     BEGIN_TESTS(0);
 
     test_iterator();

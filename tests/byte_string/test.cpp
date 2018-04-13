@@ -1,6 +1,6 @@
 #include <cstring>
 #include <iostream>
-#include <pfs/test/test.hpp>
+#include <pfs/test.hpp>
 #include <pfs/v2/byte_string.hpp>
 
 static char const * raw_chars = "byte_string";
@@ -25,11 +25,8 @@ typedef byte_string::const_reverse_iterator const_reverse_iterator;
 #include "test_operations.hpp"
 #include "test_search.hpp"
 
-int main (int argc, char *argv[])
+int main ()
 {
-    PFS_UNUSED(argc);
-    PFS_UNUSED(argv);
-
     BEGIN_TESTS(0);
 
     test_constructors();

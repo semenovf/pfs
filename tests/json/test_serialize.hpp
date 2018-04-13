@@ -1,6 +1,6 @@
 #include <cstdio>
 #include <sstream>
-#include <pfs/test/test.hpp>
+#include <pfs/test.hpp>
 #include "pfs/ctype.hpp"
 #include "pfs/json/json.hpp"
 #include "pfs/json/ubjson_ostream.hpp"

@@ -1,7 +1,7 @@
 #ifndef __TEST_ACTIVE_MAP_HPP__
 #define __TEST_ACTIVE_MAP_HPP__
 
-#include <pfs/test/test.hpp>
+#include <pfs/test.hpp>
 #include <pfs/thread.hpp>
 #include <pfs/traits/stdcxx/map.hpp>
 #include <pfs/active_map.hpp>

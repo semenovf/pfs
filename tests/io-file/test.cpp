@@ -1,5 +1,5 @@
 #include <cstring>
-#include "pfs/test/test.hpp"
+#include "pfs/test.hpp"
 #include "pfs/filesystem.hpp"
 #include "pfs/io/file.hpp"
 #include "pfs/io/iterator.hpp"
@@ -450,9 +450,8 @@ void test_io_iterator ()
     TEST_FAIL2(pfs::filesystem::remove(file_path, ec), "Temporary file unlink");
 }
 
-int main(int argc, char *argv[])
+int main ()
 {
-    PFS_UNUSED2(argc, argv);
     BEGIN_TESTS(0);
 
     test_open_absent_file();

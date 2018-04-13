@@ -1,4 +1,4 @@
-#include <pfs/test/test.hpp>
+#include <pfs/test.hpp>
 #include <pfs/optional.hpp>
 
 int main ()

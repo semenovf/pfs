@@ -1,13 +1,4 @@
-/**
- * @file   operationsystem.hpp
- * @author wladt
- * @date   Jun 20, 2017
- */
-
-// This file based on source from Qt Project
-
-#ifndef __PFS_OPERATIONSYSTEM_HPP__
-#define __PFS_OPERATIONSYSTEM_HPP__
+#pragma once
 
 /*
    The operating system, must be one of: (PFS_OS_x)
@@ -129,7 +120,7 @@
 #endif
 
 #if defined(PFS_OS_WIN32) || defined(PFS_OS_WIN64) || defined(PFS_OS_WINCE)
-#	define PFS_OS_WIN
+#	define PFS_OS_WIN 1
 #endif
 
 #if defined(PFS_OS_DARWIN)
@@ -170,5 +161,3 @@
 #if defined(PFS_OS_UNIX)
 #	define PFS_OS_POSIX 1
 #endif
-
-#endif /* __PFS_OPERATIONSYSTEM_HPP__ */

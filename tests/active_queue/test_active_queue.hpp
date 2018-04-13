@@ -2,7 +2,7 @@
 #define __TEST_ACTIVE_QUEUE_HPP__
 
 #include <cstdlib>
-#include <pfs/test/test.hpp>
+#include <pfs/test.hpp>
 #include <pfs/types.hpp>
 #include <pfs/limits.hpp>
 #include <pfs/atomic.hpp>

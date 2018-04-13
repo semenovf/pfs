@@ -1,4 +1,4 @@
-#include <pfs/test/test.hpp>
+#include <pfs/test.hpp>
 #include <pfs/algo/between.hpp>
 
 static void test_int_defaults ()

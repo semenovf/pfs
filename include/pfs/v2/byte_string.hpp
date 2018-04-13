@@ -860,6 +860,8 @@ public:
      * @fn int compare (size_type pos1, size_type count1, byte_string const & s) const
      */
 
+    /**
+     */
     int compare (size_type pos1, size_type count1
             , byte_string const & s
             , size_type pos2, size_type count2 = npos) const
@@ -879,24 +881,6 @@ public:
      * @fn int compare (size_type pos1, size_type count1, const_pointer s, size_type count2) const
      */
 
-#if __cplusplus > 201402L
-    /**
-     * @fn tempate <typename T>
-     *     int compare (T const & t) const;
-     */
-
-    /**
-     * @fn tempate <typename T>
-     *     int compare (size_type pos1, size_type count1, T const & t) const;
-     */
-
-    /**
-     * @fn tempate <typename T>
-     *     int compare (size_type pos1, size_type count1, T const & t
-     *              , size_type pos2, size_type count2 = npos) const;
-     */
-#endif
-
     /**
      */
     inline bool starts_with (byte_string const & rhs) const
@@ -907,14 +891,14 @@ public:
         return compare(0, rhs.size(), rhs) == 0;
     }
 
-    bool starts_with (value_type ch) const
+    inline bool starts_with (value_type ch) const
     {
         return empty() ? false : (front() == ch);
     }
 
-    bool starts_with (const_pointer s) const
+    inline bool starts_with (const_pointer s) const
     {
-        return compare(0, std::strlen(reinterpret_cast<char const *>(s)), s);
+        return compare(0, std::strlen(reinterpret_cast<char const *>(s)), s) == 0;
     }
 
     inline bool ends_with (byte_string const & rhs) const
@@ -941,73 +925,124 @@ public:
         return compare(size() - n, n, s, 0, n) == 0;
     }
 
+    /**
+     */
+    inline byte_string & replace (size_type pos, size_type count, byte_string const & s)
+    {
+        base_class::replace(pos, count, s);
+        return *this;
+    }
 
+    /**
+     */
+    inline byte_string & replace (const_iterator first, const_iterator last, byte_string const & s)
+    {
+#if __cplusplus < 201103L
+        base_class::replace(begin() + std::distance(cbegin(), first)
+                , begin() + std::distance(cbegin(), last), s);
+#else
+        base_class::replace(first, last, s);
+#endif
+        return *this;
+    }
 
-//     byte_string & replace (size_type pos, size_type count, byte_string const & s)
-//     {
-//         _d.replace(pos, count, s._d);
-//         return *this;
-//     }
+    /**
+     */
+    inline byte_string & replace (size_type pos, size_type count
+            , byte_string const & s
+            , size_type pos2, size_type count2 = npos)
+    {
+        base_class::replace(pos, count, s, pos2, count2);
+        return *this;
+    }
 
-//     //	byte_string & replace (const_iterator first, const_iterator last, byte_string const & s)
-//     //	{
-//     //		_d.replace(first, last, s._d);
-//     //		return *this;
-//     //	}
+    template <typename InputIterator>
+    inline byte_string & replace (const_iterator first, const_iterator last
+            , InputIterator first2, InputIterator last2)
+    {
 
-//     byte_string & replace (size_type pos, size_type count
-//             , byte_string const & s
-//             , size_type pos2, size_type count2 = npos)
-//     {
-//         _d.replace(pos, count, s._d, pos2, count2);
-//         return *this;
-//     }
+#if __cplusplus < 201103L
+        base_class::replace<InputIterator>(begin() + std::distance(cbegin(), first)
+                , begin() + std::distance(cbegin(), last), first2, last2);
+#else
+        base_class::replace<InputIterator>(first, last, first2, last2);
+#endif
+        return *this;
+    }
 
-//     template <typename InputIterator>
-//     byte_string & replace (const_iterator first, const_iterator last
-//             , InputIterator first2, InputIterator last2)
-//     {
-//         _d.replace<InputIterator>(first, last, first2, last2);
-//         return *this;
-//     }
+    /**
+     */
+    inline byte_string & replace (size_type pos, size_type count, const_pointer s, size_type count2)
+    {
+        base_class::replace(pos, count, s, count2);
+        return *this;
+    }
 
-//     byte_string & replace (size_type pos, size_type count, const_pointer s, size_type count2)
-//     {
-//         _d.replace(pos, count, s, count2);
-//         return *this;
-//     }
+    /**
+     */
+    inline byte_string & replace (const_iterator first, const_iterator last, const_pointer s, size_type count2)
+    {
+#if __cplusplus < 201103L
+        base_class::replace(begin() + std::distance(cbegin(), first)
+                , begin() + std::distance(cbegin(), last), s, count2);
+#else
+        base_class::replace(first, last, s, count2);
+#endif
+        return *this;
+    }
 
-//     //	byte_string & replace (const_iterator first, const_iterator last, const_pointer s, size_type count2)
-//     //	{
-//     //		_d.replace(first, last, s, count2);
-//     //		return *this;
-//     //	}
+    /**
+     */
+    inline byte_string & replace (size_type pos, size_type count, const_pointer s)
+    {
+        base_class::replace(pos, count, s);
+        return *this;
+    }
 
-//     byte_string & replace (size_type pos, size_type count, const_pointer s)
-//     {
-//         _d.replace(pos, count, s);
-//         return *this;
-//     }
+    /**
+     */
+    inline byte_string & replace (const_iterator first, const_iterator last, const_pointer s)
+    {
+#if __cplusplus < 201103L
+        base_class::replace(begin() + std::distance(cbegin(), first)
+                , begin() + std::distance(cbegin(), last), s);
+#else
+        base_class::replace(first, last, s);
+#endif
+        return *this;
+    }
 
-//     // FIXME
-//     //	byte_string & replace (const_iterator first, const_iterator last, const_pointer s)
-//     //	{
-//     //		_d.replace(first, last, s);
-//     //		return *this;
-//     //	}
+    /**
+     */
+    inline byte_string & replace (size_type pos, size_type count, size_type count2, value_type ch)
+    {
+        base_class::replace(pos, count, count2, ch);
+        return *this;
+    }
 
-//     byte_string & replace (size_type pos, size_type count, size_type count2, value_type ch)
-//     {
-//         _d.replace(pos, count, count2, ch);
-//         return *this;
-//     }
+    /**
+     */
+    inline byte_string & replace (const_iterator first, const_iterator last, size_type count2, value_type ch)
+    {
+#if __cplusplus < 201103L
+        base_class::replace(begin() + std::distance(cbegin(), first)
+                , begin() + std::distance(cbegin(), last), count2, ch);
+#else
+        base_class::replace(first, last, count2, ch);
+#endif
+        return *this;
+    }
 
-//     // FIXME
-//     //	byte_string & replace (const_iterator first, const_iterator last, size_type count2, value_type ch)
-//     //	{
-//     //		_d.replace(first, last, count2, ch);
-//     //		return *this;
-//     //	}
+#if __cplusplus >= 201103L
+      /**
+      */
+      inline byte_string & replace (const_iterator first, const_iterator last
+                , std::initializer_list<value_type> ilist)
+      {
+          base_class::replace(first, last, ilist.begin(), ilist.end());
+          return *this;
+      }
+#endif
 
     /**
      * @fn byte_string substr (size_type pos = 0, size_type count = npos) const
@@ -1016,7 +1051,6 @@ public:
     /**
      * @fn size_type copy (pointer dest, size_type count, size_type pos = 0) const
      */
-
 
     /**
      * @fn void resize (size_type count)
@@ -1034,6 +1068,101 @@ public:
     // Search                                                                //
     ///////////////////////////////////////////////////////////////////////////
 
+    /**
+     * @fn size_type find (byte_string const & bs, size_type pos = 0) const;
+     */
+
+    /**
+     * @fn size_type find (const_pointer p, size_type pos, size_type count) const;
+     */
+
+    /**
+     * @fn size_type find (const_pointer p, size_type pos = 0) const;
+     */
+
+    /**
+     * @fn size_type find (value_type ch, size_type pos = 0) const;
+     */
+
+    /**
+     * @fn size_type rfind (byte_string const & bs, size_type pos = npos) const;
+     */
+
+    /**
+     * @fn size_type rfind (const_pointer p, size_type pos, size_type count) const;
+     */
+
+    /**
+     * @fn size_type rfind (const_pointer p, size_type pos = npos) const;
+     */
+
+    /**
+     * @fn size_type rfind (value_type ch, size_type pos = npos) const;
+     */
+
+    /**
+     * @fn size_type find_first_of (byte_string const & bs, size_type pos = 0) const
+     */
+
+    /**
+     * @fn size_type find_first_of (const_pointer p, size_type pos, size_type count) const
+     */
+
+    /**
+     * @fn size_type find_first_of (const_pointer p, size_type pos = 0) const
+     */
+
+    /**
+     * @fn size_type find_first_of (value_type ch, size_type pos = 0) const
+     */
+
+    /**
+     * @fn size_type find_first_not_of (byte_string const & bs, size_type pos = 0) const
+     */
+
+    /**
+     * @fn size_type find_first_not_of (const_pointer p, size_type pos, size_type count) const
+     */
+
+    /**
+     * @fn size_type find_first_not_of (const_pointer p, size_type pos = 0) const
+     */
+
+    /**
+     * @fn size_type find_first_not_of (value_type ch, size_type pos = 0) const
+     */
+
+    /**
+     * @fn size_type find_last_of (byte_string const & bs, size_type pos = 0) const
+     */
+
+    /**
+     * @fn size_type find_last_of (const_pointer p, size_type pos, size_type count) const
+     */
+
+    /**
+     * @fn size_type find_last_of (const_pointer p, size_type pos = 0) const
+     */
+
+    /**
+     * @fn size_type find_last_of (value_type ch, size_type pos = 0) const
+     */
+
+    /**
+     * @fn size_type find_last_not_of (byte_string const & bs, size_type pos = 0) const
+     */
+
+    /**
+     * @fn size_type find_last_not_of (const_pointer p, size_type pos, size_type count) const
+     */
+
+    /**
+     * @fn size_type find_last_not_of (const_pointer p, size_type pos = 0) const
+     */
+
+    /**
+     * @fn size_type find_last_not_of (value_type ch, size_type pos = 0) const
+     */
 };
 
 // template <int N>

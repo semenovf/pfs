@@ -1,7 +1,7 @@
 #include <iostream>
 #include <string>
 #include <sstream>
-#include <pfs/test/test.hpp>
+#include <pfs/test.hpp>
 #include <pfs/cxxlang.hpp>
 #include <pfs/traits/stdcxx/vector.hpp>
 #include <pfs/traits/stdcxx/map.hpp>
