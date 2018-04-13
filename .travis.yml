@@ -3,11 +3,11 @@ sudo: false
 language: cpp
 
 install:
-  - sudo apt-get install -qq libboost-system1.58-dev
-  - sudo apt-get install -qq libboost-filesystem1.58-dev
-  - sudo apt-get install -qq libboost-thread1.58-dev
-  - sudo apt-get install -qq libboost-chrono1.58-dev
-  - sudo apt-get install -qq libboost-regex1.58-dev
+  - sudo apt-get install -qq libboost-system1.54-dev
+  - sudo apt-get install -qq libboost-filesystem1.54-dev
+  - sudo apt-get install -qq libboost-thread1.54-dev
+  - sudo apt-get install -qq libboost-chrono1.54-dev
+  - sudo apt-get install -qq libboost-regex1.54-dev
 
 script:
   - mkdir -p build
