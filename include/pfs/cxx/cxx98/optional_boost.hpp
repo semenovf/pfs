@@ -136,13 +136,13 @@ public:
      * @note for prior to C++11
      */
     template <typename U>
-    pfs_constexpr T value_or (U & default_value) const
+    T value_or (U & default_value) const
     {
         // TODO Check BOOST from version has `value_or` method
 #if BOOST_VERSION >= 105800
         return base_class::template value_or<U>(default_value);
 #else
-        return base_class::template get_value_or<U>(default_value);
+        return base_class::get_value_or(default_value);
 #endif
     }
 
@@ -156,7 +156,7 @@ public:
 #if BOOST_VERSION >= 105800
          return base_class::template value_or<U>(default_value);
 #else
-         return base_class::template get_value_or<U>(default_value);
+         return base_class::get_value_or(default_value);
 #endif
      }
 #endif
