@@ -1,5 +1,6 @@
 #pragma once
 #include <pfs/cxxlang.hpp>
+#include <boost/version.hpp>
 #include <boost/optional.hpp>
 
 namespace pfs {
@@ -132,25 +133,31 @@ public:
 
 #if __cplusplus < 201103L
     /**
-     * @fn template<typename U>
-     *     pfs_constexpr T value_or (U & default_value) const;
      * @note for prior to C++11
      */
     template <typename U>
     pfs_constexpr T value_or (U & default_value) const
     {
+        // TODO Check BOOST from version has `value_or` method
+#if BOOST_VERSION >= 105800
         return base_class::template value_or<U>(default_value);
+#else
+        return base_class::template get_value_or<U>(default_value);
+#endif
     }
 
     /**
-     * @fn template<typename U>
-     *     pfs_constexpr T value_or (U const & default_value) const;
      * @note for prior to C++11
      */
+    // TODO Check BOOST from version has `value_or` method
      template<typename U>
      pfs_constexpr T value_or (U const & default_value) const
      {
+#if BOOST_VERSION >= 105800
          return base_class::template value_or<U>(default_value);
+#else
+         return base_class::template get_value_or<U>(default_value);
+#endif
      }
 #endif
 };
