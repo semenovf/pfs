@@ -3,14 +3,14 @@ sudo: false
 language: cpp
 
 install:
-  - sudo apt-get install -qq libboost-system-dev
-  - sudo apt-get install -qq libboost-filesystem-dev
-  - sudo apt-get install -qq libboost-thread-dev
-  - sudo apt-get install -qq libboost-chrono-dev
-  - sudo apt-get install -qq libboost-regex-dev
+  - sudo apt-get install -qq libboost-system1.58-dev
+  - sudo apt-get install -qq libboost-filesystem1.58-dev
+  - sudo apt-get install -qq libboost-thread1.58-dev
+  - sudo apt-get install -qq libboost-chrono1.58-dev
+  - sudo apt-get install -qq libboost-regex1.58-dev
 
 script:
   - mkdir -p build
-  - cd build
-  - cmake -DCMAKE_CXX_STANDARD=98 ..
-  - cmake --build . && make test
+  - cd build-98
+  - cmake -DCMAKE_CXX_STANDARD=98 -DCMAKE_BUILD_TYPE=Release ..
+  - cmake --build . && tests/test-byte_string
