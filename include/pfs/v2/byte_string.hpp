@@ -2,13 +2,7 @@
 #include <string>
 #include <iterator>
 #include <pfs/types.hpp>
-//#include <pfs/limits.hpp>
-//#include <pfs/type_traits.hpp>
 #include <pfs/memory.hpp>
-//#include <pfs/algorithm.hpp>
-//#include <pfs/iterator.hpp>
-//#include <pfs/utility.hpp>
-//#include <pfs/io/exception.hpp>
 
 namespace pfs {
 
@@ -493,19 +487,16 @@ public:
     //      iterator insert (iterator pos, CharT ch ); (since C++11)
     // so need checks with various versions of standard C++ library
     //
-#if __cplusplus < 201103L
     inline iterator insert (const_iterator pos, value_type ch)
     {
-        size_type index = pos - begin();
+#if __cplusplus < 201103L
+        size_type index = std::distance(cbegin(), pos);
         byte_string::insert(index, 1, ch);
         return iterator(begin() + index);
-    }
 #else
-    inline iterator insert (const_iterator pos, value_type ch)
-    {
         return base_class::insert(pos, ch);
-    }
 #endif
+    }
 
     /**
      */
@@ -938,8 +929,17 @@ public:
     inline byte_string & replace (const_iterator first, const_iterator last, byte_string const & s)
     {
 #if __cplusplus < 201103L
-        base_class::replace(begin() + std::distance(cbegin(), first)
-                , begin() + std::distance(cbegin(), last), s);
+        // basic_string implementation may use COW,
+        // so
+        // base_class::replace(begin() + std::distance(cbegin(), first)
+        //      , begin() + std::distance(cbegin(), last), s);
+        // may cause UB (in  worst case Seg Fault)
+        //
+        difference_type i1 = std::distance(cbegin(), first);
+        difference_type i2 = std::distance(cbegin(), last);
+        iterator f = begin() + i1; // begin() unshares data
+        iterator e = begin() + i2;
+        base_class::replace(f, e, s);
 #else
         base_class::replace(first, last, s);
 #endif
@@ -962,8 +962,11 @@ public:
     {
 
 #if __cplusplus < 201103L
-        base_class::replace<InputIterator>(begin() + std::distance(cbegin(), first)
-                , begin() + std::distance(cbegin(), last), first2, last2);
+        difference_type i1 = std::distance(cbegin(), first);
+        difference_type i2 = std::distance(cbegin(), last);
+        iterator f = begin() + i1;
+        iterator e = begin() + i2;
+        base_class::replace<InputIterator>(f, e, first2, last2);
 #else
         base_class::replace<InputIterator>(first, last, first2, last2);
 #endif
@@ -980,11 +983,15 @@ public:
 
     /**
      */
-    inline byte_string & replace (const_iterator first, const_iterator last, const_pointer s, size_type count2)
+    inline byte_string & replace (const_iterator first, const_iterator last
+            , const_pointer s, size_type count2)
     {
 #if __cplusplus < 201103L
-        base_class::replace(begin() + std::distance(cbegin(), first)
-                , begin() + std::distance(cbegin(), last), s, count2);
+        difference_type i1 = std::distance(cbegin(), first);
+        difference_type i2 = std::distance(cbegin(), last);
+        iterator f = begin() + i1;
+        iterator e = begin() + i2;
+        base_class::replace(f, e, s, count2);
 #else
         base_class::replace(first, last, s, count2);
 #endif
@@ -1004,8 +1011,11 @@ public:
     inline byte_string & replace (const_iterator first, const_iterator last, const_pointer s)
     {
 #if __cplusplus < 201103L
-        base_class::replace(begin() + std::distance(cbegin(), first)
-                , begin() + std::distance(cbegin(), last), s);
+        difference_type i1 = std::distance(cbegin(), first);
+        difference_type i2 = std::distance(cbegin(), last);
+        iterator f = begin() + i1;
+        iterator e = begin() + i2;
+        base_class::replace(f, e, s);
 #else
         base_class::replace(first, last, s);
 #endif
@@ -1014,7 +1024,8 @@ public:
 
     /**
      */
-    inline byte_string & replace (size_type pos, size_type count, size_type count2, value_type ch)
+    inline byte_string & replace (size_type pos, size_type count
+            , size_type count2, value_type ch)
     {
         base_class::replace(pos, count, count2, ch);
         return *this;
@@ -1022,11 +1033,15 @@ public:
 
     /**
      */
-    inline byte_string & replace (const_iterator first, const_iterator last, size_type count2, value_type ch)
+    inline byte_string & replace (const_iterator first, const_iterator last
+            , size_type count2, value_type ch)
     {
 #if __cplusplus < 201103L
-        base_class::replace(begin() + std::distance(cbegin(), first)
-                , begin() + std::distance(cbegin(), last), count2, ch);
+        difference_type i1 = std::distance(cbegin(), first);
+        difference_type i2 = std::distance(cbegin(), last);
+        base_class::iterator f = begin() + i1;
+        base_class::iterator e = begin() + i2;
+        base_class::replace(f, e, count2, ch);
 #else
         base_class::replace(first, last, count2, ch);
 #endif
