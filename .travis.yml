@@ -14,3 +14,7 @@ script:
   - cd build-98
   - cmake -DCMAKE_CXX_STANDARD=98 -DCMAKE_BUILD_TYPE=Release ..
   - cmake --build . && ctest
+
+
+notifications:
+  email: true
