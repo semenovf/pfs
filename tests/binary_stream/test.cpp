@@ -1,23 +1,13 @@
-/**
- * @file   test.cpp
- * @author
- * @date
- *
- * @brief Testing pfs::mpl::byte_string.hpp.
- */
-
 #include <pfs/test.hpp>
-#include <pfs/byte_string.hpp>
-#include "test_byte_stream.hpp"
+#include "test_binary_ostream.hpp"
+#include "test_binary_istream.hpp"
 
-int main (int argc, char *argv[])
+int main ()
 {
-    PFS_UNUSED(argc);
-    PFS_UNUSED(argv);
-
     BEGIN_TESTS(0);
 
-    test_byte_stream();
+    //test_binary_ostream();
+    test_binary_istream();
 
     return END_TESTS;
 }

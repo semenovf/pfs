@@ -23,7 +23,7 @@ namespace pfs {
 //         out << s[i];
 //     return out;
 // }
-// 
+//
 // inline pfs::byte_istream & operator >> (
 //               pfs::byte_istream & in
 //             , std::string & s)
@@ -31,7 +31,7 @@ namespace pfs {
 //     size_t n;
 //     char ch;
 //     in >> n;
-// 
+//
 //     while (n--) {
 //         in >> ch;
 //         s.push_back(ch);
@@ -39,17 +39,32 @@ namespace pfs {
 //     return in;
 // }
 
+// struct protocol
+// {
+//     bool pack (byte_string & data);
+//     bool unpack (byte_string & data);
+// }
+//
+// struct transport
+// {
+//     ssize_t read (byte_string & data);
+//     ssize_t write (byte_string const & data);
+// }
+
 template <uint8_t MajorVersion, uint8_t MinorVersion
+        , typename Protocol
+        , typename Transport
         , typename String                  = std::string
         , typename MethodName              = String
         , typename Id                      = int32_t
         , typename AssociativeContainerTag = stdcxx::map
         , typename SequenceContainerTag    = stdcxx::list
-        , typename Order                   = endian::network_endian
-        , typename Archive                 = byte_string>
+        , typename Order                   = endian::network_endian>
 struct rpc
 {
     typedef uint16_t   version_type;
+    typedef Protocol   protocol_type;
+    typedef Transport  transport_type;
     typedef String     string_type;
     typedef MethodName method_name_type;
     typedef Id         id_type;

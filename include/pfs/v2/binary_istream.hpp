@@ -1,220 +1,87 @@
 #pragma once
+#include <pfs/type_traits.hpp>
 #include <pfs/endian.hpp>
 
 namespace pfs {
 
-template <typename Device
-        , typename IStreamTag>
-struct binary_istream;
-
-template <typename Device
-        , typename IStreamTag
-        , typename T>
-binary_istream<Device, IStreamTag> & operator >> (binary_istream<Device, IStreamTag> &, T &);
-
-template <typename Device, typename T>
-ssize_t read_binary (Device & dev, endian order, T & v);
-
-namespace details {
-namespace integral {
-
-template <typename Device, typename Integral>
-ssize_t read_binary (Device & dev, endian order, Integral & v)
+template <typename Device>
+class binary_istream
 {
-    union u
+public:
+    binary_istream (Device & dev, endian order = endian::network_order())
+        : _dev(dev)
+        , _order(order)
+    {}
+
+    template <typename T>
+    inline typename enable_if<is_integral<T>::value, binary_istream &>::type
+    operator >> (T & v)
     {
-        Integral v;
-        char b[sizeof(Integral)];
-    } d;
+        ssize_t r = read_integral<T>(v);
+        return *this;
+    }
 
-    ssize_t result = dev.read(d.b, sizeof(Integral));
+    template <typename T>
+    inline typename enable_if<is_floating_point<T>::value, binary_istream &>::type
+    operator >> (T & v)
+    {
+        ssize_t r = read_float<T>(v);
+        return *this;
+    }
 
-    if (result < 0)
+protected:
+     template <typename Integral>
+     ssize_t read_integral (Integral & v)
+    {
+        union u {
+            Integral v;
+            char b[sizeof(Integral)];
+        } d;
+
+        ssize_t result = _dev.read(d.b, sizeof(Integral));
+
+        if (result < 0)
+            return result;
+
+        v = _order.convert(d.v);
+
         return result;
+    }
 
-    v = order.convert(d.v);
-
-	return result;
-}
-
-}} // integral
-
-namespace details {
-namespace fp {
-
-template <typename Device, typename Float>
-ssize_t read_binary (Device & dev, endian order, Float & v)
-{
-    ssize_t result = -1;
+    template <typename Float>
+    ssize_t read_float (Float & v)
+    {
+        ssize_t result = -1;
 
 #ifdef PFS_HAVE_INT64
-    if (sizeof(Float) == 8) {
-        uint64_t d = 0;
-        result = details::integral::read_binary(dev, order, d);
-        v = *reinterpret_cast<Float *>(& d);
-        return result;
-    } else
+        if (sizeof(Float) == 8) {
+            uint64_t d = 0;
+            result = read_integral(d);
+            v = *reinterpret_cast<Float *>(& d);
+            return result;
+        } else
 #endif
-    if (sizeof(Float) == 4) {
-        uint32_t d = 0;
-        result = details::integral::read_binary(dev, order, d);
-        v = *reinterpret_cast<Float *>(& d);
-        return result;
-    } else if (sizeof(Float) == 2) {
-        uint16_t d = 0;
-        result = details::integral::read_binary(dev, order, d);
-        v = *reinterpret_cast<Float *>(& d);
-        return result;
-    } else {
-        PFS_ASSERT_X(false, "unsupported floating point (too big to fit in integer)");
-    }
-
-	return result;
-}
-
-}} // details::fp
-
-namespace details {
-namespace sequence {
-
-template <typename Device>
-ssize_t read_binary (Device & dev, endian order, char * buffer, size_t n)
-{
-    return dev.read(buffer, n);
-}
-
-// TODO Reimplement using Allocator as template parameter
-//
-template <typename Device>
-ssize_t read_binary (Device & dev, endian order, char ** buffer, size_t * n)
-{
-    size_t size = 0;
-    ssize_t result = read_binary(dev, order, size);
-
-    *buffer = 0;
-
-    if (result > 0) {
-        *n = size;
-
-        *buffer = new char[size];
-
-        ssize_t r1 = dev.read(*buffer, size);
-
-        if (r1 >= 0) {
-            result += r1;
+        if (sizeof(Float) == 4) {
+            uint32_t d = 0;
+            result = read_integral(d);
+            v = *reinterpret_cast<Float *>(& d);
+            return result;
+        } else if (sizeof(Float) == 2) {
+            uint16_t d = 0;
+            result = read_integral(d);
+            v = *reinterpret_cast<Float *>(& d);
+            return result;
         } else {
-            result = r1;
+            PFS_ASSERT_X(false, "unsupported floating point (too big to fit in integer)");
         }
+
+        return result;
     }
 
-    return result;
-}
-
-}} // details::sequence
-
-template <typename Device>
-inline ssize_t read_binary (Device & dev, endian order, bool & v)
-{
-    return details::integral::read_binary(dev, order, v);
-}
-
-template <typename Device>
-inline ssize_t read_binary (Device & dev, endian order, char & v)
-{
-    return details::integral::read_binary(dev, order, v);
-}
-
-template <typename Device>
-inline ssize_t read_binary (Device & dev, endian order, signed char & v)
-{
-    return details::integral::read_binary(dev, order, v);
-}
-
-template <typename Device>
-inline ssize_t read_binary (Device & dev, endian order, unsigned char & v)
-{
-    return details::integral::read_binary(dev, order, v);
-}
-
-template <typename Device>
-inline ssize_t read_binary (Device & dev, endian order, wchar_t & v)
-{
-    return details::integral::read_binary(dev, order, v);
-}
-
-template <typename Device>
-inline ssize_t read_binary (Device & dev, endian order, short & v)
-{
-    return details::integral::read_binary(dev, order, v);
-}
-
-template <typename Device>
-inline ssize_t read_binary (Device & dev, endian order, unsigned short & v)
-{
-    return details::integral::read_binary(dev, order, v);
-}
-
-template <typename Device>
-inline ssize_t read_binary (Device & dev, endian order, int & v)
-{
-    return details::integral::read_binary(dev, order, v);
-}
-
-template <typename Device>
-inline ssize_t read_binary (Device & dev, endian order, unsigned int & v)
-{
-    return details::integral::read_binary(dev, order, v);
-}
-
-template <typename Device>
-inline ssize_t read_binary (Device & dev, endian order, long & v)
-{
-    return details::integral::read_binary(dev, order, v);
-}
-
-template <typename Device>
-inline ssize_t read_binary (Device & dev, endian order, unsigned long & v)
-{
-    return details::integral::read_binary(dev, order, v);
-}
-
-#if PFS_HAVE_LONGLONG
-
-template <typename Device>
-inline ssize_t read_binary (Device & dev, endian order, long long & v)
-{
-    return details::integral::read_binary(dev, order, v);
-}
-
-template <typename Device>
-inline ssize_t read_binary (Device & dev, endian order, unsigned long long & v)
-{
-    return details::integral::read_binary(dev, order, v);
-}
-
-#endif
-
-template <typename Device>
-inline ssize_t read_binary (Device & dev, endian order, float & v)
-{
-    return details::fp::read_binary(dev, order, v);
-}
-
-template <typename Device>
-inline ssize_t read_binary (Device & dev, endian order, double & v)
-{
-    return details::fp::read_binary(dev, order, v);
-}
-
-#if PFS_HAVE_LONG_DOUBLE
-
-template <typename Device>
-inline ssize_t read_binary (Device & dev, endian order, long double & v)
-{
-    return details::fp::read_binary(dev, order, v);
-}
-
-#endif
+private:
+    Device & _dev;
+    endian   _order;
+};
 
 } //pfs
 

@@ -1,6 +1,4 @@
-#ifndef __PFS_IO_BUFFERED_DEVICE_HPP__
-#define __PFS_IO_BUFFERED_DEVICE_HPP__
-
+#pragma once
 #include <pfs/io/exception.hpp>
 #include <pfs/io/device.hpp>
 
@@ -44,5 +42,3 @@ public:
 };
 
 }} // pfs::io
-
-#endif /* __PFS_IO_BUFFERED_DEVICE_HPP__ */

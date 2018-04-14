@@ -1,4 +1,5 @@
 #pragma once
+#include <cstring>
 #include <string>
 #include <iterator>
 #include <pfs/types.hpp>
@@ -35,17 +36,6 @@ public:
 
     static const size_type npos = base_class::npos;
 
-// private:
-//     explicit byte_string (base_class const & s)
-//         : base_class(s)
-//     {}
-//
-//     byte_string & assign (base_class const & d)
-//     {
-//         _d.assign(d);
-//         return *this;
-//     }
-
 public:
     byte_string () : base_class () {}
 
@@ -53,9 +43,9 @@ public:
         : base_class(other)
     {}
 
-    byte_string (byte_string const & other,
-            size_type pos,
-            size_type count = npos)
+    byte_string (byte_string const & other
+            , size_type pos
+            , size_type count = npos)
         : base_class(other, pos, count)
     {}
 

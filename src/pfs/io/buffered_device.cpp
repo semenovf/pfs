@@ -5,9 +5,9 @@ namespace pfs {
 namespace io {
 
 buffered_device::buffered_device (device & d, size_t initialSize)
-: _d (d)
-, _count (0)
-, _cursor (0)
+    : _d (d)
+    , _count (0)
+    , _cursor (0)
 {
     _buffer = static_cast<byte_t *> (std::malloc(initialSize * sizeof (byte_t)));
     _bufsz = initialSize;

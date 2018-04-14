@@ -1,6 +1,4 @@
-#ifndef __TEST_APPEND_HPP__
-#define __TEST_APPEND_HPP__
-
+#pragma once
 #include "pfs/compiler.hpp"
 #include "pfs/limits.hpp"
 

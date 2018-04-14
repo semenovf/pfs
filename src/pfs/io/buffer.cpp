@@ -117,9 +117,7 @@ ssize_t buffer::write (const byte_t * bytes, size_t n)
     return integral_cast_check<ssize_t>(n);
 }
 
-}
-}
-} // pfs::io::details
+}}} // pfs::io::details
 
 namespace pfs {
 namespace io {
