@@ -6,12 +6,13 @@
 #include <pfs/test.hpp>
 #include <pfs/limits.hpp>
 #include <pfs/v2/string.hpp>
-#include <pfs/traits/stdcxx/string.hpp>
+#include <pfs/v2/stdcxx/basic_string.hpp>
 
 // Enabled by `qt_enable`
 #ifdef HAVE_QT_CORE
-#   include <pfs/traits/qt/string.hpp>
+//#   include <pfs/traits/qt/string.hpp>
 #endif
+
 
 template <typename ConstPointer>
 char const * stringify_string_impl ();
@@ -27,9 +28,9 @@ inline char const * stringify_string_impl<wchar_t const *> ()
 
 #ifdef HAVE_QT_CORE
 
-template <>
-inline char const * stringify_string_impl<QChar const *> ()
-{ return "QChar"; }
+// template <>
+// inline char const * stringify_string_impl<QChar const *> ()
+// { return "QChar"; }
 
 #endif
 
@@ -109,33 +110,33 @@ wchar_t const * string_samples<wchar_t const *> (int i)
 }
 
 #if HAVE_QT_CORE
-template <>
-QChar const * string_samples<QChar const *> (int i)
-{
-    static QString s[] = {
-          QString("ABCDEF")
-        , QString("ABCDEF")
-        , QString("ABCDE")
-        , QString("BCDEF")
-        , QString("BCDE")
-        , QString()
-        , QString("ABCDEFABCDEF")
-    };
-
-    return s[i].constData();
-}
+// template <>
+// QChar const * string_samples<QChar const *> (int i)
+// {
+//     static QString s[] = {
+//           QString("ABCDEF")
+//         , QString("ABCDEF")
+//         , QString("ABCDE")
+//         , QString("BCDEF")
+//         , QString("BCDE")
+//         , QString()
+//         , QString("ABCDEFABCDEF")
+//     };
+//
+//     return s[i].constData();
+// }
 #endif
 
-#include "test_01_constructors.hpp"
+#include "test_constructors.hpp"
 
 int main ()
 {
     BEGIN_TESTS(0);
 
-    test_constructors<pfs::stdcxx::string>();
+    test_constructors<pfs::string>();
 
 #ifdef HAVE_QT_CORE
-    test_constructors<pfs::qt::string>();
+    //test_constructors<pfs::qt::string>();
 #endif
 
     return END_TESTS;

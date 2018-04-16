@@ -2,22 +2,27 @@
 #include <cstring>
 #include <string>
 #include <iterator>
+#include <pfs/algorithm.hpp>
 #include <pfs/types.hpp>
-#include <pfs/memory.hpp>
+#include <pfs/v2/stdcxx/basic_string.hpp>
 
 namespace pfs {
 
-class byte_string : public std::basic_string<uint8_t>
+class byte_string : public stdcxx::basic_string<uint8_t, byte_string>
 {
-    typedef std::basic_string<uint8_t> base_class;
+    typedef stdcxx::basic_string<uint8_t, byte_string> base_class;
 
 public:
+    using base_class::append;
     using base_class::assign;
     using base_class::compare;
     using base_class::copy;
     using base_class::erase;
+    using base_class::insert;
     using base_class::push_back;
     using base_class::substr;
+    using base_class::operator =;
+    using base_class::operator +=;
 
     typedef base_class::value_type       value_type;
     typedef base_class::traits_type      traits_type;
@@ -31,8 +36,6 @@ public:
     typedef base_class::const_iterator   const_iterator;
     typedef base_class::reverse_iterator reverse_iterator;
     typedef base_class::const_reverse_iterator const_reverse_iterator;
-
-    typedef pfs::shared_ptr<byte_string> shared_type;
 
     static const size_type npos = base_class::npos;
 
@@ -49,7 +52,7 @@ public:
         : base_class(other, pos, count)
     {}
 
-    explicit byte_string (const_pointer s)
+    byte_string (const_pointer s)
         : base_class(s)
     {}
 
@@ -82,32 +85,27 @@ public:
     {}
 
     /**
+     * @fn byte_string & operator = (byte_string const & s)
+     *
      * @brief Default copy assignment
      * @details Replaces the contents with the copy of @a s
      */
-    byte_string & operator = (byte_string const & s)
-    {
-        base_class::operator = (s);
-        return *this;
-    }
 
-    byte_string & operator = (const_pointer s)
-    {
-        base_class::operator = (s);
-        return *this;
-    }
+    /**
+     * @fn byte_string & operator = (const_pointer s)
+     */
 
+    /**
+     */
     byte_string & operator = (char const * s)
     {
         base_class::operator = (reinterpret_cast<const_pointer>(s));
         return *this;
     }
 
-    byte_string & operator = (value_type c)
-    {
-        base_class::operator = (c);
-        return *this;
-    }
+    /**
+     * @fn byte_string & operator = (value_type c)
+     */
 
     byte_string & operator = (char c)
     {
@@ -186,50 +184,34 @@ public:
      * @fn const_reference operator [] (size_type pos) const
      */
 
-#if __cplusplus < 201103L
-    reference front ()
-    {
-        PFS_ASSERT(!empty());
-        return at(0);
-    }
-#endif
+    /**
+     * @fn reference front ()
+     */
 
-#if __cplusplus < 201103L
-    const_reference front () const
-    {
-        PFS_ASSERT(!empty());
-        return at(0);
-    }
-#endif
+    /**
+     * @fn const_reference front () const
+     */
 
-#if __cplusplus < 201103L
-    reference back ()
-    {
-        PFS_ASSERT(!empty());
-        return at(size() - 1);
-    }
-#endif
+    /**
+     * @fn reference back ()
+     */
 
-#if __cplusplus < 201103L
-    const_reference back () const
-    {
-        PFS_ASSERT(!empty());
-        return at(size() - 1);
-    }
-#endif
+    /**
+     * @fn const_reference back () const
+     */
 
     /**
      */
-    inline const_pointer data () const
-    {
-        return base_class::data();
-    }
+//     inline const_pointer data () const
+//     {
+//         return base_class::data();
+//     }
 
     // There is no `pointer data ()` GCC-implementation
-    inline pointer data ()
-    {
-        return & operator [] (0);
-    }
+//     inline pointer data ()
+//     {
+//         return & operator [] (0);
+//     }
 
     //
     // @note `const_pointer c_str () const` is inaccessable
@@ -251,12 +233,9 @@ public:
      * @fn const_iterator begin () const
      */
 
-#if __cplusplus < 201103L
-    const_iterator cbegin () const
-    {
-        return begin();
-    }
-#endif
+    /**
+     * @fn const_iterator cbegin () const
+     */
 
     /**
      * @fn iterator end ()
@@ -266,12 +245,9 @@ public:
      * @fn const_iterator end () const
      */
 
-#if __cplusplus < 201103L
-    const_iterator cend () const
-    {
-        return end();
-    }
-#endif
+    /**
+     * @fn const_iterator cend () const
+     */
 
     /**
      * @fn reverse_iterator rbegin ()
@@ -281,12 +257,9 @@ public:
      * @fn const_reverse_iterator rbegin () const
      */
 
-#if __cplusplus < 201103L
-    const_reverse_iterator crbegin () const
-    {
-        return base_class::rbegin();
-    }
-#endif
+    /**
+     * @fn const_reverse_iterator crbegin () const
+     */
 
     /**
      * @fn reverse_iterator rend ()
@@ -296,12 +269,9 @@ public:
      * @fn const_reverse_iterator rend () const
      */
 
-#if __cplusplus < 201103L
-    const_reverse_iterator crend () const
-    {
-        return base_class::rend();
-    }
-#endif
+    /**
+     * @fn const_reverse_iterator crend () const
+     */
 
     ///////////////////////////////////////////////////////////////////////////
     // Capacity                                                              //
@@ -331,25 +301,16 @@ public:
      */
 
     /**
+     * @fn void reserve (size_type new_cap)
      */
-    void reserve (size_type new_cap)
-    {
-        base_class::reserve(new_cap);
-    }
 
     /**
      * @fn size_type capacity () const
      */
 
-#if __cplusplus < 201103L
-    // @note Result may not be the same as for C++11 version
-    void shrink_to_fit ()
-    {
-        if (capacity() > size()) {
-            reserve(0);
-        }
-    }
-#endif
+    /**
+     * @fn void shrink_to_fit ()
+     */
 
     ///////////////////////////////////////////////////////////////////////////
     // Operations                                                            //
@@ -360,17 +321,14 @@ public:
      */
 
     /**
+     * @fn byte_string & insert (size_type index, size_type count, value_type ch)
+     *
      * @brief Inserts @c count copies of character @c ch at the position @c index.
      * @param index Position at which the content will be inserted.
      * @param count Number of characters to insert.
      * @param ch Character to insert.
      * @return @code *this @endcode
      */
-    inline byte_string & insert (size_type index, size_type count, value_type ch)
-    {
-        base_class::insert(index, count, ch);
-        return *this;
-    }
 
     /**
      * @fn byte_string & insert (size_type index, size_type count, char ch)
@@ -383,17 +341,14 @@ public:
      */
 
     /**
+     * @fn byte_string & insert (size_type index, const_pointer s)
+     *
      * @brief Inserts null-terminated character string pointed to by @c s at the position @c index.
      *        The length of the string is determined by the first null character.
      * @param index Position at which the content will be inserted.
      * @param s Pointer to the character string to insert.
      * @return @code *this @endcode
      */
-    byte_string & insert (size_type index, const_pointer s)
-    {
-        base_class::insert(index, s);
-        return *this;
-    }
 
     /**
      * @brief Inserts null-terminated character string pointed to by @c s at the position @c index.
@@ -409,13 +364,10 @@ public:
     }
 
     /**
+     * @fn byte_string & insert (size_type index, const_pointer s, size_type count)
+     *
      * @return @code *this @endcode
      */
-    inline byte_string & insert (size_type index, const_pointer s, size_type count)
-    {
-        base_class::insert(index, s, count);
-        return *this;
-    }
 
     /**
      * @return @code *this @endcode
@@ -427,13 +379,9 @@ public:
     }
 
     /**
+     * @fn byte_string & insert (size_type index, byte_string const & s)
      * @return @code *this @endcode
      */
-    inline byte_string & insert (size_type index, byte_string const & s)
-    {
-        base_class::insert(index, s);
-        return *this;
-    }
 
     /**
      * @return @code *this @endcode
@@ -445,14 +393,10 @@ public:
     }
 
     /**
+     * @fn byte_string & insert (size_type index, basic_string const & str
+     *              , size_type index_str, size_type count = npos)
      * @return @code *this @endcode
      */
-    inline byte_string & insert (size_type index, basic_string const & str
-                   , size_type index_str, size_type count = npos)
-    {
-        base_class::insert(index, str, index_str, count);
-        return *this;
-    }
 
     /**
      * @return @code *this @endcode
@@ -469,24 +413,6 @@ public:
     /**
      * @fn iterator insert (const_iterator pos, value_type ch)
      */
-    //
-    // http://en.cppreference.com/w/cpp/string/basic_string/insert
-    // says
-    //      iterator insert (iterator pos, CharT ch ); (until C++11)
-    // but gcc implements it as meet C++11 standard
-    //      iterator insert (iterator pos, CharT ch ); (since C++11)
-    // so need checks with various versions of standard C++ library
-    //
-    inline iterator insert (const_iterator pos, value_type ch)
-    {
-#if __cplusplus < 201103L
-        size_type index = std::distance(cbegin(), pos);
-        byte_string::insert(index, 1, ch);
-        return iterator(begin() + index);
-#else
-        return base_class::insert(pos, ch);
-#endif
-    }
 
     /**
      */
@@ -497,40 +423,19 @@ public:
         return byte_string::insert(pos, value_type(ch));
     }
 
-#if __cplusplus < 201103L
-    inline iterator insert (const_iterator pos, size_type count, value_type ch)
-    {
-        size_type index = std::distance(cbegin(), pos);
-        base_class::insert(begin() + index, count, ch);
-        return begin() + index;
-    }
-#else
-    inline iterator insert (const_iterator pos, size_type count, value_type ch)
-    {
-        return base_class::insert(pos, count, ch);
-    }
-#endif
+    /**
+     * @fn iterator insert (const_iterator pos, size_type count, value_type ch)
+     */
 
     inline iterator insert (const_iterator pos, size_type count, char ch)
     {
         return byte_string::insert(pos, count, value_type(ch));
     }
 
-#if __cplusplus < 201103L
-    template <typename InputIt>
-    inline iterator insert (const_iterator pos, InputIt first, InputIt last)
-    {
-        size_type index = std::distance(cbegin(), pos);
-        base_class::insert(begin() + index, first, last);
-        return begin() + index;
-    }
-#else
-    template <typename InputIt>
-    inline iterator insert (const_iterator pos, InputIt first, InputIt last)
-    {
-        return base_class::insert<InputIt>(pos, first, last);
-    }
-#endif
+    /**
+     * @fn template <typename InputIt>
+     *     iterator insert (const_iterator pos, InputIt first, InputIt last)
+     */
 
 #if __cplusplus >= 201103L
     /**
@@ -545,63 +450,20 @@ public:
     }
 #endif
 
-#if __cplusplus > 201402L
-    /**
-     * @return @code *this @endcode
-     */
-    template <typename T>
-    inline byte_string & insert (size_type pos, T const & t)
-    {
-        base_class::insert<T>(pos, t);
-        return *this;
-    }
 
     /**
+     * @fn byte_string & erase (size_type index = 0, size_type count = npos)
+     *
      * @return @code *this @endcode
      */
-    inline byte_string & insert (size_type index, T const & t
-                , size_type index_str, size_type count = npos)
-    {
-        base_class::insert<T>(index, t, index_str, count);
-        return *this;
-    }
-#endif
 
     /**
-     * @return @code *this @endcode
+     * @fn iterator erase (const_iterator pos)
      */
-    inline byte_string & erase (size_type index = 0, size_type count = npos)
-    {
-        base_class::erase(index, count);
-        return *this;
-    }
 
-#if __cplusplus < 201103L
-    iterator erase (const_iterator pos)
-    {
-// || PFS_CC_GCC_VERSION <= 40800 // TODO Check for valid version
-        size_type index = std::distance(cbegin(), pos);
-        if (index < size()) {
-            erase(index, 1);
-            return begin() + index;
-        }
-        return end();
-    }
-#endif
-
-#if __cplusplus < 201103L
-    iterator erase (const_iterator first, const_iterator last)
-    {
-// || PFS_CC_GCC_VERSION <= 40800 // TODO Check for valid version
-        size_type pos1 = std::distance(cbegin(), first);
-        size_type pos2 = std::distance(cbegin(), last);
-        if (pos1 < pos2) {
-            erase(pos1, pos2 - pos1);
-            return begin() + pos1;
-        }
-        return end();
-    }
-#endif
+    /**
+     * @fn iterator erase (const_iterator first, const_iterator last)
+     */
 
     /**
      * @fn void push_back (value_type ch)
@@ -611,43 +473,30 @@ public:
      * @fn void push_back (char ch)
      */
 
-#if __cplusplus < 201103L
-    inline void pop_back ()
-    {
-        if (!empty())
-            erase(size() - 1, 1);
-    }
-#else
-    // C++11 version has no check if string is empty
-    inline void pop_back ()
-    {
-        if (!empty())
-            base_class::pop_back();
-    }
-#endif
+    /**
+     * @fn void pop_back ()
+     */
 
     /**
+     * @fn byte_string & append (size_type count, value_type ch)
      * @return @code *this @endcode
      */
-     inline byte_string & append (size_type count, value_type ch)
-     {
-         base_class::append(count, ch);
-         return *this;
-     }
 
     /**
      * @fn byte_string & append (size_type count, char ch)
      * @return @code *this @endcode
      */
+    byte_string & append (size_type count, char ch)
+    {
+        base_class::append(count, value_type(ch));
+        return *this;
+    }
 
     /**
+     * @fn byte_string & append (byte_string const & s)
+     *
      * @return @code *this @endcode
      */
-     inline byte_string & append (byte_string const & s)
-     {
-         base_class::append(s);
-         return *this;
-     }
 
     /**
      * @return @code *this @endcode
@@ -659,15 +508,12 @@ public:
      }
 
     /**
+     * @fn byte_string & append (byte_string const & s
+//              , size_type pos
+//              , size_type count = npos)
+     *
      * @return @code *this @endcode
      */
-     inline byte_string & append (byte_string const & s
-             , size_type pos
-             , size_type count = npos)
-     {
-         base_class::append(s, pos, count);
-         return *this;
-     }
 
     /**
      * @return @code *this @endcode
@@ -681,13 +527,10 @@ public:
      }
 
     /**
+     * @fn byte_string & append (const_pointer s, size_type count)
+     *
      * @return @code *this @endcode
      */
-     inline byte_string & append (const_pointer s, size_type count)
-     {
-         base_class::append(s, count);
-         return *this;
-     }
 
     /**
      * @return @code *this @endcode
@@ -699,13 +542,10 @@ public:
      }
 
     /**
+     * @fn byte_string & append (const_pointer s)
+     *
      * @return @code *this @endcode
      */
-     inline byte_string & append (const_pointer s)
-     {
-         base_class::append(s);
-         return *this;
-     }
 
     /**
      * @return @code *this @endcode
@@ -717,24 +557,18 @@ public:
      }
 
     /**
+     * @fn template <typename InputIterator>
+     *     byte_string & append (InputIterator first, InputIterator last)
+     *
      * @return @code *this @endcode
      */
-    template <typename InputIterator>
-    byte_string & append (InputIterator first, InputIterator last)
-    {
-        base_class::append<InputIterator>(first, last);
-        return *this;
-    }
 
 #if __cplusplus >= 201103L
     /**
+     * @fn byte_string & append (std::initializer_list<value_type> ilist)
+     *
      * @return @code *this @endcode
-    */
-    inline byte_string & append (std::initializer_list<value_type> ilist)
-    {
-        base_class::append(ilist);
-        return *this;
-    }
+     */
 
     /**
      * @return @code *this @endcode
@@ -746,34 +580,14 @@ public:
     }
 #endif
 
-#if __cplusplus > 201402L
     /**
+     * @fn
      * @return @code *this @endcode
      */
-    template <typename T>
-    inline byte_string & append (T const & t)
-    {
-        base_class::append<T>(pos, t);
-        return *this;
-    }
-
-    /**
-     * @return @code *this @endcode
-     */
-    inline byte_string & append (T const & t, size_type index_str, size_type count = npos)
-    {
-        base_class::append<T>(t, index_str, count);
-        return *this;
-    }
-#endif
-
-    /**
-     * @return @code *this @endcode
-     */
-    inline byte_string & operator += (byte_string const & s)
-    {
-        return append(s);
-    }
+//     inline byte_string & operator += (byte_string const & s)
+//     {
+//         return append(s);
+//     }
 
     /**
      * @return @code *this @endcode
@@ -786,26 +600,26 @@ public:
     /**
      * @return @code *this @endcode
      */
-    inline byte_string & operator += (value_type ch)
-    {
-        return append(1, ch);
-    }
+//     inline byte_string & operator += (value_type ch)
+//     {
+//         return append(1, ch);
+//     }
 
     /**
      * @return @code *this @endcode
      */
     inline byte_string & operator += (char ch)
     {
-        return append(1, ch);
+        return append(size_type(1), value_type(ch));
     }
 
     /**
      * @return @code *this @endcode
      */
-    inline byte_string & operator += (const_pointer s)
-    {
-        return append(s);
-    }
+//     inline byte_string & operator += (const_pointer s)
+//     {
+//         return append(s);
+//     }
 
     /**
      * @return @code *this @endcode
@@ -819,10 +633,10 @@ public:
     /**
      * @return @code *this @endcode
      */
-    inline byte_string & operator += (std::initializer_list<value_type> ilist)
-    {
-        return append(ilist);
-    }
+//     inline byte_string & operator += (std::initializer_list<value_type> ilist)
+//     {
+//         return append(ilist);
+//     }
 
     /**
      * @return @code *this @endcode
@@ -843,12 +657,12 @@ public:
 
     /**
      */
-    int compare (size_type pos1, size_type count1
-            , byte_string const & s
-            , size_type pos2, size_type count2 = npos) const
-    {
-        return base_class::compare(pos1, count1, s, pos2, count2);
-    }
+//     int compare (size_type pos1, size_type count1
+//             , byte_string const & s
+//             , size_type pos2, size_type count2 = npos) const
+//     {
+//         return base_class::compare(pos1, count1, s, pos2, count2);
+//     }
 
     /**
      * @fn int compare (const_pointer s) const
@@ -864,190 +678,190 @@ public:
 
     /**
      */
-    inline bool starts_with (byte_string const & rhs) const
-    {
-        if (rhs.size() > this->size())
-            return false;
+//     inline bool starts_with (byte_string const & rhs) const
+//     {
+//         if (rhs.size() > this->size())
+//             return false;
+//
+//         return compare(0, rhs.size(), rhs) == 0;
+//     }
 
-        return compare(0, rhs.size(), rhs) == 0;
-    }
+//     inline bool starts_with (value_type ch) const
+//     {
+//         return empty() ? false : (front() == ch);
+//     }
 
-    inline bool starts_with (value_type ch) const
-    {
-        return empty() ? false : (front() == ch);
-    }
+//     inline bool starts_with (const_pointer s) const
+//     {
+//         return compare(0, std::strlen(reinterpret_cast<char const *>(s)), s) == 0;
+//     }
 
-    inline bool starts_with (const_pointer s) const
-    {
-        return compare(0, std::strlen(reinterpret_cast<char const *>(s)), s) == 0;
-    }
+//     inline bool ends_with (byte_string const & rhs) const
+//     {
+//         if (rhs.size() > this->size())
+//             return false;
+//
+//         return compare(size() - rhs.size()
+//                 , rhs.size(), rhs, 0, rhs.size()) == 0;
+//     }
 
-    inline bool ends_with (byte_string const & rhs) const
-    {
-        if (rhs.size() > this->size())
-            return false;
+//     inline bool ends_with (value_type ch) const
+//     {
+//         return empty() ? false : (back() == ch);
+//     }
 
-        return compare(size() - rhs.size()
-                , rhs.size(), rhs, 0, rhs.size()) == 0;
-    }
-
-    inline bool ends_with (value_type ch) const
-    {
-        return empty() ? false : (back() == ch);
-    }
-
-    inline bool ends_with (const_pointer s) const
-    {
-        size_type n = std::strlen(reinterpret_cast<char const *>(s));
-
-        if (n > this->size())
-            return false;
-
-        return compare(size() - n, n, s, 0, n) == 0;
-    }
-
-    /**
-     */
-    inline byte_string & replace (size_type pos, size_type count, byte_string const & s)
-    {
-        base_class::replace(pos, count, s);
-        return *this;
-    }
+//     inline bool ends_with (const_pointer s) const
+//     {
+//         size_type n = std::strlen(reinterpret_cast<char const *>(s));
+//
+//         if (n > this->size())
+//             return false;
+//
+//         return compare(size() - n, n, s, 0, n) == 0;
+//     }
 
     /**
      */
-    inline byte_string & replace (const_iterator first, const_iterator last, byte_string const & s)
-    {
-#if __cplusplus < 201103L
-        // basic_string implementation may use COW,
-        // so
-        // base_class::replace(begin() + std::distance(cbegin(), first)
-        //      , begin() + std::distance(cbegin(), last), s);
-        // may cause UB (in  worst case Seg Fault)
-        //
-        difference_type i1 = std::distance(cbegin(), first);
-        difference_type i2 = std::distance(cbegin(), last);
-        iterator f = begin() + i1; // begin() unshares data
-        iterator e = begin() + i2;
-        base_class::replace(f, e, s);
-#else
-        base_class::replace(first, last, s);
-#endif
-        return *this;
-    }
+//     inline byte_string & replace (size_type pos, size_type count, byte_string const & s)
+//     {
+//         base_class::replace(pos, count, s);
+//         return *this;
+//     }
 
     /**
      */
-    inline byte_string & replace (size_type pos, size_type count
-            , byte_string const & s
-            , size_type pos2, size_type count2 = npos)
-    {
-        base_class::replace(pos, count, s, pos2, count2);
-        return *this;
-    }
-
-    template <typename InputIterator>
-    inline byte_string & replace (const_iterator first, const_iterator last
-            , InputIterator first2, InputIterator last2)
-    {
-
-#if __cplusplus < 201103L
-        difference_type i1 = std::distance(cbegin(), first);
-        difference_type i2 = std::distance(cbegin(), last);
-        iterator f = begin() + i1;
-        iterator e = begin() + i2;
-        base_class::replace<InputIterator>(f, e, first2, last2);
-#else
-        base_class::replace<InputIterator>(first, last, first2, last2);
-#endif
-        return *this;
-    }
+//     inline byte_string & replace (const_iterator first, const_iterator last, byte_string const & s)
+//     {
+// #if __cplusplus < 201103L
+//         // basic_string implementation may use COW,
+//         // so
+//         // base_class::replace(begin() + std::distance(cbegin(), first)
+//         //      , begin() + std::distance(cbegin(), last), s);
+//         // may cause UB (in  worst case Seg Fault)
+//         //
+//         difference_type i1 = std::distance(cbegin(), first);
+//         difference_type i2 = std::distance(cbegin(), last);
+//         iterator f = begin() + i1; // begin() unshares data
+//         iterator e = begin() + i2;
+//         base_class::replace(f, e, s);
+// #else
+//         base_class::replace(first, last, s);
+// #endif
+//         return *this;
+//     }
 
     /**
      */
-    inline byte_string & replace (size_type pos, size_type count, const_pointer s, size_type count2)
-    {
-        base_class::replace(pos, count, s, count2);
-        return *this;
-    }
+//     inline byte_string & replace (size_type pos, size_type count
+//             , byte_string const & s
+//             , size_type pos2, size_type count2 = npos)
+//     {
+//         base_class::replace(pos, count, s, pos2, count2);
+//         return *this;
+//     }
+
+//     template <typename InputIterator>
+//     inline byte_string & replace (const_iterator first, const_iterator last
+//             , InputIterator first2, InputIterator last2)
+//     {
+//
+// #if __cplusplus < 201103L
+//         difference_type i1 = std::distance(cbegin(), first);
+//         difference_type i2 = std::distance(cbegin(), last);
+//         iterator f = begin() + i1;
+//         iterator e = begin() + i2;
+//         base_class::replace<InputIterator>(f, e, first2, last2);
+// #else
+//         base_class::replace<InputIterator>(first, last, first2, last2);
+// #endif
+//         return *this;
+//     }
 
     /**
      */
-    inline byte_string & replace (const_iterator first, const_iterator last
-            , const_pointer s, size_type count2)
-    {
-#if __cplusplus < 201103L
-        difference_type i1 = std::distance(cbegin(), first);
-        difference_type i2 = std::distance(cbegin(), last);
-        iterator f = begin() + i1;
-        iterator e = begin() + i2;
-        base_class::replace(f, e, s, count2);
-#else
-        base_class::replace(first, last, s, count2);
-#endif
-        return *this;
-    }
+//     inline byte_string & replace (size_type pos, size_type count, const_pointer s, size_type count2)
+//     {
+//         base_class::replace(pos, count, s, count2);
+//         return *this;
+//     }
 
     /**
      */
-    inline byte_string & replace (size_type pos, size_type count, const_pointer s)
-    {
-        base_class::replace(pos, count, s);
-        return *this;
-    }
+//     inline byte_string & replace (const_iterator first, const_iterator last
+//             , const_pointer s, size_type count2)
+//     {
+// #if __cplusplus < 201103L
+//         difference_type i1 = std::distance(cbegin(), first);
+//         difference_type i2 = std::distance(cbegin(), last);
+//         iterator f = begin() + i1;
+//         iterator e = begin() + i2;
+//         base_class::replace(f, e, s, count2);
+// #else
+//         base_class::replace(first, last, s, count2);
+// #endif
+//         return *this;
+//     }
 
     /**
      */
-    inline byte_string & replace (const_iterator first, const_iterator last, const_pointer s)
-    {
-#if __cplusplus < 201103L
-        difference_type i1 = std::distance(cbegin(), first);
-        difference_type i2 = std::distance(cbegin(), last);
-        iterator f = begin() + i1;
-        iterator e = begin() + i2;
-        base_class::replace(f, e, s);
-#else
-        base_class::replace(first, last, s);
-#endif
-        return *this;
-    }
+//     inline byte_string & replace (size_type pos, size_type count, const_pointer s)
+//     {
+//         base_class::replace(pos, count, s);
+//         return *this;
+//     }
 
     /**
      */
-    inline byte_string & replace (size_type pos, size_type count
-            , size_type count2, value_type ch)
-    {
-        base_class::replace(pos, count, count2, ch);
-        return *this;
-    }
+//     inline byte_string & replace (const_iterator first, const_iterator last, const_pointer s)
+//     {
+// #if __cplusplus < 201103L
+//         difference_type i1 = std::distance(cbegin(), first);
+//         difference_type i2 = std::distance(cbegin(), last);
+//         iterator f = begin() + i1;
+//         iterator e = begin() + i2;
+//         base_class::replace(f, e, s);
+// #else
+//         base_class::replace(first, last, s);
+// #endif
+//         return *this;
+//     }
 
     /**
      */
-    inline byte_string & replace (const_iterator first, const_iterator last
-            , size_type count2, value_type ch)
-    {
-#if __cplusplus < 201103L
-        difference_type i1 = std::distance(cbegin(), first);
-        difference_type i2 = std::distance(cbegin(), last);
-        base_class::iterator f = begin() + i1;
-        base_class::iterator e = begin() + i2;
-        base_class::replace(f, e, count2, ch);
-#else
-        base_class::replace(first, last, count2, ch);
-#endif
-        return *this;
-    }
+//     inline byte_string & replace (size_type pos, size_type count
+//             , size_type count2, value_type ch)
+//     {
+//         base_class::replace(pos, count, count2, ch);
+//         return *this;
+//     }
 
-#if __cplusplus >= 201103L
-      /**
-      */
-      inline byte_string & replace (const_iterator first, const_iterator last
-                , std::initializer_list<value_type> ilist)
-      {
-          base_class::replace(first, last, ilist.begin(), ilist.end());
-          return *this;
-      }
-#endif
+    /**
+     */
+//     inline byte_string & replace (const_iterator first, const_iterator last
+//             , size_type count2, value_type ch)
+//     {
+// #if __cplusplus < 201103L
+//         difference_type i1 = std::distance(cbegin(), first);
+//         difference_type i2 = std::distance(cbegin(), last);
+//         base_class::iterator f = begin() + i1;
+//         base_class::iterator e = begin() + i2;
+//         base_class::replace(f, e, count2, ch);
+// #else
+//         base_class::replace(first, last, count2, ch);
+// #endif
+//         return *this;
+//     }
+
+// #if __cplusplus >= 201103L
+//       /**
+//       */
+//       inline byte_string & replace (const_iterator first, const_iterator last
+//                 , std::initializer_list<value_type> ilist)
+//       {
+//           base_class::replace(first, last, ilist.begin(), ilist.end());
+//           return *this;
+//       }
+// #endif
 
     /**
      * @fn byte_string substr (size_type pos = 0, size_type count = npos) const
@@ -1168,6 +982,35 @@ public:
     /**
      * @fn size_type find_last_not_of (value_type ch, size_type pos = 0) const
      */
+
+    //
+    // binary_ostream compliant method
+    //
+    inline ssize_t write (const_pointer s, size_type n)
+    {
+        append(s, n);
+        return static_cast<ssize_t>(n);
+    }
+
+    inline ssize_t write (char const * s, size_type n)
+    {
+        return write(reinterpret_cast<const_pointer>(s), n);
+    }
+
+    //
+    // binary_istream compliant method
+    //
+    inline ssize_t read (pointer s, size_type n)
+    {
+        size_type n1 = pfs::min(n, size());
+        copy(s, n1);
+        return static_cast<ssize_t>(n1);
+    }
+
+    inline ssize_t read (char * s, size_type n)
+    {
+        return read(reinterpret_cast<pointer>(s), n);
+    }
 };
 
 // template <int N>

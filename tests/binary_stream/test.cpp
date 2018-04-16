@@ -6,7 +6,7 @@ int main ()
 {
     BEGIN_TESTS(0);
 
-    //test_binary_ostream();
+    test_binary_ostream();
     test_binary_istream();
 
     return END_TESTS;

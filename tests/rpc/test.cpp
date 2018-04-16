@@ -1,9 +1,78 @@
 #include <iostream>
 #include <pfs/test.hpp>
 #include <pfs/rpc.hpp>
+#include <pfs/system_error.hpp>
+#include <pfs/v2/byte_string.hpp>
+#include <pfs/v2/binary_istream.hpp>
+#include <pfs/v2/binary_ostream.hpp>
+#include <pfs/v2/io/buffer.hpp>
 
-typedef pfs::rpc<1, 0> rpc_ns;
+class Protocol
+{
+public:
+    typedef pfs::byte_string response_type;
 
+    Protocol ()
+        : _os(_buffer)
+    {}
+
+    void begin ()
+    {
+        _buffer.clear();
+        _os << '\x10' << '\x01'
+            << pfs::byte_string::size_type(0); // reserve for length
+    }
+
+    void commit ()
+    {
+        _os << '\x10' << '\x02';
+    }
+
+    template <typename T>
+    inline Protocol & operator << (T const & x)
+    {
+        _os << x;
+    }
+
+    inline Protocol & operator << (pfs::string const & s)
+    {
+        _os << s.size();
+        pfs::string::const_iterator first = s.cbegin();
+        pfs::string::const_iterator last = s.cend();
+
+        while (first != last) {
+            _os << *first++;
+        }
+    }
+
+private:
+    pfs::byte_string _buffer;
+    //pfs::binary_istream<pfs::byte_string> _is;
+    pfs::binary_ostream<pfs::byte_string> _os;
+};
+
+class ServerTransport
+{
+public:
+    ServerTransport () {}
+
+    ssize_t send (pfs::byte_string const &, pfs::error_code & ec);
+private:
+};
+
+class ClientTransport
+{
+public:
+    ClientTransport () {}
+
+    ssize_t send (pfs::byte_string const &, pfs::error_code & ec);
+private:
+};
+
+typedef pfs::rpc<1, 0, Protocol> rpc_ns;
+
+
+#if __TODO__
 static int server_counter = 0;
 
 struct method_pool
@@ -51,23 +120,34 @@ rpc_ns::shared_response notify2 (rpc_ns::server::request & rq)
     return rpc_ns::make_none();
 }
 
+#endif
+
 int main ()
 {
-    BEGIN_TESTS(21);
+    BEGIN_TESTS(0);
 
     rpc_ns::id_type idc = 0;
 
-    method_pool mpool;
-    rpc_ns::server server;
-    rpc_ns::client client;
+    Protocol sproto;
+    Protocol cproto;
+    ServerTransport stran;
+    ClientTransport ctran;
+    rpc_ns::server<ServerTransport> server(sproto, stran);
+    rpc_ns::client<ClientTransport> client(cproto, ctran);
 
-    server.bind("method1", & method_pool::method1, mpool);
-    server.bind("method2", & method2);
-//    server.bind("notify1", & method_pool::notify1, mpool);
-//    server.bind("notify2", & notify2);
-    server.bind("faulty_method", & method_pool::faulty_method, mpool);
-//    server.bind("faulty_notify", & method_pool::faulty_notify, mpool);
+//    server.bind("method1", & method_pool::method1, mpool);
 
+//     server.bind("method1", & method_pool::method1, mpool);
+//     server.bind("method2", & method2);
+// //    server.bind("notify1", & method_pool::notify1, mpool);
+// //    server.bind("notify2", & notify2);
+//     server.bind("faulty_method", & method_pool::faulty_method, mpool);
+// //    server.bind("faulty_notify", & method_pool::faulty_notify, mpool);
+
+    client.call("method1").result();
+    client.call("method2")(123).result();
+    client.call("notify1").notify();
+    client.call("notify2")(123).notify();
 //     rpc_ns::shared_request rq1 = client.make_request(++idc, "method1");
 //     rpc_ns::shared_request rq2 = client.make_request(++idc, "method2");
 //     rpc_ns::shared_request rq3 = client.make_request(++idc, "faulty_method");

@@ -399,11 +399,11 @@ void test_compare ()
     //
     // int compare (size_type pos1, size_type count1, const_pointer s, size_type count2) const
     //
-    TEST_OK(bs.compare(0, 8, bs_equal.data(), 0, 8) == 0);
-    TEST_OK(bs.compare(0, 8, bs_less.data(), 0, 9) > 0);
-    TEST_OK(bs.compare(0, 8, bs_less.data(), 0, 9) >= 0);
-    TEST_OK(bs.compare(0, 8, bs_greater.data(), 0, 7) < 0);
-    TEST_OK(bs.compare(0, 8, bs_greater.data(), 0, 7) <= 0);
+    TEST_OK(bs.compare(0, 8, bs_equal.data(), 8) == 0);
+    TEST_OK(bs.compare(0, 8, bs_less.data(), 9) > 0);
+    TEST_OK(bs.compare(0, 8, bs_less.data(), 9) >= 0);
+    TEST_OK(bs.compare(0, 8, bs_greater.data(), 7) < 0);
+    TEST_OK(bs.compare(0, 8, bs_greater.data(), 7) <= 0);
 }
 
 void test_starts_with ()
