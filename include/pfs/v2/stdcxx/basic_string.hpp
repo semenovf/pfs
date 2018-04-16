@@ -427,7 +427,7 @@ public:
     template <typename InputIt>
     inline iterator insert (const_iterator pos, InputIt first, InputIt last)
     {
-        return base_class::insert<InputIt>(pos, first, last);
+        return base_class::template insert<InputIt>(pos, first, last);
     }
 #endif
 
@@ -485,7 +485,7 @@ public:
     // C++11 version has no check if string is empty
     inline void pop_back ()
     {
-        if (!empty())
+        if (!this->empty())
             base_class::pop_back();
     }
 #endif
@@ -636,7 +636,7 @@ public:
 
     inline bool starts_with (CharT ch) const
     {
-        return this->empty() ? false : (front() == ch);
+        return this->empty() ? false : (this->front() == ch);
     }
 
     inline bool starts_with (const_pointer s) const
@@ -655,7 +655,7 @@ public:
 
     inline bool ends_with (CharT ch) const
     {
-        return this->empty() ? false : (back() == ch);
+        return this->empty() ? false : (this->back() == ch);
     }
 
     inline bool ends_with (const_pointer s) const

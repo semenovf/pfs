@@ -1,8 +1,7 @@
-#ifndef __PFS_FUNCTIONAL_HPP__
-#define __PFS_FUNCTIONAL_HPP__
+#pragma once
 
 #include <pfs/types.hpp>
-#include <pfs/byte_string.hpp>
+#include <pfs/v2/byte_string.hpp>
 #include <pfs/cxxversion.hpp>
 #include PFS_CXX_HEADER(functional)
 
@@ -49,6 +48,3 @@ inline int64_t crc64 (byte_string const & pdata, int64_t initial = 0)
 }
 
 } // pfs
-
-#endif /* __PFS_FUNCTIONAL_HPP__ */
-

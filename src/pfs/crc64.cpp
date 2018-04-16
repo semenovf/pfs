@@ -1,5 +1,4 @@
 #include "pfs/types.hpp"
-#include "pfs/byte_string.hpp"
 
 #define PFS_INT64_C(x) x##LL
 
@@ -106,10 +105,4 @@ int64_t crc64 (const void * pdata, size_t nbytes, int64_t initial)
     return static_cast<int64_t>(r);
 }
 
-int64_t crc64 (const byte_string & pdata, int64_t initial)
-{
-    return crc64(pdata.data(), pdata.size(), initial);
-}
-
 } // pfs
-

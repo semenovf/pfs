@@ -1,5 +1,4 @@
 #include "pfs/types.hpp"
-#include "pfs/byte_string.hpp"
 
 namespace pfs {
 
@@ -41,7 +40,7 @@ static uint32_t __crc32_lookup_table[] = {
 /*
 #define CRC32(oldcrc, curByte) (m_crc32table[BYTE(oldcrc)^BYTE(curByte)]^(DWORD(oldcrc)>>8))
 */
-int32_t crc32 (const void * pdata, size_t nbytes, int32_t initial)
+int32_t crc32 (void const * pdata, size_t nbytes, int32_t initial)
 {
     byte_t const * pbytes = static_cast<byte_t const *>(pdata);
     uint32_t r = initial ^ 0xFFFFFFFF;
@@ -49,11 +48,6 @@ int32_t crc32 (const void * pdata, size_t nbytes, int32_t initial)
         r =  __crc32_lookup_table[(r ^ *pbytes++) & 0xff ] ^ (r >> 8);
     r = r ^ 0xFFFFFFFF;
     return static_cast<int32_t>(r);
-}
-
-int32_t crc32 (const byte_string & pdata, int32_t initial)
-{
-    return crc32(pdata.data(), pdata.size(), initial);
 }
 
 } // pfs
