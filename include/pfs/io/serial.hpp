@@ -1,12 +1,14 @@
-#ifndef __PFS_IO_SERIAL_HPP__
-#define __PFS_IO_SERIAL_HPP__
-
+#pragma once
 #include <pfs/string.hpp>
 #include <pfs/io/device.hpp>
 
 namespace pfs {
 namespace io {
 
+// TODO Reimplement according to io::device requirements    
+    
+#if __TODO__    
+    
 class DLL_API serial : public device
 {
 public:
@@ -94,6 +96,7 @@ public:
     static pfs::string parityToString (parity_t);
 };
 
-}} // pfs::io
+#endif // __TODO__
 
-#endif /* __PFS_SERIAL_HPP__ */
+
+}} // pfs::io

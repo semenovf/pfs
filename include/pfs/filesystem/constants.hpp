@@ -1,6 +1,4 @@
-#ifndef __PFS_FILESYSTEM_CONSTANTS_HPP__
-#define __PFS_FILESYSTEM_CONSTANTS_HPP__
-
+#pragma once
 #include <pfs/cxxversion.hpp>
 #include PFS_CXX_HEADER(filesystem/constants)
 
@@ -9,7 +7,4 @@ namespace filesystem {
 
 typedef pfs::filesystem::details::perms perms;
 
-}}
-
-#endif /* __PFS_FILESYSTEM_CONSTANTS_HPP__ */
-
+}} // pfs::filesystem

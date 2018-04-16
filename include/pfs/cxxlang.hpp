@@ -1,5 +1,4 @@
-#ifndef __PFS_CXXLANG_HPP__
-#define __PFS_CXXLANG_HPP__
+#pragma once
 
 #ifdef pfs_constexpr
 #   undef pfs_constexpr
@@ -100,6 +99,3 @@
 #   endif
 
 #endif
-
-#endif /* __PFS_CXXLANG_HPP__ */
-

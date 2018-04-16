@@ -1,6 +1,4 @@
-#ifndef __PFS_DATE_HPP__
-#define __PFS_DATE_HPP__
-
+#pragma once
 #include <pfs/types.hpp>
 #include <pfs/string.hpp>
 #include <pfs/lexical_cast.hpp>
@@ -382,5 +380,3 @@ inline StringT to_string (date const & d)
 pfs::date current_date ();
 
 } // pfs
-
-#endif /* __PFS_DATE_HPP__ */

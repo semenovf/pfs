@@ -1,6 +1,4 @@
-#ifndef __PFS_DEBUG_HPP__
-#define __PFS_DEBUG_HPP__
-
+#pragma once
 #include <cstdio>
 #include <iomanip>
 #include <iostream>
@@ -10,5 +8,3 @@
 #else
 #	define PFS_DEBUG(x)
 #endif
-
-#endif /* __PFS_DEBUG_HPP__ */

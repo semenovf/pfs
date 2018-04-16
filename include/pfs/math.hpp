@@ -1,6 +1,4 @@
-#ifndef __PFS_MATH_HPP__
-#define __PFS_MATH_HPP__
-
+#pragma once
 #include <cmath>
 #include <pfs/types.hpp>
 
@@ -190,5 +188,3 @@ intmax_t const integral_gcd<IntegralConstant1, IntegralConstant2>::value
         = details::integral_gcd(IntegralConstant1, IntegralConstant2);
 
 }} // pfs::math
-
-#endif /* __PFS_MATH_HPP__ */

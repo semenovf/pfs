@@ -1,6 +1,4 @@
-#ifndef __PFS_IO_ITERATOR_HPP__
-#define __PFS_IO_ITERATOR_HPP__
-
+#pragma once
 #include <pfs/iterator.hpp>
 #include <pfs/io/device.hpp>
 #include <pfs/unicode/u8_iterator.hpp>
@@ -120,5 +118,3 @@ inline StringType read_all_u8 (io::device & dev)
 }
 
 } // pfs
-
-#endif /* __PFS_IO_ITERATOR_HPP__ */

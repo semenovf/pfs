@@ -1,6 +1,4 @@
-#ifndef __PFS_LOGGER_HPP__
-#define __PFS_LOGGER_HPP__
-
+#pragma once
 #include <iostream>
 #include <fstream>
 #include <pfs/exception.hpp>
@@ -751,5 +749,3 @@ log<PFS_LOG_TEMPLETE_ARGS>::appender::pattern_grammar::pattern_grammar ()
 }
 
 } // pfs
-
-#endif /* __PFS_LOGGER_HPP__ */

@@ -1,3 +1,4 @@
+#pragma once
 #include <pfs/types.hpp>
 #include <pfs/assert.hpp>
 #include <pfs/math.hpp>

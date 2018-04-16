@@ -1,6 +1,4 @@
-#ifndef __PFS_LEXICAL_CAST_STRTOINT_HPP__
-#define __PFS_LEXICAL_CAST_STRTOINT_HPP__
-
+#pragma once
 #include <pfs/limits.hpp>
 #include <pfs/types.hpp>
 #include <pfs/ctype.hpp>
@@ -332,6 +330,3 @@ IntT string_to_int (CharIteratorT beginpos
 }
 
 } // pfs
-
-#endif /* __PFS_LEXICAL_CAST_STRTOINT_HPP__ */
-

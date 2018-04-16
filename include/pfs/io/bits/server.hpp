@@ -1,6 +1,4 @@
-#ifndef __PFS_IO_BITS_SERVER_HPP__
-#define __PFS_IO_BITS_SERVER_HPP__
-
+#pragma once
 #include <pfs/io/exception.hpp>
 #include <pfs/io/bits/device.hpp>
 
@@ -23,7 +21,7 @@ namespace bits {
 struct server : public basic_device
 {
     typedef device::native_handle_type native_handle_type;
-    typedef device::system_string      system_string;
+    typedef device::string_type        string_type;
 
     server ()
         : basic_device()
@@ -38,7 +36,7 @@ struct server : public basic_device
     virtual bool set_nonblocking (bool on) = 0;
 
     virtual bool is_nonblocking () const = 0;
-    
+
     virtual error_code accept (bits::device **, bool non_blocking) = 0;
 
     virtual native_handle_type native_handle () const = 0;
@@ -47,5 +45,3 @@ struct server : public basic_device
 };
 
 }}} // pfs::io::bits
-
-#endif /* __PFS_IO_BITS_SERVER_HPP__ */

@@ -1,6 +1,4 @@
-#ifndef __PFS_NET_URI_QUERY_HPP__
-#define __PFS_NET_URI_QUERY_HPP__
-
+#pragma once
 #include <pfs/string.hpp>
 #include <pfs/traits/stdcxx/multimap.hpp>
 #include <pfs/traits/stdcxx/vector.hpp>
@@ -120,6 +118,3 @@ void uri_query<StringT>::parse (string_traits const & querystr
 }
 
 }} // pfs::net
-
-#endif /* __PFS_NET_URI_QUERY_HPP__ */
-

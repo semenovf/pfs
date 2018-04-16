@@ -1,5 +1,4 @@
-#ifndef __PFS_JSON_PRETTY_PRINTER_HPP__
-#define __PFS_JSON_PRETTY_PRINTER_HPP__
+#pragma once
 
 namespace pfs {
 namespace json {
@@ -482,6 +481,3 @@ to_string (json::json<JsonTraits> const & v, json::print_style_enum style)
 }
 
 } // pfs
-
-#endif /* __PFS_JSON_PRETTY_PRINTER_HPP__ */
-

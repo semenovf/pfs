@@ -1,7 +1,7 @@
 #pragma once
 #include <map>
 #include <pfs/cxxlang.hpp>
-#include <pfs/v2/associative_container.hpp>
+#include <pfs/associative_container.hpp>
 
 namespace pfs {
 

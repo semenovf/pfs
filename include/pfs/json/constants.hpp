@@ -1,6 +1,4 @@
-#ifndef __PFS_JSON_CONSTANTS_HPP__
-#define __PFS_JSON_CONSTANTS_HPP__
-
+#pragma once
 #include <pfs/types.hpp>
 
 namespace pfs {
@@ -70,6 +68,3 @@ static int UBJSON_COUNT_OPTIMIZED = 0x02;
 static int UBJSON_FULL_OPTIMIZED  = 0x03;
 
 }} // pfs::json
-
-#endif /* __PFS_JSON_CONSTANTS_HPP__ */
-

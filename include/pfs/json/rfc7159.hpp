@@ -1,6 +1,4 @@
-#ifndef __PFS_JSON_RFC7159_HPP__
-#define __PFS_JSON_RFC7159_HPP__
-
+#pragma once
 #include <pfs/fsm/fsm.hpp>
 #include <pfs/lexical_cast.hpp>
 #include <pfs/stack.hpp>
@@ -964,5 +962,3 @@ grammar<ValueT, StackT>::grammar ()
 } // grammar
 
 }} // pfs::json
-
-#endif /* __PFS_JSON_RFC7159_HPP__ */

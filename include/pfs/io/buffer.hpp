@@ -1,7 +1,6 @@
-#ifndef __PFS_IO_BUFFER_HPP__
-#define __PFS_IO_BUFFER_HPP__
-
+#pragma once
 #include <pfs/io/device.hpp>
+#include <pfs/byte_string.hpp>
 
 namespace pfs {
 namespace io {
@@ -12,20 +11,9 @@ struct buffer
 template <>
 struct open_params<buffer>
 {
-    byte_t * pbytes;
-    size_t size;
+    byte_string & _bs;
 
-    open_params () : pbytes (0), size (0)
-    {}
-
-    open_params (size_t n) : pbytes (0), size (n)
-    {}
-
-    open_params (byte_t * p, size_t n) : pbytes (p), size (n)
-    {}
-
-    open_params (char * p, size_t n) : pbytes (reinterpret_cast<byte_t *> (p)), size (n)
-    {}
+    open_params (byte_string & bs) : _bs(bs) {}
 };
 
 /**
@@ -35,21 +23,13 @@ struct open_params<buffer>
  *
  * @param d Buffer device to open.
  * @param op Open device parameters.
- *      @li open_params<buffer>()
- *      	Open buffer device with default size. Elements initialized by zeros.
- * 		@li open_params<buffer>(size_t n)
- * 			Open buffer device with @a n size. Elements initialized by zeros.
- * 		@li open_params<buffer>(byte_t * p, size_t n)
- * 			Open buffer device with @a n size. Elements initialized with data from @a p array.
- * 		@li open_params<buffer>(char * p, size_t n)
- * 			Open buffer device with @a n size. Elements initialized with data from @a p array.
+ *      @li open_params<buffer>(byte_string & bs)
+ *          Open buffer device with reference to byte_string instance.
  *
  * @return @c true if open is successful, @c false otherwise
  *         (i.e. buffer device is already opened).
  */
 template <>
-device open_device<buffer> (const open_params<buffer> & op, error_code & ec);
+device open_device<buffer> (open_params<buffer> const & op, error_code & ec);
 
 }} // pfs::io
-
-#endif /* __PFS_IO_BUFFER_HPP__ */

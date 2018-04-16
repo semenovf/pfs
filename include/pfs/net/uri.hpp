@@ -1,6 +1,4 @@
-#ifndef __PFS_NET_URI_HPP__
-#define __PFS_NET_URI_HPP__
-
+#pragma once
 #include <pfs/types.hpp>
 
 namespace pfs {
@@ -231,5 +229,3 @@ public:
 }} // pfs::net
 
 #include <pfs/net/uri_parse.hpp>
-
-#endif /* __PFS_NET_URI_HPP__ */

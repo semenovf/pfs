@@ -1,3 +1,4 @@
+#pragma once
 #include <pfs/type_traits.hpp>
 #include <pfs/iterator.hpp>
 #include <pfs/exception.hpp>

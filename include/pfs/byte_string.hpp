@@ -1,389 +1,354 @@
-#ifndef __PFS_BYTE_STRING_HPP__
-#define __PFS_BYTE_STRING_HPP__
-
+#pragma once
+#include <cstring>
 #include <string>
-#include <ostream>
-#include <pfs/limits.hpp>
-#include <pfs/type_traits.hpp>
-#include <pfs/endian.hpp>
-#include <pfs/memory.hpp>
+#include <iterator>
 #include <pfs/algorithm.hpp>
-#include <pfs/iterator.hpp>
-#include <pfs/utility.hpp>
-#include <pfs/io/exception.hpp>
-#include <pfs/traits/binary_stream.hpp>
-#include <pfs/compiler.hpp>
-
-#define NOT_ENOUGH_DATA_EXCEPTION_STR "not enough data"
+#include <pfs/types.hpp>
+#include <pfs/stdcxx/basic_string.hpp>
 
 namespace pfs {
 
-class byte_string
+class byte_string : public stdcxx::basic_string<uint8_t, byte_string>
 {
-    typedef std::basic_string<uint8_t> rep_type;
+    typedef stdcxx::basic_string<uint8_t, byte_string> base_class;
 
 public:
-    typedef uint8_t value_type;
-    typedef typename rep_type::traits_type traits_type;
-    typedef typename rep_type::size_type size_type;
-    typedef typename rep_type::difference_type difference_type;
-    typedef typename rep_type::reference reference;
-    typedef typename rep_type::const_reference const_reference;
-    typedef typename rep_type::pointer pointer;
-    typedef typename rep_type::const_pointer const_pointer;
-    typedef typename rep_type::iterator iterator;
-    typedef typename rep_type::const_iterator const_iterator;
-    typedef typename rep_type::reverse_iterator reverse_iterator;
-    typedef typename rep_type::const_reverse_iterator const_reverse_iterator;
+    using base_class::append;
+    using base_class::assign;
+    using base_class::compare;
+    using base_class::copy;
+    using base_class::erase;
+    using base_class::insert;
+    using base_class::push_back;
+    using base_class::substr;
+    using base_class::operator =;
+    using base_class::operator +=;
 
-    typedef pfs::shared_ptr<byte_string> shared_type;
+    typedef base_class::value_type       value_type;
+    typedef base_class::traits_type      traits_type;
+    typedef base_class::size_type        size_type;
+    typedef base_class::difference_type  difference_type;
+    typedef base_class::reference        reference;
+    typedef base_class::const_reference  const_reference;
+    typedef base_class::pointer          pointer;
+    typedef base_class::const_pointer    const_pointer;
+    typedef base_class::iterator         iterator;
+    typedef base_class::const_iterator   const_iterator;
+    typedef base_class::reverse_iterator reverse_iterator;
+    typedef base_class::const_reverse_iterator const_reverse_iterator;
 
-    static const size_type npos = rep_type::npos;
-private:
-    rep_type _d;
-
-    explicit byte_string (const rep_type & d) : _d (d)
-    {}
-
-    byte_string & assign (const rep_type & d)
-    {
-        _d.assign(d);
-        return *this;
-    }
+    static const size_type npos = base_class::npos;
 
 public:
-    byte_string () : _d ()
-    {}
+    byte_string () : base_class () {}
 
     byte_string (byte_string const & other)
-        : _d (other._d)
+        : base_class(other)
     {}
 
-    byte_string (byte_string const & other,
-            size_type pos,
-            size_type count = npos)
-        : _d (other._d, pos, count)
+    byte_string (byte_string const & other
+            , size_type pos
+            , size_type count = npos)
+        : base_class(other, pos, count)
     {}
 
-    explicit byte_string (const_pointer s)
-        : _d (s)
+    byte_string (const_pointer s)
+        : base_class(s)
     {}
 
-    byte_string (const_pointer s, size_type n)
-        : _d (s, n)
+    byte_string(const_pointer s, size_type n)
+        : base_class(s, n)
     {}
 
     explicit byte_string (const char * s)
-        : _d (reinterpret_cast<const uint8_t *> (s))
+        : base_class(reinterpret_cast<const uint8_t *> (s))
     {}
 
     byte_string (const char * s, size_type n)
-        : _d (reinterpret_cast<const uint8_t *> (s), n)
+        : base_class(reinterpret_cast<const uint8_t *> (s), n)
     {}
 
     byte_string (size_type n, uint8_t c)
-        : _d (n, c)
+        : base_class(n, c)
     {}
 
     byte_string (size_type n, char c)
-        : _d (n, static_cast<uint8_t> (c))
+        : base_class(n, static_cast<uint8_t> (c))
     {}
 
     template <typename InputIterator>
     byte_string (InputIterator first, InputIterator last)
-        : _d (first, last)
+        : base_class(first, last)
     {}
 
     ~byte_string ()
     {}
 
-    byte_string & operator= (byte_string const & s)
+    /**
+     * @fn byte_string & operator = (byte_string const & s)
+     *
+     * @brief Default copy assignment
+     * @details Replaces the contents with the copy of @a s
+     */
+
+    /**
+     * @fn byte_string & operator = (const_pointer s)
+     */
+
+    /**
+     */
+    byte_string & operator = (char const * s)
     {
-        _d = s._d;
+        base_class::operator = (reinterpret_cast<const_pointer>(s));
         return *this;
     }
 
-    byte_string & operator= (const_pointer s)
+    /**
+     * @fn byte_string & operator = (value_type c)
+     */
+
+    byte_string & operator = (char c)
     {
-        _d = s;
+        base_class::operator = (value_type(c));
         return *this;
     }
 
-    byte_string & operator= (value_type ch)
+    /**
+     * @fn byte_string & assign (size_type count, value_type c)
+     * @brief Replaces the contents with count copies of value @a c.
+     */
+
+    /**
+     * @fn byte_string & assign (size_type count, char c)
+     * @brief Replaces the contents with count copies of character @a c.
+     */
+
+    /**
+     * @fn byte_string & assign (byte_string const & bs)
+     * @brief Replaces the contents with a copy of @a bs.
+     */
+
+    /**
+     * @fn byte_string & assign (byte_string const & bs, size_type pos, size_type count)
+     * @details Replaces the contents with a substring [pos, pos + count) of @a bs.
+     */
+
+    /**
+     * @fn byte_string & assign (const_pointer s, size_type count)
+     * @details Replaces the contents with the first count of values from @a s.
+     */
+
+    /**
+     * @details Replaces the contents with the first count of chars from @a s.
+     */
+    byte_string & assign (char const * s, size_type count)
     {
-        _d = ch;
+        base_class::assign(reinterpret_cast<const_pointer>(s), count);
         return *this;
     }
 
-    byte_string & assign (size_type count, value_type ch)
+    /**
+     * @fn byte_string & assign (const_pointer s)
+     */
+
+    /**
+     */
+    byte_string & assign (char const * s)
     {
-        _d.assign(count, ch);
+        base_class::assign(reinterpret_cast<const_pointer>(s));
         return *this;
     }
 
-    byte_string & assign (byte_string const & s
-            , size_type pos
-            , size_type count)
-    {
-        _d.assign(s._d, pos, count);
-        return *this;
-    }
+    /**
+     * @fn template <typename InputIterator>
+     *     byte_string & assign (InputIterator first, InputIterator last)
+     */
 
-    byte_string & assign (byte_string const & s)
-    {
-        return assign(s, 0, npos);
-    }
+    ///////////////////////////////////////////////////////////////////////////
+    // Element access                                                        //
+    ///////////////////////////////////////////////////////////////////////////
 
-    byte_string & assign (byte_string const & s, size_type pos)
-    {
-        return assign(s, pos, npos);
-    }
+    /**
+     * @fn reference at (size_type pos)
+     */
 
-    byte_string & assign (const_pointer s, size_type count)
-    {
-        _d.assign(s, count);
-        return *this;
-    }
+    /**
+     * @fn const_reference at (size_type pos) const
+     */
 
-    byte_string & assign (const_pointer s)
-    {
-        _d.assign(s);
-        return *this;
-    }
+    /**
+     * @fn reference operator[] (size_type pos)
+     */
 
-    template <typename InputIterator>
-    byte_string & assign (InputIterator first, InputIterator last)
-    {
-        _d.assign<InputIterator>(first, last);
-        return *this;
-    }
+    /**
+     * @fn const_reference operator [] (size_type pos) const
+     */
 
-    reference at (size_type pos)
-    {
-        return _d.at(pos);
-    }
+    /**
+     * @fn reference front ()
+     */
 
-    const_reference at (size_type pos) const
-    {
-        return _d.at(pos);
-    }
+    /**
+     * @fn const_reference front () const
+     */
 
-    reference operator[] (size_type pos)
-    {
-        return _d.operator[] (pos);
-    }
+    /**
+     * @fn reference back ()
+     */
 
-    const_reference operator [] (size_type pos) const
-    {
-        return _d.operator[] (pos);
-    }
+    /**
+     * @fn const_reference back () const
+     */
 
-    reference front ()
-    {
-        PFS_ASSERT(!empty());
-#if __cplusplus < 201103L
-        return at(0);
-#else
-        return _d.front();
-#endif
-    }
+    /**
+     */
+//     inline const_pointer data () const
+//     {
+//         return base_class::data();
+//     }
 
-    const_reference front () const
-    {
-        PFS_ASSERT(!empty());
-#if __cplusplus < 201103L
-        return at(0);
-#else
-        return _d.front();
-#endif
-    }
+    // There is no `pointer data ()` GCC-implementation
+//     inline pointer data ()
+//     {
+//         return & operator [] (0);
+//     }
 
-    reference back ()
-    {
-        PFS_ASSERT(!empty());
-#if __cplusplus < 201103L
-        return at(size() - 1);
-#else
-        return _d.back();
-#endif
-    }
-
-    const_reference back () const
-    {
-        PFS_ASSERT(!empty());
-#if __cplusplus < 201103L
-        return at(size() - 1);
-#else
-        return _d.back();
-#endif
-    }
-
-    const_pointer data () const
-    {
-        return _d.data();
-    }
-
+    //
+    // @note `const_pointer c_str () const` is inaccessable
+    //
     const char * c_str () const
     {
-        return reinterpret_cast<const char *> (_d.c_str());
+        return reinterpret_cast<const char *> (base_class::c_str());
     }
 
-    iterator begin ()
-    {
-        return _d.begin();
-    }
-
-    const_iterator begin () const
-    {
-        return _d.begin();
-    }
-
-    const_iterator cbegin () const
-    {
-        return begin();
-    }
-
-    iterator end ()
-    {
-        return _d.end();
-    }
-
-    const_iterator end () const
-    {
-        return _d.end();
-    }
-
-    const_iterator cend () const
-    {
-        return end();
-    }
-
-    reverse_iterator rbegin ()
-    {
-        return _d.rbegin();
-    }
-
-    const_reverse_iterator rbegin () const
-    {
-        return _d.rbegin();
-    }
-
-    const_reverse_iterator crbegin () const
-    {
-#if __cplusplus < 201103L
-        return _d.rbegin();
-#else
-        return _d.crbegin();
-#endif
-    }
-
-    reverse_iterator rend ()
-    {
-        return _d.rend();
-    }
-
-    const_reverse_iterator rend () const
-    {
-        return _d.rend();
-    }
-
-    const_reverse_iterator crend () const
-    {
-#if __cplusplus < 201103L
-        return _d.rend();
-#else
-        return _d.crend();
-#endif
-    }
+    ///////////////////////////////////////////////////////////////////////////
+    // Iterators                                                             //
+    ///////////////////////////////////////////////////////////////////////////
 
     /**
+     * @fn iterator begin ()
+     */
+
+    /**
+     * @fn const_iterator begin () const
+     */
+
+    /**
+     * @fn const_iterator cbegin () const
+     */
+
+    /**
+     * @fn iterator end ()
+     */
+
+    /**
+     * @fn const_iterator end () const
+     */
+
+    /**
+     * @fn const_iterator cend () const
+     */
+
+    /**
+     * @fn reverse_iterator rbegin ()
+     */
+
+    /**
+     * @fn const_reverse_iterator rbegin () const
+     */
+
+    /**
+     * @fn const_reverse_iterator crbegin () const
+     */
+
+    /**
+     * @fn reverse_iterator rend ()
+     */
+
+    /**
+     * @fn const_reverse_iterator rend () const
+     */
+
+    /**
+     * @fn const_reverse_iterator crend () const
+     */
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Capacity                                                              //
+    ///////////////////////////////////////////////////////////////////////////
+
+    /**
+     * @fn bool empty () const
      * @brief Checks if byte string is empty.
-     *
      * @return @c true if byte string is empty (size() == 0) or @c false otherwise.
      */
-    bool empty () const
-    {
-        return _d.empty();
-    }
 
     /**
+     * @fn size_type size () const
      * @brief Return size of string in code units.
-     *
      * @return String in code units.
      */
-    size_type size () const
-    {
-        return _d.size();
-    }
 
     /**
+     * @fn size_type length () const
      * @brief Return size of byte string.
-     *
      * @return Size of byte string.
      * @see size()
      */
-    size_type length () const
-    {
-        return _d.length();
-    }
-
-    size_type max_size () const
-    {
-        return _d.max_size();
-    }
-
-    void reserve (size_type new_cap = 0)
-    {
-        _d.reserve(new_cap);
-    }
-
-    size_type capacity () const
-    {
-        return _d.capacity();
-    }
-
-    void shrink_to_fit ()
-    {
-#if __cplusplus < 201103L
-        if (capacity() > size()) {
-            reserve(0);
-        }
-#else
-        _d.shrink_to_fit();
-#endif
-    }
-
-    void clear ()
-    {
-        _d.clear();
-    }
 
     /**
+     * @fn size_type max_size () const
+     */
+
+    /**
+     * @fn void reserve (size_type new_cap)
+     */
+
+    /**
+     * @fn size_type capacity () const
+     */
+
+    /**
+     * @fn void shrink_to_fit ()
+     */
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Operations                                                            //
+    ///////////////////////////////////////////////////////////////////////////
+
+    /**
+     * @fn void clear ()
+     */
+
+    /**
+     * @fn byte_string & insert (size_type index, size_type count, value_type ch)
+     *
      * @brief Inserts @c count copies of character @c ch at the position @c index.
      * @param index Position at which the content will be inserted.
      * @param count Number of characters to insert.
      * @param ch Character to insert.
      * @return @code *this @endcode
      */
-    byte_string & insert (size_type index, size_type count, value_type ch)
-    {
-        PFS_ASSERT(index <= size());
-        PFS_ASSERT(max_size() - count >= size());
-        _d.insert(index, count, ch);
-        return *this;
-    }
 
     /**
+     * @fn byte_string & insert (size_type index, size_type count, char ch)
+     *
      * @brief Inserts @c count copies of character @c ch at the position @c index.
      * @param index Position at which the content will be inserted.
      * @param count Number of characters to insert.
      * @param ch Character to insert.
      * @return @code *this @endcode
      */
-    byte_string & insert (size_type index, size_type count, char ch)
-    {
-        return insert(index, count, static_cast<value_type> (ch));
-    }
+
+    /**
+     * @fn byte_string & insert (size_type index, const_pointer s)
+     *
+     * @brief Inserts null-terminated character string pointed to by @c s at the position @c index.
+     *        The length of the string is determined by the first null character.
+     * @param index Position at which the content will be inserted.
+     * @param s Pointer to the character string to insert.
+     * @return @code *this @endcode
+     */
 
     /**
      * @brief Inserts null-terminated character string pointed to by @c s at the position @c index.
@@ -392,579 +357,867 @@ public:
      * @param s Pointer to the character string to insert.
      * @return @code *this @endcode
      */
-    byte_string & insert (size_type index, const_pointer s)
+    inline byte_string & insert (size_type index, char const * s)
     {
-        PFS_ASSERT(index <= size());
-        PFS_ASSERT(max_size() - traits_type::length(s) >= size());
-        _d.insert(index, s);
+        base_class::insert(index, reinterpret_cast<const_pointer>(s));
         return *this;
     }
 
     /**
-     * @brief Inserts null-terminated character string pointed to by @c s at the position @c index.
-     *        The length of the string is determined by the first null character.
-     * @param index Position at which the content will be inserted.
-     * @param s Pointer to the character string to insert.
+     * @fn byte_string & insert (size_type index, const_pointer s, size_type count)
+     *
      * @return @code *this @endcode
      */
-    byte_string & insert (size_type index, const char * s)
-    {
-        return insert(index, reinterpret_cast<const_pointer> (s));
-    }
 
-    byte_string & insert (size_type index, const_pointer s, size_type count)
+    /**
+     * @return @code *this @endcode
+     */
+    inline byte_string & insert (size_type index, char const * s, size_type count)
     {
-        _d.insert(index, s, count);
+        base_class::insert(index, reinterpret_cast<const_pointer>(s), count);
         return *this;
     }
 
-    byte_string & insert (size_type index, byte_string const & s)
+    /**
+     * @fn byte_string & insert (size_type index, byte_string const & s)
+     * @return @code *this @endcode
+     */
+
+    /**
+     * @return @code *this @endcode
+     */
+    inline byte_string & insert (size_type index, std::string const & s)
     {
-        _d.insert(index, s._d);
+        base_class::insert(index, reinterpret_cast<const_pointer>(s.data()), s.size());
         return *this;
     }
 
-    byte_string & insert (size_type index, byte_string const & s
-            , size_type index_str, size_type count = npos)
+    /**
+     * @fn byte_string & insert (size_type index, basic_string const & str
+     *              , size_type index_str, size_type count = npos)
+     * @return @code *this @endcode
+     */
+
+    /**
+     * @return @code *this @endcode
+     */
+    inline byte_string & insert (size_type index, std::string const & str
+                   , size_type index_str, size_type count = npos)
     {
-        _d.insert(index, s._d, index_str, count);
+        base_class::insert(index
+                , reinterpret_cast<const_pointer>(str.data() + index_str)
+                , count);
         return *this;
     }
 
-    // FIXME
-    //	iterator insert (const_iterator pos, value_type ch)
-    //	{
-    //#if __cplusplus < 201103L
-    //		size_type index = pos - cbegin();
-    //		insert(index, ch);
-    //		return iterator(begin() + index);
-    //#else
-    //		return _d.insert(pos, ch);
-    //#endif
-    //	}
+    /**
+     * @fn iterator insert (const_iterator pos, value_type ch)
+     */
 
-    // FIXME
-    //	iterator insert (const_iterator pos, size_type count, value_type ch)
-    //	{
-    //#if __cplusplus < 201103L
-    //		iterator it(begin());
-    //		std::advance(it, std::distance<const_iterator>(begin(), pos));
-    //		_d.insert(it, count, ch);
-    //		it = begin();
-    //		std::advance(it, std::distance<const_iterator>(begin(), pos));
-    //		return it;
-    //#else
-    //		return _d.insert(pos, count, ch);
-    //#endif
-    //	}
-
-    template <typename InputIterator>
-    iterator insert (const_iterator pos, InputIterator first, InputIterator last)
+    /**
+     */
+    inline iterator insert (const_iterator pos, char ch)
     {
-        return _d.insert<InputIterator>(pos, first, last);
+        // Do not use base_class::insert here.
+        // Will be used above method for C++ prior to C++11
+        return byte_string::insert(pos, value_type(ch));
     }
 
-    byte_string & erase (size_type index = 0, size_type count = npos)
+    /**
+     * @fn iterator insert (const_iterator pos, size_type count, value_type ch)
+     */
+
+    inline iterator insert (const_iterator pos, size_type count, char ch)
     {
-        PFS_ASSERT(index <= size());
-        _d.erase(index, count);
-        return *this;
+        return byte_string::insert(pos, count, value_type(ch));
     }
 
-    iterator erase (const_iterator position)
+    /**
+     * @fn template <typename InputIt>
+     *     iterator insert (const_iterator pos, InputIt first, InputIt last)
+     */
+
+#if __cplusplus >= 201103L
+    /**
+    * @fn iterator insert (const_iterator pos, std::initializer_list<value_type> ilist)
+    */
+
+    /**
+     */
+    inline iterator insert (const_iterator pos, std::initializer_list<char> ilist)
     {
-#if __cplusplus < 201103L
-// || PFS_CC_GCC_VERSION <= 40800 // TODO Check for valid version
-        size_type index = position - cbegin();
-        if (index < size()) {
-            erase(index, 1);
-            return begin() + index;
-        }
-        return end();
-#else
-        return _d.erase(position);
+        return base_class::insert(pos, ilist.begin(), ilist.end());
+    }
 #endif
-    }
 
-    iterator erase (const_iterator first, const_iterator last)
-    {
-#if __cplusplus < 201103L
-// || PFS_CC_GCC_VERSION <= 40800 // TODO Check for valid version
-        size_type pos1 = first - cbegin();
-        size_type pos2 = last - cbegin();
-        if (pos1 < pos2) {
-            erase(pos1, pos2 - pos1);
-            return begin() + pos1;
-        }
-        return end();
-#else
-        return _d.erase(first, last);
-#endif
-    }
 
-    void push_back (value_type ch)
-    {
-        _d.push_back(ch);
-    }
+    /**
+     * @fn byte_string & erase (size_type index = 0, size_type count = npos)
+     *
+     * @return @code *this @endcode
+     */
 
-    void pop_back ()
-    {
-#if __cplusplus < 201103L
-        if (!empty())
-            erase(size() - 1, 1);
-#else
-        _d.pop_back();
-#endif
-    }
+    /**
+     * @fn iterator erase (const_iterator pos)
+     */
 
-    byte_string & append (size_type count, value_type ch)
-    {
-        _d.append(count, ch);
-        return *this;
-    }
+    /**
+     * @fn iterator erase (const_iterator first, const_iterator last)
+     */
 
+    /**
+     * @fn void push_back (value_type ch)
+     */
+
+    /**
+     * @fn void push_back (char ch)
+     */
+
+    /**
+     * @fn void pop_back ()
+     */
+
+    /**
+     * @fn byte_string & append (size_type count, value_type ch)
+     * @return @code *this @endcode
+     */
+
+    /**
+     * @fn byte_string & append (size_type count, char ch)
+     * @return @code *this @endcode
+     */
     byte_string & append (size_type count, char ch)
     {
-        return append(count, static_cast<value_type> (ch));
-    }
-
-    byte_string & append (byte_string const & s)
-    {
-        _d.append(s._d);
+        base_class::append(count, value_type(ch));
         return *this;
     }
 
-    byte_string & append (byte_string const & s
-            , size_type pos
-            , size_type count = npos)
+    /**
+     * @fn byte_string & append (byte_string const & s)
+     *
+     * @return @code *this @endcode
+     */
+
+    /**
+     * @return @code *this @endcode
+     */
+     inline byte_string & append (std::string const & s)
+     {
+         base_class::append(reinterpret_cast<const_pointer>(s.data()), s.size());
+         return *this;
+     }
+
+    /**
+     * @fn byte_string & append (byte_string const & s
+//              , size_type pos
+//              , size_type count = npos)
+     *
+     * @return @code *this @endcode
+     */
+
+    /**
+     * @return @code *this @endcode
+     */
+     inline byte_string & append (std::string const & s
+             , size_type pos
+             , size_type count = npos)
+     {
+         base_class::append(reinterpret_cast<const_pointer>(s.data()) + pos, count);
+         return *this;
+     }
+
+    /**
+     * @fn byte_string & append (const_pointer s, size_type count)
+     *
+     * @return @code *this @endcode
+     */
+
+    /**
+     * @return @code *this @endcode
+     */
+     inline byte_string & append (const char * s, size_type count)
+     {
+         base_class::append(reinterpret_cast<const_pointer>(s), count);
+         return *this;
+     }
+
+    /**
+     * @fn byte_string & append (const_pointer s)
+     *
+     * @return @code *this @endcode
+     */
+
+    /**
+     * @return @code *this @endcode
+     */
+     inline byte_string & append (const char * s)
+     {
+         base_class::append(reinterpret_cast<const_pointer>(s));
+         return *this;
+     }
+
+    /**
+     * @fn template <typename InputIterator>
+     *     byte_string & append (InputIterator first, InputIterator last)
+     *
+     * @return @code *this @endcode
+     */
+
+#if __cplusplus >= 201103L
+    /**
+     * @fn byte_string & append (std::initializer_list<value_type> ilist)
+     *
+     * @return @code *this @endcode
+     */
+
+    /**
+     * @return @code *this @endcode
+     */
+    inline byte_string & append (std::initializer_list<char> ilist)
     {
-        _d.append(s._d, pos, count);
+        base_class::append(ilist.begin(), ilist.end());
         return *this;
     }
+#endif
 
-    byte_string & append (const_pointer s, size_type count)
+    /**
+     * @fn
+     * @return @code *this @endcode
+     */
+//     inline byte_string & operator += (byte_string const & s)
+//     {
+//         return append(s);
+//     }
+
+    /**
+     * @return @code *this @endcode
+     */
+    inline byte_string & operator += (std::string const & s)
     {
-        _d.append(s, count);
-        return *this;
+        return append(s);
     }
 
-    byte_string & append (const char * s, size_type count)
+    /**
+     * @return @code *this @endcode
+     */
+//     inline byte_string & operator += (value_type ch)
+//     {
+//         return append(1, ch);
+//     }
+
+    /**
+     * @return @code *this @endcode
+     */
+    inline byte_string & operator += (char ch)
     {
-        return append(reinterpret_cast<const_pointer> (s), count);
+        return append(size_type(1), value_type(ch));
     }
 
-    byte_string & append (const_pointer s)
-    {
-        _d.append(s);
-        return *this;
-    }
+    /**
+     * @return @code *this @endcode
+     */
+//     inline byte_string & operator += (const_pointer s)
+//     {
+//         return append(s);
+//     }
 
-    byte_string & append (const char * s)
-    {
-        return append(reinterpret_cast<const_pointer> (s));
-    }
-
-    template <typename InputIterator>
-    byte_string & append (InputIterator first, InputIterator last)
-    {
-        _d.append<InputIterator>(first, last);
-        return *this;
-    }
-
-    byte_string & operator += (byte_string const & s)
-    {
-        _d.operator += (s._d);
-        return *this;
-    }
-
-    byte_string & operator += (value_type ch)
-    {
-        _d.operator += (ch);
-        return *this;
-    }
-
-    byte_string & operator += (char ch)
-    {
-        return operator += (static_cast<value_type> (ch));
-    }
-
-    byte_string & operator += (const_pointer s)
-    {
-        _d.operator+= (s);
-        return *this;
-    }
-
+    /**
+     * @return @code *this @endcode
+     */
     byte_string & operator += (const char * s)
     {
-        return operator += (reinterpret_cast<const_pointer> (s));
+        return append(s);
     }
 
-    int compare (byte_string const & s) const
+#if __cplusplus >= 201103L
+    /**
+     * @return @code *this @endcode
+     */
+//     inline byte_string & operator += (std::initializer_list<value_type> ilist)
+//     {
+//         return append(ilist);
+//     }
+
+    /**
+     * @return @code *this @endcode
+     */
+    inline byte_string & operator += (std::initializer_list<char> ilist)
     {
-        return _d.compare(s._d);
+        return append(ilist);
+    }
+#endif
+
+    /**
+     * @fn int compare (byte_string const & s) const
+     */
+
+    /**
+     * @fn int compare (size_type pos1, size_type count1, byte_string const & s) const
+     */
+
+    /**
+     */
+//     int compare (size_type pos1, size_type count1
+//             , byte_string const & s
+//             , size_type pos2, size_type count2 = npos) const
+//     {
+//         return base_class::compare(pos1, count1, s, pos2, count2);
+//     }
+
+    /**
+     * @fn int compare (const_pointer s) const
+     */
+
+    /**
+     * @fn int compare (size_type pos1, size_type count1, const_pointer s) const
+     */
+
+    /**
+     * @fn int compare (size_type pos1, size_type count1, const_pointer s, size_type count2) const
+     */
+
+    /**
+     */
+//     inline bool starts_with (byte_string const & rhs) const
+//     {
+//         if (rhs.size() > this->size())
+//             return false;
+//
+//         return compare(0, rhs.size(), rhs) == 0;
+//     }
+
+//     inline bool starts_with (value_type ch) const
+//     {
+//         return empty() ? false : (front() == ch);
+//     }
+
+//     inline bool starts_with (const_pointer s) const
+//     {
+//         return compare(0, std::strlen(reinterpret_cast<char const *>(s)), s) == 0;
+//     }
+
+//     inline bool ends_with (byte_string const & rhs) const
+//     {
+//         if (rhs.size() > this->size())
+//             return false;
+//
+//         return compare(size() - rhs.size()
+//                 , rhs.size(), rhs, 0, rhs.size()) == 0;
+//     }
+
+//     inline bool ends_with (value_type ch) const
+//     {
+//         return empty() ? false : (back() == ch);
+//     }
+
+//     inline bool ends_with (const_pointer s) const
+//     {
+//         size_type n = std::strlen(reinterpret_cast<char const *>(s));
+//
+//         if (n > this->size())
+//             return false;
+//
+//         return compare(size() - n, n, s, 0, n) == 0;
+//     }
+
+    /**
+     */
+//     inline byte_string & replace (size_type pos, size_type count, byte_string const & s)
+//     {
+//         base_class::replace(pos, count, s);
+//         return *this;
+//     }
+
+    /**
+     */
+//     inline byte_string & replace (const_iterator first, const_iterator last, byte_string const & s)
+//     {
+// #if __cplusplus < 201103L
+//         // basic_string implementation may use COW,
+//         // so
+//         // base_class::replace(begin() + std::distance(cbegin(), first)
+//         //      , begin() + std::distance(cbegin(), last), s);
+//         // may cause UB (in  worst case Seg Fault)
+//         //
+//         difference_type i1 = std::distance(cbegin(), first);
+//         difference_type i2 = std::distance(cbegin(), last);
+//         iterator f = begin() + i1; // begin() unshares data
+//         iterator e = begin() + i2;
+//         base_class::replace(f, e, s);
+// #else
+//         base_class::replace(first, last, s);
+// #endif
+//         return *this;
+//     }
+
+    /**
+     */
+//     inline byte_string & replace (size_type pos, size_type count
+//             , byte_string const & s
+//             , size_type pos2, size_type count2 = npos)
+//     {
+//         base_class::replace(pos, count, s, pos2, count2);
+//         return *this;
+//     }
+
+//     template <typename InputIterator>
+//     inline byte_string & replace (const_iterator first, const_iterator last
+//             , InputIterator first2, InputIterator last2)
+//     {
+//
+// #if __cplusplus < 201103L
+//         difference_type i1 = std::distance(cbegin(), first);
+//         difference_type i2 = std::distance(cbegin(), last);
+//         iterator f = begin() + i1;
+//         iterator e = begin() + i2;
+//         base_class::replace<InputIterator>(f, e, first2, last2);
+// #else
+//         base_class::replace<InputIterator>(first, last, first2, last2);
+// #endif
+//         return *this;
+//     }
+
+    /**
+     */
+//     inline byte_string & replace (size_type pos, size_type count, const_pointer s, size_type count2)
+//     {
+//         base_class::replace(pos, count, s, count2);
+//         return *this;
+//     }
+
+    /**
+     */
+//     inline byte_string & replace (const_iterator first, const_iterator last
+//             , const_pointer s, size_type count2)
+//     {
+// #if __cplusplus < 201103L
+//         difference_type i1 = std::distance(cbegin(), first);
+//         difference_type i2 = std::distance(cbegin(), last);
+//         iterator f = begin() + i1;
+//         iterator e = begin() + i2;
+//         base_class::replace(f, e, s, count2);
+// #else
+//         base_class::replace(first, last, s, count2);
+// #endif
+//         return *this;
+//     }
+
+    /**
+     */
+//     inline byte_string & replace (size_type pos, size_type count, const_pointer s)
+//     {
+//         base_class::replace(pos, count, s);
+//         return *this;
+//     }
+
+    /**
+     */
+//     inline byte_string & replace (const_iterator first, const_iterator last, const_pointer s)
+//     {
+// #if __cplusplus < 201103L
+//         difference_type i1 = std::distance(cbegin(), first);
+//         difference_type i2 = std::distance(cbegin(), last);
+//         iterator f = begin() + i1;
+//         iterator e = begin() + i2;
+//         base_class::replace(f, e, s);
+// #else
+//         base_class::replace(first, last, s);
+// #endif
+//         return *this;
+//     }
+
+    /**
+     */
+//     inline byte_string & replace (size_type pos, size_type count
+//             , size_type count2, value_type ch)
+//     {
+//         base_class::replace(pos, count, count2, ch);
+//         return *this;
+//     }
+
+    /**
+     */
+//     inline byte_string & replace (const_iterator first, const_iterator last
+//             , size_type count2, value_type ch)
+//     {
+// #if __cplusplus < 201103L
+//         difference_type i1 = std::distance(cbegin(), first);
+//         difference_type i2 = std::distance(cbegin(), last);
+//         base_class::iterator f = begin() + i1;
+//         base_class::iterator e = begin() + i2;
+//         base_class::replace(f, e, count2, ch);
+// #else
+//         base_class::replace(first, last, count2, ch);
+// #endif
+//         return *this;
+//     }
+
+// #if __cplusplus >= 201103L
+//       /**
+//       */
+//       inline byte_string & replace (const_iterator first, const_iterator last
+//                 , std::initializer_list<value_type> ilist)
+//       {
+//           base_class::replace(first, last, ilist.begin(), ilist.end());
+//           return *this;
+//       }
+// #endif
+
+    /**
+     * @fn byte_string substr (size_type pos = 0, size_type count = npos) const
+     */
+
+    /**
+     * @fn size_type copy (pointer dest, size_type count, size_type pos = 0) const
+     */
+
+    /**
+     * @fn void resize (size_type count)
+     */
+
+    /**
+     * @fn void resize (size_type count, value_type ch)
+     */
+
+    /**
+     * @fn void swap (byte_string & other)
+     */
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Search                                                                //
+    ///////////////////////////////////////////////////////////////////////////
+
+    /**
+     * @fn size_type find (byte_string const & bs, size_type pos = 0) const;
+     */
+
+    /**
+     * @fn size_type find (const_pointer p, size_type pos, size_type count) const;
+     */
+
+    /**
+     * @fn size_type find (const_pointer p, size_type pos = 0) const;
+     */
+
+    /**
+     * @fn size_type find (value_type ch, size_type pos = 0) const;
+     */
+
+    /**
+     * @fn size_type rfind (byte_string const & bs, size_type pos = npos) const;
+     */
+
+    /**
+     * @fn size_type rfind (const_pointer p, size_type pos, size_type count) const;
+     */
+
+    /**
+     * @fn size_type rfind (const_pointer p, size_type pos = npos) const;
+     */
+
+    /**
+     * @fn size_type rfind (value_type ch, size_type pos = npos) const;
+     */
+
+    /**
+     * @fn size_type find_first_of (byte_string const & bs, size_type pos = 0) const
+     */
+
+    /**
+     * @fn size_type find_first_of (const_pointer p, size_type pos, size_type count) const
+     */
+
+    /**
+     * @fn size_type find_first_of (const_pointer p, size_type pos = 0) const
+     */
+
+    /**
+     * @fn size_type find_first_of (value_type ch, size_type pos = 0) const
+     */
+
+    /**
+     * @fn size_type find_first_not_of (byte_string const & bs, size_type pos = 0) const
+     */
+
+    /**
+     * @fn size_type find_first_not_of (const_pointer p, size_type pos, size_type count) const
+     */
+
+    /**
+     * @fn size_type find_first_not_of (const_pointer p, size_type pos = 0) const
+     */
+
+    /**
+     * @fn size_type find_first_not_of (value_type ch, size_type pos = 0) const
+     */
+
+    /**
+     * @fn size_type find_last_of (byte_string const & bs, size_type pos = 0) const
+     */
+
+    /**
+     * @fn size_type find_last_of (const_pointer p, size_type pos, size_type count) const
+     */
+
+    /**
+     * @fn size_type find_last_of (const_pointer p, size_type pos = 0) const
+     */
+
+    /**
+     * @fn size_type find_last_of (value_type ch, size_type pos = 0) const
+     */
+
+    /**
+     * @fn size_type find_last_not_of (byte_string const & bs, size_type pos = 0) const
+     */
+
+    /**
+     * @fn size_type find_last_not_of (const_pointer p, size_type pos, size_type count) const
+     */
+
+    /**
+     * @fn size_type find_last_not_of (const_pointer p, size_type pos = 0) const
+     */
+
+    /**
+     * @fn size_type find_last_not_of (value_type ch, size_type pos = 0) const
+     */
+
+    //
+    // binary_ostream compliant method
+    //
+    inline ssize_t write (const_pointer s, size_type n)
+    {
+        append(s, n);
+        return static_cast<ssize_t>(n);
     }
 
-    int compare (size_type pos1, size_type count1, byte_string const & s) const
+    inline ssize_t write (char const * s, size_type n)
     {
-        return _d.compare(pos1, count1, s._d);
+        return write(reinterpret_cast<const_pointer>(s), n);
     }
 
-    int compare (size_type pos1, size_type count1
-            , byte_string const & s
-            , size_type pos2, size_type count2 = npos) const
+    //
+    // binary_istream compliant method
+    //
+    inline ssize_t read (pointer s, size_type n)
     {
-        return _d.compare(pos1, count1, s._d, pos2, count2);
+        size_type n1 = pfs::min(n, size());
+        copy(s, n1);
+        return static_cast<ssize_t>(n1);
     }
 
-    int compare (const_pointer s) const
+    inline ssize_t read (char * s, size_type n)
     {
-        return _d.compare(s);
-    }
-
-    int compare (const char * s) const
-    {
-        return compare(reinterpret_cast<const_pointer> (s));
-    }
-
-    int compare (size_type pos1, size_type count1, const_pointer s) const
-    {
-        return _d.compare(pos1, count1, s);
-    }
-
-    int compare (size_type pos1, size_type count1, const char * s) const
-    {
-        return compare(pos1, count1, reinterpret_cast<const_pointer> (s));
-    }
-
-    int compare (size_type pos1, size_type count1, const_pointer s, size_type count2) const
-    {
-        return _d.compare(pos1, count1, s, count2);
-    }
-
-    int compare (size_type pos1, size_type count1, const char * s, size_type count2) const
-    {
-        return compare(pos1, count1, reinterpret_cast<const_pointer> (s), count2);
-    }
-
-    byte_string & replace (size_type pos, size_type count, byte_string const & s)
-    {
-        _d.replace(pos, count, s._d);
-        return *this;
-    }
-
-    //	byte_string & replace (const_iterator first, const_iterator last, byte_string const & s)
-    //	{
-    //		_d.replace(first, last, s._d);
-    //		return *this;
-    //	}
-
-    byte_string & replace (size_type pos, size_type count
-            , byte_string const & s
-            , size_type pos2, size_type count2 = npos)
-    {
-        _d.replace(pos, count, s._d, pos2, count2);
-        return *this;
-    }
-
-    template <typename InputIterator>
-    byte_string & replace (const_iterator first, const_iterator last
-            , InputIterator first2, InputIterator last2)
-    {
-        _d.replace<InputIterator>(first, last, first2, last2);
-        return *this;
-    }
-
-    byte_string & replace (size_type pos, size_type count, const_pointer s, size_type count2)
-    {
-        _d.replace(pos, count, s, count2);
-        return *this;
-    }
-
-    //	byte_string & replace (const_iterator first, const_iterator last, const_pointer s, size_type count2)
-    //	{
-    //		_d.replace(first, last, s, count2);
-    //		return *this;
-    //	}
-
-    byte_string & replace (size_type pos, size_type count, const_pointer s)
-    {
-        _d.replace(pos, count, s);
-        return *this;
-    }
-
-    // FIXME
-    //	byte_string & replace (const_iterator first, const_iterator last, const_pointer s)
-    //	{
-    //		_d.replace(first, last, s);
-    //		return *this;
-    //	}
-
-    byte_string & replace (size_type pos, size_type count, size_type count2, value_type ch)
-    {
-        _d.replace(pos, count, count2, ch);
-        return *this;
-    }
-
-    // FIXME
-    //	byte_string & replace (const_iterator first, const_iterator last, size_type count2, value_type ch)
-    //	{
-    //		_d.replace(first, last, count2, ch);
-    //		return *this;
-    //	}
-
-    byte_string substr (size_type pos = 0, size_type count = npos) const
-    {
-        PFS_ASSERT(pos <= size());
-        return byte_string(_d.substr(pos, count));
-    }
-
-    byte_string & substr (byte_string & result, size_type pos = 0, size_type count = npos) const
-    {
-        PFS_ASSERT(pos <= size());
-        return result.assign(_d.substr(pos, count));
-    }
-
-    size_type copy (pointer dest, size_type count, size_type pos = 0) const
-    {
-        return _d.copy(dest, count, pos);
-    }
-
-    size_type copy (char * dest, size_type count, size_type pos = 0) const
-    {
-        return copy(reinterpret_cast<pointer> (dest), count, pos);
-    }
-
-    void resize (size_type count)
-    {
-        _d.resize(count);
-    }
-
-    void resize (size_type count, value_type ch)
-    {
-        _d.resize(count, ch);
-    }
-
-    void swap (byte_string & other)
-    {
-        _d.swap(other._d);
+        return read(reinterpret_cast<pointer>(s), n);
     }
 };
 
-template <int N>
-struct byte_string_ref_n
-{
-    typedef typename size_type_n<N>::type size_type;
-    byte_string * p;
+// template <int N>
+// struct byte_string_ref_n
+// {
+//     typedef typename size_type_n<N>::type size_type;
+//     byte_string * p;
+//
+//     byte_string_ref_n (byte_string * ptr)
+//         : p (ptr)
+//     {}
+//
+//     size_type max_size () const
+//     {
+//         return numeric_limits<size_type>::max();
+//     }
+// };
 
-    byte_string_ref_n (byte_string * ptr)
-        : p (ptr)
-    {}
+// struct byte_string_ref
+// {
+//     byte_string * p;
+//     byte_string::size_type max_size;
+//
+//     byte_string_ref (byte_string * ptr)
+//         : p(ptr)
+//         , max_size(ptr->size())
+//     {}
+//
+//     byte_string_ref (byte_string * ptr, byte_string::size_type sz)
+//         : p(ptr)
+//         , max_size(sz)
+//     {}
+// };
 
-    size_type max_size () const
-    {
-        return numeric_limits<size_type>::max();
-    }
-};
+// template <typename T>
+// struct buffer_wrapper
+// {
+//     T * p;
+//     size_t max_size;
+//
+//     buffer_wrapper (T * ptr, byte_string::size_type n)
+//         : p(ptr)
+//         , max_size(n)
+//     {}
+// };
 
-struct byte_string_ref
-{
-    byte_string * p;
-    byte_string::size_type max_size;
-
-    byte_string_ref (byte_string * ptr)
-        : p(ptr)
-        , max_size(ptr->size())
-    {}
-
-    byte_string_ref (byte_string * ptr, byte_string::size_type sz)
-        : p(ptr)
-        , max_size(sz)
-    {}
-};
-
-template <typename T>
-struct buffer_wrapper
-{
-    T * p;
-    size_t max_size;
-
-    buffer_wrapper (T * ptr, byte_string::size_type n)
-        : p(ptr)
-        , max_size(n)
-    {}
-};
-
-inline byte_string operator + (byte_string const & lhs, byte_string const & rhs)
-{
-    byte_string r(lhs);
-    return r += rhs;
-}
-
-inline byte_string operator + (byte_string const & lhs, byte_string::value_type ch)
-{
-    byte_string r(lhs);
-    return r += ch;
-}
-
-inline byte_string operator + (byte_string::value_type ch, byte_string const & rhs)
-{
-    byte_string r(1, ch);
-    return r += rhs;
-}
-
-inline byte_string operator + (char ch, byte_string const & rhs)
-{
-    byte_string r(1, ch);
-    return r += rhs;
-}
-
-inline byte_string operator + (byte_string const & lhs, byte_string::const_pointer rhs)
-{
-    byte_string r(lhs);
-    return r += rhs;
-}
-
-inline byte_string operator + (byte_string::const_pointer lhs, byte_string const & rhs)
-{
-    byte_string r(lhs);
-    return r += rhs;
-}
-
-inline byte_string operator + (byte_string const & lhs, char const * rhs)
-{
-    byte_string r(lhs);
-    return r += rhs;
-}
-
-inline byte_string operator + (char const * lhs, byte_string const & rhs)
-{
-    byte_string r(lhs);
-    return r += rhs;
-}
+// inline byte_string operator + (byte_string const & lhs, byte_string const & rhs)
+// {
+//     byte_string r(lhs);
+//     return r += rhs;
+// }
+//
+// inline byte_string operator + (byte_string const & lhs, byte_string::value_type ch)
+// {
+//     byte_string r(lhs);
+//     return r += ch;
+// }
+//
+// inline byte_string operator + (byte_string::value_type ch, byte_string const & rhs)
+// {
+//     byte_string r(1, ch);
+//     return r += rhs;
+// }
+//
+// inline byte_string operator + (char ch, byte_string const & rhs)
+// {
+//     byte_string r(1, ch);
+//     return r += rhs;
+// }
+//
+// inline byte_string operator + (byte_string const & lhs, byte_string::const_pointer rhs)
+// {
+//     byte_string r(lhs);
+//     return r += rhs;
+// }
+//
+// inline byte_string operator + (byte_string::const_pointer lhs, byte_string const & rhs)
+// {
+//     byte_string r(lhs);
+//     return r += rhs;
+// }
+//
+// inline byte_string operator + (byte_string const & lhs, char const * rhs)
+// {
+//     byte_string r(lhs);
+//     return r += rhs;
+// }
+//
+// inline byte_string operator + (char const * lhs, byte_string const & rhs)
+// {
+//     byte_string r(lhs);
+//     return r += rhs;
+// }
 
 byte_string & base64_encode (byte_string const & src, byte_string & result);
 byte_string & base64_decode (byte_string const & src, byte_string & result);
 
-inline bool operator == (byte_string const & lhs, byte_string const & rhs)
-{
-    return lhs.compare(rhs) == 0;
-}
+// inline bool operator == (byte_string const & lhs, byte_string const & rhs)
+// {
+//     return lhs.compare(rhs) == 0;
+// }
+//
+// inline bool operator != (byte_string const & lhs, byte_string const & rhs)
+// {
+//     return lhs.compare(rhs) != 0;
+// }
+//
+// inline bool operator < (byte_string const & lhs, byte_string const & rhs)
+// {
+//     return lhs.compare(rhs) < 0;
+// }
+//
+// inline bool operator <= (byte_string const & lhs, byte_string const & rhs)
+// {
+//     return lhs.compare(rhs) <= 0;
+// }
+//
+// inline bool operator > (byte_string const & lhs, byte_string const & rhs)
+// {
+//     return lhs.compare(rhs) > 0;
+// }
+//
+// inline bool operator >= (byte_string const & lhs, byte_string const & rhs)
+// {
+//     return lhs.compare(rhs) >= 0;
+// }
+//
+// inline bool operator == (byte_string const & lhs, const char * rhs)
+// {
+//     return lhs.compare(rhs) == 0;
+// }
+//
+// inline bool operator != (byte_string const & lhs, const char * rhs)
+// {
+//     return lhs.compare(rhs) != 0;
+// }
+//
+// inline bool operator < (byte_string const & lhs, const char * rhs)
+// {
+//     return lhs.compare(rhs) < 0;
+// }
+//
+// inline bool operator <= (byte_string const & lhs, const char * rhs)
+// {
+//     return lhs.compare(rhs) <= 0;
+// }
+//
+// inline bool operator > (byte_string const & lhs, const char * rhs)
+// {
+//     return lhs.compare(rhs) > 0;
+// }
+//
+// inline bool operator >= (byte_string const & lhs, const char * rhs)
+// {
+//     return lhs.compare(rhs) >= 0;
+// }
+//
+// inline bool operator == (const char * lhs, byte_string const & rhs)
+// {
+//     return rhs.compare(lhs) == 0;
+// }
+//
+// inline bool operator != (const char * lhs, byte_string const & rhs)
+// {
+//     return rhs.compare(lhs) != 0;
+// }
+//
+// inline bool operator < (const char * lhs, byte_string const & rhs)
+// {
+//     return rhs.compare(lhs) > 0;
+// }
+//
+// inline bool operator <= (const char * lhs, byte_string const & rhs)
+// {
+//     return rhs.compare(lhs) >= 0;
+// }
+//
+// inline bool operator > (const char * lhs, byte_string const & rhs)
+// {
+//     return rhs.compare(lhs) < 0;
+// }
+//
+// inline bool operator >= (const char * lhs, byte_string const & rhs)
+// {
+//     return rhs.compare(lhs) <= 0;
+// }
 
-inline bool operator != (byte_string const & lhs, byte_string const & rhs)
-{
-    return lhs.compare(rhs) != 0;
-}
-
-inline bool operator < (byte_string const & lhs, byte_string const & rhs)
-{
-    return lhs.compare(rhs) < 0;
-}
-
-inline bool operator <= (byte_string const & lhs, byte_string const & rhs)
-{
-    return lhs.compare(rhs) <= 0;
-}
-
-inline bool operator > (byte_string const & lhs, byte_string const & rhs)
-{
-    return lhs.compare(rhs) > 0;
-}
-
-inline bool operator >= (byte_string const & lhs, byte_string const & rhs)
-{
-    return lhs.compare(rhs) >= 0;
-}
-
-inline bool operator == (byte_string const & lhs, const char * rhs)
-{
-    return lhs.compare(rhs) == 0;
-}
-
-inline bool operator != (byte_string const & lhs, const char * rhs)
-{
-    return lhs.compare(rhs) != 0;
-}
-
-inline bool operator < (byte_string const & lhs, const char * rhs)
-{
-    return lhs.compare(rhs) < 0;
-}
-
-inline bool operator <= (byte_string const & lhs, const char * rhs)
-{
-    return lhs.compare(rhs) <= 0;
-}
-
-inline bool operator > (byte_string const & lhs, const char * rhs)
-{
-    return lhs.compare(rhs) > 0;
-}
-
-inline bool operator >= (byte_string const & lhs, const char * rhs)
-{
-    return lhs.compare(rhs) >= 0;
-}
-
-inline bool operator == (const char * lhs, byte_string const & rhs)
-{
-    return rhs.compare(lhs) == 0;
-}
-
-inline bool operator != (const char * lhs, byte_string const & rhs)
-{
-    return rhs.compare(lhs) != 0;
-}
-
-inline bool operator < (const char * lhs, byte_string const & rhs)
-{
-    return rhs.compare(lhs) > 0;
-}
-
-inline bool operator <= (const char * lhs, byte_string const & rhs)
-{
-    return rhs.compare(lhs) >= 0;
-}
-
-inline bool operator > (const char * lhs, byte_string const & rhs)
-{
-    return rhs.compare(lhs) < 0;
-}
-
-inline bool operator >= (const char * lhs, byte_string const & rhs)
-{
-    return rhs.compare(lhs) <= 0;
-}
-
-template <typename Device>
-inline ssize_t write_binary (Device & dev, endian order, byte_string const & v)
-{
-    return details::sequence::write_binary<Device>(dev, order, v.c_str(), v.size());
-}
-
-template <typename Device>
-ssize_t read_binary (Device & dev, endian order, byte_string & v)
-{
-    char * buffer = 0;
-    size_t size = 0;
-
-    ssize_t result = details::sequence::read_binary<Device>(dev, order, & buffer, & size);
-
-    if (buffer) {
-        v.append(buffer, size);
-        delete buffer;
-    }
-
-    return result;
-}
-
-// TODO Must be deprecated
-
-template <typename StringType>
-inline StringType to_string (byte_string const & s)
-{
-    return StringType(s.c_str());
-}
+// template <typename Device>
+// inline ssize_t write_binary (Device & dev, endian order, byte_string const & v)
+// {
+//     return details::sequence::write_binary<Device>(dev, order, v.c_str(), v.size());
+// }
+//
+// template <typename Device>
+// ssize_t read_binary (Device & dev, endian order, byte_string & v)
+// {
+//     char * buffer = 0;
+//     size_t size = 0;
+//
+//     ssize_t result = details::sequence::read_binary<Device>(dev, order, & buffer, & size);
+//
+//     if (buffer) {
+//         v.append(buffer, size);
+//         delete buffer;
+//     }
+//
+//     return result;
+// }
 
 } // pfs
-
-#endif /* __PFS_BYTE_STRING_HPP__ */

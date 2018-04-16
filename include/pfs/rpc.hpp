@@ -4,13 +4,13 @@
 #include <pfs/memory.hpp>
 #include <pfs/types.hpp>
 #include <pfs/optional.hpp>
-#include <pfs/v2/binary_ostream.hpp>
-#include <pfs/v2/binary_istream.hpp>
-#include <pfs/v2/byte_string.hpp>
-#include <pfs/v2/safeformat.hpp>
-#include <pfs/v2/string.hpp>
-#include <pfs/v2/stdcxx/list.hpp>
-#include <pfs/v2/stdcxx/map.hpp>
+#include <pfs/binary_ostream.hpp>
+#include <pfs/binary_istream.hpp>
+#include <pfs/byte_string.hpp>
+#include <pfs/safeformat.hpp>
+#include <pfs/string.hpp>
+#include <pfs/stdcxx/list.hpp>
+#include <pfs/stdcxx/map.hpp>
 
 namespace pfs {
 

@@ -1,6 +1,4 @@
-#ifndef __PFS_NET_URI_RFC3986_HPP__
-#define __PFS_NET_URI_RFC3986_HPP__
-
+#pragma once
 #include <pfs/fsm/fsm.hpp>
 #include <pfs/lexical_cast.hpp>
 
@@ -920,5 +918,3 @@ bool uri<StringType>::parse (typename string_type::const_iterator first
 }
 
 }} // pfs::net
-
-#endif /* __PFS_URI_RFC3986_HPP__ */

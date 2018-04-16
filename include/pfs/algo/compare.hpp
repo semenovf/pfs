@@ -1,5 +1,4 @@
-#ifndef __PFS_ALGO_COMPARE_HPP__
-#define __PFS_ALGO_COMPARE_HPP__
+#pragma once
 
 namespace pfs {
 
@@ -31,6 +30,3 @@ int compare (
 }
 
 } // pfs
-
-#endif /* __PFS_ALGO_COMPARE_HPP__ */
-

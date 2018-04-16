@@ -1,6 +1,4 @@
-#ifndef __PFS_JSON_UBJSON_OSTREAM_HPP__
-#define __PFS_JSON_UBJSON_OSTREAM_HPP__
-
+#pragma once
 #include <pfs/algorithm.hpp>
 #include <pfs/limits.hpp>
 #include <pfs/endian.hpp>
@@ -399,8 +397,4 @@ inline pfs::byte_string to_ubjson (JsonType const & j)
     return to_ubjson<JsonType>(j, 0);
 }
 
-
 }} // pfs::json
-
-#endif /* __PFS_JSON_UBJSON_OSTREAM_HPP__ */
-

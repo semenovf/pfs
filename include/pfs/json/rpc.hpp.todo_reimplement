@@ -1,5 +1,4 @@
-#ifndef __PFS_JSON_RPC_HPP__
-#define __PFS_JSON_RPC_HPP__
+#pragma once
 
 #include <pfs/traits/associative_container.hpp>
 
@@ -431,6 +430,3 @@ bool client<Traits, Handler>::handle (json_type const & response)
 }
 
 }}} // pfs::json::rpc
-
-#endif /* __PFS_JSON_RPC_HPP__ */
-

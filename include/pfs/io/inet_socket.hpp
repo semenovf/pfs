@@ -1,6 +1,4 @@
-#ifndef __PFS_IO_INET_SOCKET_HPP__
-#define __PFS_IO_INET_SOCKET_HPP__
-
+#pragma once
 #include <pfs/io/device.hpp>
 #include <pfs/net/inet4_addr.hpp>
 
@@ -145,5 +143,3 @@ template <>
 device open_device<udp_socket> (const open_params<udp_socket> & op, error_code & ex);
 
 }} // pfs::io
-
-#endif /* __PFS_IO_INET_SOCKET_HPP__ */

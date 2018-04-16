@@ -1,9 +1,7 @@
-#ifndef __PFS_IO_BITS_DEVICE_HPP__
-#define __PFS_IO_BITS_DEVICE_HPP__
-
+#pragma once
 #include <pfs/types.hpp>
 #include <pfs/io/exception.hpp>
-#include <pfs/system_string.hpp>
+#include <pfs/string.hpp>
 
 namespace pfs {
 namespace io {
@@ -11,22 +9,22 @@ namespace io {
 enum open_mode_enum
 {
       not_open     = 0                       /**< Device is not opened */
-	, read_only    = 0x0001                  /**< Open device for read only */
-	, write_only   = 0x0002                  /**< Open device for write only */
-	, read_write   = read_only | write_only  /**< Open device for read and write */
-	, write_read   = read_write              /**< Synonym for read_write */
-	, non_blocking = 0x0004                  /**< Open device in non-blocking mode */
-	, truncate     = 0x0010                  /**< Create device (only for regular file device) */
+    , read_only    = 0x0001                  /**< Open device for read only */
+    , write_only   = 0x0002                  /**< Open device for write only */
+    , read_write   = read_only | write_only  /**< Open device for read and write */
+    , write_read   = read_write              /**< Synonym for read_write */
+    , non_blocking = 0x0004                  /**< Open device in non-blocking mode */
+    , truncate     = 0x0010                  /**< Create device (only for regular file device) */
 };
 
 enum device_type
 {
-	  device_unknown = 0
+      device_unknown = 0
     , device_null
-	, device_buffer
-	, device_file
-	, device_tcp_socket
-	, device_tcp_peer
+    , device_buffer
+    , device_file
+    , device_tcp_socket
+    , device_tcp_peer
     , device_udp_socket
     , device_udp_peer
 };
@@ -43,45 +41,45 @@ typedef int native_handle_type;
 
 struct device_context
 {
-	virtual ~device_context () {}
+    virtual ~device_context () {}
 };
 
 class basic_device
 {
 public:
-	typedef device_context     context_type;
-    typedef pfs::system_string system_string;
+    typedef device_context context_type;
+    typedef pfs::string    string_type;
 
 protected:
-	context_type * _ctx;
+    context_type * _ctx;
     error_code     _ec;
 
 public:
-	basic_device ()
-		: _ctx(0)
-	{}
+    basic_device ()
+        : _ctx(0)
+    {}
 
     virtual ~basic_device ()
     {
-    	if (_ctx)
-    		delete _ctx;
+        if (_ctx)
+            delete _ctx;
     }
 
     context_type * context ()
     {
-    	return _ctx;
+        return _ctx;
     }
 
     context_type const * context () const
     {
-    	return _ctx;
+        return _ctx;
     }
 
     void set_context (context_type * context)
     {
-    	if (_ctx)
-    		delete _ctx;
-    	_ctx = context;
+        if (_ctx)
+            delete _ctx;
+        _ctx = context;
     }
 
     error_code errorcode () const
@@ -94,22 +92,22 @@ public:
         return _ec != error_code();
     }
 
-    virtual system_string url () const = 0;
+    virtual string_type url () const = 0;
 };
 
 class device : public basic_device
 {
 public:
-	typedef bits::native_handle_type    native_handle_type;
-	typedef uint32_t                    open_mode_flags;
-	typedef open_mode_enum              open_mode_type;
-	typedef device_context              info_type;
-    typedef basic_device::system_string system_string;
+    typedef bits::native_handle_type  native_handle_type;
+    typedef uint32_t                  open_mode_flags;
+    typedef open_mode_enum            open_mode_type;
+    typedef device_context            info_type;
+    typedef basic_device::string_type string_type;
 
 public:
-	device ()
-		: basic_device()
-	{}
+    device ()
+        : basic_device()
+    {}
 
     virtual ~device () {}
 
@@ -139,5 +137,3 @@ public:
 };
 
 }}} // pfs::io::bits
-
-#endif /* __PFS_IO_BITS_DEVICE_HPP__ */

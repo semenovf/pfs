@@ -1,9 +1,7 @@
 // IS OBSOLETE
 // use rfc7159.hpp instead
 
-#ifndef __PFS_JSON_RFC4627_HPP__
-#define __PFS_JSON_RFC4627_HPP__
-
+#pragma once
 #include <pfs/fsm/fsm.hpp>
 #include <pfs/lexical_cast.hpp>
 #include <pfs/stack.hpp>
@@ -746,5 +744,3 @@ grammar<ValueT, StackT>::grammar ()
 } // grammar
 
 }} // pfs::json
-
-#endif /* __PFS_JSON_RFC4627_HPP__ */

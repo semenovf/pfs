@@ -1,5 +1,4 @@
-#ifndef __PFS_IO_BITS_POOL_HPP__
-#define __PFS_IO_BITS_POOL_HPP__
+#pragma once
 
 namespace pfs {
 namespace io {
@@ -15,5 +14,3 @@ struct pool_iterator
 };
 
 }}}
-
-#endif /* __PFS_IO_BITS_POOL_HPP__ */

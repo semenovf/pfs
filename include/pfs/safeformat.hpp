@@ -1,15 +1,12 @@
-#ifndef __PFS_SAFEFORMAT_HPP__
-#define __PFS_SAFEFORMAT_HPP__
-
+#pragma once
 #include <cstdio> // sprintf
 #include <pfs/ctype.hpp>
 #include <pfs/types.hpp>
-#include <pfs/string.hpp>
 #include <pfs/limits.hpp>
 #include <pfs/exception.hpp>
 #include <pfs/iterator.hpp>
 #include <pfs/lexical_cast.hpp>
-//#include "cxx/memory.hpp"
+#include <pfs/string.hpp>
 
 //
 // [Formatted Output](http://www.qnx.com/developers/docs/6.5.0/topic/com.qnx.doc.dinkum_en_c99/lib_prin.html)
@@ -1379,6 +1376,3 @@ public:
 #endif
 
 } // pfs
-
-#endif /* __PFS_SAFEFORMAT_HPP__ */
-

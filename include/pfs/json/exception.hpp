@@ -1,6 +1,4 @@
-#ifndef __PFS_JSON_EXCEPTION_HPP__
-#define __PFS_JSON_EXCEPTION_HPP__
-
+#pragma once
 #include <pfs/cxxlang.hpp>
 #include <pfs/system_error.hpp>
 #include <pfs/exception.hpp>
@@ -98,6 +96,3 @@ struct is_error_code_enum<pfs::json_errc>
 #endif
 
 } // std
-
-#endif /* __PFS_JSON_EXCEPTION_HPP__ */
-

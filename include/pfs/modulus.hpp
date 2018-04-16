@@ -1,5 +1,4 @@
 #pragma once
-
 #include <pfs/cxxlang.hpp>
 #include <pfs/operationsystem.hpp>
 #include <pfs/atomic.hpp>

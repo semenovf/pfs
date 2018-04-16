@@ -1,6 +1,4 @@
-#ifndef __PFS_TYPE_TRAITS_HPP__
-#define __PFS_TYPE_TRAITS_HPP__
-
+#pragma once
 #include <pfs/cxxversion.hpp>
 #include PFS_CXX_HEADER(type_traits)
 
@@ -19,6 +17,3 @@ struct if_else<false, T1, T2>
 };
 
 }
-
-
-#endif /* __PFS_TYPE_TRAITS_HPP__ */

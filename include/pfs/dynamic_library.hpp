@@ -1,9 +1,4 @@
-#ifndef __PFS_DYNAMIC_LIBRARY_HPP__
-#define __PFS_DYNAMIC_LIBRARY_HPP__
-
-// see http://en.wikipedia.org/wiki/Dynamic_loading
-// [Dynamically Loaded C++ Objects](http://www.drdobbs.com/dynamically-loaded-c-objects/184401900?pgno=1)
-
+#pragma once
 #include <pfs/cxxlang.hpp>
 #include <pfs/compiler.hpp>
 #include <pfs/memory.hpp>
@@ -16,6 +11,9 @@
 #else
 #	include <dlfcn.h>
 #endif
+
+// see http://en.wikipedia.org/wiki/Dynamic_loading
+// [Dynamically Loaded C++ Objects](http://www.drdobbs.com/dynamically-loaded-c-objects/184401900?pgno=1)
 
 namespace pfs {
 

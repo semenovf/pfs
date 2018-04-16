@@ -1,6 +1,4 @@
-#ifndef __PFS_NET_INET_INTERFACE_HPP__
-#define __PFS_NET_INET_INTERFACE_HPP__
-
+#pragma once
 #include <pfs/config.h>
 
 #if HAVE_IF_NAMEINDEX
@@ -96,5 +94,3 @@ bool inet_interface::inet4_addrs (Container<inet4_addr> & c, error_code & ec)
 }
 
 }} // pfs::net
-
-#endif // __PFS_NET_INET_INTERFACE_HPP__

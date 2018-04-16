@@ -1,6 +1,4 @@
-#ifndef __PFS_LIMITS_HPP__
-#define __PFS_LIMITS_HPP__
-
+#pragma once
 #include <pfs/assert.hpp>
 #include <pfs/types.hpp>
 #include <pfs/cxxversion.hpp>
@@ -29,6 +27,3 @@ inline T1 integral_cast_check (T2 x)
 }
 
 } // pfs
-
-#endif /* __PFS_LIMITS_HPP__ */
-

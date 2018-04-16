@@ -1,5 +1,4 @@
-#ifndef __PFS_BITS_COMPILER_H__
-#define __PFS_BITS_COMPILER_H__
+#pragma once
 
 /*
    The compiler, must be one of: (CWT_CC_x)
@@ -117,6 +116,3 @@
 #   define PFS_DLL_API
 #   define PFS_DLL_TEMPLATE
 #endif
-
-#endif /* __PFS_BITS_COMPILER_H__ */
-

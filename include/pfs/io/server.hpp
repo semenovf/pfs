@@ -1,6 +1,4 @@
-#ifndef __PFS_IO_SERVER_HPP__
-#define __PFS_IO_SERVER_HPP__
-
+#pragma once
 #include <pfs/memory.hpp>
 #include <pfs/io/bits/server.hpp>
 #include <pfs/io/device.hpp>
@@ -136,5 +134,3 @@ template <typename ServerTag>
 server open_server (open_params<ServerTag> const &, error_code & ec);
 
 }} // pfs::io
-
-#endif /* __PFS_IO_SERVER_HPP__ */

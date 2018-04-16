@@ -1,6 +1,4 @@
-#ifndef __PFS_ACTIVE_QUEUE_HPP__
-#define __PFS_ACTIVE_QUEUE_HPP__
-
+#pragma once
 #include <pfs/mutex.hpp>
 #include <pfs/memory.hpp>
 #include <pfs/cxx/cxx98/binder.hpp>
@@ -286,5 +284,3 @@ public:
 };
 
 } // pfs
-
-#endif /* __PFS_ACTIVE_QUEUE_HPP__ */

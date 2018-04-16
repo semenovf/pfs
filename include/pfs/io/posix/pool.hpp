@@ -1,6 +1,4 @@
-#ifndef __PFS_IO_POSIX_POOL_HPP__
-#define __PFS_IO_POSIX_POOL_HPP__
-
+#pragma once
 #include <poll.h>
 #include <cerrno>
 #include <pfs/mutex.hpp>
@@ -313,5 +311,3 @@ struct pool : public bits::pool
 };
 
 }}} // pfs::io::details
-
-#endif

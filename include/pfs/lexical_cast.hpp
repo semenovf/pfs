@@ -1,10 +1,7 @@
-#ifndef __PFS_LEXICAL_CAST_HPP__
-#define __PFS_LEXICAL_CAST_HPP__
-
+#pragma once
 #include <pfs/cxxlang.hpp>
 #include <pfs/type_traits.hpp>
 #include <pfs/ctype.hpp>
-#include <pfs/unicode/unicode_iterator.hpp>
 #include <pfs/lexical_cast/exception.hpp>
 #include <pfs/lexical_cast/strtoint.hpp>
 #include <pfs/lexical_cast/strtoreal.hpp>
@@ -68,6 +65,3 @@ lexical_cast (StringType const & s, typename StringType::value_type decimal_poin
 }
 
 } // pfs
-
-#endif /* __PFS_LEXICAL_CAST_HPP__ */
-

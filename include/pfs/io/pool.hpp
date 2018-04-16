@@ -1,6 +1,4 @@
-#ifndef __PFS_IO_POOL_HPP__
-#define __PFS_IO_POOL_HPP__
-
+#pragma once
 #include <pfs/atomic.hpp>
 #include <pfs/operationsystem.hpp>
 
@@ -558,5 +556,3 @@ private:
 };
 
 }} // pfs::io
-
-#endif /* __PFS_IO_POOL_HPP__ */

@@ -1,5 +1,4 @@
-#ifndef __PFS_BITS_ENDIAN_H__
-#define __PFS_BITS_ENDIAN_H__
+#pragma once
 
 /* Machine byte-order, reuse preprocessor provided macros when available */
 #if defined(__ORDER_BIG_ENDIAN__)
@@ -100,6 +99,3 @@
 #   	error "Unable to determine byte order!"
 #  	endif
 #endif
-
-
-#endif /* __PFS_BITS_ENDIAN_H__ */

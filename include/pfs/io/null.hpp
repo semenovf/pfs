@@ -1,9 +1,8 @@
-#ifndef __PFS_IO_NULL_HPP__
-#define __PFS_IO_NULL_HPP__
-
+#pragma once
 #include <pfs/io/device.hpp>
 
-namespace pfs { namespace io {
+namespace pfs {
+namespace io {
 
 /**
  * @struct pfs::io::null
@@ -33,7 +32,4 @@ struct open_params<null>
 template <>
 device open_device<null> (open_params<null> const & op, error_code & ex);
 
-}}
-
-#endif /* __PFS_IO_NULL_HPP__ */
-
+}} // pfs::io

@@ -1,6 +1,4 @@
-#ifndef __PFS_IO_DEVICE_MANAGER_HPP__
-#define __PFS_IO_DEVICE_MANAGER_HPP__
-
+#pragma once
 #include <ctime>
 #include <pfs/cxxlang.hpp>
 #include <pfs/sigslot.hpp>
@@ -319,5 +317,3 @@ public: // signals
 };
 
 }} // pfs::io
-
-#endif /* __PFS_IO_DEVICE_MANAGER_HPP__ */

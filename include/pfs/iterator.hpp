@@ -1,6 +1,4 @@
-#ifndef __PFS_ITERATOR_HPP__
-#define __PFS_ITERATOR_HPP__
-
+#pragma once
 #include <pfs/exception.hpp>
 #include <pfs/cxxversion.hpp>
 #include PFS_CXX_HEADER(iterator)
@@ -65,6 +63,4 @@ struct safe_input_iterator : basic_safe_iterator<input_iterator_tag, Iter>
 	}
 };
 
-}
-
-#endif /* __PFS_ITERATOR_HPP__ */
+} // pfs

@@ -1,6 +1,4 @@
-#ifndef __PFS_JSON_CAST_HPP__
-#define __PFS_JSON_CAST_HPP__
-
+#pragma once
 #include <pfs/lexical_cast.hpp>
 
 namespace pfs {
@@ -262,5 +260,3 @@ struct cast_traits<typename JsonType::string_type, JsonType>
         , typename JsonType::string_type, JsonType> {};
 
 }}} // pfs::json::details
-
-#endif /* __PFS_JSON_CAST_HPP__ */

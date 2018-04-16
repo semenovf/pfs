@@ -1,5 +1,4 @@
-#ifndef __PFS_CTYPE_HPP__
-#define __PFS_CTYPE_HPP__
+#pragma once
 
 namespace pfs {
 
@@ -52,6 +51,3 @@ inline char to_ascii<char> (char c)
 
 #include <pfs/compiler.hpp>
 #include PFS_CC_HEADER(ctype)
-
-#endif /* __PFS_CTYPE_HPP__ */
-

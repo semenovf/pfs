@@ -1,6 +1,4 @@
-#ifndef __PFS_IO_FILE_HPP__
-#define __PFS_IO_FILE_HPP__
-
+#pragma once
 #include <pfs/filesystem.hpp>
 #include <pfs/io/device.hpp>
 
@@ -66,5 +64,3 @@ template <>
 device open_device<file> (open_params<file> const & op, error_code & ec);
 
 }} // pfs::io
-
-#endif /* __PFS_IO_FILE_HPP__ */

@@ -1,6 +1,4 @@
-#ifndef __PFS_NET_INET4_ADDR_HPP__
-#define __PFS_NET_INET4_ADDR_HPP__
-
+#pragma once
 #include <pfs/utility.hpp>
 #include <pfs/string.hpp>
 #include <pfs/lexical_cast.hpp>
@@ -507,5 +505,3 @@ inline StringType to_string (net::inet4_addr const & addr)
 }
 
 } //pfs
-
-#endif /* __PFS_NET_INET4_ADDR_HPP__ */

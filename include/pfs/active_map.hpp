@@ -1,6 +1,4 @@
-#ifndef __PFS_FUNCTION_MAP_HPP__
-#define __PFS_FUNCTION_MAP_HPP__
-
+#pragma once
 #include <pfs/type_traits.hpp>
 #include <pfs/memory.hpp>
 #include <pfs/mutex.hpp>
@@ -237,6 +235,3 @@ public:
 };
 
 } // pfs
-
-#endif /* __PFS_FUNCTION_MAP_HPP__ */
-

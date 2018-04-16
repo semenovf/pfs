@@ -1,5 +1,4 @@
-#ifndef __PFS_BITS_TYPES_H__
-#define __PFS_BITS_TYPES_H__
+#pragma once
 
 /* @see http://www.ibm.com/developerworks/ru/library/l-port64/
  *
@@ -161,5 +160,3 @@ typedef double real64_t;
 #if !defined(PFS_HAVE_PTRDIFF_T) || !PFS_HAVE_PTRDIFF_T
     typedef ptrdiff_t long int;
 #endif
-
-#endif /* __PFS_BITS_TYPES_H__ */

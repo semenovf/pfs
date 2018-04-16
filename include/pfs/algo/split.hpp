@@ -1,6 +1,4 @@
-#ifndef __PFS_ALGO_SPLIT_HPP__
-#define __PFS_ALGO_SPLIT_HPP__
-
+#pragma once
 #include <pfs/algo/find.hpp>
 
 namespace pfs {
@@ -11,8 +9,8 @@ enum {
 };
 
 // Sequence must provide methods:
-// 		String::push_back(const value_type &) - appends symbol to sequence
-// 		String::empty() - checks for empty
+//      String::push_back(const value_type &) - appends symbol to sequence
+//      String::empty() - checks for empty
 //
 /**
  * @brief Splits into tokens and return token sequence.
@@ -23,12 +21,12 @@ enum {
  */
 template <typename InputIt1, typename InputIt2, typename Sequence>
 Sequence * split (
-		  InputIt1 begin
-		, InputIt1 end
-		, InputIt2 separator_begin
-		, InputIt2 separator_end
-		, bool flag
-		, Sequence * result = 0)
+          InputIt1 begin
+        , InputIt1 end
+        , InputIt2 separator_begin
+        , InputIt2 separator_end
+        , bool flag
+        , Sequence * result = 0)
 {
     typedef typename Sequence::value_type value_type;
     typedef typename Sequence::difference_type difference_type;
@@ -75,5 +73,3 @@ Sequence * split (
 }
 
 } // pfs
-
-#endif /* __PFS_ALGO_SPLIT_HPP__ */

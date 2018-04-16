@@ -1,10 +1,9 @@
-#ifndef __PFS_IO_DEVICE_HPP__
-#define __PFS_IO_DEVICE_HPP__
-
+#pragma once
+#include <pfs/algorithm.hpp>
 #include <pfs/memory.hpp>
-#include <pfs/byte_string.hpp>
 #include <pfs/utility.hpp>
 #include <pfs/io/bits/device.hpp>
+#include <pfs/byte_string.hpp>
 #include <pfs/compiler.hpp>
 
 // TODO Apply support of device types: RandomAccessDevice and StreamDevice
@@ -19,14 +18,14 @@ class device;
 
 class device
 {
-	friend class server;
+    friend class server;
 
 public:
-	typedef bits::device::native_handle_type native_handle_type;
-	typedef bits::device::open_mode_flags    open_mode_flags;
-	typedef bits::device::open_mode_type     open_mode_type;
-	typedef bits::device::context_type       context_type;
-    typedef bits::device::system_string      system_string;
+    typedef bits::device::native_handle_type native_handle_type;
+    typedef bits::device::open_mode_flags    open_mode_flags;
+    typedef bits::device::open_mode_type     open_mode_type;
+    typedef bits::device::context_type       context_type;
+    typedef bits::device::string_type        string_type;
 
 protected:
     shared_ptr<bits::device> _d;
@@ -192,7 +191,7 @@ public:
 		return _d->context();
 	}
 
-    system_string url () const
+    string_type url () const
     {
         return _d->url();
     }
@@ -251,5 +250,3 @@ inline device open_device ()
 }
 
 }} // pfs::io
-
-#endif /* __PFS_IO_DEVICE_HPP__ */

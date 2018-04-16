@@ -1,13 +1,11 @@
-#ifndef __PFS_FILESYSTEM_PATHLIST_HPP__
-#define __PFS_FILESYSTEM_PATHLIST_HPP__
-
-#include <pfs/traits/stdcxx/list.hpp>
+#pragma once
+#include <pfs/list.hpp>
 #include <pfs/filesystem/path.hpp>
 
 namespace pfs {
 namespace filesystem {
 
-class pathlist : public stdcxx::list<path>
+class pathlist : public list
 {
 public:
     static path search_path (path const & p, pathlist const & searchdirs)
@@ -40,6 +38,3 @@ inline path search_path (path const & p, pathlist const & searchdirs)
 }
 
 }} // pfs::filesystem
-
-#endif /* __PFS_FILESYSTEM_PATHLIST_HPP__ */
-

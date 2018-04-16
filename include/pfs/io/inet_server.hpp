@@ -1,6 +1,4 @@
-#ifndef __PFS_IO_INET_SERVER_HPP__
-#define __PFS_IO_INET_SERVER_HPP__
-
+#pragma once
 #include <pfs/io/inet_socket.hpp>
 #include <pfs/io/server.hpp>
 #include <pfs/net/inet4_addr.hpp>
@@ -89,5 +87,3 @@ template <>
 server open_server<udp_server> (open_params<udp_server> const & op, error_code & ec);
 
 }} // pfs::io
-
-#endif /* __PFS_IO_INET_SERVER_HPP__ */

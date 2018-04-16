@@ -1,6 +1,4 @@
-#ifndef __PFS_FSM_TRAITS_HPP__
-#define __PFS_FSM_TRAITS_HPP__
-
+#pragma once
 #include <pfs/utility.hpp>   // pair
 
 namespace pfs { namespace fsm {
@@ -108,5 +106,3 @@ struct match_traits
 };
 
 }} // pfs::fsm
-
-#endif /* __PFS_FSM_TRAITS_HPP__ */

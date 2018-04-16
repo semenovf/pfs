@@ -1,6 +1,4 @@
-#ifndef __PFS_LEXICAL_CAST_EXCEPTION_HPP__
-#define __PFS_LEXICAL_CAST_EXCEPTION_HPP__
-
+#pragma once
 #include <pfs/cxxlang.hpp>
 #include <pfs/system_error.hpp>
 #include <pfs/exception.hpp>
@@ -93,6 +91,3 @@ struct is_error_code_enum<pfs::lexical_cast_errc>
 #endif
 
 } // std
-
-#endif /* __PFS_LEXICAL_CAST_EXCEPTION_HPP__ */
-
