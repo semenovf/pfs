@@ -1,6 +1,7 @@
 #pragma once
 #include <pfs/byte_string.hpp>
 #include <pfs/binary_istream.hpp>
+#include <pfs/io/buffer.hpp>
 
 typedef pfs::byte_string byte_string;
 
@@ -23,32 +24,14 @@ private:
     byte_string::size_type _cursor;
 };
 
-typedef pfs::binary_istream<byte_string_idevice> binary_istream;
-
-void test_binary_istream ()
+template <typename InputDevice>
+void test_binary_istream (InputDevice & dev)
 {
+    typedef pfs::binary_istream<InputDevice> binary_istream;
+    
     ADD_TESTS(11);
 
     pfs::endian order = pfs::endian::network_order();
-    uint8_t bytes[] = {
-          0x01, 0x00
-        , 0x41, 0xDE, 0xAD
-        , 0xDE, 0xAD, 0xBE, 0xEF
-        , 0xDE, 0xAD, 0xBE, 0xEF, 0xAB, 0xAD, 0xBA, 0xBE
-#if PFS_HAVE_INT64
-        , 0xDE, 0xAD, 0xBE, 0xEF, 0xAB, 0xAD, 0xBA, 0xBE
-        , 0xAB, 0xAD, 0xBA, 0xBE, 0xDE, 0xAD, 0xBE, 0xEF
-#endif
-        , 0x4E, 0x9D, 0x3A, 0x75
-
-#if PFS_HAVE_INT64
-        , 0x43, 0xD0, 0xF4, 0x3D, 0x0F, 0x43, 0xD0, 0xF4
-#endif
-    };
-
-    byte_string buffer(bytes, sizeof(bytes)/sizeof(bytes[0]));
-
-    byte_string_idevice dev(buffer);
     binary_istream bis(dev, order);
 
     bool t;
@@ -105,4 +88,31 @@ void test_binary_istream ()
 #if PFS_HAVE_INT64
     TEST_OK(f64 == static_cast<real64_t>(0x43D0F43D0F43D0F4));
 #endif
+}
+
+void test_binary_istream ()
+{
+    uint8_t bytes[] = {
+          0x01, 0x00
+        , 0x41, 0xDE, 0xAD
+        , 0xDE, 0xAD, 0xBE, 0xEF
+        , 0xDE, 0xAD, 0xBE, 0xEF, 0xAB, 0xAD, 0xBA, 0xBE
+#if PFS_HAVE_INT64
+        , 0xDE, 0xAD, 0xBE, 0xEF, 0xAB, 0xAD, 0xBA, 0xBE
+        , 0xAB, 0xAD, 0xBA, 0xBE, 0xDE, 0xAD, 0xBE, 0xEF
+#endif
+        , 0x4E, 0x9D, 0x3A, 0x75
+
+#if PFS_HAVE_INT64
+        , 0x43, 0xD0, 0xF4, 0x3D, 0x0F, 0x43, 0xD0, 0xF4
+#endif
+    };
+
+    byte_string buffer(bytes, sizeof(bytes)/sizeof(bytes[0]));
+
+    byte_string_idevice dev1(buffer);
+    pfs::io::device dev2 = pfs::io::open_device(pfs::io::open_params<pfs::io::buffer>(buffer));
+
+    test_binary_istream<byte_string_idevice>(dev1);
+    test_binary_istream<pfs::io::device>(dev2);
 }

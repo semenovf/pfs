@@ -7,221 +7,221 @@ namespace pfs {
 
 class date
 {
-	intmax_t _jd; // Julian Day;
+    intmax_t _jd; // Julian Day;
 
 public:
-	static const intmax_t NULL_JULIAN_DAY;
-	static const intmax_t MIN_JULIAN_DAY   = -784366681008L; // Date::julianDay(PFS_INT_MIN, 1, 1)
-	static const intmax_t MAX_JULIAN_DAY   = 784354017364L;  // Date::julianDay(PFS_INT_MAX, 12, 31)
+    static const intmax_t NULL_JULIAN_DAY;
+    static const intmax_t MIN_JULIAN_DAY   = -784366681008L; // Date::julianDay(PFS_INT_MIN, 1, 1)
+    static const intmax_t MAX_JULIAN_DAY   = 784354017364L;  // Date::julianDay(PFS_INT_MAX, 12, 31)
     static const intmax_t EPOCH_JULIAN_DAY = 2440588L;       // Date::julianDay(1970, 1, 1)
 
 public:
-	date ()
-		: _jd (NULL_JULIAN_DAY)
-	{}
+    date ()
+        : _jd (NULL_JULIAN_DAY)
+    {}
 
-	date (int year, int month, int day)
-	{
-		set_date(year, month, day);
-	}
+    date (int year, int month, int day)
+    {
+        set_date(year, month, day);
+    }
 
-	bool valid () const
-	{
-		return _jd >= MIN_JULIAN_DAY && _jd <= MAX_JULIAN_DAY;
-	}
+    bool valid () const
+    {
+        return _jd >= MIN_JULIAN_DAY && _jd <= MAX_JULIAN_DAY;
+    }
 
-	date add_days (int ndays) const
-	{
-		return valid() ? from_julian_day(_jd + ndays) : date();
-	}
+    date add_days (int ndays) const
+    {
+        return valid() ? from_julian_day(_jd + ndays) : date();
+    }
 
-	/**
-	 *
-	 * @param nmonths
-	 * @return
-	 */
-	date add_months (int nmonths) const;
+    /**
+        *
+        * @param nmonths
+        * @return
+        */
+    date add_months (int nmonths) const;
 
-	/**
-	 *
-	 * @param nyears
-	 * @return
-	 */
-	date add_years (int nyears) const;
+    /**
+        *
+        * @param nyears
+        * @return
+        */
+    date add_years (int nyears) const;
 
-	/**
-	 *
-	 * @return
-	 */
-	int day_of_week () const;
+    /**
+        *
+        * @return
+        */
+    int day_of_week () const;
 
-	/**
-	 *
-	 * @return
-	 */
-	int day_of_year () const;
+    /**
+        *
+        * @return
+        */
+    int day_of_year () const;
 
-	/**
-	 *
-	 * @return
-	 */
-	int days_in_month () const;
+    /**
+        *
+        * @return
+        */
+    int days_in_month () const;
 
-	/**
-	 *
-	 * @return
-	 */
-	int days_in_year () const;
+    /**
+        *
+        * @return
+        */
+    int days_in_year () const;
 
-	/**
-	 *
-	 * @param d
-	 * @return
-	 */
-	intmax_t days_to (const date & d) const
-	{
-		return valid() && d.valid()
-				? d._jd - _jd
-				: 0;
-	}
+    /**
+        *
+        * @param d
+        * @return
+        */
+    intmax_t days_to (const date & d) const
+    {
+        return valid() && d.valid()
+                ? d._jd - _jd
+                : 0;
+    }
 
-	/**
-	 *
-	 * @param year
-	 * @param month
-	 * @param day
-	 * @return
-	 */
-	bool set_date (int year, int month, int day);
+    /**
+        *
+        * @param year
+        * @param month
+        * @param day
+        * @return
+        */
+    bool set_date (int year, int month, int day);
 
-	/**
-	 *
-	 * @param year
-	 * @param month
-	 * @param day
-	 */
-	void split (int * year, int * month, int * day);
+    /**
+     *
+     * @param year
+     * @param month
+     * @param day
+     */
+    void split (int * year, int * month, int * day);
 
-	/**
-	 *
-	 * @return
-	 */
-	int year () const;
+    /**
+     *
+     * @return
+     */
+    int year () const;
 
-	/**
-	 *
-	 * @return
-	 */
-	int month () const;
+    /**
+     *
+     * @return
+     */
+    int month () const;
 
-	/**
-	 *
-	 * @return
-	 */
-	int day () const;
+    /**
+     *
+     * @return
+     */
+    int day () const;
 
-	/**
-	 *
-	 * @return
-	 */
-	intmax_t julian_day() const
-	{
-		return _jd;
-	}
+    /**
+     *
+     * @return
+     */
+    intmax_t julian_day() const
+    {
+        return _jd;
+    }
 
-	/**
-	 *
-	 * @param other
-	 * @return
-	 */
-	bool operator == ( const date & other ) const
-	{
-		return _jd == other._jd;
-	}
+    /**
+     *
+     * @param other
+     * @return
+     */
+    bool operator == ( const date & other ) const
+    {
+        return _jd == other._jd;
+    }
 
-	bool operator != ( const date & other ) const
-	{
-		return _jd != other._jd;
-	}
+    bool operator != ( const date & other ) const
+    {
+        return _jd != other._jd;
+    }
 
-	bool operator  < ( const date & other ) const
-	{
-		return _jd <  other._jd;
-	}
+    bool operator  < ( const date & other ) const
+    {
+        return _jd <  other._jd;
+    }
 
-	bool operator <= ( const date & other ) const
-	{
-		return _jd <= other._jd;
-	}
+    bool operator <= ( const date & other ) const
+    {
+        return _jd <= other._jd;
+    }
 
-	bool operator > (const date & other) const
-	{
-		return _jd >  other._jd;
-	}
+    bool operator > (const date & other) const
+    {
+        return _jd >  other._jd;
+    }
 
-	bool operator >= (const date & other) const
-	{
-		return _jd >= other._jd;
-	}
+    bool operator >= (const date & other) const
+    {
+        return _jd >= other._jd;
+    }
 
-	/**
-	 *
-	 * @param year
-	 * @param month
-	 * @param day
-	 * @return
-	 */
-	static intmax_t julian_day (int year, int month, int day);
+    /**
+     *
+     * @param year
+     * @param month
+     * @param day
+     * @return
+     */
+    static intmax_t julian_day (int year, int month, int day);
 
-	/**
-	 *
-	 * @param julianDay
-	 * @param yearPtr
-	 * @param monthPtr
-	 * @param dayPtr
-	 */
-	static void from_julian_day (intmax_t julianDay, int * yearPtr, int * monthPtr, int * dayPtr);
+    /**
+     *
+     * @param julianDay
+     * @param yearPtr
+     * @param monthPtr
+     * @param dayPtr
+     */
+    static void from_julian_day (intmax_t julianDay, int * yearPtr, int * monthPtr, int * dayPtr);
 
-	/**
-	 *
-	 * @param julianDay
-	 * @return
-	 */
-	static date from_julian_day (intmax_t julianDay)
-	{
-		date d;
-		if (julianDay >= MIN_JULIAN_DAY && julianDay <= MAX_JULIAN_DAY)
-			d._jd = julianDay;
-		return d;
-	}
+    /**
+     *
+     * @param julianDay
+     * @return
+     */
+    static date from_julian_day (intmax_t julianDay)
+    {
+        date d;
+        if (julianDay >= MIN_JULIAN_DAY && julianDay <= MAX_JULIAN_DAY)
+            d._jd = julianDay;
+        return d;
+    }
 
-	/*
-	 * Algorithm (http://en.wikipedia.org/wiki/Leap_year):
-	 *
-	 * if year is divisible by 400 then
-	 * 		is_leap_year
-	 * else if year is divisible by 100 then
-	 * 		not_leap_year
-	 * else if year is divisible by 4 then
-	 * 		is_leap_year
-	 * else
-	 * 		not_leap_year
-	 */
-	static bool is_leap_year (int year)
-	{
-	    if (year < 1) // There is no year 0 in Gregorian calendar
-	        ++year;
-	    return year % 400 == 0 || (year % 4 == 0 && year % 100 != 0);
-	}
+    /*
+     * Algorithm (http://en.wikipedia.org/wiki/Leap_year):
+     *
+     * if year is divisible by 400 then
+     *      is_leap_year
+     * else if year is divisible by 100 then 
+     *      not_leap_year
+     * else if year is divisible by 4 then 
+     *      is_leap_year
+     * else 
+     *      not_leap_year
+     */
+    static bool is_leap_year (int year)
+    {
+        if (year < 1) // There is no year 0 in Gregorian calendar
+            ++year;
+        return year % 400 == 0 || (year % 4 == 0 && year % 100 != 0);
+    }
 
-	/**
-	 *
-	 * @param year
-	 * @param month
-	 * @param day
-	 * @return
-	 */
-	static bool valid (int year, int month, int day);
+    /**
+     *
+     * @param year
+     * @param month
+     * @param day
+     * @return
+     */
+    static bool valid (int year, int month, int day);
 };
 
 
@@ -231,29 +231,29 @@ namespace date {
 template <typename StringT>
 inline void append_prefixed2 (StringT & s, typename StringT::value_type fill_char, int i2)
 {
-	if (i2 >= 0 && i2 < 10) s.push_back(fill_char);
-	s.append(to_string<StringT>(i2));
+    if (i2 >= 0 && i2 < 10) s.push_back(fill_char);
+    s.append(to_string<StringT>(i2));
 }
 
 template <typename StringT>
 inline void append_prefixed3 (StringT & s, typename StringT::value_type fill_char, int i3)
 {
-	if (i3 >= 0) {
-		if (i3 < 100) s.push_back(fill_char);
-		if (i3 < 10) s.push_back(fill_char);
-	}
-	s.append(to_string<StringT>(i3));
+    if (i3 >= 0) {
+        if (i3 < 100) s.push_back(fill_char);
+        if (i3 < 10) s.push_back(fill_char);
+    }
+    s.append(to_string<StringT>(i3));
 }
 
 template <typename StringT>
 inline void append_prefixed4 (StringT & s, typename StringT::value_type fill_char, int i4)
 {
-	if (i4 >= 0) {
-		if (i4 < 1000) s.push_back(fill_char);
-		if (i4 < 100) s.push_back(fill_char);
-		if (i4 < 10) s.push_back(fill_char);
-	}
-	s.append(to_string<StringT>(i4));
+    if (i4 >= 0) {
+        if (i4 < 1000) s.push_back(fill_char);
+        if (i4 < 100) s.push_back(fill_char);
+        if (i4 < 10) s.push_back(fill_char);
+    }
+    s.append(to_string<StringT>(i4));
 }
 
 }} // details::date
@@ -285,80 +285,80 @@ inline void append_prefixed4 (StringT & s, typename StringT::value_type fill_cha
 template <typename StringT>
 StringT to_string (date const & d, StringT const & format)
 {
-	if (d.year() < 0 || d.year() > 9999)
-		return StringT();
+    if (d.year() < 0 || d.year() > 9999)
+        return StringT();
 
-	// std::basic_stringstream<typename string::value_type> ss;
-	StringT r;
+    // std::basic_stringstream<typename string::value_type> ss;
+    StringT r;
 
-	typename StringT::const_iterator p = format.cbegin();
-	typename StringT::const_iterator end = format.cend();
+    typename StringT::const_iterator p = format.cbegin();
+    typename StringT::const_iterator end = format.cend();
 
-	bool need_spec = false; // true if conversion specifier character expected
+    bool need_spec = false; // true if conversion specifier character expected
 
-	while (p < end) {
-		if (*p == '%') {
-			if (need_spec) {
-				r.push_back('%');
-				need_spec = false;
-			} else {
-				need_spec = true;
-			}
-		} else {
-			if (!need_spec) {
-				r.push_back(*p);
-			} else {
-				switch (to_ascii(*p)) {
-				case 'n':
-					r.push_back('\n');
-					break;
-				case 't':
-					r.push_back('\t');
-					break;
-				case 'C':
-					details::date::append_prefixed2(r, '0', d.year()/100);
-					break;
-				case 'd':
-					details::date::append_prefixed2(r, '0', d.day());
-					break;
-				case 'e':
-					details::date::append_prefixed2(r, ' ', d.day());
-					break;
-				case 'F':
-					details::date::append_prefixed4(r, '0', d.year());
-					r.push_back('-');
-					details::date::append_prefixed2(r, '0', d.month());
-					r.push_back('-');
-					details::date::append_prefixed2(r, '0', d.day());
-					break;
-				case 'j':
-					details::date::append_prefixed3(r, '0', d.day_of_year());
-					break;
-				case 'm':
-					details::date::append_prefixed2(r, '0', d.month());
-					break;
-				case 'u':
-					r.append(to_string<StringT>(d.day_of_week()));
-					break;
-				case 'y':
-					details::date::append_prefixed2(r, '0', d.year() % 100);
-					break;
-				case 'Y':
-					details::date::append_prefixed4(r, '0', d.year());
-					break;
-				default:
-					r.push_back('%');
-					r.push_back(*p);
-					break;
-				}
+    while (p < end) {
+        if (*p == '%') {
+            if (need_spec) {
+                r.push_back('%');
+                need_spec = false;
+            } else {
+                need_spec = true;
+            }
+        } else {
+            if (!need_spec) {
+                r.push_back(*p);
+            } else {
+                switch (to_ascii(*p)) {
+                case 'n':
+                    r.push_back('\n');
+                    break;
+                case 't':
+                    r.push_back('\t');
+                    break;
+                case 'C':
+                    details::date::append_prefixed2(r, '0', d.year()/100);
+                    break;
+                case 'd':
+                    details::date::append_prefixed2(r, '0', d.day());
+                    break;
+                case 'e':
+                    details::date::append_prefixed2(r, ' ', d.day());
+                    break;
+                case 'F':
+                    details::date::append_prefixed4(r, '0', d.year());
+                    r.push_back('-');
+                    details::date::append_prefixed2(r, '0', d.month());
+                    r.push_back('-');
+                    details::date::append_prefixed2(r, '0', d.day());
+                    break;
+                case 'j':
+                    details::date::append_prefixed3(r, '0', d.day_of_year());
+                    break;
+                case 'm':
+                    details::date::append_prefixed2(r, '0', d.month());
+                    break;
+                case 'u':
+                    r.append(to_string<StringT>(d.day_of_week()));
+                    break;
+                case 'y':
+                    details::date::append_prefixed2(r, '0', d.year() % 100);
+                    break;
+                case 'Y':
+                    details::date::append_prefixed4(r, '0', d.year());
+                    break;
+                default:
+                    r.push_back('%');
+                    r.push_back(*p);
+                    break;
+                }
 
-				need_spec = false;
-			}
-		}
-		++p;
-	}
+                need_spec = false;
+            }
+        }
+        ++p;
+    }
 
-	return r;    
+    return r;    
 }
 
 /**
@@ -374,7 +374,7 @@ StringT to_string (date const & d, StringT const & format)
 template <typename StringT>
 inline StringT to_string (date const & d)
 {
-	return to_string<StringT>(d, StringT("%F")); // equivalent to %H:%M:%S
+    return to_string<StringT>(d, StringT("%F")); // equivalent to %H:%M:%S
 }
 
 pfs::date current_date ();

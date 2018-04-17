@@ -98,7 +98,7 @@ ssize_t buffer::write (byte_t const * bytes, size_t n)
     size_t size = _buffer.size() - _pos;
 
     if (size < n)
-        _buffer.resize(_buffer.size() + n - size);
+        _buffer.reserve(_buffer.size() + n - size);
 
     _buffer.append(bytes, n);
 

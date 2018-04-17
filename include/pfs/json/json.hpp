@@ -1,13 +1,12 @@
 #pragma once
 #include <cstring>
 #include <pfs/assert.hpp>
+#include <pfs/compare.hpp>
 #include <pfs/utility.hpp>
 #include <pfs/memory.hpp>
 #include <pfs/string.hpp>
-#include <pfs/byte_string.hpp>
-#include <pfs/byte_istream.hpp>
-#include <pfs/traits/associative_container.hpp>
-#include <pfs/traits/sequence_container.hpp>
+#include <pfs/map.hpp>
+#include <pfs/vector.hpp>
 #include <pfs/json/constants.hpp>
 #include <pfs/json/iterator.hpp>
 #include <pfs/json/exception.hpp>
@@ -17,55 +16,40 @@
 namespace pfs {
 namespace json {
 
-template <typename BoolType
-        , typename IntType
-        , typename RealType
-        , typename StringType
-        , template <typename> class SequenceContainerImplType
-        , template <typename> class AssociativeContainerImplType>
-struct traits
-{
-    typedef ptrdiff_t difference_type;
-    typedef size_t    size_type;
+#define PFS_JSON_TEMPLETE_SIGNATURE typename BoolT                             \
+    , typename IntT                                                            \
+    , typename RealT                                                           \
+    , typename StringT                                                         \
+    , template <typename> class SequenceContainer                              \
+    , template <typename, typename> class AssociativeContainer
 
-    typedef StringType                            string_type;
-    typedef BoolType                              boolean_type;
-    typedef IntType                               integer_type;
-    typedef typename make_unsigned<IntType>::type uinteger_type;
-    typedef RealType                              real_type;
+#define PFS_JSON_TEMPLETE_ARGS BoolT                                           \
+    , IntT                                                                     \
+    , RealT                                                                    \
+    , StringT                                                                  \
+    , SequenceContainer                                                        \
+    , AssociativeContainer
 
-    template <typename T>
-    struct array
-    {
-        typedef pfs::traits::sequence_container<T
-                , SequenceContainerImplType> type;
-    };
-
-    template <typename T>
-    struct object
-    {
-        typedef pfs::traits::associative_container<
-              pfs::traits::kv<string_type, T>
-            , AssociativeContainerImplType> type;
-
-        typedef typename type::key_type key_type;
-    };
-};
-
-template <typename Traits>
+template <typename BoolT = bool
+        , typename IntT = intmax_t
+        , typename RealT = double
+        , typename StringT = pfs::string
+        , template <typename> class SequenceContainer = pfs::vector
+        , template <typename, typename> class AssociativeContainer = pfs::map>
 class json
 {
 public:
-    typedef typename Traits::difference_type                 difference_type;
-    typedef typename Traits::size_type                       size_type;
-    typedef typename Traits::string_type                     string_type;
-    typedef typename Traits::boolean_type                    boolean_type;
-    typedef typename Traits::integer_type                    integer_type;
-    typedef typename Traits::uinteger_type                   uinteger_type;
-    typedef typename Traits::real_type                       real_type;
-    typedef typename Traits::template array<json>::type      array_type;
-    typedef typename Traits::template object<json>::type     object_type;
-    typedef typename Traits::template object<json>::key_type key_type;
+    typedef ptrdiff_t difference_type;
+    typedef size_t    size_type;
+    typedef StringT   string_type;
+    typedef BoolT     boolean_type;
+    typedef IntT      integer_type;
+    typedef RealT     real_type;
+    typedef typename make_unsigned<IntT>::type uinteger_type;
+
+    typedef SequenceContainer<json>                 array_type;
+    typedef AssociativeContainer<string_type, json> object_type;
+    typedef typename object_type::key_type          key_type;
 
     struct value_rep
     {
@@ -842,8 +826,9 @@ public:
     string_type to_string () const;
 };
 
-template <typename Traits>
-json<Traits> & json<Traits>::assign (json const & other)
+template <PFS_JSON_TEMPLETE_SIGNATURE>
+json<PFS_JSON_TEMPLETE_ARGS> & 
+json<PFS_JSON_TEMPLETE_ARGS>::assign (json const & other)
 {
     this->~json();
 
@@ -880,235 +865,9 @@ json<Traits> & json<Traits>::assign (json const & other)
     return *this;
 }
 
-template <typename Traits>
-bool operator == (json<Traits> const & lhs, json<Traits> const & rhs)
-{
-    if (& lhs == & rhs)
-        return true;
-
-    if (lhs.type() != rhs.type())
-        return false;
-
-    switch (lhs.type()) {
-    case data_type::null:
-        break;
-
-    case data_type::boolean:
-        if (lhs._d.boolean != rhs._d.boolean)
-            return false;
-        break;
-
-    case data_type::integer:
-        if (lhs._d.integer != rhs._d.integer)
-            return false;
-        break;
-
-    case data_type::real:
-        if (lhs._d.real != rhs._d.real)
-            return false;
-        break;
-
-    case data_type::string: {
-        if (*lhs._d.string != *rhs._d.string)
-            return false;
-        break;
-    }
-
-    case data_type::array: {
-        if (lhs._d.array->size() != rhs._d.array->size())
-            return false;
-
-        typename json<Traits>::const_iterator itl  = lhs.cbegin();
-        typename json<Traits>::const_iterator last = lhs.cend();
-        typename json<Traits>::const_iterator itr  = rhs.cbegin();
-
-        for (; itl != last; ++itl, ++itr)
-            if (*itl != *itr)
-                return false;
-
-        break;
-    }
-
-    case data_type::object: {
-        if (lhs._d.object->size() != rhs._d.object->size())
-            return false;
-
-        typename json<Traits>::const_iterator itl  = lhs.cbegin();
-        typename json<Traits>::const_iterator last = lhs.cend();
-        typename json<Traits>::const_iterator itr  = rhs.cbegin();
-
-        for (; itl != last; ++itl, ++itr) {
-            if (itl.key() != itr.key())
-                return false;
-
-            if (*itl != *itr)
-                return false;
-        }
-
-        break;
-    }}
-
-    return true;
-}
-
-template <typename Traits>
-inline bool operator != (json<Traits> const & lhs, json<Traits> const & rhs)
-{
-    return !(lhs == rhs);
-}
-
-
-// TODO Obsolete. Use pfs::json::xxx_archive.
-//
-// TODO Need to be portable.
-// Provide serialization of scalar type sizes too with scalar values
-//
-template <typename Traits>
-pfs::byte_ostream & operator << (pfs::byte_ostream & os, json<Traits> const & v)
-{
-    // Type
-    os << static_cast<byte_t>(v.type());
-
-    switch (v.type()) {
-    case data_type::null:
-        break;
-
-    case data_type::boolean:
-        os << v.template get<typename json<Traits>::boolean_type>();
-        break;
-
-    case data_type::integer:
-        os << v.template get<typename json<Traits>::integer_type>();
-        break;
-
-    case data_type::real:
-        os << v.template get<typename json<Traits>::real_type>();
-        break;
-
-    case data_type::string: {
-        byte_string u8 = u8string<byte_string>(v.template get<typename json<Traits>::string_type>());
-        os << byte_string_ref_n<4>(& u8);
-        break;
-    }
-
-    case data_type::array: {
-        typename json<Traits>::const_iterator it = v.cbegin();
-        typename json<Traits>::const_iterator it_end = v.cend();
-
-        os << static_cast<uint32_t>(v.size());
-
-        for (; it != it_end; ++it)
-            os << *it;
-
-        break;
-    }
-
-    case data_type::object: {
-        typename json<Traits>::const_iterator it = v.cbegin();
-        typename json<Traits>::const_iterator it_end = v.cend();
-
-        os << static_cast<uint32_t>(v.size());
-
-        for (; it != it_end; ++it) {
-            byte_string key = u8string<byte_string>(it.key());
-            os << byte_string_ref_n<4>(& key) << *it;
-        }
-
-        break;
-    }}
-
-    return os;
-}
-
-template <typename Traits>
-pfs::byte_istream & operator >> (pfs::byte_istream & is, json<Traits> & v)
-{
-    byte_t type = 0;
-
-    is >> type;
-
-    switch (type) {
-    case static_cast<int>(data_type::null):
-        v = json<Traits>();
-        break;
-
-    case static_cast<int>(data_type::boolean): {
-        bool b;
-        is >> b;
-        v = json<Traits>(b);
-        break;
-    }
-
-    case static_cast<int>(data_type::integer): {
-        typename json<Traits>::integer_type d;
-        is >> d;
-        v = json<Traits>(d);
-        break;
-    }
-
-    case static_cast<int>(data_type::real): {
-        typename json<Traits>::real_type f;
-        is >> f;
-        v = json<Traits>(f);
-        break;
-    }
-
-    case static_cast<int>(data_type::string): {
-        byte_string u8;
-        is >> byte_string_ref_n<4>(& u8);
-        v = json<Traits>(typename json<Traits>::string_type(u8.c_str()));
-        break;
-    }
-
-    case static_cast<int>(data_type::array):
-    {
-        uint32_t n = 0;
-
-        is >> n;
-
-        if (n == 0) {
-            v = json<Traits>::make_array();
-        } else {
-            for (size_t i = 0; i < n; ++i) {
-                json<Traits> j;
-                is >> j;
-                v[i] = j;
-            }
-        }
-
-        break;
-    }
-
-    case static_cast<int>(data_type::object):
-    {
-        uint32_t n = 0;
-
-        is >> n;
-
-        if (n == 0) {
-            v = json<Traits>::make_object();
-        } else {
-            for (size_t i = 0; i < n; ++i) {
-                byte_string u8;
-                json<Traits> j;
-                is >> byte_string_ref_n<4>(& u8) >> j;
-
-                v[typename json<Traits>::string_type(u8.c_str())] = j;
-            }
-        }
-
-        break;
-    }
-
-    default:
-        throw json_exception(make_error_code(json_errc::bad_json));
-    }
-
-    return is;
-}
-
-template <typename Traits>
-typename json<Traits>::string_type json<Traits>::to_string () const
+template <PFS_JSON_TEMPLETE_SIGNATURE>
+typename json<PFS_JSON_TEMPLETE_ARGS>::string_type 
+json<PFS_JSON_TEMPLETE_ARGS>::to_string () const
 {
     switch (type()) {
     case data_type::null:
@@ -1130,7 +889,6 @@ typename json<Traits>::string_type json<Traits>::to_string () const
         r.append(1, '"');
         return r;
     }
-
 
     case data_type::array: {
         string_type r;
@@ -1181,6 +939,80 @@ typename json<Traits>::string_type json<Traits>::to_string () const
     }}
 
     return string_type();
+}
+
+template <PFS_JSON_TEMPLETE_SIGNATURE>
+bool operator == (json<PFS_JSON_TEMPLETE_ARGS> const & lhs
+        , json<PFS_JSON_TEMPLETE_ARGS> const & rhs)
+{
+    typedef json<PFS_JSON_TEMPLETE_ARGS> json_type;
+    
+    if (& lhs == & rhs)
+        return true;
+
+    if (lhs.type() != rhs.type())
+        return false;
+
+    switch (lhs.type()) {
+    case data_type::null:
+        break;
+
+    case data_type::boolean:
+        if (lhs._d.boolean != rhs._d.boolean)
+            return false;
+        break;
+
+    case data_type::integer:
+        if (lhs._d.integer != rhs._d.integer)
+            return false;
+        break;
+
+    case data_type::real:
+        if (lhs._d.real != rhs._d.real)
+            return false;
+        break;
+
+    case data_type::string: {
+        if (*lhs._d.string != *rhs._d.string)
+            return false;
+        break;
+    }
+
+    case data_type::array: {
+        if (lhs._d.array->size() != rhs._d.array->size())
+            return false;
+
+        typename json_type::const_iterator itl  = lhs.cbegin();
+        typename json_type::const_iterator last = lhs.cend();
+        typename json_type::const_iterator itr  = rhs.cbegin();
+
+        for (; itl != last; ++itl, ++itr)
+            if (*itl != *itr)
+                return false;
+
+        break;
+    }
+
+    case data_type::object: {
+        if (lhs._d.object->size() != rhs._d.object->size())
+            return false;
+
+        typename json_type::const_iterator itl  = lhs.cbegin();
+        typename json_type::const_iterator last = lhs.cend();
+        typename json_type::const_iterator itr  = rhs.cbegin();
+
+        for (; itl != last; ++itl, ++itr) {
+            if (itl.key() != itr.key())
+                return false;
+
+            if (*itl != *itr)
+                return false;
+        }
+
+        break;
+    }}
+
+    return true;
 }
 
 template <typename JsonType>
@@ -1312,6 +1144,7 @@ public:
     // For avoid ambiguous overload of operator[] with `0` value
     reference_wrapper operator [] (int index) const
     {
+        PFS_ASSERT(index >= 0);
         return operator [] (size_type(index));
     }
 
@@ -1343,29 +1176,15 @@ public:
     }
 };
 
-//template <typename JsonType>
-//reference_wrapper<JsonType const> reference_wrapper<JsonType const>::operator [] (key_type const & key) const
-//{
-//    if (_p) {
-//        typename JsonType::const_iterator it = _p->find(key);
-//
-//        if (it != _p->end())
-//            return reference_wrapper(*it);
-//    }
-//    return reference_wrapper();
-//}
-
+// template <typename JsonT, typename T>
+// JsonT to_json (T const & v, bool plain = false);
 
 }} // pfs::json
 
 namespace pfs {
 
-template <typename JsonType, typename T>
-JsonType to_json (T const & v, bool plain = false);
-
-template <typename StringType, typename JsonTraits>
-typename enable_if<is_same<StringType, typename json::json<JsonTraits>::string_type>::value, StringType>::type
-to_string (json::json<JsonTraits> const & v)
+template <PFS_JSON_TEMPLETE_SIGNATURE>
+pfs::string to_string (json::json<PFS_JSON_TEMPLETE_ARGS> const & v)
 {
     return v.to_string();
 }

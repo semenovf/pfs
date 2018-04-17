@@ -1,6 +1,4 @@
-#ifndef __PFS_UNICODE_CHAR_HPP__
-#define __PFS_UNICODE_CHAR_HPP__
-
+#pragma once
 #include <pfs/types.hpp>
 #include <pfs/ctype.hpp>
 
@@ -222,6 +220,3 @@ inline char to_ascii<unicode::char_t> (unicode::char_t c)
 }
 
 } // pfs
-
-#endif /* __PFS_UNICODE_CHAR_HPP__ */
-

@@ -1,6 +1,7 @@
 #pragma once
 #include <pfs/byte_string.hpp>
 #include <pfs/binary_ostream.hpp>
+#include <pfs/io/buffer.hpp>
 
 typedef pfs::byte_string byte_string;
 
@@ -19,21 +20,20 @@ private:
     byte_string & _buffer;
 };
 
-typedef pfs::binary_ostream<byte_string_odevice> binary_ostream;
-
-void test_binary_ostream ()
+template <typename OutputDevice>
+void test_binary_ostream (OutputDevice & dev, byte_string & buffer)
 {
+    typedef pfs::binary_ostream<OutputDevice> binary_ostream;
+    
     ADD_TESTS(21);
 
     pfs::endian order = pfs::endian::network_order();
-    byte_string buffer;
-    byte_string_odevice dev(buffer);
     binary_ostream bos(dev, order);
 
     int i = 0;
 
-    bos << bool(true)
-        << bool(false);
+    bos << bool(true);
+    bos << bool(false);
 
     TEST_OK(buffer[i++] == 1);
     TEST_OK(buffer[i++] == 0);
@@ -112,4 +112,16 @@ void test_binary_ostream ()
     TEST_OK(buffer[i++] == 0xD0);
     TEST_OK(buffer[i++] == 0xF4);
 #endif
+}
+
+void test_binary_ostream ()
+{
+    byte_string buffer1;
+    byte_string buffer2;
+    
+    byte_string_odevice dev1(buffer1);
+    pfs::io::device dev2 = pfs::io::open_device(pfs::io::open_params<pfs::io::buffer>(buffer2));
+
+    //test_binary_ostream<byte_string_odevice>(dev1, buffer1);
+    test_binary_ostream<pfs::io::device>(dev2, buffer2);
 }

@@ -1,4 +1,5 @@
 #pragma once
+#include <pfs/assert.hpp>
 #include <pfs/exception.hpp>
 #include <pfs/memory.hpp>
 #include <pfs/type_traits.hpp>
@@ -163,7 +164,7 @@ StringType to_string (typename pfs::enable_if<pfs::is_unsigned<UintType>::value,
             , buf
             , sizeof(buf)/sizeof(buf[0]));
 
-    return StringType(str, StringType::npos);
+    return StringType(str);
 }
 
 template <typename IntType, typename StringType>
@@ -180,7 +181,7 @@ StringType to_string (typename enable_if<is_signed<IntType>::value, IntType>::ty
             , buf
             , sizeof(buf)/sizeof(buf[0]));
 
-    return StringType(str, StringType::npos);
+    return StringType(str);
 }
 
 }} // details::integral

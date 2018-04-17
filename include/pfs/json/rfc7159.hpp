@@ -2,8 +2,8 @@
 #include <pfs/fsm/fsm.hpp>
 #include <pfs/lexical_cast.hpp>
 #include <pfs/stack.hpp>
-#include <pfs/traits/stdcxx/stack.hpp>
 #include <pfs/json/constants.hpp>
+#include <pfs/unicode/char.hpp>
 #include "exception.hpp"
 
 namespace pfs {
@@ -153,15 +153,15 @@ struct sax_context
     virtual bool on_string_value   (sequence_type const &, sequence_type const &) = 0;
 };
 
-template <typename JsonType, template <typename> class StackImplType = stdcxx::stack>
+template <typename JsonType>
 struct dom_builder_context : sax_context<JsonType>
 {
-    typedef JsonType                                       json_type;
-    typedef typename json_type::string_type                string_type;
-    typedef sax_context<json_type>                         base_class;
+    typedef JsonType                        json_type;
+    typedef typename json_type::string_type string_type;
+    typedef sax_context<json_type>          base_class;
+    typedef pfs::stack<json_type *>         stack_type;
     typedef typename sax_context<json_type>::sequence_type sequence_type;
-    typedef pfs::stack<json_type *, StackImplType>         stack_type;
-
+    
     bool is_begin;
     stack_type s;
 
@@ -346,7 +346,7 @@ struct dom_builder_context : sax_context<JsonType>
     }
 };
 
-template <typename JsonType, template <typename> class StackImplType = stdcxx::stack>
+template <typename JsonType>
 struct grammar
 {
     typedef typename JsonType::string_type         string_type;
@@ -365,12 +365,12 @@ struct grammar
 
     struct parse_context
     {
-        string_type                            member_name;
-        number_context                         number_ctx;
-        pfs::stack<string_type, StackImplType> objects;
-        pfs::stack<string_type, StackImplType> arrays;
-        sax_context<JsonType> *                sax;
-        error_code                             ec;
+        string_type             member_name;
+        number_context          number_ctx;
+        pfs::stack<string_type> objects;
+        pfs::stack<string_type> arrays;
+        sax_context<JsonType> * sax;
+        error_code              ec;
     };
 
     grammar ();
@@ -665,8 +665,8 @@ struct grammar
     transition_type const * p_json_tr;
 };
 
-template <typename ValueT, template <typename> class StackT>
-grammar<ValueT, StackT>::grammar ()
+template <typename ValueT>
+grammar<ValueT>::grammar ()
 {
     static string_type const E("eE");
     static string_type const MINUSPLUS("-+");

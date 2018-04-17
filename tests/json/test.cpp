@@ -1,14 +1,14 @@
 #include <pfs/test.hpp>
 #include <pfs/json/json.hpp>
-#include <pfs/traits/stdcxx/string.hpp>
-#include <pfs/traits/stdcxx/vector.hpp>
-#include <pfs/traits/stdcxx/map.hpp>
+#include <pfs/string.hpp>
+#include <pfs/vector.hpp>
+#include <pfs/map.hpp>
 
-#ifdef HAVE_QT_CORE
-#   include <pfs/traits/qt/string.hpp>
-#   include <pfs/traits/qt/vector.hpp>
-#   include <pfs/traits/qt/map.hpp>
-#endif
+// #ifdef HAVE_QT_CORE
+// #   include <pfs/traits/qt/string.hpp>
+// #   include <pfs/traits/qt/vector.hpp>
+// #   include <pfs/traits/qt/map.hpp>
+// #endif
 
 #include "test_basic.hpp"
 #include "test_iterator.hpp"
@@ -25,37 +25,35 @@
 
 namespace stdcxx {
 
-typedef pfs::string<pfs::stdcxx::string> string_type;
-typedef pfs::json::traits<
+typedef pfs::string string_type;
+typedef pfs::json::json<
           bool
         , intmax_t
         , double
         , string_type
-        , pfs::stdcxx::vector
-        , pfs::stdcxx::map> json_traits;
-
-typedef pfs::json::json<json_traits> json;
+        , pfs::vector
+        , pfs::map> json_t;
 
 } //stdcxx::json
 
-#ifdef HAVE_QT_CORE
-
-namespace qt {
-
-typedef pfs::string<pfs::qt::string> string_type;
-typedef pfs::json::traits<
-          bool
-        , intmax_t
-        , double
-        , string_type
-        , pfs::qt::vector
-        , pfs::qt::map> json_traits;
-
-typedef pfs::json::json<json_traits> json;
-
-} // qt
-
-#endif
+// #ifdef HAVE_QT_CORE
+// 
+// namespace qt {
+// 
+// typedef pfs::string<pfs::qt::string> string_type;
+// typedef pfs::json::traits<
+//           bool
+//         , intmax_t
+//         , double
+//         , string_type
+//         , pfs::qt::vector
+//         , pfs::qt::map> json_traits;
+// 
+// typedef pfs::json::json<json_traits> json;
+// 
+// } // qt
+// 
+// #endif
 
 int main ()
 {
@@ -69,16 +67,16 @@ int main ()
     test_pretty_printer::test<stdcxx::json>();
     test_serialize::test<stdcxx::json>();
 
-#ifdef HAVE_QT_CORE
-    std::cout << "===== HAVE_QT_CORE =====" << std::endl;
-    test_basic::test<qt::json>();
-    test_iterator::test<qt::json>();
-    test_reference_wrapper::test<qt::json>();
-    test_parse::test<qt::json>();
-    test_stringify::test<qt::json>();
-    test_pretty_printer::test<qt::json>();
-    test_serialize::test<qt::json>();
-#endif
+// #ifdef HAVE_QT_CORE
+//     std::cout << "===== HAVE_QT_CORE =====" << std::endl;
+//     test_basic::test<qt::json>();
+//     test_iterator::test<qt::json>();
+//     test_reference_wrapper::test<qt::json>();
+//     test_parse::test<qt::json>();
+//     test_stringify::test<qt::json>();
+//     test_pretty_printer::test<qt::json>();
+//     test_serialize::test<qt::json>();
+// #endif
 
     return END_TESTS;
 }

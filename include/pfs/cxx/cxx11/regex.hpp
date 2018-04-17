@@ -1,6 +1,4 @@
-#ifndef __PFS_CXX11_REGEX_HPP__
-#define __PFS_CXX11_REGEX_HPP__
-
+#pragma once
 #include <regex>
 
 namespace pfs {
@@ -67,9 +65,9 @@ public:
 };
 
 template <typename StringType> 
-class basic_regex : public std::basic_regex<typename StringType::code_unit_type>
+class basic_regex : public std::basic_regex<typename StringType::value_type>
 {
-    typedef std::basic_regex<typename StringType::code_unit_type> base_class;
+    typedef std::basic_regex<typename StringType::value_type> base_class;
     
 public:
     typedef pfs::match_results<typename StringType::const_pointer> match_results;
@@ -135,9 +133,9 @@ public:
        *
        * @throws regex_error if @p __s is not a valid regular expression.
        */
-	explicit basic_regex (StringType const s, flag_type f = base_class::ECMAScript)
+    explicit basic_regex (StringType const s, flag_type f = base_class::ECMAScript)
         : base_class(s.data(), s.data() + s.size(), f)
-	{}
+    {}
 
     /**
      * @brief Constructs a basic regular expression from the range
@@ -152,21 +150,17 @@ public:
      * @throws regex_error if @p [first, last) is not a valid regular
      *         expression.
      */
-	basic_regex (typename StringType::iterator first
+    basic_regex (typename StringType::iterator first
             , typename StringType::iterator last
             , flag_type f = base_class::ECMAScript)
-        : base_class(typename StringType::native_iterator(first)
-            , typename StringType::native_iterator(last)
-            , f)
-	{ }
+        : base_class(first, last, f)
+    {}
 
-	basic_regex (typename StringType::const_iterator first
+    basic_regex (typename StringType::const_iterator first
             , typename StringType::const_iterator last
             , flag_type f = base_class::ECMAScript)
-        : base_class(typename StringType::native_const_iterator(first)
-            , typename StringType::native_const_iterator(last)
-            , f)
-	{ }
+        : base_class(first, last, f)
+    {}
 };
 
 template <typename StringType>
@@ -177,7 +171,7 @@ inline bool regex_match (
         , basic_regex<StringType> & re
         , regex_constants::match_flag_type flags = regex_constants::match_default)
 {
-    return std::regex_match(first.base().base(), last.base().base(), m, re, flags);
+    return std::regex_match(first.base(), last.base(), m, re, flags);
 }
 
 template <typename StringType>
@@ -210,6 +204,3 @@ inline bool regex_match (typename StringType::const_pointer str
 }
 
 } // namespace pfs
-
-#endif /* __PFS_CXX11_REGEX_HPP__ */
-
