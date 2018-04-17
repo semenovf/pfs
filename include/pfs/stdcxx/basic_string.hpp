@@ -408,7 +408,15 @@ public:
         basic_string::insert(index, 1, ch);
         return iterator(this->begin() + index);
 #else
-        return base_class::insert(pos, ch);
+        // While build on Travis CI under Ubuntu 14.04.05 (gcc 4.8) error occured:
+        // --------------------------------------------------------------------------
+        // ...
+        // no matching function for call to ... insert (const_iterator pos, CharT ch)
+        // ...
+        // --------------------------------------------------------------------------
+        // But under Ubuntu 16.04 (gcc ?) and 17.10 (gcc 7.2.0) build is successfull.
+        // So call another method:
+        return base_class::insert(pos, 1, ch);
 #endif
     }
 
