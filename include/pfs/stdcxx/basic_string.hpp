@@ -2,6 +2,7 @@
 #include <cstring>
 #include <string>
 #include <pfs/type_traits.hpp>
+#include <pfs/compiler.hpp>
 
 namespace pfs {
 namespace stdcxx {
@@ -391,8 +392,6 @@ public:
         return *static_cast<DerivedT *>(this);
     }
 
-    /**
-     */
     //
     // http://en.cppreference.com/w/cpp/string/basic_string/insert
     // says
@@ -401,26 +400,10 @@ public:
     //      iterator insert (iterator pos, CharT ch ); (since C++11)
     // so need checks with various versions of standard C++ library
     //
-    inline iterator insert (const_iterator pos, CharT ch)
-    {
-#if __cplusplus < 201103L
-        size_type index = std::distance(cbegin(), pos);
-        basic_string::insert(index, 1, ch);
-        return iterator(this->begin() + index);
-#else
-        // While build on Travis CI under Ubuntu 14.04.05 (gcc 4.8) error occured:
-        // --------------------------------------------------------------------------
-        // ...
-        // no matching function for call to ... insert (const_iterator pos, CharT ch)
-        // ...
-        // --------------------------------------------------------------------------
-        // But under Ubuntu 16.04 (gcc ?) and 17.10 (gcc 7.2.0) build is successfull.
-        // So call another method:
-        return base_class::insert(pos, 1, ch);
-#endif
-    }
 
-#if __cplusplus < 201103L
+#if __cplusplus < 201103L \
+            || PFS_CC_GCC_VERSION <= 40900 // TODO Check for valid version
+
     inline iterator insert (const_iterator pos, size_type count, CharT ch)
     {
         size_type index = std::distance(cbegin(), pos);
@@ -434,7 +417,14 @@ public:
     }
 #endif
 
-#if __cplusplus < 201103L
+    inline iterator insert (const_iterator pos, CharT ch)
+    {
+        return this->insert(pos, 1, ch);
+    }
+
+#if __cplusplus < 201103L \
+            || PFS_CC_GCC_VERSION <= 40900 // TODO Check for valid version
+
     template <typename InputIt>
     inline iterator insert (const_iterator pos, InputIt first, InputIt last)
     {
