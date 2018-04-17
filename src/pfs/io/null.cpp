@@ -1,4 +1,6 @@
-#include <pfs/io/null.hpp>
+#include "pfs/limits.hpp"
+#include "pfs/io/null.hpp"
+
 
 namespace pfs { namespace io { namespace details {
 
@@ -48,7 +50,7 @@ struct null : public bits::device
     {
         return true;
     }
-    
+
     virtual bool set_nonblocking (bool) pfs_override
     {
     	return true;
@@ -63,10 +65,10 @@ struct null : public bits::device
     {
     	return device_null;
     }
-    
-    virtual system_string url () const pfs_override
+
+    virtual string url () const pfs_override
     {
-        return system_string("null");
+        return string("null");
     }
 };
 

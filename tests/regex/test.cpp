@@ -1,9 +1,9 @@
 #include <pfs/test.hpp>
 #include <pfs/string.hpp>
-#include <pfs/traits/stdcxx/string.hpp>
+#include <pfs/string.hpp>
 #include "test_regex_match.hpp"
 
-typedef pfs::string<pfs::stdcxx::string> string_type;
+typedef pfs::string string_type;
 
 int main ()
 {

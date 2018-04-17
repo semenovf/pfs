@@ -18,13 +18,11 @@ set(PFS_LIB_COMMON_SOURCES
     double_to_cstr.cpp
     dynamic_library.cpp
     endian.cpp
-    filesystem.cpp
     json.cpp
     lexical_cast.cpp
     string.cpp
     system_error.cpp
     time.cpp
-    u8string.cpp
 
 #   Db
     db/exception.cpp
@@ -36,7 +34,6 @@ set(PFS_LIB_COMMON_SOURCES
     io/device.cpp
     io/exception.cpp
     io/file.cpp
-    io/inet4_addr.cpp
     io/null.cpp
     io/server.cpp
 )

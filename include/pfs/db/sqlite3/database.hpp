@@ -1,6 +1,4 @@
-#ifndef __PFS_DB_SQLITE3_DATABASE_HPP__
-#define __PFS_DB_SQLITE3_DATABASE_HPP__
-
+#pragma once
 #include <pfs/system_error.hpp>
 #include <pfs/net/uri.hpp>
 #include <pfs/db/exception.hpp>
@@ -36,7 +34,7 @@ public:
 
     bool query (string_type const & sql, pfs::error_code & ec, string_type * errstr)
     {
-        return query(u8string<std::string>(sql).c_str(), ec, errstr);
+        return query(sql.c_str(), ec, errstr);
     }
 
     bool begin ()
@@ -107,7 +105,7 @@ bool database<StringType>::open (string_type const & uristr, error_code & ec, st
 {
     pfs::net::uri<StringType> uri;
 
-    if (! uristr.starts_with(string_type("sqlite3:"))) {
+    if (! uristr.starts_with("sqlite3:")) {
         ec = make_error_code(db_errc::bad_uri);
         return false;
     }
@@ -120,8 +118,8 @@ bool database<StringType>::open (string_type const & uristr, error_code & ec, st
     int flags = SQLITE_OPEN_URI;
 
     //
-    // It is an error to specify a value for the mode parameter 
-    // that is less restrictive than that specified by the flags passed 
+    // It is an error to specify a value for the mode parameter
+    // that is less restrictive than that specified by the flags passed
     // in the third parameter to sqlite3_open_v2().
     //
     flags |= SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE;
@@ -131,7 +129,7 @@ bool database<StringType>::open (string_type const & uristr, error_code & ec, st
     filename.set_path(uri.path());
     filename.set_query(uri.query());
 
-    int rc = sqlite3_open_v2(u8string<std::string>(filename.to_string()).c_str(), & _h, flags, NULL);
+    int rc = sqlite3_open_v2(u8string(filename.to_string()), & _h, flags, NULL);
 
     if (rc != SQLITE_OK) {
         if (!_h) {
@@ -196,5 +194,3 @@ bool database<StringType>::query (char const * sql, pfs::error_code & ec, string
 }
 
 }}} // pfs::db::sqlite3
-
-#endif /* __PFS_DB_SQLITE3_DATABASE_HPP__ */

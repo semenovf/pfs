@@ -1,10 +1,10 @@
 #pragma once
 #include "pfs/config.h"
-#include "pfs/v2/container.hpp"
-#include "pfs/v2/stdcxx/map.hpp"
+#include "pfs/container.hpp"
+#include "pfs/stdcxx/map.hpp"
 
 #if HAVE_QT_CORE
-#   include "pfs/v2/qt/map.hpp"
+#   include "pfs/qt/map.hpp"
 #endif
 
 namespace v2 {

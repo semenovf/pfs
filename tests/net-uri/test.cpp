@@ -1,34 +1,11 @@
 #include "pfs/test.hpp"
 #include "pfs/string.hpp"
 #include "pfs/net/uri.hpp"
-#include "pfs/traits/stdcxx/string.hpp"
-
-// Enabled by `qt_enable`
-#if HAVE_QT_CORE
-#   include "pfs/traits/qt/string.hpp"
-#endif
+#include "pfs/string.hpp"
 
 #include "test_grammar.hpp"
 
-namespace stdcxx {
-
-typedef pfs::string<pfs::stdcxx::string> string_type;
-typedef pfs::net::uri<string_type> uri;
-typedef pfs::net::uri_grammar<uri> uri_grammar;
-
-} // stdcxx
-
-#if HAVE_QT_CORE
-
-namespace qt {
-
-typedef pfs::string<pfs::qt::string> string_type;
-typedef pfs::net::uri<string_type> uri;
-typedef pfs::net::uri_grammar<uri> uri_grammar;
-
-} // qt
-
-#endif // HAVE_QT_CORE
+typedef pfs::string string_type;
 
 #if __COMMENT__
 

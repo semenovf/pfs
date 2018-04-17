@@ -1,6 +1,4 @@
-#ifndef __PFS_DB_DATABASE_HPP__
-#define __PFS_DB_DATABASE_HPP__
-
+#pragma once
 #include <pfs/string.hpp>
 #include <pfs/db/exception.hpp>
 
@@ -51,7 +49,7 @@ public:
         string_type errstr;
 
         if (!open(uri, ec, & errstr))
-            throw db_exception(ec, u8string<std::string>(errstr));
+            throw db_exception(ec, u8string(errstr));
 
         return true;
     }
@@ -112,13 +110,10 @@ bool database<Traits>::query (string_type const & sql)
 
     if (!_d.query(sql, ec, & errstr)) {
         //errstr = "query failed: " + errstr;
-        throw db_exception(ec, u8string<std::string>(errstr));
+        throw db_exception(ec, u8string(errstr));
     }
 
     return true;
 }
 
 }} // pfs::db
-
-#endif /* __PFS_DB_DATABASE_HPP__ */
-

@@ -1,9 +1,8 @@
 #pragma once
-
 #include <set>
 #include <list>
 #include <pfs/mutex.hpp>
-#include <pfs/traits/stdcxx/deque.hpp>
+#include <pfs/deque.hpp>
 
 namespace pfs {
 

@@ -1,5 +1,4 @@
-#ifndef __PFS_CXX98_UTILITY_COMMON_HPP__
-#define __PFS_CXX98_UTILITY_COMMON_HPP__
+#pragma once
 
 #if __cplusplus >= 201103L
 #   include <utility>
@@ -29,7 +28,7 @@ namespace details {
             pfs::details::swap_impl(left[i], right[i]);
         }
     }
-}
+} // details
 
 template <typename T1, typename T2>
 inline void swap (T1 & a, T2 & b)
@@ -38,6 +37,3 @@ inline void swap (T1 & a, T2 & b)
 }
 
 } // pfs
-
-#endif /* __PFS_CXX98_UTILITY_COMMON_HPP__ */
-

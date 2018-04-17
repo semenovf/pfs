@@ -5,7 +5,7 @@
 namespace pfs {
 namespace filesystem {
 
-class pathlist : public list
+class pathlist : public list<path>
 {
 public:
     static path search_path (path const & p, pathlist const & searchdirs)

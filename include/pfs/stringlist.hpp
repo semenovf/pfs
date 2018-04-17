@@ -1,23 +1,21 @@
-#ifndef __PFS_STRINGLIST_HPP__
-#define __PFS_STRINGLIST_HPP__
-
+#pragma once
 #include <pfs/algo/split.hpp>
-#include <pfs/traits/stdcxx/list.hpp>
-#include <pfs/traits/sequence_container.hpp>
+#include <pfs/list.hpp>
+#include <pfs/string.hpp>
 
 namespace pfs {
 
-template <typename StringType, template <typename> class ContainerValueRef = stdcxx::list>
-class stringlist : public traits::sequence_container<StringType, ContainerValueRef>
+template <typename StringList = string>
+class stringlist : public list<StringList>
 {
-    typedef traits::sequence_container<StringType, ContainerValueRef> base_class;
+    typedef list<string> base_class;
 
 public:
     typedef typename base_class::value_type      value_type;
     typedef typename base_class::difference_type difference_type;
     typedef typename base_class::iterator        iterator;
     typedef typename base_class::const_iterator  const_iterator;
-    typedef StringType string_type;
+    typedef string string_type;
 
 public:
     stringlist () : base_class() {}
@@ -30,6 +28,3 @@ public:
 };
 
 } // pfs
-
-#endif /* __PFS_STRINGLIST_HPP__ */
-

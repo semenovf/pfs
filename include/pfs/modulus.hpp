@@ -2,11 +2,9 @@
 #include <pfs/cxxlang.hpp>
 #include <pfs/operationsystem.hpp>
 #include <pfs/atomic.hpp>
-#include <pfs/traits/associative_container.hpp>
-#include <pfs/traits/sequence_container.hpp>
-#include <pfs/traits/stdcxx/deque.hpp>
-#include <pfs/traits/stdcxx/map.hpp>
-#include <pfs/traits/stdcxx/list.hpp>
+#include <pfs/list.hpp>
+#include <pfs/map.hpp>
+#include <pfs/string.hpp>
 #include <pfs/stringlist.hpp>
 #include <pfs/dynamic_library.hpp>
 #include <pfs/active_queue.hpp>
@@ -51,7 +49,7 @@ struct basic_dispatcher
 };
 
 #define PFS_MODULUS_TEMPLETE_SIGNATURE typename StringType                     \
-    , template <typename> class AssociativeContainer                           \
+    , template <typename, typename> class AssociativeContainer                 \
     , template <typename> class SequenceContainer                              \
     , template <typename> class ActiveQueueContainer                           \
     , typename BasicLockable                                                   \
@@ -64,15 +62,15 @@ struct basic_dispatcher
     , BasicLockable                                                            \
     , GcThreshold
 
-template <typename StringType
+template <typename StringType = pfs::string
     // For storing API map and module specs
-    , template <typename> class AssociativeContainer = pfs::stdcxx::map
+    , template <typename, typename> class AssociativeContainer = pfs::map
 
     // For storing runnable modules and threads
-    , template <typename> class SequenceContainer = pfs::stdcxx::list
+    , template <typename> class SequenceContainer = pfs::list
 
     // Active queue configuration
-    , template <typename> class ActiveQueueContainer = pfs::stdcxx::deque
+    , template <typename> class ActiveQueueContainer = pfs::deque
     , typename BasicLockable = pfs::mutex // see [C++ concepts: BasicLockable](http://en.cppreference.com/w/cpp/concept/BasicLockable)>
     , int GcThreshold = 256>
 struct modulus
@@ -147,11 +145,8 @@ struct modulus
     template <typename EmitterType, typename DetectorType>
     struct sigslot_mapper : basic_sigslot_mapper
     {
-        typedef traits::sequence_container<EmitterType *
-                , SequenceContainer>                  emitter_sequence;
-
-        typedef traits::sequence_container<detector_pair
-                , SequenceContainer>                  detector_sequence;
+        typedef SequenceContainer<EmitterType *> emitter_sequence;
+        typedef SequenceContainer<detector_pair> detector_sequence;
 
         emitter_sequence  emitters;
         detector_sequence detectors;
@@ -193,21 +188,11 @@ struct modulus
         }
     };
 
-    typedef traits::associative_container<
-               traits::kv<int, api_item_type *>
-            ,  AssociativeContainer>            api_map_type;
-
-    typedef traits::associative_container<
-              traits::kv<string_type, module_spec>
-            , AssociativeContainer>             module_spec_map_type;
-
+    typedef AssociativeContainer<int, api_item_type *>     api_map_type;
+    typedef AssociativeContainer<string_type, module_spec> module_spec_map_type;
     typedef int (basic_module::*thread_function)();
-
-    typedef traits::sequence_container<pfs::pair<basic_module *, thread_function>
-            , SequenceContainer>                runnable_sequence_type;
-
-    typedef traits::sequence_container<shared_ptr<pfs::thread>
-            , SequenceContainer>                thread_sequence_type;
+    typedef SequenceContainer<pfs::pair<basic_module *, thread_function> > runnable_sequence_type;
+    typedef SequenceContainer<shared_ptr<pfs::thread> >                    thread_sequence_type;
 
     class basic_module : public sigslot_ns::basic_has_slots
     {

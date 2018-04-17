@@ -1,6 +1,5 @@
 #include <iostream>
 #include "pfs/test.hpp"
-#include <pfs/traits/stdcxx/string.hpp>
 #include <pfs/string.hpp>
 #include <pfs/db/sqlite3/database.hpp>
 #include <pfs/db/database.hpp>
@@ -10,7 +9,7 @@ using std::cout;
 using std::cerr;
 using std::endl;
 
-typedef pfs::string<pfs::stdcxx::string> string_t;
+typedef pfs::string string_t;
 typedef pfs::db::database_traits<string_t, pfs::db::sqlite3::database> database_traits_t;
 typedef pfs::db::database<database_traits_t> db_t;
 

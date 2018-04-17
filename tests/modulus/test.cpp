@@ -1,11 +1,11 @@
 #include <cstring>
 #include <pfs/test.hpp>
 #include <pfs/string.hpp>
-#include <pfs/traits/stdcxx/string.hpp>
+#include <pfs/string.hpp>
 #include <pfs/modulus.hpp>
 
-typedef pfs::string<pfs::stdcxx::string> string_t;
-typedef pfs::modulus<string_t>      modulus_ns;
+typedef pfs::string            string_t;
+typedef pfs::modulus<string_t> modulus_ns;
 // typedef modulus_t::module           module_t;
 // typedef modulus_t::async_module     async_module_t;
 //typedef modulus_t::dispatcher       dispatcher_t;

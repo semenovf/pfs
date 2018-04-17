@@ -4,15 +4,15 @@
 #include <pfs/io/device.hpp>
 #include <pfs/io/inet_server.hpp>
 #include <pfs/io/pool.hpp>
-#include <pfs/traits/stdcxx/vector.hpp>
-#include <pfs/traits/stdcxx/map.hpp>
+#include <pfs/vector.hpp>
+#include <pfs/map.hpp>
 #include <iostream>
 
-typedef pfs::io::device::system_string system_string;
+typedef pfs::io::device::string_type string_type;
 
 #define BUFFER_SIZE 1
 #define NCLIENTS    1/*10*/
-#define SERVER_ADDR system_string("127.0.0.1")
+#define SERVER_ADDR string_type("127.0.0.1")
 #define SERVER_PORT 10299
 #define SERVER_BACKLOG 10
 
@@ -69,9 +69,9 @@ static const char * loremipsum [] = {
 };
 
 typedef pfs::io::pool<
-          pfs::stdcxx::vector
-        , pfs::stdcxx::vector
-        , pfs::stdcxx::map> pool_type;
+          pfs::vector
+        , pfs::vector
+        , pfs::map> pool_type;
 
 struct dispatcher_context : public pool_type::dispatcher_context
 {

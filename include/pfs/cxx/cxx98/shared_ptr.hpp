@@ -1,6 +1,4 @@
-#ifndef __PFS_CXX_CXX98_SHARED_PTR_HPP__
-#define __PFS_CXX_CXX98_SHARED_PTR_HPP__
-
+#pragma once
 #include <pfs/compare.hpp>
 
 #if HAVE_BOOST_SMARTPTR
@@ -381,5 +379,3 @@ inline bool operator < (shared_ptr<T> const & a, shared_ptr<U> const & b)
 // }
 
 } // pfs
-
-#endif /* __PFS_CXX_CXX98_SHARED_PTR_HPP__ */

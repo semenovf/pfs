@@ -1,8 +1,7 @@
 #pragma once
 #include <cstring>
 #include <string>
-#include <iterator>
-#include <pfs/types.hpp>
+#include <pfs/type_traits.hpp>
 
 namespace pfs {
 namespace stdcxx {
@@ -67,6 +66,18 @@ public:
     template <typename InputIterator>
     basic_string (InputIterator first, InputIterator last)
         : base_class(first, last)
+    {}
+
+    /**
+     * @fn string::string (std::string const & s).
+     *
+     * @brief Constructs string from std::string.
+     * @param s value.
+     */
+    template <typename T>
+    explicit basic_string (T const & s, typename enable_if<is_same<T, std::string>::value
+            && is_same<base_class, std::string>::value, T>::type * = 0)
+        : base_class(s)
     {}
 
     virtual ~basic_string ()
@@ -502,7 +513,7 @@ public:
     /**
      * @return @code *this @endcode
      */
-     inline DerivedT & append (basic_string const & s)
+     inline DerivedT & append (DerivedT const & s)
      {
          base_class::append(s);
          return *static_cast<DerivedT *>(this);
@@ -511,7 +522,7 @@ public:
     /**
      * @return @code *this @endcode
      */
-     inline DerivedT & append (basic_string const & s
+     inline DerivedT & append (DerivedT const & s
              , size_type pos
              , size_type count = npos)
      {
@@ -558,10 +569,15 @@ public:
     }
 #endif
 
+    DerivedT & append (std::string const & s)
+    {
+        this->append(basic_string(s));
+    }
+
     /**
      * @return @code *this @endcode
      */
-    inline DerivedT & operator += (basic_string const & s)
+    inline DerivedT & operator += (DerivedT const & s)
     {
         return append(s);
     }

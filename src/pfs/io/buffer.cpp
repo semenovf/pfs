@@ -1,5 +1,6 @@
 #include "pfs/algorithm.hpp"
-#include "pfs/traits/stdcxx/vector.hpp"
+#include "pfs/limits.hpp"
+#include "pfs/byte_string.hpp"
 #include "pfs/io/buffer.hpp"
 
 namespace pfs {
@@ -10,23 +11,15 @@ struct buffer : public bits::device
 {
     static const size_t default_buffer_size = 256;
 
-    typedef stdcxx::vector<byte_t> buffer_type;
+    typedef byte_string buffer_type;
 
-    buffer_type _buffer;
+    buffer_type & _buffer;
     size_t _pos;
 
-    buffer (byte_t a[], size_t n)
-    : _pos (0)
-    {
-        _buffer.resize(n);
-        pfs::copy(a, a + n, & _buffer[0]);
-    }
-
-    buffer (size_t n)
-    : _pos (0)
-    {
-        _buffer.resize(n);
-    }
+    buffer (buffer_type & buffer)
+        : _buffer(buffer)
+        , _pos(0)
+    {}
 
     virtual bool reopen ()
     {
@@ -58,8 +51,7 @@ struct buffer : public bits::device
     }
 
     virtual void flush ()
-    {
-    }
+    {}
 
     virtual bool set_nonblocking (bool)
     {
@@ -81,9 +73,9 @@ struct buffer : public bits::device
         return device_buffer;
     }
 
-    virtual system_string url () const
+    virtual string url () const
     {
-        return system_string("buffer");
+        return string("buffer");
     }
 };
 
@@ -93,26 +85,22 @@ ssize_t buffer::read (byte_t * bytes, size_t n)
         return 0;
 
     n = pfs::min(n, _buffer.size() - _pos);
-    //buffer_type::copy(bytes, _buffer,  _pos, n);
-    std::copy(_buffer.cbegin() + _pos, _buffer.cbegin() + _pos + n, bytes);
+    _buffer.copy(bytes, n, _pos);
     _pos += n;
 
     return integral_cast_check<ssize_t>(n);
 }
 
-ssize_t buffer::write (const byte_t * bytes, size_t n)
+ssize_t buffer::write (byte_t const * bytes, size_t n)
 {
     PFS_ASSERT(numeric_limits<size_t>::max() - _pos >= n);
 
     size_t size = _buffer.size() - _pos;
 
-    if (size < n) {
-        //_buffer.realloc(_buffer.size() + n - size);
+    if (size < n)
         _buffer.resize(_buffer.size() + n - size);
-    }
 
-    //buffer_type::copy(_buffer, bytes, _pos, n);
-    pfs::copy(bytes, bytes + n, & _buffer[0] + _pos);
+    _buffer.append(bytes, n);
 
     return integral_cast_check<ssize_t>(n);
 }
@@ -123,19 +111,10 @@ namespace pfs {
 namespace io {
 
 template <>
-device open_device<buffer> (const open_params<buffer> & op, error_code & ec)
+device open_device<buffer> (open_params<buffer> const & op, error_code & ec)
 {
     device result;
-
-    bits::device * p = 0;
-
-    if (op.pbytes) {
-        p = new details::buffer(op.pbytes, op.size);
-    } else if (op.size > 0) {
-        p = new details::buffer(op.size);
-    } else {
-        p = new details::buffer(details::buffer::default_buffer_size);
-    }
+    bits::device * p = new details::buffer(op._bs);
 
     shared_ptr<bits::device> d(p);
     result._d.swap(d);

@@ -410,7 +410,7 @@ struct string_stringifier : public base_stringifier<BackInsertIt>
     }
 };
 
-template <typename StringType
+template <typename StringType = pfs::string
         , typename BackInserterContainer = StringType
         , int Compat = safeformat_compat_gcc>
 class safeformat
@@ -772,11 +772,6 @@ public:
         return *this;
     }
 
-    safeformat & operator () (typename string_type::const_native_reference s)
-    {
-        return operator() (string_type(s));
-    }
-
     safeformat & operator () (char const * s)
     {
         string_type ss(s);
@@ -875,11 +870,6 @@ public:
         return operator() (s);
     }
 
-    safeformat & operator % (typename string_type::const_native_reference s)
-    {
-        return operator() (s);
-    }
-
     safeformat & operator % (const char * s)
     {
         return operator() (s);
@@ -970,11 +960,6 @@ public:
 #endif
 
     safeformat & arg (string_type const & s)
-    {
-        return operator() (s);
-    }
-
-    safeformat & arg (typename string_type::const_native_reference s)
     {
         return operator() (s);
     }

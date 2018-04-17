@@ -1,9 +1,7 @@
-#ifndef __TEST_ACTIVE_MAP_HPP__
-#define __TEST_ACTIVE_MAP_HPP__
-
+#pragma once
 #include <pfs/test.hpp>
 #include <pfs/thread.hpp>
-#include <pfs/traits/stdcxx/map.hpp>
+#include <pfs/map.hpp>
 #include <pfs/active_map.hpp>
 
 namespace test {
@@ -12,7 +10,7 @@ namespace active_map {
 namespace basic {
 
 typedef pfs::active_map<int, void
-    , pfs::stdcxx::map
+    , pfs::map
     , pfs::mutex> active_map_type;
 
 static int counter = 0;
@@ -44,5 +42,3 @@ void test ()
 } // basic
 
 }} //test::active_queue
-
-#endif /* __TEST_ACTIVE_MAP_HPP__ */

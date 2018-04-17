@@ -1,14 +1,14 @@
 #pragma once
-#include <list>
+#include <deque>
 
 namespace pfs {
 
 namespace stdcxx {
 
 template <typename T, typename DerivedT>
-class list : public std::list<T>
+class deque : public std::deque<T>
 {
-    typedef std::list<T> base_class;
+    typedef std::deque<T> base_class;
 
 public:
     typedef typename base_class::value_type       value_type;
@@ -23,18 +23,11 @@ public:
     typedef typename base_class::reverse_iterator reverse_iterator;
     typedef typename base_class::const_reverse_iterator const_reverse_iterator;
 
-    using base_class::erase;
-    using base_class::insert;
-    using base_class::merge;
-
     inline iterator const_cast_iterator (const_iterator it)
     {
-        // TODO Need optimization
-        if (it == this->cbegin())
-            return this->begin();
-        if (it == this->cend())
-            return this->end();
-        return this->find(it->first);
+        iterator result(this->begin());
+        std::advance(result, std::distance(this->cbegin(), it));
+        return result;
     }
 
 public:
@@ -42,31 +35,31 @@ public:
     // Constructors                                                          //
     ///////////////////////////////////////////////////////////////////////////
 
-    list () : base_class() {}
+    deque () : base_class() {}
 
-    list (size_type count, const_reference value)
+    deque (size_type count, const_reference value)
         : base_class(count, value)
     {}
 
-    explicit list (size_type count)
+    explicit deque (size_type count)
         : base_class(count)
     {}
 
     template <typename InputIt>
-    list (InputIt first, InputIt last)
+    deque (InputIt first, InputIt last)
         : base_class(first, last)
     {}
 
-    list (list const & rhs)
+    deque (deque const & rhs)
         : base_class(rhs)
     {}
 
 #if __cplusplus >= 201103L
-    list (list && rhs)
-        : base_class(std::forward<list>(rhs))
+    deque (deque && rhs)
+        : base_class(std::forward<deque>(rhs))
     {}
 
-    list (std::initializer_list<T> ilist)
+    deque (std::initializer_list<T> ilist)
         : base_class(ilist.begin(), ilist.end())
     {}
 #endif
@@ -75,16 +68,16 @@ public:
     // Assign operators and methods                                          //
     ///////////////////////////////////////////////////////////////////////////
 
-    DerivedT & operator = (list const & rhs)
+    DerivedT & operator = (deque const & rhs)
     {
         base_class::operator = (rhs);
         return *this;
     }
 
 #if __cplusplus >= 201103L
-    DerivedT & operator = (list && rhs)
+    DerivedT & operator = (deque && rhs)
     {
-        base_class::operator = (std::forward<list>(rhs));
+        base_class::operator = (std::forward<deque>(rhs));
         return *this;
     }
 
@@ -94,10 +87,6 @@ public:
         return *this;
     }
 #endif
-
-    //
-    // Note: std::list:::assign() methods has no return value.
-    //
 
     DerivedT & assign (size_type count, const_reference value)
     {
@@ -123,6 +112,22 @@ public:
     ///////////////////////////////////////////////////////////////////////////
     // Element access                                                        //
     ///////////////////////////////////////////////////////////////////////////
+
+    /**
+     * @fn reference at (size_type pos)
+     */
+
+    /**
+     * @fn const_reference at (size_type pos) const
+     */
+
+    /**
+     * @fn reference operator [] (size_type pos)
+     */
+
+    /**
+     * @fn const_reference operator [] (size_type pos) const
+     */
 
     /**
      * @fn reference front ()
@@ -220,6 +225,16 @@ public:
      * @fn size_type max_size () const
      */
 
+#if __cplusplus < 201103L
+    // @note Result may not be the same as for C++11 version
+    void shrink_to_fit ()
+    {
+        if (this->capacity() > this->size()) {
+            this->reserve(0);
+        }
+    }
+#endif
+
     ///////////////////////////////////////////////////////////////////////////
     // Modifiers                                                             //
     ///////////////////////////////////////////////////////////////////////////
@@ -260,18 +275,22 @@ public:
     iterator insert (const_iterator pos, size_type count, const_reference value)
     {
         //
-        // C++ <  C++11: void insert( iterator pos, size_type count, const T& value );
-        // C++ >= C++11: iterator insert( const_iterator pos, size_type count, const T& value );
+        // C++ <  C++11: void insert (iterator pos, size_type count, const T & value);
+        // C++ >= C++11: iterator insert (const_iterator pos, size_type count, const T & value);
         //
-        // Note: No iterators or references are invalidated
+        // Note: All iterators are invalidated.
         //
         iterator result = pos;
 
         if (count > 0) {
             result = this->insert(pos, value); //  first inserted value
+            difference_type i = std::distance(this->cbegin(), result);
 
-            if (--count > 0)
+            if (--count > 0) {
                 base_class::insert(const_cast_iterator(pos), count, value);
+                result = this->begin();
+                std::advance(result, i);
+            }
         }
         return result;
     }
@@ -319,7 +338,7 @@ public:
 
     inline iterator erase (const_iterator first, const_iterator last)
     {
-        return base_class(const_cast_iterator(first)
+        return base_class::erase(const_cast_iterator(first)
                 , const_cast_iterator(last));
     }
 #endif
@@ -338,6 +357,7 @@ public:
     // TODO Implement to meet C++17:
     // reference emplace_back (Args &&... args)
     //
+
     /**
      * @fn template <typename... Args>
      *     void emplace_back (Args &&... args)
@@ -378,92 +398,8 @@ public:
     }
 
     /**
-     * @fn  void swap (list & rhs)
+     * @fn void swap (deque & rhs)
      */
-
-    ///////////////////////////////////////////////////////////////////////////
-    // Operations                                                            //
-    ///////////////////////////////////////////////////////////////////////////
-
-    /**
-     * @fn void merge (list & rhs)
-     */
-
-#if __cplusplus >= 201103L
-    /**
-     * @fn void merge (list && rhs)
-     */
-#endif
-
-    /**
-     * @fn template <typename Compare>
-     *     void merge (list & rhs, Compare comp)
-     */
-
-#if __cplusplus >= 201103L
-    /**
-     * @fn void merge (list && rhs, Compare comp)
-     */
-#endif
-
-    /**
-     * @fn void splice (const_iterator pos, list & rhs)
-     */
-
-#if __cplusplus >= 201103L
-    /**
-     * @fn void splice (const_iterator pos, list && rhs )
-     */
-#endif
-
-    /**
-     * @fn void splice (const_iterator pos, list & rhs, const_iterator it)
-     */
-
-    /**
-     * @fn void splice (const_iterator pos, list && rhs, const_iterator it)
-     */
-
-    /**
-     * @fn void splice (const_iterator pos, list & rhs, const_iterator first, const_iterator last)
-     */
-
-#if __cplusplus >= 201103L
-    /**
-     * @fn void splice (const_iterator pos, list && rhs, const_iterator first, const_iterator last)
-     */
-#endif
-
-     /**
-      * @fn void remove (const_reference value)
-      */
-
-     /**
-      * @fn template <typename UnaryPredicate>
-      *     void remove_if (UnaryPredicate p)
-      */
-
-     /**
-      * @fn void reverse ()
-      */
-
-     /**
-      * @fn void unique ()
-      */
-
-     /**
-      * @fn template <typename BinaryPredicate>
-      *     void unique (BinaryPredicate p)
-      */
-
-     /**
-      * @fn void sort ()
-      */
-
-     /**
-      * @fn template <typename Compare>
-      *     void sort (Compare comp)
-      */
 
     ///////////////////////////////////////////////////////////////////////////
     // Compare operators                                                     //
@@ -475,4 +411,3 @@ public:
 };
 
 }} // pfs::stdcxx
-

@@ -4,6 +4,34 @@
 
 namespace pfs {
 
+namespace details {
+
+std::string dynamic_library_category::message (int ev) const
+{
+    switch (ev) {
+    case static_cast<int>(dynamic_library_errc::success):
+        return "no error";
+
+    case static_cast<int>(dynamic_library_errc::invalid_argument):
+        return "invalid argument";
+
+    case static_cast<int>(dynamic_library_errc::file_not_found):
+        return "shared object (dynamic library) not found";
+
+    case static_cast<int>(dynamic_library_errc::open_failed):
+        return std::string("failed to open shared object (dynamic library): ")
+                + dlerror();
+
+    case static_cast<int>(dynamic_library_errc::symbol_not_found):
+        return std::string("symbol not found in shared object (dynamic library): ")
+                + dlerror();
+
+    default: return "unknown dynamic_library error";
+    }
+}
+
+} // details
+
 dynamic_library::~dynamic_library ()
 {
     if (_handle) {
@@ -138,33 +166,5 @@ filesystem::path build_so_filename (filesystem::path const & name) pfs_noexcept
     p += ".so";
     return p;
 }
-
-namespace details {
-
-std::string dynamic_library_category::message (int ev) const
-{
-    switch (ev) {
-    case static_cast<int>(dynamic_library_errc::success):
-        return "no error";
-
-    case static_cast<int>(dynamic_library_errc::invalid_argument):
-        return "invalid argument";
-
-    case static_cast<int>(dynamic_library_errc::file_not_found):
-        return "shared object (dynamic library) not found";
-
-    case static_cast<int>(dynamic_library_errc::open_failed):
-        return std::string("failed to open shared object (dynamic library): ")
-                + dlerror();
-
-    case static_cast<int>(dynamic_library_errc::symbol_not_found):
-        return std::string("symbol not found in shared object (dynamic library): ")
-                + dlerror();
-
-    default: return "unknown dynamic_library error";
-    }
-}
-
-} // details
 
 } //pfs

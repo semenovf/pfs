@@ -1,6 +1,4 @@
-#ifndef __PFS_RING_BUFFER_HPP__
-#define __PFS_RING_BUFFER_HPP__
-
+#pragma once
 #include <pfs/iterator.hpp>
 
 namespace pfs {
@@ -10,65 +8,65 @@ class ring_iterator
 {
 private:
     typedef typename pfs::iterator_traits<InputIterator>::reference reference;
-    
+
 public:
     ring_iterator () {}
 
     /**
      * Construct iterator for iterate over range [@a begin, @ end).
      * @a begin and @a end must not be equals.
-     * 
+     *
      * @param begin Range start.
      * @param end   Range end (excluding).
      */
-	ring_iterator (InputIterator begin, InputIterator end)
-		: _begin(begin)
-		, _end(end)
-		, _pos(begin)
+    ring_iterator (InputIterator begin, InputIterator end)
+        : _begin(begin)
+        , _end(end)
+        , _pos(begin)
     {}
 
-	~ring_iterator () {}
+    ~ring_iterator () {}
 
     reference operator * () const
     {
-    	return *_pos;
+        return *_pos;
     }
 
     // Iterator never points to the end
     ring_iterator & operator ++ ()
-	{
+    {
         if (_pos != _end)
             ++_pos;
-        
+
         if (_pos == _end)
             _pos = _begin;
-        
+
         return *this;
-	}
+    }
 
     ring_iterator operator ++ (int)
-	{
+    {
         ring_iterator r(*this);
         ++(*this);
         return r;
-	}
+    }
 
     ring_iterator & operator -- ()
-	{
+    {
         if (_pos == _begin)
             _pos = _end;
         --_pos;
 
         return *this;
-	}
+    }
 
     ring_iterator operator -- (int)
-	{
+    {
         ring_iterator r(*this);
         --(*this);
         return r;
-	}
-    
+    }
+
     friend bool operator == (ring_iterator const & lhs, ring_iterator const & rhs)
     {
         return lhs._pos == rhs._pos;
@@ -80,9 +78,9 @@ public:
     }
 
 private:
-	InputIterator _begin;
-	InputIterator _end;
-	InputIterator _pos;
+    InputIterator _begin;
+    InputIterator _end;
+    InputIterator _pos;
 };
 
 //template <typename InputIterator>
@@ -108,6 +106,3 @@ private:
 //}
 //
 } // pfs
-
-#endif /* __PFS_RING_BUFFER_HPP__ */
-

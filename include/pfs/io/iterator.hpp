@@ -1,7 +1,6 @@
 #pragma once
 #include <pfs/iterator.hpp>
 #include <pfs/io/device.hpp>
-#include <pfs/unicode/u8_iterator.hpp>
 
 namespace pfs {
 namespace io {

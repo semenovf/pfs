@@ -7,9 +7,8 @@
 #include <pfs/sigslot.hpp>
 #include <pfs/fsm/fsm.hpp>
 #include <pfs/filesystem.hpp>
-#include <pfs/traits/sequence_container.hpp>
-#include <pfs/traits/stdcxx/string.hpp>
-#include <pfs/traits/stdcxx/list.hpp>
+#include <pfs/string.hpp>
+#include <pfs/list.hpp>
 
 namespace pfs {
 
@@ -18,9 +17,9 @@ namespace pfs {
             , template <typename> class SequenceContainer
 #define PFS_LOG_TEMPLETE_ARGS       StringType, SigslotNS, SequenceContainer
 
-template <typename StringType = string<stdcxx::string>
+template <typename StringType = string
     , typename SigslotNS = sigslot<>
-    , template <typename> class SequenceContainer = stdcxx::list>
+    , template <typename> class SequenceContainer = list>
 struct log
 {
     typedef StringType string_type;
@@ -65,9 +64,7 @@ class appender;
 class logger
 {
 private:
-    typedef traits::sequence_container<
-              appender *
-            , SequenceContainer>           appender_sequence;
+    typedef SequenceContainer<appender *> appender_sequence;
     typedef typename sigslot_ns::template signal3<priority, datetime const &, string_type const &> emitter_type;
 
 private:

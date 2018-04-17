@@ -23,15 +23,15 @@ enum poll_enum {
 	, poll_all  = 0xFFFF
 };
 
-template <template <typename> class SequenceContainerImpl
-        , template <typename> class ContigousContainerImpl
-        , template <typename> class AssociativeContainerImpl>
+template <template <typename> class SequenceContainer
+        , template <typename> class ContigousContainer
+        , template <typename, typename> class AssociativeContainer>
 class pool
 {
 public:
-    typedef details::pool<SequenceContainerImpl
-            , ContigousContainerImpl
-            , AssociativeContainerImpl>         pool_impl;
+    typedef details::pool<SequenceContainer
+            , ContigousContainer
+            , AssociativeContainer>             pool_impl;
     typedef typename pool_impl::device_sequence device_sequence;
     typedef typename pool_impl::server_sequence server_sequence;
 

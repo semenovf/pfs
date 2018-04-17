@@ -1,11 +1,10 @@
-//#include <cstring>
 #include <iostream>
 #include <pfs/test.hpp>
-#include <pfs/traits/stdcxx/deque.hpp>
+#include <pfs/deque.hpp>
 #include <pfs/active_queue.hpp>
 #include <pfs/sigslot.hpp>
 
-typedef pfs::active_queue<pfs::stdcxx::deque> active_queue_type;
+typedef pfs::active_queue<pfs::deque> active_queue_type;
 typedef pfs::sigslot<active_queue_type, active_queue_type::mutex_type> sigslot_ns;
 
 struct sync_slot_class : public sigslot_ns::has_slots

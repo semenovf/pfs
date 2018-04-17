@@ -16,13 +16,13 @@ public:
 protected:
 	native_handle_type _fd;
 	sockaddr_in  _sockaddr;
-    
+
 public:
     inet_server ()
         : bits::server()
         , _fd(-1)
     {}
-    
+
   	virtual ~inet_server ()
 	{
 		close();
@@ -43,24 +43,24 @@ public:
     {
     	return _fd >= 0;
     }
-    
+
     virtual bool set_nonblocking (bool on) pfs_override
     {
         return pfs::io::set_nonblocking(_fd, on);
     }
-    
+
     virtual bool is_nonblocking () const pfs_override
     {
         return pfs::io::is_nonblocking(_fd);
     }
-    
+
     virtual native_handle_type native_handle () const pfs_override
     {
     	return _fd;
     }
-    
+
 public:
-    error_code bind (uint32_t addr, uint16_t port);    
+    error_code bind (uint32_t addr, uint16_t port);
 };
 
 class tcp_server : public inet_server
@@ -72,14 +72,14 @@ public:
     error_code open (bool non_blocking)
     {
         _fd = pfs::io::create_tcp_socket(non_blocking);
-        return _fd < 0 
+        return _fd < 0
                 ? get_last_system_error()
                 : error_code();
     }
 
 	error_code listen (int backlog)
 	{
-		return (::listen(_fd, backlog) != 0) 
+		return (::listen(_fd, backlog) != 0)
                 ? get_last_system_error()
                 : error_code();
 	}
@@ -93,12 +93,12 @@ public:
     {
     	return server_tcp;
     }
-    
-    virtual system_string url () const pfs_override
+
+    virtual string url () const pfs_override
     {
-        return pfs::io::inet_socket_url<system_string>("tcp", _sockaddr);
+        return pfs::io::inet_socket_url<string>("tcp", _sockaddr);
     }
-  
+
     virtual error_code accept (bits::device ** peer, bool non_blocking) pfs_override;
 };
 
@@ -111,7 +111,7 @@ public:
     error_code open (bool non_blocking)
     {
         _fd = pfs::io::create_udp_socket(non_blocking);
-        return _fd < 0 
+        return _fd < 0
                 ? get_last_system_error()
                 : error_code();
     }
@@ -130,10 +130,10 @@ public:
     {
     	return server_udp;
     }
-    
-    virtual system_string url () const pfs_override
+
+    virtual string url () const pfs_override
     {
-        return pfs::io::inet_socket_url<system_string>("udp", _sockaddr);
+        return pfs::io::inet_socket_url<string>("udp", _sockaddr);
     }
 
     virtual error_code accept (bits::device ** peer, bool non_blocking) pfs_override;

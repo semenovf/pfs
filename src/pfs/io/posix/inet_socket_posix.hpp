@@ -15,7 +15,7 @@ class inet_socket : public bits::device
 {
 public:
 	typedef bits::device::native_handle_type native_handle_type;
-    typedef bits::device::system_string      system_string;
+    typedef bits::device::string_type        string_type;
 
 protected:
 	native_handle_type _fd;
@@ -86,9 +86,9 @@ public:
     }
 
     virtual device_type type () const = 0;
-    
-    virtual system_string url () const = 0;
-    
+
+    virtual string_type url () const = 0;
+
     error_code set_socket_options (uint32_t sso);
 };
 
@@ -96,13 +96,13 @@ class tcp_socket : public inet_socket
 {
 public:
 	typedef inet_socket::native_handle_type native_handle_type;
-    typedef inet_socket::system_string      system_string;
+    typedef inet_socket::string_type        string_type;
 
 public:
 	virtual error_code open (bool non_blocking) pfs_override
     {
         _fd = create_tcp_socket(non_blocking);
-        return _fd < 0 
+        return _fd < 0
                 ? error_code(errno, pfs::generic_category())
                 : error_code();
     }
@@ -116,10 +116,10 @@ public:
     {
         return device_tcp_socket;
     }
-        
-    virtual system_string url () const pfs_override
+
+    virtual string_type url () const pfs_override
     {
-        return inet_socket_url<system_string>("tcp", _sockaddr);
+        return inet_socket_url<string_type>("tcp", _sockaddr);
     }
 };
 
@@ -135,7 +135,7 @@ public:
 		_fd = fd;
 		::memcpy(& _sockaddr, & sockaddr, sizeof(_sockaddr));
 	}
-        
+
     virtual device_type type () const pfs_override
     {
         return device_tcp_peer;
@@ -146,13 +146,13 @@ class udp_socket : public inet_socket
 {
 public:
 	typedef inet_socket::native_handle_type native_handle_type;
-    typedef inet_socket::system_string      system_string;
+    typedef inet_socket::string_type        string_type;
 
 public:
 	virtual error_code open (bool non_blocking) pfs_override
     {
         _fd = create_udp_socket(non_blocking);
-        return _fd < 0 
+        return _fd < 0
                 ? error_code(errno, pfs::generic_category())
                 : error_code();
     }
@@ -167,9 +167,9 @@ public:
         return device_udp_socket;
     }
 
-    virtual system_string url () const pfs_override
+    virtual string_type url () const pfs_override
     {
-        return inet_socket_url<system_string>("udp", _sockaddr);
+        return inet_socket_url<string_type>("udp", _sockaddr);
     }
 };
 
@@ -190,12 +190,12 @@ public:
 	{
 		close();
 	}
-        
+
     virtual device_type type () const pfs_override
     {
         return device_udp_peer;
     }
-    
+
     // Reimplemented to avoid descriptor closing
     //
     virtual bool close () pfs_override

@@ -2,13 +2,13 @@
 #include <pfs/mutex.hpp>
 #include <pfs/memory.hpp>
 #include <pfs/cxx/cxx98/binder.hpp>
-#include <pfs/traits/sequence_container.hpp>
+#include <pfs/deque.hpp>
 #include <pfs/utility.hpp>
 #include <pfs/memory.hpp>
 
 namespace pfs {
 
-template <template <typename> class SequenceContainer
+template <template <typename> class SequenceContainer = pfs::deque
     , typename BasicLockable = pfs::mutex // see [C++ concepts: BasicLockable](http://en.cppreference.com/w/cpp/concept/BasicLockable)>
     , int GcThreshold = 256>
 class active_queue
@@ -24,7 +24,7 @@ private:
 public:
     typedef pfs::pair<int8_t, pfs::shared_ptr<binder_base<void> > > value_type;
     typedef BasicLockable mutex_type;
-    typedef traits::sequence_container<value_type, SequenceContainer> sequence_container_type;
+    typedef SequenceContainer<value_type> sequence_container_type;
     typedef typename sequence_container_type::size_type size_type;
     typedef typename sequence_container_type::iterator  iterator;
 

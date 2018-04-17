@@ -1,11 +1,8 @@
 #include <ctime>
 #include <pfs/test.hpp>
-#include <pfs/traits/associative_container.hpp>
-#include <pfs/traits/contigous_container.hpp>
-#include <pfs/traits/sequence_container.hpp>
-#include <pfs/traits/stdcxx/map.hpp>
-#include <pfs/traits/stdcxx/list.hpp>
-#include <pfs/traits/stdcxx/vector.hpp>
+#include <pfs/map.hpp>
+#include <pfs/list.hpp>
+#include <pfs/vector.hpp>
 #include <pfs/io/device_manager.hpp>
 #include <pfs/io/inet_server.hpp>
 #include <pfs/net/inet4_addr.hpp>

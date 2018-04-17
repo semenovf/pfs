@@ -54,19 +54,17 @@ char loremipsum[] =
 using pfs::io::device;
 using pfs::io::open_device;
 using pfs::io::open_params;
-using pfs::io::buffer;
 
 void test_read ()
 {
-	device d;
+    device d;
+    pfs::byte_string buffer(loremipsum, std::strlen(loremipsum));
 
-	TEST_OK(!d.opened());
-	TEST_FAIL((d = open_device(open_params<buffer>(
-			  loremipsum
-			, strlen(loremipsum)))));
-	TEST_OK(d.opened());
+    TEST_OK(!d.opened());
+    TEST_FAIL((d = open_device(open_params<pfs::io::buffer>(buffer))));
+    TEST_OK(d.opened());
 
-	TEST_FAIL(static_cast<size_t>(d.available()) == strlen(loremipsum));
+    TEST_FAIL(static_cast<size_t>(d.available()) == strlen(loremipsum));
 
     TEST_OK(d.is_readable());
     TEST_OK(d.is_writable());

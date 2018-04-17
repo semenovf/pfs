@@ -1,13 +1,11 @@
-#ifndef __TEST_ACTIVE_QUEUE_HPP__
-#define __TEST_ACTIVE_QUEUE_HPP__
-
+#pragma once
 #include <cstdlib>
 #include <pfs/test.hpp>
 #include <pfs/types.hpp>
 #include <pfs/limits.hpp>
 #include <pfs/atomic.hpp>
 #include <pfs/thread.hpp>
-#include <pfs/traits/stdcxx/deque.hpp>
+#include <pfs/deque.hpp>
 #include <pfs/active_queue.hpp>
 #include <pfs/memory.hpp>
 #include <pfs/byte_string.hpp>
@@ -33,7 +31,7 @@ namespace active_queue {
 
 namespace test0 {
 
-typedef pfs::active_queue<pfs::stdcxx::deque
+typedef pfs::active_queue<pfs::deque
     , pfs::mutex
     , 256> active_queue_type;
 
@@ -90,7 +88,7 @@ struct A
     }
 };
 
-typedef pfs::active_queue<pfs::stdcxx::deque
+typedef pfs::active_queue<pfs::deque
     , pfs::mutex
     , 256> active_queue_type;
 
@@ -128,7 +126,7 @@ void test ()
 
 namespace test2 {
 
-typedef pfs::active_queue<pfs::stdcxx::deque
+typedef pfs::active_queue<pfs::deque
     , pfs::mutex
     , 256> active_queue_type;
 active_queue_type q;
@@ -191,7 +189,7 @@ void test ()
 
 namespace test3 {
 
-typedef pfs::active_queue<pfs::stdcxx::deque
+typedef pfs::active_queue<pfs::deque
     , pfs::mutex
     , 256> active_queue_type;
 
@@ -348,7 +346,7 @@ void test ()
 
 namespace test4 {
 
-typedef pfs::active_queue<pfs::stdcxx::deque
+typedef pfs::active_queue<pfs::deque
     , pfs::mutex
     , 256> active_queue_type;
 
@@ -418,5 +416,3 @@ void test ()
 } // test4
 
 }} //test::active_queue
-
-#endif /* __TEST_ACTIVE_QUEUE_HPP__ */

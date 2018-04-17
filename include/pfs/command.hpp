@@ -1,10 +1,7 @@
-#ifndef __PFS_COMMAND_HPP__
-#define __PFS_COMMAND_HPP__
-
+#pragma once
 #include <pfs/memory.hpp>
 #include <pfs/ring_iterator.hpp>
-#include <pfs/traits/sequence_container.hpp>
-#include <pfs/traits/associative_container.hpp>
+#include <pfs/list.hpp>
 
 //
 //                                         -----------------
@@ -101,11 +98,10 @@ shared_ptr<command> make_command (A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a
     return pfs::static_pointer_cast<command>(pfs::make_shared<ConcreteCommand>(a1, a2, a3, a4, a5, a6, a7, a8));
 }
 
-template <template <typename> class SequenceContainerImpl>
+template <template <typename> class SequenceContainer = pfs::list>
 struct invoker
 {
-    typedef traits::sequence_container<shared_ptr<command>
-            , SequenceContainerImpl>                           queue_type;
+    typedef SequenceContainer<shared_ptr<command> >            queue_type;
     typedef ring_iterator<typename queue_type::iterator>       iterator;
     typedef ring_iterator<typename queue_type::const_iterator> const_iterator;
 
@@ -257,5 +253,3 @@ protected:
 //};
 
 } // pfs
-
-#endif /* __PFS_COMMAND_HPP__ */

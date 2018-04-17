@@ -4,15 +4,14 @@
 #include <sstream>
 #include <pfs/config.h>
 #include <pfs/test.hpp>
+#include <pfs/string.hpp>
 #include <pfs/limits.hpp>
-#include <pfs/v2/string.hpp>
-#include <pfs/v2/stdcxx/basic_string.hpp>
+#include <pfs/traits/stdcxx/string.hpp>
 
 // Enabled by `qt_enable`
 #ifdef HAVE_QT_CORE
-//#   include <pfs/traits/qt/string.hpp>
+#   include <pfs/traits/qt/string.hpp>
 #endif
-
 
 template <typename ConstPointer>
 char const * stringify_string_impl ();
@@ -28,9 +27,9 @@ inline char const * stringify_string_impl<wchar_t const *> ()
 
 #ifdef HAVE_QT_CORE
 
-// template <>
-// inline char const * stringify_string_impl<QChar const *> ()
-// { return "QChar"; }
+template <>
+inline char const * stringify_string_impl<QChar const *> ()
+{ return "QChar"; }
 
 #endif
 
@@ -110,33 +109,74 @@ wchar_t const * string_samples<wchar_t const *> (int i)
 }
 
 #if HAVE_QT_CORE
-// template <>
-// QChar const * string_samples<QChar const *> (int i)
-// {
-//     static QString s[] = {
-//           QString("ABCDEF")
-//         , QString("ABCDEF")
-//         , QString("ABCDE")
-//         , QString("BCDEF")
-//         , QString("BCDE")
-//         , QString()
-//         , QString("ABCDEFABCDEF")
-//     };
-//
-//     return s[i].constData();
-// }
+template <>
+QChar const * string_samples<QChar const *> (int i)
+{
+    static QString s[] = {
+          QString("ABCDEF")
+        , QString("ABCDEF")
+        , QString("ABCDE")
+        , QString("BCDEF")
+        , QString("BCDE")
+        , QString()
+        , QString("ABCDEFABCDEF")
+    };
+
+    return s[i].constData();
+}
 #endif
 
-#include "test_constructors.hpp"
+#include "test_basic.hpp"
+#include "test_find.hpp"
+#include "test_substr.hpp"
+//#include "test_cast.hpp"
+//#include "test_erase.hpp"
+//#include "test_append.hpp"
+//#include "test_compare.hpp"
+#include "test_to_string.hpp"
+#include "test_u8string.hpp"
+#include "test_trim.hpp"
 
 int main ()
 {
     BEGIN_TESTS(0);
 
-    test_constructors<pfs::string>();
+    test_basic<pfs::stdcxx::string>();
+//    test_basic<pfs::stdcxx::wstring>();
+//    test_find<pfs::stdcxx::string>();
+//    test_find<pfs::stdcxx::wstring>();
+    test_substr<pfs::stdcxx::string>();
+//    test_substr<pfs::stdcxx::wstring>();
+//    test_c_str_cast<std::string>();
+////    test_c_str_cast<std::wstring>();    // TODO
+//    test_compare<std::string>();
+//    test_compare<std::wstring>();
+//    test_compare_cstr<std::string>();
+//    //test_compare_cstr<wchar_t>();
+//
+//    test_erase<std::string>();
+//    test_erase<std::wstring>();
+//
+//    test_append<std::string>();
+//    test_append<std::wstring>();
+//    test_to_string<pfs::traits::stdcxx::string>();
+    test_u8string<pfs::stdcxx::string>();
+    test_trim<pfs::stdcxx::string>();
 
 #ifdef HAVE_QT_CORE
-    //test_constructors<pfs::qt::string>();
+    test_basic<pfs::qt::string>();
+//    test_find<pfs::qt::string>();
+//    test_substr<pfs::qt::string>();
+//    test_c_str_cast<QString>();
+//
+//    test_compare<QString>();
+//    test_compare_cstr<QString>();
+//
+//    test_erase<QString>();
+//    test_append<QString>();
+//    test_to_string<pfs::qt::string>();
+    test_u8string<pfs::qt::string>();
+    test_trim<pfs::qt::string>();
 #endif
 
     return END_TESTS;

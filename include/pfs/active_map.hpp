@@ -3,33 +3,31 @@
 #include <pfs/memory.hpp>
 #include <pfs/mutex.hpp>
 #include <pfs/cxx/cxx98/binder.hpp>
-#include <pfs/traits/associative_container.hpp>
+#include <pfs/map.hpp>
 
 namespace pfs {
 
 template <typename Key
     , typename R
-    , template <typename> class AssociativeContainerImplType
-    , typename BasicLockable = pfs::mutex> // see [C++ concepts: BasicLockable](http://en.cppreference.com/w/cpp/concept/BasicLockable)
+    , template <typename, typename> class AssociativeContainer
+    , typename BasicLockable> // see [C++ concepts: BasicLockable](http://en.cppreference.com/w/cpp/concept/BasicLockable)
 class active_map_base
 {
 public:
   	typedef Key key_type;
     typedef R   result_type;
-    
+
 protected:
-    typedef pfs::shared_ptr<binder_base<void> >  value_type;
-    typedef BasicLockable                        mutex_type;
-    typedef pfs::traits::associative_container<
-              pfs::traits::kv<key_type, value_type>
-            , AssociativeContainerImplType>      map_type;
-    typedef typename map_type::size_type         size_type;
-    typedef typename map_type::iterator          iterator;
+    typedef pfs::shared_ptr<binder_base<void> >        value_type;
+    typedef BasicLockable                              mutex_type;
+    typedef AssociativeContainer<key_type, value_type> map_type;
+    typedef typename map_type::size_type               size_type;
+    typedef typename map_type::iterator                iterator;
 
 protected:
     map_type           _map;
     mutable mutex_type _mutex;
-    
+
 protected:
     void insert_helper (key_type const & key, shared_ptr<binder_base<void> > ptr)
     {
@@ -45,7 +43,7 @@ public:
 	{
 		clear();
 	}
-    
+
 	bool empty () const
 	{
 		return size() == 0;
@@ -56,7 +54,7 @@ public:
         unique_lock<mutex_type> locker(_mutex);
 		return _map.size();
 	}
-    
+
 	void insert_function (key_type const & key, result_type (* f) ())
 	{
 		insert_helper(key, shared_ptr<binder_base<void> >(new binder_function0<result_type>(f)));
@@ -127,7 +125,7 @@ public:
 	{
 		insert_helper(key, shared_ptr<binder_base<void> >(new binder_method5<Class, result_type, Arg1, Arg2, Arg3, Arg4, Arg5>(f, p, a1, a2, a3, a4, a5)));
 	}
-    
+
     void clear ()
 	{
         unique_lock<mutex_type> locker(_mutex);
@@ -143,33 +141,33 @@ public:
 
 template <typename Key
     , typename R
-    , template <typename> class AssociativeContainerImplType
+    , template <typename, typename> class AssociativeContainer = pfs::map
     , typename BasicLockable = pfs::mutex>
-class active_map : public active_map_base<Key, R, AssociativeContainerImplType, BasicLockable>
+class active_map : public active_map_base<Key, R, AssociativeContainer, BasicLockable>
 {
-    typedef active_map_base<Key, R, AssociativeContainerImplType, BasicLockable> base_class;
+    typedef active_map_base<Key, R, AssociativeContainer, BasicLockable> base_class;
     typedef typename base_class::map_type    map_type;
     typedef typename base_class::mutex_type  mutex_type;
     typedef typename base_class::key_type    key_type;
     typedef typename base_class::result_type result_type;
     typedef typename base_class::iterator    iterator;
-    
+
 public:
     active_map () : base_class() {}
-    
+
     virtual ~active_map () {}
-    
+
     result_type call (key_type const & key, bool * called = 0)
     {
         unique_lock<mutex_type> locker(this->_mutex);
         iterator pos = this->_map.find(key);
         result_type result;
-     
+
         if (pos != this->_map.end()) {
             locker.unlock();
 
             result = (*map_type::mapped_reference(pos).p)();
-           
+
             if (called)
                 *called = true;
             locker.lock();
@@ -178,10 +176,10 @@ public:
             if (called)
                *called = false;
         }
-        
+
         return result;
     }
-    
+
     result_type call_and_erase (key_type const & key, bool * called = 0)
 	{
 		result_type r = call(key, called);
@@ -191,12 +189,12 @@ public:
 };
 
 template <typename Key
-    , template <typename> class AssociativeContainerImplType
+    , template <typename, typename> class AssociativeContainer
     , typename BasicLockable>
-class active_map<Key, void, AssociativeContainerImplType, BasicLockable>
-        : public active_map_base<Key, void, AssociativeContainerImplType, BasicLockable>
+class active_map<Key, void, AssociativeContainer, BasicLockable>
+        : public active_map_base<Key, void, AssociativeContainer, BasicLockable>
 {
-    typedef active_map_base<Key, void, AssociativeContainerImplType, BasicLockable> base_class;
+    typedef active_map_base<Key, void, AssociativeContainer, BasicLockable> base_class;
     typedef typename base_class::map_type    map_type;
     typedef typename base_class::mutex_type  mutex_type;
     typedef typename base_class::key_type    key_type;
@@ -204,19 +202,19 @@ class active_map<Key, void, AssociativeContainerImplType, BasicLockable>
 
 public:
     active_map () : base_class() {}
-    
+
     virtual ~active_map () {}
-    
+
     void call (key_type const & key, bool * called = 0)
     {
         unique_lock<mutex_type> locker(this->_mutex);
         iterator pos = this->_map.find(key);
-     
+
         if (pos != this->_map.end()) {
             locker.unlock();
 
             (*map_type::mapped_reference(pos))();
-           
+
             if (called)
                 *called = true;
             locker.lock();
@@ -226,7 +224,7 @@ public:
                *called = false;
         }
     }
-    
+
     void call_and_erase (key_type const & key, bool * called = 0)
 	{
 		call(key, called);

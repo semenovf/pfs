@@ -95,9 +95,9 @@ struct file : public bits::device
         return device_file;
     }
 
-    virtual system_string url () const pfs_override
+    virtual string url () const pfs_override
     {
-        system_string r("file:/");
+        string r("file:/");
         r.append(path.native());
         return r;
     }

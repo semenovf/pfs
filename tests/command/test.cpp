@@ -3,8 +3,8 @@
 #include <sstream>
 #include <pfs/test.hpp>
 #include <pfs/cxxlang.hpp>
-#include <pfs/traits/stdcxx/vector.hpp>
-#include <pfs/traits/stdcxx/map.hpp>
+#include <pfs/vector.hpp>
+#include <pfs/map.hpp>
 #include <pfs/command.hpp>
 
 static char const * output_sample =
@@ -28,13 +28,13 @@ static char const * output_sample =
     "Bye, Sam!\n"
     "Hello, Sam!\n";
 
-typedef pfs::invoker<pfs::stdcxx::vector> invoker_t;
+typedef pfs::invoker<pfs::vector> invoker_t;
 
 struct hello_command : pfs::command
 {
     char const *        _name;
     std::stringstream * output;
-    
+
     hello_command (char const * name, std::stringstream * out)
         : _name(name)
         , output(out)
@@ -97,15 +97,15 @@ bool test (size_t limit)
 //
 //    command_mapper_t cm;
 //    pfs::command_factory<hello_command> hello_command_factory;
-//    
+//
 //    cm.insert("hello", & hello_command_factory);
-//    
+//
 //    invoker_t invoker(limit);
 //    std::stringstream output;
 //
 //    pfs::shared_ptr<pfs::command> hello_john = cm.make("hello");
 //    hello_john.construct("John", & output);
-//    
+//
 //    invoker.exec(hello_john);
 //}
 
@@ -115,7 +115,7 @@ int main ()
     BEGIN_TESTS(limit - 1);
 
 //    TEST_OK(test(100));
-    
+
     while (--limit) {
         TEST_OK(test(limit + 5));
     }

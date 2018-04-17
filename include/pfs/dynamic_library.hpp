@@ -6,10 +6,10 @@
 #include <pfs/system_error.hpp>
 
 #ifdef PFS_CC_MSVC
-#	include <windows.h>
-#	include <windef.h>
+#   include <windows.h>
+#   include <windef.h>
 #else
-#	include <dlfcn.h>
+#   include <dlfcn.h>
 #endif
 
 // see http://en.wikipedia.org/wiki/Dynamic_loading
@@ -44,34 +44,34 @@ private:
 #endif
 
 public:
-	dynamic_library ()
-		: _handle(0)
-	{};
+    dynamic_library ()
+        : _handle(0)
+    {}
 
-	~dynamic_library ();
+    ~dynamic_library ();
 
-	native_handle_type native_handle () const
-	{
-		return _handle;
-	}
+    native_handle_type native_handle () const
+    {
+        return _handle;
+    }
 
-   	bool open (filesystem::path const & p, error_code & ec);
+    bool open (filesystem::path const & p, error_code & ec);
 
-	/**
-	 * @brief Open (load) dynamic library (shared object).
-	 *
-	 * @param p path to dynamic library file (relative or absolute).
-	 *
-	 * @return @c invalid_argument if path @a p is empty,
-	 */
-  	bool open (filesystem::path const & p
+    /**
+        * @brief Open (load) dynamic library (shared object).
+        *
+        * @param p path to dynamic library file (relative or absolute).
+        *
+        * @return @c invalid_argument if path @a p is empty,
+        */
+    bool open (filesystem::path const & p
             , filesystem::pathlist const & searchdirs);
 
-	bool open (filesystem::path const & p
+    bool open (filesystem::path const & p
             , filesystem::pathlist const & searchdirs
             , error_code & ec) pfs_noexcept;
 
-	symbol_type resolve (char const * symbol_name);
+    symbol_type resolve (char const * symbol_name);
     symbol_type resolve (char const * symbol_name, error_code & ec) pfs_noexcept;
 };
 
@@ -172,6 +172,3 @@ struct is_error_code_enum<pfs::dynamic_library_errc>
 #endif
 
 } // std
-
-#endif /* __PFS_DYNAMIC_LIBRARY_HPP__ */
-

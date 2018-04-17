@@ -1,6 +1,6 @@
 #pragma once
-#include <pfs/v2/byte_string.hpp>
-#include <pfs/v2/binary_ostream.hpp>
+#include <pfs/byte_string.hpp>
+#include <pfs/binary_ostream.hpp>
 
 typedef pfs::byte_string byte_string;
 

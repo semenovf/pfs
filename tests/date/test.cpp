@@ -1,11 +1,11 @@
 #include <sstream>
 #include <pfs/test.hpp>
 #include <pfs/string.hpp>
-#include <pfs/traits/stdcxx/string.hpp>
+#include <pfs/string.hpp>
 #include <pfs/date.hpp>
 #include <pfs/datetime.hpp>
 
-typedef pfs::string<pfs::stdcxx::string> string_type;
+typedef pfs::string string_type;
 typedef std::stringstream stringstream_type;
 typedef pfs::date date_type;
 

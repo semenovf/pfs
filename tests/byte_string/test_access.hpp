@@ -5,7 +5,7 @@ void test_access ()
     std::cout << "///////////////////////////////////////////////////////////////////////////\n";
     std::cout << "//                               Access                                  //\n";
     std::cout << "///////////////////////////////////////////////////////////////////////////\n";
-    
+
     ADD_TESTS(21);
 
     byte_string const bs_const(bs_sample);
@@ -47,4 +47,3 @@ void test_access ()
 
     TEST_OK(std::strcmp(bs_mutable.c_str(), "etyb_string") == 0);
 }
-

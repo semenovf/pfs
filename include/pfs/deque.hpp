@@ -1,13 +1,13 @@
 #pragma once
-#include <pfs/stdcxx/list.hpp>
+#include <pfs/stdcxx/deque.hpp>
 #include <pfs/sequence_container.hpp>
 
 namespace pfs {
 
 template <typename T>
-class list : public stdcxx::list<T, list<T> >
+class deque : public stdcxx::deque<T, deque<T> >
 {
-    typedef stdcxx::list<T, list> base_class;
+    typedef stdcxx::deque<T, deque<T> > base_class;
 
 public:
     typedef typename base_class::value_type       value_type;
@@ -23,31 +23,31 @@ public:
     typedef typename base_class::const_reverse_iterator const_reverse_iterator;
 
 public:
-    list () : base_class() {}
+    deque () : base_class() {}
 
-    list (size_type count, const_reference value)
+    deque (size_type count, const_reference value)
         : base_class(count, value)
     {}
 
-    explicit list (size_type count)
+    explicit deque (size_type count)
         : base_class(count)
     {}
 
     template <typename InputIt>
-    list (InputIt first, InputIt last)
+    deque (InputIt first, InputIt last)
         : base_class(first, last)
     {}
 
-    list (list const & rhs)
+    deque (deque const & rhs)
         : base_class(rhs)
     {}
 
 #if __cplusplus >= 201103L
-    list (list && rhs)
-        : base_class(std::forward<list>(rhs))
+    deque (deque && rhs)
+        : base_class(std::forward<deque>(rhs))
     {}
 
-    list (std::initializer_list<T> ilist)
+    deque (std::initializer_list<T> ilist)
         : base_class(ilist.begin(), ilist.end())
     {}
 #endif
@@ -56,12 +56,13 @@ public:
 namespace sequence_container {
 
 template <typename T>
-struct type_traits<T, pfs::list<T> >
+struct type_traits<T, pfs::deque<T> >
 {
-    typedef pfs::list<T> type;
+    typedef pfs::deque<T> type;
     typedef T value_type;
 };
 
 } // sequence_container
 
 } // pfs
+

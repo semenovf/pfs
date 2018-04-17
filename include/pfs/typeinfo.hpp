@@ -1,6 +1,4 @@
-#ifndef __PFS_TYPEINFO_HPP__
-#define __PFS_TYPEINFO_HPP__
-
+#pragma once
 #include <typeinfo>
 #include <pfs/types.hpp>
 
@@ -30,5 +28,3 @@ template <> inline const char * type_name<long double> () { return "long double"
 #endif
 
 } // pfs
-
-#endif /* __PFS_TYPEINFO_HPP__ */

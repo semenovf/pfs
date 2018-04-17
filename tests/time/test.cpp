@@ -1,9 +1,9 @@
 #include <pfs/test.hpp>
 #include <pfs/string.hpp>
-#include <pfs/traits/stdcxx/string.hpp>
+#include <pfs/string.hpp>
 #include <pfs/time.hpp>
 
-typedef pfs::string<pfs::stdcxx::string> string_type;
+typedef pfs::string string_type;
 typedef pfs::time time_type;
 
 void test_base (void)

@@ -1,13 +1,13 @@
 #include <cstdio>
 #include <cstdlib>
-#include <string>
 #include "pfs/test.hpp"
-#include "pfs/system_string.hpp"
+#include "pfs/string.hpp"
 #include "pfs/net/inet4_addr.hpp"
 #include "inet_interface.hpp"
 
 #include <iostream>
 
+typedef pfs::string string_t;
 using pfs::net::inet4_addr;
 using std::cout;
 using std::cerr;
@@ -22,14 +22,14 @@ using std::endl;
 //                  ? "0x" : base == 8 ? "0" : "";
 //}
 
-static pfs::system_string build_inet_addr_str (int addrClass
+static string_t build_inet_addr_str (int addrClass
         , uint32_t a
         , uint32_t b
         , uint32_t c
         , uint32_t d
         , int base)
 {
-    pfs::system_char_t buffer[64];
+    string_t::value_type buffer[64];
 
     if (addrClass == 1) {
         switch (base) {
@@ -81,7 +81,7 @@ static pfs::system_string build_inet_addr_str (int addrClass
         }
     }
 
-    return pfs::system_string(buffer);
+    return string_t(buffer);
 }
 
 

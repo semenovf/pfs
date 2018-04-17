@@ -5,9 +5,9 @@
 #include <pfs/io/bits/pool.hpp>
 #include <pfs/io/device.hpp>
 #include <pfs/io/server.hpp>
-#include <pfs/traits/associative_container.hpp>
-#include <pfs/traits/contigous_container.hpp>
-#include <pfs/traits/sequence_container.hpp>
+#include <pfs/list.hpp>
+#include <pfs/map.hpp>
+#include <pfs/vector.hpp>
 
 #if __COMMENT__ // from bits/poll.h (linux)
 
@@ -48,11 +48,13 @@
 
 #define WR_EVENTS_XOR_MASK (POLLOUT | WR_EVENTS_XOR_MASK_XPG42)
 
-namespace pfs { namespace io { namespace details {
+namespace pfs {
+namespace io {
+namespace details {
 
-template <template <typename> class SequenceContainerImpl
-        , template <typename> class ContigousContainerImpl
-        , template <typename> class AssociativeContainerImpl>
+template <template <typename> class SequenceContainer = pfs::list
+        , template <typename> class ContigousContainer = pfs::vector
+        , template <typename, typename> class AssociativeContainer = pfs::map>
 struct pool : public bits::pool
 {
     struct iterator;
@@ -60,18 +62,11 @@ struct pool : public bits::pool
     typedef ::pollfd pollfd_type;
     typedef io::device::native_handle_type native_handle_type;
 
-    typedef traits::contigous_container<
-            pollfd_type, ContigousContainerImpl>           pollfd_vector;
-    typedef traits::associative_container<
-            traits::kv<native_handle_type, io::device>
-                , AssociativeContainerImpl>                device_map;
-    typedef traits::associative_container<
-            traits::kv<native_handle_type, io::server>
-                , AssociativeContainerImpl>                server_map;
-    typedef traits::sequence_container<io::device
-            , SequenceContainerImpl>                       device_sequence;
-    typedef traits::sequence_container<io::server
-            , SequenceContainerImpl>                       server_sequence;
+    typedef ContigousContainer<pollfd_type>                      pollfd_vector;
+    typedef AssociativeContainer<native_handle_type, io::device> device_map;
+    typedef AssociativeContainer<native_handle_type, io::server> server_map;
+    typedef SequenceContainer<io::device>                        device_sequence;
+    typedef SequenceContainer<io::server>                        server_sequence;
 
     pfs::mutex _mtx;
     device_map _device_map;
@@ -133,32 +128,32 @@ struct pool : public bits::pool
         _update = true;
     }
 
-	void push_back (io::server s, short /*events*/)
-	{
-		pfs::lock_guard<pfs::mutex> locker(_mtx);
-		_server_map.insert(s.native_handle(), s);
-		_update = true;
-	}
+    void push_back (io::server s, short /*events*/)
+    {
+        pfs::lock_guard<pfs::mutex> locker(_mtx);
+        _server_map.insert(s.native_handle(), s);
+        _update = true;
+    }
 
-	void delete_deferred (io::device d)
-	{
-		pfs::lock_guard<pfs::mutex> locker(_mtx);
-		_device_map.erase(d.native_handle());
-		_update = true;
-	}
+    void delete_deferred (io::device d)
+    {
+        pfs::lock_guard<pfs::mutex> locker(_mtx);
+        _device_map.erase(d.native_handle());
+        _update = true;
+    }
 
-	void delete_deferred (io::server s)
-	{
-		pfs::lock_guard<pfs::mutex> locker(_mtx);
-		_server_map.erase(s.native_handle());
-		_update = true;
-	}
+    void delete_deferred (io::server s)
+    {
+        pfs::lock_guard<pfs::mutex> locker(_mtx);
+        _server_map.erase(s.native_handle());
+        _update = true;
+    }
 
-	int poll (iterator ** begin
-			, iterator ** end
-			, short filter_events
-			, int millis
-			, error_code * ex)
+    int poll (iterator ** begin
+            , iterator ** end
+            , short filter_events
+            , int millis
+            , error_code * ex)
     {
         if (_update) {
             update_pollfd(filter_events);

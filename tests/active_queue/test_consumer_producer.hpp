@@ -1,11 +1,3 @@
-/**
- * @file   test.cpp
- * @author
- * @date
- *
- * @brief testing ...
- */
-
 #include <pfs/test.hpp>
 #include <pfs/thread.hpp>
 #include <pfs/atomic.hpp>
@@ -20,7 +12,7 @@ namespace consumer_producer {
 using std::cout;
 using std::endl;
 
-typedef pfs::active_queue<pfs::stdcxx::deque
+typedef pfs::active_queue<pfs::deque
     , pfs::mutex
     , 256> active_queue_type;
 
@@ -69,10 +61,10 @@ public:
 void test ()
 {
     ADD_TESTS(1)
-            
+
     producer producers[PRODUCER_COUNT];
     consumer consumers[CONSUMER_COUNT];
-    
+
     pfs::unique_ptr<pfs::thread> consumer_threads[CONSUMER_COUNT];
     pfs::unique_ptr<pfs::thread> producer_threads[PRODUCER_COUNT];
 
@@ -85,7 +77,7 @@ void test ()
     }
 
     pfs::this_thread::sleep_for(pfs::chrono::milliseconds(10));
-    
+
 
     for (int i = 0; i < CONSUMER_COUNT; ++i) {
         consumer_threads[i]->join();

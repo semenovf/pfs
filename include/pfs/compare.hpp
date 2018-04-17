@@ -1,5 +1,4 @@
-#ifndef __PFS_COMPARE_HPP__
-#define __PFS_COMPARE_HPP__
+#pragma once
 
 namespace pfs {
 
@@ -28,6 +27,3 @@ inline bool operator >= (T const & a, U const & b)
 }
 
 } // pfs
-
-#endif /* __PFS_COMPARE_HPP__ */
-

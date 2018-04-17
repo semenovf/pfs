@@ -1,7 +1,7 @@
 #include <cstring>
 #include <iostream>
 #include <pfs/test.hpp>
-#include <pfs/v2/byte_string.hpp>
+#include <pfs/byte_string.hpp>
 
 static char const * raw_chars = "byte_string";
 static pfs::byte_string::const_pointer raw_bytes = reinterpret_cast<pfs::byte_string::const_pointer>(raw_chars);
