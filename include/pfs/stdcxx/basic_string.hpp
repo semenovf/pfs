@@ -831,14 +831,14 @@ public:
     }
 
 #if PFS_COMPILER_CXX_GENERALIZED_INITIALIZERS
-      /**
-      */
-      inline DerivedT & replace (const_iterator first, const_iterator last
-                , std::initializer_list<CharT> ilist)
-      {
-          base_class::replace(first, last, ilist.begin(), ilist.end());
-          return *static_cast<DerivedT *>(this);
-      }
+    /**
+    */
+    inline DerivedT & replace (const_iterator first, const_iterator last
+            , std::initializer_list<CharT> ilist)
+    {
+        base_class::replace(first, last, ilist);
+        return *static_cast<DerivedT *>(this);
+    }
 #endif
 
     /**

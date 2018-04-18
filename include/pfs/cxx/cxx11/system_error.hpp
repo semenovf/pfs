@@ -1,9 +1,7 @@
-#ifndef __PFS_CXX_CXX11_SYSTEM_ERROR_HPP__
-#define __PFS_CXX_CXX11_SYSTEM_ERROR_HPP__
-
+#pragma once
 #include <system_error>
 #include <pfs/compiler.hpp>
-//#include <pfs/string.hpp>
+#include <pfs/string.hpp>
 
 // Creating custom error category:
 // [std::error_category](http://www.cplusplus.com/reference/system_error/error_category/)
@@ -35,10 +33,9 @@ inline pfs::error_code make_error_code (pfs::errc e) noexcept
     return std::make_error_code(e);
 }
 
-template <typename StringType>
-inline StringType to_string (error_code const & ec)
+inline string to_string (error_code const & ec)
 {
-    return StringType(ec.message());
+    return string(ec.message());
 }
 
 // [Construct std::error_code from errno on POSIX and GetLastError() on Windows](https://stackoverflow.com/questions/13950938/construct-stderror-code-from-errno-on-posix-and-getlasterror-on-windows)
@@ -109,6 +106,3 @@ struct is_error_code_enum<boost::system::errc::errc_t>
 } // std
 
 #endif // HAVE_BOOST_SYSTEM_ERROR
-
-#endif /* __PFS_CXX_CXX11_SYSTEM_ERROR_HPP__ */
-
