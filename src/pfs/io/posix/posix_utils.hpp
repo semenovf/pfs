@@ -14,19 +14,18 @@ namespace io {
 bool is_nonblocking (int fd);
 bool set_nonblocking (int fd, bool on);
 
-template <typename StringType>
-StringType inet_socket_url (char const * proto, sockaddr_in const & sin)
+inline string inet_socket_url (char const * proto, sockaddr_in const & sin)
 {
 #if PFS_CC_MSC
 #   error "Implement inet_socket_url() for MSC"
 #else
     char str[INET_ADDRSTRLEN];
     inet_ntop(AF_INET, & sin.sin_addr, str, INET_ADDRSTRLEN);
-    StringType r(proto);
+    string r(proto);
     r.append("://");
     r.append(str);
     r.append(":");
-    r.append(to_string<StringType>(ntohs(sin.sin_port), 10));
+    r.append(pfs::to_string(ntohs(sin.sin_port), 10));
     return r;
 #endif
 }

@@ -19,9 +19,9 @@ bool testCase (char const * fmt1, std::string const & fmt2, T value)
     typedef StringType string_type;
 
 #ifdef PFS_CC_MSC
-    typedef pfs::safeformat<string_type, string_type, pfs::safeformat_compat_msc> fmt;
+    typedef pfs::safeformat<pfs::safeformat_compat_msc> fmt;
 #else
-    typedef pfs::safeformat<string_type, string_type, pfs::safeformat_compat_gcc> fmt;
+    typedef pfs::safeformat fmt;
 #endif
 
     char buf[5020];
@@ -277,17 +277,17 @@ void test2 (unsigned limit)
             // don't test negative values on 64bit systems, because
             // snprintf does not support 64 Bit values
             TEST_FAIL2((testCase<int, string_type>(formatSpec.c_str(), formatSpec, randomInt(-10000 * (sizeof(size_t) > 4 ? 0 : 1) , 10000)))
-            		, formatSpec.c_str());
+                    , formatSpec.c_str());
             break;
         case 'e':
         case 'E':
         case 'f':
         case 'g':
         case 'G':
-        	TEST_FAIL2((testCase<double, string_type>(formatSpec.c_str()
+            TEST_FAIL2((testCase<double, string_type>(formatSpec.c_str()
                             , formatSpec
                             , randomInt(-10000, 10000) / double(randomInt(1, 100))))
-        			, formatSpec.c_str());
+                    , formatSpec.c_str());
             break;
         case 'n':
             break;
@@ -295,13 +295,13 @@ void test2 (unsigned limit)
             {
                 void * p = malloc(randomInt(1, 1000));
                 TEST_FAIL2((testCase<void *, string_type>(formatSpec.c_str(), formatSpec, p))
-                		, formatSpec.c_str());
+                        , formatSpec.c_str());
                 free(p);
             }
             break;
         case 's':
-        	TEST_FAIL2((testCase<char const *, string_type>(formatSpec.c_str(), formatSpec, randomString(100).c_str()))
-        			, formatSpec.c_str());
+            TEST_FAIL2((testCase<char const *, string_type>(formatSpec.c_str(), formatSpec, randomString(100).c_str()))
+                    , formatSpec.c_str());
             break;
         default:
             PFS_ASSERT(false);
@@ -336,7 +336,7 @@ void test3 ()
 
     sw.start();
     for (int i = loop; i > 0; --i)
-        pfs::safeformat<string_type>("Hey, %u frobnicators and %u twiddlicators\n")(i)(i);
+        pfs::safeformat("Hey, %u frobnicators and %u twiddlicators\n")(i)(i);
     ellapsed_safeformat = sw.ellapsed();
 
     sw.start();

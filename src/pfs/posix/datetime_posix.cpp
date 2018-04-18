@@ -47,7 +47,6 @@ datetime current_datetime ()
     return pfs::datetime(date, time);
 }
 
-template <>
 string timezone_name ()
 {
     struct tm buf;

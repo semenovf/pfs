@@ -1,16 +1,9 @@
 #pragma once
 
-template <typename StringT>
-void pfs_backtrace (StringT file, int line, StringT text);
-
-template <typename StringT>
-void pfs_assert (StringT file, int line, StringT text);
-
-template <typename StringT>
-void pfs_check_warn (StringT file, int line, StringT text);
-
-template <typename StringT>
-void pfs_check_error (StringT file, int line, StringT text);
+void pfs_backtrace (char const * file, int line, char const * text);
+void pfs_assert (char const * file, int line, char const * text);
+void pfs_check_warn (char const * file, int line, char const * text);
+void pfs_check_error (char const * file, int line, char const * text);
 
 #include <pfs/compiler.hpp>
 #include PFS_CC_HEADER(assert)

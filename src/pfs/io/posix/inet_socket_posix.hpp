@@ -119,7 +119,7 @@ public:
 
     virtual string_type url () const pfs_override
     {
-        return inet_socket_url<string_type>("tcp", _sockaddr);
+        return inet_socket_url("tcp", _sockaddr);
     }
 };
 
@@ -169,7 +169,7 @@ public:
 
     virtual string_type url () const pfs_override
     {
-        return inet_socket_url<string_type>("udp", _sockaddr);
+        return inet_socket_url("udp", _sockaddr);
     }
 };
 

@@ -1,6 +1,5 @@
 #pragma once
 #include <pfs/stdcxx/list.hpp>
-#include <pfs/sequence_container.hpp>
 
 namespace pfs {
 
@@ -52,16 +51,5 @@ public:
     {}
 #endif
 };
-
-namespace sequence_container {
-
-template <typename T>
-struct type_traits<T, pfs::list<T> >
-{
-    typedef pfs::list<T> type;
-    typedef T value_type;
-};
-
-} // sequence_container
 
 } // pfs

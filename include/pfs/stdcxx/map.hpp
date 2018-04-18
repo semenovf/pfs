@@ -133,7 +133,7 @@ public:
 #if __cplusplus < 201103L
     const_iterator cbegin () const
     {
-        return this->cbegin();
+        return this->begin();
     }
 #endif
 
@@ -148,7 +148,7 @@ public:
 #if __cplusplus < 201103L
     const_iterator cend () const
     {
-        return this->cend();
+        return this->end();
     }
 #endif
 
@@ -309,6 +309,16 @@ public:
     /**
      * @fn const_iterator upper_bound (Key const & key) const
      */
+
+    inline mapped_type & mapped_reference (iterator it)
+    {
+        return it->second;
+    }
+
+    inline mapped_type const & mapped_reference (const_iterator it)
+    {
+        return it->second;
+    }
 
     ///////////////////////////////////////////////////////////////////////////
     // Compare operators                                                     //

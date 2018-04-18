@@ -4,8 +4,7 @@
 #include <execinfo.h>
 #include "pfs/assert.hpp"
 
-template <>
-void pfs_backtrace<char const *> (char const * file, int line, char const * text)
+void pfs_backtrace (char const * file, int line, char const * text)
 {
     fprintf(stdout, "***BACKTRACE: (%s[%d]): %s\n", file, line, text ? text : "?");
     void * bt_buffer[PFS_GNUC_BACKTRACE_SIZE];
@@ -17,8 +16,7 @@ void pfs_backtrace<char const *> (char const * file, int line, char const * text
     fsync(STDERR_FILENO);
 }
 
-template <>
-void pfs_assert<char const *> (char const * file, int line, char const * text)
+void pfs_assert (char const * file, int line, char const * text)
 {
     fprintf(stderr, "***ERROR: (%s[%d]): %s\n", file, line, text ? text : "?");
     void * bt_buffer[PFS_GNUC_BACKTRACE_SIZE];
@@ -31,14 +29,12 @@ void pfs_assert<char const *> (char const * file, int line, char const * text)
     abort();
 }
 
-template <>
-void pfs_check_warn<char const *> (char const * file, int line, char const * text)
+void pfs_check_warn (char const * file, int line, char const * text)
 {
     fprintf(stderr, "***WARN: (%s[%d]): %s\n", file, line, text ? text : "?");
 }
 
-template <>
-void pfs_check_error<char const *> (char const * file, int line, char const * text)
+void pfs_check_error (char const * file, int line, char const * text)
 {
     fprintf(stderr, "***ERROR: (%s[%d]): %s\n", file, line, text ? text : "?");
 }

@@ -39,22 +39,22 @@ public:
     time add_millis  (int millis) const;
     time add_seconds (int secs) const { return add_millis(secs * 1000); }
 
-    int	hour () const
+    int hour () const
     {
         return valid() ? _millis / MILLIS_PER_HOUR : NULL_TIME;
     }
 
-    int	minute () const
+    int minute () const
     {
         return valid() ? (_millis % MILLIS_PER_HOUR) / MILLIS_PER_MINUTE : NULL_TIME;
     }
 
-    int	second () const
+    int second () const
     {
         return valid() ? (_millis / 1000) % SECONDS_PER_MINUTE : NULL_TIME;
     }
 
-    int	millis () const
+    int millis () const
     {
         return valid() ? _millis % 1000 : NULL_TIME;
     }
@@ -64,14 +64,14 @@ public:
         return _millis > NULL_TIME && _millis < MILLIS_PER_DAY;
     }
 
-    int	millis_to (const time & t) const
+    int millis_to (const time & t) const
     {
         return valid() && t.valid()
             ? t._millis - _millis
             : 0;
     }
 
-    int	seconds_to (const time & t) const
+    int seconds_to (const time & t) const
     {
         return valid() &&  t.valid()
             ? t._millis/1000 - _millis/1000
@@ -129,30 +129,129 @@ public:
         r._millis = millis;
         return r;
     }
+
+    string to_string (string const & format) const
+    {
+        string r;
+
+        string::const_iterator p = format.cbegin();
+        string::const_iterator end = format.cend();
+
+        bool need_spec = false; // true if conversion specifier character expected
+
+        while (p < end) {
+            if (*p == '%') {
+                if (need_spec) {
+                    r.push_back('%');
+                    need_spec = false;
+                } else {
+                    need_spec = true;
+                }
+            } else {
+                if (!need_spec) {
+                    r.push_back(*p);
+                } else {
+                    switch (to_ascii(*p)) {
+                    case 'n':
+                        r.push_back('\n');
+                        break;
+
+                    case 't':
+                        r.push_back('\t');
+                        break;
+
+                    case 'H':
+                        append_prefixed2(r, '0', hour());
+                        break;
+
+                    case 'I':
+                        append_prefixed2(r, '0', hour() % 12);
+                        break;
+
+                    case 'k':
+                        append_prefixed2(r, ' ', hour());
+                        break;
+
+                    case 'l':
+                        append_prefixed2(r, ' ', hour() % 12);
+                        break;
+
+                    case 'M':
+                        append_prefixed2(r, '0', minute());
+                        break;
+
+                    case 'q':
+                        r.append(pfs::to_string(millis()));
+                        break;
+
+                    case 'Q':
+                        append_prefixed3(r, '0', millis());
+                        break;
+
+                    case 'S':
+                        append_prefixed2(r, '0', second());
+                        break;
+
+                    case 'R':
+                        append_prefixed2(r, '0', hour());
+                        r.push_back(':');
+                        append_prefixed2(r, '0', minute());
+                        break;
+
+                    case 'T':
+                        append_prefixed2(r, '0', hour());
+                        r.push_back(':');
+                        append_prefixed2(r, '0', minute());
+                        r.push_back(':');
+                        append_prefixed2(r, '0', second());
+                        break;
+
+                    case 'J':
+                        append_prefixed2(r, '0', hour());
+                        r.push_back(':');
+                        append_prefixed2(r, '0', minute());
+                        r.push_back(':');
+                        append_prefixed2(r, '0', second());
+                        r.push_back('.');
+                        append_prefixed3(r, '0', millis());
+                        break;
+
+                    case 'p':
+                        r.append(hour() < 12 ? string("AM") : string("PM"));
+                        break;
+
+                    default:
+                        r.push_back('%');
+                        r.push_back(*p);
+                        break;
+                    }
+
+                    need_spec = false;
+                }
+            }
+            ++p;
+        }
+
+        return r;
+    }
+
+private:
+    static inline void append_prefixed2 (string & s, string::value_type fill_char, int i2)
+    {
+        if (i2 >= 0 && i2 < 10) s.push_back(fill_char);
+        s.append(pfs::to_string(i2));
+    }
+
+    static inline void append_prefixed3 (string & s, string::value_type fill_char, int i3)
+    {
+        if (i3 >= 0) {
+            if (i3 < 100) s.push_back(fill_char);
+            if (i3 < 10) s.push_back(fill_char);
+        }
+        s.append(pfs::to_string(i3));
+    }
 };
 
-
-namespace details {
-namespace time {
-
-template <typename StringType>
-inline void append_prefixed2 (StringType & s, typename StringType::value_type fill_char, int i2)
-{
-    if (i2 >= 0 && i2 < 10) s.push_back(fill_char);
-    s.append(to_string<StringType>(i2));
-}
-
-template <typename StringType>
-inline void append_prefixed3 (StringType & s, typename StringType::value_type fill_char, int i3)
-{
-    if (i3 >= 0) {
-        if (i3 < 100) s.push_back(fill_char);
-        if (i3 < 10) s.push_back(fill_char);
-    }
-    s.append(to_string<StringType>(i3));
-}
-
-}}
 /**
  *
  * @param format
@@ -173,110 +272,9 @@ inline void append_prefixed3 (StringType & s, typename StringType::value_type fi
  * %J     The time in 24-hour notation with milliseconds part (%H:%M:%S.%Q).
  * %p     Either "AM" or "PM" according to the given time value, or the corresponding strings for the current locale.  Noon is treated as "PM" and midnight as "AM".
  */
-template <typename StringType>
-StringType to_string (time const & t, StringType const & format)
+inline string to_string (time const & t, string const & format)
 {
-    StringType r;
-
-    typename StringType::const_iterator p = format.cbegin();
-    typename StringType::const_iterator end = format.cend();
-
-    bool need_spec = false; // true if conversion specifier character expected
-
-    while (p < end) {
-        if (*p == '%') {
-            if (need_spec) {
-                r.push_back('%');
-                need_spec = false;
-            } else {
-                need_spec = true;
-            }
-        } else {
-            if (!need_spec) {
-                r.push_back(*p);
-            } else {
-                switch (to_ascii(*p)) {
-                case 'n':
-                    r.push_back('\n');
-                    break;
-
-                case 't':
-                    r.push_back('\t');
-                    break;
-
-                case 'H':
-                    details::time::append_prefixed2(r, '0', t.hour());
-                    break;
-
-                case 'I':
-                    details::time::append_prefixed2(r, '0', t.hour() % 12);
-                    break;
-
-                case 'k':
-                    details::time::append_prefixed2(r, ' ', t.hour());
-                    break;
-
-                case 'l':
-                    details::time::append_prefixed2(r, ' ', t.hour() % 12);
-                    break;
-
-                case 'M':
-                    details::time::append_prefixed2(r, '0', t.minute());
-                    break;
-
-                case 'q':
-                    r.append(to_string<StringType>(t.millis()));
-                    break;
-
-                case 'Q':
-                    details::time::append_prefixed3(r, '0', t.millis());
-                    break;
-
-                case 'S':
-                    details::time::append_prefixed2(r, '0', t.second());
-                    break;
-
-                case 'R':
-                    details::time::append_prefixed2(r, '0', t.hour());
-                    r.push_back(':');
-                    details::time::append_prefixed2(r, '0', t.minute());
-                    break;
-
-                case 'T':
-                    details::time::append_prefixed2(r, '0', t.hour());
-                    r.push_back(':');
-                    details::time::append_prefixed2(r, '0', t.minute());
-                    r.push_back(':');
-                    details::time::append_prefixed2(r, '0', t.second());
-                    break;
-
-                case 'J':
-                    details::time::append_prefixed2(r, '0', t.hour());
-                    r.push_back(':');
-                    details::time::append_prefixed2(r, '0', t.minute());
-                    r.push_back(':');
-                    details::time::append_prefixed2(r, '0', t.second());
-                    r.push_back('.');
-                    details::time::append_prefixed3(r, '0', t.millis());
-                    break;
-
-                case 'p':
-                    r.append(t.hour() < 12 ? StringType("AM") : StringType("PM"));
-                    break;
-
-                default:
-                    r.push_back('%');
-                    r.push_back(*p);
-                    break;
-                }
-
-                need_spec = false;
-            }
-        }
-        ++p;
-    }
-
-    return r;
+    return t.to_string(format);
 }
 
 /**
@@ -284,10 +282,9 @@ StringType to_string (time const & t, StringType const & format)
  * @param t
  * @return
  */
-template <typename StringType>
-inline StringType to_string (time const & t)
+inline string to_string (time const & t)
 {
-    return to_string<StringType>(t, StringType("%T"));
+    return to_string(t, string("%T"));
 }
 
 pfs::time current_time ();

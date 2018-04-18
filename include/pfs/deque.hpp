@@ -1,6 +1,5 @@
 #pragma once
 #include <pfs/stdcxx/deque.hpp>
-#include <pfs/sequence_container.hpp>
 
 namespace pfs {
 
@@ -52,17 +51,6 @@ public:
     {}
 #endif
 };
-
-namespace sequence_container {
-
-template <typename T>
-struct type_traits<T, pfs::deque<T> >
-{
-    typedef pfs::deque<T> type;
-    typedef T value_type;
-};
-
-} // sequence_container
 
 } // pfs
 

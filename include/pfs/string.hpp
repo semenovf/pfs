@@ -50,6 +50,10 @@ public:
         : base_class(n, c)
     {}
 
+    string (std::string const & s)
+        : base_class(s)
+    {}
+
     template <typename InputIterator>
     string (InputIterator first, InputIterator last)
         : base_class(first, last)
@@ -150,12 +154,12 @@ CharT * intmax_to_cstr (intmax_t num
  * @param fill_char
  * @return
  */
-template <typename UintType, typename StringType>
-StringType to_string (typename pfs::enable_if<pfs::is_unsigned<UintType>::value, UintType>::type value
+template <typename UintType>
+string to_string (typename pfs::enable_if<pfs::is_unsigned<UintType>::value, UintType>::type value
         , int radix
         , bool uppercase)
 {
-    typedef typename StringType::value_type char_type;
+    typedef string::value_type char_type;
 
     char_type buf[sizeof(UintType) * 8 + 1];
     char_type * str = uintmax_to_cstr<char_type>(static_cast<uintmax_t>(value)
@@ -164,15 +168,15 @@ StringType to_string (typename pfs::enable_if<pfs::is_unsigned<UintType>::value,
             , buf
             , sizeof(buf)/sizeof(buf[0]));
 
-    return StringType(str);
+    return string(str);
 }
 
-template <typename IntType, typename StringType>
-StringType to_string (typename enable_if<is_signed<IntType>::value, IntType>::type value
+template <typename IntType>
+string to_string (typename enable_if<is_signed<IntType>::value, IntType>::type value
         , int radix
         , bool uppercase)
 {
-    typedef typename StringType::value_type char_type;
+    typedef string::value_type char_type;
 
     char_type buf[sizeof(IntType) * 8 + 1];
     char_type * str = intmax_to_cstr<char_type>(static_cast<intmax_t>(value)
@@ -181,122 +185,78 @@ StringType to_string (typename enable_if<is_signed<IntType>::value, IntType>::ty
             , buf
             , sizeof(buf)/sizeof(buf[0]));
 
-    return StringType(str);
+    return string(str);
 }
 
 }} // details::integral
 
-template <typename StringType>
-inline StringType to_string (bool value)
+inline string to_string (bool value)
 {
-	return value ? StringType("true") : StringType("false");
+    return value ? string("true") : string("false");
 }
 
-template <typename StringType>
-inline StringType to_string (char a)
+inline string to_string (char a)
 {
-    return StringType(1, typename StringType::value_type(a));
+    return string(1, string::value_type(a));
 }
 
-template <typename StringType>
-inline StringType to_string (signed char a
+inline string to_string (signed char a
         , int radix = 10
         , bool uppercase = false)
 {
-    return details::integral::to_string<signed char, StringType>(a
-            , radix
-            , uppercase);
+    return details::integral::to_string<signed char>(a, radix, uppercase);
 }
 
-template <typename StringType>
-inline StringType to_string (unsigned char a
-        , int radix = 10
+inline string to_string (unsigned char a, int radix = 10
         , bool uppercase = false)
 {
-    return details::integral::to_string<unsigned char, StringType>(a
-            , radix
-            , uppercase);
+    return details::integral::to_string<unsigned char>(a, radix, uppercase);
 }
 
-template <typename StringType>
-inline StringType to_string (short a
-        , int radix = 10
+inline string to_string (short a, int radix = 10
         , bool uppercase = false)
 {
-    return details::integral::to_string<short, StringType>(a
-            , radix
-            , uppercase);
+    return details::integral::to_string<short>(a, radix, uppercase);
 }
 
-template <typename StringType>
-inline StringType to_string (unsigned short a
-        , int radix = 10
+inline string to_string (unsigned short a, int radix = 10
         , bool uppercase = false)
 {
-    return details::integral::to_string<unsigned short, StringType>(a
-            , radix
-            , uppercase);
+    return details::integral::to_string<unsigned short>(a, radix, uppercase);
 }
 
-template <typename StringType>
-inline StringType to_string (int a
-        , int radix = 10
-        , bool uppercase = false)
+inline string to_string (int a, int radix = 10, bool uppercase = false)
 {
-    return details::integral::to_string<int, StringType>(a
-            , radix
-            , uppercase);
+    return details::integral::to_string<int>(a, radix, uppercase);
 }
 
-template <typename StringType>
-inline StringType to_string (unsigned int a
-        , int radix = 10
+inline string to_string (unsigned int a, int radix = 10
         , bool uppercase = false)
 {
-    return details::integral::to_string<unsigned int, StringType>(a
-            , radix
-            , uppercase);
+    return details::integral::to_string<unsigned int>(a, radix, uppercase);
 }
 
-template <typename StringType>
-inline StringType to_string (long a
-        , int radix = 10
-        , bool uppercase = false)
+inline string to_string (long a, int radix = 10, bool uppercase = false)
 {
-    return details::integral::to_string<long, StringType>(a
-            , radix
-            , uppercase);
+    return details::integral::to_string<long>(a, radix, uppercase);
 }
 
-template <typename StringType>
-inline StringType to_string (unsigned long a
-        , int radix = 10
-        , bool uppercase = false)
+inline string to_string (unsigned long a, int radix = 10, bool uppercase = false)
 {
-    return details::integral::to_string<unsigned long, StringType>(a
-            , radix
-            , uppercase);
+    return details::integral::to_string<unsigned long>(a, radix, uppercase);
 }
 
 #if PFS_HAVE_LONGLONG
 
-template <typename StringType>
-inline StringType to_string (long long a
-        , int radix = 10
-        , bool uppercase = false)
+inline string to_string (long long a, int radix = 10, bool uppercase = false)
 {
-    return details::integral::to_string<long long, StringType>(a
-            , radix
-            , uppercase);
+    return details::integral::to_string<long long>(a, radix, uppercase);
 }
 
-template <typename StringType>
-inline StringType to_string (unsigned long long a
-        , int radix = 10
+inline string to_string (unsigned long long a, int radix = 10
         , bool uppercase = false)
 {
-    return details::integral::to_string<unsigned long long, StringType>(a
-            , radix
+    return details::integral::to_string<unsigned long long>(a, radix
             , uppercase);
 }
 #endif
@@ -312,14 +272,14 @@ char * double_to_cstr (double num
 
 // 1.18973e+4932 with 'f' flag has length 4940
 //
-template <typename Float, typename StringType>
-StringType to_string (typename pfs::enable_if<pfs::is_floating_point<Float>::value, Float>::type value
+template <typename Float>
+string to_string (typename pfs::enable_if<pfs::is_floating_point<Float>::value, Float>::type value
         , char f
         , int prec)
 {
     static const size_t FP_BUFSZ = 128;
 
-    StringType s;
+    string s;
 
     size_t sz = FP_BUFSZ;
     char buf[FP_BUFSZ];
@@ -332,10 +292,10 @@ StringType to_string (typename pfs::enable_if<pfs::is_floating_point<Float>::val
         pbuf = pfs::allocator<char>().allocate(sz);
         str = double_to_cstr(value, f, prec, pbuf, & sz);
         PFS_ASSERT(str);
-        s = StringType(str);
+        s = string(str);
         pfs::allocator<char>().destroy(pbuf);
     } else {
-        s = StringType(str);
+        s = string(str);
     }
 
     return s;
@@ -343,24 +303,14 @@ StringType to_string (typename pfs::enable_if<pfs::is_floating_point<Float>::val
 
 }} // details::fp
 
-template <typename StringType>
-inline StringType to_string (float a
-        , char format = 'f'
-        , int precision = -1)
+inline string to_string (float a, char format = 'f', int precision = -1)
 {
-    return details::fp::to_string<float, StringType>(a
-            , format
-            , precision);
+    return details::fp::to_string<float>(a, format, precision);
 }
 
-template <typename StringType>
-inline StringType to_string (double a
-        , char format = 'g'
-        , int precision = -1)
+inline string to_string (double a, char format = 'g', int precision = -1)
 {
-    return details::fp::to_string<double, StringType>(a
-            , format
-            , precision);
+    return details::fp::to_string<double>(a, format, precision);
 }
 
 } // pfs

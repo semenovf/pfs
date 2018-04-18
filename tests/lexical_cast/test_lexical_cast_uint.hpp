@@ -1,15 +1,10 @@
-#ifndef TEST_LEXICAL_CAST_UINT_HPP
-#define TEST_LEXICAL_CAST_UINT_HPP
+#pragma once
 
-template <typename StringT>
 void test_lexical_cast_uint ()
 {
     ADD_TESTS(2);
-    
-    TEST_OK((pfs::lexical_cast<unsigned char, StringT>(StringT("0")) == 0));
-    TEST_OK((pfs::lexical_cast<unsigned char, StringT>(StringT("255"))
+
+    TEST_OK((pfs::lexical_cast<unsigned char>(pfs::string("0")) == 0));
+    TEST_OK((pfs::lexical_cast<unsigned char>(pfs::string("255"))
             == pfs::numeric_limits<unsigned char>::max()));
 }
-
-#endif /* TEST_LEXICAL_CAST_UINT_HPP */
-

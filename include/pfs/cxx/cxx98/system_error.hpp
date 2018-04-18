@@ -1,8 +1,7 @@
-#ifndef __PFS_CXX_CXX98_SYSTEM_ERROR_HPP__
-#define __PFS_CXX_CXX98_SYSTEM_ERROR_HPP__
-
+#pragma once
 #include <pfs/config.h>
 #include <pfs/cxxlang.hpp>
+#include <pfs/string.hpp>
 
 #if HAVE_BOOST_SYSTEM_ERROR
 
@@ -137,10 +136,9 @@ error_code_cast< ::boost::system::error_code, ::boost::system::error_code> (::bo
     return ec;
 }
 
-template <typename StringT>
-inline StringT to_string (error_code const & ec)
+inline string to_string (error_code const & ec)
 {
-    return StringT(ec.message());
+    return string(ec.message());
 }
 
 // [Construct std::error_code from errno on POSIX and GetLastError() on Windows]
@@ -160,5 +158,3 @@ inline error_code get_last_system_error ()
 #else
 #   error "system_error implementation not found"
 #endif // HAVE_BOOST_SYSTEM_ERROR
-
-#endif /* __PFS_CXX_CXX98_SYSTEM_ERROR_HPP__ */

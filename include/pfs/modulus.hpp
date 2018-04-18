@@ -413,7 +413,7 @@ struct modulus
         friend class module;
         friend class async_module;
 
-        typedef safeformat<StringType> fmt;
+        typedef safeformat fmt;
 
     public:
         typedef modulus::string_type string_type;
@@ -970,7 +970,7 @@ bool modulus<PFS_MODULUS_TEMPLETE_ARGS>::dispatcher::register_modules (
             for (; it != last; ++it) {
                 string_type name = it.key();
                 PropertyTree priority = *it;
-                stringlist<string_type> priorities;
+                stringlist priorities;
                 typename log_ns::appender * pappender = 0;
 
                 if (name == "stdout") {
@@ -1012,7 +1012,7 @@ bool modulus<PFS_MODULUS_TEMPLETE_ARGS>::dispatcher::register_modules (
                     }
                 }
 
-                for (typename stringlist<string_type>::const_iterator pri = priorities.cbegin()
+                for (stringlist::const_iterator pri = priorities.cbegin()
                         ; pri != priorities.cend(); ++pri) {
                     if (*pri == "all") {
                         logger.connect(*pappender);

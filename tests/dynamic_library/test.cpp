@@ -35,7 +35,7 @@ int main ()
     bool rc = dl.open(*dlpath_ptr, ec);
 
     if (!rc) {
-        std::cerr << pfs::to_string<typename path::string_type>(ec) << std::endl;
+        std::cerr << pfs::to_string(ec) << std::endl;
     }
 
     TEST_FAIL2(rc, "Open/load library");
@@ -44,7 +44,7 @@ int main ()
             , ec));
 
     if (ec) {
-        std::cerr << pfs::to_string<typename path::string_type>(ec) << std::endl;
+        std::cerr << pfs::to_string(ec) << std::endl;
     }
 
     TEST_FAIL2(!ec, "'dl_only_for_testing_purpose': symbol (function pointer) found");

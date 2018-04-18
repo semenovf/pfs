@@ -200,11 +200,11 @@ public:
      *
      * if year is divisible by 400 then
      *      is_leap_year
-     * else if year is divisible by 100 then 
+     * else if year is divisible by 100 then
      *      not_leap_year
-     * else if year is divisible by 4 then 
+     * else if year is divisible by 4 then
      *      is_leap_year
-     * else 
+     * else
      *      not_leap_year
      */
     static bool is_leap_year (int year)
@@ -222,41 +222,111 @@ public:
      * @return
      */
     static bool valid (int year, int month, int day);
+
+    string to_string (string const & format) const
+    {
+        if (year() < 0 || year() > 9999)
+            return string();
+
+        // std::basic_stringstream<typename string::value_type> ss;
+        string r;
+
+        string::const_iterator p = format.cbegin();
+        string::const_iterator end = format.cend();
+
+        bool need_spec = false; // true if conversion specifier character expected
+
+        while (p < end) {
+            if (*p == '%') {
+                if (need_spec) {
+                    r.push_back('%');
+                    need_spec = false;
+                } else {
+                    need_spec = true;
+                }
+            } else {
+                if (!need_spec) {
+                    r.push_back(*p);
+                } else {
+                    switch (to_ascii(*p)) {
+                    case 'n':
+                        r.push_back('\n');
+                        break;
+                    case 't':
+                        r.push_back('\t');
+                        break;
+                    case 'C':
+                        append_prefixed2(r, '0', year()/100);
+                        break;
+                    case 'd':
+                        append_prefixed2(r, '0', day());
+                        break;
+                    case 'e':
+                        append_prefixed2(r, ' ', day());
+                        break;
+                    case 'F':
+                        append_prefixed4(r, '0', year());
+                        r.push_back('-');
+                        append_prefixed2(r, '0', month());
+                        r.push_back('-');
+                        append_prefixed2(r, '0', day());
+                        break;
+                    case 'j':
+                        append_prefixed3(r, '0', day_of_year());
+                        break;
+                    case 'm':
+                        append_prefixed2(r, '0', month());
+                        break;
+                    case 'u':
+                        r.append(pfs::to_string(day_of_week()));
+                        break;
+                    case 'y':
+                        append_prefixed2(r, '0', year() % 100);
+                        break;
+                    case 'Y':
+                        append_prefixed4(r, '0', year());
+                        break;
+                    default:
+                        r.push_back('%');
+                        r.push_back(*p);
+                        break;
+                    }
+
+                    need_spec = false;
+                }
+            }
+            ++p;
+        }
+
+        return r;
+    }
+
+private:
+    static inline void append_prefixed2 (string & s, string::value_type fill_char, int i2)
+    {
+        if (i2 >= 0 && i2 < 10) s.push_back(fill_char);
+        s.append(pfs::to_string(i2));
+    }
+
+    static inline void append_prefixed3 (string & s, string::value_type fill_char, int i3)
+    {
+        if (i3 >= 0) {
+            if (i3 < 100) s.push_back(fill_char);
+            if (i3 < 10) s.push_back(fill_char);
+        }
+        s.append(pfs::to_string(i3));
+    }
+
+    static inline void append_prefixed4 (string & s, string::value_type fill_char, int i4)
+    {
+        if (i4 >= 0) {
+            if (i4 < 1000) s.push_back(fill_char);
+            if (i4 < 100) s.push_back(fill_char);
+            if (i4 < 10) s.push_back(fill_char);
+        }
+        s.append(pfs::to_string(i4));
+    }
 };
-
-
-namespace details {
-namespace date {
-
-template <typename StringT>
-inline void append_prefixed2 (StringT & s, typename StringT::value_type fill_char, int i2)
-{
-    if (i2 >= 0 && i2 < 10) s.push_back(fill_char);
-    s.append(to_string<StringT>(i2));
-}
-
-template <typename StringT>
-inline void append_prefixed3 (StringT & s, typename StringT::value_type fill_char, int i3)
-{
-    if (i3 >= 0) {
-        if (i3 < 100) s.push_back(fill_char);
-        if (i3 < 10) s.push_back(fill_char);
-    }
-    s.append(to_string<StringT>(i3));
-}
-
-template <typename StringT>
-inline void append_prefixed4 (StringT & s, typename StringT::value_type fill_char, int i4)
-{
-    if (i4 >= 0) {
-        if (i4 < 1000) s.push_back(fill_char);
-        if (i4 < 100) s.push_back(fill_char);
-        if (i4 < 10) s.push_back(fill_char);
-    }
-    s.append(to_string<StringT>(i4));
-}
-
-}} // details::date
 
 /**
  *
@@ -282,83 +352,9 @@ inline void append_prefixed4 (StringT & s, typename StringT::value_type fill_cha
  *        range 01 to 53, where week 1 is the first week that has at least 4 days in the new year.
  *        See also  %U  and %W.
  */
-template <typename StringT>
-StringT to_string (date const & d, StringT const & format)
+inline string to_string (date const & d, string const & format)
 {
-    if (d.year() < 0 || d.year() > 9999)
-        return StringT();
-
-    // std::basic_stringstream<typename string::value_type> ss;
-    StringT r;
-
-    typename StringT::const_iterator p = format.cbegin();
-    typename StringT::const_iterator end = format.cend();
-
-    bool need_spec = false; // true if conversion specifier character expected
-
-    while (p < end) {
-        if (*p == '%') {
-            if (need_spec) {
-                r.push_back('%');
-                need_spec = false;
-            } else {
-                need_spec = true;
-            }
-        } else {
-            if (!need_spec) {
-                r.push_back(*p);
-            } else {
-                switch (to_ascii(*p)) {
-                case 'n':
-                    r.push_back('\n');
-                    break;
-                case 't':
-                    r.push_back('\t');
-                    break;
-                case 'C':
-                    details::date::append_prefixed2(r, '0', d.year()/100);
-                    break;
-                case 'd':
-                    details::date::append_prefixed2(r, '0', d.day());
-                    break;
-                case 'e':
-                    details::date::append_prefixed2(r, ' ', d.day());
-                    break;
-                case 'F':
-                    details::date::append_prefixed4(r, '0', d.year());
-                    r.push_back('-');
-                    details::date::append_prefixed2(r, '0', d.month());
-                    r.push_back('-');
-                    details::date::append_prefixed2(r, '0', d.day());
-                    break;
-                case 'j':
-                    details::date::append_prefixed3(r, '0', d.day_of_year());
-                    break;
-                case 'm':
-                    details::date::append_prefixed2(r, '0', d.month());
-                    break;
-                case 'u':
-                    r.append(to_string<StringT>(d.day_of_week()));
-                    break;
-                case 'y':
-                    details::date::append_prefixed2(r, '0', d.year() % 100);
-                    break;
-                case 'Y':
-                    details::date::append_prefixed4(r, '0', d.year());
-                    break;
-                default:
-                    r.push_back('%');
-                    r.push_back(*p);
-                    break;
-                }
-
-                need_spec = false;
-            }
-        }
-        ++p;
-    }
-
-    return r;    
+    return d.to_string(format);
 }
 
 /**
@@ -371,10 +367,9 @@ StringT to_string (date const & d, StringT const & format)
  *
  * @return The date as string.
  */
-template <typename StringT>
-inline StringT to_string (date const & d)
+inline string to_string (date const & d)
 {
-    return to_string<StringT>(d, StringT("%F")); // equivalent to %H:%M:%S
+    return d.to_string(string("%F")); // equivalent to %H:%M:%S
 }
 
 pfs::date current_date ();

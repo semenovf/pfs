@@ -1,6 +1,4 @@
-#ifndef TEST_STRING_TO_INT_HPP
-#define TEST_STRING_TO_INT_HPP
-
+#pragma once
 #include <iostream>
 #include <cstdlib> // strtol, strtoll
 #include <cerrno>
@@ -34,18 +32,18 @@ inline int64_t std_string_to_int<int64_t> (char const * nptr
 
 #endif
 
-template <typename IntT, typename StringT>
+template <typename IntT>
 static bool __test_string_to_int (char const * s, int radix
     , IntT result_sample
     , int overflow_sample
     , ptrdiff_t badpos_increment)
 {
-    typedef typename StringT::const_iterator char_iterator_type;
+    typedef pfs::string::const_iterator char_iterator_type;
 
     bool r = true;
     char_iterator_type badpos;
     pfs::error_code ec;
-    StringT str(s);
+    pfs::string str(s);
 
     IntT result = pfs::string_to_int<IntT, char_iterator_type>(str.cbegin(), str.cend()
         , & badpos
@@ -90,12 +88,11 @@ static bool __test_string_to_int (char const * s, int radix
     return r;
 }
 
-template <typename StringT>
 void test_string_to_int ()
 {
     ADD_TESTS(8);
 
-    TEST_OK((__test_string_to_int<int32_t, StringT>("0", 10, 0, 0, 0)));
+    TEST_OK((__test_string_to_int<int32_t>("0", 10, 0, 0, 0)));
 
     // TODO
     // "0" , 0, 0);
@@ -105,26 +102,23 @@ void test_string_to_int ()
     // "+1", 1, 0);
     // "-1", static_cast<uintmax_t>(-1), 0);
 
-    TEST_OK((__test_string_to_int<int32_t, StringT>( "2147483647", 10,  2147483647L, 0, 0)));
-    TEST_OK((__test_string_to_int<int32_t, StringT>("-2147483648", 10, -2147483647L - 1, 0, 0)));
+    TEST_OK((__test_string_to_int<int32_t>( "2147483647", 10,  2147483647L, 0, 0)));
+    TEST_OK((__test_string_to_int<int32_t>("-2147483648", 10, -2147483647L - 1, 0, 0)));
 
-    TEST_OK((__test_string_to_int<int32_t, StringT>( "2147483648", 10,  214748364L, 1, 1)));
-    TEST_OK((__test_string_to_int<int32_t, StringT>("-2147483649", 10, -214748364L, -1, 1)));
+    TEST_OK((__test_string_to_int<int32_t>( "2147483648", 10,  214748364L, 1, 1)));
+    TEST_OK((__test_string_to_int<int32_t>("-2147483649", 10, -214748364L, -1, 1)));
 
-    TEST_OK((__test_string_to_int<int32_t, StringT>( "7FFFFFFF", 16,  2147483647L, 0, 0)));
-    TEST_OK((__test_string_to_int<int32_t, StringT>( "80000000", 16, 0x80000000/16, 1, 1)));
-    TEST_OK((__test_string_to_int<int32_t, StringT>( "FFFFFFFF", 16, 0xFFFFFFFF/16, 1, 1)));
+    TEST_OK((__test_string_to_int<int32_t>( "7FFFFFFF", 16,  2147483647L, 0, 0)));
+    TEST_OK((__test_string_to_int<int32_t>( "80000000", 16, 0x80000000/16, 1, 1)));
+    TEST_OK((__test_string_to_int<int32_t>( "FFFFFFFF", 16, 0xFFFFFFFF/16, 1, 1)));
 
 #if PFS_HAVE_INT64
     ADD_TESTS(4);
 
-    TEST_OK((__test_string_to_int<int64_t, StringT>( "9223372036854775807", 10,  9223372036854775807LL, 0, 0)));
-    TEST_OK((__test_string_to_int<int64_t, StringT>("-9223372036854775808", 10, -9223372036854775807LL - 1LL, 0, 0)));
+    TEST_OK((__test_string_to_int<int64_t>( "9223372036854775807", 10,  9223372036854775807LL, 0, 0)));
+    TEST_OK((__test_string_to_int<int64_t>("-9223372036854775808", 10, -9223372036854775807LL - 1LL, 0, 0)));
 
-    TEST_OK((__test_string_to_int<int64_t, StringT>( "9223372036854775808", 10,  922337203685477580LL, 1, 1)));
-    TEST_OK((__test_string_to_int<int64_t, StringT>("-9223372036854775809", 10, -922337203685477580LL, -1, 1)));
+    TEST_OK((__test_string_to_int<int64_t>( "9223372036854775808", 10,  922337203685477580LL, 1, 1)));
+    TEST_OK((__test_string_to_int<int64_t>("-9223372036854775809", 10, -922337203685477580LL, -1, 1)));
 #endif
 }
-
-#endif /* TEST_STRING_TO_INT_HPP */
-

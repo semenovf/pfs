@@ -14,7 +14,6 @@
 #include <pfs/stringlist.hpp>
 #include <pfs/system_error.hpp>
 #include <pfs/net/inet4_addr.hpp>
-#include <pfs/traits/sequence_container.hpp>
 
 namespace pfs {
 namespace net {
@@ -22,18 +21,15 @@ namespace net {
 class inet_interface
 {
 public: // static
-    template <typename StringListType>
-    static bool names (StringListType & sl, error_code & ec);
+    static bool names (pfs::stringlist & sl, error_code & ec);
 
     template <template <typename> class Container>
     static bool inet4_addrs (Container<inet4_addr> & c, error_code & ec);
-
 };
 
-template <typename StringListType>
-bool inet_interface::names (StringListType & sl, error_code & ec)
+bool inet_interface::names (pfs::stringlist & sl, error_code & ec)
 {
-    typedef typename StringListType::string_type string_type;
+    typedef pfs::stringlist::string_type string_type;
 
 #if HAVE_IF_NAMEINDEX
     struct if_nameindex * first = if_nameindex();

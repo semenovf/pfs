@@ -202,8 +202,6 @@ template <> struct printf_length_modifier<long double> { static char const * val
 template <typename BackInsertIt>
 struct base_stringifier
 {
-    typedef BackInsertIt back_insert_iterator;
-
     void prepare_format (char * format
             , char const * length_modifier
             , conversion_specification const & conv_spec) const
@@ -267,20 +265,18 @@ struct base_stringifier
         *p = '\x0';
     }
 
-    virtual void stringify (back_insert_iterator out
+    virtual void stringify (BackInsertIt out
             , conversion_specification const & conv_spec) const = 0;
 };
 
 template <typename BackInsertIt, typename T>
 struct stringifier : public base_stringifier<BackInsertIt>
 {
-    typedef BackInsertIt back_insert_iterator;
-
     T const & val;
 
     stringifier (T const & v) : val(v) {}
 
-    virtual void stringify (back_insert_iterator out
+    virtual void stringify (BackInsertIt out
             , conversion_specification const & conv_spec) const
     {
         static size_t const SPRINTF_CONV_SPEC_LENGTH =  1                /* '%' */                  \
@@ -345,17 +341,14 @@ struct stringifier : public base_stringifier<BackInsertIt>
     }
 };
 
-template <typename BackInsertIt, typename StringType>
+template <typename BackInsertIt>
 struct string_stringifier : public base_stringifier<BackInsertIt>
 {
-    typedef BackInsertIt back_insert_iterator;
-    typedef StringType string_type;
+    string const & val;
 
-    string_type const & val;
+    string_stringifier (string const & v) : val(v) {}
 
-    string_stringifier (string_type const & v) : val(v) {}
-
-    virtual void stringify (back_insert_iterator out
+    virtual void stringify (BackInsertIt out
             , conversion_specification const & conv_spec) const
     {
         switch (conv_spec.spec_char) {
@@ -373,7 +366,7 @@ struct string_stringifier : public base_stringifier<BackInsertIt>
         //
         size_t vallen = val.length();
         size_t padding_count = 0;
-        typename string_type::value_type padding_char = ' ';
+        string::value_type padding_char = ' ';
 
         if (vallen < static_cast<size_t>(conv_spec.field_width)) {
             padding_count = static_cast<size_t>(conv_spec.field_width) - vallen;
@@ -391,7 +384,7 @@ struct string_stringifier : public base_stringifier<BackInsertIt>
         }
 
         if (conv_spec.flags & conversion_specification::FL_LEFT_JUSTIFIED) {
-            for (typename string_type::const_iterator it = val.cbegin()
+            for (string::const_iterator it = val.cbegin()
                     ; it != val.cend(); ++it) {
                 *out++ = *it;
             }
@@ -402,7 +395,7 @@ struct string_stringifier : public base_stringifier<BackInsertIt>
             while (padding_count--)
                 *out++ = padding_char;
 
-            for (typename string_type::const_iterator it = val.cbegin()
+            for (string::const_iterator it = val.cbegin()
                     ; it != val.cend(); ++it) {
                 *out++ = *it;
             }
@@ -410,19 +403,14 @@ struct string_stringifier : public base_stringifier<BackInsertIt>
     }
 };
 
-template <typename StringType = pfs::string
-        , typename BackInserterContainer = StringType
-        , int Compat = safeformat_compat_gcc>
 class safeformat
 {
-    typedef BackInserterContainer                result_type;
-    typedef back_insert_iterator<result_type>    back_inserter_type;
-    typedef StringType                           string_type;
-    typedef typename string_type::const_iterator const_iterator;
-    typedef typename string_type::value_type     value_type;
+    typedef back_insert_iterator<string> back_inserter_type;
+    typedef string::const_iterator const_iterator;
+    typedef string::value_type     value_type;
 
     // Stores intermediate result (and complete at the ends)
-    result_type        _result;
+    string             _result;
     back_inserter_type _out;
 
     // Current position at format string
@@ -432,7 +420,7 @@ class safeformat
     const_iterator _end;
 
 public:
-    safeformat (string_type const & format)
+    safeformat (string const & format)
         : _out(_result)
         , _p(format.cbegin())
         , _end(format.cend())
@@ -447,10 +435,7 @@ private:
 
     void finalize ()
     {
-        // TODO replace by string::append(_p, _end) after implementing according method
-
-        while (_p != _end)
-            *_out++ = *_p++;
+        _result.append(_p, _end);
     }
 
     // flags = *flag
@@ -670,7 +655,7 @@ private:
         }
     }
 
-    void process_conversion_specification (
+    inline void process_conversion_specification (
               base_stringifier<back_inserter_type> const & stringifier
             , conversion_specification const & conv_spec)
     {
@@ -766,15 +751,15 @@ public:
     }
 #endif
 
-    safeformat & operator () (string_type const & s)
+    safeformat & operator () (string const & s)
     {
-        advance(string_stringifier<back_inserter_type, string_type>(s));
+        advance(string_stringifier<back_inserter_type>(s));
         return *this;
     }
 
     safeformat & operator () (char const * s)
     {
-        string_type ss(s);
+        string ss(s);
         return operator() (ss);
     }
 
@@ -784,13 +769,16 @@ public:
         return *this;
     }
 
-    operator string_type const & ()
+    operator string const & ()
     {
         return str();
     }
 
     //--- boost-like operators
-    //	safeformat & operator % (char c)               { return operator () (c); }
+    safeformat & operator % (char c)
+    {
+        return operator () (c);
+    }
 
     safeformat & operator % (signed char n)
     {
@@ -865,7 +853,7 @@ public:
 
     //	safeformat & operator % (typename string_type::value_type c) { return operator () (c); }
 
-    safeformat & operator % (string_type const & s)
+    safeformat & operator % (string const & s)
     {
         return operator() (s);
     }
@@ -959,7 +947,7 @@ public:
     }
 #endif
 
-    safeformat & arg (string_type const & s)
+    safeformat & arg (string const & s)
     {
         return operator() (s);
     }
@@ -974,390 +962,11 @@ public:
         return operator() (p);
     }
 
-    result_type const & str ()
+    string const & str ()
     {
         finalize();
         return _result;
     }
 };
-
-#if __TODO__
-
-template <typename StringImplType
-        , int Compat = safeformat_compat_gcc>
-class safeformat
-{
-public:
-    typedef string<StringImplType>               string_type;
-    typedef typename string_type::const_iterator const_iterator;
-    typedef typename string_type::value_type     char_type;
-
-private:
-    typedef safeformat_iterator<StringImplType>  iterator;
-
-private:
-        string_type _format;
-        iterator _it;
-//        const_iterator pos; // current position in format string
-        string_type _result;
-
-private:
-#if __cplusplus >= 201103L
-    safeformat (const safeformat &) = delete;
-    safeformat & operator= (const safeformat & sf) = delete;
-#else
-    // Deny copy
-    safeformat (const safeformat &);
-    safeformat & operator= (const safeformat & sf);
-#endif
-
-private:
-
-    void advance ()
-    {
-        const_iterator pos(_ctx.pos);
-        const_iterator end(_ctx.format.cend());
-
-        while (pos < end && *pos != '%') {
-            _ctx.result.push_back(*pos);
-            ++pos;
-        }
-        _ctx.pos = pos;
-    }
-
-    void clear_spec ()
-    {
-        _ctx.spec.flags = safeformat::NO_FLAG;
-        _ctx.spec.width = 0;
-        _ctx.spec.prec = 0;
-        _ctx.spec.spec_char = char_type(char(0));
-    }
-
-    bool is_digit (char_type v)
-    {
-        return pfs::is_digit<char_type>(v);
-    }
-
-    bool is_digit_exclude_zero (char_type v)
-    {
-        return (is_digit(v) && v != '0');
-    }
-
-    bool parse_percent_char ()
-    {
-        const_iterator pos(_ctx.pos);
-        const_iterator end(_ctx.format.cend());
-
-        if (pos < end && *pos == '%') {
-            ++pos;
-            if (pos < end && *pos == '%') {
-                _ctx.result.append(1, '%');
-                ++pos;
-                _ctx.pos = pos;
-                return true;
-            }
-        }
-        return false;
-    }
-
-    bool parse_flags ()
-    {
-        const_iterator pos(_ctx.pos);
-        const_iterator end(_ctx.format.cend());
-
-        if (pos == end)
-            return false;
-
-        if (*pos != '%')
-            return false;
-
-        ++pos;
-
-        while (pos < end) {
-            if (*pos == '0') {
-                set_zero_padding();
-            } else if (*pos == '-') {
-                set_left_justify();
-            } else if (*pos == ' ') {
-                set_space_before_positive();
-            } else if (*pos == '+') {
-                set_need_sign();
-            } else if (*pos == '#') {
-                set_alternate();
-            } else {
-                break;
-            }
-            ++pos;
-        }
-
-        _ctx.pos = pos;
-        return true;
-    }
-
-    bool parse_field_width ()
-    {
-        const_iterator pos(_ctx.pos);
-        const_iterator end(_ctx.format.cend());
-
-        if (is_digit_exclude_zero(*pos)) {
-            intmax_t width = strtointmax(pos, end
-                    , 10
-                    , numeric_limits<intmax_t>::min()
-                    , numeric_limits<uintmax_t>::max()
-                    , & pos);
-
-            PFS_ASSERT(!errno && width >= 0 && width <= numeric_limits<int>::max()); // TODO need warning only instead of assertion
-
-            _ctx.pos = pos;
-            set_field_width(int(width));
-        }
-        return true;
-    }
-
-    /*
-     * prec := '.' [ '-' ] *DIGIT
-     *
-     * If the precision is given as just '.', the precision is taken to be zero.
-     * A negative precision is taken as if the precision were omitted.
-     */
-    bool parse_precision ()
-    {
-        const_iterator pos(_ctx.pos);
-        const_iterator end(_ctx.format.cend());
-        int sign = 1;
-        intmax_t prec = -1;
-
-        if (pos < end && *pos == '.')
-            ++pos;
-
-        if (pos < end && *pos == '-') {
-            sign = -1;
-            ++pos;
-        }
-
-        if (is_digit(*pos)) {
-            prec = strtointmax(pos, end
-                    , 10
-                    , min_value<intmax_t>()
-                    , max_value<uintmax_t>()
-                    , & pos);
-            PFS_ASSERT(!errno && prec >= 0 && prec <= max_value<int>()); // TODO need warning only instead of assertion
-        }
-
-        if (sign > 0)
-            set_precision(int(prec));
-
-        _ctx.pos = pos;
-        return true;
-    }
-
-    /*
-     * conversion_specifier := 'd' / 'i' / 'o' / 'u' / 'x' / 'X'
-     * 		 / 'e' / 'E' / 'f' / 'F' / 'g' / 'G'
-     * 		 / 'c' / 's'
-     * 		 / 'p'
-     */
-    bool parse_conv_spec ()
-    {
-        const_iterator pos(_ctx.pos);
-        const_iterator end(_ctx.format.cend());
-
-        if (pos < end) {
-            string convSpecifiers("diouxXeEfFgGcsp");
-
-            PFS_ASSERT(convSpecifiers.contains(*pos)); // Expected conversion specifier: one of 'diouxXeEfFgGcsp';
-            set_conv_specifier(char_type(*pos));
-            ++pos;
-        }
-
-        _ctx.pos = pos;
-        return true;
-    }
-
-    /*
-     * conversion_specification := '%' *flag [ field_width ] [ prec ] conversion_specifier
-     */
-    bool parse_spec ()
-    {
-        if (!parse_percent_char()) {
-            if (parse_flags()
-                    && parse_field_width()
-                    && parse_precision()
-                    && parse_conv_spec()) {
-                ;
-            }
-        }
-
-        if (_ctx.spec.spec_char != char_type(char(0))) {
-            if (_ctx.spec.flags & safeformat::FL_ZERO_PADDING) {
-
-                // If the 0 and - flags both appear, the 0 flag is ignored.
-                if (_ctx.spec.flags & safeformat::LEFT_JUSTIFIED)
-                    _ctx.spec.flags &= ~safeformat::FL_ZERO_PADDING;
-
-                // If a precision is given with a numeric conversion (d, i, o, u, x, and X), the 0 flag is ignored.
-                if (_ctx.spec.prec > -1
-                        && (_ctx.spec.spec_char == 'd'
-                        || _ctx.spec.spec_char == 'i'
-                        || _ctx.spec.spec_char == 'o'
-                        || _ctx.spec.spec_char == 'u'
-                        || _ctx.spec.spec_char == 'x'
-                        || _ctx.spec.spec_char == 'X')) {
-                    _ctx.spec.flags &= ~safeformat::FL_ZERO_PADDING;
-                }
-
-                // '0' flag used with ‘%c’ or '%s' specifier in format string
-                if (_ctx.spec.spec_char == 'c'
-                        || _ctx.spec.spec_char == 's') {
-                    _ctx.spec.flags &= ~safeformat::FL_ZERO_PADDING;
-                }
-
-            }
-
-            // A + overrides a space if both are used
-            if ((_ctx.spec.flags & safeformat::NEED_SIGN)
-                    && (_ctx.spec.flags & safeformat::FL_SPACE_PADDING))
-                _ctx.spec.flags &= ~safeformat::FL_SPACE_PADDING;
-
-            // '+' flag used with '%c' or '%s' specifier in format string
-            if ((_ctx.spec.flags & safeformat::NEED_SIGN)
-                    && (_ctx.spec.spec_char == 'c'
-                    || _ctx.spec.spec_char == 's')) {
-                _ctx.spec.flags &= ~safeformat::NEED_SIGN;
-            }
-
-
-            return true;
-        }
-        return false;
-    }
-
-    void set_zero_padding ()
-    {
-        _ctx.spec.flags |= FL_ZERO_PADDING;
-    }
-
-    void set_left_justify ()
-    {
-        _ctx.spec.flags |= LEFT_JUSTIFIED;
-    }
-
-    void set_right_justify ()
-    {
-        _ctx.spec.flags &= ~LEFT_JUSTIFIED;
-    }
-
-    void set_space_before_positive ()
-    {
-        _ctx.spec.flags |= FL_SPACE_PADDING;
-    }
-
-    void set_need_sign ()
-    {
-        _ctx.spec.flags |= NEED_SIGN;
-    }
-
-    void set_alternate ()
-    {
-        _ctx.spec.flags |= FL_ALTERN_FORM;
-    }
-
-    void set_field_width (int w)
-    {
-        _ctx.spec.width = w;
-    }
-
-    void set_precision (int p)
-    {
-        _ctx.spec.prec = p;
-    }
-
-    void set_conv_specifier (char_type c)
-    {
-        _ctx.spec.spec_char = c;
-    }
-
-    void prepend_sign (string_type & r)
-    {
-        bool isNegative = r.starts_with("-");
-
-        // When 0 is printed with an explicit precision 0, the output is empty.
-        if (_ctx.spec.prec == 0 && r == string_type("0"))
-            r.clear();
-
-        // The precision, if any, gives the minimum number of digits that must appear;
-        // if the converted value requires fewer digits, it is padded on the left with zeros.
-        if (_ctx.spec.prec > 0 && r.length() < size_t(_ctx.spec.prec))
-            r.prepend(string_type(_ctx.spec.prec - r.length(), '0'));
-
-        if (!isNegative) {
-            // A sign (+ or -) should always be placed before a number produced by a signed conversion
-            if (_ctx.spec.flags & NEED_SIGN) {
-                r.prepend(1, '+');
-            }// A blank should be left before a positive number
-            else if (_ctx.spec.flags & FL_SPACE_PADDING) {
-                r.prepend(1, ' ');
-            }
-        }
-    }
-
-    void do_padding (string_type & r)
-    {
-        PFS_ASSERT(_ctx.spec.width >= 0);
-
-        if (r.length() < size_t(_ctx.spec.width)) {
-            size_t count = size_t(_ctx.spec.width) - r.length();
-            char paddingChar = (_ctx.spec.flags & safeformat::FL_ZERO_PADDING) ? '0' : ' ';
-
-            if (_ctx.spec.flags & safeformat::LEFT_JUSTIFIED)
-                r.append(string(count, paddingChar));
-            else
-                r.prepend(count, paddingChar);
-        }
-    }
-
-    //safeformat & arg (const __sf_base_traits * v);
-
-private:
-    safeformat ();
-
-public:
-
-    explicit safeformat (string_type const & format)
-    {
-        _ctx.format = format;
-        _ctx.pos = _ctx.format.cbegin();
-        clear_spec();
-    }
-
-    explicit safeformat (const char * latin1Format)
-    {
-        _ctx.format = string_type(latin1Format);
-        _ctx.pos = _ctx.format.cbegin();
-        clear_spec();
-    }
-
-    //	template <typename T>
-    //	safeformat & operator () (T const & v)
-    //	{
-    //		__sf_traits<T> t(v);
-    //		return arg(& t);
-    //	}
-
-    //    template <typename T>
-    //  	safeformat & operator () (T const * p)
-    //    {
-    //        return operator () (static_cast<void const *>(p));
-    //    }
-
-    //    template <typename T>
-    //  	safeformat & operator ()<T *> (T * p)
-    //    {
-    //        return operator () (static_cast<void const *>(p));
-    //    }
-
-};
-
-#endif
 
 } // pfs

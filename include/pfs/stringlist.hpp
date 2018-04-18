@@ -5,8 +5,7 @@
 
 namespace pfs {
 
-template <typename StringList = string>
-class stringlist : public list<StringList>
+class stringlist : public list<string>
 {
     typedef list<string> base_class;
 

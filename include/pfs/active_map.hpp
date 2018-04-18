@@ -213,7 +213,7 @@ public:
         if (pos != this->_map.end()) {
             locker.unlock();
 
-            (*map_type::mapped_reference(pos))();
+            (*this->_map.mapped_reference(pos))();
 
             if (called)
                 *called = true;

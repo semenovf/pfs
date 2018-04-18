@@ -96,7 +96,7 @@ public:
 
     virtual string url () const pfs_override
     {
-        return pfs::io::inet_socket_url<string>("tcp", _sockaddr);
+        return pfs::io::inet_socket_url("tcp", _sockaddr);
     }
 
     virtual error_code accept (bits::device ** peer, bool non_blocking) pfs_override;
@@ -122,9 +122,9 @@ public:
 	}
 
 public:
-	udp_server ()
-		: inet_server()
-	{}
+    udp_server ()
+        : inet_server()
+    {}
 
     virtual server_type type () const pfs_override
     {
@@ -133,7 +133,7 @@ public:
 
     virtual string url () const pfs_override
     {
-        return pfs::io::inet_socket_url<string>("udp", _sockaddr);
+        return pfs::io::inet_socket_url("udp", _sockaddr);
     }
 
     virtual error_code accept (bits::device ** peer, bool non_blocking) pfs_override;

@@ -116,17 +116,17 @@ void test_periods (void)
 
 void test_stringify ()
 {
-    TEST_OK(pfs::to_string<string_type>(date_type(2013, 11, 28), string_type("%Y-%m-%d")) == string_type("2013-11-28"));
-    TEST_OK(pfs::to_string<string_type>(date_type(1, 2, 3), string_type("%Y-%m-%d")) == string_type("0001-02-03"));
-    TEST_OK(pfs::to_string<string_type>(date_type(2013, 11, 28)) == string_type("2013-11-28"));
-    TEST_OK(pfs::to_string<string_type>(date_type(1, 2, 3)) == string_type("0001-02-03"));
+    TEST_OK(pfs::to_string(date_type(2013, 11, 28), string_type("%Y-%m-%d")) == string_type("2013-11-28"));
+    TEST_OK(pfs::to_string(date_type(1, 2, 3), string_type("%Y-%m-%d")) == string_type("0001-02-03"));
+    TEST_OK(pfs::to_string(date_type(2013, 11, 28)) == string_type("2013-11-28"));
+    TEST_OK(pfs::to_string(date_type(1, 2, 3)) == string_type("0001-02-03"));
 }
 
 void test_timezone ()
 {
     ADD_TESTS(2);
 
-    typedef pfs::timezone<string_type> timezone_t;
+    typedef pfs::timezone timezone_t;
 
     TEST_OK(timezone_t::offset_to_string(0L) == string_type("+0000"));
     TEST_OK(timezone_t::offset_to_string(18000L) == string_type("+0500"));

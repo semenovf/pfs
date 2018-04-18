@@ -31,4 +31,4 @@ matrix:
 script: sh travis-build.sh
 
 notifications:
-  email: true
+  email: false

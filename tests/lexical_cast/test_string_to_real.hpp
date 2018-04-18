@@ -1,6 +1,4 @@
-#ifndef TEST_STRING_TO_FLOAT_HPP
-#define TEST_STRING_TO_FLOAT_HPP
-
+#pragma once
 #include <cstdio>
 #include <cstdlib> // strtof, strtod, strtold
 #include <cerrno>
@@ -63,16 +61,16 @@ static void __print_diff_greater_than_epsilon (char const * prefix
             , pfs::numeric_limits<RealType>::epsilon());
 }
 
-template <typename RealType, typename StringType>
+template <typename RealType>
 static bool __test_string_to_real (char const * s
     , RealType /*result_sample*/
     , ptrdiff_t badpos_increment)
 {
-    typedef typename StringType::const_iterator char_iterator_type;
+    typedef pfs::string::const_iterator char_iterator_type;
 
     bool r = true;
     char_iterator_type badpos;
-    StringType str(s);
+    pfs::string str(s);
 
     RealType result = pfs::string_to_real<RealType, char_iterator_type>(str.cbegin()
         , str.cend()
@@ -126,12 +124,12 @@ static bool __test_string_to_real (char const * s
     return r;
 }
 
-template <typename RealType, typename StringType>
+template <typename RealType>
 static bool __test_isnan (char const * s)
 {
-    typedef typename StringType::const_iterator char_iterator_type;
+    typedef pfs::string::const_iterator char_iterator_type;
     char_iterator_type badpos;
-    StringType str(s);
+    pfs::string str(s);
 
     return pfs::isnan(pfs::string_to_real<RealType, char_iterator_type>(str.begin()
             , str.end()
@@ -139,12 +137,12 @@ static bool __test_isnan (char const * s)
             , & badpos));
 }
 
-template <typename RealType, typename StringType>
+template <typename RealType>
 static bool __test_isinf (char const * s)
 {
-    typedef typename StringType::const_iterator char_iterator_type;
+    typedef pfs::string::const_iterator char_iterator_type;
     char_iterator_type badpos;
-    StringType str(s);
+    pfs::string str(s);
 
     return pfs::isinf(pfs::string_to_real<RealType, char_iterator_type>(str.begin()
             , str.end()
@@ -152,111 +150,111 @@ static bool __test_isinf (char const * s)
             , & badpos));
 }
 
-template <typename RealType, typename StringType>
+template <typename RealType>
 void test_string_to_real ()
 {
     ADD_TESTS(95);
 
-    TEST_OK((__test_isinf<RealType, StringType>("INFINITY")));
-    TEST_OK((__test_isinf<RealType, StringType>("-INFINITY")));
-    TEST_OK((__test_isinf<RealType, StringType>("+INFINITY")));
-    TEST_OK((__test_isinf<RealType, StringType>("+InFiNiTy")));
-    TEST_OK((__test_isinf<RealType, StringType>("-infinity")));
-    TEST_OK((__test_isinf<RealType, StringType>("+INFInity")));
-    TEST_OK((__test_isinf<RealType, StringType>("INF")));
-    TEST_OK((__test_isinf<RealType, StringType>("-INF")));
-    TEST_OK((__test_isinf<RealType, StringType>("+INF")));
-    TEST_OK((__test_isinf<RealType, StringType>("INFINITY$%^")));
+    TEST_OK((__test_isinf<RealType>("INFINITY")));
+    TEST_OK((__test_isinf<RealType>("-INFINITY")));
+    TEST_OK((__test_isinf<RealType>("+INFINITY")));
+    TEST_OK((__test_isinf<RealType>("+InFiNiTy")));
+    TEST_OK((__test_isinf<RealType>("-infinity")));
+    TEST_OK((__test_isinf<RealType>("+INFInity")));
+    TEST_OK((__test_isinf<RealType>("INF")));
+    TEST_OK((__test_isinf<RealType>("-INF")));
+    TEST_OK((__test_isinf<RealType>("+INF")));
+    TEST_OK((__test_isinf<RealType>("INFINITY$%^")));
 
-    TEST_OK((__test_isnan<RealType, StringType>("NAN")));
-    TEST_OK((__test_isnan<RealType, StringType>("-NAN")));
-    TEST_OK((__test_isnan<RealType, StringType>("+NAN")));
-    TEST_OK((__test_isnan<RealType, StringType>("nAN")));
-    TEST_OK((__test_isnan<RealType, StringType>("-nAn")));
-    TEST_OK((__test_isnan<RealType, StringType>("+nan")));
-    TEST_OK((__test_isnan<RealType, StringType>("NAN$%^")));
+    TEST_OK((__test_isnan<RealType>("NAN")));
+    TEST_OK((__test_isnan<RealType>("-NAN")));
+    TEST_OK((__test_isnan<RealType>("+NAN")));
+    TEST_OK((__test_isnan<RealType>("nAN")));
+    TEST_OK((__test_isnan<RealType>("-nAn")));
+    TEST_OK((__test_isnan<RealType>("+nan")));
+    TEST_OK((__test_isnan<RealType>("NAN$%^")));
 
-    TEST_OK((__test_string_to_real<RealType, StringType>("-"  , 0.0f, 1)));
-    TEST_OK((__test_string_to_real<RealType, StringType>("+"  , 0.0f, 1)));
-    TEST_OK((__test_string_to_real<RealType, StringType>("   ", 0.0f, 3)));
-    TEST_OK((__test_string_to_real<RealType, StringType>(" ." , 0.0f, 2)));
-    TEST_OK((__test_string_to_real<RealType, StringType>(""   , 0.0f, 0)));
+    TEST_OK((__test_string_to_real<RealType>("-"  , 0.0f, 1)));
+    TEST_OK((__test_string_to_real<RealType>("+"  , 0.0f, 1)));
+    TEST_OK((__test_string_to_real<RealType>("   ", 0.0f, 3)));
+    TEST_OK((__test_string_to_real<RealType>(" ." , 0.0f, 2)));
+    TEST_OK((__test_string_to_real<RealType>(""   , 0.0f, 0)));
 
-    TEST_OK((__test_string_to_real<RealType, StringType>("0"  , 0.0f, 0)));
-    TEST_OK((__test_string_to_real<RealType, StringType>("00" , 0.0f, 0)));
-    TEST_OK((__test_string_to_real<RealType, StringType>("000", 0.0f, 0)));
-    TEST_OK((__test_string_to_real<RealType, StringType>(".1" , 0.1f, 0)));
-    TEST_OK((__test_string_to_real<RealType, StringType>(".12" , 0.12f, 0)));
-    TEST_OK((__test_string_to_real<RealType, StringType>(".1234567890" , 0.1234567890f, 0)));
-    TEST_OK((__test_string_to_real<RealType, StringType>("1.2e3"   , 1.2e3, 0)));
-    TEST_OK((__test_string_to_real<RealType, StringType>(" 1.2e3"  , 1.2e3, 0)));
-    TEST_OK((__test_string_to_real<RealType, StringType>(" +1.2e3" , 1.2e3, 0)));
-    TEST_OK((__test_string_to_real<RealType, StringType>("+1.e3"   , 1.e3, 0)));
-    TEST_OK((__test_string_to_real<RealType, StringType>("-1.2e3"  , -1.2e3, 0)));
-    TEST_OK((__test_string_to_real<RealType, StringType>("-1.2e3.5", -1.2e3, 2)));
-    TEST_OK((__test_string_to_real<RealType, StringType>(".1e", 0.1f, 1)));
-    TEST_OK((__test_string_to_real<RealType, StringType>("-1.2e    ", -1.2, 5)));
-    TEST_OK((__test_string_to_real<RealType, StringType>("--1.2e3.5", 0/*-1.2e3*/, 9)));
-    TEST_OK((__test_string_to_real<RealType, StringType>("a", 0, 1)));
-    TEST_OK((__test_string_to_real<RealType, StringType>("-a", 0, 2)));
-    TEST_OK((__test_string_to_real<RealType, StringType>(".1e3", .1e3, 0)));
-    TEST_OK((__test_string_to_real<RealType, StringType>(".1e-3", .1e-3, 0)));
-    TEST_OK((__test_string_to_real<RealType, StringType>(".1e-", .1, 2)));
-    TEST_OK((__test_string_to_real<RealType, StringType>(" .e", 0, 3)));
-    TEST_OK((__test_string_to_real<RealType, StringType>(" .e-", 0, 4)));
-    TEST_OK((__test_string_to_real<RealType, StringType>(" e"  , 0, 2)));
-    TEST_OK((__test_string_to_real<RealType, StringType>(" e0" , 0, 3)));
-    TEST_OK((__test_string_to_real<RealType, StringType>(" ee" , 0, 3)));
-    TEST_OK((__test_string_to_real<RealType, StringType>(" -e" , 0, 3)));
-    TEST_OK((__test_string_to_real<RealType, StringType>(" .9" , 0.9f, 0)));
-    TEST_OK((__test_string_to_real<RealType, StringType>(" 0.9", 0.9f, 0)));
-    TEST_OK((__test_string_to_real<RealType, StringType>(" ..9", 0, 4)));
-    TEST_OK((__test_string_to_real<RealType, StringType>("9."  , 9.0f, 0)));
-    TEST_OK((__test_string_to_real<RealType, StringType>("9"   , 9.0f, 0)));
-    TEST_OK((__test_string_to_real<RealType, StringType>("9.0"       , 9.0f, 0)));
-    TEST_OK((__test_string_to_real<RealType, StringType>("9.0000"    , 9.0f, 0)));
-    TEST_OK((__test_string_to_real<RealType, StringType>("9.00001"   , 9.00001f, 0)));
-    TEST_OK((__test_string_to_real<RealType, StringType>("009"       , 9.0f, 0)));
-    TEST_OK((__test_string_to_real<RealType, StringType>("0.09e02"   , 9.0f, 0)));
-    TEST_OK((__test_string_to_real<RealType, StringType>("2.22e-32"  , RealType(2.22e-32f), 0)));
-    TEST_OK((__test_string_to_real<RealType, StringType>("1.34"      , 1.34f, 0)));
-    TEST_OK((__test_string_to_real<RealType, StringType>("12.34"     , 12.34f, 0)));
-    TEST_OK((__test_string_to_real<RealType, StringType>("123.456"   , 123.456f, 0)));
+    TEST_OK((__test_string_to_real<RealType>("0"  , 0.0f, 0)));
+    TEST_OK((__test_string_to_real<RealType>("00" , 0.0f, 0)));
+    TEST_OK((__test_string_to_real<RealType>("000", 0.0f, 0)));
+    TEST_OK((__test_string_to_real<RealType>(".1" , 0.1f, 0)));
+    TEST_OK((__test_string_to_real<RealType>(".12" , 0.12f, 0)));
+    TEST_OK((__test_string_to_real<RealType>(".1234567890" , 0.1234567890f, 0)));
+    TEST_OK((__test_string_to_real<RealType>("1.2e3"   , 1.2e3, 0)));
+    TEST_OK((__test_string_to_real<RealType>(" 1.2e3"  , 1.2e3, 0)));
+    TEST_OK((__test_string_to_real<RealType>(" +1.2e3" , 1.2e3, 0)));
+    TEST_OK((__test_string_to_real<RealType>("+1.e3"   , 1.e3, 0)));
+    TEST_OK((__test_string_to_real<RealType>("-1.2e3"  , -1.2e3, 0)));
+    TEST_OK((__test_string_to_real<RealType>("-1.2e3.5", -1.2e3, 2)));
+    TEST_OK((__test_string_to_real<RealType>(".1e", 0.1f, 1)));
+    TEST_OK((__test_string_to_real<RealType>("-1.2e    ", -1.2, 5)));
+    TEST_OK((__test_string_to_real<RealType>("--1.2e3.5", 0/*-1.2e3*/, 9)));
+    TEST_OK((__test_string_to_real<RealType>("a", 0, 1)));
+    TEST_OK((__test_string_to_real<RealType>("-a", 0, 2)));
+    TEST_OK((__test_string_to_real<RealType>(".1e3", .1e3, 0)));
+    TEST_OK((__test_string_to_real<RealType>(".1e-3", .1e-3, 0)));
+    TEST_OK((__test_string_to_real<RealType>(".1e-", .1, 2)));
+    TEST_OK((__test_string_to_real<RealType>(" .e", 0, 3)));
+    TEST_OK((__test_string_to_real<RealType>(" .e-", 0, 4)));
+    TEST_OK((__test_string_to_real<RealType>(" e"  , 0, 2)));
+    TEST_OK((__test_string_to_real<RealType>(" e0" , 0, 3)));
+    TEST_OK((__test_string_to_real<RealType>(" ee" , 0, 3)));
+    TEST_OK((__test_string_to_real<RealType>(" -e" , 0, 3)));
+    TEST_OK((__test_string_to_real<RealType>(" .9" , 0.9f, 0)));
+    TEST_OK((__test_string_to_real<RealType>(" 0.9", 0.9f, 0)));
+    TEST_OK((__test_string_to_real<RealType>(" ..9", 0, 4)));
+    TEST_OK((__test_string_to_real<RealType>("9."  , 9.0f, 0)));
+    TEST_OK((__test_string_to_real<RealType>("9"   , 9.0f, 0)));
+    TEST_OK((__test_string_to_real<RealType>("9.0"       , 9.0f, 0)));
+    TEST_OK((__test_string_to_real<RealType>("9.0000"    , 9.0f, 0)));
+    TEST_OK((__test_string_to_real<RealType>("9.00001"   , 9.00001f, 0)));
+    TEST_OK((__test_string_to_real<RealType>("009"       , 9.0f, 0)));
+    TEST_OK((__test_string_to_real<RealType>("0.09e02"   , 9.0f, 0)));
+    TEST_OK((__test_string_to_real<RealType>("2.22e-32"  , RealType(2.22e-32f), 0)));
+    TEST_OK((__test_string_to_real<RealType>("1.34"      , 1.34f, 0)));
+    TEST_OK((__test_string_to_real<RealType>("12.34"     , 12.34f, 0)));
+    TEST_OK((__test_string_to_real<RealType>("123.456"   , 123.456f, 0)));
 
-    TEST_OK((__test_string_to_real<RealType, StringType>("999999999999999999" , 1.0f, 0)));
-    TEST_OK((__test_string_to_real<RealType, StringType>("000000000999999999" , 1.0f, 0)));
-    TEST_OK((__test_string_to_real<RealType, StringType>("0.99999999999999999" , 1.0f, 0)));
-    TEST_OK((__test_string_to_real<RealType, StringType>("0.9999999999999999999999999999999999" , 1.0f, 0)));
+    TEST_OK((__test_string_to_real<RealType>("999999999999999999" , 1.0f, 0)));
+    TEST_OK((__test_string_to_real<RealType>("000000000999999999" , 1.0f, 0)));
+    TEST_OK((__test_string_to_real<RealType>("0.99999999999999999" , 1.0f, 0)));
+    TEST_OK((__test_string_to_real<RealType>("0.9999999999999999999999999999999999" , 1.0f, 0)));
 
-    TEST_OK((__test_string_to_real<RealType, StringType>("1", RealType(1.0f), 0)));
-	TEST_OK((__test_string_to_real<RealType, StringType>("12", RealType(12.0f), 0)));
-	TEST_OK((__test_string_to_real<RealType, StringType>("123", RealType(123.0f), 0)));
-	TEST_OK((__test_string_to_real<RealType, StringType>("1234", RealType(1234.0f), 0)));
-	TEST_OK((__test_string_to_real<RealType, StringType>("12345", RealType(12345.0f), 0)));
-	TEST_OK((__test_string_to_real<RealType, StringType>("123456", RealType(123456.0f), 0)));
-	TEST_OK((__test_string_to_real<RealType, StringType>("1234567", RealType(1234567.0f), 0)));
-	TEST_OK((__test_string_to_real<RealType, StringType>("12345678", RealType(12345678.0f), 0)));
-	TEST_OK((__test_string_to_real<RealType, StringType>("123456789", RealType(123456789.0f), 0)));
-	TEST_OK((__test_string_to_real<RealType, StringType>("1234567890", RealType(1234567890.0f), 0)));
-	TEST_OK((__test_string_to_real<RealType, StringType>("12345678901", RealType(12345678901.0f), 0)));
-	TEST_OK((__test_string_to_real<RealType, StringType>("123456789012", RealType(123456789012.0f), 0)));
-	TEST_OK((__test_string_to_real<RealType, StringType>("1234567890123", RealType(1234567890123.0f), 0)));
-	TEST_OK((__test_string_to_real<RealType, StringType>("12345678901234", RealType(12345678901234.0f), 0)));
-	TEST_OK((__test_string_to_real<RealType, StringType>("123456789012345", RealType(123456789012345.0f), 0)));
-	TEST_OK((__test_string_to_real<RealType, StringType>("1234567890123456", RealType(1234567890123456.0f), 0)));
-	TEST_OK((__test_string_to_real<RealType, StringType>("12345678901234567", RealType(12345678901234567.0f), 0)));
-	TEST_OK((__test_string_to_real<RealType, StringType>("123456789012345678", RealType(123456789012345678.0f), 0)));
-	TEST_OK((__test_string_to_real<RealType, StringType>("1234567890123456789", RealType(1234567890123456789.0f), 0)));
-	TEST_OK((__test_string_to_real<RealType, StringType>("12345678901234567890", RealType(12345678901234567890.0f), 0)));
-	TEST_OK((__test_string_to_real<RealType, StringType>("123456789012345678901", RealType(123456789012345678901.0f), 0)));
-	TEST_OK((__test_string_to_real<RealType, StringType>("1234567890123456789012", RealType(1234567890123456789012.0f), 0)));
-	TEST_OK((__test_string_to_real<RealType, StringType>("12345678901234567890123", RealType(12345678901234567890123.0f), 0)));
-	TEST_OK((__test_string_to_real<RealType, StringType>("123456789012345678901234", RealType(123456789012345678901234.0f), 0)));
-	TEST_OK((__test_string_to_real<RealType, StringType>("1234567890123456789012345", RealType(1234567890123456789012345.0f), 0)));
-	TEST_OK((__test_string_to_real<RealType, StringType>("12345678901234567890123456", RealType(12345678901234567890123456.0f), 0)));
-	TEST_OK((__test_string_to_real<RealType, StringType>("123456789012345678901234567", RealType(123456789012345678901234567.0f), 0)));
-	TEST_OK((__test_string_to_real<RealType, StringType>("1234567890123456789012345678", RealType(1234567890123456789012345678.0f), 0)));
-	TEST_OK((__test_string_to_real<RealType, StringType>("12345678901234567890123456789", RealType(12345678901234567890123456789.0f), 0)));
+    TEST_OK((__test_string_to_real<RealType>("1", RealType(1.0f), 0)));
+	TEST_OK((__test_string_to_real<RealType>("12", RealType(12.0f), 0)));
+	TEST_OK((__test_string_to_real<RealType>("123", RealType(123.0f), 0)));
+	TEST_OK((__test_string_to_real<RealType>("1234", RealType(1234.0f), 0)));
+	TEST_OK((__test_string_to_real<RealType>("12345", RealType(12345.0f), 0)));
+	TEST_OK((__test_string_to_real<RealType>("123456", RealType(123456.0f), 0)));
+	TEST_OK((__test_string_to_real<RealType>("1234567", RealType(1234567.0f), 0)));
+	TEST_OK((__test_string_to_real<RealType>("12345678", RealType(12345678.0f), 0)));
+	TEST_OK((__test_string_to_real<RealType>("123456789", RealType(123456789.0f), 0)));
+	TEST_OK((__test_string_to_real<RealType>("1234567890", RealType(1234567890.0f), 0)));
+	TEST_OK((__test_string_to_real<RealType>("12345678901", RealType(12345678901.0f), 0)));
+	TEST_OK((__test_string_to_real<RealType>("123456789012", RealType(123456789012.0f), 0)));
+	TEST_OK((__test_string_to_real<RealType>("1234567890123", RealType(1234567890123.0f), 0)));
+	TEST_OK((__test_string_to_real<RealType>("12345678901234", RealType(12345678901234.0f), 0)));
+	TEST_OK((__test_string_to_real<RealType>("123456789012345", RealType(123456789012345.0f), 0)));
+	TEST_OK((__test_string_to_real<RealType>("1234567890123456", RealType(1234567890123456.0f), 0)));
+	TEST_OK((__test_string_to_real<RealType>("12345678901234567", RealType(12345678901234567.0f), 0)));
+	TEST_OK((__test_string_to_real<RealType>("123456789012345678", RealType(123456789012345678.0f), 0)));
+	TEST_OK((__test_string_to_real<RealType>("1234567890123456789", RealType(1234567890123456789.0f), 0)));
+	TEST_OK((__test_string_to_real<RealType>("12345678901234567890", RealType(12345678901234567890.0f), 0)));
+	TEST_OK((__test_string_to_real<RealType>("123456789012345678901", RealType(123456789012345678901.0f), 0)));
+	TEST_OK((__test_string_to_real<RealType>("1234567890123456789012", RealType(1234567890123456789012.0f), 0)));
+	TEST_OK((__test_string_to_real<RealType>("12345678901234567890123", RealType(12345678901234567890123.0f), 0)));
+	TEST_OK((__test_string_to_real<RealType>("123456789012345678901234", RealType(123456789012345678901234.0f), 0)));
+	TEST_OK((__test_string_to_real<RealType>("1234567890123456789012345", RealType(1234567890123456789012345.0f), 0)));
+	TEST_OK((__test_string_to_real<RealType>("12345678901234567890123456", RealType(12345678901234567890123456.0f), 0)));
+	TEST_OK((__test_string_to_real<RealType>("123456789012345678901234567", RealType(123456789012345678901234567.0f), 0)));
+	TEST_OK((__test_string_to_real<RealType>("1234567890123456789012345678", RealType(1234567890123456789012345678.0f), 0)));
+	TEST_OK((__test_string_to_real<RealType>("12345678901234567890123456789", RealType(12345678901234567890123456789.0f), 0)));
 }
 
 #if __OBSOLETE__
@@ -376,5 +374,3 @@ char * doubleToHex (real_t x)
 #endif
 
 #endif
-
-#endif // TEST_STRING_TO_FLOAT_HPP
