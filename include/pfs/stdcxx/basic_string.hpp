@@ -836,8 +836,12 @@ public:
     inline DerivedT & replace (const_iterator first, const_iterator last
             , std::initializer_list<CharT> ilist)
     {
+#   if PFS_CC_GCC_VERSION <= 40900 // TODO Check for valid version
+        return this->replace(first, last, ilist.begin(), ilist.end());
+#   else
         base_class::replace(first, last, ilist);
         return *static_cast<DerivedT *>(this);
+#   endif
     }
 #endif
 
