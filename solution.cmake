@@ -1,7 +1,20 @@
 include(CheckIncludeFileCXX) # For use of CHECK_INCLUDE_FILE_CXX()
 include(CheckFunctionExists)
 include(CheckCXXCompilerFlag)
+include(WriteCompilerDetectionHeader)
 include(${CMAKE_CURRENT_LIST_DIR}/compiler.cmake)
+
+#
+# Check C++ features
+#
+write_compiler_detection_header(
+  FILE "${CMAKE_BINARY_DIR}/cxx_features.h"
+  PREFIX PFS
+  COMPILERS GNU Clang MSVC
+  FEATURES
+    cxx_generalized_initializers
+    cxx_variadic_templates
+)
 
 if(UNIX)
     set(CMAKE_REQUIRED_INCLUDES net/if.h)

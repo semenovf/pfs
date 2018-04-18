@@ -1,6 +1,7 @@
 #pragma once
 #include <cstring>
 #include <string>
+#include <pfs/config.h>
 #include <pfs/type_traits.hpp>
 #include <pfs/compiler.hpp>
 
@@ -440,7 +441,7 @@ public:
     }
 #endif
 
-#if __cplusplus >= 201103L
+#if PFS_COMPILER_CXX_GENERALIZED_INITIALIZERS
     /**
     * @fn iterator insert (const_iterator pos, std::initializer_list<CharT> ilist)
     */
@@ -560,7 +561,7 @@ public:
         return *static_cast<DerivedT *>(this);
     }
 
-#if __cplusplus >= 201103L
+#if PFS_COMPILER_CXX_GENERALIZED_INITIALIZERS
     /**
      * @return @code *this @endcode
     */
@@ -600,7 +601,7 @@ public:
         return append(s);
     }
 
-#if __cplusplus >= 201103L
+#if PFS_COMPILER_CXX_GENERALIZED_INITIALIZERS
     /**
      * @return @code *this @endcode
      */
@@ -829,7 +830,7 @@ public:
         return *static_cast<DerivedT *>(this);
     }
 
-#if __cplusplus >= 201103L
+#if PFS_COMPILER_CXX_GENERALIZED_INITIALIZERS
       /**
       */
       inline DerivedT & replace (const_iterator first, const_iterator last

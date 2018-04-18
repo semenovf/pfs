@@ -104,7 +104,7 @@ void test_insert ()
         TEST_OK(itb == bsb.begin() + 10);
         TEST_OK(itc == bsc.begin() + 10);
 
-#if __cplusplus >= 201103L
+#if PFS_COMPILER_CXX_GENERALIZED_INITIALIZERS
         //
         // iterator insert (const_iterator pos, std::initializer_list<value_type> ilist)
         // iterator insert (const_iterator pos, std::initializer_list<char> ilist)
@@ -118,20 +118,6 @@ void test_insert ()
         TEST_OK(std::strcmp(bsc.c_str(), "abcdefghi") == 0);
         TEST_OK(itb == bsb.begin() + 3);
         TEST_OK(itc == bsc.begin() + 3);
-#endif
-
-#if __cplusplus > 201402L // since C++17
-        // TODO
-
-        //
-        // template <typename T>
-        // basic_string & insert (size_type pos, T const & t)
-        //
-        // template <typename T>
-        // basic_string & insert (size_type index, T const & t
-        //          , size_type index_str, size_type count = npos)
-        //
-
 #endif
     }
 }
@@ -271,7 +257,7 @@ void test_append ()
 
         TEST_OK(std::strcmp(bs.c_str(), "Hello, World! And Bye!") == 0);
 
-#if __cplusplus >= 201103L
+#if PFS_COMPILER_CXX_GENERALIZED_INITIALIZERS
         //
         // byte_string & append (std::initializer_list<value_type> ilist)
         // byte_string & append (std::initializer_list<char> ilist)
@@ -315,7 +301,7 @@ void test_append ()
         //TEST_OK(std::strcmp(bs.c_str(), "Hello, World! And Bye!") == 0);
         TEST_OK(std::strcmp(bs.c_str(), "Hello, World!") == 0);
 
-#if __cplusplus >= 201103L
+#if PFS_COMPILER_CXX_GENERALIZED_INITIALIZERS
         ADD_TESTS(1);
 
         bs.clear();
@@ -614,7 +600,7 @@ void test_replace ()
             "\n\t, size_type count2"
             "\n\t, value_type ch)");
 
-#if __cplusplus >= 201103L
+#if PFS_COMPILER_CXX_GENERALIZED_INITIALIZERS
     ADD_TESTS(1)
 
     //

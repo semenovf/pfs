@@ -10,9 +10,9 @@ install:
   - sudo apt-get install -qq libboost-regex1.54-dev
 
 script:
-  - mkdir -p build-11
-  - cd build-11
-  - cmake -DCMAKE_CXX_STANDARD=11 -DCMAKE_BUILD_TYPE=Release ..
+  - mkdir -p build-98
+  - cd build-98
+  - cmake -DCMAKE_CXX_STANDARD=98 -DCMAKE_BUILD_TYPE=Release ..
   - cmake --build . && ctest
 
 

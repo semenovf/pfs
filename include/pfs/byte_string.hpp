@@ -2,6 +2,7 @@
 #include <cstring>
 #include <string>
 #include <iterator>
+#include <pfs/config.h>
 #include <pfs/algorithm.hpp>
 #include <pfs/types.hpp>
 #include <pfs/stdcxx/basic_string.hpp>
@@ -437,7 +438,7 @@ public:
      *     iterator insert (const_iterator pos, InputIt first, InputIt last)
      */
 
-#if __cplusplus >= 201103L
+#if PFS_COMPILER_CXX_GENERALIZED_INITIALIZERS
     /**
     * @fn iterator insert (const_iterator pos, std::initializer_list<value_type> ilist)
     */
@@ -563,7 +564,7 @@ public:
      * @return @code *this @endcode
      */
 
-#if __cplusplus >= 201103L
+#if PFS_COMPILER_CXX_GENERALIZED_INITIALIZERS
     /**
      * @fn byte_string & append (std::initializer_list<value_type> ilist)
      *
@@ -629,7 +630,7 @@ public:
         return append(s);
     }
 
-#if __cplusplus >= 201103L
+#if PFS_COMPILER_CXX_GENERALIZED_INITIALIZERS
     /**
      * @return @code *this @endcode
      */
