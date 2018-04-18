@@ -4,17 +4,10 @@
 namespace pfs {
 namespace io {
 
-#if __cplusplus >= 201103L
 filesystem::perms const open_params<file>::default_create_perms = filesystem::perms::owner_read
         | filesystem::perms::owner_write
         | filesystem::perms::group_read
         | filesystem::perms::others_read;
-#else
-int const open_params<file>::default_create_perms = filesystem::perms::owner_read
-        | filesystem::perms::owner_write
-        | filesystem::perms::group_read
-        | filesystem::perms::others_read;
-#endif
 
 // TODO
 //void file_appender::print (pfs::string const & msg)
