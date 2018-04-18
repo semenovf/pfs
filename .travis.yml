@@ -1,9 +1,6 @@
 dist: trusty
 sudo: false
 language: cpp
-compiler:
-  - gcc
-  - clang
 
 install:
   - sudo apt-get install -qq libboost-system1.54-dev
@@ -22,7 +19,7 @@ matrix:
       env:
         - CXX_STANDARD=98
 
-script: travis-build.sh
+script: sh travis-build.sh
 
 notifications:
   email: true
