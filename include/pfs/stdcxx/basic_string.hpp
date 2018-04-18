@@ -455,7 +455,9 @@ public:
         return *static_cast<DerivedT *>(this);
     }
 
-#if __cplusplus < 201103L
+#if __cplusplus < 201103L \
+            || PFS_CC_GCC_VERSION <= 40900 // TODO Check for valid version
+
     iterator erase (const_iterator pos)
     {
         size_type index = std::distance(this->cbegin(), pos);
@@ -467,7 +469,9 @@ public:
     }
 #endif
 
-#if __cplusplus < 201103L
+#if __cplusplus < 201103L \
+            || PFS_CC_GCC_VERSION <= 40900 // TODO Check for valid version
+
     iterator erase (const_iterator first, const_iterator last)
     {
         size_type pos1 = std::distance(this->cbegin(), first);
@@ -694,7 +698,9 @@ public:
      */
     inline DerivedT & replace (const_iterator first, const_iterator last, basic_string const & s)
     {
-#if __cplusplus < 201103L
+#if __cplusplus < 201103L \
+                    || PFS_CC_GCC_VERSION <= 40900 // TODO Check for valid version
+
         // basic_string implementation may use COW,
         // so
         // base_class::replace(begin() + std::distance(cbegin(), first)
@@ -727,7 +733,9 @@ public:
             , InputIterator first2, InputIterator last2)
     {
 
-#if __cplusplus < 201103L
+#if __cplusplus < 201103L \
+                    || PFS_CC_GCC_VERSION <= 40900 // TODO Check for valid version
+
         difference_type i1 = std::distance(cbegin(), first);
         difference_type i2 = std::distance(cbegin(), last);
         iterator f = this->begin() + i1;
@@ -741,7 +749,8 @@ public:
 
     /**
      */
-    inline DerivedT & replace (size_type pos, size_type count, const_pointer s, size_type count2)
+    inline DerivedT & replace (size_type pos, size_type count
+            , const_pointer s, size_type count2)
     {
         base_class::replace(pos, count, s, count2);
         return *static_cast<DerivedT *>(this);
@@ -752,7 +761,9 @@ public:
     inline DerivedT & replace (const_iterator first, const_iterator last
             , const_pointer s, size_type count2)
     {
-#if __cplusplus < 201103L
+#if __cplusplus < 201103L \
+                    || PFS_CC_GCC_VERSION <= 40900 // TODO Check for valid version
+
         difference_type i1 = std::distance(cbegin(), first);
         difference_type i2 = std::distance(cbegin(), last);
         iterator f = this->begin() + i1;
@@ -776,7 +787,9 @@ public:
      */
     inline DerivedT & replace (const_iterator first, const_iterator last, const_pointer s)
     {
-#if __cplusplus < 201103L
+#if __cplusplus < 201103L \
+                    || PFS_CC_GCC_VERSION <= 40900 // TODO Check for valid version
+
         difference_type i1 = std::distance(cbegin(), first);
         difference_type i2 = std::distance(cbegin(), last);
         iterator f = this->begin() + i1;
@@ -802,7 +815,9 @@ public:
     inline DerivedT & replace (const_iterator first, const_iterator last
             , size_type count2, CharT ch)
     {
-#if __cplusplus < 201103L
+#if __cplusplus < 201103L \
+                    || PFS_CC_GCC_VERSION <= 40900 // TODO Check for valid version
+
         difference_type i1 = std::distance(cbegin(), first);
         difference_type i2 = std::distance(cbegin(), last);
         iterator f = this->begin() + i1;
