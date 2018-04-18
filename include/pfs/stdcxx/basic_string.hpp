@@ -406,7 +406,7 @@ public:
 
     inline iterator insert (const_iterator pos, size_type count, CharT ch)
     {
-        size_type index = std::distance(cbegin(), pos);
+        size_type index = std::distance(this->cbegin(), pos);
         base_class::insert(this->begin() + index, count, ch);
         return this->begin() + index;
     }
@@ -428,7 +428,7 @@ public:
     template <typename InputIt>
     inline iterator insert (const_iterator pos, InputIt first, InputIt last)
     {
-        size_type index = std::distance(cbegin(), pos);
+        size_type index = std::distance(this->cbegin(), pos);
         base_class::insert(this->begin() + index, first, last);
         return this->begin() + index;
     }
@@ -458,7 +458,7 @@ public:
 #if __cplusplus < 201103L
     iterator erase (const_iterator pos)
     {
-        size_type index = std::distance(cbegin(), pos);
+        size_type index = std::distance(this->cbegin(), pos);
         if (index < this->size()) {
             erase(index, 1);
             return this->begin() + index;
@@ -470,8 +470,8 @@ public:
 #if __cplusplus < 201103L
     iterator erase (const_iterator first, const_iterator last)
     {
-        size_type pos1 = std::distance(cbegin(), first);
-        size_type pos2 = std::distance(cbegin(), last);
+        size_type pos1 = std::distance(this->cbegin(), first);
+        size_type pos2 = std::distance(this->cbegin(), last);
         if (pos1 < pos2) {
             erase(pos1, pos2 - pos1);
             return this->begin() + pos1;
