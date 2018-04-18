@@ -707,8 +707,8 @@ public:
         //      , begin() + std::distance(cbegin(), last), s);
         // may cause UB (in  worst case Seg Fault)
         //
-        difference_type i1 = std::distance(cbegin(), first);
-        difference_type i2 = std::distance(cbegin(), last);
+        difference_type i1 = std::distance(this->cbegin(), first);
+        difference_type i2 = std::distance(this->cbegin(), last);
         iterator f = this->begin() + i1; // begin() unshares data
         iterator e = this->begin() + i2;
         base_class::replace(f, e, s);
@@ -736,8 +736,8 @@ public:
 #if __cplusplus < 201103L \
                     || PFS_CC_GCC_VERSION <= 40900 // TODO Check for valid version
 
-        difference_type i1 = std::distance(cbegin(), first);
-        difference_type i2 = std::distance(cbegin(), last);
+        difference_type i1 = std::distance(this->cbegin(), first);
+        difference_type i2 = std::distance(this->cbegin(), last);
         iterator f = this->begin() + i1;
         iterator e = this->begin() + i2;
         base_class::template replace<InputIterator>(f, e, first2, last2);
@@ -764,8 +764,8 @@ public:
 #if __cplusplus < 201103L \
                     || PFS_CC_GCC_VERSION <= 40900 // TODO Check for valid version
 
-        difference_type i1 = std::distance(cbegin(), first);
-        difference_type i2 = std::distance(cbegin(), last);
+        difference_type i1 = std::distance(this->cbegin(), first);
+        difference_type i2 = std::distance(this->cbegin(), last);
         iterator f = this->begin() + i1;
         iterator e = this->begin() + i2;
         base_class::replace(f, e, s, count2);
@@ -790,8 +790,8 @@ public:
 #if __cplusplus < 201103L \
                     || PFS_CC_GCC_VERSION <= 40900 // TODO Check for valid version
 
-        difference_type i1 = std::distance(cbegin(), first);
-        difference_type i2 = std::distance(cbegin(), last);
+        difference_type i1 = std::distance(this->cbegin(), first);
+        difference_type i2 = std::distance(this->cbegin(), last);
         iterator f = this->begin() + i1;
         iterator e = this->begin() + i2;
         base_class::replace(f, e, s);
@@ -818,8 +818,8 @@ public:
 #if __cplusplus < 201103L \
                     || PFS_CC_GCC_VERSION <= 40900 // TODO Check for valid version
 
-        difference_type i1 = std::distance(cbegin(), first);
-        difference_type i2 = std::distance(cbegin(), last);
+        difference_type i1 = std::distance(this->cbegin(), first);
+        difference_type i2 = std::distance(this->cbegin(), last);
         iterator f = this->begin() + i1;
         iterator e = this->begin() + i2;
         base_class::replace(f, e, count2, ch);
