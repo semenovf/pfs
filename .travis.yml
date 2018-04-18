@@ -1,6 +1,9 @@
 dist: trusty
 sudo: false
 language: cpp
+compiler:
+  - gcc
+  - clang
 
 install:
   - sudo apt-get install -qq libboost-system1.54-dev
@@ -9,12 +12,17 @@ install:
   - sudo apt-get install -qq libboost-chrono1.54-dev
   - sudo apt-get install -qq libboost-regex1.54-dev
 
-script:
-  - mkdir -p build-98
-  - cd build-98
-  - cmake -DCMAKE_CXX_STANDARD=98 -DCMAKE_BUILD_TYPE=Release ..
-  - cmake --build . && ctest
+matrix:
+  include:
+    - os: linux
+      addons:
+        apt:
+          packages:
+            - g++-4.8
+      env:
+        - CXX_STANDARD=98
 
+script: travis-build.sh
 
 notifications:
   email: true
