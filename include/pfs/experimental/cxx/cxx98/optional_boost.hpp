@@ -131,34 +131,24 @@ public:
      */
 #endif
 
-#if __cplusplus < 201103L
-    /**
-     * @note for prior to C++11
-     */
+    // TODO Check BOOST from version has `value_or` method
+#if BOOST_VERSION >= 105800
     template <typename U>
     T value_or (U & default_value) const
     {
-        // TODO Check BOOST from version has `value_or` method
-#if BOOST_VERSION >= 105800
         return base_class::template value_or<U>(default_value);
-#else
-        return base_class::get_value_or(default_value);
-#endif
     }
 
-    /**
-     * @note for prior to C++11
-     */
-    // TODO Check BOOST from version has `value_or` method
-     template<typename U>
-     pfs_constexpr T value_or (U const & default_value) const
-     {
-#if BOOST_VERSION >= 105800
-         return base_class::template value_or<U>(default_value);
+    template<typename U>
+    pfs_constexpr T value_or (U const & default_value) const
+    {
+        return base_class::template value_or<U>(default_value);
+    }
 #else
-         return base_class::get_value_or(default_value);
-#endif
-     }
+    T const & value_or (T const & default) const
+    {
+        return base_class::get_value_or(default_value);
+    }
 #endif
 };
 

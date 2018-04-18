@@ -10,9 +10,9 @@ namespace pfs {
 //
 // Grammar (case radix = 0)
 //
-// result =   *ws ["+"] NON_ZERO_DIGIT *DIGIT
-//          / *ws ["+"] "0" "x" 1*HEXDIGIT
-//          / *ws ["+"] "0" 1*OCTALDIGIT
+// result =   *ws ["+" / "-"] NON_ZERO_DIGIT *DIGIT
+//          / *ws ["+" / "-"] "0" "x" 1*HEXDIGIT
+//          / *ws ["+" / "-"] "0" 1*OCTALDIGIT
 // NON_ZERO_DIGIT = "1" / "2" / ... / "9"
 // DIGIT          = "0" / 1" / "2" / ... / "9"
 // HEXDIGIT       = "0" / 1" / ... / "9" / "A" / ... / "F" / "a" / ... / "f"
@@ -21,42 +21,27 @@ namespace pfs {
 //
 // Grammar (case radix > 1)
 //
-// result =   *ws ["+"] NON_ZERO_DIGIT *DIGIT
+// result =   *ws ["+" / "-"] NON_ZERO_DIGIT *DIGIT
 //
-
-/**
- * @brief Convert a string to an unsigned integer.
- *
- * @param beginpos Begin position of the string to parse.
- * @param endpos End position of the string to parse.
- * @param badpos If @a badpos is not null pointer, @c string_to_uintmax()
- *               stores the address of the first invalid character
- *               in @c *badpos.
- * @param radix Radix (must be between 2 and 36 inclusive, or be the special
-                value 0)
- * @param overflow If @a overflow is not null pointer, @c string_to_uintmax()
- *               stores the @c -1 if string started with @c '-' sign,
- *               @c 0 if no errors occurred and @c 1 if result is overflow.
- * @return @arg unsigned integer number in range [0, numeric_limits<uintmax_t>::max()]
- *         and @a *overflow set to 0 on success;
- *         @arg unsigned integer number in range [0, numeric_limits<uintmax_t>::max()]
- *         and @a *overflow set to -1 if character sequence begin with @c '-' sign;
- *         @arg @c numeric_limits<uintmax_t>::max() and @a *overflow set to 1 if
- *         character sequence represented number greater than
- *         @c numeric_limits<uintmax_t>::max();
- *
- * @throws pfs::invalid_argument if @a radix is not equal to 0 or
- *         is out of bounds of range [2,36].
- *
- * @note The string may begin with an arbitrary amount of white space
- * (as determined by pfs::is_space()) followed by a single
- * optional @c '+' or @c '-' sign.
- *
- * @note If base is zero or 16, the string may then include a "0x" prefix,
- * and the number will be read in base 16; otherwise, a zero base is
- * taken as 10 (decimal) unless the next character is '0', in which case
- * it is taken as 8 (octal).
- */
+//
+// Arguments:
+// beginpos  - begin position of the string to parse;
+// endpos    - end position of the string to parse;
+// badpos    - stores end-of-parse position;
+// radix     - radix (must be between 2 and 36 inclusive, 
+//             or be the special value 0);
+// psign     - pointer to store sign value;
+// poverflow - pointer to store overflow flag.
+//
+// Description:
+// __string_to_uint() parses sequence from `beginpos` to `endpos` for 
+// unsigned integer `UintT` until reaches `numeric_limits<UintT>::max()`.
+// Position after last valid character stores in `*badpos`.
+// If there was a leading minus sign `*psign` stores `-1`, otherwise `1`.
+// If sequence has more digits than `numeric_limits<UintT>::max()` can accept,
+// `*poverflow` stores `-1` if sign is negative or `+1` if sign is positive,
+// otherwise `*poverflow` stores `0`
+//
 template <typename UintT, typename CharIteratorT>
 UintT __string_to_uint (CharIteratorT beginpos
     , CharIteratorT endpos
@@ -200,6 +185,40 @@ UintT __string_to_uint (CharIteratorT beginpos
     return result;
 }
 
+/**
+ * @brief Convert a character sequence to an unsigned integer.
+ *
+ * @param beginpos Begin position of the character sequence to parse.
+ * @param endpos End position of the character sequence to parse.
+ * @param badpos If @a badpos is not null pointer, @c string_to_uintmax()
+ *               stores position after last accepted character in @c *badpos.
+ * @param radix  Radix (must be between 2 and 36 inclusive, or be the special
+ *               value 0)
+ * @param ec     If error occurred @a ec keeps the code that reflects the relevant reason:
+ *               @li @c lexical_cast_errc::bad_radix if radix is out of bounds;
+ *               @li @c lexical_cast_errc::underflow if underflow occurred 
+ *                   (sequence has surplus valid digit characters and has leading minus sign);
+ *               @li @c lexical_cast_errc::overflow if overflow occurred 
+ *                   (sequence has surplus valid digit characters)
+ * @return @arg unsigned integer number in range [0, numeric_limits<uintmax_t>::max()]
+ *              if parse is success;
+ *         @arg 0 if sequence has leading minus sign (@a *badpos keeps @a beginpos 
+ *              value in this case)
+ */
+
+//  * @throws pfs::invalid_argument if @a radix is not equal to 0 or
+//  *         it is out of bounds of range [2,36].
+//  *
+//  * @note The string may begin with an arbitrary amount of white space
+//  *       (as determined by pfs::is_space()) followed by a single
+//  *       optional @c '+' or @c '-' sign.
+//  *
+//  * @note If base is zero or 16, the string may then include a "0x" prefix,
+//  *       and the number will be read in base 16; otherwise, a zero base is
+//  *       taken as 10 (decimal) unless the next character is '0', in which case
+//  *       it is taken as 8 (octal).
+//  */
+
 template <typename UintT, typename CharIteratorT>
 UintT string_to_uint (CharIteratorT beginpos
     , CharIteratorT endpos
@@ -228,8 +247,11 @@ UintT string_to_uint (CharIteratorT beginpos
                 : pfs::make_error_code(lexical_cast_errc::overflow);
     }
 
-    if (sign < 0)
-        result *= sign;
+    if (sign < 0) {
+        if (badpos)
+            *badpos = beginpos;
+        result = 0;
+    }
 
     return result;
 }

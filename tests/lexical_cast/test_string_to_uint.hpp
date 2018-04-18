@@ -1,43 +1,9 @@
 #pragma once
 #include <iostream>
-#include <cstdlib> // strtoul, strtoull
-#include <cerrno>
-
-template <typename UintmaxT>
-UintmaxT std_string_to_uint (char const * nptr
-        , char ** endptr
-        , int base);
-
-template <>
-inline uint32_t std_string_to_uint<uint32_t> (char const * nptr
-        , char ** endptr
-        , int base)
-{
-    errno = 0;
-    unsigned long int r = strtoul(nptr, endptr, base);
-    while (r > pfs::numeric_limits<uint32_t>::max())
-        r /= base;
-    return static_cast<uint32_t>(r);
-}
-
-#if PFS_HAVE_LONG_LONG
-
-template <>
-inline uint64_t std_string_to_uint<uint64_t> (char const * nptr
-        , char ** endptr
-        , int base)
-{
-    errno = 0;
-    unsigned long long int r = strtoull(nptr, endptr, base);
-    while (r > pfs::numeric_limits<uint64_t>::max())
-        r /= base;
-    return static_cast<uint64_t>(r);
-}
-
-#endif
 
 template <typename UintT>
-static bool __test_string_to_uint (char const * s, int radix
+static bool __test_string_to_uint (char const * s
+    , int radix
     , UintT result_sample
     , int overflow_sample
     , ptrdiff_t badpos_increment)
@@ -53,19 +19,6 @@ static bool __test_string_to_uint (char const * s, int radix
         , & badpos
         , radix
         , ec);
-
-    UintT std_result = std_string_to_uint<UintT>(s, 0, radix);
-
-    if (result != std_result) {
-        // Ignore result with overflow
-        if (!(errno == ERANGE && (std_result == 0 || std_result == pfs::numeric_limits<UintT>::max()))) {
-            std::cout << "***ERROR: result = " << result
-                    << " does not math result of strtoul[l](): "
-                    << std_result
-                    << std::endl;
-            r = false;
-        }
-    }
 
     if (result != result_sample) {
         std::cout << "***ERROR: result = " << result << ", but expected " << result_sample << std::endl;
