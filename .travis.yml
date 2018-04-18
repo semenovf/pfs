@@ -19,6 +19,15 @@ matrix:
       env:
         - CXX_STANDARD=98
 
+  include:
+    - os: linux
+      addons:
+        apt:
+          packages:
+            - g++-4.8
+      env:
+        - CXX_STANDARD=11
+
 script: sh travis-build.sh
 
 notifications:
