@@ -7,10 +7,10 @@
 /* Grammar:
  *
  * double =   [sign] [integral-part] POINT fract-part [exp-part]
- * 			/ [sign] integral-part POINT [exp-part]
- *			/ [sign] integral-part exp-part
- *			/ [sign] (N | n ) (A | a ) (N | n )
- *			/ [sign] (I | i ) (N | n ) (F | f ) [(I | i ) (N | n ) (I | i ) (T | t ) (Y | y )]
+ *          / [sign] integral-part POINT [exp-part]
+ *          / [sign] integral-part exp-part
+ *          / [sign] (N | n ) (A | a ) (N | n )
+ *          / [sign] (I | i ) (N | n ) (F | f ) [(I | i ) (N | n ) (I | i ) (T | t ) (Y | y )]
  *
  * integral-part = digit-seq
  *
@@ -25,31 +25,31 @@
  * exp-sign = '+' / '-'
  *
  * digit-seq = digit
- * 			/ digit-seq digit
+ *              / digit-seq digit
  *
  */
 
 //
-//  hack to get locale dependent decimal point char (spied at stackoverflow.com)
+// Hack to get locale dependent decimal point char (spied at stackoverflow.com)
 //
-//	setlocale(LC_NUMERIC, "C");
-//	char fchars[10];
-//	sprintf(fchars, "%f", 0.0f);
-//	char decimalPoint = fchars[1];
+// setlocale(LC_NUMERIC, "C");
+// char fchars[10];
+// sprintf(fchars, "%f", 0.0f);
+// char decimalPoint = fchars[1];
 //
 
 namespace pfs {
 
 enum parse_float_state_enum {
-	  parse_sign_state
-//	, skip_zeros_state
-	, parse_nan_state
-	, parse_inf_state
-	, parse_mantissa_state
-	, parse_exp_state
-	, finish_state
-//	, nan_state
-//	, infinity_state
+      parse_sign_state
+    //, skip_zeros_state
+    , parse_nan_state
+    , parse_inf_state
+    , parse_mantissa_state
+    , parse_exp_state
+    , finish_state
+    //, nan_state
+    //, infinity_state
 };
 
 //
@@ -161,34 +161,32 @@ struct char_iterator_wrapper
 
     value_type operator * () const
     {
-    	return pos == last ? value_type(0) : *pos;
+        return pos == last ? value_type(0) : *pos;
     }
 
     void operator ++ () // prefix increment
-	{
+    {
         if (pos != last)
             ++pos;
-	}
+    }
 };
 
 } // details
 
-template <typename RealType, typename CharIterator>
-RealType string_to_real (CharIterator first
-		, CharIterator last
-		, typename iterator_traits<CharIterator>::value_type decimal_point_char
-		, CharIterator * badpos
+template <typename RealType, typename CharIt>
+RealType string_to_real (CharIt first
+        , CharIt last
+        , typename iterator_traits<CharIt>::value_type decimal_point_char
+        , CharIt * badpos
         , error_code & ec) // badpos
 {
-    typedef typename iterator_traits<CharIterator>::value_type value_type;
-    static RealType frac1_powers[] = {1.0e0, 1.0e1, 1.0e2, 1.0e3, 1.0e4, 1.0e5, 1.0e6, 1.0e7, 1.0e8, 1.0e9};
+    typedef typename iterator_traits<CharIt>::value_type value_type;
+    static double frac1_powers[] = {1.0e0, 1.0e1, 1.0e2, 1.0e3, 1.0e4, 1.0e5
+            , 1.0e6, 1.0e7, 1.0e8, 1.0e9};
 
-	CharIterator p(first);
-
-    // double typed `r` gives more accuracy result when RealType is equal to `float`
-    double r = RealType(0.0f); //RealType r = RealType(0.0f);
-
-	int sign = 1;
+    CharIt p(first);
+    double r = 0.0f;
+    int sign = 1;
     RealType dbl_exp = 1.0f;
     int exp_sign = 1;
     int exp = 0;
@@ -197,14 +195,14 @@ RealType string_to_real (CharIterator first
     int frac1_power = 0;
     int mantissa_size = 0;
     int decimal_point_size = -1;
-    details::char_iterator_wrapper<CharIterator> pos(p, last);
-    details::char_iterator_wrapper<CharIterator> last_zero_pos;
-    details::char_iterator_wrapper<CharIterator> nan;
-    details::char_iterator_wrapper<CharIterator> inf;
-    details::char_iterator_wrapper<CharIterator> exp_pos;
+    details::char_iterator_wrapper<CharIt> pos(p, last);
+    details::char_iterator_wrapper<CharIt> last_zero_pos;
+    details::char_iterator_wrapper<CharIt> nan;
+    details::char_iterator_wrapper<CharIt> inf;
+    details::char_iterator_wrapper<CharIt> exp_pos;
 
     if (first == last) {
-    	if (badpos)
+        if (badpos)
             *badpos = first;
         return RealType(0.0f);
     }
@@ -442,14 +440,14 @@ done:
     return sign < 0 ? -r : r;
 }
 
-template <typename RealType, typename CharIterator>
-RealType string_to_real (CharIterator first
-		, CharIterator last
-		, typename iterator_traits<CharIterator>::value_type decimal_point
-		, CharIterator * badpos)
+template <typename RealType, typename CharIt>
+RealType string_to_real (CharIt first
+        , CharIt last
+        , typename iterator_traits<CharIt>::value_type decimal_point
+        , CharIt * badpos)
 {
     error_code ec;
-    RealType result = string_to_real<RealType, CharIterator>(first, last, decimal_point, badpos, ec);
+    RealType result = string_to_real<RealType, CharIt>(first, last, decimal_point, badpos, ec);
 
     if (ec.value() != static_cast<int>(lexical_cast_errc::success))
         throw bad_lexical_cast(ec);

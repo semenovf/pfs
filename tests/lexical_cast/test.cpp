@@ -13,17 +13,13 @@ int main ()
 {
     BEGIN_TESTS(0);
 
-    {
-        typedef pfs::string string_type;
-
-        test_string_to_uint();
-        test_string_to_int();
-        test_string_to_real<float>();
-        test_string_to_real<double>();
-        test_lexical_cast_uint();
-        test_lexical_cast_int();
-        test_lexical_cast_float();
-    }
+    test_string_to_uint();
+    test_string_to_int();
+    test_string_to_real<float>();
+    test_string_to_real<double>();
+    test_lexical_cast_uint();
+    test_lexical_cast_int();
+    test_lexical_cast_float();
 
     return END_TESTS;
 }
