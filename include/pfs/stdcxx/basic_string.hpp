@@ -423,6 +423,11 @@ public:
         return this->insert(pos, 1, ch);
     }
 
+    /**
+     * @fn template <typename InputIt>
+     *     iterator insert (const_iterator pos, InputIt first, InputIt last)
+     */
+
 #if __cplusplus < 201103L \
             || PFS_CC_GCC_VERSION <= 40900 // TODO Check for valid version
 
@@ -434,11 +439,11 @@ public:
         return this->begin() + index;
     }
 #else
-    template <typename InputIt>
-    inline iterator insert (const_iterator pos, InputIt first, InputIt last)
-    {
-        return base_class::template insert<InputIt>(pos, first, last);
-    }
+//     template <typename InputIt>
+//     inline iterator insert (const_iterator pos, InputIt first, InputIt last)
+//     {
+//         return base_class::template insert<InputIt>(pos, first, last);
+//     }
 #endif
 
 #if PFS_COMPILER_CXX_GENERALIZED_INITIALIZERS

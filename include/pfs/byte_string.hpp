@@ -447,7 +447,8 @@ public:
      */
     inline iterator insert (const_iterator pos, std::initializer_list<char> ilist)
     {
-        return base_class::insert(pos, ilist.begin(), ilist.end());
+        return base_class::insert<std::initializer_list<char>::const_iterator>(pos
+                , ilist.begin(), ilist.end());
     }
 #endif
 
