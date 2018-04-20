@@ -1,5 +1,10 @@
 #pragma once
+#include <pfs/compiler.hpp>
 #include <regex>
+
+#if PFS_CC_GCC_VERSION < 40900
+#   include <pfs/cxx/cxx98/regex.hpp>
+#else
 
 namespace pfs {
 
@@ -27,10 +32,10 @@ template <typename StringType>
 class sub_match : public std::sub_match<typename StringType::const_pointer>
 {
     typedef std::sub_match<typename StringType::const_pointer> base_class;
-    
+
 public:
     constexpr sub_match () : base_class() { }
-    
+
     operator StringType () const
     {
         return this->matched
@@ -43,7 +48,7 @@ template <typename BidirIter>
 class match_results : public std::match_results<BidirIter>
 {
     typedef std::match_results<BidirIter> base_class;
-    
+
 public:
     explicit match_results ()
         : base_class()
@@ -64,11 +69,11 @@ public:
     {}
 };
 
-template <typename StringType> 
+template <typename StringType>
 class basic_regex : public std::basic_regex<typename StringType::value_type>
 {
     typedef std::basic_regex<typename StringType::value_type> base_class;
-    
+
 public:
     typedef pfs::match_results<typename StringType::const_pointer> match_results;
     typedef typename base_class::flag_type flag_type;
@@ -204,3 +209,5 @@ inline bool regex_match (typename StringType::const_pointer str
 }
 
 } // namespace pfs
+
+#endif // PFS_CC_GCC_VERSION < 40900

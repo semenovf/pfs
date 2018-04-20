@@ -1,6 +1,4 @@
-#ifndef __PFS_CXX_CXX98_REGEX_HPP__
-#define __PFS_CXX_CXX98_REGEX_HPP__
-
+#pragma once
 #include <pfs/config.h>
 
 #if defined(HAVE_BOOST_REGEX)
@@ -10,6 +8,3 @@
 #else
 #   include "regex_custom.hpp"
 #endif
-
-#endif /* __PFS_CXX_CXX98_REGEX_HPP__ */
-
