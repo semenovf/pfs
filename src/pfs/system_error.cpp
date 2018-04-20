@@ -20,11 +20,30 @@ public:
     }
 };
 
+class system_category : public std::error_category
+{
+public:
+    virtual char const * name () const pfs_noexcept pfs_override
+    {
+        return ::boost::system::system_category().name();
+    }
+    virtual std::string message (int value) const pfs_override
+    {
+        return ::boost::system::system_category().message(value);
+    }
+};
+
 } // detail
 
 pfs::error_category const & generic_category ()
 {
     static detail::generic_category instance;
+    return instance;
+}
+
+pfs::error_category const & system_category ()
+{
+    static detail::system_category instance;
     return instance;
 }
 
