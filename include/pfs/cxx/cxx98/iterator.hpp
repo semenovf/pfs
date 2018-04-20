@@ -1,6 +1,4 @@
-#ifndef __PFS_CXX98_ITERATOR_HPP__
-#define __PFS_CXX98_ITERATOR_HPP__
-
+#pragma once
 #include <iterator>
 #include <pfs/types.hpp>
 #include <pfs/cxxlang.hpp>
@@ -135,18 +133,18 @@ struct iterator_facade<output_iterator_tag, Derived, T, Pointer, Reference, Dist
 
     reference operator * () const
     {
-    	return Derived::ref(*const_cast<Derived *>(static_cast<Derived const *>(this)));
+        return Derived::ref(*const_cast<Derived *>(static_cast<Derived const *>(this)));
     }
 
     Derived & operator ++ () // prefix increment
-	{
-    	return static_cast<Derived &>(*this);
-	}
+    {
+        return static_cast<Derived &>(*this);
+    }
 
     Derived const & operator ++ (int) // postfix increment
-	{
+    {
         return static_cast<Derived &>(*this);
-	}
+    }
 };
 
 template <typename Derived
@@ -420,5 +418,3 @@ public:
 };
 
 } // pfs
-
-#endif /* __PFS_CXX98_ITERATOR_HPP__ */

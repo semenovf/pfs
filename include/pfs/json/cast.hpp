@@ -162,17 +162,17 @@ struct cast_traits_basic<typename JsonType::string_type
 
     static string_type cast (typename JsonType::boolean_type v)
     {
-        return to_string<string_type>(v);
+        return to_string(v);
     }
 
     static string_type cast (typename JsonType::integer_type v)
     {
-        return to_string<string_type>(v);
+        return to_string(v);
     }
 
     static string_type cast (typename JsonType::real_type v)
     {
-        return to_string<string_type>(v);
+        return to_string(v);
     }
 
     static string_type cast (typename JsonType::string_type const & v)

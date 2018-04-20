@@ -106,9 +106,9 @@ private:
 template <typename OctetOutputIt>
 struct u8_output_iterator_proxy
 {
-    OctetOutputIt * _p;
+    OctetOutputIt _p;
 
-    u8_output_iterator_proxy (OctetOutputIt * p) : _p(p) {}
+    u8_output_iterator_proxy (OctetOutputIt p) : _p(p) {}
     void operator = (unicode::char_t const & ch);
 };
 
@@ -132,11 +132,11 @@ public:
     typedef typename base_class::difference_type difference_type;
 
 private:
-    OctetOutputIt * _p;
+    OctetOutputIt _p;
 
 public:
-    u8_output_iterator (OctetOutputIt & first)
-        : _p(& first)
+    u8_output_iterator (OctetOutputIt first)
+        : _p(first)
     {}
 
 public:

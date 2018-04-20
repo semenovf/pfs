@@ -827,7 +827,7 @@ public:
 };
 
 template <PFS_JSON_TEMPLETE_SIGNATURE>
-json<PFS_JSON_TEMPLETE_ARGS> & 
+json<PFS_JSON_TEMPLETE_ARGS> &
 json<PFS_JSON_TEMPLETE_ARGS>::assign (json const & other)
 {
     this->~json();
@@ -866,7 +866,7 @@ json<PFS_JSON_TEMPLETE_ARGS>::assign (json const & other)
 }
 
 template <PFS_JSON_TEMPLETE_SIGNATURE>
-typename json<PFS_JSON_TEMPLETE_ARGS>::string_type 
+typename json<PFS_JSON_TEMPLETE_ARGS>::string_type
 json<PFS_JSON_TEMPLETE_ARGS>::to_string () const
 {
     switch (type()) {
@@ -874,13 +874,13 @@ json<PFS_JSON_TEMPLETE_ARGS>::to_string () const
         return string_type("null");
 
     case data_type::boolean:
-        return pfs::to_string<string_type>(get<boolean_type>());
+        return pfs::to_string(get<boolean_type>());
 
     case data_type::integer:
-        return pfs::to_string<string_type>(get<integer_type>());
+        return pfs::to_string(get<integer_type>());
 
     case data_type::real:
-        return pfs::to_string<string_type>(get<real_type>());
+        return pfs::to_string(get<real_type>());
 
     case data_type::string: {
         string_type r;
@@ -946,7 +946,7 @@ bool operator == (json<PFS_JSON_TEMPLETE_ARGS> const & lhs
         , json<PFS_JSON_TEMPLETE_ARGS> const & rhs)
 {
     typedef json<PFS_JSON_TEMPLETE_ARGS> json_type;
-    
+
     if (& lhs == & rhs)
         return true;
 

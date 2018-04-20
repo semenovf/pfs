@@ -1,6 +1,7 @@
 #pragma once
 #include <pfs/endian.hpp>
 #include <pfs/byte_string.hpp>
+#include <pfs/byte_string_istream.hpp>
 #include <pfs/json/json.hpp>
 
 //
@@ -473,14 +474,14 @@ ubjson_istream<IStreamType, JsonType>::read_optimized_object (json_type & j
 template <typename JsonType>
 JsonType from_ubjson (pfs::byte_string const & bs, pfs::error_code & ec)
 {
-    typedef ubjson_istream<pfs::byte_istream, JsonType> ubjson_istream_t;
+    typedef ubjson_istream<byte_string_istream, JsonType> ubjson_istream_t;
 
     JsonType j;
 
     // ubjson_istream_t has own order-------------------------
     //                                                       |
     //                                                       v
-    pfs::byte_istream bis(bs.cbegin(), bs.cend(), endian::native_order());
+    byte_string_istream bis(bs.cbegin(), bs.cend(), endian::native_order());
     ec = ubjson_istream_t(bis).read(j);
 
     return j;

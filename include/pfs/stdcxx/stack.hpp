@@ -20,13 +20,13 @@ public:
     ///////////////////////////////////////////////////////////////////////////
     // Constructors                                                          //
     ///////////////////////////////////////////////////////////////////////////
-    
+
     stack () : base_class() {}
-    
+
     explicit stack (Container const & cont)
         : base_class(cont)
     {}
-    
+
     stack (stack const & rhs)
         : base_class(rhs)
     {}
@@ -56,7 +56,7 @@ public:
 #if __cplusplus >= 201103L
     DerivedT & operator = (DerivedT && rhs)
     {
-        base_class::operator = (std::forward<deque>(rhs));
+        base_class::operator = (std::forward<DerivedT>(rhs));
         return *this;
     }
 #endif
@@ -68,7 +68,7 @@ public:
     /**
      * @fn reference top ()
      */
-    
+
     /**
      * @fn const_reference top() const
      */
@@ -88,7 +88,7 @@ public:
     ///////////////////////////////////////////////////////////////////////////
     // Modifiers                                                             //
     ///////////////////////////////////////////////////////////////////////////
-    
+
     /**
      * @fn void push (const_reference value)
      */
@@ -109,9 +109,9 @@ public:
     /**
      * @fn void pop ()
      */
-    
+
     // TODO Implement for C++98
     // void swap( stack& other )
-}; 
-    
+};
+
 }} // pfs::stdcxx

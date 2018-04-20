@@ -28,7 +28,7 @@ template <typename InputDevice>
 void test_binary_istream (InputDevice & dev)
 {
     typedef pfs::binary_istream<InputDevice> binary_istream;
-    
+
     ADD_TESTS(11);
 
     pfs::endian order = pfs::endian::network_order();

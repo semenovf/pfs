@@ -39,7 +39,7 @@ struct test_data_item
 template <typename JsonType>
 void test_number ()
 {
-    typedef pfs::json::ubjson_ostream<pfs::byte_ostream, JsonType> ubjson_ostream_t;
+    typedef pfs::json::ubjson_ostream<pfs::byte_string_ostream, JsonType> ubjson_ostream_t;
 
     test_data_item tdi[] = {
           { pfs::byte_string("null")  , pfs::byte_string("Z") }

@@ -1,7 +1,7 @@
 #pragma once
 #include <pfs/algorithm.hpp>
 #include <pfs/byte_string.hpp>
-#include <pfs/binary_ostream.hpp>
+#include <pfs/byte_string_ostream.hpp>
 #include <pfs/limits.hpp>
 #include <pfs/endian.hpp>
 #include <pfs/json/json.hpp>
@@ -364,15 +364,15 @@ pfs::error_code ubjson_ostream<OStreamType, JsonType>::write_json (json_type con
 template <typename JsonType>
 pfs::byte_string to_ubjson (JsonType const & j, int flags, pfs::error_code & ex)
 {
-    typedef pfs::json::ubjson_ostream<pfs::binary_ostream, JsonType> ubjson_ostream_t;
+    typedef pfs::json::ubjson_ostream<byte_string_ostream, JsonType> ubjson_ostream_t;
 
-    pfs::byte_string buffer;
+    pfs::byte_string result;
     // ubjson_ostream_t has own order------
     //                                    |
     //                                    v
-    pfs::binary_ostream os(buffer, endian::native_order());
+    byte_string_ostream os(result, endian::native_order());
     ex = ubjson_ostream_t(os, flags).write(j);
-    return os.data();
+    return result;
 }
 
 template <typename JsonType>

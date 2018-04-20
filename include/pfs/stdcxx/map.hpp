@@ -310,14 +310,19 @@ public:
      * @fn const_iterator upper_bound (Key const & key) const
      */
 
-    inline mapped_type & mapped_reference (iterator it)
+    static inline mapped_type & mapped_reference (iterator it)
     {
         return it->second;
     }
 
-    inline mapped_type const & mapped_reference (const_iterator it)
+    static inline mapped_type const & mapped_reference (const_iterator it)
     {
         return it->second;
+    }
+
+    static inline key_type const & key_reference (const_iterator it)
+    {
+        return it->first;
     }
 
     ///////////////////////////////////////////////////////////////////////////

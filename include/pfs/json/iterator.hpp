@@ -16,7 +16,12 @@ class scalar_iterator
                 , typename JsonType::reference
                 , typename JsonType::difference_type> // Distance
 {
-    template <typename Traits>
+    template <typename BoolT
+        , typename IntT
+        , typename RealT
+        , typename StringT
+        , template <typename> class SequenceContainer
+        , template <typename, typename> class AssociativeContainer>
     friend class json;
 
 public:
@@ -118,7 +123,12 @@ class basic_iterator
                 , JsonType &
                 , ptrdiff_t>
 {
-    template <typename Traits>
+    template <typename BoolT
+        , typename IntT
+        , typename RealT
+        , typename StringT
+        , template <typename> class SequenceContainer
+        , template <typename, typename> class AssociativeContainer>
     friend class json;
 
 public:
@@ -245,7 +255,7 @@ public:
     key_type key () const
     {
         return _pvalue->type() == data_type::object
-                ? object_type::key(_object_it)
+                ? object_type::key_reference(_object_it)
                 : key_type();
     }
 };

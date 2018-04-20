@@ -4,6 +4,8 @@
 #include <pfs/memory.hpp>
 #include <pfs/type_traits.hpp>
 #include <pfs/stdcxx/basic_string.hpp>
+#include <pfs/unicode/unicode_iterator.hpp>
+#include <pfs/unicode/u8_iterator.hpp>
 
 namespace pfs {
 
@@ -67,6 +69,27 @@ public:
         return std::string(this->c_str(), this->size());
     }
 };
+
+namespace unicode {
+
+template <>
+struct unicode_iterator_traits<string::iterator>
+    :  unicode_iterator_limits<string::iterator, char *>
+{
+    typedef utf8_iterator<pfs::string::iterator> iterator;
+    typedef u8_output_iterator<pfs::back_insert_iterator<pfs::string> > output_iterator;
+    typedef u8_input_iterator<pfs::string::iterator> input_iterator;
+};
+
+template <>
+struct unicode_iterator_traits<std::string::const_iterator>
+    :  unicode_iterator_limits<std::string::const_iterator, char const *>
+{
+    typedef utf8_iterator<std::string::const_iterator> iterator;
+    typedef u8_input_iterator<std::string::const_iterator> input_iterator;
+};
+
+} // unicode
 
 namespace details {
 namespace integral {

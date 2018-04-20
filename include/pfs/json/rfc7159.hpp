@@ -4,6 +4,7 @@
 #include <pfs/stack.hpp>
 #include <pfs/json/constants.hpp>
 #include <pfs/unicode/char.hpp>
+#include <pfs/unicode/unicode_iterator.hpp>
 #include "exception.hpp"
 
 namespace pfs {
@@ -161,7 +162,7 @@ struct dom_builder_context : sax_context<JsonType>
     typedef sax_context<json_type>          base_class;
     typedef pfs::stack<json_type *>         stack_type;
     typedef typename sax_context<json_type>::sequence_type sequence_type;
-    
+
     bool is_begin;
     stack_type s;
 
@@ -211,12 +212,12 @@ struct dom_builder_context : sax_context<JsonType>
             s.push(add_value(name, j));
         }
 
-    	return true;
+        return true;
     }
 
     virtual bool on_end_object (sequence_type const &)
     {
-    	PFS_ASSERT(s.size() > 0);
+        PFS_ASSERT(s.size() > 0);
         s.pop();
         return true;
     }
@@ -238,7 +239,7 @@ struct dom_builder_context : sax_context<JsonType>
 
     virtual bool on_end_array (sequence_type const &)
     {
-    	PFS_ASSERT(s.size() > 0);
+        PFS_ASSERT(s.size() > 0);
         s.pop();
         return true;
     }
@@ -350,10 +351,14 @@ template <typename JsonType>
 struct grammar
 {
     typedef typename JsonType::string_type         string_type;
-    typedef typename string_type::const_iterator   iterator;
-    typedef fsm::fsm<iterator>                     fsm_type;
-    typedef typename fsm_type::transition_type     transition_type;
-    typedef typename fsm_type::char_type           value_type;
+    typedef typename pfs::unicode::unicode_iterator_traits<
+            typename string_type::const_iterator>::iterator iterator;
+    typedef typename pfs::unicode::unicode_iterator_traits<
+            typename string_type::iterator>::output_iterator output_iterator;
+
+    typedef fsm::fsm<iterator>                 fsm_type;
+    typedef typename fsm_type::transition_type transition_type;
+    typedef typename fsm_type::char_type       value_type;
 
     struct number_context
     {
@@ -377,9 +382,10 @@ struct grammar
 
     static string_type unescape_chars (iterator first, iterator last)
     {
-        string_type r;
-        bool escaped = false;
+        string_type result;
+        output_iterator out(pfs::back_inserter(result));
         iterator it = first;
+        bool escaped = false;
 
         while (it != last) {
             value_type c = *it;
@@ -389,33 +395,33 @@ struct grammar
             } else {
                 if (escaped) {
                     if (c == value_type('b'))
-                        r.push_back(value_type('\b'));
+                        ++out = value_type('\b');
                     else if (c == value_type('f'))
-                        r.push_back(value_type('\f'));
+                        ++out = push_back(value_type('\f'));
                     else if (c == value_type('n'))
-                        r.push_back(value_type('\n'));
+                        ++out = value_type('\n');
                     else if (c == value_type('r'))
-                        r.push_back(value_type('\r'));
+                        ++out = value_type('\r');
                     else if (c == value_type('t'))
-                        r.push_back(value_type('\t'));
+                        ++out = value_type('\t');
                     else if (c == value_type('u') || c == value_type('U')) {
                         iterator ufirst = ++it;
                         iterator ulast = ufirst;
                         iterator badpos;
-                        
+
                         pfs::advance(ulast, 4);
                         uint32_t uc = string_to_uint<uint32_t>(ufirst, ulast, & badpos, 16);
-                        
+
                         if (badpos != ulast)
                             throw json_exception(make_error_code(json_errc::bad_number));
-                        
-                        r.push_back(unicode::char_t(static_cast<intmax_t>(uc)));
-                        
+
+                        ++out = unicode::char_t(static_cast<intmax_t>(uc));
+
                         pfs::advance(it, 3);
                     } else
-                        r.push_back(c);
+                        ++out = c;
                 } else {
-                    r.push_back(c);
+                    ++out = c;
                 }
                 escaped = false;
             }
@@ -425,7 +431,7 @@ struct grammar
         if (escaped)
             throw json_exception(make_error_code(json_errc::bad_number));
 
-        return r;
+        return result;
     }
 
     static bool false_value (iterator /*first*/, iterator /*last*/, void * context, void * /*action_args*/)
@@ -818,7 +824,6 @@ grammar<ValueT>::grammar ()
           { 1,-1, FSM_ONE_OF(uU)                 , fsm_type::normal, 0, 0 }
         , {-1,-1, FSM_RPT_ONE_OF(HEXDIGIT, 4, 4) , fsm_type::accept, 0, 0 }
     };
-
 
     /*
         %x22 /          ; "    quotation mark  U+0022
