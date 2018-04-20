@@ -73,8 +73,8 @@ public:
 namespace unicode {
 
 template <>
-struct unicode_iterator_traits<string::iterator>
-    :  unicode_iterator_limits<string::iterator, char *>
+struct unicode_iterator_traits<pfs::string::iterator>
+    :  unicode_iterator_limits<pfs::string::iterator, char *>
 {
     typedef utf8_iterator<pfs::string::iterator> iterator;
     typedef u8_output_iterator<pfs::back_insert_iterator<pfs::string> > output_iterator;
@@ -82,11 +82,11 @@ struct unicode_iterator_traits<string::iterator>
 };
 
 template <>
-struct unicode_iterator_traits<std::string::const_iterator>
-    :  unicode_iterator_limits<std::string::const_iterator, char const *>
+struct unicode_iterator_traits<pfs::string::const_iterator>
+    :  unicode_iterator_limits<pfs::string::const_iterator, char const *>
 {
-    typedef utf8_iterator<std::string::const_iterator> iterator;
-    typedef u8_input_iterator<std::string::const_iterator> input_iterator;
+    typedef utf8_iterator<pfs::string::const_iterator> iterator;
+    typedef u8_input_iterator<pfs::string::const_iterator> input_iterator;
 };
 
 } // unicode

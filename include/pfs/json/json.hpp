@@ -508,7 +508,7 @@ public:
         typename object_type::iterator it = _d.object->find(key);
 
         if (it == _d.object->end()) {
-            pfs::pair<typename object_type::iterator, bool> result
+            std::pair<typename object_type::iterator, bool> result
                 = _d.object->insert(key, json());
             it = result.first;
 
@@ -817,8 +817,7 @@ public:
         lhs.swap(rhs);
     }
 
-    template <typename U>
-    friend bool operator == (json<U> const & lhs, json<U> const & rhs);
+    bool operator == (json const & rhs) const;
 
     //friend pfs::byte_ostream & operator << (pfs::byte_ostream & os, json const & v)
     //friend pfs::byte_istream & operator >> (pfs::byte_istream & is, json & v);
@@ -942,49 +941,46 @@ json<PFS_JSON_TEMPLETE_ARGS>::to_string () const
 }
 
 template <PFS_JSON_TEMPLETE_SIGNATURE>
-bool operator == (json<PFS_JSON_TEMPLETE_ARGS> const & lhs
-        , json<PFS_JSON_TEMPLETE_ARGS> const & rhs)
+bool json<PFS_JSON_TEMPLETE_ARGS>::operator == (json const & rhs) const
 {
-    typedef json<PFS_JSON_TEMPLETE_ARGS> json_type;
-
-    if (& lhs == & rhs)
+    if (this == & rhs)
         return true;
 
-    if (lhs.type() != rhs.type())
+    if (this->type() != rhs.type())
         return false;
 
-    switch (lhs.type()) {
+    switch (this->type()) {
     case data_type::null:
         break;
 
     case data_type::boolean:
-        if (lhs._d.boolean != rhs._d.boolean)
+        if (this->_d.boolean != rhs._d.boolean)
             return false;
         break;
 
     case data_type::integer:
-        if (lhs._d.integer != rhs._d.integer)
+        if (this->_d.integer != rhs._d.integer)
             return false;
         break;
 
     case data_type::real:
-        if (lhs._d.real != rhs._d.real)
+        if (this->_d.real != rhs._d.real)
             return false;
         break;
 
     case data_type::string: {
-        if (*lhs._d.string != *rhs._d.string)
+        if (*this->_d.string != *rhs._d.string)
             return false;
         break;
     }
 
     case data_type::array: {
-        if (lhs._d.array->size() != rhs._d.array->size())
+        if (this->_d.array->size() != rhs._d.array->size())
             return false;
 
-        typename json_type::const_iterator itl  = lhs.cbegin();
-        typename json_type::const_iterator last = lhs.cend();
-        typename json_type::const_iterator itr  = rhs.cbegin();
+        const_iterator itl  = this->cbegin();
+        const_iterator last = this->cend();
+        const_iterator itr  = rhs.cbegin();
 
         for (; itl != last; ++itl, ++itr)
             if (*itl != *itr)
@@ -994,12 +990,12 @@ bool operator == (json<PFS_JSON_TEMPLETE_ARGS> const & lhs
     }
 
     case data_type::object: {
-        if (lhs._d.object->size() != rhs._d.object->size())
+        if (this->_d.object->size() != rhs._d.object->size())
             return false;
 
-        typename json_type::const_iterator itl  = lhs.cbegin();
-        typename json_type::const_iterator last = lhs.cend();
-        typename json_type::const_iterator itr  = rhs.cbegin();
+        const_iterator itl  = this->cbegin();
+        const_iterator last = this->cend();
+        const_iterator itr  = rhs.cbegin();
 
         for (; itl != last; ++itl, ++itr) {
             if (itl.key() != itr.key())

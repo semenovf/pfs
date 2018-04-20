@@ -117,12 +117,12 @@ class u8_output_iterator : public iterator_facade<output_iterator_tag
         , u8_output_iterator<OctetOutputIt>
         , void
         , void
-        , u8_output_iterator_proxy<OctetOutputIt> > // unused
+        , u8_output_iterator_proxy<OctetOutputIt> >
 {
     typedef u8_output_iterator_proxy<OctetOutputIt> proxy_type;
     typedef iterator_facade<output_iterator_tag
         , u8_output_iterator<OctetOutputIt>
-        , void
+        , char_t
         , void
         , proxy_type> base_class;
 
@@ -139,7 +139,6 @@ public:
         : _p(first)
     {}
 
-public:
     static reference ref (u8_output_iterator & it)
     {
         return proxy_type(it._p);

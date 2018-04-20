@@ -195,11 +195,11 @@ pfs::error_code ubjson_ostream<OStreamType, JsonType>::write_string (string_type
         // Using size is safe here (no matter the string encoding)
         if (s.size() == 1 && *s.cbegin() <= numeric_limits<int8_t>::max()) {
             _os << static_cast<int8_t>('C');
-            _os << static_cast<int8_t>((*s.cbegin()).value);
+            _os << static_cast<int8_t>(*s.cbegin());
         } else {
             _os << static_cast<int8_t>('S');
             write_integer(static_cast<typename json_type::integer_type>(s.size()), true);
-            _os << s;
+            _os << s.utf8();
         }
     } else {
         write_integer(static_cast<typename json_type::integer_type>(s.size()), true);

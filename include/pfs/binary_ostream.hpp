@@ -1,4 +1,5 @@
 #pragma once
+#include <string>
 #include <pfs/type_traits.hpp>
 #include <pfs/endian.hpp>
 
@@ -26,6 +27,18 @@ public:
     operator << (T const & v)
     {
         ssize_t r = write_float<T>(v);
+        return *this;
+    }
+
+    binary_ostream & operator << (char const * s)
+    {
+        ssize_t r = _dev.write(s, std::strlen(s));
+        return *this;
+    }
+
+    binary_ostream & operator << (std::string const & s)
+    {
+        ssize_t r = _dev.write(s.c_str(), s.size());
         return *this;
     }
 

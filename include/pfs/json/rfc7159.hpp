@@ -395,15 +395,15 @@ struct grammar
             } else {
                 if (escaped) {
                     if (c == value_type('b'))
-                        ++out = value_type('\b');
+                        *out++ = value_type('\b');
                     else if (c == value_type('f'))
-                        ++out = push_back(value_type('\f'));
+                        *out++ = value_type('\f');
                     else if (c == value_type('n'))
-                        ++out = value_type('\n');
+                        *out++ = value_type('\n');
                     else if (c == value_type('r'))
-                        ++out = value_type('\r');
+                        *out++ = value_type('\r');
                     else if (c == value_type('t'))
-                        ++out = value_type('\t');
+                        *out++ = value_type('\t');
                     else if (c == value_type('u') || c == value_type('U')) {
                         iterator ufirst = ++it;
                         iterator ulast = ufirst;
@@ -415,13 +415,13 @@ struct grammar
                         if (badpos != ulast)
                             throw json_exception(make_error_code(json_errc::bad_number));
 
-                        ++out = unicode::char_t(static_cast<intmax_t>(uc));
+                        *out++ = unicode::char_t(static_cast<intmax_t>(uc));
 
                         pfs::advance(it, 3);
                     } else
-                        ++out = c;
+                        *out++ = c;
                 } else {
-                    ++out = c;
+                    *out++ = c;
                 }
                 escaped = false;
             }
