@@ -5,22 +5,12 @@
 namespace pfs {
 namespace db {
 
-template <typename StringType, template <typename> class DatabaseRep>
-struct database_traits
-{
-    typedef StringType               string_type;
-    typedef db_exception             exception_type;
-    typedef DatabaseRep<string_type> rep_type;
-};
-
-template <typename Traits>
+template <typename DatabaseRep>
 class database
 {
 public:
-    typedef Traits                               traits_type;
-    typedef typename traits_type::string_type    string_type;
-    typedef typename traits_type::exception_type exception_type;
-    typedef typename traits_type::rep_type       rep_type;
+    typedef string      string_type;
+    typedef DatabaseRep rep_type;
 
 private:
     rep_type _d;
@@ -49,7 +39,7 @@ public:
         string_type errstr;
 
         if (!open(uri, ec, & errstr))
-            throw db_exception(ec, u8string(errstr));
+            throw db_exception(ec, errstr);
 
         return true;
     }
@@ -110,7 +100,7 @@ bool database<Traits>::query (string_type const & sql)
 
     if (!_d.query(sql, ec, & errstr)) {
         //errstr = "query failed: " + errstr;
-        throw db_exception(ec, u8string(errstr));
+        throw db_exception(ec, errstr);
     }
 
     return true;

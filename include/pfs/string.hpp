@@ -61,6 +61,11 @@ public:
 
     ~string ()
     {}
+
+    std::string utf8 () const
+    {
+        return std::string(this->c_str(), this->size());
+    }
 };
 
 namespace details {

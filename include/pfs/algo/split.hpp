@@ -14,7 +14,7 @@ enum {
 //
 /**
  * @brief Splits into tokens and return token sequence.
- * 
+ *
  * @param flag Must be one of @c pfs::dont_keep_empty or @c pfs::keep_empty.
  * @return If @a result specified and it is not zero, so function will return @a result
  *         filled with tokens, otherwise result will be dynamically allocated before.
@@ -42,24 +42,24 @@ Sequence * split (
     // "/"
 
     while (begin != end) {
-            InputIt1 it = pfs::find(begin
-                            , end
-                            , separator_begin
-                            , separator_end);
+        InputIt1 it = pfs::find(begin
+                        , end
+                        , separator_begin
+                        , separator_end);
 
-            if (it == end)
-                    break;
+        if (it == end)
+                break;
 
-            value_type v(begin, it);
+        value_type v(begin, it);
 
-            if (!(v.empty() && !flag)) {
-                    result->push_back(v);
-            }
+        if (!(v.empty() && !flag)) {
+                result->push_back(v);
+        }
 
-            // Skip separator
-            //
-            pfs::advance(it, n);
-            begin = it;
+        // Skip separator
+        //
+        pfs::advance(it, n);
+        begin = it;
     }
 
     if (begin != end) {

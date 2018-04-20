@@ -195,7 +195,7 @@ public:
 
             if (_d.port > 0) {
                 r.push_back(':');
-                r.append(pfs::to_string<string_type>(_d.port));
+                r.append(pfs::to_string(_d.port));
             }
         }
 

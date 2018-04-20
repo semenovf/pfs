@@ -1,8 +1,7 @@
-#ifndef __PFS_DB_EXCEPTION_HPP__
-#define __PFS_DB_EXCEPTION_HPP__
-
+#pragma once
 #include <pfs/cxxlang.hpp>
 #include <pfs/system_error.hpp>
+#include <pfs/string.hpp>
 #include <pfs/exception.hpp>
 
 namespace pfs {
@@ -21,11 +20,11 @@ struct db_errc
         , bad_alloc
         , query_fail
         , specific_error
-#if __cplusplus < 201103L                  
+#if __cplusplus < 201103L
     };
-    
+
     value_enum v;
-    
+
     db_errc (value_enum x)
         : v(x)
     {}
@@ -35,16 +34,16 @@ struct db_errc
         v = x;
         return *this;
     }
-    
+
     operator int () const
     {
         return static_cast<int>(v);
     }
-#endif    
+#endif
 };
 
 namespace details {
-class db_category : public pfs::error_category 
+class db_category : public pfs::error_category
 {
 public:
     virtual char const * name () const pfs_noexcept pfs_override;
@@ -76,6 +75,11 @@ public:
             + ": " + what)
     {}
 
+    db_exception (pfs::error_code ec, pfs::string const & what)
+        : logic_error(db_category().message(ec.value())
+            + ": " + what.utf8())
+    {}
+
     virtual ~db_exception() throw() {}
 };
 
@@ -88,11 +92,8 @@ namespace std {
 
 template<>
 struct is_error_code_enum<pfs::db_errc>
-        : public std::true_type 
+        : public std::true_type
 {};
 
 #endif
 } // std
-
-#endif /* __PFS_DB_EXCEPTION_HPP__ */
-

@@ -176,7 +176,7 @@ struct uri_grammar
         string_type digits(first, last);
 
         try {
-            ctx->port = lexical_cast<uint16_t, string_type>(digits, 10);
+            ctx->port = lexical_cast<uint16_t>(digits, 10);
         } catch (bad_lexical_cast ex) {
             return false;
         }

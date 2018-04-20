@@ -969,6 +969,9 @@ public:
     /**
      * @fn size_type find_last_not_of (CharT ch, size_type pos = 0) const
      */
+
+    // Must be implemented in derived class
+    //std::string utf8 () const;
 };
 
 template <>

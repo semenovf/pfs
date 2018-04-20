@@ -1,6 +1,4 @@
-#ifndef __PFS_UNICODE_UNICODE_ITERATOR_HPP__
-#define __PFS_UNICODE_UNICODE_ITERATOR_HPP__
-
+#pragma once
 #include <string>
 #include <pfs/unicode/u8_iterator.hpp>
 #include <pfs/unicode/u16_iterator.hpp>
@@ -122,6 +120,3 @@ struct unicode_iterator_traits<std::wstring::const_iterator>
 #endif
 
 }}
-
-#endif /* __PFS_UNICODE_UNICODE_ITERATOR_HPP__ */
-

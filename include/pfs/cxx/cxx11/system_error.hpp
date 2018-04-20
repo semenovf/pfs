@@ -68,25 +68,39 @@ namespace pfs {
 namespace boost {
 
 pfs::error_category const & generic_category ();
+pfs::error_category const & system_category ();
 
 } // boost
 
 template <>
-inline error_code error_code_cast<::boost::system::error_code, error_code> (::boost::system::error_code const & ec)
+inline error_code error_code_cast<::boost::system::error_code
+        , error_code> (::boost::system::error_code const & ec)
 {
-    if (ec.category() != ::boost::system::generic_category())
-        PFS_ASSERT_X(false, "Can't cast `::boost::system::error_code` to `pfs::error_code`");
-
-    return pfs::error_code(ec.value(), pfs::generic_category());
+    if (ec.category() == ::boost::system::generic_category()) {
+        return pfs::error_code(ec.value(), pfs::generic_category());
+    } else if (ec.category() == ::boost::system::system_category()) {
+        return pfs::error_code(ec.value(), pfs::system_category());
+    } else {
+        PFS_ASSERT_X(false, "Can't cast `::boost::system::error_code`"
+                " to `pfs::error_code`");
+    }
 }
 
 template <>
-inline ::boost::system::error_code error_code_cast<error_code, ::boost::system::error_code> (error_code const & ec)
+inline ::boost::system::error_code error_code_cast<error_code
+        , ::boost::system::error_code> (error_code const & ec)
 {
-    if (ec.category() != pfs::generic_category())
-        PFS_ASSERT_X(false, "Can't cast `pfs::error_code` to `::boost::system::error_code`");
+    if (ec.category() == pfs::generic_category()) {
+        return ::boost::system::error_code(ec.value()
+                , ::boost::system::generic_category());
+    } else if (ec.category() == pfs::system_category()) {
+        return ::boost::system::error_code(ec.value()
+                , ::boost::system::system_category());
+    } else {
+        PFS_ASSERT_X(false, "Can't cast `pfs::error_code`"
+                " to `::boost::system::error_code`");
+    }
 
-    return ::boost::system::error_code(ec.value(), ::boost::system::generic_category());
 }
 
 inline pfs::error_code make_error_code (::boost::system::errc::errc_t e)

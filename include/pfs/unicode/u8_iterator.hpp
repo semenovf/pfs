@@ -1,6 +1,4 @@
-#ifndef __PFS_UNICODE_U8_ITERATOR_HPP__
-#define __PFS_UNICODE_U8_ITERATOR_HPP__
-
+#pragma once
 #include <pfs/iterator.hpp>
 #include <pfs/unicode/char.hpp>
 #include <pfs/unicode/traits.hpp>
@@ -106,7 +104,7 @@ private:
 };
 
 template <typename OctetOutputIt>
-struct u8_output_iterator_proxy 
+struct u8_output_iterator_proxy
 {
     OctetOutputIt * _p;
 
@@ -218,30 +216,30 @@ void u8_output_iterator_proxy<OctetOutputIt>::operator = (unicode::char_t const 
     if (ch.value < 0x80) {
         *_p++ = uint8_t(ch.value);
     } else if (ch.value < 0x0800) {
-    	*_p++ = 0xC0 | uint8_t(ch.value >> 6);
-    	*_p++ = 0x80 | uint8_t(ch.value & 0x3f);
+        *_p++ = 0xC0 | uint8_t(ch.value >> 6);
+        *_p++ = 0x80 | uint8_t(ch.value & 0x3f);
     } else if (ch.value < 0x10000) {
-    	*_p++ = 0xE0 | uint8_t(ch.value >> 12);
-    	*_p++ = 0x80 | (uint8_t(ch.value >> 6)  & 0x3F);
-    	*_p++ = 0x80 | uint8_t(ch.value & 0x3F);
+        *_p++ = 0xE0 | uint8_t(ch.value >> 12);
+        *_p++ = 0x80 | (uint8_t(ch.value >> 6)  & 0x3F);
+        *_p++ = 0x80 | uint8_t(ch.value & 0x3F);
     } else if (ch.value < 0x200000) {
-    	*_p++ = 0xF0 | uint8_t(ch.value >> 18);
-    	*_p++ = 0x80 | (uint8_t(ch.value >> 12) & 0x3F);
-    	*_p++ = 0x80 | (uint8_t(ch.value >> 6)  & 0x3F);
-    	*_p++ = 0x80 | uint8_t(ch.value & 0x3F);
+        *_p++ = 0xF0 | uint8_t(ch.value >> 18);
+        *_p++ = 0x80 | (uint8_t(ch.value >> 12) & 0x3F);
+        *_p++ = 0x80 | (uint8_t(ch.value >> 6)  & 0x3F);
+        *_p++ = 0x80 | uint8_t(ch.value & 0x3F);
     } else if (ch.value < 0x4000000) {
-    	*_p++ = 0xF8 | uint8_t(ch.value >> 24);
-    	*_p++ = 0x80 | (uint8_t(ch.value >> 18) & 0x3F);
-    	*_p++ = 0x80 | (uint8_t(ch.value >> 12) & 0x3F);
-    	*_p++ = 0x80 | (uint8_t(ch.value >> 6)  & 0x3F);
-    	*_p++ = 0x80 | uint8_t(ch.value & 0x3F);
+        *_p++ = 0xF8 | uint8_t(ch.value >> 24);
+        *_p++ = 0x80 | (uint8_t(ch.value >> 18) & 0x3F);
+        *_p++ = 0x80 | (uint8_t(ch.value >> 12) & 0x3F);
+        *_p++ = 0x80 | (uint8_t(ch.value >> 6)  & 0x3F);
+        *_p++ = 0x80 | uint8_t(ch.value & 0x3F);
     } else if (ch.value < 0x80000000) {
-    	*_p++ = 0xFC | uint8_t(ch.value >> 30);
-    	*_p++ = 0x80 | (uint8_t(ch.value >> 24) & 0x3F);
-    	*_p++ = 0x80 | (uint8_t(ch.value >> 18) & 0x3F);
-    	*_p++ = 0x80 | (uint8_t(ch.value >> 12) & 0x3F);
-    	*_p++ = 0x80 | (uint8_t(ch.value >> 6)  & 0x3F);
-    	*_p++ = 0x80 | uint8_t(ch.value & 0x3F);
+        *_p++ = 0xFC | uint8_t(ch.value >> 30);
+        *_p++ = 0x80 | (uint8_t(ch.value >> 24) & 0x3F);
+        *_p++ = 0x80 | (uint8_t(ch.value >> 18) & 0x3F);
+        *_p++ = 0x80 | (uint8_t(ch.value >> 12) & 0x3F);
+        *_p++ = 0x80 | (uint8_t(ch.value >> 6)  & 0x3F);
+        *_p++ = 0x80 | uint8_t(ch.value & 0x3F);
     }
 }
 
@@ -570,6 +568,3 @@ StringType read_all_u8 (OctetInputIt & first, OctetInputIt last)
 }
 
 } // pfs
-
-#endif /* __PFS_UNICODE_U8_ITERATOR_HPP__ */
-

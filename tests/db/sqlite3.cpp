@@ -9,9 +9,7 @@ using std::cout;
 using std::cerr;
 using std::endl;
 
-typedef pfs::string string_t;
-typedef pfs::db::database_traits<string_t, pfs::db::sqlite3::database> database_traits_t;
-typedef pfs::db::database<database_traits_t> db_t;
+typedef pfs::db::database<pfs::db::sqlite3::database> db_t;
 
 void sqlite3_test0 ()
 {
@@ -50,8 +48,8 @@ void sqlite3_test1 ()
         try {
             TEST_FAIL2(!pfs::filesystem::exists(path, ec), "File not found");
 
-            string_t dburi("sqlite3:");
-            dburi.append(pfs::to_string<string_t>(path));
+            pfs::string dburi("sqlite3:");
+            dburi.append(pfs::to_string<pfs::string>(path));
             dburi.append("?mode=rwc");
 
             cout << "DB URI: " << dburi << endl;
@@ -70,8 +68,8 @@ void sqlite3_test1 ()
         try {
             TEST_FAIL2(pfs::filesystem::exists(path, ec), "File found");
 
-            string_t dburi("sqlite3:");
-            dburi.append(pfs::to_string<string_t>(path));
+            pfs::string dburi("sqlite3:");
+            dburi.append(pfs::to_string<pfs::string>(path));
             cout << "DB URI: " << dburi << endl;
             db_t db;
             db.open(dburi);
