@@ -1,9 +1,8 @@
 dist: trusty
-sudo: true
+sudo: false
 language: cpp
 
 install:
-  - sudo apt-get install -qq gdb
   - sudo apt-get install -qq libboost-system1.54-dev
   - sudo apt-get install -qq libboost-filesystem1.54-dev
   - sudo apt-get install -qq libboost-thread1.54-dev

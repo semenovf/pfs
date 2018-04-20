@@ -1,6 +1,4 @@
-#ifndef TEST_REGEX_MATCH_HPP
-#define TEST_REGEX_MATCH_HPP
-
+#pragma once
 #include <pfs/regex.hpp>
 #include <iostream>
 
@@ -10,7 +8,7 @@ void test_regex_match ()
     typedef StringType                     string_type;
     typedef pfs::basic_regex<string_type>  regex;
     typedef typename regex::match_results  match;
-    
+
     {
         ADD_TESTS(5);
 
@@ -38,12 +36,14 @@ void test_regex_match ()
         TEST_OK(m[0].str() == target);
         TEST_OK(m[1] == "a");
     }
-    
+
     {
         ADD_TESTS(16);
+        std::cout << "START: regex re(...)" << std::endl;
         regex re("\\[([^\\?]*)\\?(\\d+)\\&ДЕЁ(\\d\\d\\d)\\.(\\d\\d)\\]\\s*(..)\\s*\\[([^\\]]*)\\]");
+        std::cout << "END: regex re(...)" << std::endl;
         string_type target("[local://АБВГ?0000000001&ДЕЁ092.56]<<  [00 0C 5C 03 09 00 02 00 00 00 00 00 46 CD 00 00 00 00]");
-        
+
         match m;
 
         TEST_OK(m.size() == 0);
@@ -61,7 +61,7 @@ void test_regex_match ()
         TEST_OK(pfs::regex_match(target.cbegin(), target.cend(), m1, re));
         TEST_OK(m1.size() == 7);
         TEST_OK(m1[0].str() == target);
-        
+
         match m2;
         string_type re_str("\\[([^\\?]*)\\?(\\d+)\\&ДЕЁ(\\d\\d\\d)\\.(\\d\\d)\\]\\s*(..)\\s*\\[([^\\]]*)\\]");
         regex re2(re_str.cbegin(), re_str.cend());
@@ -70,6 +70,3 @@ void test_regex_match ()
         TEST_OK(m2[0].str() == target);
     }
 }
-
-#endif /* TEST_REGEX_MATCH_HPP */
-
