@@ -71,12 +71,14 @@ int main ()
 
     TEST_FAIL2(!ec, "TCP listener opened");
 
-    pfs::test::profiler watch;
-    watch.start();
-
-    while (watch.ellapsed() < 5.0f) {
+    // Do not work properly on TravisCI
+    // pfs::test::profiler watch;
+    // watch.start();
+    // while (watch.ellapsed() < 5.0f) {
+    time_t t = time(0);
+    while (time(0) - t < 6) {
         devman.dispatch();
-	std::cout << "watch.ellapsed(): " << watch.ellapsed() << std::endl;
+//        std::cout << "watch.ellapsed(): " << watch.ellapsed() << std::endl;
     }
 
     return END_TESTS;
