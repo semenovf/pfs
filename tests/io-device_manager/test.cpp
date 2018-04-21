@@ -40,7 +40,7 @@ int main ()
 
     pfs::error_code ec;
     device_manager_slots devslots;
-    device_manager devman(10); // pall timeout is 10 milliseconds
+    device_manager devman(10); // poll timeout is 10 milliseconds
 
     devman.accepted.connect           (& devslots, & device_manager_slots::device_accepted);
     devman.ready_read.connect         (& devslots, & device_manager_slots::device_ready_read);
@@ -76,6 +76,7 @@ int main ()
 
     while (watch.ellapsed() < 5.0f) {
         devman.dispatch();
+	std::cout << "watch.ellapsed(): " << watch.ellapsed() << std::endl;
     }
 
     return END_TESTS;
