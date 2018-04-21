@@ -1,25 +1,18 @@
 #pragma once
-#include <map>
+#include <set>
+#include <pfs/type_traits.hpp>
 
 namespace pfs {
 namespace stdcxx {
 
-    //
-    // Trick to convert const_iterator to iterator (>= C++11) described at:
-    // [How to remove constness of const_iterator?](https://stackoverflow.com/questions/765148/how-to-remove-constness-of-const-iterator)
-    //
-    // Original at:
-    // [Hat tip to Howard Hinnant and Jon Kalb for this trick](https://twitter.com/_JonKalb/status/202815932089896960)
-    //
-
-template <typename Key, typename T, typename DerivedT>
-class map : public std::map<Key, T>
+template <typename Key, typename DerivedT>
+class set : public std::set<Key>
 {
-    typedef std::map<Key, T> base_class;
+    typedef std::set<Key> base_class;
 
 public:
     typedef typename base_class::key_type         key_type;
-    typedef typename base_class::mapped_type      mapped_type;
+    typedef typename base_class::value_type       mapped_type;
     typedef typename base_class::value_type       value_type;
     typedef typename base_class::size_type        size_type;
     typedef typename base_class::difference_type  difference_type;
@@ -38,12 +31,12 @@ public:
 
     iterator const_cast_iterator (const_iterator it)
     {
-        // TODO Need optimization
+        // TODO Need optimization if possible
         if (it == this->cbegin())
             return this->begin();
         if (it == this->cend())
             return this->end();
-        return this->find(it->first);
+        return this->find(*it);
     }
 
 public:
@@ -51,23 +44,23 @@ public:
     // Constructors                                                          //
     ///////////////////////////////////////////////////////////////////////////
 
-    map () : base_class() {}
+    set () : base_class() {}
 
     template <typename InputIt>
-    map (InputIt first, InputIt last)
+    set (InputIt first, InputIt last)
         : base_class(first, last)
     {}
 
-    map (map const & rhs)
+    set (set const & rhs)
         : base_class(rhs)
     {}
 
 #if __cplusplus >= 201103L
-    map (map && rhs)
-        : base_class(std::forward<map>(rhs))
+    set (set && rhs)
+        : base_class(std::forward<set>(rhs))
     {}
 
-    map (std::initializer_list<std::pair<Key const, T> > ilist)
+    set (std::initializer_list<value_type> ilist)
         : base_class(ilist)
     {}
 #endif
@@ -76,46 +69,24 @@ public:
     // Assign operators and methods                                          //
     ///////////////////////////////////////////////////////////////////////////
 
-    DerivedT & operator = (map const & rhs)
+    DerivedT & operator = (set const & rhs)
     {
         base_class::operator = (rhs);
         return *this;
     }
 
 #if __cplusplus >= 201103L
-    DerivedT & operator = (map && rhs)
+    DerivedT & operator = (set && rhs)
     {
-        base_class::operator = (std::forward<map>(rhs));
+        base_class::operator = (std::forward<set>(rhs));
         return *this;
     }
 
-    DerivedT & operator = (std::initializer_list<std::pair<Key const, T> > ilist)
+    DerivedT & operator = (std::initializer_list<value_type> ilist)
     {
         base_class::operator = (ilist);
         return *this;
     }
-#endif
-
-    ///////////////////////////////////////////////////////////////////////////
-    // Element access                                                        //
-    ///////////////////////////////////////////////////////////////////////////
-
-    /**
-     * @fn T & at (key_type const & key)
-     */
-
-    /**
-     * @fn T const & at (key_type const & key) const
-     */
-
-    /**
-     * @fn T & operator [] (key_type const & key)
-     */
-
-#if __cplusplus >= 201103L
-    /**
-     * @fn T & operator [] (Key && key)
-     */
 #endif
 
     ///////////////////////////////////////////////////////////////////////////
@@ -207,20 +178,48 @@ public:
      */
 
     /**
-     */
-    std::pair<iterator,bool> insert (key_type const & key, mapped_type const & value)
-    {
-        return base_class::insert(std::make_pair(key, value));
-    }
-
-    /**
      * @fn std::pair<iterator,bool> insert (value_type const & value)
      */
 
 #if __cplusplus >= 201103L
     /**
+     * @fn std::pair<iterator,bool> insert (value_type && value)
+     */
+#endif
+
+#if __cplusplus < 201103L
+    iterator insert (const_iterator hint, value_type const & value)
+    {
+        return base_class::insert(const_cast_iterator(hint), value);
+    }
+#endif
+
+#if __cplusplus >= 201103L
+    /**
+    * @fn iterator insert( const_iterator hint, value_type&& value );
+    */
+#endif
+
+    /**
+     * @fn template <typename InputIt>
+     *     void insert (InputIt first, InputIt last);
+     */
+
+#if __cplusplus >= 201103L
+    /**
+     * @fn void insert (std::initializer_list<value_type> ilist)
+     */
+#endif
+
+#if __cplusplus >= 201103L
+    /**
      * @fn template <typename... Args>
      *     std::pair<iterator,bool> emplace (Args &&... args)
+     */
+
+    /**
+     * @fn template <class... Args>
+     *     iterator emplace_hint (const_iterator hint, Args&&... args)
      */
 #endif
 
@@ -257,6 +256,9 @@ public:
         return result;
     }
 #endif
+
+    // TODO Since C++17
+    // iterator erase (iterator pos);
 
     /**
      * @fn size_type erase (key_type const & key)
@@ -312,19 +314,25 @@ public:
      * @fn const_iterator upper_bound (Key const & key) const
      */
 
-    static inline mapped_type & mapped_reference (iterator it)
+    template <typename Iter>
+    static inline
+    typename enable_if<is_same<Iter, iterator>::value && !is_same<iterator, const_iterator>::value, mapped_type &>::type
+    mapped_reference (Iter it)
     {
-        return it->second;
+        return *it;
     }
 
-    static inline mapped_type const & mapped_reference (const_iterator it)
+    template <typename Iter>
+    static inline
+    typename enable_if<is_same<Iter, const_iterator>::value, mapped_type const &>::type
+    mapped_reference (const_iterator it)
     {
-        return it->second;
+        return *it;
     }
 
     static inline key_type const & key_reference (const_iterator it)
     {
-        return it->first;
+        return *it;
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -337,3 +345,4 @@ public:
 };
 
 }} // pfs::stdcxx
+

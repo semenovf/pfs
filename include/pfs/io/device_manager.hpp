@@ -2,7 +2,7 @@
 #include <ctime>
 #include <pfs/cxxlang.hpp>
 #include <pfs/sigslot.hpp>
-#include <pfs/traits/stdcxx/set.hpp>
+#include <pfs/set.hpp>
 #include <pfs/io/pool.hpp>
 
 namespace pfs {
@@ -11,9 +11,10 @@ namespace io {
 // All devices must be in non-blocking mode.
 
 template <typename SigslotNS
-        , template <typename> class SequenceContainerImpl
-        , template <typename> class ContigousContainerImpl
-        , template <typename> class AssociativeContainerImpl>
+        , template <typename> class SequenceContainer
+        , template <typename> class ContigousContainer
+        , template <typename, typename> class AssociativeContainer
+        , template <typename> class PriorityContainer = pfs::set>
 class device_manager : SigslotNS::has_slots
 {
     struct reopen_item
@@ -28,10 +29,10 @@ class device_manager : SigslotNS::has_slots
         }
     };
 
-    typedef pool<SequenceContainerImpl
-            , ContigousContainerImpl
-            , AssociativeContainerImpl> pool_type;
-    typedef stdcxx::set<reopen_item>    reopen_queue;
+    typedef pool<SequenceContainer
+            , ContigousContainer
+            , AssociativeContainer>  pool_type;
+    typedef PriorityContainer<reopen_item> reopen_queue;
 
     class dispatcher_context1 : public pool_type::dispatcher_context
     {

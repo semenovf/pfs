@@ -1,6 +1,7 @@
 #pragma once
-#include <set>
-#include <list>
+#include <pfs/memory.hpp>
+#include <pfs/set.hpp>
+#include <pfs/list.hpp>
 #include <pfs/mutex.hpp>
 #include <pfs/deque.hpp>
 
@@ -194,7 +195,7 @@ struct sigslot
     class basic_has_slots : public mutex_type
     {
     private:
-        typedef std::set<_signal_base *> sender_set;
+        typedef pfs::set<_signal_base *> sender_set;
         typedef typename sender_set::const_iterator const_iterator;
 
     public:
@@ -267,7 +268,7 @@ struct sigslot
     class _signal_base0 : public _signal_base
     {
     public:
-        typedef std::list<_connection_base0 *>  connections_list;
+        typedef pfs::list<_connection_base0 *>  connections_list;
 
         _signal_base0()
         {}
@@ -371,7 +372,7 @@ struct sigslot
     class _signal_base1 : public _signal_base
     {
     public:
-        typedef std::list<_connection_base1<A1> *>  connections_list;
+        typedef pfs::list<_connection_base1<A1> *>  connections_list;
 
         _signal_base1()
         {}
@@ -459,7 +460,7 @@ struct sigslot
     class _signal_base2 : public _signal_base
     {
     public:
-        typedef std::list<_connection_base2<A1, A2> *>
+        typedef pfs::list<_connection_base2<A1, A2> *>
             connections_list;
 
         _signal_base2()
@@ -563,7 +564,7 @@ struct sigslot
     class _signal_base3 : public _signal_base
     {
     public:
-        typedef std::list<_connection_base3<A1, A2, A3> *>
+        typedef pfs::list<_connection_base3<A1, A2, A3> *>
             connections_list;
 
         _signal_base3()
@@ -667,7 +668,7 @@ struct sigslot
     class _signal_base4 : public _signal_base
     {
     public:
-        typedef std::list<_connection_base4<A1, A2, A3,
+        typedef pfs::list<_connection_base4<A1, A2, A3,
             A4> *>  connections_list;
 
         _signal_base4()
@@ -771,7 +772,7 @@ struct sigslot
     class _signal_base5 : public _signal_base
     {
     public:
-        typedef std::list<_connection_base5<A1, A2, A3, A4, A5> *>  connections_list;
+        typedef pfs::list<_connection_base5<A1, A2, A3, A4, A5> *>  connections_list;
 
         _signal_base5()
         {}
@@ -874,7 +875,7 @@ struct sigslot
     class _signal_base6 : public _signal_base
     {
     public:
-        typedef std::list<_connection_base6<A1, A2, A3, A4, A5, A6> *>  connections_list;
+        typedef pfs::list<_connection_base6<A1, A2, A3, A4, A5, A6> *>  connections_list;
 
         _signal_base6()
         {}
@@ -977,7 +978,7 @@ struct sigslot
     class _signal_base7 : public _signal_base
     {
     public:
-        typedef std::list<_connection_base7<A1, A2, A3, A4, A5, A6, A7> *>  connections_list;
+        typedef pfs::list<_connection_base7<A1, A2, A3, A4, A5, A6, A7> *>  connections_list;
 
         _signal_base7()
         {}
@@ -1080,7 +1081,7 @@ struct sigslot
     class _signal_base8 : public _signal_base
     {
     public:
-        typedef std::list<_connection_base8<A1, A2, A3, A4, A5, A6, A7, A8> *>
+        typedef pfs::list<_connection_base8<A1, A2, A3, A4, A5, A6, A7, A8> *>
             connections_list;
 
         _signal_base8()

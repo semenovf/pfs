@@ -2,6 +2,7 @@
 #include <pfs/test.hpp>
 #include <pfs/map.hpp>
 #include <pfs/list.hpp>
+#include <pfs/set.hpp>
 #include <pfs/vector.hpp>
 #include <pfs/io/device_manager.hpp>
 #include <pfs/io/inet_server.hpp>
@@ -10,38 +11,20 @@
 #include "device_manager_slots.hpp"
 
 #if __cplusplus >= 201103L
-template <typename T>
-using map_traits = pfs::stdcxx::map<T>;
-
-template <typename T>
-using vector_traits = pfs::stdcxx::vector<T>;
-
-template <typename T>
-using list_traits = pfs::stdcxx::list<T>;
 
 using device_manager = pfs::io::device_manager<pfs::sigslot<>
-        ,list_traits
-        , vector_traits
-        , map_traits>;
+        , pfs::list
+        , pfs::vector
+        , pfs::map
+        , pfs::set>;
 
 #else
 
-template <typename T>
-struct map_traits : public pfs::stdcxx::map<T>
-{};
-
-template <typename T>
-struct vector_traits : public pfs::stdcxx::vector<T>
-{};
-
-template <typename T>
-struct list_traits : public pfs::stdcxx::list<T>
-{};
-
 typedef pfs::io::device_manager<pfs::sigslot<>
-        , list_traits
-        , vector_traits
-        , map_traits> device_manager;
+        , pfs::list
+        , pfs::vector
+        , pfs::map
+        , pfs::set> device_manager;
 
 #endif
 
