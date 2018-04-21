@@ -82,11 +82,12 @@ void test_read ()
 
 void test_write ()
 {
-	device d;
+    device d;
+    byte_string buffer;
 
-	TEST_OK(!d.opened());
-	TEST_FAIL((d = open_device(open_params<buffer>(10))));
-	TEST_OK(d.opened());
+    TEST_OK(!d.opened());
+    TEST_FAIL((d = open_device(open_params<pfs::io::buffer>(buffer))));
+    TEST_OK(d.opened());
 
     TEST_OK(d.is_readable());
     TEST_OK(d.is_writable());

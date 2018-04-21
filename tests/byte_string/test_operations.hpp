@@ -390,6 +390,54 @@ void test_compare ()
     TEST_OK(bs.compare(0, 8, bs_less.data(), 9) >= 0);
     TEST_OK(bs.compare(0, 8, bs_greater.data(), 7) < 0);
     TEST_OK(bs.compare(0, 8, bs_greater.data(), 7) <= 0);
+
+    //
+    // Compare operators ==, !=, < , <= , >, >=
+    //
+
+    ADD_TESTS(36);
+    TEST_OK(bs == bs_equal);
+    TEST_OK(bs != bs_less);
+    TEST_OK(bs >  bs_less);
+    TEST_OK(bs >= bs_less);
+    TEST_OK(bs <  bs_greater);
+    TEST_OK(bs <= bs_greater);
+
+    TEST_OK(bs == bs_equal.data());
+    TEST_OK(bs != bs_less.data());
+    TEST_OK(bs >  bs_less.data());
+    TEST_OK(bs >= bs_less.data());
+    TEST_OK(bs <  bs_greater.data());
+    TEST_OK(bs <= bs_greater.data());
+
+    TEST_OK(bs == "12345678");
+    TEST_OK(bs != "012345678");
+    TEST_OK(bs >  "012345678");
+    TEST_OK(bs >= "012345678");
+    TEST_OK(bs <  "2345678");
+    TEST_OK(bs <= "2345678");
+
+    TEST_OK("12345678" == bs);
+    TEST_OK("012345678" != bs);
+    TEST_OK("012345678" < bs );
+    TEST_OK("012345678" <= bs);
+    TEST_OK("2345678" > bs);
+    TEST_OK("2345678" >= bs);
+
+    TEST_OK(bs == std::string("12345678"));
+    TEST_OK(bs != std::string("012345678"));
+    TEST_OK(bs >  std::string("012345678"));
+    TEST_OK(bs >= std::string("012345678"));
+    TEST_OK(bs <  std::string("2345678"));
+    TEST_OK(bs <= std::string("2345678"));
+
+    TEST_OK(std::string("12345678") == bs);
+    TEST_OK(std::string("012345678") != bs);
+    TEST_OK(std::string("012345678") < bs );
+    TEST_OK(std::string("012345678") <= bs);
+    TEST_OK(std::string("2345678") > bs);
+    TEST_OK(std::string("2345678") >= bs);
+
 }
 
 void test_starts_with ()

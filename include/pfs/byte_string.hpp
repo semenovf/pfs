@@ -6,6 +6,7 @@
 #include <pfs/algorithm.hpp>
 #include <pfs/types.hpp>
 #include <pfs/stdcxx/basic_string.hpp>
+#include <pfs/compare.hpp>
 
 namespace pfs {
 
@@ -658,17 +659,28 @@ public:
      */
 
     /**
+     * @fn int compare (size_type pos1, size_type count1
+     *          , byte_string const & s
+     *          , size_type pos2, size_type count2 = npos) const
      */
-//     int compare (size_type pos1, size_type count1
-//             , byte_string const & s
-//             , size_type pos2, size_type count2 = npos) const
-//     {
-//         return base_class::compare(pos1, count1, s, pos2, count2);
-//     }
 
     /**
      * @fn int compare (const_pointer s) const
      */
+
+    /**
+     */
+    inline int compare (char const * s) const
+    {
+        return this->compare(reinterpret_cast<const_pointer>(s));
+    }
+
+    /**
+     */
+    inline int compare (std::string const & s) const
+    {
+        return this->compare(0, this->size(), reinterpret_cast<const_pointer>(s.data()), s.size());
+    }
 
     /**
      * @fn int compare (size_type pos1, size_type count1, const_pointer s) const
@@ -677,193 +689,6 @@ public:
     /**
      * @fn int compare (size_type pos1, size_type count1, const_pointer s, size_type count2) const
      */
-
-    /**
-     */
-//     inline bool starts_with (byte_string const & rhs) const
-//     {
-//         if (rhs.size() > this->size())
-//             return false;
-//
-//         return compare(0, rhs.size(), rhs) == 0;
-//     }
-
-//     inline bool starts_with (value_type ch) const
-//     {
-//         return empty() ? false : (front() == ch);
-//     }
-
-//     inline bool starts_with (const_pointer s) const
-//     {
-//         return compare(0, std::strlen(reinterpret_cast<char const *>(s)), s) == 0;
-//     }
-
-//     inline bool ends_with (byte_string const & rhs) const
-//     {
-//         if (rhs.size() > this->size())
-//             return false;
-//
-//         return compare(size() - rhs.size()
-//                 , rhs.size(), rhs, 0, rhs.size()) == 0;
-//     }
-
-//     inline bool ends_with (value_type ch) const
-//     {
-//         return empty() ? false : (back() == ch);
-//     }
-
-//     inline bool ends_with (const_pointer s) const
-//     {
-//         size_type n = std::strlen(reinterpret_cast<char const *>(s));
-//
-//         if (n > this->size())
-//             return false;
-//
-//         return compare(size() - n, n, s, 0, n) == 0;
-//     }
-
-    /**
-     */
-//     inline byte_string & replace (size_type pos, size_type count, byte_string const & s)
-//     {
-//         base_class::replace(pos, count, s);
-//         return *this;
-//     }
-
-    /**
-     */
-//     inline byte_string & replace (const_iterator first, const_iterator last, byte_string const & s)
-//     {
-// #if __cplusplus < 201103L
-//         // basic_string implementation may use COW,
-//         // so
-//         // base_class::replace(begin() + std::distance(cbegin(), first)
-//         //      , begin() + std::distance(cbegin(), last), s);
-//         // may cause UB (in  worst case Seg Fault)
-//         //
-//         difference_type i1 = std::distance(cbegin(), first);
-//         difference_type i2 = std::distance(cbegin(), last);
-//         iterator f = begin() + i1; // begin() unshares data
-//         iterator e = begin() + i2;
-//         base_class::replace(f, e, s);
-// #else
-//         base_class::replace(first, last, s);
-// #endif
-//         return *this;
-//     }
-
-    /**
-     */
-//     inline byte_string & replace (size_type pos, size_type count
-//             , byte_string const & s
-//             , size_type pos2, size_type count2 = npos)
-//     {
-//         base_class::replace(pos, count, s, pos2, count2);
-//         return *this;
-//     }
-
-//     template <typename InputIterator>
-//     inline byte_string & replace (const_iterator first, const_iterator last
-//             , InputIterator first2, InputIterator last2)
-//     {
-//
-// #if __cplusplus < 201103L
-//         difference_type i1 = std::distance(cbegin(), first);
-//         difference_type i2 = std::distance(cbegin(), last);
-//         iterator f = begin() + i1;
-//         iterator e = begin() + i2;
-//         base_class::replace<InputIterator>(f, e, first2, last2);
-// #else
-//         base_class::replace<InputIterator>(first, last, first2, last2);
-// #endif
-//         return *this;
-//     }
-
-    /**
-     */
-//     inline byte_string & replace (size_type pos, size_type count, const_pointer s, size_type count2)
-//     {
-//         base_class::replace(pos, count, s, count2);
-//         return *this;
-//     }
-
-    /**
-     */
-//     inline byte_string & replace (const_iterator first, const_iterator last
-//             , const_pointer s, size_type count2)
-//     {
-// #if __cplusplus < 201103L
-//         difference_type i1 = std::distance(cbegin(), first);
-//         difference_type i2 = std::distance(cbegin(), last);
-//         iterator f = begin() + i1;
-//         iterator e = begin() + i2;
-//         base_class::replace(f, e, s, count2);
-// #else
-//         base_class::replace(first, last, s, count2);
-// #endif
-//         return *this;
-//     }
-
-    /**
-     */
-//     inline byte_string & replace (size_type pos, size_type count, const_pointer s)
-//     {
-//         base_class::replace(pos, count, s);
-//         return *this;
-//     }
-
-    /**
-     */
-//     inline byte_string & replace (const_iterator first, const_iterator last, const_pointer s)
-//     {
-// #if __cplusplus < 201103L
-//         difference_type i1 = std::distance(cbegin(), first);
-//         difference_type i2 = std::distance(cbegin(), last);
-//         iterator f = begin() + i1;
-//         iterator e = begin() + i2;
-//         base_class::replace(f, e, s);
-// #else
-//         base_class::replace(first, last, s);
-// #endif
-//         return *this;
-//     }
-
-    /**
-     */
-//     inline byte_string & replace (size_type pos, size_type count
-//             , size_type count2, value_type ch)
-//     {
-//         base_class::replace(pos, count, count2, ch);
-//         return *this;
-//     }
-
-    /**
-     */
-//     inline byte_string & replace (const_iterator first, const_iterator last
-//             , size_type count2, value_type ch)
-//     {
-// #if __cplusplus < 201103L
-//         difference_type i1 = std::distance(cbegin(), first);
-//         difference_type i2 = std::distance(cbegin(), last);
-//         base_class::iterator f = begin() + i1;
-//         base_class::iterator e = begin() + i2;
-//         base_class::replace(f, e, count2, ch);
-// #else
-//         base_class::replace(first, last, count2, ch);
-// #endif
-//         return *this;
-//     }
-
-// #if __cplusplus >= 201103L
-//       /**
-//       */
-//       inline byte_string & replace (const_iterator first, const_iterator last
-//                 , std::initializer_list<value_type> ilist)
-//       {
-//           base_class::replace(first, last, ilist.begin(), ilist.end());
-//           return *this;
-//       }
-// #endif
 
     /**
      * @fn byte_string substr (size_type pos = 0, size_type count = npos) const
@@ -1110,116 +935,74 @@ public:
 byte_string & base64_encode (byte_string const & src, byte_string & result);
 byte_string & base64_decode (byte_string const & src, byte_string & result);
 
-// inline bool operator == (byte_string const & lhs, byte_string const & rhs)
-// {
-//     return lhs.compare(rhs) == 0;
-// }
-//
-// inline bool operator != (byte_string const & lhs, byte_string const & rhs)
-// {
-//     return lhs.compare(rhs) != 0;
-// }
-//
-// inline bool operator < (byte_string const & lhs, byte_string const & rhs)
-// {
-//     return lhs.compare(rhs) < 0;
-// }
-//
-// inline bool operator <= (byte_string const & lhs, byte_string const & rhs)
-// {
-//     return lhs.compare(rhs) <= 0;
-// }
-//
-// inline bool operator > (byte_string const & lhs, byte_string const & rhs)
-// {
-//     return lhs.compare(rhs) > 0;
-// }
-//
-// inline bool operator >= (byte_string const & lhs, byte_string const & rhs)
-// {
-//     return lhs.compare(rhs) >= 0;
-// }
-//
-// inline bool operator == (byte_string const & lhs, const char * rhs)
-// {
-//     return lhs.compare(rhs) == 0;
-// }
-//
-// inline bool operator != (byte_string const & lhs, const char * rhs)
-// {
-//     return lhs.compare(rhs) != 0;
-// }
-//
-// inline bool operator < (byte_string const & lhs, const char * rhs)
-// {
-//     return lhs.compare(rhs) < 0;
-// }
-//
-// inline bool operator <= (byte_string const & lhs, const char * rhs)
-// {
-//     return lhs.compare(rhs) <= 0;
-// }
-//
-// inline bool operator > (byte_string const & lhs, const char * rhs)
-// {
-//     return lhs.compare(rhs) > 0;
-// }
-//
-// inline bool operator >= (byte_string const & lhs, const char * rhs)
-// {
-//     return lhs.compare(rhs) >= 0;
-// }
-//
-// inline bool operator == (const char * lhs, byte_string const & rhs)
-// {
-//     return rhs.compare(lhs) == 0;
-// }
-//
-// inline bool operator != (const char * lhs, byte_string const & rhs)
-// {
-//     return rhs.compare(lhs) != 0;
-// }
-//
-// inline bool operator < (const char * lhs, byte_string const & rhs)
-// {
-//     return rhs.compare(lhs) > 0;
-// }
-//
-// inline bool operator <= (const char * lhs, byte_string const & rhs)
-// {
-//     return rhs.compare(lhs) >= 0;
-// }
-//
-// inline bool operator > (const char * lhs, byte_string const & rhs)
-// {
-//     return rhs.compare(lhs) < 0;
-// }
-//
-// inline bool operator >= (const char * lhs, byte_string const & rhs)
-// {
-//     return rhs.compare(lhs) <= 0;
-// }
+inline bool operator == (byte_string const & lhs, byte_string const & rhs)
+{
+    return lhs.compare(rhs) == 0;
+}
 
-// template <typename Device>
-// inline ssize_t write_binary (Device & dev, endian order, byte_string const & v)
-// {
-//     return details::sequence::write_binary<Device>(dev, order, v.c_str(), v.size());
-// }
-//
-// template <typename Device>
-// ssize_t read_binary (Device & dev, endian order, byte_string & v)
-// {
-//     char * buffer = 0;
-//     size_t size = 0;
-//
-//     ssize_t result = details::sequence::read_binary<Device>(dev, order, & buffer, & size);
-//
-//     if (buffer) {
-//         v.append(buffer, size);
-//         delete buffer;
-//     }
-//
-//     return result;
-// }
+inline bool operator < (byte_string const & lhs, byte_string const & rhs)
+{
+    return lhs.compare(rhs) < 0;
+}
+
+inline bool operator == (byte_string const & lhs, const char * rhs)
+{
+    return lhs.compare(rhs) == 0;
+}
+
+inline bool operator == (char const * lhs, byte_string const & rhs)
+{
+    return rhs.compare(lhs) == 0;
+}
+
+inline bool operator == (byte_string const & lhs, byte_string::const_pointer rhs)
+{
+    return lhs.compare(rhs) == 0;
+}
+
+inline bool operator == (byte_string::const_pointer lhs, byte_string const & rhs)
+{
+    return rhs.compare(lhs) == 0;
+}
+
+inline bool operator == (byte_string const & lhs, std::string const & rhs)
+{
+    return lhs.compare(rhs) == 0;
+}
+
+inline bool operator == (std::string const & lhs, byte_string const & rhs)
+{
+    return rhs.compare(lhs) == 0;
+}
+
+inline bool operator < (byte_string const & lhs, const char * rhs)
+{
+    return lhs.compare(rhs) < 0;
+}
+
+inline bool operator < (char const * lhs, byte_string const & rhs)
+{
+    return rhs.compare(lhs) > 0;
+}
+
+inline bool operator < (byte_string const & lhs, byte_string::const_pointer rhs)
+{
+    return lhs.compare(rhs) < 0;
+}
+
+inline bool operator < (byte_string::const_pointer lhs, byte_string const & rhs)
+{
+    return rhs.compare(lhs) > 0;
+}
+
+inline bool operator < (byte_string const & lhs, std::string const & rhs)
+{
+    return lhs.compare(rhs) < 0;
+}
+
+inline bool operator < (std::string const & lhs, byte_string const & rhs)
+{
+    return rhs.compare(lhs) > 0;
+}
 
 } // pfs
