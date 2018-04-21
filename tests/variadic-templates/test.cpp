@@ -115,7 +115,7 @@ namespace test2 {
         template <typename Slot>
         void connect (Slot * pslot, void (Slot::*func)(Args...))
         {
-            std::printf("Connected slot with %lu arguments\n", sizeof...(Args));
+            std::printf("Connected slot with %u arguments\n", sizeof...(Args));
         }
     };
 
