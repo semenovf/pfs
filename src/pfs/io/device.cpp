@@ -1,10 +1,5 @@
-/**
- * @file device.cpp
- * @author wladt
- * @date Apr 28, 2014
- */
-
 #include "pfs/io/device.hpp"
+#include <iostream>
 
 namespace pfs {
 namespace io {
@@ -13,24 +8,29 @@ static const ssize_t DEFAULT_READ_BUFSZ = 256;
 
 bool device::read (byte_string & bytes, ssize_t n)
 {
-	byte_t buffer[DEFAULT_READ_BUFSZ];
-	ssize_t sz = 0;
-	ssize_t total = 0;
-	ssize_t chunk_size = DEFAULT_READ_BUFSZ;
+    byte_t buffer[DEFAULT_READ_BUFSZ];
+    ssize_t sz = 0;
+    ssize_t total = 0;
+    ssize_t chunk_size = DEFAULT_READ_BUFSZ;
 
-	do {
-		if (n - total < chunk_size)
-			chunk_size = n - total;
+    do {
+        if (n - total < chunk_size)
+            chunk_size = n - total;
 
-		sz = _d->read(buffer, chunk_size);
+        sz = _d->read(buffer, chunk_size);
 
-		if (sz > 0) {
-			bytes.append(buffer, size_t(sz));
-			total += sz;
-		}
-	} while (sz > 0 && total < n);
+        std::cout << "device::read: sz = " << sz << std::endl;
+        if (sz > 0) {
+            bytes.append(buffer, size_t(sz));
+            std::cout << "device::read: size_t(sz) = " << size_t(sz) << std::endl;
 
-	return this->errorcode() == error_code();
+            total += sz;
+        }
+    } while (sz > 0 && total < n);
+
+    std::cout << "device::read: total = " << total << std::endl;
+
+     return this->errorcode() == error_code();
 }
 
 bool device::close ()
