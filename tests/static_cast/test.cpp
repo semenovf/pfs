@@ -14,7 +14,7 @@ void read (size_t n)
 
 int main ()
 {
-    BEGIN_TESTS(2);
+    BEGIN_TESTS(3);
 
     ssize_t i1 = 2614;
     TEST_OK(static_cast<size_t>(i1) == 2614);
