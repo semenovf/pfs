@@ -242,12 +242,7 @@ void test_write_read ()
     std::cout << "navailable=" << navailable << std::endl;
     d.read(bs, navailable);
 
-    std::cout << "bs.size()=" << bs.size() << std::endl;
     TEST_OK(d.close());
-    std::cout << "bs.size()=" << bs.size() << std::endl;
-    std::cout << "std::strlen(loremipsum)=" << std::strlen(loremipsum) << std::endl;
-    std::cout << "[-----" << bs.c_str() << "-----]" << std::endl;
-    std::cout << "[-----" << loremipsum << "-----]" << std::endl;
     TEST_OK(bs == loremipsum);
 
     TEST_FAIL2(pfs::filesystem::remove(file_path, ec), "Temporary file unlink");

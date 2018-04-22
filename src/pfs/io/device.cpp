@@ -1,5 +1,4 @@
 #include "pfs/io/device.hpp"
-#include <iostream>
 
 namespace pfs {
 namespace io {
@@ -13,29 +12,19 @@ bool device::read (byte_string & bytes, ssize_t n)
     ssize_t total = 0;
     ssize_t chunk_size = DEFAULT_READ_BUFSZ;
 
-    std::cout << "device::read: n = " << n << std::endl;
-    std::cout << "device::read: 1. chunk_size = " << chunk_size << std::endl;
-
     do {
         if (n - total < chunk_size)
             chunk_size = n - total;
 
-        std::cout << "device::read: 2. chunk_size = " << chunk_size << std::endl;
-
         sz = _d->read(buffer, chunk_size);
 
-        std::cout << "device::read: sz = " << sz << std::endl;
         if (sz > 0) {
             bytes.append(buffer, size_t(sz));
-            std::cout << "device::read: size_t(sz) = " << size_t(sz) << std::endl;
-
             total += sz;
         }
     } while (sz > 0 && total < n);
 
-    std::cout << "device::read: total = " << total << std::endl;
-
-     return this->errorcode() == error_code();
+    return this->errorcode() == error_code();
 }
 
 bool device::close ()

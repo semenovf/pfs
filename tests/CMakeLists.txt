@@ -12,6 +12,7 @@ elseif (HAVE_QT4_CORE)
 endif()
 
 # Add unit test targets
+list(APPEND MY_TEST_TARGETS static_cast)
 list(APPEND MY_TEST_TARGETS active_queue)
 list(APPEND MY_TEST_TARGETS active_map)
 list(APPEND MY_TEST_TARGETS algo-between)
