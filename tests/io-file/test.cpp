@@ -206,26 +206,26 @@ void test_reader_iterator_ext()
 
 void test_open_absent_file ()
 {
-	ADD_TESTS(2);
+    ADD_TESTS(2);
     device d;
     pfs::filesystem::path unknownPath("!@#$%");
 
-	TEST_OK(! (d = open_device(open_params<file>(unknownPath, pfs::io::read_only))));
+    TEST_OK(! (d = open_device(open_params<file>(unknownPath, pfs::io::read_only))));
     TEST_OK(!d.opened());
 }
 
 void test_write_read ()
 {
-	ADD_TESTS(8);
+    ADD_TESTS(8);
     pfs::error_code ec;
 
-	// FIXME Use pfs::fs::unique() call to generate temporary file
+    // FIXME Use pfs::fs::unique() call to generate temporary file
     pfs::filesystem::path file_path("/tmp/test_io_file.tmp");
     TEST_FAIL2(!file_path.empty(), "Build temporary file name");
 
 
     if (pfs::filesystem::exists(file_path, ec))
-    	pfs::filesystem::remove(file_path, ec);
+        pfs::filesystem::remove(file_path, ec);
 
     device d;
 
@@ -239,6 +239,10 @@ void test_write_read ()
     d.read(bs, d.available());
 
     TEST_OK(d.close());
+    std::cout << "bs.size()=" << bs.size() << std::endl;
+    std::cout << "std::strlen(loremipsum)=" << std::strlen(loremipsum) << std::endl;
+    std::cout << "[-----" << bs.c_str() << "-----]" << std::endl;
+    std::cout << "[-----" << loremipsum << "-----]" << std::endl;
     TEST_OK(bs == loremipsum);
 
     TEST_FAIL2(pfs::filesystem::remove(file_path, ec), "Temporary file unlink");
