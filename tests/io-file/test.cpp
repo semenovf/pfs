@@ -237,7 +237,7 @@ void test_write_read ()
     TEST_FAIL((d = open_device(open_params<file>(file_path, pfs::io::read_only))));
     pfs::byte_string bs;
     std::cout << "d.available()=" << d.available() << std::endl;
-    size_t navailable = static_cast<size_t>(d.available());
+    size_t navailable = reinterpret_cast<size_t>(d.available());
     std::cout << "navailable=" << navailable << std::endl;
     d.read(bs, navailable);
 
