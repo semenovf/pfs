@@ -17,6 +17,8 @@ bool device::read (byte_string & bytes, ssize_t n)
         if (n - total < chunk_size)
             chunk_size = n - total;
 
+        std::cout << "device::read: chunk_size = " << chunk_size << std::endl;
+
         sz = _d->read(buffer, chunk_size);
 
         std::cout << "device::read: sz = " << sz << std::endl;
