@@ -236,6 +236,7 @@ void test_write_read ()
 
     TEST_FAIL((d = open_device(open_params<file>(file_path, pfs::io::read_only))));
     pfs::byte_string bs;
+    std::cout << "d.available()=" << d.available() << std::endl;
     d.read(bs, d.available());
 
     TEST_OK(d.close());
