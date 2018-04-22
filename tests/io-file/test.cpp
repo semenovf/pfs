@@ -239,6 +239,7 @@ void test_write_read ()
     std::cout << "d.available()=" << d.available() << std::endl;
     d.read(bs, d.available());
 
+    std::cout << "bs.size()=" << bs.size() << std::endl;
     TEST_OK(d.close());
     std::cout << "bs.size()=" << bs.size() << std::endl;
     std::cout << "std::strlen(loremipsum)=" << std::strlen(loremipsum) << std::endl;
