@@ -7,7 +7,7 @@
 #include "pfs/io/file.hpp"
 #include "posix_utils.hpp"
 
-#include <iostream>
+//#include <iostream>
 
 namespace pfs {
 namespace io {
@@ -25,13 +25,6 @@ struct file : public bits::device
         , oflags (0)
         , omode (0)
     {}
-
-    //	file (const file & other)
-    //		: _fd(other._fd)
-    //		, path(other.path)
-    //		, oflags(other.oflags)
-    //		, omode(other.omode)
-    //	{}
 
     ~file ()
     {
@@ -140,17 +133,17 @@ ssize_t file::bytes_available () const
 
     off_t cur = ::lseek(_fd, off_t(0), SEEK_CUR);
     PFS_ASSERT(cur >= off_t(0));
-    std::cout << "file::bytes_available: cur = " << cur << std::endl;
+    //std::cout << "file::bytes_available: cur = " << cur << std::endl;
 
     off_t total = ::lseek(_fd, off_t(0), SEEK_END);
     PFS_ASSERT(total >= off_t(0));
-    std::cout << "file::bytes_available: total = " << total << std::endl;
+    //std::cout << "file::bytes_available: total = " << total << std::endl;
 
     cur = ::lseek(_fd, cur, SEEK_SET);
     PFS_ASSERT(cur >= off_t(0));
     PFS_ASSERT(total >= cur);
-    std::cout << "file::bytes_available: cur = " << cur << std::endl;
-    std::cout << "file::bytes_available: static_cast<ssize_t>(total - cur) = " << static_cast<ssize_t>(total - cur) << std::endl;
+    //std::cout << "file::bytes_available: cur = " << cur << std::endl;
+    //std::cout << "file::bytes_available: static_cast<ssize_t>(total - cur) = " << static_cast<ssize_t>(total - cur) << std::endl;
 
     return static_cast<ssize_t>(total - cur);
 }
