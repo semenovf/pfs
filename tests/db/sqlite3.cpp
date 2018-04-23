@@ -49,7 +49,7 @@ void sqlite3_test1 ()
             TEST_FAIL2(!pfs::filesystem::exists(path, ec), "File not found");
 
             pfs::string dburi("sqlite3:");
-            dburi.append(pfs::to_string<pfs::string>(path));
+            dburi.append(pfs::to_string(path));
             dburi.append("?mode=rwc");
 
             cout << "DB URI: " << dburi << endl;
@@ -69,7 +69,7 @@ void sqlite3_test1 ()
             TEST_FAIL2(pfs::filesystem::exists(path, ec), "File found");
 
             pfs::string dburi("sqlite3:");
-            dburi.append(pfs::to_string<pfs::string>(path));
+            dburi.append(pfs::to_string(path));
             cout << "DB URI: " << dburi << endl;
             db_t db;
             db.open(dburi);

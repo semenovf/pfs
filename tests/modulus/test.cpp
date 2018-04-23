@@ -149,13 +149,11 @@ int main ()
     dispatcher.add_search_path(pfs::filesystem::path( "." ));
 
     //TEST_OK(dispatcher.register_module_for_name("module-for-test-app"));
-    TEST_OK ( dispatcher.register_local_module(new module(& dispatcher), "mod-local-for-test-app"));
-    TEST_OK ( dispatcher.register_local_module(new async_module(& dispatcher), "async_mod"));
-    TEST_OK ( !dispatcher.register_module_for_name("module-for-test-app-nonexistence"));
-
-    TEST_OK ( dispatcher.count() == 2 );
-
-    TEST_OK ( dispatcher.exec() == 0 );
+    TEST_OK(dispatcher.register_local_module(new module(& dispatcher), "mod-local-for-test-app"));
+    TEST_OK(dispatcher.register_local_module(new async_module(& dispatcher), "async_mod"));
+    TEST_OK(!dispatcher.register_module_for_name("module-for-test-app-nonexistence"));
+    TEST_OK(dispatcher.count() == 2 );
+    TEST_OK(dispatcher.exec() == 0 );
 
     return END_TESTS;
 }

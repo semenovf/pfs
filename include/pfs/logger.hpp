@@ -12,17 +12,15 @@
 
 namespace pfs {
 
-#define PFS_LOG_TEMPLETE_SIGNATURE typename StringType    \
-            , typename SigslotNS                          \
+#define PFS_LOG_TEMPLETE_SIGNATURE typename SigslotNS                          \
             , template <typename> class SequenceContainer
-#define PFS_LOG_TEMPLETE_ARGS       StringType, SigslotNS, SequenceContainer
+#define PFS_LOG_TEMPLETE_ARGS SigslotNS, SequenceContainer
 
-template <typename StringType = string
-    , typename SigslotNS = sigslot<>
+template <typename SigslotNS = sigslot<>
     , template <typename> class SequenceContainer = list>
 struct log
 {
-    typedef StringType string_type;
+    typedef pfs::string string_type;
     typedef SigslotNS sigslot_ns;
 
     struct priority
@@ -290,7 +288,7 @@ class appender : public sigslot_ns::has_slots
     friend class logger;
 
 public:
-    typedef StringType string_type;
+    typedef pfs::string string_type;
 
 protected:
     string_type _pattern;
@@ -407,11 +405,11 @@ protected:
                     //datetime dt = pfs::current_datetime();
 
                     if (ctx->spec.fspec == "ABSOLUTE") {
-                        result = pfs::to_string<string_type>(ctx->dt, "%H:%M:%S.%Q");
+                        result = pfs::to_string(ctx->dt, "%H:%M:%S.%Q");
                     } else if (ctx->spec.fspec == "DATE") {
-                        result = pfs::to_string<string_type>(ctx->dt, "%d %b %Y %H:%M:%S.%Q");
+                        result = pfs::to_string(ctx->dt, "%d %b %Y %H:%M:%S.%Q");
                     } else if (ctx->spec.fspec == "ISO8601") {
-                        result = pfs::to_string<string_type>(ctx->dt, "%Y-%m-%d %H:%M:%S.%Q");
+                        result = pfs::to_string(ctx->dt, "%Y-%m-%d %H:%M:%S.%Q");
                     } else {
                         result = pfs::to_string(ctx->dt, ctx->spec.fspec);
                     }
@@ -425,7 +423,7 @@ protected:
 
                 /* truncate */
                 if (ctx->spec.max_width > 0 && result.length() > ctx->spec.max_width) {
-                    result = result.substr(result.cbegin(), ctx->spec.max_width);
+                    result = result.substr(0, ctx->spec.max_width);
                 }
 
                 /* pad */
@@ -474,7 +472,7 @@ protected:
                 if (first != last) {
                     string_type n(first, last);
                     try {
-                        ctx->spec.min_width = lexical_cast<size_t, string_type>(n);
+                        ctx->spec.min_width = lexical_cast<size_t>(n);
                     } catch (...) {
                         ;
                     }
@@ -491,7 +489,7 @@ protected:
                 if (first != last) {
                     string_type n(first, last);
                     try {
-                        ctx->spec.max_width = lexical_cast<size_t, string_type>(n);
+                        ctx->spec.max_width = lexical_cast<size_t>(n);
                     } catch (...) {
                         ;
                     }
@@ -617,15 +615,15 @@ public:
     }
 
 protected:
-	virtual void print (priority, datetime const &, string_type const & msg) pfs_override
-	{
-		std::cerr << msg << std::endl;
-	}
+    virtual void print (priority, datetime const &, string_type const & msg) pfs_override
+    {
+        std::cerr << msg << std::endl;
+    }
 };
 
 class file_appender : public appender
 {
-    typedef std::basic_fstream<typename string_type::code_unit_type> fstream_type;
+    typedef std::basic_fstream<typename string_type::value_type> fstream_type;
 
     fstream_type _d;
 
@@ -646,9 +644,9 @@ public:
     }
 
 protected:
-    virtual void print (priority, datetime const &, StringType const & msg) pfs_override
+    virtual void print (priority, datetime const &, string_type const & msg) pfs_override
     {
-        _d << msg.native() << "\n";
+        _d << msg << "\n";
     }
 };
 
@@ -682,7 +680,7 @@ log<PFS_LOG_TEMPLETE_ARGS>::appender::pattern_grammar::pattern_grammar ()
     /* exclude '%' (0x25) */
     typename string_type::value_type plain_char[] = {
           0x20u, 0x24u
-        , 0x26u, 0x10FFFFu
+        , 0x26u//, 0x10FFFFu
     };
 
     static transition_type const plain_char_tr[] = {
@@ -706,7 +704,7 @@ log<PFS_LOG_TEMPLETE_ARGS>::appender::pattern_grammar::pattern_grammar ()
     typename string_type::value_type format_spec_char[] = {
           0x20u, 0x7Au
         , 0x7Cu, 0x7Cu
-        , 0x7Eu, 0x10FFFFu
+        , 0x7Eu//, 0x10FFFFu
     };
 
     static transition_type const format_spec_char_tr[] = {

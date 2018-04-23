@@ -82,12 +82,12 @@ struct modulus
 
     typedef pfs::active_queue<ActiveQueueContainer
         , BasicLockable
-        , GcThreshold>                      callback_queue_type;
+        , GcThreshold>  callback_queue_type;
 
     typedef sigslot<callback_queue_type, BasicLockable> sigslot_ns;
 
     typedef StringType      string_type;
-    typedef log<StringType, sigslot_ns, SequenceContainer> log_ns;
+    typedef log<sigslot_ns, SequenceContainer> log_ns;
     typedef typename log_ns::logger logger_type;
     typedef typename sigslot_ns::template signal1<void *> emitter_type;
 
@@ -601,7 +601,7 @@ struct modulus
                 , char const * class_name = 0
                 , void * mod_data = 0 )
         {
-            filesystem::path modpath = build_so_filename ( name.native() );
+            filesystem::path modpath = build_so_filename(name);
             return module_for_path ( modpath, class_name, mod_data );
         }
 
@@ -778,8 +778,8 @@ modulus<PFS_MODULUS_TEMPLETE_ARGS>::dispatcher::module_for_path (
 
     if (!pdl->open(dlpath, _searchdirs, ec)) {
         _logger.error(fmt("%s: %s")
-                % (to_string<string_type>(dlpath))
-                % (to_string<string_type>(ec)));
+                % (to_string(dlpath))
+                % (to_string(ec)));
         return module_spec();
     }
 
@@ -787,8 +787,8 @@ modulus<PFS_MODULUS_TEMPLETE_ARGS>::dispatcher::module_for_path (
 
     if (!ctor) {
         _logger.error(fmt("%s: failed to resolve `ctor' for module: %s")
-                % (to_string<string_type>(dlpath))
-                % (to_string<string_type>(ec)));
+                % (to_string(dlpath))
+                % (to_string(ec)));
 
         return module_spec();
     }
@@ -797,8 +797,8 @@ modulus<PFS_MODULUS_TEMPLETE_ARGS>::dispatcher::module_for_path (
 
     if (!dtor) {
         _logger.error(fmt("%s: failed to resolve `dtor' for module: %s")
-                % (to_string<string_type>(dlpath))
-                % (to_string<string_type>(ec)));
+                % (to_string(dlpath))
+                % (to_string(ec)));
 
         return module_spec();
     }
@@ -859,7 +859,7 @@ bool modulus<PFS_MODULUS_TEMPLETE_ARGS>::dispatcher::register_module (
                 _logger.warn(fmt("%s: emitter '%s' not found while registering module, "
                         "may be signal/slot mapping is not supported for this application")
                         % (pmodule->name())
-                        % (to_string<string_type>(emitters[i].id)));
+                        % (to_string(emitters[i].id)));
             }
         }
     }
@@ -875,7 +875,7 @@ bool modulus<PFS_MODULUS_TEMPLETE_ARGS>::dispatcher::register_module (
                 _logger.warn(fmt("%s: detector '%s' not found while registering module, "
                         "may be signal/slot mapping is not supported for this application")
                         % (pmodule->name())
-                        % (to_string<string_type>(detectors[i].id)));
+                        % (to_string(detectors[i].id)));
             }
         }
     }
@@ -911,11 +911,11 @@ bool modulus<PFS_MODULUS_TEMPLETE_ARGS>::dispatcher::register_modules (
     if (!pfs::filesystem::exists(path, ec)) {
         if (ec) {
             _logger.error(fmt("`%s': %s")
-                    % pfs::to_string<string_type>(path)
-                    % pfs::to_string<string_type>(ec));
+                    % pfs::to_string(path)
+                    % pfs::to_string(ec));
         } else {
             _logger.error(fmt("`%s': file not found")
-                    % pfs::to_string<string_type>(path));
+                    % pfs::to_string(path));
         }
         return false;
     }
@@ -925,8 +925,8 @@ bool modulus<PFS_MODULUS_TEMPLETE_ARGS>::dispatcher::register_modules (
 
     if (ec) {
         _logger.error(fmt("`%s`: file open failure: %s")
-                % pfs::to_string<string_type>(path)
-                % pfs::to_string<string_type>(ec));
+                % pfs::to_string(path)
+                % pfs::to_string(ec));
         return false;
     }
 
@@ -939,8 +939,8 @@ bool modulus<PFS_MODULUS_TEMPLETE_ARGS>::dispatcher::register_modules (
 
     if (ec) {
         _logger.error(fmt("%s: invalid configuration: %s")
-                (to_string<string_type>(path))
-                (to_string<string_type>(ec)).str());
+                (to_string(path))
+                (to_string(ec)).str());
         return false;
     }
 
@@ -979,14 +979,14 @@ bool modulus<PFS_MODULUS_TEMPLETE_ARGS>::dispatcher::register_modules (
                     pappender = & logger.template add_appender<typename log_ns::stderr_appender>();
                 } else {
                     // Construct path from pattern
-                    filesystem::path path(to_string<string_type>(current_datetime(), name).native()); // `name` is a pattern here
+                    filesystem::path path(to_string(current_datetime(), name).native()); // `name` is a pattern here
                     pappender = & logger.template add_appender<typename log_ns::file_appender>(path);
 
                     if (! pappender->is_open()) {
                         pfs::error_code ec = pfs::get_last_system_error();
                         _logger.error(fmt("Failed to create/open log file: %s: %s")
-                                     (to_string<string_type>(path))
-                                     (to_string<string_type>(ec)).str());
+                                     (to_string(path))
+                                     (to_string(ec)).str());
                         return false;
                     }
                 }
