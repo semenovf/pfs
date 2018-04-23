@@ -114,93 +114,93 @@ void test_writer()
 
 void test_line_reader()
 {
-	cwt::io::buffer buffer;
-	buffer.write(loremipsum, strlen(loremipsum));
-	TEST_FAIL(buffer.available() == strlen(loremipsum));
+    cwt::io::buffer buffer;
+    buffer.write(loremipsum, strlen(loremipsum));
+    TEST_FAIL(buffer.available() == strlen(loremipsum));
 
-	cwt::io::data_reader lineReader(buffer);
+    cwt::io::data_reader lineReader(buffer);
 
-	size_t nlines = sizeof(loremipsum_lines)/sizeof(loremipsum_lines[0]);
-	size_t iline = 0;
+    size_t nlines = sizeof(loremipsum_lines)/sizeof(loremipsum_lines[0]);
+    size_t iline = 0;
 
-	pfs::byte_string r;
+    pfs::byte_string r;
 
-	while (!(r = lineReader.readLine(pfs::byte_string(1, '\n'), 80)).isEmpty()) {
-		if (r.endsWith(pfs::byte_string(1, '\n'))) {
-			TEST_OK(strncmp(loremipsum_lines[iline], r.constData(), r.size() - 1) == 0);
-		} else {
-			TEST_OK(strncmp(loremipsum_lines[iline], r.constData(), r.size()) == 0);
-		}
-		++iline;
-	}
+    while (!(r = lineReader.readLine(pfs::byte_string(1, '\n'), 80)).isEmpty()) {
+        if (r.endsWith(pfs::byte_string(1, '\n'))) {
+            TEST_OK(strncmp(loremipsum_lines[iline], r.constData(), r.size() - 1) == 0);
+        } else {
+            TEST_OK(strncmp(loremipsum_lines[iline], r.constData(), r.size()) == 0);
+        }
+        ++iline;
+    }
 
-	TEST_OK(lineReader.atEnd());
-	TEST_OK(!lineReader.isError());
+    TEST_OK(lineReader.atEnd());
+    TEST_OK(!lineReader.isError());
 
-	TEST_OK2(iline == nlines, pfs::string(_Fr("All lines are checked (%d from %d)") % iline % nlines).c_str());
+    TEST_OK2(iline == nlines, pfs::string(_Fr("All lines are checked (%d from %d)") % iline % nlines).c_str());
 }
 
 void test_reader_iterator()
 {
-	size_t nlines = sizeof(loremipsum_lines)/sizeof(loremipsum_lines[0]);
+    size_t nlines = sizeof(loremipsum_lines)/sizeof(loremipsum_lines[0]);
 
-	for (size_t iline = 0; iline < nlines; ++iline) {
-		pfs::vector<char> r;
+    for (size_t iline = 0; iline < nlines; ++iline) {
+        pfs::vector<char> r;
 
-		cwt::io::buffer buffer;
-		buffer.write(loremipsum_lines[iline], strlen(loremipsum_lines[iline]));
-		TEST_FAIL(buffer.available() == strlen(loremipsum_lines[iline]));
+        cwt::io::buffer buffer;
+        buffer.write(loremipsum_lines[iline], strlen(loremipsum_lines[iline]));
+        TEST_FAIL(buffer.available() == strlen(loremipsum_lines[iline]));
 
-		cwt::io::data_reader charReader(buffer);
+        cwt::io::data_reader charReader(buffer);
 
-		cwt::io::data_reader::iterator it(charReader);
-		cwt::io::data_reader::iterator itEnd;
+        cwt::io::data_reader::iterator it(charReader);
+        cwt::io::data_reader::iterator itEnd;
 
-		while (it != itEnd) {
-			r.append(*it++);
-		}
-		r.append(0);
-		TEST_OK(strncmp(loremipsum_lines[iline], r.constData(), r.size()) == 0);
-	}
+        while (it != itEnd) {
+            r.append(*it++);
+        }
+        r.append(0);
+        TEST_OK(strncmp(loremipsum_lines[iline], r.constData(), r.size()) == 0);
+    }
 }
 
 void test_reader_iterator_ext()
 {
-	const char * str = "Lorem ipsum dolor sit amet,";
-	cwt::io::buffer buffer;
-	buffer.write(str, strlen(str));
-	TEST_FAIL(buffer.available() == strlen(str));
+    const char * str = "Lorem ipsum dolor sit amet,";
+    cwt::io::buffer buffer;
+    buffer.write(str, strlen(str));
+    TEST_FAIL(buffer.available() == strlen(str));
 
-	cwt::io::data_reader charReader(buffer);
+    cwt::io::data_reader charReader(buffer);
 
-	cwt::io::data_reader::iterator it(charReader);
-	cwt::io::data_reader::iterator itEnd;
+    cwt::io::data_reader::iterator it(charReader);
+    cwt::io::data_reader::iterator itEnd;
 
-	TEST_OK(*it   == 'L');
-	TEST_OK(*it++ == 'L');
-	TEST_OK(*it++ == 'o');
-	TEST_OK(*it++ == 'r');
-	TEST_OK(*it   == 'e');
-	TEST_OK(*++it == 'm');
-	it += 8;
-	TEST_OK(*it++ == 'd');
-	TEST_OK(*it++ == 'o');
-	TEST_OK(*it++ == 'l');
-	TEST_OK(*it++ == 'o');
-	TEST_OK(*it++ == 'r');
-	TEST_OK(*it++ == ' ');
+    TEST_OK(*it   == 'L');
+    TEST_OK(*it++ == 'L');
+    TEST_OK(*it++ == 'o');
+    TEST_OK(*it++ == 'r');
+    TEST_OK(*it   == 'e');
+    TEST_OK(*++it == 'm');
+    it += 8;
+    TEST_OK(*it++ == 'd');
+    TEST_OK(*it++ == 'o');
+    TEST_OK(*it++ == 'l');
+    TEST_OK(*it++ == 'o');
+    TEST_OK(*it++ == 'r');
+    TEST_OK(*it++ == ' ');
 
-	TEST_OK(*it == 's');
-	TEST_OK(*it.at(0) == 's');
-	TEST_OK(*it.at(1) == 'i');
-	TEST_OK(*it.at(2) == 't');
-	TEST_OK(*it == 's');
-	TEST_OK(*it.at(8) == ',');
-	it += 8;
-	TEST_OK(*it == ',');
-	++it;
-	//it += 100;
-	TEST_OK(it == itEnd);
+    TEST_OK(*it == 's');
+    TEST_OK(*it.at(0) == 's');
+    TEST_OK(*it.at(1) == 'i');
+    TEST_OK(*it.at(2) == 't');
+    TEST_OK(*it == 's');
+    TEST_OK(*it.at(8) == ',');
+    it += 8;
+    TEST_OK(*it == ',');
+    ++it;
+    //it += 100;
+    TEST_OK(it == itEnd);
 }
 
 #endif
@@ -224,7 +224,6 @@ void test_write_read ()
     pfs::filesystem::path file_path("/tmp/test_io_file.tmp");
     TEST_FAIL2(!file_path.empty(), "Build temporary file name");
 
-
     if (pfs::filesystem::exists(file_path, ec))
         pfs::filesystem::remove(file_path, ec);
 
@@ -237,9 +236,10 @@ void test_write_read ()
 
     TEST_FAIL((d = open_device(open_params<file>(file_path, pfs::io::read_only))));
     pfs::byte_string bs;
-    std::cout << "d.available()=" << d.available() << std::endl;
+    std::cout << "1. d.available()=" << d.available() << std::endl;
+    std::cout << "2. d.available()=" << d.available() << std::endl;
     size_t navailable = pfs::integral_cast_check<size_t>(d.available());
-    std::cout << "d.available()=" << d.available() << std::endl;
+    std::cout << "3. d.available()=" << d.available() << std::endl;
     std::cout << "navailable=" << navailable << std::endl;
     d.read(bs, navailable);
 
@@ -300,7 +300,7 @@ void test_write_read ()
 
 void test_io_iterator ()
 {
-	ADD_TESTS(5);
+    ADD_TESTS(5);
 
     pfs::error_code ec;
     char const * hello = "Abcde";
