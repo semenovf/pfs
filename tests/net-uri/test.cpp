@@ -2,7 +2,6 @@
 #include "pfs/string.hpp"
 #include "pfs/net/uri.hpp"
 #include "pfs/string.hpp"
-
 #include "test_grammar.hpp"
 
 typedef pfs::string string_type;
@@ -292,12 +291,6 @@ static pfs::fsm::test_entry __test_entries[] = {
 int main ()
 {
     BEGIN_TESTS(0);
-
-    test_grammar<stdcxx::uri_grammar>();
-
-#if HAVE_QT_CORE
-    test_grammar<qt::uri_grammar>();
-#endif
-
+    test_grammar<pfs::string>();
     return END_TESTS;
 }

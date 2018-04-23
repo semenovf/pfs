@@ -350,12 +350,11 @@ struct dom_builder_context : sax_context<JsonType>
 template <typename JsonType>
 struct grammar
 {
-    typedef typename JsonType::string_type         string_type;
+    typedef typename JsonType::string_type      string_type;
     typedef typename pfs::unicode::unicode_iterator_traits<
             typename string_type::const_iterator>::iterator iterator;
     typedef typename pfs::unicode::unicode_iterator_traits<
             typename string_type::iterator>::output_iterator output_iterator;
-
     typedef fsm::fsm<iterator>                 fsm_type;
     typedef typename fsm_type::transition_type transition_type;
     typedef typename fsm_type::char_type       value_type;

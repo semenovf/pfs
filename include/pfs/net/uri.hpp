@@ -1,5 +1,6 @@
 #pragma once
 #include <pfs/types.hpp>
+#include <pfs/string.hpp>
 
 namespace pfs {
 namespace net {
@@ -9,12 +10,11 @@ namespace net {
  * Java java.net.URI
  * Qt   QUrl, QUrlQuery (for query string parsing)
  */
-
-template <typename StringType>
+template <typename StringT = pfs::string>
 class uri
 {
 public:
-    typedef StringType string_type;
+    typedef StringT string_type;
 
     struct data_rep
     {

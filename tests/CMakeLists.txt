@@ -36,7 +36,7 @@ list(APPEND MY_TEST_TARGETS lexical_cast)
 list(APPEND MY_TEST_TARGETS list)
 #list(APPEND MY_TEST_TARGETS modulus)
 list(APPEND MY_TEST_TARGETS net-basic)
-#list(APPEND MY_TEST_TARGETS net-uri)
+list(APPEND MY_TEST_TARGETS net-uri)
 #list(APPEND MY_TEST_TARGETS optional) -- Experimental yet
 list(APPEND MY_TEST_TARGETS ratio)
 list(APPEND MY_TEST_TARGETS regex)

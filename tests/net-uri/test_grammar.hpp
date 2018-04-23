@@ -1,17 +1,16 @@
-#ifndef TEST_GRAMMAR_HPP
-#define TEST_GRAMMAR_HPP
-
+#pragma once
 #include "pfs/fsm/test.hpp"
 
-template <typename GrammarType>
+template <typename StringT>
 void test_grammar ()
 {
     ADD_TESTS(34);
 
-    typedef pfs::fsm::test_valid_entry_seq<GrammarType> test_valid;
-    typedef pfs::fsm::test_invalid_entry_seq<GrammarType> test_invalid;
+    typedef pfs::net::uri_grammar<StringT> uri_grammar;
+    typedef pfs::fsm::test_valid_entry_seq<uri_grammar> test_valid;
+    typedef pfs::fsm::test_invalid_entry_seq<uri_grammar> test_invalid;
 
-    GrammarType grammar;
+    uri_grammar grammar;
 
     TEST_OK(test_valid()(grammar.p_unreserved_tr, "0"));
     TEST_OK(test_valid()(grammar.p_unreserved_tr, "9"));
@@ -25,7 +24,7 @@ void test_grammar ()
     TEST_OK(test_valid()(grammar.p_unreserved_tr, "~"));
     TEST_OK(test_invalid()(grammar.p_unreserved_tr, "!", 0));
     TEST_OK(test_invalid()(grammar.p_unreserved_tr, "+", 0));
-    
+
     TEST_OK(test_valid()(grammar.p_pct_encoded_tr, "%00"));
     TEST_OK(test_valid()(grammar.p_pct_encoded_tr, "%1F"));
     TEST_OK(test_valid()(grammar.p_pct_encoded_tr, "%FF"));
@@ -49,18 +48,18 @@ void test_grammar ()
     TEST_OK(test_valid()(grammar.p_pchar_tr, "+"));
     TEST_OK(test_invalid()(grammar.p_pchar_tr, "%0", 0));
     TEST_OK(test_invalid()(grammar.p_pchar_tr, "%0FA", 3));
-            
+
     // number = [ minus ] int [ frac ] [ exp ]
 //    TEST_OK(test_valid_entry()(grammar.p_number_tr
 //            , 0
 //            , iterator(DIGIT9_1.begin())
 //            , iterator(DIGIT9_1.end())));
-    
+
 //	TEST_OK(test_valid_entry()(
 //              uri_grammar_type::p_authority_tr
 //            , 0
 //            , sequence_type("192.168.1.1")));
-    
+
 //	TEST_OK((pfs::fsm::test_valid_entry<string_type>(
 //              uri_grammar_type::p_authority_tr
 //            , 0
@@ -106,5 +105,3 @@ void test_grammar ()
 //	TEST_OK(test_valid_entry<string_type>(pfs::uri_reference_tr, 0, _u8("http://user@host#fragment%20string")));
 //	TEST_OK(test_valid_entry<string_type>(pfs::uri_reference_tr, 0, _u8("ftp://user@host/?query%20string#fragment%20string")));
 }
-
-#endif // TEST_GRAMMAR_HPP

@@ -93,15 +93,20 @@ namespace net {
                  / "*" / "+" / "," / ";" / "="
   */
 
-template <typename UriType>
+template <typename StringT = pfs::string>
 struct uri_grammar
 {
-    typedef typename UriType::string_type        string_type;
+    typedef uri<StringT>                         uri_type;
+    typedef typename uri_type::string_type       string_type;
     typedef typename string_type::const_iterator iterator;
+//     typedef typename pfs::unicode::unicode_iterator_traits<
+//             typename string_type::const_iterator>::iterator iterator;
+//     typedef typename pfs::unicode::unicode_iterator_traits<
+//             typename string_type::iterator>::output_iterator output_iterator;
     typedef fsm::fsm<iterator>                   fsm_type;
     typedef typename fsm_type::transition_type   transition_type;
     typedef typename fsm_type::char_type         value_type;
-    typedef typename UriType::data_rep           parse_context;
+    typedef typename uri_type::data_rep          parse_context;
 
     uri_grammar ();
 
@@ -263,8 +268,8 @@ struct uri_grammar
     transition_type const * p_uri_reference_tr;
 };
 
-template <typename UriType>
-uri_grammar<UriType>::uri_grammar ()
+template <typename StringT>
+uri_grammar<StringT>::uri_grammar ()
 {
 #undef FSM_SEQ
 #undef FSM_ONE_OF
@@ -896,11 +901,11 @@ uri_grammar<UriType>::uri_grammar ()
  *
  * @param uri string representation of URI.
  */
-template <typename StringType>
-bool uri<StringType>::parse (typename string_type::const_iterator first
+template <typename StringT>
+bool uri<StringT>::parse (typename string_type::const_iterator first
             , typename string_type::const_iterator last)
 {
-    typedef uri_grammar<uri<StringType> >   grammar_type;
+    typedef uri_grammar<StringT>   grammar_type;
     typedef typename grammar_type::fsm_type fsm_type;
 
     // Initialize grammar's static members
