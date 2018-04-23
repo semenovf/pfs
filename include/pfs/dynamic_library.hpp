@@ -4,6 +4,7 @@
 #include <pfs/memory.hpp>
 #include <pfs/filesystem.hpp>
 #include <pfs/system_error.hpp>
+#include <pfs/string.hpp>
 
 #ifdef PFS_CC_MSVC
 #   include <windows.h>
@@ -20,7 +21,8 @@ namespace pfs {
 class dynamic_library
 {
 public:
-    typedef filesystem::path::string_type system_string;
+    //typedef filesystem::path::string_type string_type;
+    typedef pfs::string string_type;
 
 #ifdef PFS_CC_MSC
 	typedef HMODULE native_handle_type;
@@ -80,7 +82,7 @@ public:
  *
  * @param name Base name of dynamic library.
  */
-filesystem::path build_so_filename (filesystem::path const & name) pfs_noexcept;
+filesystem::path build_so_filename (string const & name) pfs_noexcept;
 
 #if __cplusplus >= 201103L
 enum class dynamic_library_errc

@@ -14,7 +14,7 @@ int main ()
     typedef int (*dl_test_fn)(void);
 
     dynamic_library dl;
-    path dlfile = pfs::build_so_filename(path("shared_object"));
+    path dlfile = pfs::build_so_filename("shared_object");
     path * dlpath_ptr = 0;
 
     pathlist searchdirs;
