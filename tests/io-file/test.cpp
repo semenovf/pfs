@@ -239,6 +239,7 @@ void test_write_read ()
     pfs::byte_string bs;
     std::cout << "d.available()=" << d.available() << std::endl;
     size_t navailable = pfs::integral_cast_check<size_t>(d.available());
+    std::cout << "d.available()=" << d.available() << std::endl;
     std::cout << "navailable=" << navailable << std::endl;
     d.read(bs, navailable);
 
