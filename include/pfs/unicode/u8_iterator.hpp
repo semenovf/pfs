@@ -529,37 +529,41 @@ BackInsertIt utf8_iterator<OctetInputIt>::encode (char_t uc, BackInsertIt it)
 
 namespace pfs {
 
-template <typename StringType, typename OctetInputIt>
-StringType read_line_u8 (OctetInputIt & first, OctetInputIt last)
+template <typename StringT, typename OctetInputIt>
+StringT read_line_u8 (OctetInputIt & first, OctetInputIt last)
 {
-    typedef unicode::u8_input_iterator<OctetInputIt> utf8_input_iterator;
+    typedef unicode::u8_input_iterator<OctetInputIt>  input_iterator;
+    typedef unicode::u8_output_iterator<pfs::back_insert_iterator<StringT> > output_iterator;
 
-    StringType result;
-    utf8_input_iterator it(first, last);
-    utf8_input_iterator end(last);
+    StringT result;
+    output_iterator out(pfs::back_inserter(result));
+    input_iterator it(first, last);
+    input_iterator end(last);
 
     while (it != end && *it != '\n') {
         if (*it != '\r')
-            result.push_back(*it);
+            *out++ = *it;
         ++it;
     }
 
     return result;
 }
 
-template <typename StringType, typename OctetInputIt>
-StringType read_all_u8 (OctetInputIt & first, OctetInputIt last)
+template <typename StringT, typename OctetInputIt>
+StringT read_all_u8 (OctetInputIt & first, OctetInputIt last)
 {
-    typedef unicode::u8_input_iterator<OctetInputIt> utf8_input_iterator;
+    typedef unicode::u8_input_iterator<OctetInputIt>  input_iterator;
+    typedef unicode::u8_output_iterator<pfs::back_insert_iterator<StringT> > output_iterator;
 
-    StringType result;
+    StringT result;
+    output_iterator out(pfs::back_inserter(result));
 
-    utf8_input_iterator it(first, last);
-    utf8_input_iterator end(last);
+    input_iterator it(first, last);
+    input_iterator end(last);
 
     while (it != end) {
         if (*it != '\r')
-            result.push_back(*it);
+            *out++ = *it;
         ++it;
     }
 

@@ -9,8 +9,8 @@ namespace pfs {
 
 template <typename Key
     , typename R
-    , template <typename, typename> class AssociativeContainer
-    , typename BasicLockable> // see [C++ concepts: BasicLockable](http://en.cppreference.com/w/cpp/concept/BasicLockable)
+    , template <typename, typename> class AssociativeContainer = pfs::map
+    , typename BasicLockable = pfs::mutex> // see [C++ concepts: BasicLockable](http://en.cppreference.com/w/cpp/concept/BasicLockable)
 class active_map_base
 {
 public:

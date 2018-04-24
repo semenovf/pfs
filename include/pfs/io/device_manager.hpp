@@ -3,6 +3,9 @@
 #include <pfs/cxxlang.hpp>
 #include <pfs/sigslot.hpp>
 #include <pfs/set.hpp>
+#include <pfs/list.hpp>
+#include <pfs/map.hpp>
+#include <pfs/vector.hpp>
 #include <pfs/io/pool.hpp>
 
 namespace pfs {
@@ -11,9 +14,9 @@ namespace io {
 // All devices must be in non-blocking mode.
 
 template <typename SigslotNS
-        , template <typename> class SequenceContainer
-        , template <typename> class ContigousContainer
-        , template <typename, typename> class AssociativeContainer
+        , template <typename> class SequenceContainer = pfs::list
+        , template <typename> class ContigousContainer = pfs::vector
+        , template <typename, typename> class AssociativeContainer = pfs::map
         , template <typename> class PriorityContainer = pfs::set>
 class device_manager : SigslotNS::has_slots
 {

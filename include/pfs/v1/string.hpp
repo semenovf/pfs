@@ -611,41 +611,7 @@ public:
         return lhs._p >= rhs._p;
     }
 
-    friend inline string_value_type operator + (string const & lhs, string const & rhs)
-    {
-        string_value_type result;
-        result._p = lhs._p + rhs._p;
-        return result;
-    }
 
-    friend inline string_value_type operator + (const_pointer lhs, string const & rhs)
-    {
-        string_value_type result;
-        result._p = lhs + rhs._p;
-        return result;
-    }
-
-    friend inline string_value_type operator + (value_type lhs, string const & rhs)
-    {
-        string_value_type result(1, lhs);
-        result._p += rhs._p;
-        return result;
-    }
-
-    friend inline string_value_type operator + (string const & lhs, const_pointer rhs)
-    {
-        string_value_type result;
-        result._p = lhs._p + rhs;
-        return result;
-    }
-
-    friend inline string_value_type operator + (string const & lhs, value_type rhs)
-    {
-        string_value_type result;
-        result._p += lhs._p;
-        result.push_back(rhs);
-        return result;
-    }
 
     friend inline std::ostream & operator << (std::ostream & os, string const & s)
     {
@@ -687,42 +653,6 @@ string<StringImplType>::substr (const_iterator pos, size_type count) const
     epos.advance_safe(cend(), n);
 
     return string_value_type(pos, epos);
-}
-
-template <typename StringType>
-StringType ltrim (StringType const & orig)
-{
-    typename StringType::const_iterator first = orig.cbegin();
-    while (first != orig.cend() && is_space(*first))
-        ++first;
-    return orig.substr(first, orig.cend());
-}
-
-template <typename StringType>
-StringType rtrim (StringType const & orig)
-{
-    typename StringType::const_iterator last = orig.cend();
-    while (last != orig.cbegin() && is_space(*--last))
-        ;
-    if (last != orig.cend() && last != orig.cbegin())
-        ++last;
-    return orig.substr(orig.cbegin(), last);
-}
-
-template <typename StringType>
-StringType trim (StringType const & orig)
-{
-    typename StringType::const_iterator first = orig.cbegin();
-    while (first != orig.cend() && is_space(*first))
-        ++first;
-
-    typename StringType::const_iterator last = orig.cend();
-    while (last != orig.cbegin() && is_space(*--last))
-        ;
-    if (last != orig.cend() && last != orig.cbegin())
-        ++last;
-
-    return orig.substr(first, last);
 }
 
 template <typename StringImplType>

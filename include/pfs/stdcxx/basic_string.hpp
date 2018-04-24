@@ -850,19 +850,21 @@ public:
     }
 #endif
 
-    basic_string substr (const_iterator pos, size_type count = npos) const
+    DerivedT substr (const_iterator pos, size_type count = npos) const
     {
         return this->substr(std::distance(this->cbegin(), pos), count);
     }
 
-    basic_string substr (const_iterator first, const_iterator last) const
+    DerivedT substr (const_iterator first, const_iterator last) const
     {
         return this->substr(std::distance(this->cbegin(), first), std::distance(first, last));
     }
 
-    /**
-     * @fn basic_string substr (size_type pos = 0, size_type count = npos) const
-     */
+    DerivedT substr (size_type pos = 0, size_type count = npos) const
+    {
+        base_class::substr(pos, count);
+        return *static_cast<DerivedT const *>(this);
+    }
 
     /**
      * @fn size_type copy (pointer dest, size_type count, size_type pos = 0) const

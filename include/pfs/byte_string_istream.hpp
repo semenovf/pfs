@@ -34,6 +34,12 @@ public:
         return static_cast<ssize_t>(n);
     }
 
+    byte_string::difference_type available () const
+    {
+        return pfs::distance(_first, _last);
+    }
+
+
 private:
     byte_string::const_iterator _first;
     byte_string::const_iterator _last;

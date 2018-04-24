@@ -510,28 +510,28 @@ struct modulus
         template <typename Json>
         bool register_modules (Json const & conf);
 
-    	bool register_local_module (basic_module * pmodule, string_type const & name);
+        bool register_local_module (basic_module * pmodule, string_type const & name);
 
-    	bool register_module_for_path (filesystem::path const & path
-    			, string_type const & name
-    			, const char * class_name = 0
-    			, void * mod_data = 0);
+        bool register_module_for_path (filesystem::path const & path
+                , string_type const & name
+                , const char * class_name = 0
+                , void * mod_data = 0);
 
         bool register_module_for_name (string_type const & name
                 , char const * class_name = 0
                 , void * mod_data = 0);
 
-    	void set_master_module (string_type const & name);
+        void set_master_module (string_type const & name);
 
-    	size_t count () const
-    	{
-    		return _module_spec_map.size();
-    	}
+        size_t count () const
+        {
+            return _module_spec_map.size();
+        }
 
-    	bool is_module_registered (string_type const & modname) const
-    	{
-    		return _module_spec_map.find(modname) != _module_spec_map.end();
-    	}
+        bool is_module_registered (string_type const & modname) const
+        {
+            return _module_spec_map.find(modname) != _module_spec_map.end();
+        }
 
         logger_type & get_logger () { return _logger; }
         logger_type const & get_logger () const { return _logger; }
@@ -979,7 +979,7 @@ bool modulus<PFS_MODULUS_TEMPLETE_ARGS>::dispatcher::register_modules (
                     pappender = & logger.template add_appender<typename log_ns::stderr_appender>();
                 } else {
                     // Construct path from pattern
-                    filesystem::path path(to_string(current_datetime(), name).native()); // `name` is a pattern here
+                    filesystem::path path(to_string(current_datetime(), name)); // `name` is a pattern here
                     pappender = & logger.template add_appender<typename log_ns::file_appender>(path);
 
                     if (! pappender->is_open()) {
@@ -1066,7 +1066,7 @@ bool modulus<PFS_MODULUS_TEMPLETE_ARGS>::dispatcher::register_modules (
                     rc = register_module_for_name(name_str, 0, & *it);
                 else
                     rc = register_module_for_path(
-                             filesystem::path(path_str.native())
+                             filesystem::path(path_str)
                              , name_str, 0, & *it);
 
                 if (rc) {

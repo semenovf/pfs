@@ -127,12 +127,14 @@
 // #endif
 
 #include "test_constructors.hpp"
+#include "test_trim.hpp"
 
 int main ()
 {
     BEGIN_TESTS(0);
 
     test_constructors<pfs::string>();
+    test_trim<pfs::string>();
 
 #ifdef HAVE_QT_CORE
     //test_constructors<pfs::qt::string>();

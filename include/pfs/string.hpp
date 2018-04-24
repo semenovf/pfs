@@ -70,6 +70,76 @@ public:
     }
 };
 
+template <typename InputIt, typename OutputIt>
+void ltrim (InputIt first, InputIt last, OutputIt out)
+{
+    while (first != last && is_space(*first))
+        ++first;
+
+    while (first != last)
+        *out++ = *first++;
+}
+
+template <typename InputIt, typename OutputIt>
+void rtrim (InputIt first, InputIt last, OutputIt out)
+{
+    InputIt tmplast = last;
+
+    if (tmplast != first)
+        --tmplast;
+
+    while (tmplast != first && is_space(*tmplast))
+        --tmplast;
+
+    if (tmplast != last)
+        ++tmplast;
+
+    while (first != tmplast)
+        *out++ = *first++;
+}
+
+template <typename InputIt, typename OutputIt>
+void trim (InputIt first, InputIt last, OutputIt out)
+{
+    while (first != last && is_space(*first))
+        ++first;
+
+    InputIt tmplast = last;
+
+    if (tmplast != first)
+        --tmplast;
+
+    while (tmplast != first && is_space(*tmplast))
+        --tmplast;
+
+    if (tmplast != last)
+        ++tmplast;
+
+    while (first != tmplast)
+        *out++ = *first++;
+}
+
+inline string ltrim (string const & s)
+{
+    string result;
+    pfs::ltrim(s.cbegin(), s.cend(), pfs::back_inserter(result));
+    return result;
+}
+
+inline string rtrim (string const & s)
+{
+    string result;
+    pfs::rtrim(s.cbegin(), s.cend(), pfs::back_inserter(result));
+    return result;
+}
+
+inline string trim (string const & s)
+{
+    string result;
+    pfs::trim(s.cbegin(), s.cend(), pfs::back_inserter(result));
+    return result;
+}
+
 namespace unicode {
 
 template <>
@@ -330,6 +400,33 @@ string to_string (typename pfs::enable_if<pfs::is_floating_point<Float>::value, 
 }
 
 }} // details::fp
+
+inline string operator + (string const & lhs, string const & rhs)
+{
+    return string(lhs).append(rhs);
+}
+
+inline string operator + (string::const_pointer lhs, string const & rhs)
+{
+    string result(lhs);
+    return result.append(rhs);
+}
+
+inline string operator + (string::value_type lhs, string const & rhs)
+{
+    string result(1, lhs);
+    return result.append(rhs);
+}
+
+inline string operator + (string const & lhs, string::const_pointer rhs)
+{
+    return string(lhs).append(rhs);
+}
+
+inline string operator + (string const & lhs, string::value_type rhs)
+{
+    return string(lhs).append(1, rhs);
+}
 
 inline string to_string (float a, char format = 'f', int precision = -1)
 {
