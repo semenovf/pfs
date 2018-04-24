@@ -124,18 +124,6 @@ inline byte_ostream & operator << (byte_ostream & os, byte_string_ref const & v)
     return os;
 }
 
-inline byte_ostream & operator << (byte_ostream & os, buffer_wrapper<byte_string::value_type const> const & v)
-{
-    os.write(v.p, v.max_size);
-    return os;
-}
-
-inline byte_ostream & operator << (byte_ostream & os, buffer_wrapper<char const> const & v)
-{
-    os.write(v.p, v.max_size);
-    return os;
-}
-
 inline byte_ostream & operator << (byte_ostream & os, byte_string const & v)
 {
     os.write(v);

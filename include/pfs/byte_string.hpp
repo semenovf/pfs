@@ -840,6 +840,18 @@ public:
     }
 };
 
+template <typename T>
+struct buffer_wrapper
+{
+    T * p;
+    size_t max_size;
+
+    buffer_wrapper (T * ptr, byte_string::size_type n)
+        : p(ptr)
+        , max_size(n)
+    {}
+};
+
 // template <int N>
 // struct byte_string_ref_n
 // {
@@ -869,18 +881,6 @@ public:
 //     byte_string_ref (byte_string * ptr, byte_string::size_type sz)
 //         : p(ptr)
 //         , max_size(sz)
-//     {}
-// };
-
-// template <typename T>
-// struct buffer_wrapper
-// {
-//     T * p;
-//     size_t max_size;
-//
-//     buffer_wrapper (T * ptr, byte_string::size_type n)
-//         : p(ptr)
-//         , max_size(n)
 //     {}
 // };
 

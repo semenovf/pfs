@@ -1,6 +1,7 @@
 #pragma once
 #include <pfs/byte_string.hpp>
 #include <pfs/binary_istream.hpp>
+#include <pfs/iterator.hpp>
 #include <pfs/algorithm.hpp>
 #include <pfs/limits.hpp>
 
@@ -37,5 +38,17 @@ private:
     byte_string::const_iterator _first;
     byte_string::const_iterator _last;
 };
+
+inline byte_string_istream & operator >> (byte_string_istream & is, buffer_wrapper<byte_string::value_type> const & v)
+{
+    is.read(reinterpret_cast<char *>(v.p), v.max_size);
+    return is;
+}
+
+inline byte_string_istream & operator >> (byte_string_istream & is, buffer_wrapper<char> const & v)
+{
+    is.read(v.p, v.max_size);
+    return is;
+}
 
 } // pfs

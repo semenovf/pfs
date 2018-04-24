@@ -182,17 +182,6 @@ inline byte_istream & operator >> (byte_istream & is, byte_string_ref const & v)
     return is;
 }
 
-inline byte_istream & operator >> (byte_istream & is, buffer_wrapper<byte_string::value_type> const & v)
-{
-    is.read(v.p, v.max_size);
-    return is;
-}
-
-inline byte_istream & operator >> (byte_istream & is, buffer_wrapper<char> const & v)
-{
-    is.read(v.p, v.max_size);
-    return is;
-}
 
 inline byte_istream & operator >> (byte_istream & is, bool & v)
 {

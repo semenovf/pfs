@@ -2,6 +2,7 @@
 #include <string>
 #include <pfs/type_traits.hpp>
 #include <pfs/endian.hpp>
+#include <pfs/byte_string.hpp>
 
 namespace pfs {
 
@@ -37,6 +38,12 @@ public:
     }
 
     binary_ostream & operator << (std::string const & s)
+    {
+        ssize_t r = _dev.write(s.c_str(), s.size());
+        return *this;
+    }
+
+    binary_ostream & operator << (byte_string const & s)
     {
         ssize_t r = _dev.write(s.c_str(), s.size());
         return *this;

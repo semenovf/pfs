@@ -23,4 +23,16 @@ private:
     byte_string & _buffer;
 };
 
+inline byte_string_ostream & operator << (byte_string_ostream & os, buffer_wrapper<byte_string::value_type const> const & v)
+{
+    os.write(reinterpret_cast<char const *>(v.p), v.max_size);
+    return os;
+}
+
+inline byte_string_ostream & operator << (byte_string_ostream & os, buffer_wrapper<char const> const & v)
+{
+    os.write(v.p, v.max_size);
+    return os;
+}
+
 } // pfs
