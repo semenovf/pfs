@@ -49,6 +49,11 @@ public:
         return *this;
     }
 
+    endian const & order () const
+    {
+        return _order;
+    }
+
 protected:
     template <typename Integral>
     ssize_t write_integral (Integral const & v)

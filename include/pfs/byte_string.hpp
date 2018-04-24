@@ -7,6 +7,7 @@
 #include <pfs/types.hpp>
 #include <pfs/stdcxx/basic_string.hpp>
 #include <pfs/compare.hpp>
+#include <pfs/limits.hpp>
 
 namespace pfs {
 
@@ -852,37 +853,37 @@ struct buffer_wrapper
     {}
 };
 
-// template <int N>
-// struct byte_string_ref_n
-// {
-//     typedef typename size_type_n<N>::type size_type;
-//     byte_string * p;
-//
-//     byte_string_ref_n (byte_string * ptr)
-//         : p (ptr)
-//     {}
-//
-//     size_type max_size () const
-//     {
-//         return numeric_limits<size_type>::max();
-//     }
-// };
+template <int N>
+struct byte_string_ref_n
+{
+    typedef typename size_type_n<N>::type size_type;
+    byte_string * p;
 
-// struct byte_string_ref
-// {
-//     byte_string * p;
-//     byte_string::size_type max_size;
-//
-//     byte_string_ref (byte_string * ptr)
-//         : p(ptr)
-//         , max_size(ptr->size())
-//     {}
-//
-//     byte_string_ref (byte_string * ptr, byte_string::size_type sz)
-//         : p(ptr)
-//         , max_size(sz)
-//     {}
-// };
+    byte_string_ref_n (byte_string & bs)
+        : p(& bs)
+    {}
+
+    size_type max_size () const
+    {
+        return numeric_limits<size_type>::max();
+    }
+};
+
+struct byte_string_ref
+{
+    byte_string * p;
+    byte_string::size_type max_size;
+
+    byte_string_ref (byte_string & bs)
+        : p(& bs)
+        , max_size(bs.size())
+    {}
+
+    byte_string_ref (byte_string & bs, byte_string::size_type sz)
+        : p(& bs)
+        , max_size(sz)
+    {}
+};
 
 // inline byte_string operator + (byte_string const & lhs, byte_string const & rhs)
 // {

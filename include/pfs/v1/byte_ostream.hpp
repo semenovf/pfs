@@ -12,15 +12,6 @@ struct byte_ostream
         , _o(order)
     {}
 
-    endian const & order () const
-    {
-        return _o;
-    }
-
-    byte_string const & data () const
-    {
-        return _buffer;
-    }
 
     template <typename Integral>
     void write_integral (Integral v)

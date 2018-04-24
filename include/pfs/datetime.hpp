@@ -271,6 +271,11 @@ public:
     }
 };
 
+inline string to_string (datetime const & dt, timezone const & tz, string const & format)
+{
+    return dt.to_string(tz, format);
+}
+
 /**
  * @brief Converts date and time to string according to @a format.
  *

@@ -29,6 +29,11 @@ public:
         return *this;
     }
 
+    endian const & order () const
+    {
+        return _order;
+    }
+
 protected:
      template <typename Integral>
      ssize_t read_integral (Integral & v)

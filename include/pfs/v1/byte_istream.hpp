@@ -14,41 +14,7 @@ public:
         , o (order)
     {}
 
-    byte_string::const_iterator begin () const
-    {
-        return b;
-    }
 
-    byte_string::const_iterator end () const
-    {
-        return e;
-    }
-
-    byte_string::const_iterator cbegin () const
-    {
-        return b;
-    }
-
-    byte_string::const_iterator cend () const
-    {
-        return e;
-    }
-
-    endian const & order () const
-    {
-        return o;
-    }
-
-    byte_string::difference_type available () const
-    {
-        return pfs::distance(b, e);
-    }
-
-    void skip (size_t n)
-    {
-        n = pfs::min(n, integral_cast_check<size_t>(available()));
-        pfs::advance(b, n);
-    }
 
     // TODO DEPRECATED
     template <typename IntegerType>
@@ -131,17 +97,6 @@ public:
         }
     }
 
-    void read (byte_string & v, byte_string::size_type sz)
-    {
-        if (static_cast<byte_string::size_type>(pfs::distance(b, e)) < sz)
-            throw io_exception(make_error_code(io_errc::stream), NOT_ENOUGH_DATA_EXCEPTION_STR);
-
-        byte_string::const_iterator last(b);
-        pfs::advance(last, sz);
-        v.append(b, last);
-        b = last;
-    }
-
     void read (byte_string::pointer v, byte_string::size_type sz)
     {
         if (static_cast<byte_string::size_type> (pfs::distance(b, e)) < sz)
@@ -155,32 +110,12 @@ public:
         read(reinterpret_cast<byte_string::pointer> (v), sz);
     }
 
-    void read_tail (byte_string & v)
-    {
-        v.append(b, e);
-        b = e;
-    }
 
 private:
     byte_string::const_iterator b;
     byte_string::const_iterator e;
     endian o;
 };
-
-template <int N>
-byte_istream & operator >> (byte_istream & is, byte_string_ref_n<N> const & v)
-{
-    typename byte_string_ref_n<N>::size_type sz = 0;
-    is >> sz;
-    is.read(*v.p, sz);
-    return is;
-}
-
-inline byte_istream & operator >> (byte_istream & is, byte_string_ref const & v)
-{
-    is.read(*v.p, v.max_size);
-    return is;
-}
 
 
 inline byte_istream & operator >> (byte_istream & is, bool & v)

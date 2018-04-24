@@ -750,49 +750,6 @@ public:
     }
 };
 
-template <int N>
-struct byte_string_ref_n
-{
-    typedef typename size_type_n<N>::type size_type;
-    byte_string * p;
-
-    byte_string_ref_n (byte_string * ptr)
-        : p (ptr)
-    {}
-
-    size_type max_size () const
-    {
-        return numeric_limits<size_type>::max();
-    }
-};
-
-struct byte_string_ref
-{
-    byte_string * p;
-    byte_string::size_type max_size;
-
-    byte_string_ref (byte_string * ptr)
-        : p(ptr)
-        , max_size(ptr->size())
-    {}
-
-    byte_string_ref (byte_string * ptr, byte_string::size_type sz)
-        : p(ptr)
-        , max_size(sz)
-    {}
-};
-
-template <typename T>
-struct buffer_wrapper
-{
-    T * p;
-    size_t max_size;
-
-    buffer_wrapper (T * ptr, byte_string::size_type n)
-        : p(ptr)
-        , max_size(n)
-    {}
-};
 
 inline byte_string operator + (byte_string const & lhs, byte_string const & rhs)
 {
