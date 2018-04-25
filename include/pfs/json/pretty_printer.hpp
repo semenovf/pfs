@@ -1,4 +1,5 @@
 #pragma once
+#include <pfs/json/json.hpp>
 
 namespace pfs {
 namespace json {
@@ -18,7 +19,7 @@ enum comma_position_enum
 struct print_format
 {
     const char * ws_symbol;       //<! whitespace symbol, default is ' ' (space)
-    size_t base_indent;           //<! base indent in symbols, default is 4 
+    size_t base_indent;           //<! base indent in symbols, default is 4
     size_t brace_indent;          //<! indent in symbols for brace, default is 0
     size_t first_item_indent;     //<! indent for first item (for comma_next_line), default is 0
     size_t ws_before_vseparator;  //<! whitespaces before value separator (comma), default is 0
@@ -42,13 +43,13 @@ enum print_style_enum
     , style_favorite           // base_indent = 4, brace_position = brace_same_line, comma_position = comma_next_line
 };
 
-template <typename JsonTraits>
+template <typename JsonT>
 class pretty_printer
 {
-    typedef json<JsonTraits>                json_type;
+    typedef JsonT                           json_type;
     typedef typename json_type::string_type string_type;
     typedef typename json_type::key_type    key_type;
-    
+
     /*
      * Brace Positions:
      * ===================
@@ -71,15 +72,15 @@ class pretty_printer
      * brace_next_line_indent
      * -------------------
      * "object" :
-     * 		{
-     * 		    "foo" : 100,
-     * 		    "bar" : "Hello"
-     * 		    "fee" :
-     * 		        [
+     *      {
+     *          "foo" : 100,
+     *          "bar" : "Hello"
+     *          "fee" :
+     *              [
      *                  100,
-     * 		            200
-     * 		        ]
-     * 		}
+     *                  200
+     *              ]
+     *      }
      *
      *
      * Comma Positions:
@@ -88,18 +89,18 @@ class pretty_printer
      * comma_same_line:
      * -------------------
      *
-     * 	"foo" : 100,
-     * 	"bar" : "Hello"
+     *  "foo" : 100,
+     *  "bar" : "Hello"
      *
      * comma_next_line
      * -------------------
-     * 	"foo" : 100
-     * 	, "bar" : "Hello"
+     *  "foo" : 100
+     *  , "bar" : "Hello"
      *
      * comma_next_line_indent
      * -------------------
-     * 	  "foo" : 100
-     * 	, "bar" : "Hello"
+     *    "foo" : 100
+     *  , "bar" : "Hello"
      *
      */
     struct print_spec
@@ -146,7 +147,7 @@ class pretty_printer
         pspec.brace_position        = format.brace_position;        // json::brace_same_line;
         pspec.comma_position        = format.comma_position;        // json::comma_same_line;
     }
-    
+
     static inline string_type & __repeat (string_type & result
             , string_type const & s
             , int n)
@@ -162,7 +163,7 @@ class pretty_printer
         string_type r;
         return __repeat(r, s, n);
     }
-    
+
     static void __print_scalar (string_type & result
             , json_type const & v)
     {
@@ -199,7 +200,7 @@ class pretty_printer
         switch (pspec.comma_position) {
 
         // <ws_before_vseparator><comma><ws_after_vseparator><new_line>
-        //        
+        //
         case comma_same_line:
             result.append(pspec.ws_before_vseparator);
             result.append(pspec.value_separator);
@@ -209,7 +210,7 @@ class pretty_printer
             break;
 
         // <new_line><indent><ws_before_vseparator><comma><ws_after_vseparator>
-        //        
+        //
         case comma_next_line:
             result.append(pspec.new_line);
             __print_indent(result, pspec, indent);
@@ -255,7 +256,7 @@ class pretty_printer
         } else {
             __print_container(result, value, pspec, indent);
         }
-    }    
+    }
 
     static void __print_value (string_type & result
             , key_type const & key
@@ -294,7 +295,7 @@ class pretty_printer
             , print_spec const & pspec
             , int indent)
     {
-        if (value.size() == 0) { 
+        if (value.size() == 0) {
             __print_open_brace(result, value, pspec);
             __print_close_brace(result, value, pspec);
             return;
@@ -332,7 +333,7 @@ class pretty_printer
             }
         }
 
-        indent -= pspec.base_indent;    
+        indent -= pspec.base_indent;
 
         result.append(pspec.new_line);
         __print_indent(result, pspec, indent);
@@ -358,7 +359,7 @@ public:
         __init_print_spec(pspec, format);
         to_string(result, v, pspec);
     }
-    
+
     static void to_string (string_type & result
             , json_type const & v
             , print_style_enum style)
@@ -462,21 +463,19 @@ public:
 
 namespace pfs {
 
-template <typename StringType, typename JsonTraits>
-inline typename enable_if<is_same<StringType, typename json::json<JsonTraits>::string_type>::value, StringType>::type
-to_string (json::json<JsonTraits> const & v, json::print_format const & format)
+template <typename JsonT>
+inline typename JsonT::string_type to_string (JsonT const & j, json::print_format const & format)
 {
-    StringType r;
-    json::pretty_printer<JsonTraits>::to_string(r, v, format);
+    typename JsonT::string_type r;
+    json::pretty_printer<JsonT>::to_string(r, j, format);
     return r;
 }
 
-template <typename StringType, typename JsonTraits>
-typename enable_if<is_same<StringType, typename json::json<JsonTraits>::string_type>::value, StringType>::type
-to_string (json::json<JsonTraits> const & v, json::print_style_enum style)
+template <typename JsonT>
+inline typename JsonT::string_type to_string (JsonT const & j, json::print_style_enum style)
 {
-    StringType r;
-    json::pretty_printer<JsonTraits>::to_string(r, v, style);
+    typename JsonT::string_type r;
+    json::pretty_printer<JsonT>::to_string(r, j, style);
     return r;
 }
 

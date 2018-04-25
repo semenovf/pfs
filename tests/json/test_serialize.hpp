@@ -449,6 +449,10 @@ void test_object ()
 template <typename JsonType>
 void test ()
 {
+    std::cout << "///////////////////////////////////////////////////////////////////////////\n";
+    std::cout << "//                            [De]Serialization                          //\n";
+    std::cout << "///////////////////////////////////////////////////////////////////////////\n";
+
     test_number<JsonType>();
     test_string<JsonType>();
     test_array<JsonType>();
