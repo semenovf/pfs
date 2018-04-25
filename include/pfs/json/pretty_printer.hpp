@@ -463,19 +463,27 @@ public:
 
 namespace pfs {
 
-template <typename JsonT>
-inline typename JsonT::string_type to_string (JsonT const & j, json::print_format const & format)
+template <PFS_JSON_TEMPLETE_SIGNATURE>
+inline typename json::json<PFS_JSON_TEMPLETE_ARGS>::string_type to_string (
+          json::json<PFS_JSON_TEMPLETE_ARGS> const & j
+        , json::print_format const & format)
 {
-    typename JsonT::string_type r;
-    json::pretty_printer<JsonT>::to_string(r, j, format);
+    typedef json::json<PFS_JSON_TEMPLETE_ARGS> json_type;
+    typedef typename json_type::string_type string_type;
+    string_type r;
+    json::pretty_printer<json_type>::to_string(r, j, format);
     return r;
 }
 
-template <typename JsonT>
-inline typename JsonT::string_type to_string (JsonT const & j, json::print_style_enum style)
+template <PFS_JSON_TEMPLETE_SIGNATURE>
+inline typename json::json<PFS_JSON_TEMPLETE_ARGS>::string_type to_string (
+          json::json<PFS_JSON_TEMPLETE_ARGS> const & j
+        , json::print_style_enum style)
 {
-    typename JsonT::string_type r;
-    json::pretty_printer<JsonT>::to_string(r, j, style);
+    typedef json::json<PFS_JSON_TEMPLETE_ARGS> json_type;
+    typedef typename json_type::string_type string_type;
+    string_type r;
+    json::pretty_printer<json_type>::to_string(r, j, style);
     return r;
 }
 

@@ -1172,15 +1172,16 @@ public:
     }
 };
 
-// template <typename JsonT, typename T>
-// JsonT to_json (T const & v, bool plain = false);
+template <typename JsonT, typename T>
+JsonT to_json (T const & v, bool plain = false);
 
 }} // pfs::json
 
 namespace pfs {
 
 template <PFS_JSON_TEMPLETE_SIGNATURE>
-pfs::string to_string (json::json<PFS_JSON_TEMPLETE_ARGS> const & v)
+inline typename json::json<PFS_JSON_TEMPLETE_ARGS>::string_type to_string (
+        json::json<PFS_JSON_TEMPLETE_ARGS> const & v)
 {
     return v.to_string();
 }

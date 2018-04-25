@@ -26,6 +26,15 @@ public:
         , _last(last)
     {}
 
+    /**
+     * @brief Reset stream (reinitialize with new buffer)
+     */
+    void reset (byte_string & buffer)
+    {
+        _first = buffer.cbegin();
+        _last = buffer.cend();
+    }
+
     ssize_t read (char * s, size_t n)
     {
         n = pfs::min(pfs::distance(_first, _last), integral_cast_check<ssize_t>(n));
@@ -45,6 +54,11 @@ public:
     byte_string::difference_type available () const
     {
         return pfs::distance(_first, _last);
+    }
+
+    bool at_end () const
+    {
+        return available() == ssize_t(0);
     }
 
     byte_string::const_iterator begin () const

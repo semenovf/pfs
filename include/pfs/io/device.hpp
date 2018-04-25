@@ -33,8 +33,8 @@ protected:
 
 protected:
     device (bits::device * p)
-		: _d(p)
-	{}
+        : _d(p)
+    {}
 
 public:
     device () {}
@@ -48,18 +48,18 @@ public:
 
     native_handle_type native_handle () const
     {
-    	return _d->native_handle();
+        return _d->native_handle();
     }
 
     bool reopen ()
     {
-    	return _d->reopen();
+        return _d->reopen();
     }
 
     operator bool () const
-	{
-    	return opened();
-	}
+    {
+        return opened();
+    }
 
     bool is_error () const
     {
@@ -73,33 +73,33 @@ public:
 
     bool is_null () const
     {
-    	return !_d;
+        return !_d;
     }
 
-	bool is_readable () const
-	{
-		return _d->open_mode() | read_only;
-	}
+    bool is_readable () const
+    {
+        return _d->open_mode() | read_only;
+    }
 
-	bool is_writable () const
-	{
-		return _d->open_mode() | write_only;
-	}
+    bool is_writable () const
+    {
+        return _d->open_mode() | write_only;
+    }
 
-	bool is_nonblocking () const
-	{
-		return _d->is_nonblocking();
-	}
+    bool is_nonblocking () const
+    {
+        return _d->is_nonblocking();
+    }
 
-	bool opened () const
-	{
-	    return _d ? _d->opened() : false;
-	}
+    bool opened () const
+    {
+        return _d ? _d->opened() : false;
+    }
 
-	void flush ()
-	{
-	    if (_d) _d->flush();
-	}
+    void flush ()
+    {
+        if (_d) _d->flush();
+    }
 
     bool set_nonblocking (bool on)
     {
@@ -115,23 +115,23 @@ public:
      */
     bool close ();
 
-	ssize_t available () const
-	{
-	    return _d->bytes_available();
-	}
+    ssize_t available () const
+    {
+        return _d->bytes_available();
+    }
 
-	bool at_end () const
-	{
-	    return _d->bytes_available() == ssize_t(0);
-	}
+    bool at_end () const
+    {
+        return _d->bytes_available() == ssize_t(0);
+    }
 
-	/**
-	 * @brief Read bytes from the device.
-	 */
-	ssize_t read (byte_t * bytes, size_t n)
-	{
-		return _d->read(bytes, n);
-	}
+    /**
+        * @brief Read bytes from the device.
+        */
+    ssize_t read (byte_t * bytes, size_t n)
+    {
+        return _d->read(bytes, n);
+    }
 
     ssize_t read (char * chars, size_t n)
     {
@@ -151,10 +151,10 @@ public:
     /**
      * @brief Write bytes to the device.
      */
-	ssize_t write (const byte_t * bytes, size_t n)
-	{
-		return _d->write(bytes, n);
-	}
+    ssize_t write (const byte_t * bytes, size_t n)
+    {
+        return _d->write(bytes, n);
+    }
 
     ssize_t write (const char * chars, size_t n)
     {
@@ -162,57 +162,57 @@ public:
     }
 
     ssize_t write (byte_string const & bytes, size_t n)
-	{
-    	return this->write(bytes.data(), pfs::min(n, bytes.size()));
-	}
+    {
+        return this->write(bytes.data(), pfs::min(n, bytes.size()));
+    }
 
-	ssize_t write (byte_string const & bytes)
-	{
-    	return this->write(bytes.data(), bytes.size());
-	}
+    ssize_t write (byte_string const & bytes)
+    {
+        return this->write(bytes.data(), bytes.size());
+    }
 
-	device_type type () const
-	{
-		return _d->type();
-	}
+    device_type type () const
+    {
+        return _d->type();
+    }
 
-	void set_context (context_type * ctx)
-	{
-		_d->set_context(ctx);
-	}
+    void set_context (context_type * ctx)
+    {
+        _d->set_context(ctx);
+    }
 
-	context_type const * context () const
-	{
-		return _d->context();
-	}
+    context_type const * context () const
+    {
+        return _d->context();
+    }
 
-	context_type * context ()
-	{
-		return _d->context();
-	}
+    context_type * context ()
+    {
+        return _d->context();
+    }
 
     string_type url () const
     {
         return _d->url();
     }
 
-	void swap (device & other)
-	{
-		_d.swap(other._d);
-	}
+    void swap (device & other)
+    {
+        _d.swap(other._d);
+    }
 
-	bool operator == (device const & other)
-	{
-		return _d == other._d;
-	}
+    bool operator == (device const & other)
+    {
+        return _d == other._d;
+    }
 
-	bool operator != (device const & other)
-	{
-		return ! operator == (other);
-	}
+    bool operator != (device const & other)
+    {
+        return ! operator == (other);
+    }
 
-	template <typename DeviceTag>
-	friend device open_device (open_params<DeviceTag> const &, error_code & ec);
+    template <typename DeviceTag>
+    friend device open_device (open_params<DeviceTag> const &, error_code & ec);
 
 //    friend bool compress (device & dest, device & src, zlib::compression_level level, size_t chunkSize, error_code * ex = 0);
 //
@@ -223,7 +223,7 @@ ssize_t copy (device & dest, device & src, size_t chunkSize, error_code * ec = 0
 
 //inline bool compress (device & src, device & dest, error_code * ex = 0)
 //{
-//	return compress(src, dest, zlib::DefaultCompression, 0x4000, ex);
+//  return compress(src, dest, zlib::DefaultCompression, 0x4000, ex);
 //}
 //
 //inline bool uncompress (device & src, device & dest, error_code * ex = 0)
@@ -237,16 +237,16 @@ device open_device (open_params<DeviceTag> const &, error_code & ec);
 template <typename DeviceTag>
 inline device open_device (open_params<DeviceTag> const & op)
 {
-	error_code ec;
-	return open_device<DeviceTag>(op, ec);
+    error_code ec;
+    return open_device<DeviceTag>(op, ec);
 }
 
 template <typename DeviceTag>
 inline device open_device ()
 {
-	error_code ec;
+    error_code ec;
     open_params<DeviceTag> op;
-	return open_device<DeviceTag>(op, ec);
+    return open_device<DeviceTag>(op, ec);
 }
 
 }} // pfs::io
