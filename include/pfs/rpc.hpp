@@ -6,24 +6,25 @@
 #include <pfs/byte_string_ostream.hpp>
 #include <pfs/byte_string_istream.hpp>
 #include <pfs/byte_string.hpp>
-#include <pfs/safeformat.hpp>
 #include <pfs/string.hpp>
 #include <pfs/list.hpp>
 #include <pfs/map.hpp>
+#include <pfs/system_error.hpp>
 
 namespace pfs {
 
-template <int Order                        = endian::network_endian
-        , typename Id                      = int32_t
+template <uint8_t MajorVersion, uint8_t MinorVersion
+        , int Order = endian::network_endian
+        , typename Id = int32_t
+        , typename StringT = pfs::string
         , template <typename, typename> class AssociativeContainer = pfs::map
         , template <typename> class SequenceContainer = pfs::list>
 struct rpc
 {
-    typedef uint16_t    version_type;
-    typedef pfs::string string_type;
-    typedef Id          id_type;
-    typedef int32_t     error_code_type;
-    typedef safeformat  fmt;
+    //typedef uint16_t    version_type;
+    typedef StringT string_type;
+    typedef Id      id_type;
+    typedef int32_t error_code_type;
 
     static uint8_t const RPC_METHOD ()       { return 1; }
     static uint8_t const RPC_NOTIFICATION () { return 2; }
@@ -159,36 +160,65 @@ public:
     // Protocol                                                              //
     ///////////////////////////////////////////////////////////////////////////
 
-    class protocol
+    template <typename Derived>
+    struct protocol
     {
-        typedef pfs::byte_string::size_type size_type;
-
-    public:
-        protocol ()
-            : _is(_input_buffer)
-            , _os(_output_buffer)
-        {}
-
-        virtual bool begin_transfer () = 0;
-        virtual bool commit_transfer () = 0;
-        virtual bool begin_payload () = 0;
-        virtual bool commit_payload () = 0;
-
-        pfs::byte_string const & data () const
-        {
-            return _output_buffer;
-        }
-
-        pfs::byte_string & buffer ()
-        {
-            return _input_buffer;
-        }
-
-    protected:
-        pfs::byte_string _input_buffer;
-        pfs::byte_string _output_buffer;
-        pfs::byte_string_istream _is;
-        pfs::byte_string_ostream _os;
+//         typedef StringT string_type;
+//         typedef Id      id_type;
+//
+//         protocol ()
+//             : _is(_input_buffer)
+//             , _os(_output_buffer)
+//         {}
+//
+//         struct manip {};
+//
+//         // Output manipulators
+//         virtual manip major_version (uint8_t value) = 0;
+//         virtual manip minor_version (uint8_t value) = 0;
+//         virtual manip rpc_entity (uint8_t value) = 0;
+//         virtual manip method_name (string_type const & value) = 0;
+//         virtual manip id (id_type const & value) = 0;
+//
+//         // Input manipulators
+//         virtual manip get_major_version (uint8_t & value) = 0;
+//         virtual manip get_minor_version (uint8_t & value) = 0;
+//         virtual manip get_rpc_entity (uint8_t & value) = 0;
+//         virtual manip get_method_name (string_type & value) = 0;
+//         virtual manip get_id (id_type & value) = 0;
+//
+//         template <typename T>
+//         manip param (T const & x);
+//
+//         template <typename T>
+//         manip get_param (T & x);
+//
+//         template <typename T>
+//         manip param (string_type const & param_name, T const & x);
+//
+//         template <typename T>
+//         manip get_param (string_type & param_name, T & x);
+//
+//         virtual bool begin_tx () = 0;
+//         virtual bool commit_tx () = 0;
+//         virtual bool begin_rx () = 0;
+//         virtual bool commit_rx () = 0;
+//
+//         pfs::byte_string const & data () const
+//         {
+//             return _output_buffer;
+//         }
+//
+//         pfs::byte_string & buffer ()
+//         {
+//             return _input_buffer;
+//         }
+//
+//     protected:
+//         pfs::byte_string _input_buffer;
+//         pfs::byte_string _output_buffer;
+//         pfs::byte_string_istream _is;
+//         pfs::byte_string_ostream _os;
     };
 
     ///////////////////////////////////////////////////////////////////////////
@@ -203,33 +233,25 @@ public:
     };
 
     ///////////////////////////////////////////////////////////////////////////
-    // Session                                                               //
-    ///////////////////////////////////////////////////////////////////////////
-
-    struct session
-    {
-        static session open ();
-        static void close (session &);
-    };
-
-    ///////////////////////////////////////////////////////////////////////////
     // Server                                                                //
     ///////////////////////////////////////////////////////////////////////////
 
-    template <typename Protocol, typename Session, typename Transport>
+    template <typename Protocol, typename Transport>
     class server
     {
     public:
         typedef Transport transport_type;
 
     private:
-        typedef typename rpc::string_type string_type;
-        typedef typename rpc::id_type     id_type;
-
 //         struct basic_binder
 //         {
-//             virtual shared_response call (session &) = 0;
+//             virtual bool call (session &) = 0;
 //         };
+
+        typedef typename rpc::string_type string_type;
+        typedef typename rpc::id_type     id_type;
+//        typedef AssociativeContainer<string_type, pfs::shared_ptr<basic_binder> > repository;
+
 
 //         template <typename F>
 //         struct binder : basic_binder
@@ -253,52 +275,26 @@ public:
     //         }
 //        };
 
-//         struct repository_traits
-//         {
-//             typedef typename associative_container::type_traits<
-//                       method_name_type
-//                     , shared_binder
-//                     , AssociativeContainerTag>::type type;
-//
-//             typedef associative_container::iterators<
-//                       method_name_type
-//                     , shared_binder
-//                     , type> iterators;
-//
-//             typedef associative_container::inserter<
-//                       method_name_type
-//                     , shared_binder
-//                     , type> inserter;
-//
-//             typedef associative_container::finder<
-//                       method_name_type
-//                     , shared_binder
-//                     , type> finder;
-//
-//             typedef typename iterators::iterator iterator;
-//             typedef typename iterators::const_iterator const_iterator;
-//         };
 
     public:
         server () {}
 
         void exec () {}
 
-#if __COMMENT__
 //         template <typename F>
-//         inline void bind (method_name_type const & method_name, F f)
+//         inline void bind (string_type const & method_name, F f)
 //         {
-//               typename repository_traits::inserter(_method_repo).insert(method_name
-//                       , pfs::static_pointer_cast<basic_binder>(pfs::make_shared<function_binder<F>, F>(f)));
+//               typename _repo(method_name
+//                       , pfs::static_pointer_cast<basic_binder>(pfs::make_shared<binder<F>, F>(f)));
 //         }
-//
-//         template <typename F, typename C>
-//         inline void bind (method_name_type const & method_name, F f, C & c)
-//         {
-//             typename repository_traits::inserter(_method_repo).insert(method_name
-//                     , pfs::static_pointer_cast<basic_binder>(pfs::make_shared<method_binder<F, C>, F, C>(f, c)));
-//         }
-//
+
+//          template <typename F, typename A1>
+//          inline void bind (string_type const & method_name, F f, C & c)
+//          {
+// //             typename repository_traits::inserter(_method_repo).insert(method_name
+// //                     , pfs::static_pointer_cast<basic_binder>(pfs::make_shared<method_binder<F, C>, F, C>(f, c)));
+//          }
+#if __COMMENT__
 //         shared_response exec (request & rq)
 //         {
 //             typename repository_traits::finder finder(_method_repo);
@@ -339,112 +335,196 @@ public:
 #endif
 
     private:
+        //repository _repo;
 //         protocol_type  _protocol;
 //         transport_type _transport;
         //typename repository_traits::type _method_repo;
+    };
+
+    struct default_id_generator
+    {
+        id_type next_id () const
+        {
+            static id_type id = 0;
+            return ++id;
+        }
     };
 
     ///////////////////////////////////////////////////////////////////////////
     // Client                                                                //
     ///////////////////////////////////////////////////////////////////////////
 
-    template <typename Protocol, typename Session, typename Transport>
+    template <typename Protocol
+            , typename Transport
+            , typename IdGenerator = default_id_generator>
     class client
     {
-        typedef typename rpc::string_type string_type;
-        typedef typename rpc::id_type     id_type;
+        typedef typename rpc::string_type    string_type;
+        typedef typename rpc::id_type        id_type;
+        typedef Protocol                     protocol_type;
+        typedef Transport                    transport_type;
 
-    private:
-        bool begin_result ()
+        struct session
         {
-            _ec.clear();
-            _protocol.commit_transfer();
+            session (id_type i) : _id(i) {}
 
-            // Send data via transport
-            ssize_t n = _transport.send(_protocol.data(), _ec);
+            error_code const & errorcode () const
+            {
+                return _ec;
+            }
 
-            if (n > 0 && !_ec)
-                return false;
+            session & call (string_type const method_name)
+            {
+                _proto.begin_tx();
+                _proto << _proto.major_version(MajorVersion)
+                        << _proto.minor_version(MinorVersion)
+                        << _proto.rpc_entity(RPC_METHOD())
+                        << _proto.id(_id)
+                        << _proto.method_name(method_name);
+                return *this;
+            }
 
-            // Receive data from server
-            byte_string buffer;
-            n = _transport.recv(buffer, _ec);
+            template <typename T>
+            inline session & operator () (T const & x)
+            {
+                _proto << _proto.param(x);
+                return *this;
+            }
 
-            if (n > 0 && !_ec)
-                _protocol.buffer().append(buffer);
+            template <typename T>
+            inline session & operator () (string_type const & param_name, T const & x)
+            {
+                _proto << _proto.param(param_name, x);
+                return *this;
+            }
 
-            if (!_protocol.begin_payload())
-                return false;
-            return true;
-        }
+#if __cplusplus >= 201103L
+            template <typename T, typename ...Args>
+            inline session & operator () (T const & x, Args const &... args)
+            {
+                _proto << x;
+                return operator () (args...);
+            }
+#endif
 
-        bool commit_result ()
-        {
-            return _protocol.commit_payload();
-        }
+            template <typename T>
+            T result ()
+            {
+                T x;
+
+                if (begin_result()) {
+                    _proto >> x;
+                }
+
+                if (commit_result())
+                    ;
+
+                return x;
+            }
+
+        private:
+            bool begin_result ()
+            {
+                _ec.clear();
+                _proto.commit_tx();
+
+                // Send data via transport
+                ssize_t n = _transport.send(_proto.data(), _ec);
+
+                if (n < 0 || _ec)
+                    return false;
+
+                // Receive data from server
+                byte_string buffer;
+                n = _transport.recv(buffer, _ec);
+
+                if (n > 0 && !_ec)
+                    _proto.buffer().append(buffer);
+
+                if (!_proto.begin_rx())
+                    return false;
+
+                uint8_t major
+                        , minor
+                        , status;
+                id_type id;
+
+                _proto >> _proto.get_major_version(major)
+                        >> _proto.get_minor_version(minor)
+                        >> _proto.get_rpc_entity(status)
+                        >> _proto.get_id(id);
+
+                if (major != MajorVersion || minor != MinorVersion) {
+                    // TODO set error code
+
+                    return false;
+                }
+
+                if (status != RPC_SUCCESS()) {
+                    // TODO set error code
+
+                    return false;
+                }
+
+                if (id != _id) {
+                    // TODO set error code
+
+                    return false;
+                }
+
+                return true;
+            }
+
+            bool commit_result ()
+            {
+                return _proto.commit_rx();
+            }
+
+        protected:
+            id_type    _id;
+            Protocol   _proto;
+            Transport  _transport;
+            error_code _ec;
+        };
+
+        typedef AssociativeContainer<id_type, session> session_registry;
 
     public:
         client () {}
 
-        client & call (string const & method_name)
+        session & call (string const & method_name)
         {
-            _protocol.begin_transfer();
-            _protocol << RPC_METHOD();// << id;
-            _protocol << method_name;
-            return *this;
+            id_type id = IdGenerator().next_id();
+            std::pair<typename session_registry::iterator,bool> r = _sessions.insert(id, session(id));
+            PFS_ASSERT(r.second);
+
+            session & sess = session_registry::mapped_reference(r.first);
+            return sess.call(method_name);
         }
 
-        client & notify (string const & method_name)
-        {
-            _protocol.begin_transfer();
-            _protocol << RPC_NOTIFICATION();// << id;
-            _protocol << method_name;
-            return *this;
-        }
-
-        // for notify
-        bool send ()
-        {
-            _ec.clear();
-            _protocol.commit_transfer();
-            ssize_t n = _transport.send(_protocol.data(), _ec);
-
-            if (n > 0 && !_ec)
-                return false;
-            return true;
-        }
-
-        template <typename T>
-        T get ()
-        {
-            T x;
-
-            if (begin_result()) {
-                _protocol >> x;
-            }
-
-            if (commit_result())
-                ;
-
-            return x;
-        }
-
-        template <typename T>
-        inline client & operator () (T const & x)
-        {
-            _protocol << x;
-            return *this;
-        }
-
-        error_code const & errorcode () const
-        {
-            return _ec;
-        }
+//         client & notify (string const & method_name)
+//         {
+//             _protocol.begin_tx();
+//             _protocol << RPC_NOTIFICATION();// << id;
+//             _protocol << method_name;
+//             return *this;
+//         }
+//
+//         // for notify
+//         bool send ()
+//         {
+//             _ec.clear();
+//             _protocol.commit_tx();
+//             ssize_t n = _transport.send(_protocol.data(), _ec);
+//
+//             if (n > 0 && !_ec)
+//                 return false;
+//             return true;
+//         }
 
     private:
-        Protocol   _protocol;
-        Transport  _transport;
-        error_code _ec;
+        IdGenerator      _id_generator;
+        session_registry _sessions;
     };
 };
 

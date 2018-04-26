@@ -7,11 +7,11 @@
 #include <pfs/binary_ostream.hpp>
 #include <pfs/io/buffer.hpp>
 
-typedef pfs::rpc<> rpc_ns;
+typedef pfs::rpc<1, 0> rpc_ns;
 
-class Protocol : public rpc_ns::protocol
+class Protocol : public rpc_ns::protocol<Protocol>
 {
-    typedef rpc_ns::protocol base_class;
+    typedef rpc_ns::protocol<Protocol> base_class;
     typedef pfs::byte_string::size_type size_type;
 
     // Minimum size for packet (empty)
@@ -28,7 +28,91 @@ class Protocol : public rpc_ns::protocol
 public:
     Protocol () : base_class() {}
 
-    virtual bool begin_transfer () pfs_override
+    virtual manip major_version (uint8_t value) pfs_override
+    {
+        *this << value;
+        return manip();
+    }
+
+    virtual manip minor_version (uint8_t value) pfs_override
+    {
+        *this << value;
+        return manip();
+    }
+
+    virtual manip rpc_entity (uint8_t value)
+    {
+        *this << value;
+        return manip();
+    }
+
+    virtual manip method_name (string_type const & value) pfs_override
+    {
+        *this << value;
+        return manip();
+    }
+
+    virtual manip id (id_type const & value) pfs_override
+    {
+        *this << value;
+        return manip();
+    }
+
+    virtual manip get_major_version (uint8_t & value) pfs_override
+    {
+        *this >> value;
+        return manip();
+    }
+
+    virtual manip get_minor_version (uint8_t & value) pfs_override
+    {
+        //return *this >> value;
+        return manip();
+    }
+
+    virtual manip get_rpc_entity (uint8_t & value) pfs_override
+    {
+        //return *this >> value;
+        return manip();
+    }
+
+    virtual manip get_method_name (string_type & value) pfs_override
+    {
+        //return *this >> value;
+        return manip();
+    }
+
+    virtual manip get_id (id_type & value) pfs_override
+    {
+        //return *this >> value;
+        return manip();
+    }
+
+    template <typename T>
+    manip param (T const & x)
+    {
+        return manip();
+    }
+
+    template <typename T>
+    manip get_param (T & x)
+    {
+        return manip();
+    }
+
+    template <typename T>
+    manip param (string_type const & param_name, T const & x)
+    {
+        return manip();
+    }
+
+    template <typename T>
+    manip get_param (string_type & param_name, T & x)
+    {
+        return manip();
+    }
+
+    virtual bool begin_tx () pfs_override
     {
         _output_buffer.clear();
         _os << flag_prefix() << flag_begin()
@@ -36,7 +120,7 @@ public:
         return true;
     }
 
-    virtual bool commit_transfer () pfs_override
+    virtual bool commit_tx () pfs_override
     {
         // Set size of packet (excluding leading and trailing falgs - 4 bytes)
         pfs::byte_string sz;
@@ -48,8 +132,7 @@ public:
         return true;
     }
 
-
-    virtual bool begin_payload () pfs_override
+    virtual bool begin_rx () pfs_override
     {
         while (_is.available() >= min_packet_size()) {
             char prfx, b;
@@ -75,7 +158,7 @@ public:
         return false;
     }
 
-    virtual bool commit_payload () pfs_override
+    virtual bool commit_rx () pfs_override
     {
         if (_is.available() < 2)
             return false;
@@ -98,43 +181,53 @@ public:
         return true;
     }
 
-    template <typename T>
-    inline Protocol & operator << (T const & x)
-    {
-        _os << x;
-        return *this;
-    }
-
-    inline Protocol & operator << (pfs::string const & s)
-    {
-        _os << s.size();
-        pfs::string::const_iterator first = s.cbegin();
-        pfs::string::const_iterator last = s.cend();
-
-        while (first != last) {
-            _os << *first++;
-        }
-    }
-
-    template <typename T>
-    inline protocol & operator >> (T & x)
-    {
-        _is >> x;
-        return *this;
-    }
-
-    inline Protocol & operator >> (pfs::string & s)
-    {
-        pfs::string::size_type n = 0;
-        _is >> n;
-
-        while (n--) {
-            pfs::string::value_type c;
-            _is >> c;
-            s.push_back(c);
-        }
-        return *this;
-    }
+//     inline Protocol & operator << (manip m)
+//     {
+//         return *this;
+//     }
+//
+//     inline Protocol & operator >> (manip m)
+//     {
+//         return *this;
+//     }
+//
+//     template <typename T>
+//     inline Protocol & operator << (T const & x)
+//     {
+//         _os << x;
+//         return *this;
+//     }
+//
+//     inline Protocol & operator << (pfs::string const & s)
+//     {
+//         _os << s.size();
+//         pfs::string::const_iterator first = s.cbegin();
+//         pfs::string::const_iterator last = s.cend();
+//
+//         while (first != last) {
+//             _os << *first++;
+//         }
+//     }
+//
+//     template <typename T>
+//     inline Protocol & operator >> (T & x)
+//     {
+//         _is >> x;
+//         return *this;
+//     }
+//
+//     Protocol & operator >> (pfs::string & s)
+//     {
+//         pfs::string::size_type n = 0;
+//         _is >> n;
+//
+//         while (n--) {
+//             pfs::string::value_type c;
+//             _is >> c;
+//             s.push_back(c);
+//         }
+//         return *this;
+//     }
 };
 
 class ServerTransport : public rpc_ns::transport
@@ -169,22 +262,22 @@ public:
     }
 };
 
-class Session : public rpc_ns::session
+int integer ()
 {
-public:
-    Session () : rpc_ns::session() {}
-};
-
-int method1 ()
-{
-    std::cout << "method1()" << std::endl;
+    std::cout << "integer()" << std::endl;
     return 123;
 }
 
-int method2 (int n)
+int echo (int n)
 {
-    std::cout << "method2(" << n << ')' << std::endl;
+    std::cout << "echo(" << n << ')' << std::endl;
     return n;
+}
+
+int sum (int a, int b)
+{
+    std::cout << "sum(" << a << ',' << b << ')' << std::endl;
+    return a + b;
 }
 
 void notify1 ()
@@ -202,19 +295,20 @@ int main ()
     BEGIN_TESTS(0);
 
     rpc_ns::id_type idc = 0;
-    rpc_ns::server<Protocol, Session, ServerTransport> server;
-    rpc_ns::client<Protocol, Session, ClientTransport> client;
+    rpc_ns::server<Protocol, ServerTransport> server;
+    rpc_ns::client<Protocol, ClientTransport> client;
 
 //     server.bind("method1", & method1);
 //     server.bind("method2", & method2);
 //     server.bind("notify1", & notify1);
 //     server.bind("notify2", & notify2);
 
-//     TEST_OK(client.call("method1").get<int>() == 123);
-//     TEST_OK(client.call("method2")(425).get<int>() == 425);
+    TEST_OK(client.call("integer").result<int>() == 123);
+    TEST_OK(client.call("echo")(425).result<int>() == 425);
+    TEST_OK(client.call("sum")(1, 2).result<int>() == 3);
 
-    client.notify("notify1").send();
-    client.notify("notify2")(123).send();
+//     client.notify("notify1").send();
+//     client.notify("notify2")(123).send();
 
     return END_TESTS;
 }

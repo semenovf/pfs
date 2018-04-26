@@ -40,7 +40,7 @@ list(APPEND MY_TEST_TARGETS net-uri)
 #list(APPEND MY_TEST_TARGETS optional) -- Experimental yet
 list(APPEND MY_TEST_TARGETS ratio)
 list(APPEND MY_TEST_TARGETS regex)
-list(APPEND MY_TEST_TARGETS rpc)
+#list(APPEND MY_TEST_TARGETS rpc)
 list(APPEND MY_TEST_TARGETS safeformat)
 list(APPEND MY_TEST_TARGETS sigslot)
 list(APPEND MY_TEST_TARGETS smart_ptr)
