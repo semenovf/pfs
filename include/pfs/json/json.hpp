@@ -1018,8 +1018,9 @@ protected:
     JsonType * _p;
 
 public:
-    typedef typename JsonType::size_type size_type;
-    typedef typename JsonType::key_type  key_type;
+    typedef typename JsonType::string_type string_type;
+    typedef typename JsonType::size_type   size_type;
+    typedef typename JsonType::key_type    key_type;
 
 protected:
     reference_wrapper_basic ()
@@ -1055,6 +1056,12 @@ public:
     {
         return _p ? _p->template get<T>() : default_value;
     }
+
+    string_type get_string (string_type const & default_value = string_type()) const
+    {
+        return _p ? _p->get_string() : default_value;
+    }
+
 };
 
 template <typename JsonType>
@@ -1174,6 +1181,18 @@ public:
 
 template <typename JsonT, typename T>
 JsonT to_json (T const & v, bool plain = false);
+
+template <typename JsonType>
+inline reference_wrapper<JsonType> ref (JsonType & j)
+{
+    return reference_wrapper<JsonType>(j);
+}
+
+template <typename JsonType>
+inline reference_wrapper<JsonType const> cref (JsonType const & j)
+{
+    return reference_wrapper<JsonType>(j);
+}
 
 }} // pfs::json
 

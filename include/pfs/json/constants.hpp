@@ -64,7 +64,7 @@ static int8_t const UBJSON_CHAR_OBJECT_END   = static_cast<int8_t>('}');
 static int8_t const UBJSON_CHAR_TYPE         = static_cast<int8_t>('$');
 static int8_t const UBJSON_CHAR_SIZE         = static_cast<int8_t>('#');
 
-static int UBJSON_COUNT_OPTIMIZED = 0x02;
-static int UBJSON_FULL_OPTIMIZED  = 0x03;
+static int const UBJSON_COUNT_OPTIMIZED = 0x02;
+static int const UBJSON_FULL_OPTIMIZED  = 0x03;
 
 }} // pfs::json

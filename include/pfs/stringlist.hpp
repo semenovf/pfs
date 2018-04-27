@@ -4,17 +4,18 @@
 #include <pfs/string.hpp>
 
 namespace pfs {
-
-class stringlist : public list<string>
+namespace mpl {
+template <typename StringT = pfs::string>
+class stringlist : public list<StringT>
 {
-    typedef list<string> base_class;
+    typedef list<StringT> base_class;
 
 public:
+    typedef StringT string_type;
     typedef typename base_class::value_type      value_type;
     typedef typename base_class::difference_type difference_type;
     typedef typename base_class::iterator        iterator;
     typedef typename base_class::const_iterator  const_iterator;
-    typedef string string_type;
 
 public:
     stringlist () : base_class() {}
@@ -25,5 +26,8 @@ public:
         pfs::split(s.begin(), s.end(), separator.begin(), separator.end(), flag, this);
     }
 };
+} // mpl
+
+typedef mpl::stringlist<pfs::string> stringlist;
 
 } // pfs
