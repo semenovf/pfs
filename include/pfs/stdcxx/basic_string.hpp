@@ -862,8 +862,8 @@ public:
 
     DerivedT substr (size_type pos = 0, size_type count = npos) const
     {
-        base_class::substr(pos, count);
-        return *static_cast<DerivedT const *>(this);
+        base_class r = base_class::substr(pos, count);
+        return DerivedT(r.data(), r.size());
     }
 
     /**

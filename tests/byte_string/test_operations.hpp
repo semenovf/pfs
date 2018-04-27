@@ -675,10 +675,10 @@ void test_substr ()
 
     ADD_TESTS(4);
 
-    byte_string bs("0123456789abcdifghij");
+    byte_string bs("0123456789abcdefghij");
 
     TEST_OK(bs.substr() == bs);
-    TEST_OK(bs.substr(10) == byte_string("abcdifghij"));
+    TEST_OK(bs.substr(10) == byte_string("abcdefghij"));
     TEST_OK(bs.substr(5, 3) == byte_string("567"));
     TEST_OK(bs.substr(bs.size() - 3, 50) == byte_string("hij"));
 }
