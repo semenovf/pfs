@@ -109,6 +109,8 @@ struct id_generator;
 template <>
 struct id_generator<int32_t> : pfs::id_generator<int32_t>
 {
+    id_generator () {}
+
     type next_id () const
     {
         static type id = 0;
@@ -145,23 +147,27 @@ struct ubjson_serializer
     ubjson_serializer & set_method (string_type const & value)
     {
         _j["method"] = value;
+        return *this;
     }
 
     ubjson_serializer & set_id (id_type const & value)
     {
         _j["id"] = value;
+        return *this;
     }
 
     template <typename T>
     ubjson_serializer & add_param (T & value)
     {
         _j["params"].push_back(value);
+        return *this;
     }
 
     template <typename T>
     ubjson_serializer & add_param (string_type const & name, T & value)
     {
         _j["params"][name] = value;
+        return *this;
     }
 
     byte_string pack () const
@@ -169,25 +175,24 @@ struct ubjson_serializer
         return to_ubjson(_j, Optimization);
     }
 
-    error_code unpack (byte_string const & data)
+    bool unpack (byte_string const & data, error_code & ec)
     {
-        pfs::error_code ec;
         _j = from_ubjson<json_type>(data, ec);
-
-        return ec;
+        return ec ? false : true;
     }
 
     bool get_version (uint8_t & major, uint8_t & minor) const
     {
         pfs::mpl::stringlist<string_type> slist;
-        slist.split(cref(_j)["jsonrpc"].get_string(), ".");
+        slist.split(pfs::json::cref(_j)["jsonrpc"].get_string(), ".");
 
         if (slist.size() != 2)
             return false;
 
         try {
-            major = pfs::lexical_cast<uint8_t>(slist[0]);
-            minor = pfs::lexical_cast<uint8_t>(slist[1]);
+            typename pfs::mpl::stringlist<string_type>::const_iterator first = slist.cbegin();
+            major = pfs::lexical_cast<uint8_t>(*first++);
+            minor = pfs::lexical_cast<uint8_t>(*first);
         } catch (...) {
             return false;
         }
@@ -195,7 +200,7 @@ struct ubjson_serializer
         return true;
     }
 
-    bool get_entity (rpc_entity & value) const
+    bool get_entity (int & value) const
     {
         if (_j.contains("method")) {
             if (_j.contains("id"))
@@ -215,8 +220,29 @@ struct ubjson_serializer
 
     bool get_id (id_type & value) const
     {
-        value = cref(_j)["id"].template get<id_type>();
+        value = pfs::json::cref(_j)["id"].template get<id_type>();
         return value == id_type() ? false : true;
+    }
+
+    template <typename T>
+    bool get_value (T & value) const
+    {
+        if (_j.contains("result")) {
+            value = _j["result"].template get<T>();
+            return true;
+        }
+
+        return false;
+    }
+
+    bool get_value (json_type & value) const
+    {
+        if (_j.contains("result")) {
+            value = _j["result"];
+            return true;
+        }
+
+        return false;
     }
 
 private:

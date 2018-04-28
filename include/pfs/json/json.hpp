@@ -1191,7 +1191,7 @@ inline reference_wrapper<JsonType> ref (JsonType & j)
 template <typename JsonType>
 inline reference_wrapper<JsonType const> cref (JsonType const & j)
 {
-    return reference_wrapper<JsonType>(j);
+    return reference_wrapper<JsonType const>(j);
 }
 
 }} // pfs::json

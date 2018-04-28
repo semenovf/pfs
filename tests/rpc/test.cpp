@@ -15,18 +15,30 @@ struct simple_protocol
     {
         pfs::byte_string buffer;
         pfs::byte_string_ostream os(buffer);
-        os << '\x10' << '\x01' << payload << '\x10' << '\x02';
+        os << '\x10' << '\x01' << payload.size() << payload << '\x10' << '\x02';
         return buffer;
     }
 
+    ssize_t unpack (pfs::byte_string const & buffer, pfs::byte_string & payload)
+    {
+        uint8_t a, b, c, d;
+        pfs::byte_string::size_type sz;
+        pfs::byte_string_istream is(buffer);
+        is >> a >> b >> sz;
+        is >> pfs::byte_string_ref(payload, sz) >> c >> d;
+
+        if (a == '\x10' && b == '\x01' && c == '\x10' && d == '\x02')
+            return payload.size() + 4 + sizeof(sz);
+
+        return -1;
+    }
 };
 
 template <typename Protocol>
 struct simple_transport
 {
     simple_transport ()
-        : _is(_input_buffer)
-        , _os(_output_buffer)
+        : _os(_buffer)
     {}
 
     ssize_t send (pfs::byte_string const & payload, pfs::error_code & ec)
@@ -36,10 +48,15 @@ struct simple_transport
         return pfs::integral_cast_check<ssize_t>(packet.size());
     }
 
+    ssize_t recv (pfs::byte_string & payload, pfs::error_code & ec)
+    {
+        ssize_t r = Protocol().unpack(_buffer, payload);
+        _buffer.clear();
+        return r;
+    }
+
 protected:
-    pfs::byte_string _input_buffer;
-    pfs::byte_string _output_buffer;
-    pfs::byte_string_istream _is;
+    pfs::byte_string _buffer;
     pfs::byte_string_ostream _os;
 };
 
@@ -222,38 +239,6 @@ typedef pfs::rpc<2, 0
 //     }
 //};
 
-// class ServerTransport : public rpc_ns::transport
-// {
-// public:
-//     ServerTransport () : rpc_ns::transport() {}
-//
-//     virtual ssize_t send (pfs::byte_string const &, pfs::error_code & ec) pfs_override
-//     {
-//         return -1;
-//     }
-//
-//     virtual ssize_t recv (pfs::byte_string &, pfs::error_code & ec) pfs_override
-//     {
-//         return -1;
-//     }
-// };
-//
-// class ClientTransport : public rpc_ns::transport
-// {
-// public:
-//     ClientTransport () : rpc_ns::transport() {}
-//
-//     virtual ssize_t send (pfs::byte_string const &, pfs::error_code & ec) pfs_override
-//     {
-//         return -1;
-//     }
-//
-//     virtual ssize_t recv (pfs::byte_string &, pfs::error_code & ec) pfs_override
-//     {
-//         return -1;
-//     }
-// };
-
 int integer ()
 {
     std::cout << "integer()" << std::endl;
@@ -286,16 +271,17 @@ int main ()
 {
     BEGIN_TESTS(0);
 
-    rpc_ns::id_type idc = 0;
-//    rpc_ns::server<Protocol, ServerTransport> server;
-//    rpc_ns::client<Protocol, ClientTransport> client;
+    simple_transport<simple_protocol> server_transport;
+    simple_transport<simple_protocol> client_transport;
+    rpc_ns::server<simple_transport> server(server_transport);
+    rpc_ns::client<simple_transport> client(client_transport);
 
 //     server.bind("method1", & method1);
 //     server.bind("method2", & method2);
 //     server.bind("notify1", & notify1);
 //     server.bind("notify2", & notify2);
 
-//     TEST_OK(client.call("integer").result<int>() == 123);
+    //TEST_OK(client.call("integer").result<int>() == 123);
 //     TEST_OK(client.call("echo")(425).result<int>() == 425);
 //     TEST_OK(client.call("sum")(1, 2).result<int>() == 3);
 

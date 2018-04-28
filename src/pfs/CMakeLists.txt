@@ -20,6 +20,7 @@ set(PFS_LIB_COMMON_SOURCES
     endian.cpp
     json.cpp
     lexical_cast.cpp
+    rpc.cpp
     string.cpp
     system_error.cpp
     time.cpp

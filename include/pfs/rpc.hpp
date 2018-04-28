@@ -11,6 +11,101 @@
 #include <pfs/map.hpp>
 #include <pfs/system_error.hpp>
 
+
+namespace pfs {
+
+///////////////////////////////////////////////////////////////////////////
+// RPC error                                                             //
+///////////////////////////////////////////////////////////////////////////
+
+#if __cplusplus >= 201103L
+enum class rpc_errc
+{
+#else
+struct rpc_errc
+{
+    enum value_enum {
+#endif
+            success = 0
+          , parse_error
+          , version_not_match
+          , id_not_match
+          , bad_response
+          , bad_request
+#if __cplusplus < 201103L
+    };
+
+    value_enum v;
+
+    rpc_errc (value_enum x)
+        : v(x)
+    {}
+
+    rpc_errc & operator = (value_enum x)
+    {
+        v = x;
+        return *this;
+    }
+
+    operator int () const
+    {
+        return static_cast<int>(v);
+    }
+#endif
+};
+
+namespace details {
+class rpc_error_category : public pfs::error_category
+{
+public:
+    virtual char const * name () const pfs_noexcept pfs_override;
+    virtual std::string message (int ev) const pfs_override;
+};
+} // details
+
+pfs::error_category const & rpc_error_category ();
+
+inline pfs::error_code make_error_code (rpc_errc e)
+{
+    return pfs::error_code(static_cast<int>(e), rpc_error_category());
+}
+
+class rpc_exception : public logic_error
+{
+public:
+    rpc_exception (pfs::error_code ec)
+        : logic_error(rpc_error_category().message(ec.value()))
+    {}
+
+    rpc_exception (pfs::error_code ec, char const * what)
+        : logic_error(rpc_error_category().message(ec.value())
+            + ": " + what)
+    {}
+
+    rpc_exception (pfs::error_code ec, std::string const & what)
+        : logic_error(rpc_error_category().message(ec.value())
+            + ": " + what)
+    {}
+
+    virtual ~rpc_exception() throw() {}
+};
+
+} // pfs
+
+
+namespace std {
+
+// TODO implement for C++98
+#if __cplusplus >= 201103L
+
+template<>
+struct is_error_code_enum<pfs::rpc_errc>
+        : public std::true_type
+{};
+
+#endif
+} // std
+
 namespace pfs {
 
 enum rpc_entity {
@@ -91,7 +186,6 @@ struct rpc
         {
             id_type         _id;
             client &        _owner;
-            error_code      _ec;
             serializer_type _serializer;
 
             session (id_type const & id, client & owner)
@@ -102,7 +196,7 @@ struct rpc
             session & call (string_type const & name)
             {
                 _serializer.set_version(MajorVersion, MinorVersion)
-                    .set_rpc_entity(RPC_METHOD)
+                    .set_entity(RPC_METHOD)
                     .set_id(_id)
                     .set_method(name);
                 return *this;
@@ -132,95 +226,69 @@ struct rpc
 #endif
 
             template <typename T>
+            inline T result ()
+            {
+                T value;
+                error_code ec = this->result(value);
+                if (ec)
+                    throw rpc_exception(ec);
+                return value;
+            }
+
+            template <typename T>
             error_code result (T & value)
             {
+                error_code ec;
+
                 //
                 // Send data
                 //
-                ssize_t n = _owner._transport.send(_serializer.pack(), _ec);
+                ssize_t n = _owner._transport.send(_serializer.pack(), ec);
 
-                if (n < 0 || _ec)
-                    return _ec;
+                if (n < 0 || ec)
+                    return ec;
 
                 //
                 // Receive data
                 //
 
                 byte_string buffer;
-                n = _transport.recv(buffer, _ec);
+                n = _owner._transport.recv(buffer, ec);
 
-                if (n < 0 || _ec)
-                    return _ec;
+                if (n < 0 || ec)
+                    return ec;
 
-                _ec = _serializer.unpack(buffer);
+                if (! _serializer.unpack(buffer, ec))
+                    return ec;
 
-                if (_ec)
-                    return _ec;
+                uint8_t major, minor;
+                int entity;
+                id_type id;
 
-                value = _serializer.value();
+                if (!_serializer.get_version(major, minor))
+                    return make_error_code(rpc_errc::parse_error);
+
+                if (major != MajorVersion || minor != MinorVersion)
+                    return make_error_code(rpc_errc::version_not_match);
+
+                if (!_serializer.get_entity(entity))
+                    return make_error_code(rpc_errc::parse_error);
+
+                if (entity != RPC_SUCCESS)
+                    return make_error_code(rpc_errc::bad_response);
+
+                if (!_serializer.get_id(id))
+                    return make_error_code(rpc_errc::parse_error);
+
+                if (id != _id)
+                    return make_error_code(rpc_errc::id_not_match);
+
+                if (_serializer.get_value(value))
+                    return make_error_code(rpc_errc::parse_error);
 
                 return error_code();
             }
-
-            error_code const & errorcode () const
-            {
-                return _ec;
-            }
-
-        private:
-            bool begin_result ()
-            {
-//                 _ec.clear();
-//                 _proto.commit_tx();
-//
-//                 // Send data via transport
-//                 ssize_t n = _transport.send(_proto.data(), _ec);
-//
-//                 if (n < 0 || _ec)
-//                     return false;
-//
-//                 // Receive data from server
-//                 byte_string buffer;
-//                 n = _transport.recv(buffer, _ec);
-//
-//                 if (n > 0 && !_ec)
-//                     _proto.buffer().append(buffer);
-//
-//                 if (!_proto.begin_rx())
-//                     return false;
-//
-//                 uint8_t major
-//                         , minor
-//                         , status;
-//                 id_type id;
-//
-//                 _proto >> _proto.get_major_version(major)
-//                         >> _proto.get_minor_version(minor)
-//                         >> _proto.get_rpc_entity(status)
-//                         >> _proto.get_id(id);
-//
-//                 if (major != MajorVersion || minor != MinorVersion) {
-//                     // TODO set error code
-//
-//                     return false;
-//                 }
-//
-//                 if (status != RPC_SUCCESS()) {
-//                     // TODO set error code
-//
-//                     return false;
-//                 }
-//
-//                 if (id != _id) {
-//                     // TODO set error code
-//
-//                     return false;
-//                 }
-//
-                return true;
-            }
-        };
-
+        }; // session
 
     public:
         client (transport_type & transport)
@@ -229,7 +297,7 @@ struct rpc
 
         session & call (string const & method_name)
         {
-            id_type id = _id_generator().next_id();
+            id_type id = _id_generator.next_id();
             std::pair<typename session_registry::iterator,bool> r
                     = _sessions.insert(id, session(id, *this));
             PFS_ASSERT(r.second);
@@ -264,14 +332,85 @@ struct rpc
         id_generator     _id_generator;
         transport_type & _transport;
         session_registry _sessions;
-
     };
 
+    ///////////////////////////////////////////////////////////////////////////
+    // Server                                                                //
+    ///////////////////////////////////////////////////////////////////////////
 
+    template <template <typename> class Transport>
+    class server
+    {
+        friend struct session;
+        typedef Transport<Protocol> transport_type;
 
+        error_code parse ()
+        {
+            error_code ec;
 
+            //
+            // Receive data
+            //
 
+            byte_string buffer;
+            ssize_t n = _transport.recv(buffer, ec);
 
+            if (n < 0 || ec)
+                return ec;
+
+            if (! _serializer.unpack(buffer, ec))
+                return ec;
+
+            uint8_t major, minor;
+            int entity;
+            id_type id;
+
+            if (!_serializer.get_version(major, minor))
+                return make_error_code(rpc_errc::parse_error);
+
+            if (major != MajorVersion || minor != MinorVersion)
+                return make_error_code(rpc_errc::version_not_match);
+
+            if (!_serializer.get_entity(entity))
+                return make_error_code(rpc_errc::parse_error);
+
+            if (entity == RPC_METHOD) {
+                if (!_serializer.get_id(id))
+                    return make_error_code(rpc_errc::parse_error);
+                // TODO Handle method
+            } else if (entity == RPC_NOTIFICATION) {
+                // TODO Handle notification
+            } else {
+                return make_error_code(rpc_errc::bad_request);
+            }
+
+//                 //
+//                 // Send data
+//                 //
+//                 ssize_t n = _owner._transport.send(_serializer.pack(), ec);
+//
+//                 if (n < 0 || ec)
+//                     return ec;
+//
+//
+//
+//
+//
+//                 if (_serializer.get_value(value))
+//                     return make_error_code(rpc_errc::parse_error);
+
+            return error_code();
+        }
+
+    public:
+        server (transport_type & transport)
+            : _transport(transport)
+        {}
+
+    private:
+        transport_type & _transport;
+        serializer_type _serializer;
+    };
 
 
     //typedef int32_t error_code_type;
@@ -327,123 +466,112 @@ protected:
 //     typedef shared_ptr<basic_binder> shared_binder;
 
 public:
-    ///////////////////////////////////////////////////////////////////////////
-    // Server                                                                //
-    ///////////////////////////////////////////////////////////////////////////
 
-    //template <typename Protocol, typename Transport>
-    class server
-    {
-    public:
-      //  typedef Transport transport_type;
-
-    private:
-//         struct basic_binder
-//         {
-//             virtual bool call (session &) = 0;
-//         };
-
-        typedef typename rpc::string_type string_type;
-        typedef typename rpc::id_type     id_type;
-//        typedef AssociativeContainer<string_type, pfs::shared_ptr<basic_binder> > repository;
-
-
-//         template <typename F>
-//         struct binder : basic_binder
-//         {
-//             F _f;
-//             function_binder (F f) : _f(f) {}
-//
-//             virtual bool call (session & sess) pfs_override
-//             {
-//
-//             }
-
-    // //         virtual shared_response call (byte_istream & params) pfs_override
-    // //         {
-    // //             return (*_f)(params);
-    // //         }
-    //
-    //         virtual shared_archive call (id_type id, byte_istream & params) pfs_override
-    //         {
-    //             return (*_f)(id, params);
-    //         }
-//        };
-
-
-    public:
-        server () {}
-
-        void exec () {}
-
-//         template <typename F>
-//         inline void bind (string_type const & method_name, F f)
-//         {
-//               typename _repo(method_name
-//                       , pfs::static_pointer_cast<basic_binder>(pfs::make_shared<binder<F>, F>(f)));
-//         }
-
-//          template <typename F, typename A1>
-//          inline void bind (string_type const & method_name, F f, C & c)
-//          {
-// //             typename repository_traits::inserter(_method_repo).insert(method_name
-// //                     , pfs::static_pointer_cast<basic_binder>(pfs::make_shared<method_binder<F, C>, F, C>(f, c)));
-//          }
-#if __COMMENT__
-//         shared_response exec (request & rq)
-//         {
-//             typename repository_traits::finder finder(_method_repo);
-//             typename repository_traits::iterators iterators(_method_repo);
-//
-//             uint8_t major_version;
-//             uint8_t minor_version;
-//             uint8_t rpc_type;
-//             id_type id;
-//             method_name_type method_name;
-//
-//             rq >> major_version >> minor_version >> rpc_type;
-//
-//             if (!(major_version == MAJOR_VERSION && minor_version == MINOR_VERSION))
-//                 return make_error(BAD_VERSION);
-//
-//             if (rpc_type == RPC_METHOD)
-//                 rq >> id;
-//             else if (rpc_type == RPC_NOTIFICATION) {
-//                 ;
-//             } else {
-//                 return make_error();
-//             }
-//
-//             rq >> method_name;
-//
-//             typename repository_traits::const_iterator it = finder.find(method_name);
-//
-//             if (it == iterators.cend()) {
-//                 if (rpc_type == RPC_METHOD)
-//                     return make_error(id, METHOD_NOT_FOUND);
-//                 return make_error(METHOD_NOT_FOUND);
-//             }
-//
-//             shared_binder const & m = iterators.value(it);
-//             return m->call(rq);
-//         }
-#endif
-
-    private:
-        //repository _repo;
-//         protocol_type  _protocol;
-//         transport_type _transport;
-        //typename repository_traits::type _method_repo;
-    };
-
-//     struct default_id_generator
+//     //template <typename Protocol, typename Transport>
+//     class server
 //     {
-//         id_type next_id () const
-//         {
-//             static id_type id = 0;
-//             return ++id;
-//         }
+//     public:
+//       //  typedef Transport transport_type;
+//
+//     private:
+// //         struct basic_binder
+// //         {
+// //             virtual bool call (session &) = 0;
+// //         };
+//
+//         typedef typename rpc::string_type string_type;
+//         typedef typename rpc::id_type     id_type;
+// //        typedef AssociativeContainer<string_type, pfs::shared_ptr<basic_binder> > repository;
+//
+//
+// //         template <typename F>
+// //         struct binder : basic_binder
+// //         {
+// //             F _f;
+// //             function_binder (F f) : _f(f) {}
+// //
+// //             virtual bool call (session & sess) pfs_override
+// //             {
+// //
+// //             }
+//
+//     // //         virtual shared_response call (byte_istream & params) pfs_override
+//     // //         {
+//     // //             return (*_f)(params);
+//     // //         }
+//     //
+//     //         virtual shared_archive call (id_type id, byte_istream & params) pfs_override
+//     //         {
+//     //             return (*_f)(id, params);
+//     //         }
+// //        };
+//
+//
+//     public:
+//         server () {}
+//
+//         void exec () {}
+//
+// //         template <typename F>
+// //         inline void bind (string_type const & method_name, F f)
+// //         {
+// //               typename _repo(method_name
+// //                       , pfs::static_pointer_cast<basic_binder>(pfs::make_shared<binder<F>, F>(f)));
+// //         }
+//
+// //          template <typename F, typename A1>
+// //          inline void bind (string_type const & method_name, F f, C & c)
+// //          {
+// // //             typename repository_traits::inserter(_method_repo).insert(method_name
+// // //                     , pfs::static_pointer_cast<basic_binder>(pfs::make_shared<method_binder<F, C>, F, C>(f, c)));
+// //          }
+// #if __COMMENT__
+// //         shared_response exec (request & rq)
+// //         {
+// //             typename repository_traits::finder finder(_method_repo);
+// //             typename repository_traits::iterators iterators(_method_repo);
+// //
+// //             uint8_t major_version;
+// //             uint8_t minor_version;
+// //             uint8_t rpc_type;
+// //             id_type id;
+// //             method_name_type method_name;
+// //
+// //             rq >> major_version >> minor_version >> rpc_type;
+// //
+// //             if (!(major_version == MAJOR_VERSION && minor_version == MINOR_VERSION))
+// //                 return make_error(BAD_VERSION);
+// //
+// //             if (rpc_type == RPC_METHOD)
+// //                 rq >> id;
+// //             else if (rpc_type == RPC_NOTIFICATION) {
+// //                 ;
+// //             } else {
+// //                 return make_error();
+// //             }
+// //
+// //             rq >> method_name;
+// //
+// //             typename repository_traits::const_iterator it = finder.find(method_name);
+// //
+// //             if (it == iterators.cend()) {
+// //                 if (rpc_type == RPC_METHOD)
+// //                     return make_error(id, METHOD_NOT_FOUND);
+// //                 return make_error(METHOD_NOT_FOUND);
+// //             }
+// //
+// //             shared_binder const & m = iterators.value(it);
+// //             return m->call(rq);
+// //         }
+// #endif
+//
+//     private:
+//         //repository _repo;
+// //         protocol_type  _protocol;
+// //         transport_type _transport;
+//         //typename repository_traits::type _method_repo;
 //     };
+//
 };
 
 } // pfs
