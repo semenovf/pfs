@@ -1,35 +1,21 @@
 dist: trusty
 sudo: true
 language: cpp
+compiler:
+    - gcc
 
 install:
-  - sudo apt-get install -qq gdb
-  - sudo apt-get install -qq libboost-system1.54-dev
-  - sudo apt-get install -qq libboost-filesystem1.54-dev
-  - sudo apt-get install -qq libboost-thread1.54-dev
-  - sudo apt-get install -qq libboost-chrono1.54-dev
-  - sudo apt-get install -qq libboost-regex1.54-dev
+    - sudo apt-get install -qq libboost-system1.54-dev
+    - sudo apt-get install -qq libboost-filesystem1.54-dev
+    - sudo apt-get install -qq libboost-thread1.54-dev
+    - sudo apt-get install -qq libboost-chrono1.54-dev
+    - sudo apt-get install -qq libboost-regex1.54-dev
 
-matrix:
-  include:
-    - os: linux
-      addons:
-        apt:
-          packages:
-            - g++-4.8
-      env:
-        - CXX_STANDARD=98
+env:
+    - CXX_STANDARD=98
+    - CXX_STANDARD=11
 
-  include:
-    - os: linux
-      addons:
-        apt:
-          packages:
-            - g++-4.8
-      env:
-        - CXX_STANDARD=11
-
-script: sh travis-build.sh
+script: ./build_and_test.sh
 
 notifications:
   email: false
