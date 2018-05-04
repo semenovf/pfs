@@ -26,4 +26,11 @@ reference_wrapper<const T> cref (T const & t) noexcept
 
 using std::bind;
 
+///////////////////////////////////////////////////////////////////////////////
+// function                                                                  //
+///////////////////////////////////////////////////////////////////////////////
+
+template <typename... Args>
+using function = std::function<Args...>;
+
 } // pfs

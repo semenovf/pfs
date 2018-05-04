@@ -6,6 +6,7 @@
 
 #if defined(HAVE_BOOST_BIND)
 #   include "bind_boost.hpp"
+#   include "function_boost.hpp"
 #elif defined(PFS_CC_MSC)
 #   error "Implement for Win32"
 #else

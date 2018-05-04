@@ -3,9 +3,12 @@
 #include <pfs/memory.hpp>
 #include <pfs/functional.hpp>
 
+static int const INT_RESULT = 123;
+static int const SUM_RESULT = 15;
+
 int e ()
 {
-    return 10;
+    return INT_RESULT;
 }
 
 int f (int n1, int n2 , int n3, int const & n4, int n5)
@@ -30,7 +33,7 @@ struct Bar
         return n1 + n2;
     }
 
-    Bar () : data(123) {}
+    Bar () : data(INT_RESULT) {}
 
     int data;
 };
@@ -41,20 +44,20 @@ struct Func
 
     int operator () () const
     {
-        return 123;
+        return INT_RESULT;
     }
 };
 
 int main ()
 {
-    BEGIN_TESTS(15);
+    BEGIN_TESTS(20);
 
     ///////////////////////////////////////////////////////////////////////////
     // Bind to function                                                      //
     ///////////////////////////////////////////////////////////////////////////
 
     PFS_AUTO(e1, pfs::bind(e));
-    TEST_OK(e1() == 10);
+    TEST_OK(e1() == INT_RESULT);
 
     PFS_AUTO(f1, pfs::bind(f, _1, _2, _3, _4, _5));
     PFS_AUTO(f2, pfs::bind(f, 1, _1, _2, _3, _4));
@@ -64,13 +67,13 @@ int main ()
     PFS_AUTO(f6, pfs::bind(f, 1, 2, 3, 4, 5));
     PFS_AUTO(f7, pfs::bind(f, _5, _4, _3, _2, _1));
 
-    TEST_OK(f1(1, 2, 3, 4, 5) == 15);
-    TEST_OK(f2(2, 3, 4, 5) == 15);
-    TEST_OK(f3(3, 4, 5) == 15);
-    TEST_OK(f4(4, 5) == 15);
-    TEST_OK(f5(5) == 15);
-    TEST_OK(f6() == 15);
-    TEST_OK(f7(1, 2, 3, 4, 5) == 15);
+    TEST_OK(f1(1, 2, 3, 4, 5) == SUM_RESULT);
+    TEST_OK(f2(2, 3, 4, 5) == SUM_RESULT);
+    TEST_OK(f3(3, 4, 5) == SUM_RESULT);
+    TEST_OK(f4(4, 5) == SUM_RESULT);
+    TEST_OK(f5(5) == SUM_RESULT);
+    TEST_OK(f6() == SUM_RESULT);
+    TEST_OK(f7(1, 2, 3, 4, 5) == SUM_RESULT);
 
     ///////////////////////////////////////////////////////////////////////////
     // Bind to a pointer to member function                                  //
@@ -101,7 +104,7 @@ int main ()
 
     PFS_AUTO(d1, pfs::bind(& Bar::data, _1));
 
-    TEST_OK(d1(bar) == 123);
+    TEST_OK(d1(bar) == INT_RESULT);
 
     ///////////////////////////////////////////////////////////////////////////
     // Bind to a functional object                                           //
@@ -110,7 +113,23 @@ int main ()
     Func o;
     PFS_AUTO(o1, pfs::bind(o));
 
-    TEST_OK(o1() == 123);
+    TEST_OK(o1() == INT_RESULT);
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Assign to a function wrapper                                          //
+    ///////////////////////////////////////////////////////////////////////////
+
+    pfs::function<int ()> w1 = e;
+    pfs::function<int ()> w2 = pfs::bind(f, 1, 2, 3, 4, 5);
+    pfs::function<int (Bar &, int, int)> w3 = & Bar::sum;
+    pfs::function<int (Bar &)> w4 = & Bar::data;
+    pfs::function<int ()> w5 = Func();
+
+    TEST_OK(w1() == INT_RESULT);
+    TEST_OK(w2() == SUM_RESULT);
+    TEST_OK(w3(bar, 1, 2) == 3);
+    TEST_OK(w4(bar) == INT_RESULT);
+    TEST_OK(w5() == INT_RESULT);
 
     return END_TESTS;
 }
