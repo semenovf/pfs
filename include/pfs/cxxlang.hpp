@@ -1,4 +1,9 @@
 #pragma once
+#include <pfs/config.h>
+
+#if HAVE_BOOST
+#   include <boost/version.hpp>
+#endif
 
 #ifdef pfs_constexpr
 #   undef pfs_constexpr
@@ -98,4 +103,16 @@
             ;enum { PFS_ASSERT_CONCAT(assert_line_, __LINE__) = 1/static_cast<int>(!!(e)) }
 #   endif
 
+#endif
+
+#ifndef PFS_AUTO
+#   if __cplusplus >= 201103L
+#       define PFS_AUTO(var,expr) auto var = expr
+#   elif defined(BOOST_VERSION) && BOOST_VERSION >= 103400 // BOOST_AUTO since 1.34
+#       include <boost/typeof/typeof.hpp>
+#       define PFS_TYPEOF(expr) BOOST_TYPEOF(expr)
+#       define PFS_AUTO(var,expr) BOOST_AUTO(var, expr)
+#   else
+#       error "No default implementation for PFS_AUTO()"
+#   endif
 #endif

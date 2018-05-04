@@ -1,9 +1,16 @@
-#ifndef __PFS_CXX_CXX98_FUNCTIONAL_HPP__
-#define __PFS_CXX_CXX98_FUNCTIONAL_HPP__
-
+#pragma once
+#include <pfs/config.h>
 #include <pfs/cxxlang.hpp>
 #include <pfs/cxx/cxx98/memory.hpp>
 #include <pfs/cxx/cxx98/type_traits.hpp>
+
+#if defined(HAVE_BOOST_BIND)
+#   include "bind_boost.hpp"
+#elif defined(PFS_CC_MSC)
+#   error "Implement for Win32"
+#else
+#   error "No default bind implementation"
+#endif
 
 namespace pfs {
 
@@ -28,16 +35,16 @@ class reference_wrapper
     typedef typename function_to_function_pointer<T>::type func_type;
 
     T * _ptr;
-    
+
 public:
     typedef T type;
-    
+
 public:
     explicit reference_wrapper (T & ref)
         : _ptr (& ref)
     {}
 
-    reference_wrapper (reference_wrapper<T> const & ref) 
+    reference_wrapper (reference_wrapper<T> const & ref)
         :_ptr(ref._ptr)
     {}
 
@@ -62,7 +69,7 @@ public:
 //    {
 //        return (*get())();
 //    }
-//    
+//
 //    template <typename A1>
 //    typename result_of<func_type(A1)>::type
 //    operator () (A1 a1) const
@@ -74,7 +81,7 @@ public:
 template <typename T>
 inline reference_wrapper<T> ref (T & ref)
 {
-    return reference_wrapper<T>(ref); 
+    return reference_wrapper<T>(ref);
 }
 
 template <typename T>
@@ -92,18 +99,15 @@ inline reference_wrapper<T> ref (reference_wrapper<T> ref)
 template <typename T>
 inline reference_wrapper<const T> cref (reference_wrapper<T> ref)
 {
-    return cref(ref.get()); 
+    return cref(ref.get());
 }
 
 //    template< class... ArgTypes >
 //    typename std::result_of<T & (ArgTypes && ...)>::type
-//    
+//
 //    operator () (ArgTypes &&... args) const
 //    {
 //        return std::invoke(get(), std::forward<ArgTypes>(args)...);
 //    }
 
 } // pfs
-
-#endif /* __PFS_CXX_CXX98_FUNCTIONAL_HPP__ */
-

@@ -18,6 +18,10 @@ namespace pfs {
 // RPC error                                                             //
 ///////////////////////////////////////////////////////////////////////////
 
+//
+//
+//     static error_code_type const SERVER_ERROR () { return -32000; }
+
 #if __cplusplus >= 201103L
 enum class rpc_errc
 {
@@ -26,12 +30,18 @@ struct rpc_errc
 {
     enum value_enum {
 #endif
-            success = 0
-          , parse_error
-          , version_not_match
-          , id_not_match
-          , bad_response
-          , bad_request
+            no_error = 0              //!< No error.
+          , bad_version = 1           //!< Version does not match.
+          , id_not_match = 2          //!< Response ID does not match requested.
+          , parse_error = -32700      //!< An error occurred on the server while parsing.
+          , invalid_request = -32600  //!< Is not a valid request.
+          , method_not_found = -32601 //!< The method does not exist / is not available.
+          , invalid_params = -32602   //!< Invalid method parameter(s).
+          , internal_error = -32603   //!< Intrenal error.
+          , invalid_response = -32604 //!< Is not a valid response.
+          //
+          // -32000 to -32099 Reserved for implementation-defined server-errors.
+          //
 #if __cplusplus < 201103L
     };
 
@@ -269,13 +279,13 @@ struct rpc
                     return make_error_code(rpc_errc::parse_error);
 
                 if (major != MajorVersion || minor != MinorVersion)
-                    return make_error_code(rpc_errc::version_not_match);
+                    return make_error_code(rpc_errc::bad_version);
 
                 if (!_serializer.get_entity(entity))
                     return make_error_code(rpc_errc::parse_error);
 
                 if (entity != RPC_SUCCESS)
-                    return make_error_code(rpc_errc::bad_response);
+                    return make_error_code(rpc_errc::invalid_response);
 
                 if (!_serializer.get_id(id))
                     return make_error_code(rpc_errc::parse_error);
@@ -369,7 +379,7 @@ struct rpc
                 return make_error_code(rpc_errc::parse_error);
 
             if (major != MajorVersion || minor != MinorVersion)
-                return make_error_code(rpc_errc::version_not_match);
+                return make_error_code(rpc_errc::bad_version);
 
             if (!_serializer.get_entity(entity))
                 return make_error_code(rpc_errc::parse_error);
@@ -381,7 +391,7 @@ struct rpc
             } else if (entity == RPC_NOTIFICATION) {
                 // TODO Handle notification
             } else {
-                return make_error_code(rpc_errc::bad_request);
+                return make_error_code(rpc_errc::invalid_request);
             }
 
 //                 //
@@ -392,78 +402,150 @@ struct rpc
 //                 if (n < 0 || ec)
 //                     return ec;
 //
-//
-//
-//
-//
 //                 if (_serializer.get_value(value))
 //                     return make_error_code(rpc_errc::parse_error);
 
             return error_code();
         }
 
+        template <typename R>
+        struct binder
+        {
+            virtual error_code operator () (R & result, serializer_type & serializer) = 0;
+        };
+
+        template <typename R, typename F>
+        struct binder0 : binder<R>
+        {
+            F _f;
+            binder0 (F f) : _f(f) {}
+
+            virtual error_code operator () (R & result, serializer_type & serializer) pfs_override
+            {
+                if (serializer.has_params())
+                    return make_error_code(rpc_errc::invalid_params);
+
+                result = _f();
+                return error_code();
+            }
+        };
+
+        template <typename R, typename F
+                , typename A1>
+        struct binder1 : binder<R>
+        {
+            F _f;
+            binder1 (F f) : _f(f) {}
+
+            virtual error_code operator () (R & result, serializer_type & serializer) pfs_override
+            {
+                A1 a1;
+
+                if (!serializer.get_param(a1))
+                    return make_error_code(rpc_errc::invalid_params);
+
+                result = _f(a1);
+                return error_code();
+            }
+        };
+
+        template <typename R, typename F
+                , typename A1
+                , typename A2>
+        struct binder2 : binder<R>
+        {
+            F _f;
+            binder2 (F f) : _f(f) {}
+
+            virtual error_code operator () (R & result, serializer_type & serializer) pfs_override
+            {
+                A1 a1;
+                A2 a2;
+
+                if (!serializer.get_param(a1)
+                        || !serializer.get_param(a2))
+                    return make_error_code(rpc_errc::invalid_params);
+
+                result = _f(a1, a2);
+                return error_code();
+            }
+        };
+
+        template <typename R, typename F
+                , typename A1
+                , typename A2
+                , typename A3>
+        struct binder3 : binder<R>
+        {
+            F _f;
+            binder3 (F f) : _f(f) {}
+
+            virtual error_code operator () (R & result, serializer_type & serializer) pfs_override
+            {
+                A1 a1;
+                A2 a2;
+                A2 a3;
+
+                if (!serializer.get_param(a1)
+                        || !serializer.get_param(a2)
+                        || !serializer.get_param(a3))
+                    return make_error_code(rpc_errc::invalid_params);
+
+                result = _f(a1, a2, a3);
+                return error_code();
+            }
+        };
+
+        //
+        // TODO call_binder4, call_binder5, call_binder6, call_binder7, call_binder8
+        //
+
     public:
         server (transport_type & transport)
             : _transport(transport)
         {}
 
+        template <typename R, typename F>
+        void bind (string_type const & name, F f)
+        {
+            //_repo.insert(name, new binder0<R, F>(f));
+        }
+
+        template <typename R, typename F
+                , typename A1>
+        void bind (string_type const & name, F f)
+        {
+            //_repo.insert(name, new binder0<R, F, A1>(f));
+        }
+
+        template <typename R, typename F
+                , typename A1
+                , typename A2>
+        void bind (string_type const & name, F f)
+        {
+            //_repo.insert(name, new binder0<R, F, A1, A2>(f));
+        }
+
+        template <typename R, typename F
+                , typename A1
+                , typename A2
+                , typename A3>
+        void bind (string_type const & name, F f)
+        {
+            //_repo.insert(name, new binder0<R, F, A1, A2, A3>(f));
+        }
+
+        //
+        // TODO bind
+        //
+
     private:
+        //typedef AssociativeContainer<string_type, binder *> repository_type;
+
         transport_type & _transport;
-        serializer_type _serializer;
+        serializer_type  _serializer;
+        //repository_type  _repo;
     };
-
-
-    //typedef int32_t error_code_type;
-
-
-    //
-    // Error codes
-    //
-//     static error_code_type const NO_ERROR () { return 0; }
-//
-//     static error_code_type const BAD_VERSION () { return 1; }
-//
-//     // Invalid JSON was received by the server.
-//     // An error occurred on the server while parsing
-//     // the JSON text.
-//     static error_code_type const PARSE_ERROR () { return -32700; }
-//
-//     // The JSON sent is not a valid Request object.
-//     static error_code_type const INVALID_REQUEST () { return -32600; }
-//
-//     // The method does not exist / is not available.
-//     static error_code_type const METHOD_NOT_FOUND () { return -32601; }
-//
-//     // Invalid method parameter(s).
-//     static error_code_type const INVALID_PARAMS () { return -32602; }
-//
-//     // Internal JSON-RPC error.
-//     static error_code_type const INTERNAL_ERROR () { return -32603; }
-//
-//     // -32000 to -32099 Reserved for implementation-defined server-errors.
-//     static error_code_type const SERVER_ERROR () { return -32000; }
-
-protected:
-//
-//     template <typename F, typename C>
-//     struct method_binder : basic_binder
-//     {
-//         F _f;
-//         C & _c;
-//         method_binder (F f, C & c) : _f(f), _c(c) {}
-//
-// //         virtual shared_response call (byte_istream & params) pfs_override
-// //         {
-// //             return (_c.*_f)(params);
-// //         }
-//
-//         virtual shared_archive call (id_type id, byte_istream & params) pfs_override
-//         {
-//             return (_c.*_f)(id, params);
-//         }
-//     };
-//
-//     typedef shared_ptr<basic_binder> shared_binder;
 
 public:
 

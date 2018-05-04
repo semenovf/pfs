@@ -48,6 +48,12 @@ find_package(Boost COMPONENTS
 if(Boost_FOUND)
     # TODO try to use `find_path` instead of `if(EXISTS ...)`
 
+    set(HAVE_BOOST 1)
+
+    if(EXISTS ${Boost_INCLUDE_DIR}/boost/bind.hpp)
+        set(HAVE_BOOST_BIND 1)
+    endif()
+
     if(EXISTS ${Boost_INCLUDE_DIR}/boost/ratio.hpp)
         set(HAVE_BOOST_RATIO 1)
     endif()

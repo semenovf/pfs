@@ -245,6 +245,32 @@ struct ubjson_serializer
         return false;
     }
 
+    template <typename T>
+    bool get_param (T & value) const
+    {
+        if (_j.contains("params")) {
+            value = _j["params"].template get<T>();
+            return true;
+        }
+
+        return false;
+    }
+
+    bool get_param (json_type & value) const
+    {
+        if (_j.contains("params")) {
+            value = _j["params"];
+            return true;
+        }
+
+        return false;
+    }
+
+    bool has_params () const
+    {
+        return _j.contains("params");
+    }
+
 private:
     json_type _j;
 };
