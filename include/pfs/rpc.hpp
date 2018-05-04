@@ -411,6 +411,7 @@ struct rpc
         template <typename R>
         struct binder
         {
+            typedef R result_type;
             virtual error_code operator () (R & result, serializer_type & serializer) = 0;
         };
 
@@ -505,20 +506,20 @@ struct rpc
             : _transport(transport)
         {}
 
-        template <typename R, typename F>
+        template <typename F>
         void bind (string_type const & name, F f)
         {
             //_repo.insert(name, new binder0<R, F>(f));
         }
 
-        template <typename R, typename F
+        template <typename F
                 , typename A1>
         void bind (string_type const & name, F f)
         {
             //_repo.insert(name, new binder0<R, F, A1>(f));
         }
 
-        template <typename R, typename F
+        template <typename F
                 , typename A1
                 , typename A2>
         void bind (string_type const & name, F f)
@@ -526,7 +527,7 @@ struct rpc
             //_repo.insert(name, new binder0<R, F, A1, A2>(f));
         }
 
-        template <typename R, typename F
+        template <typename F
                 , typename A1
                 , typename A2
                 , typename A3>
