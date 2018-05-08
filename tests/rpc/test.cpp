@@ -276,7 +276,7 @@ int main ()
     rpc_ns::server<simple_transport> server(server_transport);
     rpc_ns::client<simple_transport> client(client_transport);
 
-//     server.bind("method1", & method1);
+    server.bind("integer", & integer);
 //     server.bind("method2", & method2);
 //     server.bind("notify1", & notify1);
 //     server.bind("notify2", & notify2);
@@ -287,6 +287,8 @@ int main ()
 
 //     client.notify("notify1").send();
 //     client.notify("notify2")(123).send();
+
+    server.dispatch();
 
     return END_TESTS;
 }

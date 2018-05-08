@@ -3,24 +3,21 @@
 #include <pfs/endian.hpp>
 #include <pfs/memory.hpp>
 #include <pfs/types.hpp>
-// #include <pfs/byte_string_ostream.hpp>
-// #include <pfs/byte_string_istream.hpp>
+#include <pfs/functional.hpp>
 #include <pfs/byte_string.hpp>
 #include <pfs/string.hpp>
 #include <pfs/list.hpp>
 #include <pfs/map.hpp>
 #include <pfs/system_error.hpp>
 
+#include <boost/functional.hpp>
+#include <boost/function.hpp>
 
 namespace pfs {
 
 ///////////////////////////////////////////////////////////////////////////
 // RPC error                                                             //
 ///////////////////////////////////////////////////////////////////////////
-
-//
-//
-//     static error_code_type const SERVER_ERROR () { return -32000; }
 
 #if __cplusplus >= 201103L
 enum class rpc_errc
@@ -30,18 +27,18 @@ struct rpc_errc
 {
     enum value_enum {
 #endif
-            no_error = 0              //!< No error.
-          , bad_version = 1           //!< Version does not match.
-          , id_not_match = 2          //!< Response ID does not match requested.
-          , parse_error = -32700      //!< An error occurred on the server while parsing.
-          , invalid_request = -32600  //!< Is not a valid request.
-          , method_not_found = -32601 //!< The method does not exist / is not available.
-          , invalid_params = -32602   //!< Invalid method parameter(s).
-          , internal_error = -32603   //!< Intrenal error.
-          , invalid_response = -32604 //!< Is not a valid response.
-          //
-          // -32000 to -32099 Reserved for implementation-defined server-errors.
-          //
+          no_error = 0              //!< No error.
+        , bad_version = 1           //!< Version does not match.
+        , id_not_match = 2          //!< Response ID does not match requested.
+        , parse_error = -32700      //!< An error occurred on the server while parsing.
+        , invalid_request = -32600  //!< Is not a valid request.
+        , method_not_found = -32601 //!< The method does not exist / is not available.
+        , invalid_params = -32602   //!< Invalid method parameter(s).
+        , internal_error = -32603   //!< Intrenal error.
+        , invalid_response = -32604 //!< Is not a valid response.
+        //
+        // -32000 to -32099 Reserved for implementation-defined server-errors.
+        //
 #if __cplusplus < 201103L
     };
 
@@ -354,148 +351,167 @@ struct rpc
         friend struct session;
         typedef Transport<Protocol> transport_type;
 
-        error_code parse ()
+        struct basic_binder
         {
-            error_code ec;
+            virtual error_code operator () (serializer_type & out, serializer_type const & in) = 0;
+        };
 
-            //
-            // Receive data
-            //
+        typedef AssociativeContainer<string_type, basic_binder *> repository_type;
 
-            byte_string buffer;
-            ssize_t n = _transport.recv(buffer, ec);
+        template <typename F>
+        struct binder : basic_binder
+        {
+            boost::function<F> _f;
 
-            if (n < 0 || ec)
-                return ec;
+            binder (F f) : _f(boost::bind<F>(f)) {}
 
-            if (! _serializer.unpack(buffer, ec))
-                return ec;
-
-            uint8_t major, minor;
-            int entity;
-            id_type id;
-
-            if (!_serializer.get_version(major, minor))
-                return make_error_code(rpc_errc::parse_error);
-
-            if (major != MajorVersion || minor != MinorVersion)
-                return make_error_code(rpc_errc::bad_version);
-
-            if (!_serializer.get_entity(entity))
-                return make_error_code(rpc_errc::parse_error);
-
-            if (entity == RPC_METHOD) {
-                if (!_serializer.get_id(id))
-                    return make_error_code(rpc_errc::parse_error);
-                // TODO Handle method
-            } else if (entity == RPC_NOTIFICATION) {
-                // TODO Handle notification
-            } else {
-                return make_error_code(rpc_errc::invalid_request);
+            virtual error_code operator () (serializer_type & out, serializer_type const & in) pfs_override
+            {
+                if (in.has_params())
+                    return make_error_code(rpc_errc::invalid_params);
+                out.set_result(_f());
+                return error_code();
             }
+        };
 
-//                 //
-//                 // Send data
-//                 //
-//                 ssize_t n = _owner._transport.send(_serializer.pack(), ec);
+
+
+//         template <typename F
+//                 , typename A1 = void
+//                 , typename A2 = void
+//                 , typename A3 = void
+//                 , typename A4 = void
+//                 , typename A5 = void
+//                 , typename A6 = void
+//                 , typename A7 = void
+//                 , typename A8 = void
+//                 , typename A9 = void>
+//         struct binder
+//         {
+//             //typedef R result_type;
+//             F _f;
+//             pfs::tuple<A1, A2, A3, A4, A5, A6, A7, A8, A9> _args;
 //
-//                 if (n < 0 || ec)
-//                     return ec;
+//             binder_wrapper (F f) : _f(f) {}
+//             binder_wrapper (F f, A1 a1)
+//                 : _f(f)
+//                 , _args(a1) {}
+//             binder_wrapper (F f, A1 a1, A2 a2)
+//                 : _f(f)
+//                 , _args(a1, a2) {}
+//             binder_wrapper (F f, A1 a1, A2 a2, A3 a3)
+//                 : _f(f)
+//                 , _args(a1, a2, a3) {}
+//             binder_wrapper (F f, A1 a1, A2 a2, A3 a3, A4 a4)
+//                 : _f(f)
+//                 , _args(a1, a2, a3, a4) {}
+//             binder_wrapper (F f, A1 a1, A2 a2, A3 a3, A4 a4, A5 a5)
+//                 : _f(f)
+//                 , _args(a1, a2, a3, a4, a5) {}
+//             binder_wrapper (F f, A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6)
+//                 : _f(f)
+//                 , _args(a1, a2, a3, a4, a5, a6) {}
+//             binder_wrapper (F f, A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7)
+//                 : _f(f)
+//                 , _args(a1, a2, a3, a4, a5, a6, a7) {}
+//             binder_wrapper (F f, A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8)
+//                 : _f(f)
+//                 , _args(a1, a2, a3, a4, a5, a6, a7, a8) {}
+//             binder_wrapper (F f, A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8, A9 a9)
+//                 : _f(f)
+//                 , _args(a1, a2, a3, a4, a5, a6, a7, a8, a9) {}
 //
-//                 if (_serializer.get_value(value))
-//                     return make_error_code(rpc_errc::parse_error);
+//             error_code operator () (serializer_type & out, serializer_type const & in) pfs_override
+//             {
+//                 if (in.has_params())
+//                     return make_error_code(rpc_errc::invalid_params);
+//
+//                 //result = _f();
+//                 return error_code();
+//             }
+//         };
 
-            return error_code();
-        }
-
-        template <typename R>
-        struct binder
-        {
-            typedef R result_type;
-            virtual error_code operator () (R & result, serializer_type & serializer) = 0;
-        };
-
-        template <typename R, typename F>
-        struct binder0 : binder<R>
-        {
-            F _f;
-            binder0 (F f) : _f(f) {}
-
-            virtual error_code operator () (R & result, serializer_type & serializer) pfs_override
-            {
-                if (serializer.has_params())
-                    return make_error_code(rpc_errc::invalid_params);
-
-                result = _f();
-                return error_code();
-            }
-        };
-
-        template <typename R, typename F
-                , typename A1>
-        struct binder1 : binder<R>
-        {
-            F _f;
-            binder1 (F f) : _f(f) {}
-
-            virtual error_code operator () (R & result, serializer_type & serializer) pfs_override
-            {
-                A1 a1;
-
-                if (!serializer.get_param(a1))
-                    return make_error_code(rpc_errc::invalid_params);
-
-                result = _f(a1);
-                return error_code();
-            }
-        };
-
-        template <typename R, typename F
-                , typename A1
-                , typename A2>
-        struct binder2 : binder<R>
-        {
-            F _f;
-            binder2 (F f) : _f(f) {}
-
-            virtual error_code operator () (R & result, serializer_type & serializer) pfs_override
-            {
-                A1 a1;
-                A2 a2;
-
-                if (!serializer.get_param(a1)
-                        || !serializer.get_param(a2))
-                    return make_error_code(rpc_errc::invalid_params);
-
-                result = _f(a1, a2);
-                return error_code();
-            }
-        };
-
-        template <typename R, typename F
-                , typename A1
-                , typename A2
-                , typename A3>
-        struct binder3 : binder<R>
-        {
-            F _f;
-            binder3 (F f) : _f(f) {}
-
-            virtual error_code operator () (R & result, serializer_type & serializer) pfs_override
-            {
-                A1 a1;
-                A2 a2;
-                A2 a3;
-
-                if (!serializer.get_param(a1)
-                        || !serializer.get_param(a2)
-                        || !serializer.get_param(a3))
-                    return make_error_code(rpc_errc::invalid_params);
-
-                result = _f(a1, a2, a3);
-                return error_code();
-            }
-        };
+//         template <typename R, typename F>
+//         struct binder0 : binder<R>
+//         {
+//             F _f;
+//             binder0 (F f) : _f(f) {}
+//
+//             virtual error_code operator () (R & result, serializer_type & serializer) pfs_override
+//             {
+//                 if (serializer.has_params())
+//                     return make_error_code(rpc_errc::invalid_params);
+//
+//                 result = _f();
+//                 return error_code();
+//             }
+//         };
+//
+//         template <typename R, typename F
+//                 , typename A1>
+//         struct binder1 : binder<R>
+//         {
+//             F _f;
+//             binder1 (F f) : _f(f) {}
+//
+//             virtual error_code operator () (R & result, serializer_type & serializer) pfs_override
+//             {
+//                 A1 a1;
+//
+//                 if (!serializer.get_param(a1))
+//                     return make_error_code(rpc_errc::invalid_params);
+//
+//                 result = _f(a1);
+//                 return error_code();
+//             }
+//         };
+//
+//         template <typename R, typename F
+//                 , typename A1
+//                 , typename A2>
+//         struct binder2 : binder<R>
+//         {
+//             F _f;
+//             binder2 (F f) : _f(f) {}
+//
+//             virtual error_code operator () (R & result, serializer_type & serializer) pfs_override
+//             {
+//                 A1 a1;
+//                 A2 a2;
+//
+//                 if (!serializer.get_param(a1)
+//                         || !serializer.get_param(a2))
+//                     return make_error_code(rpc_errc::invalid_params);
+//
+//                 result = _f(a1, a2);
+//                 return error_code();
+//             }
+//         };
+//
+//         template <typename R, typename F
+//                 , typename A1
+//                 , typename A2
+//                 , typename A3>
+//         struct binder3 : binder<R>
+//         {
+//             F _f;
+//             binder3 (F f) : _f(f) {}
+//
+//             virtual error_code operator () (R & result, serializer_type & serializer) pfs_override
+//             {
+//                 A1 a1;
+//                 A2 a2;
+//                 A2 a3;
+//
+//                 if (!serializer.get_param(a1)
+//                         || !serializer.get_param(a2)
+//                         || !serializer.get_param(a3))
+//                     return make_error_code(rpc_errc::invalid_params);
+//
+//                 result = _f(a1, a2, a3);
+//                 return error_code();
+//             }
+//         };
 
         //
         // TODO call_binder4, call_binder5, call_binder6, call_binder7, call_binder8
@@ -509,43 +525,88 @@ struct rpc
         template <typename F>
         void bind (string_type const & name, F f)
         {
-            //_repo.insert(name, new binder0<R, F>(f));
+            _repo.insert(name, new binder<F>());
         }
 
-        template <typename F
-                , typename A1>
-        void bind (string_type const & name, F f)
+        error_code dispatch ()
         {
-            //_repo.insert(name, new binder0<R, F, A1>(f));
-        }
+            error_code ec;
 
-        template <typename F
-                , typename A1
-                , typename A2>
-        void bind (string_type const & name, F f)
-        {
-            //_repo.insert(name, new binder0<R, F, A1, A2>(f));
-        }
+            //
+            // Receive data
+            //
 
-        template <typename F
-                , typename A1
-                , typename A2
-                , typename A3>
-        void bind (string_type const & name, F f)
-        {
-            //_repo.insert(name, new binder0<R, F, A1, A2, A3>(f));
-        }
+            byte_string buffer;
+            ssize_t n = _transport.recv(buffer, ec);
 
-        //
-        // TODO bind
-        //
+            // No data
+            if (n == 0)
+                return error_code();
+
+            if (n < 0 || ec)
+                return ec;
+
+            serializer_type in;
+
+            if (! in.unpack(buffer, ec))
+                return ec;
+
+            uint8_t major, minor;
+            int entity;
+            id_type id;
+
+            if (!in.get_version(major, minor))
+                return make_error_code(rpc_errc::parse_error);
+
+            if (major != MajorVersion || minor != MinorVersion)
+                return make_error_code(rpc_errc::bad_version);
+
+            if (!in.get_entity(entity))
+                return make_error_code(rpc_errc::parse_error);
+
+            if (entity == RPC_METHOD) {
+                if (!in.get_id(id))
+                    return make_error_code(rpc_errc::parse_error);
+                // TODO Handle method
+            } else if (entity == RPC_NOTIFICATION) {
+                // TODO Handle notification
+            } else {
+                return make_error_code(rpc_errc::invalid_request);
+            }
+
+            string_type method_name = in.get_method();
+
+            if (method_name.empty())
+                return make_error_code(rpc_errc::parse_error);
+
+            typename repository_type::const_iterator it = _repo.find(method_name);
+
+            if (it == _repo.cend())
+                return make_error_code(rpc_errc::method_not_found);
+
+            serializer_type out;
+
+            basic_binder * binder = repository_type::mapped_reference(it);
+            ec = (*binder)(out, in);
+
+            if (ec)
+                return ec;
+
+            //
+            // Send data
+            //
+            n = _transport.send(out.pack(), ec);
+
+            if (n < 0 || ec)
+                return ec;
+
+            return error_code();
+        }
 
     private:
-        //typedef AssociativeContainer<string_type, binder *> repository_type;
-
         transport_type & _transport;
-        serializer_type  _serializer;
-        //repository_type  _repo;
+//        serializer_type  _serializer;
+        repository_type  _repo;
     };
 
 public:
@@ -647,14 +708,6 @@ public:
 // //             return m->call(rq);
 // //         }
 // #endif
-//
-//     private:
-//         //repository _repo;
-// //         protocol_type  _protocol;
-// //         transport_type _transport;
-//         //typename repository_traits::type _method_repo;
-//     };
-//
 };
 
 } // pfs

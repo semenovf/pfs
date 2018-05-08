@@ -271,6 +271,20 @@ struct ubjson_serializer
         return _j.contains("params");
     }
 
+    template <typename T>
+    void set_result (T const & result)
+    {
+        _j["result"] = result;
+    }
+
+    void set_result (void)
+    {}
+
+    string_type get_method () const
+    {
+        return _j["method"].get_string();
+    }
+
 private:
     json_type _j;
 };
