@@ -12,6 +12,7 @@
 #include "json/rpc.hpp"
 
 typedef pfs::log<> log_ns;
+static log_ns::logger logger;
 
 static int const                  TCP_LISTENER_DEFAULT_BACKLOG = 50;
 static pfs::net::inet4_addr const TCP_LISTENER_ADDR(127, 0, 0, 1);
@@ -47,27 +48,35 @@ struct simple_protocol
 template <typename Protocol>
 struct simple_transport
 {
-    simple_transport ()
-        : _os(_buffer)
-    {}
+    simple_transport (/*pfs::io::device & dev*/)
+    {
+        //dev.set_context(this);
+    }
 
     ssize_t send (pfs::byte_string const & payload, pfs::error_code & ec)
     {
-        pfs::byte_string packet = Protocol().pack(payload);
-        _os << packet;
-        return pfs::integral_cast_check<ssize_t>(packet.size());
+//         pfs::byte_string packet = Protocol().pack(payload);
+//         return _dev.write(packet);
+
+
+
+//         _os << packet;
+//         return pfs::integral_cast_check<ssize_t>(packet.size());
+        return -1;
     }
 
     ssize_t recv (pfs::byte_string & payload, pfs::error_code & ec)
     {
-        ssize_t r = Protocol().unpack(_buffer, payload);
-        _buffer.clear();
-        return r;
+//         ssize_t r = Protocol().unpack(_buffer, payload);
+//         _buffer.clear();
+//         return r;
+        return -1;
     }
 
-protected:
-    pfs::byte_string _buffer;
-    pfs::byte_string_ostream _os;
+// protected:
+//     pfs::io::device _dev;
+//     pfs::byte_string _buffer;
+//     pfs::byte_string_ostream _os;
 };
 
 typedef pfs::json::json<> json_t;
@@ -115,7 +124,7 @@ struct device_manager_slots : pfs::sigslot<>::has_slots
 
     void device_accepted (pfs::io::device d, pfs::io::server s)
     {
-        _logger.info("device_accepted");
+        _logger.info("Client accepted on: " + d.url());
     }
 
     void device_ready_read (pfs::io::device d)
@@ -125,7 +134,7 @@ struct device_manager_slots : pfs::sigslot<>::has_slots
 
     void device_disconnected (pfs::io::device d)
     {
-        _logger.info("device_disconnected: " + d.url());
+        _logger.info("Client disconnected: " + d.url());
     }
 
     void device_opened (pfs::io::device d)
@@ -145,7 +154,7 @@ struct device_manager_slots : pfs::sigslot<>::has_slots
 
     void server_opened (pfs::io::server s)
     {
-        _logger.info("server_opened");
+        _logger.info("Server listen on: " + s.url());
     }
 
     void server_opening (pfs::io::server s)
@@ -166,22 +175,6 @@ struct device_manager_slots : pfs::sigslot<>::has_slots
 
 void run ()
 {
-    typedef pfs::log<> log_ns;
-    log_ns::logger logger;
-    log_ns::appender & cout_appender
-            = logger.add_appender<log_ns::stdout_appender>();
-    log_ns::appender & cerr_appender
-            = logger.add_appender<log_ns::stderr_appender>();
-    cout_appender.set_pattern("%d{ABSOLUTE} [%p]: %m");
-    cerr_appender.set_pattern("%d{ABSOLUTE} [%p]: %m");
-
-    logger.connect(log_ns::priority::trace   , cout_appender);
-    logger.connect(log_ns::priority::debug   , cout_appender);
-    logger.connect(log_ns::priority::info    , cout_appender);
-    logger.connect(log_ns::priority::warn    , cerr_appender);
-    logger.connect(log_ns::priority::error   , cerr_appender);
-    logger.connect(log_ns::priority::critical, cerr_appender);
-
     pfs::io::device_manager<> devman(10);
     device_manager_slots devslots(logger);
     pfs::error_code ec;
@@ -216,7 +209,10 @@ void run ()
 
     //server.dispatch();
 
-    devman.dispatch();
+//    while (true) {
+        devman.dispatch();
+        //pfs::this_thread::sleep_for(pfs::chrono::milliseconds(1));
+//    }
 }
 
 } // namespace client
@@ -236,17 +232,17 @@ struct device_manager_slots : pfs::sigslot<>::has_slots
 
     void device_disconnected (pfs::io::device d)
     {
-        _logger.info("device_disconnected: " + d.url());
+        _logger.info("Disconnected from: " + d.url());
     }
 
     void device_opened (pfs::io::device d)
     {
-        _logger.info("device_opened");
+        _logger.info("Connected to: " + d.url());
     }
 
     void device_opening (pfs::io::device d)
     {
-        _logger.info("device_opening");
+        _logger.info("Connecting to: " + d.url());
     }
 
     void device_open_failed (pfs::io::device d, pfs::error_code ec)
@@ -262,21 +258,6 @@ struct device_manager_slots : pfs::sigslot<>::has_slots
 
 void run ()
 {
-    log_ns::logger logger;
-    log_ns::appender & cout_appender
-            = logger.add_appender<log_ns::stdout_appender>();
-    log_ns::appender & cerr_appender
-            = logger.add_appender<log_ns::stderr_appender>();
-    cout_appender.set_pattern("%d{ABSOLUTE} [%p]: %m");
-    cerr_appender.set_pattern("%d{ABSOLUTE} [%p]: %m");
-
-    logger.connect(log_ns::priority::trace   , cout_appender);
-    logger.connect(log_ns::priority::debug   , cout_appender);
-    logger.connect(log_ns::priority::info    , cout_appender);
-    logger.connect(log_ns::priority::warn    , cerr_appender);
-    logger.connect(log_ns::priority::error   , cerr_appender);
-    logger.connect(log_ns::priority::critical, cerr_appender);
-
     pfs::error_code ec;
     pfs::io::device_manager<> devman(10);
     device_manager_slots devslots(logger);
@@ -294,18 +275,16 @@ void run ()
                         , pfs::io::read_write | pfs::io::non_blocking)
                 , & ec);
 
-    if (ec) {
-        logger.error("Open socket error: " + pfs::to_string(ec));
+    if (ec)
         return;
-    }
 
     ADD_TESTS(3);
     simple_transport<simple_protocol> client_transport;
     rpc_ns::client<simple_transport> client(client_transport);
 
-    TEST_OK(client.call("integer").result<int>() == 123);
-    TEST_OK(client.call("echo")(425).result<int>() == 425);
-    TEST_OK(client.call("sum")(1)(2).result<int>() == 3);
+//     TEST_OK(client.call("integer").result<int>() == 123);
+//     TEST_OK(client.call("echo")(425).result<int>() == 425);
+//     TEST_OK(client.call("sum")(1)(2).result<int>() == 3);
 
     //     client.notify("notify1").send();
 //     client.notify("notify2")(123).send();
@@ -313,22 +292,39 @@ void run ()
 
 } // namespace client
 
-static int const CLIENT_COUNT = 2;
+static int const CLIENT_COUNT = 5;
 
 int main ()
 {
     BEGIN_TESTS(0);
 
+    log_ns::appender & cout_appender
+            = logger.add_appender<log_ns::stdout_appender>();
+    log_ns::appender & cerr_appender
+            = logger.add_appender<log_ns::stderr_appender>();
+    cout_appender.set_pattern("%d{ABSOLUTE} [%p]: %m");
+    cerr_appender.set_pattern("%d{ABSOLUTE} [%p]: %m");
+
+    logger.connect(log_ns::priority::trace   , cout_appender);
+    logger.connect(log_ns::priority::debug   , cout_appender);
+    logger.connect(log_ns::priority::info    , cout_appender);
+    logger.connect(log_ns::priority::warn    , cerr_appender);
+    logger.connect(log_ns::priority::error   , cerr_appender);
+    logger.connect(log_ns::priority::critical, cerr_appender);
+
     pfs::thread server_thread(& server::run);
     pfs::unique_ptr<pfs::thread> client_threads[CLIENT_COUNT];
 
-//     for (int i = 0; i < CLIENT_COUNT; ++i)
-//         client_threads[i] = pfs::make_unique<pfs::thread>(& client::run);
+    // Wait for server fully initialized
+    pfs::this_thread::sleep_for(pfs::chrono::seconds(1));
+
+    for (int i = 0; i < CLIENT_COUNT; ++i)
+        client_threads[i] = pfs::make_unique<pfs::thread>(& client::run);
+
+    for (int i = 0; i < CLIENT_COUNT; ++i)
+        client_threads[i]->join();
 
     server_thread.join();
-/*
-    for (int i = 0; i < CLIENT_COUNT; ++i)
-        client_threads[i]->join();*/
 
     return END_TESTS;
 }

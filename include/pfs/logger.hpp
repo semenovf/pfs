@@ -601,10 +601,10 @@ public:
     }
 
 protected:
-	virtual void print (priority, datetime const &, string_type const & msg) pfs_override
-	{
-		std::cout << msg << std::endl;
-	}
+    virtual void print (priority, datetime const &, string_type const & msg) pfs_override
+    {
+        std::cout << msg << std::endl;
+    }
 };
 
 class stderr_appender : public appender

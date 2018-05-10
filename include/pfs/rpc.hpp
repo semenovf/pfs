@@ -10,9 +10,6 @@
 #include <pfs/map.hpp>
 #include <pfs/system_error.hpp>
 
-#include <boost/functional.hpp>
-#include <boost/function.hpp>
-
 namespace pfs {
 
 ///////////////////////////////////////////////////////////////////////////
@@ -515,6 +512,10 @@ struct rpc
         // TODO call_binder4, call_binder5, call_binder6, call_binder7, call_binder8
         //
 
+        struct session
+        {
+        };
+
     public:
         server (transport_type & transport)
             : _transport(transport)
@@ -603,110 +604,8 @@ struct rpc
 
     private:
         transport_type & _transport;
-//        serializer_type  _serializer;
         repository_type  _repo;
     };
-
-public:
-
-
-//     //template <typename Protocol, typename Transport>
-//     class server
-//     {
-//     public:
-//       //  typedef Transport transport_type;
-//
-//     private:
-// //         struct basic_binder
-// //         {
-// //             virtual bool call (session &) = 0;
-// //         };
-//
-//         typedef typename rpc::string_type string_type;
-//         typedef typename rpc::id_type     id_type;
-// //        typedef AssociativeContainer<string_type, pfs::shared_ptr<basic_binder> > repository;
-//
-//
-// //         template <typename F>
-// //         struct binder : basic_binder
-// //         {
-// //             F _f;
-// //             function_binder (F f) : _f(f) {}
-// //
-// //             virtual bool call (session & sess) pfs_override
-// //             {
-// //
-// //             }
-//
-//     // //         virtual shared_response call (byte_istream & params) pfs_override
-//     // //         {
-//     // //             return (*_f)(params);
-//     // //         }
-//     //
-//     //         virtual shared_archive call (id_type id, byte_istream & params) pfs_override
-//     //         {
-//     //             return (*_f)(id, params);
-//     //         }
-// //        };
-//
-//
-//     public:
-//         server () {}
-//
-//         void exec () {}
-//
-// //         template <typename F>
-// //         inline void bind (string_type const & method_name, F f)
-// //         {
-// //               typename _repo(method_name
-// //                       , pfs::static_pointer_cast<basic_binder>(pfs::make_shared<binder<F>, F>(f)));
-// //         }
-//
-// //          template <typename F, typename A1>
-// //          inline void bind (string_type const & method_name, F f, C & c)
-// //          {
-// // //             typename repository_traits::inserter(_method_repo).insert(method_name
-// // //                     , pfs::static_pointer_cast<basic_binder>(pfs::make_shared<method_binder<F, C>, F, C>(f, c)));
-// //          }
-// #if __COMMENT__
-// //         shared_response exec (request & rq)
-// //         {
-// //             typename repository_traits::finder finder(_method_repo);
-// //             typename repository_traits::iterators iterators(_method_repo);
-// //
-// //             uint8_t major_version;
-// //             uint8_t minor_version;
-// //             uint8_t rpc_type;
-// //             id_type id;
-// //             method_name_type method_name;
-// //
-// //             rq >> major_version >> minor_version >> rpc_type;
-// //
-// //             if (!(major_version == MAJOR_VERSION && minor_version == MINOR_VERSION))
-// //                 return make_error(BAD_VERSION);
-// //
-// //             if (rpc_type == RPC_METHOD)
-// //                 rq >> id;
-// //             else if (rpc_type == RPC_NOTIFICATION) {
-// //                 ;
-// //             } else {
-// //                 return make_error();
-// //             }
-// //
-// //             rq >> method_name;
-// //
-// //             typename repository_traits::const_iterator it = finder.find(method_name);
-// //
-// //             if (it == iterators.cend()) {
-// //                 if (rpc_type == RPC_METHOD)
-// //                     return make_error(id, METHOD_NOT_FOUND);
-// //                 return make_error(METHOD_NOT_FOUND);
-// //             }
-// //
-// //             shared_binder const & m = iterators.value(it);
-// //             return m->call(rq);
-// //         }
-// #endif
 };
 
 } // pfs

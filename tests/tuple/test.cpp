@@ -1,7 +1,6 @@
 #include <pfs/test.hpp>
 #include <pfs/tuple.hpp>
 
-
 struct Foo
 {
     int x;
@@ -10,7 +9,7 @@ struct Foo
 
 int main ()
 {
-    BEGIN_TESTS(66);
+    BEGIN_TESTS(65);
 
     ///////////////////////////////////////////////////////////////////////////
     // Basic tests                                                           //
