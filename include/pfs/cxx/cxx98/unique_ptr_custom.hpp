@@ -1,6 +1,4 @@
-#ifndef __PFS_CXX98_UNIQUE_PTR_HPP__
-#define __PFS_CXX98_UNIQUE_PTR_HPP__
-
+#pragma once
 #include <pfs/types.hpp>
 #include <pfs/utility.hpp>
 #include <pfs/assert.hpp>
@@ -11,7 +9,7 @@ namespace pfs {
 template <typename T>
 struct default_delete
 {
-    default_delete () pfs_noexcept 
+    default_delete () pfs_noexcept
     {}
 
     void operator() (T * p) const
@@ -26,7 +24,7 @@ template <typename T>
 struct default_delete<T[]>
 {
 public:
-    default_delete() pfs_noexcept 
+    default_delete() pfs_noexcept
     {}
 
     void operator () (T * p) const
@@ -47,7 +45,7 @@ public:
     typedef T *     pointer;
     typedef T       element_type;
     typedef Deleter deleter_type;
-    
+
     struct rval {
         T *     _value;
         Deleter _deleter;
@@ -368,5 +366,3 @@ template <class T, class Arg1, class Arg2, class Arg3, class Arg4, class Arg5, c
 inline typename unique_ptr<T>::rval make_unique(Arg1 a1, Arg2 a2, Arg3 a3, Arg4 a4, Arg5 a5, Arg6 a6, Arg7 a7, Arg8 a8) { return typename unique_ptr<T>::rval(new T(a1, a2, a3, a4, a5, a6, a7, a8)); }
 
 } // namespace pfs
-
-#endif /* __PFS_UNIQUE_PTR_HPP__ */

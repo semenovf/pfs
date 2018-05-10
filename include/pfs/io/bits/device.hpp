@@ -27,6 +27,8 @@ enum device_type
     , device_tcp_peer
     , device_udp_socket
     , device_udp_peer
+    , device_local_socket
+    , device_local_peer
 };
 
 }} // pfs::io

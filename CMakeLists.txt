@@ -10,3 +10,4 @@ set(PFS_TARGET_STATIC_LIB_NAME pfs-static)
 
 add_subdirectory(src/pfs)
 add_subdirectory(tests)
+add_subdirectory(src/demo-logger)

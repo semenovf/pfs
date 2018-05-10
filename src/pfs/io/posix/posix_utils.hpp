@@ -32,6 +32,7 @@ inline string inet_socket_url (char const * proto, sockaddr_in const & sin)
 
 int create_tcp_socket (bool non_blocking);
 int create_udp_socket (bool non_blocking);
+int create_local_socket (bool non_blocking);
 int close_socket (int fd);
 
 }}

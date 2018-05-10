@@ -1,6 +1,4 @@
-#ifndef __PFS_CXX_CXX98_CHRONO_HPP__
-#define __PFS_CXX_CXX98_CHRONO_HPP__
-
+#pragma once
 #include <pfs/config.h>
 
 #if defined(PFS_CC_MSC)
@@ -13,6 +11,3 @@
 #else
 #   include "chrono_custom.hpp"
 #endif
-
-#endif /* __PFS_CXX_CXX98_CHRONO_HPP__ */
-

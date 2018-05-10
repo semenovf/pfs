@@ -4,8 +4,18 @@
 #include <pfs/byte_string.hpp>
 #include <pfs/binary_istream.hpp>
 #include <pfs/binary_ostream.hpp>
-#include <pfs/io/buffer.hpp>
+#include <pfs/net/inet4_addr.hpp>
+#include <pfs/io/device_manager.hpp>
+#include <pfs/io/inet_server.hpp>
+#include <pfs/thread.hpp>
+#include <pfs/logger.hpp>
 #include "json/rpc.hpp"
+
+typedef pfs::log<> log_ns;
+
+static int const                  TCP_LISTENER_DEFAULT_BACKLOG = 50;
+static pfs::net::inet4_addr const TCP_LISTENER_ADDR(127, 0, 0, 1);
+static uint16_t const             TCP_LISTENER_PORT(9876);
 
 struct simple_protocol
 {
@@ -67,178 +77,6 @@ typedef pfs::rpc<2, 0
         , simple_protocol
         , json_t::string_type> rpc_ns;
 
-// class Protocol : public rpc_ns::protocol<Protocol>
-// {
-//     typedef rpc_ns::protocol<Protocol> base_class;
-//     typedef pfs::byte_string::size_type size_type;
-//
-//     // Minimum size for packet (empty)
-//     static size_type min_packet_size ()
-//     {
-//         return 4 // flags
-//             + sizeof(size_type);
-//     }
-//
-//     static const char flag_prefix () { return '\x10'; }
-//     static const char flag_begin () { return '\x01'; }
-//     static const char flag_end () { return '\x02'; }
-//
-// public:
-//     Protocol () : base_class() {}
-//
-//
-//     virtual manip get_major_version (uint8_t & value) pfs_override
-//     {
-//         *this >> value;
-//         return manip();
-//     }
-//
-//     virtual manip get_minor_version (uint8_t & value) pfs_override
-//     {
-//         //return *this >> value;
-//         return manip();
-//     }
-//
-//     virtual manip get_rpc_entity (uint8_t & value) pfs_override
-//     {
-//         //return *this >> value;
-//         return manip();
-//     }
-//
-//     virtual manip get_method_name (string_type & value) pfs_override
-//     {
-//         //return *this >> value;
-//         return manip();
-//     }
-//
-//     virtual manip get_id (id_type & value) pfs_override
-//     {
-//         //return *this >> value;
-//         return manip();
-//     }
-
-//     template <typename T>
-//     manip get_param (T & x)
-//     {
-//         return manip();
-//     }
-//     template <typename T>
-//     manip get_param (string_type & param_name, T & x)
-//     {
-//         return manip();
-//     }
-//
-//
-//     virtual bool commit_tx () pfs_override
-//     {
-//         // Set size of packet (excluding leading and trailing falgs - 4 bytes)
-//         pfs::byte_string sz;
-//         pfs::binary_ostream<pfs::byte_string> o(sz);
-//         o << _output_buffer.size() - 4;
-//         PFS_ASSERT(sz.size() == sizeof(pfs::byte_string::size_type));
-//         _output_buffer.replace(2, sizeof(pfs::byte_string::size_type), sz);
-//         _os << flag_prefix() << flag_end();
-//         return true;
-//     }
-//
-//     virtual bool begin_rx () pfs_override
-//     {
-//         while (_is.available() >= min_packet_size()) {
-//             char prfx, b;
-//             size_type len;
-//
-//             _is >> prfx;
-//
-//             if (prfx != flag_prefix())
-//                 continue;
-//
-//             _is >> b;
-//
-//             if (b != flag_begin())
-//                 continue;
-//
-//             _is >> len;
-//
-//             // Incomplete Packet
-//             if (_is.available() >= len + 2) // + 2 for `flag_prefix` and `flag_end` flags
-//                 return true;
-//         }
-//
-//         return false;
-//     }
-//
-//     virtual bool commit_rx () pfs_override
-//     {
-//         if (_is.available() < 2)
-//             return false;
-//
-//         char prfx, e;
-//
-//         _is >> prfx;
-//
-//         if (prfx != flag_prefix())
-//             return false;
-//
-//         _is >> e;
-//
-//         if (e != flag_end())
-//             return false;
-//
-//         _input_buffer.erase(_input_buffer.cbegin(), _is.cbegin());
-//         _is.reset(_input_buffer);
-//
-//         return true;
-//     }
-
-//     inline Protocol & operator << (manip m)
-//     {
-//         return *this;
-//     }
-//
-//     inline Protocol & operator >> (manip m)
-//     {
-//         return *this;
-//     }
-//
-//     template <typename T>
-//     inline Protocol & operator << (T const & x)
-//     {
-//         _os << x;
-//         return *this;
-//     }
-//
-//     inline Protocol & operator << (pfs::string const & s)
-//     {
-//         _os << s.size();
-//         pfs::string::const_iterator first = s.cbegin();
-//         pfs::string::const_iterator last = s.cend();
-//
-//         while (first != last) {
-//             _os << *first++;
-//         }
-//     }
-//
-//     template <typename T>
-//     inline Protocol & operator >> (T & x)
-//     {
-//         _is >> x;
-//         return *this;
-//     }
-//
-//     Protocol & operator >> (pfs::string & s)
-//     {
-//         pfs::string::size_type n = 0;
-//         _is >> n;
-//
-//         while (n--) {
-//             pfs::string::value_type c;
-//             _is >> c;
-//             s.push_back(c);
-//         }
-//         return *this;
-//     }
-//};
-
 int integer ()
 {
     std::cout << "integer()" << std::endl;
@@ -267,28 +105,230 @@ void notify2 (int n)
     std::cout << "notify2(" << n << ')' << std::endl;
 }
 
+namespace server {
+
+struct device_manager_slots : pfs::sigslot<>::has_slots
+{
+    log_ns::logger & _logger;
+
+    device_manager_slots (log_ns::logger & logger) : _logger(logger) {}
+
+    void device_accepted (pfs::io::device d, pfs::io::server s)
+    {
+        _logger.info("device_accepted");
+    }
+
+    void device_ready_read (pfs::io::device d)
+    {
+        _logger.info("device_ready_read");
+    }
+
+    void device_disconnected (pfs::io::device d)
+    {
+        _logger.info("device_disconnected: " + d.url());
+    }
+
+    void device_opened (pfs::io::device d)
+    {
+        _logger.info("device_opened");
+    }
+
+    void device_opening (pfs::io::device d)
+    {
+        _logger.info("device_opening");
+    }
+
+    void device_open_failed (pfs::io::device d, pfs::error_code ec)
+    {
+        _logger.error("device_open_failed" + pfs::to_string(ec));
+    }
+
+    void server_opened (pfs::io::server s)
+    {
+        _logger.info("server_opened");
+    }
+
+    void server_opening (pfs::io::server s)
+    {
+        _logger.info("server_opening");
+    }
+
+    void server_open_failed (pfs::io::server s, pfs::error_code ec)
+    {
+        _logger.error("server_open_failed: " + pfs::to_string(ec));
+    }
+
+    void device_io_error (pfs::error_code ec)
+    {
+        _logger.error("device_io_error: " + pfs::to_string(ec));
+    }
+};
+
+void run ()
+{
+    typedef pfs::log<> log_ns;
+    log_ns::logger logger;
+    log_ns::appender & cout_appender
+            = logger.add_appender<log_ns::stdout_appender>();
+    log_ns::appender & cerr_appender
+            = logger.add_appender<log_ns::stderr_appender>();
+    cout_appender.set_pattern("%d{ABSOLUTE} [%p]: %m");
+    cerr_appender.set_pattern("%d{ABSOLUTE} [%p]: %m");
+
+    logger.connect(log_ns::priority::trace   , cout_appender);
+    logger.connect(log_ns::priority::debug   , cout_appender);
+    logger.connect(log_ns::priority::info    , cout_appender);
+    logger.connect(log_ns::priority::warn    , cerr_appender);
+    logger.connect(log_ns::priority::error   , cerr_appender);
+    logger.connect(log_ns::priority::critical, cerr_appender);
+
+    pfs::io::device_manager<> devman(10);
+    device_manager_slots devslots(logger);
+    pfs::error_code ec;
+
+    devman.accepted.connect           (& devslots, & device_manager_slots::device_accepted);
+    devman.ready_read.connect         (& devslots, & device_manager_slots::device_ready_read);
+    devman.opened.connect             (& devslots, & device_manager_slots::device_opened);
+    devman.opening.connect            (& devslots, & device_manager_slots::device_opening);
+    devman.open_failed.connect        (& devslots, & device_manager_slots::device_open_failed);
+    devman.disconnected.connect       (& devslots, & device_manager_slots::device_disconnected);
+    devman.server_opened.connect      (& devslots, & device_manager_slots::server_opened);
+    devman.server_opening.connect     (& devslots, & device_manager_slots::server_opening);
+    devman.server_open_failed.connect (& devslots, & device_manager_slots::server_open_failed);
+    devman.error.connect              (& devslots, & device_manager_slots::device_io_error);
+
+    pfs::io::server tcp_server = devman.new_server(
+        pfs::io::open_params<pfs::io::tcp_server>(TCP_LISTENER_ADDR
+                , TCP_LISTENER_PORT
+                , TCP_LISTENER_DEFAULT_BACKLOG
+                , pfs::io::read_write | pfs::io::non_blocking)
+            , & ec);
+
+
+    simple_transport<simple_protocol> server_transport;
+    rpc_ns::server<simple_transport> server(server_transport);
+
+    server.bind("integer", integer);
+    server.bind("echo", echo);
+    server.bind("sum", sum);
+    server.bind("notify1", notify1);
+    server.bind("notify2", notify2);
+
+    //server.dispatch();
+
+    devman.dispatch();
+}
+
+} // namespace client
+
+namespace client {
+
+struct device_manager_slots : pfs::sigslot<>::has_slots
+{
+    log_ns::logger & _logger;
+
+    device_manager_slots (log_ns::logger & logger) : _logger(logger) {}
+
+    void device_ready_read (pfs::io::device d)
+    {
+        _logger.info("device_ready_read");
+    }
+
+    void device_disconnected (pfs::io::device d)
+    {
+        _logger.info("device_disconnected: " + d.url());
+    }
+
+    void device_opened (pfs::io::device d)
+    {
+        _logger.info("device_opened");
+    }
+
+    void device_opening (pfs::io::device d)
+    {
+        _logger.info("device_opening");
+    }
+
+    void device_open_failed (pfs::io::device d, pfs::error_code ec)
+    {
+        _logger.error("device_open_failed: " + pfs::to_string(ec));
+    }
+
+    void device_io_error (pfs::error_code ec)
+    {
+        _logger.error("device_io_error: " + pfs::to_string(ec));
+    }
+};
+
+void run ()
+{
+    log_ns::logger logger;
+    log_ns::appender & cout_appender
+            = logger.add_appender<log_ns::stdout_appender>();
+    log_ns::appender & cerr_appender
+            = logger.add_appender<log_ns::stderr_appender>();
+    cout_appender.set_pattern("%d{ABSOLUTE} [%p]: %m");
+    cerr_appender.set_pattern("%d{ABSOLUTE} [%p]: %m");
+
+    logger.connect(log_ns::priority::trace   , cout_appender);
+    logger.connect(log_ns::priority::debug   , cout_appender);
+    logger.connect(log_ns::priority::info    , cout_appender);
+    logger.connect(log_ns::priority::warn    , cerr_appender);
+    logger.connect(log_ns::priority::error   , cerr_appender);
+    logger.connect(log_ns::priority::critical, cerr_appender);
+
+    pfs::error_code ec;
+    pfs::io::device_manager<> devman(10);
+    device_manager_slots devslots(logger);
+
+    devman.ready_read.connect  (& devslots, & device_manager_slots::device_ready_read);
+    devman.opened.connect      (& devslots, & device_manager_slots::device_opened);
+    devman.opening.connect     (& devslots, & device_manager_slots::device_opening);
+    devman.open_failed.connect (& devslots, & device_manager_slots::device_open_failed);
+    devman.disconnected.connect(& devslots, & device_manager_slots::device_disconnected);
+    devman.error.connect       (& devslots, & device_manager_slots::device_io_error);
+
+    pfs::io::device tcp_socket = devman.new_device(
+            pfs::io::open_params<pfs::io::tcp_socket>(TCP_LISTENER_ADDR
+                        , TCP_LISTENER_PORT
+                        , pfs::io::read_write | pfs::io::non_blocking)
+                , & ec);
+
+    if (ec) {
+        logger.error("Open socket error: " + pfs::to_string(ec));
+        return;
+    }
+
+    ADD_TESTS(3);
+    simple_transport<simple_protocol> client_transport;
+    rpc_ns::client<simple_transport> client(client_transport);
+
+    TEST_OK(client.call("integer").result<int>() == 123);
+    TEST_OK(client.call("echo")(425).result<int>() == 425);
+    TEST_OK(client.call("sum")(1)(2).result<int>() == 3);
+
+    //     client.notify("notify1").send();
+//     client.notify("notify2")(123).send();
+}
+
+} // namespace client
+
+static int const CLIENT_COUNT = 2;
+
 int main ()
 {
     BEGIN_TESTS(0);
 
-    simple_transport<simple_protocol> server_transport;
-    simple_transport<simple_protocol> client_transport;
-    rpc_ns::server<simple_transport> server(server_transport);
-    rpc_ns::client<simple_transport> client(client_transport);
+    pfs::thread server_thread(& server::run);
+    pfs::unique_ptr<pfs::thread> client_threads[CLIENT_COUNT];
 
-    server.bind("integer", & integer);
-//     server.bind("method2", & method2);
-//     server.bind("notify1", & notify1);
-//     server.bind("notify2", & notify2);
+//     for (int i = 0; i < CLIENT_COUNT; ++i)
+//         client_threads[i] = pfs::make_unique<pfs::thread>(& client::run);
 
-    //TEST_OK(client.call("integer").result<int>() == 123);
-//     TEST_OK(client.call("echo")(425).result<int>() == 425);
-//     TEST_OK(client.call("sum")(1, 2).result<int>() == 3);
-
-//     client.notify("notify1").send();
-//     client.notify("notify2")(123).send();
-
-    server.dispatch();
+    server_thread.join();
+/*
+    for (int i = 0; i < CLIENT_COUNT; ++i)
+        client_threads[i]->join();*/
 
     return END_TESTS;
 }

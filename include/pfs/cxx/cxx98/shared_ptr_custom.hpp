@@ -1,45 +1,5 @@
 #pragma once
 #include <pfs/compare.hpp>
-
-#if HAVE_BOOST_SMARTPTR
-
-#include <boost/shared_ptr.hpp>
-
-namespace pfs {
-
-template <typename T> class shared_ptr : public boost::shared_ptr<T>
-{
-    typedef boost::shared_ptr<T> base_class;
-
-public:
-    shared_ptr () : base_class()
-    {}
-
-    explicit shared_ptr (T * ptr) : base_class(ptr)
-    {}
-
-    template <typename Deleter>
-    shared_ptr (T * ptr, Deleter deleter) : base_class(ptr, deleter)
-    {}
-
-    template <typename U>
-    shared_ptr (shared_ptr<U> const & other, T * p) : base_class(other, p)
-    {}
-
-    shared_ptr (shared_ptr const & other) : base_class(other)
-    {}
-
-    inline shared_ptr & operator = (shared_ptr const & other)
-    {
-        base_class::operator = (other);
-        return *this;
-    }
-};
-
-} // pfs
-
-#else // !HAVE_BOOST_SMARTPTR
-
 #include <pfs/cxxlang.hpp>
 #include <pfs/utility.hpp>
 #include <pfs/atomic.hpp>
@@ -50,9 +10,9 @@ namespace pfs {
 template <typename T>
 struct default_deleter
 {
-	void operator () (T * p) const {
-		delete p;
-	}
+    void operator () (T * p) const {
+        delete p;
+    }
 };
 
 // Specialization for arrays, default_delete.
@@ -73,28 +33,28 @@ public:
 template <typename T>
 struct custom_deleter
 {
-	void operator () (T *) const {}
+    void operator () (T *) const {}
 };
 
 struct ref_count
 {
-	typedef void (* ref_count_deleter)(ref_count *);
+    typedef void (* ref_count_deleter)(ref_count *);
 
-	atomic_int weakref;
-	atomic_int strongref;
-	ref_count_deleter deleter_fn;
+    atomic_int weakref;
+    atomic_int strongref;
+    ref_count_deleter deleter_fn;
 
-	ref_count () : deleter_fn(0)
-	{
-		strongref.store(1);
-		weakref.store(1);
-	}
+    ref_count () : deleter_fn(0)
+    {
+        strongref.store(1);
+        weakref.store(1);
+    }
 
-	~ref_count ()
-	{
-		PFS_ASSERT(!weakref.load());
-		PFS_ASSERT(strongref.load() <= 0);
-	}
+    ~ref_count ()
+    {
+        PFS_ASSERT(!weakref.load());
+        PFS_ASSERT(strongref.load() <= 0);
+    }
 
      void destroy() { deleter_fn(this); } // need check
 };
@@ -104,22 +64,22 @@ template <typename T, typename Deleter>
 class ref_count_with_deleter: public ref_count
 {
 private:
-	ref_count_with_deleter (const ref_count_with_deleter & );
-	ref_count_with_deleter & operator = (const ref_count_with_deleter & );
+    ref_count_with_deleter (const ref_count_with_deleter & );
+    ref_count_with_deleter & operator = (const ref_count_with_deleter & );
 
 public:
-	ref_count_with_deleter(T * ptr, Deleter d) : ref_count(), _p(ptr), _deleter(d) { deleter_fn = deleter; }
-	~ref_count_with_deleter() { this->~ref_count(); }
+    ref_count_with_deleter(T * ptr, Deleter d) : ref_count(), _p(ptr), _deleter(d) { deleter_fn = deleter; }
+    ~ref_count_with_deleter() { this->~ref_count(); }
 
-	static void deleter(ref_count * self)
-	{
-		reinterpret_cast<ref_count_with_deleter *>(self)->_deleter(
-				reinterpret_cast<ref_count_with_deleter *>(self)->_p);
-	}
+    static void deleter(ref_count * self)
+    {
+        reinterpret_cast<ref_count_with_deleter *>(self)->_deleter(
+                reinterpret_cast<ref_count_with_deleter *>(self)->_p);
+    }
 
 private:
-	T *     _p;
-	Deleter _deleter;
+    T *     _p;
+    Deleter _deleter;
 };
 
 template <class T>
@@ -148,29 +108,29 @@ public:
 
     explicit shared_ptr (T * ptr) : _value(ptr), _d(0)
     {
-    	if (ptr) {
-    		default_deleter<T> deleter;
-    		construct<default_deleter<T> >(ptr, deleter);
-    	}
+        if (ptr) {
+            default_deleter<T> deleter;
+            construct<default_deleter<T> >(ptr, deleter);
+        }
     }
 
     template <typename Deleter>
     shared_ptr (T * ptr, Deleter deleter) : _value(ptr), _d(0)
     {
-    	construct<Deleter>(ptr, deleter);
+        construct<Deleter>(ptr, deleter);
     }
 
     template <typename T1>
     shared_ptr (const shared_ptr<T1> & other, T * p) : _value(p), _d(other._d)
     {
-    	if (_d)
-    		ref();
+        if (_d)
+            ref();
     }
 
     shared_ptr (const shared_ptr<T> & other) : _value(other._value), _d(other._d)
     {
-    	if (_d)
-    		ref();
+        if (_d)
+            ref();
     }
 
     inline shared_ptr<T> & operator = (const shared_ptr<T> & other)
@@ -182,7 +142,7 @@ public:
 
     ~shared_ptr ()
     {
-    	deref();
+        deref();
     }
 
     bool is_null () const
@@ -202,14 +162,14 @@ public:
         return _value;
     }
 
-	inline operator bool () const throw()
-	{
-	   return (0 < use_count());
-	}
+    inline operator bool () const throw()
+    {
+        return (0 < use_count());
+    }
 
     T * get () const
     {
-    	return _value;
+        return _value;
     }
 
     void swap (shared_ptr & other)
@@ -220,28 +180,28 @@ public:
 
     inline void reset ()
     {
-    	shared_ptr copy;
-    	swap(copy);
+        shared_ptr copy;
+        swap(copy);
     }
 
     inline void reset (T * ptr)
     {
-    	shared_ptr copy(ptr);
-    	swap(copy);
+        shared_ptr copy(ptr);
+        swap(copy);
     }
 
     template <typename Deleter>
     inline void reset (T * ptr, Deleter deleter)
     {
-    	shared_ptr copy(ptr, deleter);
-    	swap(copy);
+        shared_ptr copy(ptr, deleter);
+        swap(copy);
     }
 
     int use_count () const
     {
-    	if (_value != 0)
-    		return _d->strongref.load();
-    	return 0;
+        if (_value != 0)
+            return _d->strongref.load();
+        return 0;
     }
 
     /**
@@ -251,14 +211,14 @@ public:
      */
     bool unique () const
     {
-    	return use_count() == 1 ? true : false;
+        return use_count() == 1 ? true : false;
     }
 
 private:
     static void deref (ref_count * d)
     {
         if (! d)
-        	return;
+            return;
 
         if (! --d->strongref) {
             d->destroy();
@@ -270,19 +230,17 @@ private:
 
     void deref ()
     {
-    	deref (_d);
+        deref (_d);
     }
 
     void ref() const
     {
-    	++_d->weakref;
-    	++_d->strongref;
+        ++_d->weakref;
+        ++_d->strongref;
     }
 };
 
 } // namespace pfs
-
-#endif // HAVE_BOOST_SMARTPTR
 
 namespace pfs {
 

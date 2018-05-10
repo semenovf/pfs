@@ -61,6 +61,16 @@ public:
         : base_class(first, last)
     {}
 
+    string (unicode::utf8_iterator<pfs::string::iterator> first
+            , unicode::utf8_iterator<pfs::string::iterator> last)
+        : base_class(first.base(), last.base())
+    {}
+
+    string (unicode::utf8_iterator<pfs::string::const_iterator> first
+            , unicode::utf8_iterator<pfs::string::const_iterator> last)
+        : base_class(first.base(), last.base())
+    {}
+
     ~string ()
     {}
 

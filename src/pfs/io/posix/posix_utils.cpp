@@ -37,22 +37,30 @@ int create_tcp_socket (bool non_blocking)
 
 int create_udp_socket (bool non_blocking_flag)
 {
-	int socktype = SOCK_DGRAM;
+    int socktype = SOCK_DGRAM;
 
-	if (non_blocking_flag)
-		socktype |= SOCK_NONBLOCK;
+    if (non_blocking_flag)
+        socktype |= SOCK_NONBLOCK;
 
-	return ::socket(PF_INET, socktype, IPPROTO_UDP);
+    return ::socket(PF_INET, socktype, IPPROTO_UDP);
+}
+
+int create_local_socket (bool non_blocking)
+{
+    int socktype = SOCK_DGRAM;
+
+    if (non_blocking)
+        socktype |= SOCK_NONBLOCK;
+
+    return ::socket(PF_LOCAL, socktype, 0);
 }
 
 int close_socket (int fd)
 {
     if (fd > 0) {
-    	shutdown(fd, SHUT_RDWR);
-
+        shutdown(fd, SHUT_RDWR);
         return ::close(fd);
     }
-
     return 0;
 }
 

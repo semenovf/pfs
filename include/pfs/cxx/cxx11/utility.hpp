@@ -1,6 +1,4 @@
-#ifndef __PFS_CXX_CXX11_UTILITY_HPP__
-#define __PFS_CXX_CXX11_UTILITY_HPP__
-
+#pragma once
 #include <pfs/cxx/cxx98/utility_common.hpp>
 
 namespace pfs {
@@ -15,6 +13,3 @@ inline pair<T1, T2> make_pair (T1 x, T2 y)
 }
 
 } // pfs
-
-#endif /* __PFS_CXX_CXX11_UTILITY_HPP__ */
-

@@ -1,6 +1,4 @@
-#ifndef __PFS_CXX11_ATOMIC_HPP__
-#define __PFS_CXX11_ATOMIC_HPP__
-
+#pragma once
 #include <atomic>
 
 namespace pfs {
@@ -59,5 +57,3 @@ using atomic_uint64_t = atomic<uint64_t>;
 #endif
 
 } // pfs
-
-#endif /* __PFS_CXX11_ATOMIC_HPP__ */

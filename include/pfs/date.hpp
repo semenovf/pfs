@@ -277,6 +277,10 @@ public:
                     case 'm':
                         append_prefixed2(r, '0', month());
                         break;
+                    case 'b':
+                    case 'h':
+                        r.append(month_abbrev(month()));
+                        break;
                     case 'u':
                         r.append(pfs::to_string(day_of_week()));
                         break;
@@ -301,7 +305,14 @@ public:
         return r;
     }
 
+   /**
+    * @brief Locale specific month abbreviation.
+    * @param index Value in range from 1 to 12 (e.g. returned by month())
+    */
+    static string month_abbrev (int index);
+
 private:
+
     static inline void append_prefixed2 (string & s, string::value_type fill_char, int i2)
     {
         if (i2 >= 0 && i2 < 10) s.push_back(fill_char);
@@ -329,7 +340,6 @@ private:
 };
 
 /**
- *
  * @param format
  * @return
  *

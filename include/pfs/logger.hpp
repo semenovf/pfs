@@ -295,13 +295,13 @@ protected:
     string_type _priority_text[static_cast<size_t>(priority::count) - 1]; // excluding no_priority
 
 protected:
-    virtual void print ( priority level, datetime const & dt, string_type const & msg ) = 0;
+    virtual void print (priority level, datetime const & dt, string_type const & msg) = 0;
 
-    void print_helper ( priority level, datetime const & dt, string_type const & msg )
+    void print_helper (priority level, datetime const & dt, string_type const & msg)
     {
-        print ( level, dt, _pattern.empty()
+        print(level, dt, _pattern.empty()
                 ? msg
-                : patternify ( this, level, dt, _pattern, msg ) );
+                : patternify(this, level, dt, _pattern, msg));
     }
 
     void init ()
@@ -339,14 +339,18 @@ protected:
      */
     struct pattern_grammar
     {
-        typedef typename string_type::const_iterator iterator;
-        typedef fsm::fsm<iterator>                   fsm_type;
-        typedef typename fsm_type::transition_type   transition_type;
-        typedef typename fsm_type::char_type         value_type;
+        typedef typename pfs::unicode::unicode_iterator_traits<
+                typename string_type::const_iterator>::iterator iterator;
+        typedef typename pfs::unicode::unicode_iterator_traits<
+                typename string_type::iterator>::output_iterator output_iterator;
+        typedef fsm::fsm<iterator>                 fsm_type;
+        typedef typename fsm_type::transition_type transition_type;
+        typedef typename fsm_type::char_type       value_type;
 
         struct specifier
         {
-            typename string_type::value_type spec_char;
+            //typename string_type::value_type spec_char;
+            value_type              spec_char;
             bool                    left_justify;
             size_t                  min_width;
             size_t                  max_width;
@@ -539,9 +543,8 @@ protected:
         fsm_type fsm(grammar.p_pattern_tr, & context);
         typename fsm_type::result_type r = fsm.exec(0, pattern.cbegin(), pattern.cend());
 
-        if (r.first) {
+        if (r.first)
             return context.result;
-        }
 
         string_type broken_msg("[<!INVALID PATTERN!>]: ");
         broken_msg.append(text);
@@ -678,9 +681,10 @@ log<PFS_LOG_TEMPLETE_ARGS>::appender::pattern_grammar::pattern_grammar ()
     static string_type const PERCENT_SIGN("%");
 
     /* exclude '%' (0x25) */
-    typename string_type::value_type plain_char[] = {
+    //typename string_type::value_type plain_char[] = {
+    value_type plain_char[] = {
           0x20u, 0x24u
-        , 0x26u//, 0x10FFFFu
+        , 0x26u, 0x10FFFFu
     };
 
     static transition_type const plain_char_tr[] = {
@@ -701,10 +705,11 @@ log<PFS_LOG_TEMPLETE_ARGS>::appender::pattern_grammar::pattern_grammar ()
     };
 
     /* format-spec = "{" *( <exclude '{' (0x7B) and '}' (0x7D) > ) "}" */
-    typename string_type::value_type format_spec_char[] = {
+    //typename string_type::value_type format_spec_char[] = {
+    value_type format_spec_char[] = {
           0x20u, 0x7Au
         , 0x7Cu, 0x7Cu
-        , 0x7Eu//, 0x10FFFFu
+        , 0x7Eu, 0x10FFFFu
     };
 
     static transition_type const format_spec_char_tr[] = {

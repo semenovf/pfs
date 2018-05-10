@@ -13,7 +13,7 @@ namespace io {
 
 // All devices must be in non-blocking mode.
 
-template <typename SigslotNS
+template <typename SigslotNS = pfs::sigslot<>
         , template <typename> class SequenceContainer = pfs::list
         , template <typename> class ContigousContainer = pfs::vector
         , template <typename, typename> class AssociativeContainer = pfs::map

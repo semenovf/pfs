@@ -1,7 +1,14 @@
 #pragma once
+#include <pfs/config.h>
 #include <pfs/cxxlang.hpp>
-#include "shared_ptr.hpp"
-#include "unique_ptr.hpp"
+
+#if defined(HAVE_BOOST_SMARTPTR)
+#   include "shared_ptr_boost.hpp"
+#   include "unique_ptr_boost.hpp"
+#else
+#   include "shared_ptr_custom.hpp"
+#   include "unique_ptr_custom.hpp"
+#endif
 
 namespace pfs {
 

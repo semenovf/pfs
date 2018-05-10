@@ -1,56 +1,8 @@
-#include <iostream>
-#include <pfs/test.hpp>
-#include <pfs/memory.hpp>
-#include <pfs/functional.hpp>
+#pragma once
 
-static int const INT_RESULT = 123;
-static int const SUM_RESULT = 15;
-
-int e ()
+void test_bind ()
 {
-    return INT_RESULT;
-}
-
-int f (int n1, int n2 , int n3, int const & n4, int n5)
-{
-    std::cout << n1
-            << ' ' << n2
-            << ' ' << n3
-            << ' ' << n4
-            << ' ' << n5
-            << std::endl;
-
-    return n1 + n2 + n3 + n4 + n5;
-}
-
-struct Bar
-{
-    int sum (int n1, int n2)
-    {
-        std::cout << n1
-                << ' ' << n2
-                << std::endl;
-        return n1 + n2;
-    }
-
-    Bar () : data(INT_RESULT) {}
-
-    int data;
-};
-
-struct Func
-{
-    typedef int result_type;
-
-    int operator () () const
-    {
-        return INT_RESULT;
-    }
-};
-
-int main ()
-{
-    BEGIN_TESTS(20);
+    ADD_TESTS(16);
 
     ///////////////////////////////////////////////////////////////////////////
     // Bind to function                                                      //
@@ -119,17 +71,7 @@ int main ()
     // Assign to a function wrapper                                          //
     ///////////////////////////////////////////////////////////////////////////
 
-    pfs::function<int ()> w1 = e;
-    pfs::function<int ()> w2 = pfs::bind(f, 1, 2, 3, 4, 5);
-    pfs::function<int (Bar &, int, int)> w3 = & Bar::sum;
-    pfs::function<int (Bar &)> w4 = & Bar::data;
-    pfs::function<int ()> w5 = Func();
+    pfs::function<int ()> w1 = pfs::bind(f, 1, 2, 3, 4, 5);
 
-    TEST_OK(w1() == INT_RESULT);
-    TEST_OK(w2() == SUM_RESULT);
-    TEST_OK(w3(bar, 1, 2) == 3);
-    TEST_OK(w4(bar) == INT_RESULT);
-    TEST_OK(w5() == INT_RESULT);
-
-    return END_TESTS;
+    TEST_OK(w1() == SUM_RESULT);
 }

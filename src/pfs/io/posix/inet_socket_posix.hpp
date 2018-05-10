@@ -1,6 +1,4 @@
-#ifndef __PFS_INET_SOCKET_POSIX_HPP__
-#define __PFS_INET_SOCKET_POSIX_HPP__
-
+#pragma once
 #include <cstring>
 #include <arpa/inet.h>
 #include <unistd.h>
@@ -210,5 +208,3 @@ public:
 };
 
 }}}
-
-#endif /* __PFS_INET_SOCKET_POSIX_HPP__ */
