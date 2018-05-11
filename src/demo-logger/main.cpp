@@ -21,11 +21,11 @@ int main ()
 
     log_ns::stdout_appender out_appender;
     log_ns::stderr_appender err_appender;
-    out_appender.set_pattern("%d{ABSOLUTE} [%p]: %m");
-    err_appender.set_pattern("%d{ABSOLUTE} [%p]: %m");
 
     std::cout << "--All messages will be print with date as ABSOLUTE specifier:\n";
 
+    out_appender.set_pattern("%d{ABSOLUTE} [%p]: %m");
+    err_appender.set_pattern("%d{ABSOLUTE} [%p]: %m");
     log.disconnect_all();
     log.set_priority(log_ns::priority::trace);
     log.connect(log_ns::priority::trace, out_appender);
@@ -39,11 +39,11 @@ int main ()
     log.warn("logging warn");
     log.error("logging error");
 
-    out_appender.set_pattern("%d{DATE} [%p]: %m");
-    err_appender.set_pattern("%d{DATE} [%p]: %m");
 
     std::cout << "--All messages will be print excluding Trace and Debug with date as DATE specifier:\n";
 
+    out_appender.set_pattern("%d{DATE} [%p]: %m");
+    err_appender.set_pattern("%d{DATE} [%p]: %m");
     log.set_priority(log_ns::priority::info);
     log.trace("logging trace");
     log.debug("logging debug");
@@ -51,29 +51,32 @@ int main ()
     log.warn("logging warn");
     log.error("logging error");
 
-// #if __COMMENT__
-//
-//     stdout_appender.set_pattern(pfs::string("%d{ISO8601} [%p]: %m"));
-//     stderr_appender.set_pattern(pfs::string("%d{ISO8601} [%p]: %m"));
-//     printf("--Only Warn and Error level messages will be print with date as ISO8601 specifier:\n");
-//     log::set_priority(log::warn_priority);
-//     trace("logging trace");
-//     debug("logging debug");
-//     info("logging info");
-//     warn("logging warn");
-//     error("logging error");
-//
-//     log::set_priority(log::trace_priority);
-//
-//     stdout_appender.set_pattern(_l1("%d{%d/%m/%Y %H:%M:%S} [%p]: %m"));
-//     trace("This is a message dated with format dd/mm/yyyy hh:mm:ss");
-//     stdout_appender.set_pattern(_l1("%d{ABSOLUTE} [%p]: {%20.30m}"));
-//     trace("This is a truncated message of logging with Trace priority");
-//     stdout_appender.set_pattern(_l1("%d{ABSOLUTE} [%p]: {%30m}"));
-//     trace("Left padding");
-//     stdout_appender.set_pattern(_l1("%d{ABSOLUTE} [%p]: {%-30m}"));
-//     trace("Right padding");
-// #endif
+
+    std::cout << "--Only Warn and Error level messages will be print with date as ISO8601 specifier:\n";
+
+    out_appender.set_pattern(pfs::string("%d{ISO8601} [%p]: %m"));
+    err_appender.set_pattern(pfs::string("%d{ISO8601} [%p]: %m"));
+
+    log.set_priority(log_ns::priority::warn);
+    log.trace("logging trace");
+    log.debug("logging debug");
+    log.info("logging info");
+    log.warn("logging warn");
+    log.error("logging error");
+
+    log.set_priority(log_ns::priority::trace);
+
+    out_appender.set_pattern("%d{%d/%m/%Y %H:%M:%S} [%p]: %m");
+    log.trace("This is a message dated with format dd/mm/yyyy hh:mm:ss");
+
+    out_appender.set_pattern("%d{ABSOLUTE} [%p]: {%20.30m}");
+    log.trace("This is a truncated message of logging with Trace priority");
+
+    out_appender.set_pattern("%d{ABSOLUTE} [%p]: {%30m}");
+    log.trace("Left padding");
+
+    out_appender.set_pattern("%d{ABSOLUTE} [%p]: {%-30m}");
+    log.trace("Right padding");
 
     return EXIT_SUCCESS;
 }

@@ -83,26 +83,4 @@ private:
     InputIterator _pos;
 };
 
-//template <typename InputIterator>
-//void ring_buffer<InputIterator>::push (const value_type & value)
-//{
-//	PFS_ASSERT(can_push(1));
-//
-//	if (_tail == _end)
-//		_tail = _begin;
-//
-//	*_tail = value;
-//	++_tail;
-//}
-//
-//template <typename InputIterator>
-//void ring_buffer<InputIterator>::pop ()
-//{
-//	if (empty())
-//		return;
-//
-//	_head->~value_type();
-//	++_head;
-//}
-//
-} // pfs
+} // namespace::pfs

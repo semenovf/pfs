@@ -12,7 +12,7 @@
 #include "json/rpc.hpp"
 
 typedef pfs::log<> log_ns;
-static log_ns::logger logger;
+static log_ns::logger g_logger;
 
 static int const                  TCP_LISTENER_DEFAULT_BACKLOG = 50;
 static pfs::net::inet4_addr const TCP_LISTENER_ADDR(127, 0, 0, 1);
@@ -176,7 +176,7 @@ struct device_manager_slots : pfs::sigslot<>::has_slots
 void run ()
 {
     pfs::io::device_manager<> devman(10);
-    device_manager_slots devslots(logger);
+    device_manager_slots devslots(g_logger);
     pfs::error_code ec;
 
     devman.accepted.connect           (& devslots, & device_manager_slots::device_accepted);
@@ -260,7 +260,7 @@ void run ()
 {
     pfs::error_code ec;
     pfs::io::device_manager<> devman(10);
-    device_manager_slots devslots(logger);
+    device_manager_slots devslots(g_logger);
 
     devman.ready_read.connect  (& devslots, & device_manager_slots::device_ready_read);
     devman.opened.connect      (& devslots, & device_manager_slots::device_opened);
@@ -299,18 +299,18 @@ int main ()
     BEGIN_TESTS(0);
 
     log_ns::appender & cout_appender
-            = logger.add_appender<log_ns::stdout_appender>();
+            = g_logger.add_appender<log_ns::stdout_appender>();
     log_ns::appender & cerr_appender
-            = logger.add_appender<log_ns::stderr_appender>();
+            = g_logger.add_appender<log_ns::stderr_appender>();
     cout_appender.set_pattern("%d{ABSOLUTE} [%p]: %m");
     cerr_appender.set_pattern("%d{ABSOLUTE} [%p]: %m");
 
-    logger.connect(log_ns::priority::trace   , cout_appender);
-    logger.connect(log_ns::priority::debug   , cout_appender);
-    logger.connect(log_ns::priority::info    , cout_appender);
-    logger.connect(log_ns::priority::warn    , cerr_appender);
-    logger.connect(log_ns::priority::error   , cerr_appender);
-    logger.connect(log_ns::priority::critical, cerr_appender);
+    g_logger.connect(log_ns::priority::trace   , cout_appender);
+    g_logger.connect(log_ns::priority::debug   , cout_appender);
+    g_logger.connect(log_ns::priority::info    , cout_appender);
+    g_logger.connect(log_ns::priority::warn    , cerr_appender);
+    g_logger.connect(log_ns::priority::error   , cerr_appender);
+    g_logger.connect(log_ns::priority::critical, cerr_appender);
 
     pfs::thread server_thread(& server::run);
     pfs::unique_ptr<pfs::thread> client_threads[CLIENT_COUNT];

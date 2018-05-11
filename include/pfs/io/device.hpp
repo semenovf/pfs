@@ -29,7 +29,6 @@ public:
 
 protected:
     shared_ptr<bits::device> _d;
-    //unique_ptr<bits::device> _d;
 
 protected:
     device (bits::device * p)

@@ -4,13 +4,13 @@
 namespace pfs {
 namespace io {
 
-buffered_device::buffered_device (device & d, size_t initialSize)
+buffered_device::buffered_device (device & d, size_t initial_size)
     : _d (d)
-    , _count (0)
-    , _cursor (0)
+    , _pos(0)
+    , _count(0)
 {
-    _buffer = static_cast<byte_t *> (std::malloc(initialSize * sizeof (byte_t)));
-    _bufsz = initialSize;
+    _buffer = static_cast<byte_t *>(std::malloc(initial_size * sizeof(byte_t)));
+    _bufsz = initial_size;
 }
 
 buffered_device::~buffered_device ()
@@ -19,7 +19,7 @@ buffered_device::~buffered_device ()
         std::free(_buffer);
 }
 
-ssize_t buffered_device::upload_bytes (size_t max_size)
+ssize_t buffered_device::cache_bytes (size_t max_size)
 {
     if (max_size == 0)
         return 0;
@@ -31,7 +31,12 @@ ssize_t buffered_device::upload_bytes (size_t max_size)
         _buffer = tmp;
     }
 
-    ssize_t r = _d.read(_buffer + _count, max_size);
+    if (max_size > _bufsz - (_pos + _count)) {
+        std::memmove(_buffer, _buffer + _pos, _count);
+        _pos = 0;
+    }
+
+    ssize_t r = _d.read(_buffer + (_pos + _count), max_size);
 
     if (r > 0) {
         _count += r;
@@ -40,29 +45,59 @@ ssize_t buffered_device::upload_bytes (size_t max_size)
     return r;
 }
 
-bool buffered_device::can_read (size_t count)
+//
+// Return: > 0 if there is `count` bytes available;
+//           0 if there is no requested bytes available;
+//         < 0 if there is an error occured.
+//
+ssize_t buffered_device::ensure_available (size_t count)
 {
-    if (_cursor + count < _count) {
-        return true;
-    }
+    if (count <= _count)
+        return integral_cast_check<ssize_t>(count);
 
-    if (_cursor > 0 and _cursor == _count) {
-        _cursor = 0;
-    }
+    ssize_t n = cache_bytes(count < 256 ? count * 2 : count);
 
-    ssize_t n = upload_bytes(count < 256 ? 256 : count);
+    // Error
+    if (n < 0)
+        return -1;
 
-    if (n < static_cast<ssize_t> (count)) {
+    // Enough bytes available
+    if (count <= _count)
+        return integral_cast_check<ssize_t>(count);
+
+    return integral_cast_check<ssize_t>(_count);
+}
+
+ssize_t buffered_device::read (byte_t * bytes, size_t n)
+{
+    ssize_t result = ensure_available(n);
+
+    if (result <= 0)
+        return result;
+
+    std::memcpy(bytes, _buffer + _pos, integral_cast_check<size_t>(result));
+    _pos += integral_cast_check<size_t>(result);
+    _count -= integral_cast_check<size_t>(result);
+    return result;
+}
+
+bool buffered_device::read (byte_string & bytes, size_t n)
+{
+    size_t initial_size = bytes.size();
+    bytes.resize(initial_size + n);
+    ssize_t result = read(bytes.data() + initial_size, n);
+
+    if (result < 0)
         return false;
-    }
 
+    bytes.resize(initial_size + integral_cast_check<size_t>(result));
     return true;
 }
 
 bool buffered_device::read_byte (byte_t & c)
 {
-    if (can_read(1)) {
-        c = _buffer[_cursor++];
+    if (ensure_available(1) > 0) {
+        c = _buffer[_pos++];
         return true;
     }
     return false;
@@ -70,21 +105,12 @@ bool buffered_device::read_byte (byte_t & c)
 
 bool buffered_device::peek_byte (byte_t & c)
 {
-    if (can_read(1)) {
-        c = _buffer[_cursor];
+    if (ensure_available(1) > 0) {
+        c = _buffer[_pos];
         return true;
     }
     return false;
 }
-
-//void buffered_device::unread_byte (byte_t c)
-//{
-//	if (_cursor > 0) {
-//		_buffer[--_cursor] = c;
-//	} else {
-//		_buffer.insert(_buffer.begin(), c);
-//	}
-//}
 
 bool buffered_device::read_line (byte_string & line, size_t maxSize)
 {
