@@ -7,6 +7,7 @@
 #include <pfs/net/inet4_addr.hpp>
 #include <pfs/io/device_manager.hpp>
 #include <pfs/io/inet_server.hpp>
+#include <pfs/io/buffered_device.hpp>
 #include <pfs/thread.hpp>
 #include <pfs/logger.hpp>
 #include "json/rpc.hpp"
@@ -124,52 +125,53 @@ struct device_manager_slots : pfs::sigslot<>::has_slots
 
     void device_accepted (pfs::io::device d, pfs::io::server s)
     {
-        _logger.info("Client accepted on: " + d.url());
+        _logger.info("Server: client accepted on: " + d.url());
+        //d.set_context(new pfs::io::buffered_device(d));
     }
 
     void device_ready_read (pfs::io::device d)
     {
-        _logger.info("device_ready_read");
+        _logger.info("Server: device_ready_read");
     }
 
     void device_disconnected (pfs::io::device d)
     {
-        _logger.info("Client disconnected: " + d.url());
+        _logger.info("Server: client disconnected: " + d.url());
     }
 
     void device_opened (pfs::io::device d)
     {
-        _logger.info("device_opened");
+        _logger.info("Server: device_opened");
     }
 
     void device_opening (pfs::io::device d)
     {
-        _logger.info("device_opening");
+        _logger.info("Server: device_opening");
     }
 
     void device_open_failed (pfs::io::device d, pfs::error_code ec)
     {
-        _logger.error("device_open_failed" + pfs::to_string(ec));
+        _logger.error("Server: device_open_failed" + pfs::to_string(ec));
     }
 
     void server_opened (pfs::io::server s)
     {
-        _logger.info("Server listen on: " + s.url());
+        _logger.info("Server: listen on: " + s.url());
     }
 
     void server_opening (pfs::io::server s)
     {
-        _logger.info("server_opening");
+        _logger.info("Server: opening...");
     }
 
     void server_open_failed (pfs::io::server s, pfs::error_code ec)
     {
-        _logger.error("server_open_failed: " + pfs::to_string(ec));
+        _logger.error("Server: server_open_failed: " + pfs::to_string(ec));
     }
 
     void device_io_error (pfs::error_code ec)
     {
-        _logger.error("device_io_error: " + pfs::to_string(ec));
+        _logger.error("Server: device_io_error: " + pfs::to_string(ec));
     }
 };
 
@@ -209,10 +211,10 @@ void run ()
 
     //server.dispatch();
 
-//    while (true) {
+    while (true) {
         devman.dispatch();
         //pfs::this_thread::sleep_for(pfs::chrono::milliseconds(1));
-//    }
+    }
 }
 
 } // namespace client
@@ -227,32 +229,33 @@ struct device_manager_slots : pfs::sigslot<>::has_slots
 
     void device_ready_read (pfs::io::device d)
     {
-        _logger.info("device_ready_read");
+        _logger.info("Client: device_ready_read");
     }
 
     void device_disconnected (pfs::io::device d)
     {
-        _logger.info("Disconnected from: " + d.url());
+        _logger.info("Client: disconnected from: " + d.url());
     }
 
     void device_opened (pfs::io::device d)
     {
-        _logger.info("Connected to: " + d.url());
+        _logger.info("Client: connected to: " + d.url());
+        //d.set_context(new pfs::io::buffered_device(d));
     }
 
     void device_opening (pfs::io::device d)
     {
-        _logger.info("Connecting to: " + d.url());
+        _logger.info("Client: connecting to: " + d.url());
     }
 
     void device_open_failed (pfs::io::device d, pfs::error_code ec)
     {
-        _logger.error("device_open_failed: " + pfs::to_string(ec));
+        _logger.error("Client: device_open_failed: " + pfs::to_string(ec));
     }
 
     void device_io_error (pfs::error_code ec)
     {
-        _logger.error("device_io_error: " + pfs::to_string(ec));
+        _logger.error("Client: device_io_error: " + pfs::to_string(ec));
     }
 };
 
@@ -282,6 +285,9 @@ void run ()
     simple_transport<simple_protocol> client_transport;
     rpc_ns::client<simple_transport> client(client_transport);
 
+    //devman.dispatch();
+
+    //tcp_socket.close();
 //     TEST_OK(client.call("integer").result<int>() == 123);
 //     TEST_OK(client.call("echo")(425).result<int>() == 425);
 //     TEST_OK(client.call("sum")(1)(2).result<int>() == 3);
@@ -292,7 +298,7 @@ void run ()
 
 } // namespace client
 
-static int const CLIENT_COUNT = 5;
+static int const CLIENT_COUNT = 1;
 
 int main ()
 {
@@ -320,6 +326,8 @@ int main ()
 
     for (int i = 0; i < CLIENT_COUNT; ++i)
         client_threads[i] = pfs::make_unique<pfs::thread>(& client::run);
+
+    pfs::this_thread::sleep_for(pfs::chrono::seconds(1));
 
     for (int i = 0; i < CLIENT_COUNT; ++i)
         client_threads[i]->join();

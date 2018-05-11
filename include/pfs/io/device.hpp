@@ -6,6 +6,8 @@
 #include <pfs/byte_string.hpp>
 #include <pfs/compiler.hpp>
 
+#include <pfs/debug.hpp>
+
 // TODO Apply support of device types: RandomAccessDevice and StreamDevice
 
 namespace pfs { namespace io {
@@ -36,10 +38,16 @@ protected:
     {}
 
 public:
-    device () {}
+    device () {
+        //PFS_DEBUG(std::cout << "device(): " << this << std::endl);
+        PFS_DEBUG(std::cout << "device(): " << this << std::endl);
+    }
 
     ~device ()
-    {}
+    {
+        //PFS_DEBUG(std::cout << "~device(): " << this << "; " << this->url() << std::endl);
+        PFS_DEBUG(std::cout << "~device(): " << this << "; " << std::endl);
+    }
 
 #if __cplusplus >= 201103L
     device (device const & rhs) = default;

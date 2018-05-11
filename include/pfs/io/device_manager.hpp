@@ -8,6 +8,8 @@
 #include <pfs/vector.hpp>
 #include <pfs/io/pool.hpp>
 
+#include <pfs/debug.hpp>
+
 namespace pfs {
 namespace io {
 
@@ -102,6 +104,7 @@ class device_manager : SigslotNS::has_slots
 
         virtual void can_write (device & d) pfs_override
         {
+            PFS_DEBUG(puts("***can_write***"));
             _p2->delete_deferred(d);
             _p1->push_back(d);
 

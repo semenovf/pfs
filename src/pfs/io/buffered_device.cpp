@@ -4,7 +4,7 @@
 namespace pfs {
 namespace io {
 
-buffered_device::buffered_device (device & d, size_t initial_size)
+buffered_device::buffered_device (device d, size_t initial_size)
     : _d (d)
     , _pos(0)
     , _count(0)

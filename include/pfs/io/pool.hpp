@@ -404,11 +404,11 @@ public:
         virtual ~dispatcher_context () {}
 
     public:
-        virtual void accepted (device &, server &) {}
-        virtual void ready_read (device &) {}
-        virtual void disconnected (device &) {}
-        virtual void can_write (device &) {}
-        virtual void on_error (error_code const &) {}
+        virtual void accepted (device &, server &) { PFS_DEBUG(puts("***accepted***")); }
+        virtual void ready_read (device &) { PFS_DEBUG(puts("***ready_read***")); }
+        virtual void disconnected (device &) { PFS_DEBUG(puts("***disconnected***")); }
+        virtual void can_write (device &) { /*PFS_DEBUG(puts("***can_write***"));*/ }
+        virtual void on_error (error_code const &) { PFS_DEBUG(puts("***on_error***")); }
     };
 
     void dispatch (dispatcher_context & context)
@@ -423,7 +423,7 @@ public:
             pool::iterator it_end = result.second;
 
             while (it != it_end) {
-                pool::value val = *it;
+                pool::value & val = *it;
 
                 short revents = it.revents();
 
@@ -434,11 +434,11 @@ public:
                     if ((revents ^ WR_EVENTS_XOR_MASK) == 0) {
                         ; // TODO here may be need check opening/opened state
                     } else {
-                        pfs::io::server server = val.get_server();
+                        pfs::io::server & server = val.get_server();
                         process_server(server, context, revents);
                     }
                 } else {
-                    pfs::io::device dev = val.get_device();
+                    pfs::io::device & dev = val.get_device();
                     process_device(dev, context, revents);
                 }
 

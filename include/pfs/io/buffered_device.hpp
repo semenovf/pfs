@@ -5,9 +5,9 @@
 namespace pfs {
 namespace io {
 
-class buffered_device
+class buffered_device : public bits::device_context
 {
-    device & _d;
+    device _d;
     byte_t * _buffer;
     size_t _bufsz;
     size_t _pos;
@@ -18,7 +18,7 @@ private:
     ssize_t cache_bytes (size_t max_size);
 
 public:
-    buffered_device (device & d, size_t initial_size = 256);
+    buffered_device (device d, size_t initial_size = 256);
 
     ~buffered_device ();
 
@@ -72,6 +72,29 @@ public:
     bool peek_byte (byte_t & c);
 
     bool read_line (byte_string & line, size_t maxSize);
+
+        /**
+     * @brief Write bytes to the device.
+     */
+    ssize_t write (const byte_t * bytes, size_t n)
+    {
+        return _d.write(bytes, n);
+    }
+
+    ssize_t write (const char * chars, size_t n)
+    {
+        return write(reinterpret_cast<const byte_t *>(chars), n);
+    }
+
+    ssize_t write (byte_string const & bytes, size_t n)
+    {
+        return write(bytes.data(), pfs::min(n, bytes.size()));
+    }
+
+    ssize_t write (byte_string const & bytes)
+    {
+        return write(bytes.data(), bytes.size());
+    }
 };
 
 }} // pfs::io
