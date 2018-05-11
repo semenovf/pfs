@@ -1,7 +1,10 @@
 #pragma once
 #include <pfs/atomic.hpp>
 #include <pfs/operationsystem.hpp>
-#include PFS_OS_HEADER(io/pool)
+
+#if PFS_OS_POSIX
+    #include <pfs/io/posix/pool.hpp>
+#endif
 
 #include <pfs/debug.hpp>
 
@@ -420,7 +423,7 @@ public:
             pool::iterator it_end = result.second;
 
             while (it != it_end) {
-                pool::value val = *it;
+                pool::value & val = *it;
 
                 short revents = it.revents();
 

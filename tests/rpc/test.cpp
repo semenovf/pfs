@@ -211,10 +211,10 @@ void run ()
 
     //server.dispatch();
 
-    while (true) {
+//    while (true) {
         devman.dispatch();
         //pfs::this_thread::sleep_for(pfs::chrono::milliseconds(1));
-    }
+//    }
 }
 
 } // namespace client
