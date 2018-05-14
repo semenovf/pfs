@@ -36,7 +36,6 @@ set(PFS_LIB_COMMON_SOURCES
     io/exception.cpp
     io/file.cpp
     io/null.cpp
-    io/server.cpp
 )
 
 if (UNIX)

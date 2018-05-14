@@ -1,4 +1,5 @@
 #pragma once
+#include <pfs/cxxlang.hpp>
 #include <pfs/io/exception.hpp>
 #include <pfs/io/bits/device.hpp>
 
@@ -16,7 +17,7 @@ enum server_type
 
 namespace pfs {
 namespace io {
-namespace bits {
+namespace details {
 
 struct server : public basic_device
 {
@@ -37,11 +38,16 @@ struct server : public basic_device
 
     virtual bool is_nonblocking () const = 0;
 
-    virtual error_code accept (bits::device **, bool non_blocking) = 0;
+    virtual error_code accept (details::device **, bool non_blocking) = 0;
 
-    virtual native_handle_type native_handle () const = 0;
+    //virtual native_handle_type native_handle () const = 0;
 
     virtual server_type type () const = 0;
+
+    virtual bool is_server () const pfs_override
+    {
+        return true;
+    }
 };
 
-}}} // pfs::io::bits
+}}} // pfs::io::details

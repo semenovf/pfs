@@ -41,7 +41,7 @@ error_code inet_server::bind (uint32_t addr, uint16_t port)
     return error_code();
 }
 
-error_code tcp_server::accept (bits::device ** peer, bool non_blocking)
+error_code tcp_server::accept (details::device ** peer, bool non_blocking)
 {
     struct sockaddr_in peer_addr;
     socklen_t peer_addr_len = sizeof (peer_addr);
@@ -59,12 +59,12 @@ error_code tcp_server::accept (bits::device ** peer, bool non_blocking)
 
     PFS_ASSERT(peer_socket->set_nonblocking(non_blocking));
 
-    *peer = dynamic_cast<bits::device *> (peer_socket);
+    *peer = dynamic_cast<details::device *> (peer_socket);
 
     return error_code();
 }
 
-error_code udp_server::accept (bits::device ** peer, bool non_blocking)
+error_code udp_server::accept (details::device ** peer, bool non_blocking)
 {
     struct sockaddr_in peer_addr;
     socklen_t peer_addr_len = sizeof (peer_addr);
@@ -80,7 +80,7 @@ error_code udp_server::accept (bits::device ** peer, bool non_blocking)
 
     PFS_ASSERT(peer_socket->set_nonblocking(non_blocking));
 
-    *peer = dynamic_cast<bits::device *> (peer_socket);
+    *peer = dynamic_cast<details::device *> (peer_socket);
 
     return error_code();
 }

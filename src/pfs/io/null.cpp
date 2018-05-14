@@ -2,9 +2,11 @@
 #include "pfs/io/null.hpp"
 
 
-namespace pfs { namespace io { namespace details {
+namespace pfs {
+namespace io {
+namespace details {
 
-struct null : public bits::device
+struct null : public details::device
 {
     null () {}
 
@@ -18,7 +20,7 @@ struct null : public bits::device
     	return read_write | non_blocking;
     }
 
-    virtual ssize_t  bytes_available () const pfs_override
+    virtual ssize_t available () const pfs_override
     {
         return 0;
     }

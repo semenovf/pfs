@@ -3,7 +3,7 @@
 #include <pfs/byte_string.hpp>
 #include <pfs/io/device.hpp>
 #include <pfs/io/inet_server.hpp>
-#include <pfs/io/pool.hpp>
+#include <pfs/io/device_notifier_pool.hpp>
 #include <pfs/vector.hpp>
 #include <pfs/map.hpp>
 #include <iostream>
@@ -68,16 +68,13 @@ static const char * loremipsum [] = {
     , "40.videntur parum clari, fiant sollemnes in futurum."
 };
 
-typedef pfs::io::pool<
-          pfs::vector
-        , pfs::vector
-        , pfs::map> pool_type;
+typedef pfs::io::device_notifier_pool<> pool_type;
 
-struct dispatcher_context : public pool_type::dispatcher_context
+struct dispatcher_listener
 {
     int n1;
 
-    dispatcher_context ()
+    dispatcher_listener ()
         : n1(0)
     {}
 
@@ -109,31 +106,6 @@ struct dispatcher_context : public pool_type::dispatcher_context
     {
         std::cerr << "ERROR: " << ex.message() << std::endl;
     }
-
-//	pfs::io::pool & pool;
-//	pfs::byte_string sample;
-//
-//	dispatcher_context (pfs::io::pool & p)
-//			: pool(p)
-//	{
-//		int n = sizeof(loremipsum)/sizeof(loremipsum[0]);
-//
-//		for (int i = 0; i < n; ++i) {
-//			sample.append(loremipsum[i]);
-//		}
-//	}
-
-//	virtual void on_ready_read (pfs::io::device & d)
-//	{
-//		pfs::byte_string bytes;
-//		pfs::error_code ex = d.read(bytes, d.available());
-//
-//		TEST_OK(! ex);
-//
-//		std::cout << "Bytes read: " << bytes.size() << std::endl;
-//
-//		TEST_OK(bytes == sample);
-//	}
 };
 
 class ServerThread
@@ -145,18 +117,18 @@ class ServerThread
     {
         ADD_TESTS(1);
 
-        pfs::error_code ex;
+        pfs::error_code ec;
         _server = pfs::io::open_server(pfs::io::open_params<tcp_server>(
                     inet4_addr(SERVER_ADDR)
                 , SERVER_PORT
                 , SERVER_BACKLOG)
-                , ex);
+                , ec);
 
-        if (ex) {
-            std::cerr << "ERROR (server): open failed:" << ex.message() << std::endl;
+        if (ec) {
+            std::cerr << "ERROR (server): open failed:" << ec.message() << std::endl;
         }
 
-        TEST_FAIL2(!ex, "Open server socket");
+        TEST_FAIL2(!ec, "Open server socket");
     }
 
     virtual void run ()
@@ -165,11 +137,11 @@ class ServerThread
             return;
 
         pool_type pool;
-        pool.push_back(_server);
+        pool.insert(_server, pfs::io::notify_all);
 
-        dispatcher_context ctx;
+        dispatcher_listener listener;
 
-        pool.dispatch(ctx);//, pfs::io::poll_all, 100);
+        pool.dispatch(pfs::io::notify_all, listener, 100);
     }
 };
 

@@ -6,22 +6,22 @@
 namespace pfs {
 namespace io {
 
-template <typename ServerImpl>
+template <typename ServerTag>
 struct open_params;
 
 class server
 {
 public:
-	typedef device::native_handle_type native_handle_type;
-	typedef device::context_type       context_type;
+    typedef device::native_handle_type native_handle_type;
+    typedef device::context_type       context_type;
 
 protected:
-    shared_ptr<bits::server> _d;
+    shared_ptr<details::server> _d;
 
 protected:
-    server (bits::server * p)
-		: _d(p)
-	{}
+    server (details::server * p)
+        : _d(p)
+    {}
 
 public:
     server ()
@@ -79,7 +79,15 @@ public:
      *         notification storage
      * @see    device::notification()
      */
-    bool close ();
+    bool close ()
+    {
+        error_code ex;
+
+        if (_d)
+            return _d->close();
+
+        return true;
+    }
 
     /**
      *
@@ -89,7 +97,21 @@ public:
      *
      * @return
      */
-    error_code accept (device & peer, bool non_blocking);
+    error_code accept (device & peer, bool non_blocking)
+    {
+        PFS_ASSERT(_d);
+
+        details::device * p;
+
+        error_code ec = _d->accept(& p, non_blocking);
+
+        if (!ec) {
+            shared_ptr<details::device> d(p);
+            peer._d.swap(d);
+        }
+
+        return ec;
+    }
 
     server_type type () const
     {

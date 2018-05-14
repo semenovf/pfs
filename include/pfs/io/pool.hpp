@@ -1,3 +1,5 @@
+#if __OBSOLETE__ // see device_notifier_pool
+
 #pragma once
 #include <pfs/atomic.hpp>
 #include <pfs/operationsystem.hpp>
@@ -553,3 +555,5 @@ private:
 };
 
 }} // pfs::io
+
+#endif

@@ -9,11 +9,11 @@ namespace pfs {
 namespace io {
 namespace details {
 
-class inet_socket : public bits::device
+class inet_socket : public details::device
 {
 public:
-	typedef bits::device::native_handle_type native_handle_type;
-    typedef bits::device::string_type        string_type;
+	typedef details::device::native_handle_type native_handle_type;
+    typedef details::device::string_type        string_type;
 
 protected:
 	native_handle_type _fd;
@@ -28,7 +28,7 @@ public:
 
 public:
 	inet_socket ()
-		: bits::device()
+		: details::device()
 		, _fd(-1)
 	{}
 
@@ -43,7 +43,7 @@ public:
 
     virtual open_mode_flags open_mode () const pfs_override;
 
-    virtual ssize_t bytes_available () const pfs_override;
+    virtual ssize_t available () const pfs_override;
 
     virtual ssize_t read (byte_t * bytes, size_t n) pfs_override;
 

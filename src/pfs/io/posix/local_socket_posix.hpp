@@ -60,7 +60,7 @@ public:
 
     virtual open_mode_flags open_mode () const pfs_override;
 
-    virtual ssize_t bytes_available () const pfs_override;
+    virtual ssize_t available () const pfs_override;
 
     virtual ssize_t read (byte_t * bytes, size_t n) pfs_override;
 

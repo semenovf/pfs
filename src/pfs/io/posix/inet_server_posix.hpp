@@ -8,10 +8,10 @@ namespace pfs {
 namespace io {
 namespace details {
 
-class inet_server : public bits::server
+class inet_server : public details::server
 {
 public:
-    typedef bits::server::native_handle_type native_handle_type;
+    typedef details::server::native_handle_type native_handle_type;
 
 protected:
 	native_handle_type _fd;
@@ -19,7 +19,7 @@ protected:
 
 public:
     inet_server ()
-        : bits::server()
+        : details::server()
         , _fd(-1)
     {}
 
@@ -99,7 +99,7 @@ public:
         return pfs::io::inet_socket_url("tcp", _sockaddr);
     }
 
-    virtual error_code accept (bits::device ** peer, bool non_blocking) pfs_override;
+    virtual error_code accept (details::device ** peer, bool non_blocking) pfs_override;
 };
 
 class udp_server : public inet_server
@@ -136,7 +136,7 @@ public:
         return pfs::io::inet_socket_url("udp", _sockaddr);
     }
 
-    virtual error_code accept (bits::device ** peer, bool non_blocking) pfs_override;
+    virtual error_code accept (details::device ** peer, bool non_blocking) pfs_override;
 };
 
 

@@ -5,7 +5,7 @@
 namespace pfs {
 namespace io {
 
-class buffered_device : public bits::device_context
+class buffered_device : public details::device_context
 {
     device _d;
     byte_t * _buffer;

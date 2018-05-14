@@ -10,9 +10,10 @@
 
 // TODO Apply support of device types: RandomAccessDevice and StreamDevice
 
-namespace pfs { namespace io {
+namespace pfs {
+namespace io {
 
-template <typename DeviceImpl>
+template <typename DeviceTag>
 struct open_params;
 
 class server;
@@ -23,17 +24,17 @@ class device
     friend class server;
 
 public:
-    typedef bits::device::native_handle_type native_handle_type;
-    typedef bits::device::open_mode_flags    open_mode_flags;
-    typedef bits::device::open_mode_type     open_mode_type;
-    typedef bits::device::context_type       context_type;
-    typedef bits::device::string_type        string_type;
+    typedef details::device::native_handle_type native_handle_type;
+    typedef details::device::open_mode_flags    open_mode_flags;
+    typedef details::device::open_mode_type     open_mode_type;
+    typedef details::device::context_type       context_type;
+    typedef details::device::string_type        string_type;
 
 protected:
-    shared_ptr<bits::device> _d;
+    shared_ptr<details::device> _d;
 
 protected:
-    device (bits::device * p)
+    device (details::device * p)
         : _d(p)
     {}
 
@@ -124,12 +125,12 @@ public:
 
     ssize_t available () const
     {
-        return _d->bytes_available();
+        return _d->available();
     }
 
     bool at_end () const
     {
-        return _d->bytes_available() == ssize_t(0);
+        return _d->available() == ssize_t(0);
     }
 
     /**

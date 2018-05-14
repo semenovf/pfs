@@ -35,7 +35,7 @@ enum device_type
 
 namespace pfs {
 namespace io {
-namespace bits {
+namespace details {
 
 // TODO Support other platform specific native file handle types.
 //
@@ -95,12 +95,19 @@ public:
     }
 
     virtual string_type url () const = 0;
+
+    virtual native_handle_type native_handle () const = 0;
+
+    virtual bool is_server () const
+    {
+        return false;
+    }
 };
 
 class device : public basic_device
 {
 public:
-    typedef bits::native_handle_type  native_handle_type;
+    typedef details::native_handle_type  native_handle_type;
     typedef uint32_t                  open_mode_flags;
     typedef open_mode_enum            open_mode_type;
     typedef device_context            info_type;
@@ -117,7 +124,12 @@ public:
 
     virtual open_mode_flags open_mode () const = 0;
 
-    virtual ssize_t bytes_available () const = 0;
+    virtual ssize_t available () const = 0;
+
+    bool at_end () const
+    {
+        return this->available() == ssize_t(0);
+    }
 
     virtual ssize_t read (byte_t * bytes, size_t n) = 0;
 
@@ -133,9 +145,9 @@ public:
 
     virtual bool is_nonblocking () const = 0;
 
-    virtual native_handle_type native_handle () const = 0;
+    //virtual native_handle_type native_handle () const = 0;
 
     virtual device_type type () const = 0;
 };
 
-}}} // pfs::io::bits
+}}} // pfs::io::details

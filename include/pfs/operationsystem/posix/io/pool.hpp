@@ -1,3 +1,5 @@
+#if __OBSOLETE__ // see device_notifier_pool
+
 #pragma once
 #include <poll.h>
 #include <cerrno>
@@ -306,3 +308,5 @@ struct pool : public bits::pool
 };
 
 }}} // pfs::io::details
+
+#endif

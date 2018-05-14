@@ -13,9 +13,9 @@ namespace pfs {
 namespace io {
 namespace details {
 
-struct file : public bits::device
+struct file : public details::device
 {
-    bits::device::native_handle_type _fd;
+    details::device::native_handle_type _fd;
     filesystem::path path;
     int oflags;
     mode_t omode;
@@ -42,7 +42,7 @@ struct file : public bits::device
 
     virtual open_mode_flags open_mode () const pfs_override;
 
-    virtual ssize_t bytes_available () const pfs_override;
+    virtual ssize_t available () const pfs_override;
 
     virtual ssize_t read (byte_t * bytes, size_t n) pfs_override;
 
@@ -113,9 +113,9 @@ error_code file::open (filesystem::path const & p, int of, mode_t om)
     return error_code();
 }
 
-bits::device::open_mode_flags file::open_mode () const
+details::device::open_mode_flags file::open_mode () const
 {
-    bits::device::open_mode_flags r = 0;
+    details::device::open_mode_flags r = 0;
     char buf[1] = {0};
 
     if (::read(_fd, buf, 0) >= 0 && errno != EBADF)
@@ -127,23 +127,23 @@ bits::device::open_mode_flags file::open_mode () const
     return r;
 }
 
-ssize_t file::bytes_available () const
+ssize_t file::available () const
 {
     PFS_ASSERT(_fd >= 0);
 
     off_t cur = ::lseek(_fd, off_t(0), SEEK_CUR);
     PFS_ASSERT(cur >= off_t(0));
-    //std::cout << "file::bytes_available: cur = " << cur << std::endl;
+    //std::cout << "file::available: cur = " << cur << std::endl;
 
     off_t total = ::lseek(_fd, off_t(0), SEEK_END);
     PFS_ASSERT(total >= off_t(0));
-    //std::cout << "file::bytes_available: total = " << total << std::endl;
+    //std::cout << "file::_available: total = " << total << std::endl;
 
     cur = ::lseek(_fd, cur, SEEK_SET);
     PFS_ASSERT(cur >= off_t(0));
     PFS_ASSERT(total >= cur);
-    //std::cout << "file::bytes_available: cur = " << cur << std::endl;
-    //std::cout << "file::bytes_available: static_cast<ssize_t>(total - cur) = " << static_cast<ssize_t>(total - cur) << std::endl;
+    //std::cout << "file::available: cur = " << cur << std::endl;
+    //std::cout << "file::available: static_cast<ssize_t>(total - cur) = " << static_cast<ssize_t>(total - cur) << std::endl;
 
     return static_cast<ssize_t>(total - cur);
 }
@@ -236,7 +236,7 @@ device open_device<file> (const open_params<file> & op, error_code & ec)
     ec = f->open(op.path, native_oflags, native_mode);
 
     if (!ec) {
-        shared_ptr<bits::device> d(f);
+        shared_ptr<details::device> d(f);
         result._d.swap(d);
     } else {
         delete f;

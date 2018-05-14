@@ -131,11 +131,11 @@ bool inet_socket::reopen ()
     return this->_ec == error_code();
 }
 
-bits::device::open_mode_flags inet_socket::open_mode () const
+details::device::open_mode_flags inet_socket::open_mode () const
 {
     // TODO Inherited from file (check if this apply to real socket)
 
-    bits::device::open_mode_flags r = 0;
+    details::device::open_mode_flags r = 0;
     char buf[1] = {0};
 
     if (::read(_fd, buf, 0) >= 0 && errno != EBADF)
@@ -147,7 +147,7 @@ bits::device::open_mode_flags inet_socket::open_mode () const
     return r;
 }
 
-ssize_t inet_socket::bytes_available () const
+ssize_t inet_socket::available () const
 {
     PFS_ASSERT(_fd >= 0);
     int n = 0;

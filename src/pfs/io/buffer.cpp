@@ -7,7 +7,7 @@ namespace pfs {
 namespace io {
 namespace details {
 
-struct buffer : public bits::device
+struct buffer : public details::device
 {
     static const size_t default_buffer_size = 256;
 
@@ -31,7 +31,7 @@ struct buffer : public bits::device
         return read_write | non_blocking;
     }
 
-    virtual ssize_t bytes_available () const
+    virtual ssize_t available () const
     {
         return _buffer.size() - _pos;
     }
@@ -114,9 +114,9 @@ template <>
 device open_device<buffer> (open_params<buffer> const & op, error_code & ec)
 {
     device result;
-    bits::device * p = new details::buffer(op._bs);
+    details::device * p = new details::buffer(op._bs);
 
-    shared_ptr<bits::device> d(p);
+    shared_ptr<details::device> d(p);
     result._d.swap(d);
 
     ec.clear();

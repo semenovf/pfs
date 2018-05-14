@@ -127,7 +127,7 @@ error_code local_socket::connect (filesystem::path const & filename)
 //     return r;
 // }
 //
-// ssize_t inet_socket::bytes_available () const
+// ssize_t inet_socket::available () const
 // {
 //     PFS_ASSERT(_fd >= 0);
 //     int n = 0;
