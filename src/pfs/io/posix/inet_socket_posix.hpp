@@ -12,30 +12,30 @@ namespace details {
 class inet_socket : public details::device
 {
 public:
-	typedef details::device::native_handle_type native_handle_type;
+    typedef details::device::native_handle_type native_handle_type;
     typedef details::device::string_type        string_type;
 
 protected:
-	native_handle_type _fd;
-	sockaddr_in  _sockaddr;
+    native_handle_type _fd;
+    sockaddr_in  _sockaddr;
 
 private:
-	inet_socket (const inet_socket & other);
-	inet_socket & operator = (const inet_socket & other);
+    inet_socket (const inet_socket & other);
+    inet_socket & operator = (const inet_socket & other);
 
 public:
-	virtual error_code open (bool non_blocking) = 0;
+    virtual error_code open (bool non_blocking) = 0;
 
 public:
-	inet_socket ()
-		: details::device()
-		, _fd(-1)
-	{}
+    inet_socket ()
+        : details::device()
+        , _fd(-1)
+    {}
 
-	virtual ~inet_socket ()
-	{
-		close();
-	}
+    virtual ~inet_socket ()
+    {
+        close();
+    }
 
     error_code connect (uint32_t addr, uint16_t port);
 
@@ -53,7 +53,7 @@ public:
     {
         bool r = true;
         if (close_socket(_fd) != 0) {
-            this->_ec = error_code(errno, pfs::generic_category());
+            this->_ec = get_last_system_error();
             r = false;
         }
         _fd = -1;
@@ -62,7 +62,7 @@ public:
 
     virtual bool opened () const pfs_override
     {
-    	return _fd >= 0;
+        return _fd >= 0;
     }
 
     virtual void flush () pfs_override
@@ -80,7 +80,7 @@ public:
 
     virtual native_handle_type native_handle () const pfs_override
     {
-    	return _fd;
+        return _fd;
     }
 
     virtual device_type type () const = 0;
@@ -93,11 +93,11 @@ public:
 class tcp_socket : public inet_socket
 {
 public:
-	typedef inet_socket::native_handle_type native_handle_type;
+    typedef inet_socket::native_handle_type native_handle_type;
     typedef inet_socket::string_type        string_type;
 
 public:
-	virtual error_code open (bool non_blocking) pfs_override
+    virtual error_code open (bool non_blocking) pfs_override
     {
         _fd = create_tcp_socket(non_blocking);
         return _fd < 0
@@ -106,9 +106,9 @@ public:
     }
 
 public:
-	tcp_socket ()
-		: inet_socket()
-	{}
+    tcp_socket ()
+        : inet_socket()
+    {}
 
     virtual device_type type () const pfs_override
     {
@@ -124,15 +124,15 @@ public:
 class tcp_socket_peer : public tcp_socket
 {
 public:
-	typedef tcp_socket::native_handle_type native_handle_type;
+    typedef tcp_socket::native_handle_type native_handle_type;
 
 public:
-	tcp_socket_peer (native_handle_type fd, const sockaddr_in & sockaddr)
-		: tcp_socket()
-	{
-		_fd = fd;
-		::memcpy(& _sockaddr, & sockaddr, sizeof(_sockaddr));
-	}
+    tcp_socket_peer (native_handle_type fd, const sockaddr_in & sockaddr)
+        : tcp_socket()
+    {
+        _fd = fd;
+        ::memcpy(& _sockaddr, & sockaddr, sizeof(_sockaddr));
+    }
 
     virtual device_type type () const pfs_override
     {
@@ -143,11 +143,11 @@ public:
 class udp_socket : public inet_socket
 {
 public:
-	typedef inet_socket::native_handle_type native_handle_type;
+    typedef inet_socket::native_handle_type native_handle_type;
     typedef inet_socket::string_type        string_type;
 
 public:
-	virtual error_code open (bool non_blocking) pfs_override
+    virtual error_code open (bool non_blocking) pfs_override
     {
         _fd = create_udp_socket(non_blocking);
         return _fd < 0
@@ -156,9 +156,9 @@ public:
     }
 
 public:
-	udp_socket ()
-		: inet_socket()
-	{}
+    udp_socket ()
+        : inet_socket()
+    {}
 
     virtual device_type type () const pfs_override
     {
@@ -174,20 +174,20 @@ public:
 class udp_socket_peer : public udp_socket
 {
 public:
-	typedef udp_socket::native_handle_type native_handle_type;
+    typedef udp_socket::native_handle_type native_handle_type;
 
 public:
-	udp_socket_peer (native_handle_type fd, const sockaddr_in & sockaddr)
-		: udp_socket()
-	{
-		_fd = fd;
-		::memcpy(& _sockaddr, & sockaddr, sizeof(_sockaddr));
-	}
+    udp_socket_peer (native_handle_type fd, const sockaddr_in & sockaddr)
+        : udp_socket()
+    {
+        _fd = fd;
+        ::memcpy(& _sockaddr, & sockaddr, sizeof(_sockaddr));
+    }
 
     virtual ~udp_socket_peer ()
-	{
-		close();
-	}
+    {
+        close();
+    }
 
     virtual device_type type () const pfs_override
     {
@@ -204,7 +204,6 @@ public:
         _fd = -1;
         return true;
     }
-
 };
 
 }}}

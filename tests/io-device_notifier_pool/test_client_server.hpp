@@ -13,7 +13,7 @@
 typedef pfs::string string_type;
 
 #define BUFFER_SIZE 1
-#define NCLIENTS    100/*10*/
+#define NCLIENTS    50/*10*/
 #define SERVER_ADDR string_type("127.0.0.1")
 #define SERVER_PORT 10299
 #define SERVER_BACKLOG 10
@@ -98,7 +98,8 @@ struct event_handler
         std::cout << "Server: socket disconnected:  " << d->url() << std::endl;
         pfs::byte_string * buffer = d->context<pfs::byte_string>();
         TEST_OK(*buffer == sample);
-        PFS_DEBUG(printf("*** DISCONNECTED: [%d]\n", not_quit.load()));
+        //std::cout << '[' << buffer->c_str() << ']' << std::endl;
+        //PFS_DEBUG(printf("*** DISCONNECTED: [%d]\n", not_quit.load()));
         --not_quit;
     }
 
@@ -188,25 +189,28 @@ public:
         int n = sizeof(loremipsum)/sizeof(loremipsum[0]);
         int n1 = 0;
 
-        pfs::byte_string sample;
-
-        for (int i = 0; i < n; ++i) {
-            sample.append(loremipsum[i]);
-        }
+        size_t sample_size = 0;
+        size_t total_bytes_sent = 0;
 
         for (int i = 0; i < n; ++i) {
             pfs::byte_string data(loremipsum[i]);
+            sample_size += std::strlen(loremipsum[i]);
 
-            if (client->write(data) >= 0) {
-                ++n1;
+            ssize_t bytes_sent = client->write(data);
+
+            if (bytes_sent > 0) {
+                total_bytes_sent += pfs::integral_cast_check<size_t>(bytes_sent);
+            } else if (bytes_sent == 0) {
+                std::cerr << "WARN (client): Oops! Zero bytes sent" << std::endl;
             } else {
                 std::cerr << "ERROR (client): " << client->errorcode().message() << std::endl;
             }
         }
 
+        client->flush();
         client->close();
 
-        TEST_OK2(n == n1, "Data sent by client");
+        TEST_OK2(total_bytes_sent == sample_size, "All data successfully sent by client");
     }
 };
 

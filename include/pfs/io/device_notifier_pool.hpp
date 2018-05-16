@@ -6,8 +6,7 @@ namespace io {
 enum notification_flags {
       notify_read  = 1 << 0
     , notify_write = 1 << 1
-    , notify_error = 1 << 2
-    , notify_all   = notify_read | notify_write | notify_error
+    , notify_all   = notify_read | notify_write
 };
 
 }}

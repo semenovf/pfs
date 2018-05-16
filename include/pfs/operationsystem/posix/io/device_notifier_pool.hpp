@@ -180,16 +180,15 @@ class device_notifier_pool
         {
             short poll_events = 0;
 
+            // FIXME Allow if Linux version match
+            // (since Linux 2.6.17)
+            //poll_events |= POLLRDHUP;
+
             if (notify_events & notify_read)
                 poll_events |= POLLIN;
 
             if (notify_events & notify_write)
                 poll_events |= POLLOUT;
-
-            // Only for semantic reason (ignored by poll on setup).
-            // This events unconditionally returned by poll.
-            if (notify_events & notify_error)
-                poll_events |= POLLERR | POLLHUP | POLLNVAL;
 
             ssize_t index = -1;
 
@@ -362,7 +361,8 @@ private:
 
         // TODO Check if this event enough to decide to disconnect.
         if ((pdev->available() == 0 && (revents & POLLIN))
-                    || revents & POLLRDHUP) { // (since Linux 2.6.17)
+                    /*|| revents & POLLRDHUP*/) { // (since Linux 2.6.17)
+            event_handler.ready_read(pdev); // May be pending data
             event_handler.disconnected(pdev);
             _pollfds.erase(pos);
         } else {

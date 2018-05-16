@@ -18,21 +18,21 @@ bool set_nonblocking (int fd, bool on)
     int flags = ::fcntl(fd, F_GETFL, 0);
 
     if (on)
-    	flags |= O_NONBLOCK;
+        flags |= O_NONBLOCK;
     else
-    	flags &= ~O_NONBLOCK;
+        flags &= ~O_NONBLOCK;
 
     return ::fcntl(fd, F_SETFL, flags) >= 0;
 }
 
 int create_tcp_socket (bool non_blocking)
 {
-  	int socktype = SOCK_STREAM;
+    int socktype = SOCK_STREAM;
 
-	if (non_blocking)
-		socktype |= SOCK_NONBLOCK;
+    if (non_blocking)
+        socktype |= SOCK_NONBLOCK;
 
-	return ::socket(PF_INET, socktype, IPPROTO_TCP);
+    return ::socket(PF_INET, socktype, IPPROTO_TCP);
 }
 
 int create_udp_socket (bool non_blocking_flag)

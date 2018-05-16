@@ -7,16 +7,17 @@
  *      http://publib.boulder.ibm.com/infocenter/iseries/v5r3/topic/rzab6/rzab6soxoverview.htm
  * Socket application design recommendations:
  *      http://publib.boulder.ibm.com/infocenter/iseries/v5r3/topic/rzab6/rzab6designrec.htm
- * A connection-oriented server example:
- *      http://publib.boulder.ibm.com/infocenter/iseries/v5r3/topic/rzab6/rzab6xconoserver.htm
  * A connectionless server example:
  *      http://publib.boulder.ibm.com/infocenter/iseries/v5r3/topic/rzab6/rzab6xconlessserver.htm
- * A connection-oriented client example:
- *      http://publib.boulder.ibm.com/infocenter/iseries/v5r3/topic/rzab6/rzab6xconoclient.htm
  * A connectionless client example:
  *      http://publib.boulder.ibm.com/infocenter/iseries/v5r3/topic/rzab6/rzab6xconlessclient.htm
  * Introduction to non-blocking I/O:
  *      http://www.kegel.com/dkftpbench/nonblocking.html
+ *
+ * Example: A connection-oriented server
+ *      https://www.ibm.com/support/knowledgecenter/ssw_ibm_i_71/rzab6/xconoserver.htm
+ * Example: A connection-oriented client
+ *      https://www.ibm.com/support/knowledgecenter/ssw_ibm_i_72/rzab6/xconoclient.htm
  */
 
 #include <cerrno>
@@ -58,21 +59,21 @@ error_code inet_socket::connect (uint32_t addr, uint16_t port)
             break;
 
         case ETIMEDOUT:
-            ex = error_code(errno, pfs::generic_category());
+            ex = get_last_system_error();
             break;
 
         case EHOSTUNREACH:
-            ex = error_code(errno, pfs::generic_category());
+            ex = get_last_system_error();
             //        	sock._state = bits::unconnected_state;
             break;
 
         case ENETUNREACH:
-            ex = error_code(errno, pfs::generic_category());
+            ex = get_last_system_error();
             //        	sock._state = bits::unconnected_state;
             break;
 
         case EADDRINUSE:
-            ex = error_code(errno, pfs::generic_category());
+            ex = get_last_system_error();
             break;
 
             /* TODO
@@ -87,18 +88,17 @@ error_code inet_socket::connect (uint32_t addr, uint16_t port)
              */
         case EINPROGRESS:
         case EALREADY:
-            //ex = error_code(errno, pfs::generic_category());
             ex = make_error_code(io_errc::operation_in_progress);
             //        	sock._state = bits::connecting_state;
             break;
 
         case EAGAIN:
-            ex = error_code(errno, pfs::generic_category());
+            ex = get_last_system_error();
             break;
 
         case EACCES:
         case EPERM:
-            ex = error_code(errno, pfs::generic_category());
+            ex = get_last_system_error();
             //            sock._state = bits::unconnected_state;
             break;
 
@@ -154,7 +154,7 @@ ssize_t inet_socket::available () const
     int rc = 0;
     rc = ioctl(_fd, FIONREAD, & n);
 
-    PFS_ASSERT_X(rc == 0, error_code(errno, pfs::generic_category()).message().c_str());
+    PFS_ASSERT_X(rc == 0, get_last_system_error().message().c_str());
     PFS_ASSERT(n >= 0);
 
     return static_cast<ssize_t> (n);
@@ -169,7 +169,7 @@ error_code inet_socket::set_socket_options (uint32_t sso)
         if (sso & sso_keep_alive) {
             int r = setsockopt(_fd, SOL_SOCKET, SO_KEEPALIVE, & optval, optlen);
             if (r < 0)
-                return error_code(errno, pfs::generic_category());
+                return get_last_system_error();
         }
     }
 
@@ -182,22 +182,17 @@ ssize_t inet_socket::read (byte_t * bytes, size_t n)
 
     ssize_t r = 0;
 
-    //	do {
     r = recv(_fd, bytes, n, 0);
 
     PFS_ASSERT(EAGAIN == EWOULDBLOCK);
 
     if (r < 0 && errno == EAGAIN) { // || errno == EWOULDBLOCK)) {
         r = 0;
-        //			continue;
     }
 
     if (r < 0) {
-        this->_ec = error_code(errno, pfs::generic_category());
+        this->_ec = get_last_system_error();
     }
-
-    //		break;
-    //	} while (true);
 
     return r;
 }
@@ -231,14 +226,12 @@ ssize_t inet_socket::write (const byte_t * bytes, size_t nbytes)
     }
 
     if (r < 0)
-        this->_ec = error_code(errno, pfs::generic_category());
+        this->_ec = get_last_system_error();
 
     return r;
 }
 
-}
-}
-} // pfs::io::details
+}}} // namespace pfs::io::details
 
 namespace pfs {
 namespace io {
