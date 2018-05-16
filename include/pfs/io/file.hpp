@@ -10,8 +10,10 @@ namespace io {
  * @brief File device implementation.
  * @see pfs::io::device.
  */
-struct file
-{};
+struct file {};
+struct file_stdin {};
+struct file_stdout {};
+struct file_stderr {};
 
 template <>
 struct open_params<file>
@@ -22,16 +24,16 @@ struct open_params<file>
             | filesystem::perms::others_read;*/
 
     filesystem::path path;
-    device::open_mode_flags oflags;
+    open_mode_flags oflags;
     filesystem::perms permissions;
 
-    open_params (filesystem::path const & s, device::open_mode_flags of, filesystem::perms perms)
+    open_params (filesystem::path const & s, open_mode_flags of, filesystem::perms perms)
         : path (s)
         , oflags (of)
         , permissions (perms)
     {}
 
-    open_params (filesystem::path const & s, device::open_mode_flags of)
+    open_params (filesystem::path const & s, open_mode_flags of)
         : path (s)
         , oflags (of)
         , permissions (default_create_perms)
@@ -44,6 +46,14 @@ struct open_params<file>
     {}
 };
 
+template <>
+struct open_params<file_stdin> {};
+
+template <>
+struct open_params<file_stdout> {};
+
+template <>
+struct open_params<file_stderr> {};
 
 /**
  * @brief Open file device.
@@ -54,6 +64,15 @@ struct open_params<file>
  * @return device opened.
  */
 template <>
-device open_device<file> (open_params<file> const & op, error_code & ec);
+device_ptr open_device<file> (open_params<file> const & op, error_code & ec);
+
+template <>
+device_ptr open_device<file_stdin> (open_params<file_stdin> const & op, error_code & ec);
+
+template <>
+device_ptr open_device<file_stdout> (open_params<file_stdout> const & op, error_code & ec);
+
+template <>
+device_ptr open_device<file_stderr> (open_params<file_stderr> const & op, error_code & ec);
 
 }} // pfs::io

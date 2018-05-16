@@ -51,30 +51,30 @@ char loremipsum[] =
 39.decima et quinta decima.\" Eodem modo typi, qui nunc nobis    \n\
 40.videntur parum clari, fiant sollemnes in futurum.";
 
-using pfs::io::device;
+using pfs::io::device_ptr;
 using pfs::io::open_device;
 using pfs::io::open_params;
 
 void test_read ()
 {
-    device d;
+    device_ptr d;
     pfs::byte_string buffer(loremipsum, std::strlen(loremipsum));
 
-    TEST_OK(!d.opened());
+    TEST_OK(!d);
     TEST_FAIL((d = open_device(open_params<pfs::io::buffer>(buffer))));
-    TEST_OK(d.opened());
+    TEST_OK(d->opened());
 
-    TEST_FAIL(static_cast<size_t>(d.available()) == strlen(loremipsum));
+    TEST_FAIL(static_cast<size_t>(d->available()) == strlen(loremipsum));
 
-    TEST_OK(d.is_readable());
-    TEST_OK(d.is_writable());
+    TEST_OK(d->is_readable());
+    TEST_OK(d->is_writable());
 
-    TEST_OK(d.write(byte_string(), 0) == 0);
+    TEST_OK(d->write(byte_string(), 0) == 0);
 
     byte_string result;
 
-    while (!d.at_end()) {
-        d.read(result);
+    while (!d->at_end()) {
+        d->read(result);
     }
 
     TEST_OK(result == loremipsum);
@@ -82,21 +82,21 @@ void test_read ()
 
 void test_write ()
 {
-    device d;
+    device_ptr d;
     byte_string buffer;
 
-    TEST_OK(!d.opened());
+    TEST_OK(!d);
     TEST_FAIL((d = open_device(open_params<pfs::io::buffer>(buffer))));
-    TEST_OK(d.opened());
+    TEST_OK(d->opened());
 
-    TEST_OK(d.is_readable());
-    TEST_OK(d.is_writable());
+    TEST_OK(d->is_readable());
+    TEST_OK(d->is_writable());
 
     char a1[1];
-    TEST_OK(d.read(a1, 0) >= 0); // is writable only
+    TEST_OK(d->read(a1, 0) >= 0); // is writable only
 
-    TEST_OK(d.write(loremipsum, strlen(loremipsum) + 1) == static_cast<ssize_t>(strlen(loremipsum)) + 1);
-    TEST_OK(static_cast<size_t>(d.available()) == strlen(loremipsum) + 1);
+    TEST_OK(d->write(loremipsum, strlen(loremipsum) + 1) == static_cast<ssize_t>(strlen(loremipsum)) + 1);
+    TEST_OK(static_cast<size_t>(d->available()) == strlen(loremipsum) + 1);
  }
 
 int main ()

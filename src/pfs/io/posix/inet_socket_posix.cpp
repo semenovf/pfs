@@ -244,7 +244,7 @@ namespace pfs {
 namespace io {
 
 template <>
-device open_device<tcp_socket> (const open_params<tcp_socket> & op, error_code & ec)
+device_ptr open_device<tcp_socket> (const open_params<tcp_socket> & op, error_code & ec)
 {
     bool non_blocking_flag = op.oflags & pfs::io::non_blocking;
 
@@ -260,14 +260,14 @@ device open_device<tcp_socket> (const open_params<tcp_socket> & op, error_code &
 
     if (ec && ec != make_error_code(io_errc::operation_in_progress)) {
         delete d;
-        return device();
+        return device_ptr();
     }
 
-    return device(d);
+    return device_ptr(d);
 }
 
 template <>
-device open_device<udp_socket> (const open_params<udp_socket> & op, error_code & ec)
+device_ptr open_device<udp_socket> (const open_params<udp_socket> & op, error_code & ec)
 {
     bool non_blocking_flag = op.oflags & pfs::io::non_blocking;
 
@@ -283,10 +283,10 @@ device open_device<udp_socket> (const open_params<udp_socket> & op, error_code &
 
     if (ec && ec != make_error_code(io_errc::operation_in_progress)) {
         delete d;
-        return device();
+        return device_ptr();
     }
 
-    return device(d);
+    return device_ptr(d);
 }
 
 }} // pfs::io

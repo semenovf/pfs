@@ -920,7 +920,7 @@ bool modulus<PFS_MODULUS_TEMPLETE_ARGS>::dispatcher::register_modules (
         return false;
     }
 
-    pfs::io::device file = pfs::io::open_device<pfs::io::file>(
+    pfs::io::device_ptr file = pfs::io::open_device<pfs::io::file>(
             pfs::io::open_params<pfs::io::file>(path, pfs::io::read_only), ec);
 
     if (ec) {

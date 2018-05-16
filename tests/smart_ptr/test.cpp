@@ -8,7 +8,7 @@
 //
 struct Foo
 {
-	Foo(int aVal) :
+    Foo(int aVal) :
         m_val(aVal)
     {
         ++g_instances;
@@ -399,6 +399,49 @@ void test_cast ()
     TEST_OK(p4.use_count() == 2);
 }
 
+struct Bar
+{
+    int & counter;
+
+    Bar (int & c) : counter(c) {}
+    ~Bar ()
+    {
+        --counter;
+        std::cout << "~Bar()" << std::endl;
+    }
+};
+
+void test_void_cast ()
+{
+    ADD_TESTS(6);
+    int counter = 2;
+
+    {
+        pfs::shared_ptr<void> void_ptr;
+        pfs::shared_ptr<void> void_ptr1;
+
+        {
+            pfs::shared_ptr<Bar> bar_ptr(new Bar(counter));
+            pfs::shared_ptr<Bar> bar_ptr1(new Bar(counter));
+            pfs::shared_ptr<Bar> bar_ptr2 = bar_ptr1;
+
+            void_ptr = pfs::static_pointer_cast<void>(bar_ptr);
+
+            TEST_OK(void_ptr.get() == bar_ptr.get());
+
+            void_ptr = pfs::static_pointer_cast<void>(bar_ptr2);
+            void_ptr1 = pfs::static_pointer_cast<void>(bar_ptr);
+
+            TEST_OK(void_ptr.get()  == bar_ptr1.get());
+            TEST_OK(void_ptr.get()  == bar_ptr2.get());
+            TEST_OK(void_ptr1.get() == bar_ptr.get());
+        }
+
+        TEST_OK(counter == 2);
+    }
+
+    TEST_OK(counter == 0);
+}
 
 int main ()
 {
@@ -411,6 +454,7 @@ int main ()
     test_swap_ptr();
     test_unique();
     test_cast();
+    test_void_cast();
 //  test_deep_swap_ptr();
 
     return END_TESTS;

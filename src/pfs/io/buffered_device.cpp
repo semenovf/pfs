@@ -4,7 +4,7 @@
 namespace pfs {
 namespace io {
 
-buffered_device::buffered_device (device d, size_t initial_size)
+buffered_device::buffered_device (device_ptr d, size_t initial_size)
     : _d (d)
     , _pos(0)
     , _count(0)
@@ -36,7 +36,7 @@ ssize_t buffered_device::cache_bytes (size_t max_size)
         _pos = 0;
     }
 
-    ssize_t r = _d.read(_buffer + (_pos + _count), max_size);
+    ssize_t r = _d->read(_buffer + (_pos + _count), max_size);
 
     if (r > 0) {
         _count += r;
@@ -126,7 +126,7 @@ bool buffered_device::read_line (byte_string & line, size_t maxSize)
         }
     }
 
-    return _d.errorcode() == error_code();
+    return _d->errorcode() == error_code();
 }
 
 }} // pfs::io

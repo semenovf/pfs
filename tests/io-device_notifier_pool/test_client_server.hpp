@@ -1,3 +1,4 @@
+#pragma once
 #include <pfs/test.hpp>
 #include <pfs/thread.hpp>
 #include <pfs/byte_string.hpp>
@@ -6,24 +7,23 @@
 #include <pfs/io/device_notifier_pool.hpp>
 #include <pfs/vector.hpp>
 #include <pfs/map.hpp>
+#include <pfs/atomic.hpp>
 #include <iostream>
 
-typedef pfs::io::device::string_type string_type;
+typedef pfs::string string_type;
 
 #define BUFFER_SIZE 1
-#define NCLIENTS    1/*10*/
+#define NCLIENTS    100/*10*/
 #define SERVER_ADDR string_type("127.0.0.1")
 #define SERVER_PORT 10299
 #define SERVER_BACKLOG 10
 
-namespace {
-
-using std::cout;
-using std::endl;
+namespace test_client_server {
 
 using pfs::io::tcp_socket;
 using pfs::io::tcp_server;
 using pfs::net::inet4_addr;
+pfs::atomic_int not_quit(NCLIENTS);
 
 static const char * loremipsum [] = {
       "1.Lorem ipsum dolor sit amet, consectetuer adipiscing elit,"
@@ -68,49 +68,64 @@ static const char * loremipsum [] = {
     , "40.videntur parum clari, fiant sollemnes in futurum."
 };
 
-typedef pfs::io::device_notifier_pool<> pool_type;
-
-struct dispatcher_listener
+struct event_handler
 {
     int n1;
+    pfs::byte_string sample;
 
-    dispatcher_listener ()
+    event_handler ()
         : n1(0)
-    {}
-
-    virtual void connected (pfs::io::device &, const pfs::io::server &)
     {
-        std::cout << "Socket connected" << std::endl;
+        int n = sizeof(loremipsum)/sizeof(loremipsum[0]);
+
+        for (int i = 0; i < n; ++i) {
+            sample.append(loremipsum[i]);
+        }
     }
 
-    virtual void ready_read (pfs::io::device & d)
+    virtual void connected (pfs::io::device_ptr & d, pfs::io::server_ptr & s)
     {
-        pfs::byte_string bytes;
-        /*pfs::error_code ex = */ d.read(bytes, d.available());
+        std::cout << "Server: socket connected: " << d->url()
+                << ", non-blocking mode: " << std::boolalpha << d->is_nonblocking()
+                << std::endl;
 
-        std::cout << "Ready read: " << bytes.size() << " bytes" << std::endl;
+        d->set_context(new pfs::byte_string);
     }
 
-    virtual void disconnected (pfs::io::device &)
+    virtual void disconnected (pfs::io::device_ptr & d)
     {
         ++n1;
-        std::cout << "Socket disconnected" << std::endl;
+        std::cout << "Server: socket disconnected:  " << d->url() << std::endl;
+        pfs::byte_string * buffer = d->context<pfs::byte_string>();
+        TEST_OK(*buffer == sample);
+        PFS_DEBUG(printf("*** DISCONNECTED: [%d]\n", not_quit.load()));
+        --not_quit;
     }
 
-    virtual void can_write (pfs::io::device &)
+    virtual void ready_read (pfs::io::device_ptr & d)
     {
-        std::cout << "Socket can write" << std::endl;
+        pfs::byte_string bytes;
+        d->read(bytes, d->available());
+
+        //std::cout << "Server: ready read: " << bytes.size() << " bytes" << std::endl;
+        pfs::byte_string * buffer = d->context<pfs::byte_string>();
+        buffer->append(bytes);
+    }
+
+    virtual void can_write (pfs::io::device_ptr & d)
+    {
+        //std::cout << "Server: socket can write: " << d->url() << std::endl;
     }
 
     virtual void on_error (pfs::error_code const & ex)
     {
-        std::cerr << "ERROR: " << ex.message() << std::endl;
+        std::cerr << "ERROR (server): " << ex.message() << std::endl;
     }
 };
 
 class ServerThread
 {
-    pfs::io::server _server;
+    pfs::io::server_ptr _server;
 
     public:
     ServerThread ()
@@ -119,7 +134,7 @@ class ServerThread
 
         pfs::error_code ec;
         _server = pfs::io::open_server(pfs::io::open_params<tcp_server>(
-                    inet4_addr(SERVER_ADDR)
+                  inet4_addr(SERVER_ADDR)
                 , SERVER_PORT
                 , SERVER_BACKLOG)
                 , ec);
@@ -133,15 +148,17 @@ class ServerThread
 
     virtual void run ()
     {
-        if (!_server.opened())
+        if (!_server->opened())
             return;
 
-        pool_type pool;
+        device_notifier_pool pool;
         pool.insert(_server, pfs::io::notify_all);
 
-        dispatcher_listener listener;
+        event_handler eh;
 
-        pool.dispatch(pfs::io::notify_all, listener, 100);
+        do {
+            pool.dispatch(eh, 100);
+        } while (not_quit);
     }
 };
 
@@ -158,13 +175,13 @@ public:
         pfs::error_code ex;
 
         // Open in blocking mode (explicit open mode specified)
-        pfs::io::device client = pfs::io::open_device(pfs::io::open_params<tcp_socket>(
+        pfs::io::device_ptr client = pfs::io::open_device(pfs::io::open_params<tcp_socket>(
                 inet4_addr(SERVER_ADDR), SERVER_PORT, pfs::io::read_write), ex);
 
         TEST_OK2(!ex, "Open client socket");
 
         if (ex) {
-            std::cerr << "ERROR (client): " << ex.message() << std::endl;
+            std::cerr << "ERROR (client): open failed" << ex.message() << std::endl;
             return;
         }
 
@@ -180,23 +197,23 @@ public:
         for (int i = 0; i < n; ++i) {
             pfs::byte_string data(loremipsum[i]);
 
-            if (client.write(data) >= 0) {
+            if (client->write(data) >= 0) {
                 ++n1;
             } else {
-                std::cerr << "ERROR (client): " << client.errorcode().message() << std::endl;
+                std::cerr << "ERROR (client): " << client->errorcode().message() << std::endl;
             }
         }
 
-        client.close();
+        client->close();
 
         TEST_OK2(n == n1, "Data sent by client");
     }
 };
 
-}
-
-void test_pool_dispatcher ()
+void run ()
 {
+    ADD_TESTS(NCLIENTS); // Number of comparisions with sample for each client
+
     ServerThread server;
     ClientThread clients[NCLIENTS];
 
@@ -205,15 +222,17 @@ void test_pool_dispatcher ()
 
     server_thread = pfs::make_unique<pfs::thread>(& ServerThread::run, & server);
 
+    pfs::this_thread::sleep_for(pfs::chrono::milliseconds(100));
+
     for (int i = 0; i < NCLIENTS; ++i) {
         client_threads[i] = pfs::make_unique<pfs::thread>(& ClientThread::run, & clients[i]);
     }
-
-    server_thread->join();
 
     for (int i = 0; i < NCLIENTS; ++i) {
         client_threads[i]->join();
     }
 
-    pfs::this_thread::sleep_for(pfs::chrono::seconds(5));
+    server_thread->join();
 }
+
+} // namespace test_client_server

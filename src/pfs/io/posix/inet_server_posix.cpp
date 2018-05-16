@@ -93,7 +93,7 @@ namespace pfs {
 namespace io {
 
 template <>
-server open_server<tcp_server> (const open_params<tcp_server> & op, error_code & ex)
+server_ptr open_server<tcp_server> (const open_params<tcp_server> & op, error_code & ex)
 {
     bool non_blocking_flag = op.oflags & pfs::io::non_blocking;
 
@@ -105,14 +105,14 @@ server open_server<tcp_server> (const open_params<tcp_server> & op, error_code &
 
     if (ex) {
         delete d;
-        return server();
+        return server_ptr();
     }
 
-    return server(d);
+    return server_ptr(d);
 }
 
 template <>
-server open_server<udp_server> (const open_params<udp_server> & op, error_code & ex)
+server_ptr open_server<udp_server> (const open_params<udp_server> & op, error_code & ex)
 {
     bool non_blocking_flag = op.oflags & pfs::io::non_blocking;
 
@@ -124,10 +124,10 @@ server open_server<udp_server> (const open_params<udp_server> & op, error_code &
 
     if (ex) {
         delete d;
-        return server();
+        return server_ptr();
     }
 
-    return server(d);
+    return server_ptr(d);
 }
 
 }} // pfs::io

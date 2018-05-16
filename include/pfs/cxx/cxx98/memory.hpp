@@ -2,7 +2,7 @@
 #include <pfs/config.h>
 #include <pfs/cxxlang.hpp>
 
-#if defined(HAVE_BOOST_SMARTPTR)
+#if defined(HAVE_BOOST_SMART_PTR)
 #   include "shared_ptr_boost.hpp"
 #   include "unique_ptr_boost.hpp"
 #else

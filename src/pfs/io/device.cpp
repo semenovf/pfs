@@ -5,6 +5,8 @@ namespace io {
 
 static const ssize_t DEFAULT_READ_BUFSZ = 256;
 
+namespace details {
+
 bool device::read (byte_string & bytes, ssize_t n)
 {
     byte_t buffer[DEFAULT_READ_BUFSZ];
@@ -16,7 +18,7 @@ bool device::read (byte_string & bytes, ssize_t n)
         if (n - total < chunk_size)
             chunk_size = n - total;
 
-        sz = _d->read(buffer, chunk_size);
+        sz = this->read(buffer, chunk_size);
 
         if (sz > 0) {
             bytes.append(buffer, size_t(sz));
@@ -27,12 +29,7 @@ bool device::read (byte_string & bytes, ssize_t n)
     return this->errorcode() == error_code();
 }
 
-bool device::close ()
-{
-    if (_d)
-        return _d->close();
-    return true;
-}
+} // namespace details
 
 /**
  * @brief Copy data between source @a src an destination @a dest devices.
@@ -45,32 +42,32 @@ bool device::close ()
  *         @li -1 and @a *ex == 0 if size of written data is not equals to size of read data;
  *         @li >=0 if data is succesfull.
  */
-ssize_t copy (device & dest, device & src, size_t chunk_size, error_code * ec)
+ssize_t copy (device_ptr & dest, device_ptr & src, size_t chunk_size, error_code * ec)
 {
     byte_t buffer[DEFAULT_READ_BUFSZ];
     ssize_t r = 0;
 
     if (ec)
-    	ec->clear();
+        ec->clear();
 
     while (r < static_cast<ssize_t>(chunk_size)) {
-    	ssize_t r1 = src.read(buffer, DEFAULT_READ_BUFSZ);
+        ssize_t r1 = src->read(buffer, DEFAULT_READ_BUFSZ);
 
-    	if (r1 < 0)
-    		return -1;
+        if (r1 < 0)
+            return -1;
 
-    	if (r1 == 0)
-    		break;
+        if (r1 == 0)
+            break;
 
-    	ssize_t r2 = dest.write(buffer, static_cast<size_t>(r1));
+        ssize_t r2 = dest->write(buffer, static_cast<size_t>(r1));
 
-    	if (r2 <= 0)
-    		return -1;
+        if (r2 <= 0)
+            return -1;
 
-    	if (r2 != r1)
-    		return -1;
+        if (r2 != r1)
+            return -1;
 
-    	r += r1;
+        r += r1;
     }
 
     return r;
@@ -256,4 +253,4 @@ bool uncompress (device & dest, device & src, size_t chunkSize, error_code * pex
 
 #endif
 
-}} // pfs::io
+}} // pfs::io::details

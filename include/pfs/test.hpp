@@ -8,6 +8,7 @@
 #include <iomanip>
 #include <pfs/operationsystem.hpp>
 #include <pfs/assert.hpp>
+#include <pfs/mutex.hpp>
 
 #if PFS_OS_WIN
     // [http://support.microsoft.com/kb/815668](http://support.microsoft.com/kb/815668)
@@ -237,6 +238,9 @@ struct test
 
     static void todo (std::string const & expr, bool result, std::string const & filename, int line)
     {
+        static pfs::mutex mtx;
+        pfs::lock_guard<pfs::mutex> locker(mtx);
+
         context & ctx = get_context();
         if (result) {
             ctx.test_ok();

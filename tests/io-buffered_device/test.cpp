@@ -54,7 +54,7 @@ char loremipsum[] =
 39.decima et quinta decima.\" Eodem modo typi, qui nunc nobis    \n\
 40.videntur parum clari, fiant sollemnes in futurum.";
 
-using pfs::io::device;
+using pfs::io::device_ptr;
 using pfs::io::open_device;
 using pfs::io::open_params;
 
@@ -68,7 +68,7 @@ int main ()
 
     while (--initial_size > 0) {
         pfs::byte_string buffer(loremipsum, std::strlen(loremipsum));
-        device d = open_device(open_params<pfs::io::buffer>(buffer));
+        device_ptr d = open_device(open_params<pfs::io::buffer>(buffer));
 
         byte_string result;
         pfs::io::buffered_device bd(d, initial_size);

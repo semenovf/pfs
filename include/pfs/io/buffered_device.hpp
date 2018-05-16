@@ -5,9 +5,9 @@
 namespace pfs {
 namespace io {
 
-class buffered_device : public details::device_context
+class buffered_device
 {
-    device _d;
+    device_ptr _d;
     byte_t * _buffer;
     size_t _bufsz;
     size_t _pos;
@@ -18,13 +18,13 @@ private:
     ssize_t cache_bytes (size_t max_size);
 
 public:
-    buffered_device (device d, size_t initial_size = 256);
+    buffered_device (device_ptr d, size_t initial_size = 256);
 
     ~buffered_device ();
 
     ssize_t available () const
     {
-        return _count + _d.available();
+        return _count + _d->available();
     }
 
     bool at_end () const
@@ -78,7 +78,7 @@ public:
      */
     ssize_t write (const byte_t * bytes, size_t n)
     {
-        return _d.write(bytes, n);
+        return _d->write(bytes, n);
     }
 
     ssize_t write (const char * chars, size_t n)

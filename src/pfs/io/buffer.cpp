@@ -111,16 +111,10 @@ namespace pfs {
 namespace io {
 
 template <>
-device open_device<buffer> (open_params<buffer> const & op, error_code & ec)
+device_ptr open_device<buffer> (open_params<buffer> const & op, error_code & ec)
 {
-    device result;
-    details::device * p = new details::buffer(op._bs);
-
-    shared_ptr<details::device> d(p);
-    result._d.swap(d);
-
+    device_ptr result(new details::buffer(op._bs));
     ec.clear();
-
     return result;
 }
 

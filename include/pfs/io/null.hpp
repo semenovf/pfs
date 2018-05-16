@@ -26,10 +26,10 @@ struct open_params<null>
  *      @li open_params<null>()
  *          Open null device.
  * @param ex Reference to store error code.
- * 
+ *
  * @return Device instance.
  */
 template <>
-device open_device<null> (open_params<null> const & op, error_code & ex);
+device_ptr open_device<null> (open_params<null> const & op, error_code & ex);
 
 }} // pfs::io

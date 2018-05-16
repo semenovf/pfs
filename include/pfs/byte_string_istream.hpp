@@ -7,13 +7,13 @@
 
 namespace pfs {
 
-class byte_string_istream : public binary_istream<byte_string_istream>
+class byte_string_istream : public binary_istream<byte_string_istream *>
 {
-    typedef binary_istream<byte_string_istream> base_class;
+    typedef binary_istream<byte_string_istream *> base_class;
 
 public:
     byte_string_istream (byte_string const & buffer, endian order = endian::network_order())
-        : base_class(*this, order)
+        : base_class(this, order)
         , _first(buffer.cbegin())
         , _last(buffer.cend())
     {}
@@ -21,7 +21,7 @@ public:
     byte_string_istream (byte_string::const_iterator first
             , byte_string::const_iterator last
             , endian order = endian::network_order())
-        : base_class(*this, order)
+        : base_class(this, order)
         , _first(first)
         , _last(last)
     {}

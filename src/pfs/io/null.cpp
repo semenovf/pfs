@@ -12,12 +12,12 @@ struct null : public details::device
 
     virtual bool reopen () pfs_override
     {
-    	return true;
+        return true;
     }
 
     virtual open_mode_flags open_mode () const pfs_override
     {
-    	return read_write | non_blocking;
+        return read_write | non_blocking;
     }
 
     virtual ssize_t available () const pfs_override
@@ -37,12 +37,12 @@ struct null : public details::device
 
     virtual bool close () pfs_override
     {
-    	return true;
+        return true;
     }
 
     virtual bool opened () const pfs_override
     {
-    	return true;
+        return true;
     }
 
     virtual void flush () pfs_override
@@ -55,17 +55,17 @@ struct null : public details::device
 
     virtual bool set_nonblocking (bool) pfs_override
     {
-    	return true;
+        return true;
     }
 
     virtual native_handle_type native_handle () const pfs_override
     {
-    	return -1;
+        return -1;
     }
 
     virtual device_type type () const pfs_override
     {
-    	return device_null;
+        return device_null;
     }
 
     virtual string url () const pfs_override
@@ -79,10 +79,10 @@ struct null : public details::device
 namespace pfs { namespace io {
 
 template <>
-device open_device<null> (open_params<null> const &, error_code & ec)
+device_ptr open_device<null> (open_params<null> const &, error_code & ec)
 {
     ec.clear();
-    return device(new details::null);
+    return device_ptr(new details::null);
 }
 
 }} // pfs::io

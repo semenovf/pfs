@@ -24,10 +24,10 @@ private:
     byte_string::size_type _cursor;
 };
 
-template <typename InputDevice>
-void test_binary_istream (InputDevice & dev)
+template <typename InputDevicePtr>
+void test_binary_istream (InputDevicePtr dev)
 {
-    typedef pfs::binary_istream<InputDevice> binary_istream;
+    typedef pfs::binary_istream<InputDevicePtr> binary_istream;
 
     ADD_TESTS(11);
 
@@ -111,8 +111,8 @@ void test_binary_istream ()
     byte_string buffer(bytes, sizeof(bytes)/sizeof(bytes[0]));
 
     byte_string_idevice dev1(buffer);
-    pfs::io::device dev2 = pfs::io::open_device(pfs::io::open_params<pfs::io::buffer>(buffer));
+    pfs::io::device_ptr dev2 = pfs::io::open_device(pfs::io::open_params<pfs::io::buffer>(buffer));
 
-    test_binary_istream<byte_string_idevice>(dev1);
-    test_binary_istream<pfs::io::device>(dev2);
+    test_binary_istream<byte_string_idevice *>(& dev1);
+    test_binary_istream<pfs::io::device_ptr>(dev2);
 }

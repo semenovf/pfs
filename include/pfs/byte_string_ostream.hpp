@@ -4,13 +4,13 @@
 
 namespace pfs {
 
-class byte_string_ostream : public binary_ostream<byte_string_ostream>
+class byte_string_ostream : public binary_ostream<byte_string_ostream *>
 {
-    typedef binary_ostream<byte_string_ostream> base_class;
+    typedef binary_ostream<byte_string_ostream *> base_class;
 
 public:
     byte_string_ostream (byte_string & buffer, endian order = endian::network_order())
-        : base_class(*this, order)
+        : base_class(this, order)
         , _buffer(buffer)
     {}
 

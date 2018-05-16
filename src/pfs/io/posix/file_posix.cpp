@@ -2,53 +2,29 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <string.h>
+#include <sys/ioctl.h>
 #include <sys/stat.h>
 #include "pfs/compiler.hpp"
 #include "pfs/io/file.hpp"
+#include "pfs/compiler.hpp"
 #include "posix_utils.hpp"
 
 //#include <iostream>
 
 namespace pfs {
+
+static string const STDIN_NAME = "stdin";
+static string const STDOUT_NAME = "stdout";
+static string const STDERR_NAME = "stderr";
+
 namespace io {
 namespace details {
 
-struct file : public details::device
+struct basic_file : public details::device
 {
     details::device::native_handle_type _fd;
-    filesystem::path path;
-    int oflags;
-    mode_t omode;
 
-    file ()
-        : _fd (-1)
-        , oflags (0)
-        , omode (0)
-    {}
-
-    ~file ()
-    {
-        close();
-    }
-
-    error_code open (filesystem::path const & path, int native_oflags, mode_t native_mode);
-
-    virtual bool reopen () pfs_override
-    {
-        if (close())
-            this->_ec = open(path, oflags, omode);
-        return this->_ec == error_code();
-    }
-
-    virtual open_mode_flags open_mode () const pfs_override;
-
-    virtual ssize_t available () const pfs_override;
-
-    virtual ssize_t read (byte_t * bytes, size_t n) pfs_override;
-
-    virtual ssize_t write (const byte_t * bytes, size_t n) pfs_override;
-
-    virtual bool close () pfs_override;
+    basic_file () : _fd(-1) {}
 
     virtual bool opened () const pfs_override
     {
@@ -62,6 +38,11 @@ struct file : public details::device
 #else
 #error "Don't know how to sync file"
 #endif
+    }
+
+    virtual native_handle_type native_handle () const pfs_override
+    {
+        return _fd;
     }
 
     virtual bool set_nonblocking (bool on) pfs_override
@@ -79,9 +60,215 @@ struct file : public details::device
         return pfs::io::is_nonblocking(_fd);
     }
 
-    virtual native_handle_type native_handle () const pfs_override
+    virtual ssize_t read (byte_t * bytes, size_t n) pfs_override
     {
-        return _fd;
+        ssize_t sz = ::read(_fd, bytes, n);
+
+        if (sz < 0)
+            this->_ec = error_code(errno, pfs::generic_category());
+
+        return sz;
+    }
+
+    virtual ssize_t write (const byte_t * bytes, size_t n) pfs_override
+    {
+        ssize_t sz = ::write(_fd, bytes, n);
+
+        if (sz < 0)
+            this->_ec = error_code(errno, pfs::generic_category());
+
+        return sz;
+    }
+};
+
+struct standard_stream : basic_file
+{
+    typedef basic_file base_class;
+    int _orig_fd;
+
+    standard_stream ()
+       : base_class()
+       , _orig_fd(-1)
+    {}
+
+    virtual ~standard_stream ()
+    {
+        this->close();
+    }
+
+    error_code open (int orig_fd)
+    {
+        PFS_ASSERT(orig_fd >= 0);
+        int fd = dup(orig_fd);
+
+        if (fd < 0)
+           return get_last_system_error();
+
+        _fd = fd;
+        _orig_fd = orig_fd;
+        return error_code();
+    }
+
+    virtual bool close () pfs_override
+    {
+        bool r = true;
+
+        if (_fd > 0 && _fd != _orig_fd) {
+            if (::close(_fd) < 0) {
+                this->_ec = error_code(errno, pfs::generic_category());
+                r = false;
+            }
+            _fd = -1;
+        }
+        return r;
+    }
+
+    virtual bool reopen () pfs_override
+    {
+        if (close())
+            this->_ec = open(_orig_fd);
+        return this->_ec == error_code();
+    }
+
+    virtual open_mode_flags open_mode () const pfs_override
+    {
+        // stdin
+        if (_orig_fd == 0)
+            return read_only;
+
+        if (_orig_fd == 1 || _orig_fd == 2)
+            return write_only;
+
+        return not_open;
+    }
+
+    virtual ssize_t available () const pfs_override
+    {
+        PFS_ASSERT(_fd >= 0);
+        int n = 0;
+        int rc = 0;
+        rc = ioctl(_fd, FIONREAD, & n);
+
+        PFS_ASSERT_X(rc == 0, error_code(errno, pfs::generic_category()).message().c_str());
+        PFS_ASSERT(n >= 0);
+
+        return static_cast<ssize_t> (n);
+    }
+
+    virtual device_type type () const pfs_override
+    {
+        return device_stream;
+    }
+
+    virtual string url () const pfs_override
+    {
+        string r("stream://");
+        if (_orig_fd == 0)
+            r.append(STDIN_NAME);
+        else if (_orig_fd == 1)
+            r.append(STDOUT_NAME);
+        else if (_orig_fd == 2)
+            r.append(STDERR_NAME);
+        else
+            r.append("<unknown>");
+        return r;
+    }
+};
+
+struct file : basic_file
+{
+    typedef basic_file base_class;
+
+    filesystem::path path;
+    int oflags;
+    mode_t omode;
+
+    file ()
+         : base_class()
+         , oflags(0)
+         , omode(0)
+    {}
+
+    virtual ~file ()
+    {
+        this->close();
+    }
+
+    error_code open (filesystem::path const & path, int of, mode_t om)
+    {
+        int fd = ::open(path.native().c_str(), of, om);
+
+        if (fd < 0) {
+            return error_code(errno, pfs::generic_category());
+        }
+
+        this->_fd = fd;
+        this->path = path;
+        this->oflags = of;
+        this->omode = om;
+
+        return error_code();
+    }
+
+    virtual bool close () pfs_override
+    {
+        bool r = true;
+
+        if (_fd > 0) {
+            if (::close(_fd) < 0) {
+                this->_ec = error_code(errno, pfs::generic_category());
+                r = false;
+            }
+        }
+
+        _fd = -1;
+        return r;
+    }
+
+    virtual bool reopen () pfs_override
+    {
+        if (close())
+            this->_ec = open(path, oflags, omode);
+        return this->_ec == error_code();
+    }
+
+    virtual open_mode_flags open_mode () const pfs_override
+    {
+        details::device::open_mode_flags r = 0;
+
+        char buf[1] = {0};
+
+        if (::read(_fd, buf, 0) >= 0 && errno != EBADF)
+            r |= read_only;
+
+        if (::write(_fd, buf, 0) >= 0 && errno != EBADF)
+            r |= write_only;
+
+        return r;
+    }
+
+    virtual ssize_t available () const pfs_override
+    {
+        PFS_ASSERT(_fd >= 0);
+
+        off_t cur = ::lseek(_fd, off_t(0), SEEK_CUR);
+
+        if (cur < 0) {
+            PFS_ASSERT(errno == ESPIPE);
+            return -1;
+        }
+
+        off_t total = ::lseek(_fd, off_t(0), SEEK_END);
+        PFS_ASSERT(total >= off_t(0));
+        //std::cout << "file::_available: total = " << total << std::endl;
+
+        cur = ::lseek(_fd, cur, SEEK_SET);
+        PFS_ASSERT(cur >= off_t(0));
+        PFS_ASSERT(total >= cur);
+        //std::cout << "file::available: cur = " << cur << std::endl;
+        //std::cout << "file::available: static_cast<ssize_t>(total - cur) = " << static_cast<ssize_t>(total - cur) << std::endl;
+
+        return static_cast<ssize_t>(total - cur);
     }
 
     virtual device_type type () const pfs_override
@@ -96,92 +283,6 @@ struct file : public details::device
         return r;
     }
 };
-
-error_code file::open (filesystem::path const & p, int of, mode_t om)
-{
-    int fd = ::open(p.native().c_str(), of, om);
-
-    if (fd < 0) {
-        return error_code(errno, pfs::generic_category());
-    }
-
-    this->_fd = fd;
-    this->path = p;
-    this->oflags = of;
-    this->omode = om;
-
-    return error_code();
-}
-
-details::device::open_mode_flags file::open_mode () const
-{
-    details::device::open_mode_flags r = 0;
-    char buf[1] = {0};
-
-    if (::read(_fd, buf, 0) >= 0 && errno != EBADF)
-        r |= read_only;
-
-    if (::write(_fd, buf, 0) >= 0 && errno != EBADF)
-        r |= write_only;
-
-    return r;
-}
-
-ssize_t file::available () const
-{
-    PFS_ASSERT(_fd >= 0);
-
-    off_t cur = ::lseek(_fd, off_t(0), SEEK_CUR);
-    PFS_ASSERT(cur >= off_t(0));
-    //std::cout << "file::available: cur = " << cur << std::endl;
-
-    off_t total = ::lseek(_fd, off_t(0), SEEK_END);
-    PFS_ASSERT(total >= off_t(0));
-    //std::cout << "file::_available: total = " << total << std::endl;
-
-    cur = ::lseek(_fd, cur, SEEK_SET);
-    PFS_ASSERT(cur >= off_t(0));
-    PFS_ASSERT(total >= cur);
-    //std::cout << "file::available: cur = " << cur << std::endl;
-    //std::cout << "file::available: static_cast<ssize_t>(total - cur) = " << static_cast<ssize_t>(total - cur) << std::endl;
-
-    return static_cast<ssize_t>(total - cur);
-}
-
-ssize_t file::read (byte_t * bytes, size_t n)
-{
-    ssize_t sz = ::read(_fd, bytes, n);
-
-    if (sz < 0)
-        this->_ec = error_code(errno, pfs::generic_category());
-
-    return sz;
-}
-
-ssize_t file::write (const byte_t * bytes, size_t n)
-{
-    ssize_t sz = ::write(_fd, bytes, n);
-
-    if (sz < 0)
-        this->_ec = error_code(errno, pfs::generic_category());
-
-    return sz;
-}
-
-bool file::close ()
-{
-    bool r = true;
-
-    if (_fd > 0) {
-        if (::close(_fd) < 0) {
-            this->_ec = error_code(errno, pfs::generic_category());
-            r = false;
-        }
-    }
-
-    _fd = -1;
-    return r;
-}
 
 }}} // pfs::io::details
 
@@ -206,9 +307,9 @@ static int __convert_to_native_perms (filesystem::perms perms)
 }
 
 template <>
-device open_device<file> (const open_params<file> & op, error_code & ec)
+device_ptr open_device<file> (open_params<file> const & op, error_code & ec)
 {
-    device result;
+    device_ptr result;
     int native_oflags = 0;
     mode_t native_mode = 0;
 
@@ -236,13 +337,43 @@ device open_device<file> (const open_params<file> & op, error_code & ec)
     ec = f->open(op.path, native_oflags, native_mode);
 
     if (!ec) {
-        shared_ptr<details::device> d(f);
-        result._d.swap(d);
+        device_ptr d(f);
+        result.swap(d);
     } else {
         delete f;
     }
 
     return result;
+}
+
+static device_ptr open_standard_stream (int fd, error_code & ec)
+{
+    details::standard_stream * f = new details::standard_stream;
+
+    ec = f->open(fd);
+
+    if (!ec)
+        return device_ptr(f);
+
+    return device_ptr();
+}
+
+template <>
+device_ptr open_device<file_stdin> (open_params<file_stdin> const & op, error_code & ec)
+{
+    return open_standard_stream(0, ec);
+}
+
+template <>
+device_ptr open_device<file_stdout> (open_params<file_stdout> const & op, error_code & ec)
+{
+    return open_standard_stream(1, ec);
+}
+
+template <>
+device_ptr open_device<file_stderr> (open_params<file_stderr> const & op, error_code & ec)
+{
+    return open_standard_stream(2, ec);
 }
 
 }} // pfs::io

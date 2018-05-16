@@ -6,11 +6,11 @@
 
 namespace pfs {
 
-template <typename Device>
+template <typename DevicePtr>
 class binary_ostream
 {
 public:
-    binary_ostream (Device & dev, endian order = endian::network_order())
+    binary_ostream (DevicePtr dev, endian order = endian::network_order())
         : _dev(dev)
         , _order(order)
     {}
@@ -33,19 +33,19 @@ public:
 
     binary_ostream & operator << (char const * s)
     {
-        ssize_t r = _dev.write(s, std::strlen(s));
+        ssize_t r = _dev->write(s, std::strlen(s));
         return *this;
     }
 
     binary_ostream & operator << (std::string const & s)
     {
-        ssize_t r = _dev.write(s.c_str(), s.size());
+        ssize_t r = _dev->write(s.c_str(), s.size());
         return *this;
     }
 
     binary_ostream & operator << (byte_string const & s)
     {
-        ssize_t r = _dev.write(s.c_str(), s.size());
+        ssize_t r = _dev->write(s.c_str(), s.size());
         return *this;
     }
 
@@ -61,7 +61,7 @@ protected:
         Integral a = _order.convert(v);
         union u { Integral v; char b[sizeof(Integral)]; } d;
         d.v = a;
-        return _dev.write(d.b, sizeof(Integral));
+        return _dev->write(d.b, sizeof(Integral));
     }
 
     template <typename Float>
@@ -84,8 +84,8 @@ protected:
     }
 
 private:
-    Device & _dev;
-    endian   _order;
+    DevicePtr _dev;
+    endian    _order;
 };
 
 } //pfs

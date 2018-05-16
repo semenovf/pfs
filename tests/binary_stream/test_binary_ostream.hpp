@@ -24,7 +24,7 @@ template <typename OutputDevice>
 void test_binary_ostream (OutputDevice & dev, byte_string & buffer)
 {
     typedef pfs::binary_ostream<OutputDevice> binary_ostream;
-    
+
     ADD_TESTS(21);
 
     pfs::endian order = pfs::endian::network_order();
@@ -118,10 +118,10 @@ void test_binary_ostream ()
 {
     byte_string buffer1;
     byte_string buffer2;
-    
+
     byte_string_odevice dev1(buffer1);
-    pfs::io::device dev2 = pfs::io::open_device(pfs::io::open_params<pfs::io::buffer>(buffer2));
+    pfs::io::device_ptr dev2 = pfs::io::open_device(pfs::io::open_params<pfs::io::buffer>(buffer2));
 
     //test_binary_ostream<byte_string_odevice>(dev1, buffer1);
-    test_binary_ostream<pfs::io::device>(dev2, buffer2);
+    test_binary_ostream<pfs::io::device_ptr>(dev2, buffer2);
 }

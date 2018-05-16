@@ -25,9 +25,9 @@ public:
 private:
     static int8_t const ATEND_FLAG = 0x01;
 
-    device *  _pd;
-    char_type _value;
-    int8_t    _flag;
+    details::device * _pd;
+    char_type         _value;
+    int8_t            _flag;
 
 public:
     input_iterator ()
@@ -36,8 +36,8 @@ public:
         , _flag(ATEND_FLAG)
     {}
 
-    input_iterator (device & d)
-        : _pd(& d)
+    input_iterator (device_ptr & d)
+        : _pd(d.get())
         , _value(0)
         , _flag(0)
     {
@@ -108,7 +108,7 @@ private:
 namespace pfs {
 
 template <typename StringType>
-inline StringType read_all_u8 (io::device & dev)
+inline StringType read_all_u8 (io::device_ptr & dev)
 {
     io::input_iterator<char> first(dev);
     io::input_iterator<char> last;

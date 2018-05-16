@@ -579,7 +579,8 @@ public:
 
     DerivedT & append (std::string const & s)
     {
-        this->append(basic_string(s));
+        base_class::append(basic_string(s));
+        return *static_cast<DerivedT *>(this);
     }
 
     /**

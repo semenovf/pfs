@@ -1,7 +1,9 @@
 #pragma once
 #include <pfs/types.hpp>
 #include <pfs/io/exception.hpp>
+#include <pfs/byte_string.hpp>
 #include <pfs/string.hpp>
+#include <pfs/memory.hpp>
 
 namespace pfs {
 namespace io {
@@ -22,6 +24,7 @@ enum device_type
       device_unknown = 0
     , device_null
     , device_buffer
+    , device_stream
     , device_file
     , device_tcp_socket
     , device_tcp_peer
@@ -41,47 +44,49 @@ namespace details {
 //
 typedef int native_handle_type;
 
-struct device_context
-{
-    virtual ~device_context () {}
-};
+// struct device_context
+// {
+//     virtual ~device_context () {}
+// };
 
 class basic_device
 {
 public:
-    typedef device_context context_type;
-    typedef pfs::string    string_type;
+    typedef pfs::string string_type;
 
 protected:
-    context_type * _ctx;
-    error_code     _ec;
+    shared_ptr<void> _ctx;
+    error_code       _ec;
 
 public:
     basic_device ()
         : _ctx(0)
     {}
 
-    virtual ~basic_device ()
+    virtual ~basic_device () {}
+
+    template <typename T>
+    T * context ()
     {
-        if (_ctx)
-            delete _ctx;
+        return static_cast<T *>(_ctx.get());
     }
 
-    context_type * context ()
+    template <typename T>
+    T const * context () const
     {
-        return _ctx;
+        return static_cast<T const *>(_ctx.get());
     }
 
-    context_type const * context () const
+    template <typename T>
+    void set_context (T * context)
     {
-        return _ctx;
+        _ctx = pfs::static_pointer_cast<void>(shared_ptr<T>(context));
     }
 
-    void set_context (context_type * context)
+    template <typename T, typename Deleter>
+    void set_context (T * context, Deleter d)
     {
-        if (_ctx)
-            delete _ctx;
-        _ctx = context;
+        _ctx = pfs::static_pointer_cast<void>(shared_ptr<T>(context, d));
     }
 
     error_code errorcode () const
@@ -110,7 +115,6 @@ public:
     typedef details::native_handle_type  native_handle_type;
     typedef uint32_t                  open_mode_flags;
     typedef open_mode_enum            open_mode_type;
-    typedef device_context            info_type;
     typedef basic_device::string_type string_type;
 
 public:
@@ -133,7 +137,36 @@ public:
 
     virtual ssize_t read (byte_t * bytes, size_t n) = 0;
 
+    ssize_t read (char * chars, size_t n)
+    {
+        return this->read(reinterpret_cast<byte_t *>(chars), n);
+    }
+
+    bool read (byte_string & bytes, ssize_t n);
+    /**
+     * @brief Read data from device and appends them
+     */
+    bool read (byte_string & bytes)
+    {
+        return this->read(bytes, available());
+    }
+
     virtual ssize_t write (const byte_t * bytes, size_t n) = 0;
+
+    ssize_t write (const char * chars, size_t n)
+    {
+        return this->write(reinterpret_cast<const byte_t *>(chars), n);
+    }
+
+    ssize_t write (byte_string const & bytes, size_t n)
+    {
+        return this->write(bytes.data(), pfs::min(n, bytes.size()));
+    }
+
+    ssize_t write (byte_string const & bytes)
+    {
+        return this->write(bytes.data(), bytes.size());
+    }
 
     virtual bool close () = 0;
 
@@ -144,6 +177,16 @@ public:
     virtual bool set_nonblocking (bool on) = 0;
 
     virtual bool is_nonblocking () const = 0;
+
+    bool is_readable () const
+    {
+        return this->open_mode() | read_only;
+    }
+
+    bool is_writable () const
+    {
+        return this->open_mode() | write_only;
+    }
 
     //virtual native_handle_type native_handle () const = 0;
 

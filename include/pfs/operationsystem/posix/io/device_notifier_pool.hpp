@@ -7,8 +7,9 @@
 #include <pfs/vector.hpp>
 #include <pfs/system_error.hpp>
 #include <pfs/utility.hpp>
-#include <pfs/io/bits/device.hpp>
-#include <pfs/io/bits/server.hpp>
+#include <pfs/io/device.hpp>
+#include <pfs/io/server.hpp>
+#include <pfs/debug.hpp>
 
 #if defined __USE_XOPEN || defined __USE_XOPEN2K8
 #   define WR_EVENTS_XOR_MASK_XPG42 (POLLWRNORM | POLLWRBAND)
@@ -56,28 +57,126 @@ template <template <typename> class ContigousContainer = pfs::vector
         , typename BasicLockable = pfs::mutex>
 class device_notifier_pool
 {
-    typedef ::pollfd                           pollfd_type;
-    typedef BasicLockable                      mutex_type;
-    typedef ContigousContainer<pollfd_type>    pollfd_vec_type;
-    typedef ContigousContainer<ssize_t>        index_vec_type;
-    typedef ContigousContainer<basic_device *> device_vec_type;
+    typedef ::pollfd                             pollfd_type;
+    typedef shared_ptr<basic_device>             basic_device_ptr;
+    typedef BasicLockable                        mutex_type;
+    typedef ContigousContainer<pollfd_type>      pollfd_vec_type;
+    typedef ContigousContainer<ssize_t>          index_vec_type;
+    typedef ContigousContainer<basic_device_ptr> device_vec_type;
 
     struct pollfd_map
     {
         pollfd_vec_type _pollfds;
         device_vec_type _devices;
         index_vec_type  _pollfds_indices;
+        device_vec_type _deferred_devices; // candidates for insertion before the next iteration of poll
 
         struct iterator
         {
-            basic_device * device () const;
+            typename pollfd_vec_type::iterator pollfd_it;
+            typename pollfd_vec_type::iterator pollfd_end;
+            typename device_vec_type::iterator basic_device_it;
+
+            iterator (typename pollfd_vec_type::iterator p
+                    , typename pollfd_vec_type::iterator end
+                    , typename device_vec_type::iterator d)
+                : pollfd_it(p)
+                , pollfd_end(end)
+                , basic_device_it(d)
+            {}
+
+            iterator (iterator const & rhs)
+                : pollfd_it(rhs.pollfd_it)
+                , pollfd_end(rhs.pollfd_end)
+                , basic_device_it(rhs.basic_device_it)
+            {}
+
+            iterator & operator = (iterator const & rhs)
+            {
+                pollfd_it = rhs.pollfd_it;
+                pollfd_end = rhs.pollfd_end;
+                basic_device_it = rhs.basic_device_it;
+                return *this;
+            }
+
+            bool is_server () const
+            {
+                return (*basic_device_it)->is_server();
+            }
+
+            device_ptr device () const
+            {
+                PFS_ASSERT(!(*basic_device_it)->is_server());
+                return static_pointer_cast<details::device>(*basic_device_it);
+            }
+
+            server_ptr server () const
+            {
+                PFS_ASSERT((*basic_device_it)->is_server());
+                return static_pointer_cast<details::server>(*basic_device_it);
+            }
+
+            short revents () const
+            {
+                return pollfd_it->revents;
+            }
+
+            pollfd_type & pollfd () const
+            {
+                return *pollfd_it;
+            }
+
+            iterator & operator ++ ()
+            {
+                if (pollfd_it != pollfd_end) {
+                    ++pollfd_it;
+                    ++basic_device_it;
+                }
+
+                while (pollfd_it != pollfd_end
+                        && pollfd_it->revents == 0) {
+                    ++pollfd_it;
+                    ++basic_device_it;
+                }
+
+                return *this;
+            }
+
+            iterator operator ++ (int)
+            {
+                iterator r = *this;
+                ++(*this);
+                return r;
+            }
+
+            bool operator == (iterator const & rhs) const
+            {
+                return pollfd_it == rhs.pollfd_it;
+            }
         };
 
         typedef pfs::pair<iterator, iterator> poll_result_type;
 
         pollfd_map () {}
 
-        void insert (basic_device * dev, short notify_events)
+        ~pollfd_map () {}
+
+        iterator begin ()
+        {
+            return iterator(_pollfds.begin(), _pollfds.end(), _devices.begin());
+        }
+
+        iterator end ()
+        {
+            return iterator(_pollfds.end(), _pollfds.end(), _devices.end());
+        }
+
+        void insert_deferred (device_ptr const & d)
+        {
+            _deferred_devices.push_back(static_pointer_cast<basic_device>(d));
+        }
+
+        void insert (basic_device_ptr const & dev, short notify_events)
         {
             short poll_events = 0;
 
@@ -100,9 +199,11 @@ class device_notifier_pool
             } else {
                 pollfd_type emptyfd = { -1, 0, 0 };
                 _pollfds.push_back(emptyfd);
-                _devices.push_back(0);
+                _devices.push_back(basic_device_ptr());
                 index = _pollfds.size() - 1;
             }
+
+            PFS_DEBUG(printf("*** INSERTED: [%d]: %s\n", int(index), dev->url().utf8().c_str()));
 
             _pollfds[index].fd = dev->native_handle();
             _pollfds[index].events = poll_events;
@@ -111,11 +212,28 @@ class device_notifier_pool
 
         void erase (iterator pos)
         {
-            pos.device().close();
+            pos.device()->close();
+            pos.pollfd().fd = -1;
+            ssize_t index = pfs::distance(_pollfds.begin(), pos.pollfd_it);
+            _pollfds_indices.push_back(index);
+            PFS_DEBUG(printf("*** ERASED: [%d]: %s\n", int(index), pos.device()->url().utf8().c_str()));
         }
 
-        poll_result_type poll (int filter_events, int millis, error_code & ec)
+        poll_result_type poll (int millis, error_code & ec)
         {
+            // Insert deferred devices
+            if (_deferred_devices.size() > 0) {
+                typename device_vec_type::iterator first = _deferred_devices.begin();
+                typename device_vec_type::iterator last = _deferred_devices.end();
+
+                while (first != last) {
+                    insert(*first, notify_all);
+                    ++first;
+                }
+
+                _deferred_devices.clear();
+            }
+
             size_t n = _pollfds.size();
             pollfd_type * pfds = _pollfds.data();
 
@@ -123,17 +241,17 @@ class device_notifier_pool
 
             do {
                 r = ::poll(pfds, n, millis);
-            } while (r <= 0 and errno == EINTR);
+            } while (r <= 0 && errno == EINTR);
 
             if (r == 0)
-                return r;
+                return pfs::make_pair(end(), end());
 
             if (r < 0) {
                 ec = get_last_system_error();
-                return r;
+                return pfs::make_pair(end(), end());
             }
 
-            return r;
+            return pfs::make_pair(begin(), end());
         }
     };
 
@@ -144,23 +262,24 @@ public:
 public:
     device_notifier_pool () {}
 
-    int poll (int millis, error_code & ec)
+    void insert (server_ptr const & s, short notify_events = notify_all)
     {
         pfs::lock_guard<mutex_type> locker(_mtx);
-        return _pollfds->poll(millis, ec);
+        _pollfds.insert(pfs::static_pointer_cast<basic_device>(s), notify_events);
     }
 
-    void insert (basic_device * dev, short notify_events = notify_all)
+    void insert (device_ptr const & d, short notify_events = notify_all)
     {
         pfs::lock_guard<mutex_type> locker(_mtx);
-        _pollfds.insert(dev, notify_events);
+        _pollfds.insert(pfs::static_pointer_cast<basic_device>(d), notify_events);
     }
 
     template <typename EventHandler>
     void dispatch (EventHandler & event_handler, int millis = 0)
     {
+        pfs::lock_guard<mutex_type> locker(_mtx);
         pfs::error_code ec;
-        poll_result_type result = this->poll(millis, ec);
+        poll_result_type result = _pollfds.poll(millis, ec);
 
         if (ec) {
             event_handler.on_error(ec);
@@ -169,22 +288,21 @@ public:
             iterator last  = result.second;
 
             while (first != last) {
-                details::basic_device * pdev = first.device();
-                PFS_ASSERT(pdev);
-
                 short revents = first.revents();
 
-                if (pdev->is_server()) { // accept connection
-                    // Servers wait incoming data (to establish connection)
-                    // so ignore write events
-                    //
-                    if ((revents ^ WR_EVENTS_XOR_MASK) == 0) {
-                        ; // TODO here may be need check opening/opened state
+                if (revents != 0) {
+                    if (first.is_server()) { // accept connection
+                        // Servers wait incoming data (to establish connection)
+                        // so ignore write events
+                        //
+                        if ((revents ^ WR_EVENTS_XOR_MASK) == 0) {
+                            ; // TODO here may be need check opening/opened state
+                        } else {
+                            process_server(first, event_handler);
+                        }
                     } else {
-                        process_server(first, event_handler, revents);
+                        process_device(first, event_handler);
                     }
-                } else {
-                    process_device(first, event_handler, revents);
                 }
 
                 ++first;
@@ -195,44 +313,45 @@ public:
 private:
 
     template <typename EventHandler>
-    void process_server (iterator pos, EventHandler & event_handler, short revents)
+    void process_server (iterator pos, EventHandler & event_handler)
     {
-        details::device * client;
-        details::server * pserver = reinterpret_cast<details::server *>(pos.device());
-        pfs::error_code ec = pserver->accept(& client, true);
+        details::device * client = 0;
+        server_ptr server = pos.server();
+        pfs::error_code ec = server->accept(& client, true);
 
         if (ec) {
             // Acceptance failed
             //
             event_handler.on_error(ec);
         } else {
-            // Accepted
-            //
-            event_handler.template accepted(*client, *pserver);
+            device_ptr pdev(client);
+            event_handler.connected(pdev, server);
 
-            switch (pserver->type()) {
+            switch (server->type()) {
             case server_udp:
+                // TODO
                 // Process peer device on the spot
                 // and release it automatically
-                process_device(client, event_handler, revents);
+                //process_device(client, event_handler, revents);
                 break;
 
             case server_tcp:
-                insert(client, notify_all);
+                _pollfds.insert_deferred(pdev);
                 break;
 
             default:
-                PFS_DEBUG(fprintf(stderr, "**WARN: untested server type: %d\n", pserver->type()));
-                insert(client, notify_all);
+                PFS_DEBUG(fprintf(::stderr, "**WARN: untested server type: %d\n", server->type()));
+                _pollfds.insert_deferred(pdev);
                 break;
             }
         }
     }
 
     template <typename EventHandler>
-    void process_device (iterator pos, EventHandler & event_handler, short revents)
+    void process_device (iterator pos, EventHandler & event_handler)
     {
-        details::device * pdev = reinterpret_cast<details::device *>(pos.device());
+        device_ptr pdev = pos.device();
+        short revents = pos.revents();
 
         if (!pdev->opened()) {
             if (revents & POLLNVAL) {
@@ -242,8 +361,9 @@ private:
         }
 
         // TODO Check if this event enough to decide to disconnect.
-        if (pdev->available() == 0 && (revents & POLLIN)) {
-            event_handler.disconnected(*pdev);
+        if ((pdev->available() == 0 && (revents & POLLIN))
+                    || revents & POLLRDHUP) { // (since Linux 2.6.17)
+            event_handler.disconnected(pdev);
             _pollfds.erase(pos);
         } else {
             // Error condition (output only).
@@ -257,23 +377,23 @@ private:
             // Hang up (output only).
             //
             if (revents & POLLHUP) {
-                event_handler.disconnected(*pdev);
+                event_handler.disconnected(pdev);
                 _pollfds.erase(pos);
             }
 
             // There is urgent data to read (e.g., out-of-band data on TCP socket;
             // pseudo-terminal master in packet mode has seen state change in slave).
             if (revents & POLLPRI)
-                event_handler.ready_read(*pdev);
+                event_handler.ready_read(pdev);
 
             // There is data to read
             if (revents & POLLIN)
-                event_handler.ready_read(*pdev);
+                event_handler.ready_read(pdev);
 
             // Writing is now possible, though a write larger than the available space
             // in a socket or pipe will still block (unless O_NONBLOCK is set).
             if (revents & POLLOUT)
-                event_handler.can_write(*pdev);
+                event_handler.can_write(pdev);
 
             // Invalid request: fd not open (output only).
             if (revents & POLLNVAL) {

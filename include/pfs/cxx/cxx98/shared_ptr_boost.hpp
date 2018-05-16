@@ -34,3 +34,5 @@ public:
 };
 
 } // pfs
+
+#include "shared_ptr_common.hpp"

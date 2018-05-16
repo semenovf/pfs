@@ -4,11 +4,11 @@
 
 namespace pfs {
 
-template <typename Device>
+template <typename DevicePtr>
 class binary_istream
 {
 public:
-    binary_istream (Device & dev, endian order = endian::network_order())
+    binary_istream (DevicePtr dev, endian order = endian::network_order())
         : _dev(dev)
         , _order(order)
     {}
@@ -43,7 +43,7 @@ protected:
             char b[sizeof(Integral)];
         } d;
 
-        ssize_t result = _dev.read(d.b, sizeof(Integral));
+        ssize_t result = _dev->read(d.b, sizeof(Integral));
 
         if (result < 0)
             return result;
@@ -84,8 +84,8 @@ protected:
     }
 
 private:
-    Device & _dev;
-    endian   _order;
+    DevicePtr & _dev;
+    endian      _order;
 };
 
 } //pfs

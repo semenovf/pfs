@@ -25,9 +25,9 @@ struct open_params<inet_server>
 {
     net::inet4_addr addr;
     uint16_t port;
-    device::open_mode_flags oflags;
+    open_mode_flags oflags;
 
-    open_params (net::inet4_addr a, uint16_t p, device::open_mode_flags of)
+    open_params (net::inet4_addr a, uint16_t p, open_mode_flags of)
         : addr(a)
         , port(p)
         , oflags(of)
@@ -51,7 +51,7 @@ struct open_params<tcp_server> : public open_params<inet_server>
         , npendingconn(0)
     {}
 
-    open_params (net::inet4_addr a, uint16_t p, int backlog, device::open_mode_flags of)
+    open_params (net::inet4_addr a, uint16_t p, int backlog, open_mode_flags of)
         : base_class(a, p, of)
         , npendingconn(backlog)
     {}
@@ -71,7 +71,7 @@ struct open_params<udp_server> : public open_params<inet_server>
         : base_class(net::inet4_addr(), 0, read_write | non_blocking)
     {}
 
-    open_params (net::inet4_addr a, uint16_t p, device::open_mode_flags of)
+    open_params (net::inet4_addr a, uint16_t p, open_mode_flags of)
         : base_class(a, p, of)
     {}
 
@@ -81,9 +81,9 @@ struct open_params<udp_server> : public open_params<inet_server>
 };
 
 template <>
-server open_server<tcp_server> (open_params<tcp_server> const & op, error_code & ec);
+server_ptr open_server<tcp_server> (open_params<tcp_server> const & op, error_code & ec);
 
 template <>
-server open_server<udp_server> (open_params<udp_server> const & op, error_code & ec);
+server_ptr open_server<udp_server> (open_params<udp_server> const & op, error_code & ec);
 
 }} // pfs::io

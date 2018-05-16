@@ -55,10 +55,10 @@ struct open_params<inet_socket>
 {
 	net::inet4_addr addr;
 	uint16_t port;
-	device::open_mode_flags oflags;
+	open_mode_flags oflags;
 	uint32_t socketopts;
 
-    open_params (net::inet4_addr a, uint16_t p, device::open_mode_flags of, uint32_t sso)
+    open_params (net::inet4_addr a, uint16_t p, open_mode_flags of, uint32_t sso)
         : addr(a)
 		, port(p)
 		, oflags(of)
@@ -78,14 +78,14 @@ struct open_params<tcp_socket> : public open_params<inet_socket>
 	/**
 	 * @param a IPv4 address.
 	 * @param p Port number
-	 * @param of Only device::non_blocking applicable.
+	 * @param of Only non_blocking applicable.
 	 * @param sso Socket set options (@see socket_set_option).
 	 */
-	open_params (net::inet4_addr a, uint16_t p, device::open_mode_flags of, uint32_t sso)
+	open_params (net::inet4_addr a, uint16_t p, open_mode_flags of, uint32_t sso)
         : base_class(a, p, of, sso)
 	{}
 
-	open_params (net::inet4_addr a, uint16_t p, device::open_mode_flags of)
+	open_params (net::inet4_addr a, uint16_t p, open_mode_flags of)
         : base_class(a, p, of, 0)
 	{}
 
@@ -109,11 +109,11 @@ struct open_params<udp_socket> : public open_params<inet_socket>
 	 * @param of Only device::non_blocking applicable.
 	 * @param sso Socket set options (@see socket_set_option).
 	 */
-	open_params (net::inet4_addr a, uint16_t p, device::open_mode_flags of, uint32_t sso)
+	open_params (net::inet4_addr a, uint16_t p, open_mode_flags of, uint32_t sso)
         : base_class(a, p, of, sso)
 	{}
 
-	open_params (net::inet4_addr a, uint16_t p, device::open_mode_flags of)
+	open_params (net::inet4_addr a, uint16_t p, open_mode_flags of)
         : base_class(a, p, of, 0)
 	{}
 
@@ -137,9 +137,9 @@ struct open_params<udp_socket> : public open_params<inet_socket>
  *         (i.e. file device is already opened).
  */
 template <>
-device open_device<tcp_socket> (const open_params<tcp_socket> & op, error_code & ex);
+device_ptr open_device<tcp_socket> (open_params<tcp_socket> const & op, error_code & ex);
 
 template <>
-device open_device<udp_socket> (const open_params<udp_socket> & op, error_code & ex);
+device_ptr open_device<udp_socket> (open_params<udp_socket> const & op, error_code & ex);
 
 }} // pfs::io

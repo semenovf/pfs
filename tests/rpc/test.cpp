@@ -123,53 +123,53 @@ struct device_manager_slots : pfs::sigslot<>::has_slots
 
     device_manager_slots (log_ns::logger & logger) : _logger(logger) {}
 
-    void device_accepted (pfs::io::device d, pfs::io::server s)
+    void device_accepted (pfs::io::device_ptr & d, pfs::io::server_ptr & s)
     {
         _logger.info("Server: client accepted on: " + d.url());
         //d.set_context(new pfs::io::buffered_device(d));
     }
 
-    void device_ready_read (pfs::io::device d)
+    void device_ready_read (pfs::io::device_ptr & d)
     {
         _logger.info("Server: device_ready_read");
     }
 
-    void device_disconnected (pfs::io::device d)
+    void device_disconnected (pfs::io::device_ptr & d)
     {
         _logger.info("Server: client disconnected: " + d.url());
     }
 
-    void device_opened (pfs::io::device d)
+    void device_opened (pfs::io::device_ptr & d)
     {
         _logger.info("Server: device_opened");
     }
 
-    void device_opening (pfs::io::device d)
+    void device_opening (pfs::io::device_ptr & d)
     {
         _logger.info("Server: device_opening");
     }
 
-    void device_open_failed (pfs::io::device d, pfs::error_code ec)
+    void device_open_failed (pfs::io::device_ptr & d, pfs::error_code const & ec)
     {
         _logger.error("Server: device_open_failed" + pfs::to_string(ec));
     }
 
-    void server_opened (pfs::io::server s)
+    void server_opened (pfs::io::server_ptr & s)
     {
         _logger.info("Server: listen on: " + s.url());
     }
 
-    void server_opening (pfs::io::server s)
+    void server_opening (pfs::io::server_ptr & s)
     {
         _logger.info("Server: opening...");
     }
 
-    void server_open_failed (pfs::io::server s, pfs::error_code ec)
+    void server_open_failed (pfs::io::server_ptr & s, pfs::error_code const & ec)
     {
         _logger.error("Server: server_open_failed: " + pfs::to_string(ec));
     }
 
-    void device_io_error (pfs::error_code ec)
+    void device_io_error (pfs::error_code const & ec)
     {
         _logger.error("Server: device_io_error: " + pfs::to_string(ec));
     }
@@ -177,7 +177,7 @@ struct device_manager_slots : pfs::sigslot<>::has_slots
 
 void run ()
 {
-    pfs::io::device_manager<> devman(10);
+    pfs::io::device_manager<> devman;
     device_manager_slots devslots(g_logger);
     pfs::error_code ec;
 
