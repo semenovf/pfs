@@ -38,7 +38,7 @@ struct server : public basic_device
 
     virtual bool is_nonblocking () const = 0;
 
-    virtual error_code accept (details::device **, bool non_blocking) = 0;
+    virtual details::device * accept (bool non_blocking, error_code & ec) = 0;
 
     //virtual native_handle_type native_handle () const = 0;
 

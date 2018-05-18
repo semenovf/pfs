@@ -77,17 +77,17 @@ public:
                 : error_code();
     }
 
-	error_code listen (int backlog)
-	{
-		return (::listen(_fd, backlog) != 0)
+    error_code listen (int backlog)
+    {
+        return (::listen(_fd, backlog) != 0)
                 ? get_last_system_error()
                 : error_code();
-	}
+    }
 
 public:
-	tcp_server ()
-		: inet_server()
-	{}
+    tcp_server ()
+        : inet_server()
+    {}
 
     virtual server_type type () const pfs_override
     {
@@ -99,13 +99,13 @@ public:
         return pfs::io::inet_socket_url("tcp", _sockaddr);
     }
 
-    virtual error_code accept (details::device ** peer, bool non_blocking) pfs_override;
+    virtual details::device * accept (bool non_blocking, error_code & ec) pfs_override;
 };
 
 class udp_server : public inet_server
 {
 public:
-	typedef inet_server::native_handle_type native_handle_type;
+    typedef inet_server::native_handle_type native_handle_type;
 
 public:
     error_code open (bool non_blocking)
@@ -117,9 +117,9 @@ public:
     }
 
     error_code listen (int/* backlog */)
-	{
-		return error_code();
-	}
+    {
+        return error_code();
+    }
 
 public:
     udp_server ()
@@ -128,7 +128,7 @@ public:
 
     virtual server_type type () const pfs_override
     {
-    	return server_udp;
+        return server_udp;
     }
 
     virtual string url () const pfs_override
@@ -136,7 +136,7 @@ public:
         return pfs::io::inet_socket_url("udp", _sockaddr);
     }
 
-    virtual error_code accept (details::device ** peer, bool non_blocking) pfs_override;
+    virtual details::device * accept (bool non_blocking, error_code & ec) pfs_override;
 };
 
 

@@ -99,8 +99,8 @@ class device_manager : SigslotNS::has_slots
 
         void can_write (device_ptr & d)
         {
-            _p2->delete_deferred(d);
-            _p1->push_back(d);
+            _p2->remove(d);
+            _p1->insert(d);
 
             _m->opened(d);
         }
@@ -111,9 +111,9 @@ class device_manager : SigslotNS::has_slots
         }
     };
 
-public:
-    typedef typename pool_type::device_sequence device_sequence;
-    typedef typename pool_type::server_sequence server_sequence;
+// public:
+//     typedef typename pool_type::device_sequence device_sequence;
+//     typedef typename pool_type::server_sequence server_sequence;
 
 private:
     // Main device pool (for valid (operational) devices)
@@ -133,14 +133,14 @@ private:
     device_manager & operator = (device_manager const &);
 
 private:
-    void push_device (device_ptr const & d, pfs::error_code const & ec)
+    void insert_device (device_ptr d, pfs::error_code const & ec)
     {
         if (!ec) {
-            _p1.push_back(d);
+            _p1.insert(d);
             opened(d);
         } else {
             if (ec == pfs::make_error_code(io_errc::operation_in_progress)) {
-                _p2.push_back(d);
+                _p2.insert(d);
                 opening(d);
             } else {
                 open_failed(d, ec);
@@ -148,14 +148,14 @@ private:
         }
     }
 
-    void push_server (server_ptr const & s, pfs::error_code const & ec)
+    void insert_server (server_ptr s, pfs::error_code const & ec)
     {
         if (!ec) {
-            _p1.push_back(s);
+            _p1.insert(s);
             server_opened(s);
         } else {
             if (ec == pfs::make_error_code(io_errc::operation_in_progress)) {
-                _p2.push_back(s);
+                _p2.insert(s);
                 server_opening(s);
             } else {
                 server_open_failed(s, ec);
@@ -175,28 +175,18 @@ public:
     {}
 
     template <typename DeviceTag>
-    device_ptr new_device (open_params<DeviceTag> const & op, pfs::error_code * pec = 0)
+    device_ptr new_device (open_params<DeviceTag> const & op, pfs::error_code & ec)
     {
-        pfs::error_code ec;
         device_ptr d = pfs::io::open_device(op, ec);
-        push_device(d, ec);
-
-        if (pec)
-            *pec = ec;
-
+        insert_device(d, ec);
         return d;
     }
 
     template <typename ServerTag>
-    server_ptr new_server (open_params<ServerTag> const & op, pfs::error_code * pec = 0)
+    server_ptr new_server (open_params<ServerTag> const & op, pfs::error_code & ec)
     {
-        pfs::error_code ec;
         server_ptr s = pfs::io::open_server(op, ec);
-        push_server(s, ec);
-
-        if (pec)
-            *pec = ec;
-
+        insert_server(s, ec);
         return s;
     }
 
@@ -247,7 +237,7 @@ public:
         while (*it < item && it != last) {
             device_ptr d = it->d;
             d->reopen();
-            push_device(d, d->errorcode());
+            insert_device(d, d->errorcode());
 
             ++it;
         }
@@ -255,49 +245,50 @@ public:
         _rq.erase(_rq.cbegin(), it);
     }
 
-    void close (device_ptr d)
+    void close (device_ptr & d)
     {
         _ctx1.disconnected(d);
-        _p1.delete_deferred(d);
-        d->close();
+        _p1.erase(d);
     }
 
-    void fetch_devices (device_sequence & devices
+    template <template <typename> class SequenenceContainer>
+    void fetch_devices (SequenenceContainer<device_ptr> & devices
             , bool (* filter) (device_ptr const & d, void * context)
             , void * context)
     {
         _p1.fetch_devices(devices, filter, context);
     }
 
-    void fetch_servers (server_sequence & servers
+    template <template <typename> class SequenenceContainer>
+    void fetch_servers (SequenenceContainer<server_ptr> & servers
             , bool (* filter) (server_ptr const & s, void * context)
             , void * context)
     {
         _p1.fetch_servers(servers, filter, context);
     }
 
-    void dispatch (int millis)
+    void dispatch (int millis = 0)
     {
         _p1.dispatch(_ctx1, millis);
 
-        if (_p2.device_count() > 0)
-            _p2.dispatch(_ctx2, millis / 2 > 50 ? millis / 2 : 50);
+        //if (_p2.device_count() > 0)
+        _p2.dispatch(_ctx2, 0); //millis / 2 > 50 ? millis / 2 : 50);
 
         if (ready_deferred())
             reopen_deferred();
     }
 
 public: // signals
-    typename SigslotNS::template signal2<device_ptr &, server_ptr &> connected;    ///<! accept connection (for connection based server devices)
-    typename SigslotNS::template signal1<device_ptr &>               ready_read;   ///<! device is ready for read
-    typename SigslotNS::template signal1<device_ptr &>               opened;       ///<! opened (for regular files, servers) or connected (for connection based client devices)
-    typename SigslotNS::template signal1<device_ptr &>               disconnected; ///<! disconnection for connection based devices, including peer devices
-    typename SigslotNS::template signal1<device_ptr &>               opening;      ///<! open (connection) in progress (for connection based client devices)
-    typename SigslotNS::template signal2<device_ptr, error_code>     open_failed;
-    typename SigslotNS::template signal1<server_ptr &>               server_opened;
-    typename SigslotNS::template signal1<server_ptr &>               server_opening;
-    typename SigslotNS::template signal2<server_ptr &, error_code>   server_open_failed;
-    typename SigslotNS::template signal1<error_code const &>         error;
+    typename SigslotNS::template signal2<device_ptr &, server_ptr &>       connected;    ///<! accept connection (for connection based server devices)
+    typename SigslotNS::template signal1<device_ptr &>                     ready_read;   ///<! device is ready for read
+    typename SigslotNS::template signal1<device_ptr &>                     opened;       ///<! opened (for regular files, servers) or connected (for connection based client devices)
+    typename SigslotNS::template signal1<device_ptr &>                     disconnected; ///<! disconnection for connection based devices, including peer devices
+    typename SigslotNS::template signal1<device_ptr &>                     opening;      ///<! open (connection) in progress (for connection based client devices)
+    typename SigslotNS::template signal2<device_ptr &, error_code const &> open_failed;
+    typename SigslotNS::template signal1<server_ptr &>                     server_opened;
+    typename SigslotNS::template signal1<server_ptr &>                     server_opening;
+    typename SigslotNS::template signal2<server_ptr &, error_code const &> server_open_failed;
+    typename SigslotNS::template signal1<error_code const &>               error;
 };
 
 }} // pfs::io

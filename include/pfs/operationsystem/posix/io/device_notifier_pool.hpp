@@ -104,6 +104,11 @@ class device_notifier_pool
                 return (*basic_device_it)->is_server();
             }
 
+            basic_device const * basic_device_ptr () const
+            {
+                return basic_device_it->get();
+            }
+
             device_ptr device () const
             {
                 PFS_ASSERT(!(*basic_device_it)->is_server());
@@ -176,7 +181,7 @@ class device_notifier_pool
             _deferred_devices.push_back(static_pointer_cast<basic_device>(d));
         }
 
-        void insert (basic_device_ptr const & dev, short notify_events)
+        void insert (basic_device_ptr const & d, short notify_events)
         {
             short poll_events = 0;
 
@@ -202,20 +207,41 @@ class device_notifier_pool
                 index = _pollfds.size() - 1;
             }
 
-            PFS_DEBUG(printf("*** INSERTED: [%d]: %s\n", int(index), dev->url().utf8().c_str()));
+            //PFS_DEBUG(printf("*** [%s]: INSERTED: index={%d}\n", d->url().c_str(), int(index)));
 
-            _pollfds[index].fd = dev->native_handle();
+            _pollfds[index].fd = d->native_handle();
             _pollfds[index].events = poll_events;
-            _devices[index] = dev;
+            _devices[index] = d;
+        }
+
+        iterator find (basic_device_ptr const & d)
+        {
+            iterator first = begin();
+            iterator last = begin();
+
+            while (first != last) {
+                if (d.get() == first.basic_device_ptr())
+                    return first;
+                ++first;
+            }
+            return last;
+        }
+
+        void remove (iterator pos)
+        {
+            ssize_t index = pfs::distance(_pollfds.begin(), pos.pollfd_it);
+            //PFS_DEBUG(printf("*** [%s]: ERASED: index={%d}\n", pos.device()->url().c_str(), int(index)));
+            pos.pollfd().fd = -1;
+            _pollfds_indices.push_back(index);
         }
 
         void erase (iterator pos)
         {
-            pos.device()->close();
-            pos.pollfd().fd = -1;
-            ssize_t index = pfs::distance(_pollfds.begin(), pos.pollfd_it);
-            _pollfds_indices.push_back(index);
-            PFS_DEBUG(printf("*** ERASED: [%d]: %s\n", int(index), pos.device()->url().utf8().c_str()));
+            if (pos.is_server())
+                pos.server()->close();
+            else
+                pos.device()->close();
+            remove(pos);
         }
 
         poll_result_type poll (int millis, error_code & ec)
@@ -273,6 +299,16 @@ public:
         _pollfds.insert(pfs::static_pointer_cast<basic_device>(d), notify_events);
     }
 
+    void remove (device_ptr const & d)
+    {
+        _pollfds.remove(_pollfds.find(pfs::static_pointer_cast<basic_device>(d)));
+    }
+
+    void remove (server_ptr const & s)
+    {
+        _pollfds.remove(_pollfds.find(pfs::static_pointer_cast<basic_device>(s)));
+    }
+
     template <typename EventHandler>
     void dispatch (EventHandler & event_handler, int millis = 0)
     {
@@ -309,22 +345,76 @@ public:
         }
     }
 
+    template <template <typename> class SequenenceContainer>
+    void fetch_devices (SequenenceContainer<device_ptr> & devices
+            , bool (* filter) (device_ptr const & d, void * context)
+            , void * context)
+    {
+        pfs::lock_guard<pfs::mutex> locker(_mtx);
+
+        iterator first = _pollfds.begin();
+        iterator last  = _pollfds.end();
+
+        pfs::back_insert_iterator<SequenenceContainer<device_ptr> > inserter
+                = pfs::back_inserter(devices);
+
+        while (first != last) {
+            if (!first.is_server()) {
+                if (filter) {
+                    if (filter(first->device(), context))
+                        inserter++ = first->device();
+                } else {
+                    inserter++ = first->device();
+                }
+            }
+            ++first;
+        }
+    }
+
+    template <template <typename> class SequenenceContainer>
+    void fetch_servers (SequenenceContainer<server_ptr> & servers
+            , bool (* filter) (server const & s, void * context)
+            , void * context)
+    {
+        pfs::lock_guard<pfs::mutex> locker(_mtx);
+
+        iterator first = _pollfds.begin();
+        iterator last  = _pollfds.end();
+
+        pfs::back_insert_iterator<SequenenceContainer<server_ptr> > inserter
+                = pfs::back_inserter(servers);
+
+        while (first != last) {
+            if (first.is_server()) {
+                if (filter) {
+                    if (filter(first->device(), context))
+                        inserter++ = first->device();
+                } else {
+                    inserter++ = first->device();
+                }
+            }
+            ++first;
+        }
+    }
+
 private:
 
     template <typename EventHandler>
     void process_server (iterator pos, EventHandler & event_handler)
     {
-        details::device * client = 0;
+        pfs::error_code ec;
         server_ptr server = pos.server();
-        pfs::error_code ec = server->accept(& client, true);
+        details::device * peer = server->accept(true, ec);
 
         if (ec) {
             // Acceptance failed
             //
             event_handler.on_error(ec);
         } else {
-            device_ptr pdev(client);
+            device_ptr pdev(peer);
             event_handler.connected(pdev, server);
+
+            //PFS_DEBUG(printf("*** [%s]: CONNECTED\n", pdev->url().c_str()));
 
             switch (server->type()) {
             case server_udp:
@@ -349,58 +439,74 @@ private:
     template <typename EventHandler>
     void process_device (iterator pos, EventHandler & event_handler)
     {
-        device_ptr pdev = pos.device();
+        device_ptr d = pos.device();
         short revents = pos.revents();
 
-        if (!pdev->opened()) {
+        if (!d->opened()) {
+            //PFS_DEBUG(printf("*** [%s]: WARN: NOT OPENED\n", d->url().c_str()));
             if (revents & POLLNVAL) {
                 // May occurred when device was closed before;
             }
             return;
         }
 
-        // TODO Check if this event enough to decide to disconnect.
-        if ((pdev->available() == 0 && (revents & POLLIN))
-                    /*|| revents & POLLRDHUP*/) { // (since Linux 2.6.17)
-            event_handler.ready_read(pdev); // May be pending data
-            event_handler.disconnected(pdev);
+        // Error condition (output only).
+        //
+        // TODO Research this feature and implement handling
+        //
+        if (revents & POLLERR) {
+            PFS_DEBUG(puts("pfs::io::pool::dispatch(): device error condition"));
+        }
+
+        // Invalid request: fd not open (output only).
+        if (revents & POLLNVAL) {
+            event_handler.on_error(make_error_code(io_errc::bad_file_descriptor));
             _pollfds.erase(pos);
-        } else {
-            // Error condition (output only).
-            //
-            // TODO Research this feature and implement handling
-            //
-            if (revents & POLLERR) {
-                PFS_DEBUG(puts("pfs::io::pool::dispatch(): device error condition"));
-            }
+            return;
+        }
 
-            // Hang up (output only).
-            //
-            if (revents & POLLHUP) {
-                event_handler.disconnected(pdev);
+        // Hang up (output only).
+        //
+        // Contexts:
+        // a. Attempt to connect to defunct server address/port
+        // b. ...
+        if (revents & POLLHUP) {
+            event_handler.disconnected(d);
+            _pollfds.erase(pos);
+            return;
+        }
+
+        // There is data to read
+        if (revents & POLLIN) {
+            // TODO Check if this event enough to decide to disconnect.
+            if (d->available() == 0) {
+                event_handler.ready_read(d); // May be pending data
+                //PFS_DEBUG(printf("*** [%s]: DISCONNECTION\n", d->url().c_str()));
+                event_handler.disconnected(d);
+                //PFS_DEBUG(printf("*** [%s]: DISCONNECTED\n", d->url().c_str()));
                 _pollfds.erase(pos);
-            }
-
-            // There is urgent data to read (e.g., out-of-band data on TCP socket;
-            // pseudo-terminal master in packet mode has seen state change in slave).
-            if (revents & POLLPRI)
-                event_handler.ready_read(pdev);
-
-            // There is data to read
-            if (revents & POLLIN)
-                event_handler.ready_read(pdev);
-
-            // Writing is now possible, though a write larger than the available space
-            // in a socket or pipe will still block (unless O_NONBLOCK is set).
-            if (revents & POLLOUT)
-                event_handler.can_write(pdev);
-
-            // Invalid request: fd not open (output only).
-            if (revents & POLLNVAL) {
-                event_handler.on_error(make_error_code(io_errc::bad_file_descriptor));
-                _pollfds.erase(pos);
+                return;
+            } else {
+                event_handler.ready_read(d);
             }
         }
+
+        // There is urgent data to read (e.g., out-of-band data on TCP socket;
+        // pseudo-terminal master in packet mode has seen state change in slave).
+        if (revents & POLLPRI)
+            event_handler.ready_read(d);
+
+        // Writing is now possible, though a write larger than the available space
+        // in a socket or pipe will still block (unless O_NONBLOCK is set).
+        if (revents & POLLOUT)
+            event_handler.can_write(d);
+
+            // TODO
+            // (since Linux 2.6.17)
+//             if (revents & POLLRDHUP) {
+//                 //
+//                 event_handler.disconnected(d);
+//             }
     }
 
 private:
@@ -409,70 +515,3 @@ private:
 };
 
 }}} // namespace pfs::io::details
-
-#if __COMMENT__
-
-#pragma once
-#include <pfs/io/bits/pool.hpp>
-#include <pfs/list.hpp>
-#include <pfs/map.hpp>
-
-
-namespace pfs {
-namespace io {
-namespace details {
-
-template <template <typename> class SequenceContainer = pfs::list
-        , template <typename> class ContigousContainer = pfs::vector
-        , template <typename, typename> class AssociativeContainer = pfs::map>
-struct pool : public bits::pool
-{
-    void fetch_devices (device_sequence & result
-            , bool (* filter) (device const & d, void * context)
-            , void * context)
-    {
-        pfs::lock_guard<pfs::mutex> locker(_mtx);
-
-        if (_device_map.size() > 0) {
-            typename device_map::const_iterator first = _device_map.cbegin();
-            typename device_map::const_iterator last = _device_map.cend();
-
-            while (first != last) {
-                if (filter) {
-                    if (filter(first->second, context))
-                        result.push_back(first->second);
-                } else {
-                    result.push_back(first->second);
-                }
-                ++first;
-            }
-        }
-    }
-
-    void fetch_servers (server_sequence & servers
-            , bool (* filter) (server const & s, void * context)
-            , void * context)
-    {
-        pfs::lock_guard<pfs::mutex> locker(_mtx);
-
-        if (_server_map.size() > 0) {
-            typename server_map::const_iterator first = _server_map.cbegin();
-            typename server_map::const_iterator last = _server_map.cend();
-
-            while (first != last) {
-                if (filter) {
-                    if (filter(first->second, context))
-                        servers.push_back(first->second);
-                } else {
-                    servers.push_back(first->second);
-                }
-                ++first;
-            }
-        }
-    }
-};
-
-}}} // pfs::io::details
-
-
-#endif // __COMMENT__

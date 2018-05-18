@@ -150,11 +150,20 @@ details::device::open_mode_flags inet_socket::open_mode () const
 ssize_t inet_socket::available () const
 {
     PFS_ASSERT(_fd >= 0);
-    int n = 0;
-    int rc = 0;
-    rc = ioctl(_fd, FIONREAD, & n);
 
-    PFS_ASSERT_X(rc == 0, get_last_system_error().message().c_str());
+    // Check if any data available on socket
+    byte_t buffer;
+    ssize_t rc1 = recv(_fd, & buffer, 1, MSG_PEEK);
+    PFS_ASSERT(rc1 >= 0);
+
+    if (rc1 == 0)
+        return 0;
+
+    int n = 0;
+    int rc2 = 0;
+    rc2 = ioctl(_fd, FIONREAD, & n);
+
+    PFS_ASSERT_X(rc2 == 0, get_last_system_error().message().c_str());
     PFS_ASSERT(n >= 0);
 
     return static_cast<ssize_t> (n);

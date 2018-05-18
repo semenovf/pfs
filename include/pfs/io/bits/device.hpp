@@ -44,11 +44,6 @@ namespace details {
 //
 typedef int native_handle_type;
 
-// struct device_context
-// {
-//     virtual ~device_context () {}
-// };
-
 class basic_device
 {
 public:

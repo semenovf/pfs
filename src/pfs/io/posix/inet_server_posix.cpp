@@ -41,7 +41,7 @@ error_code inet_server::bind (uint32_t addr, uint16_t port)
     return error_code();
 }
 
-error_code tcp_server::accept (details::device ** peer, bool non_blocking)
+details::device * tcp_server::accept (bool non_blocking, error_code & ec)
 {
     struct sockaddr_in peer_addr;
     socklen_t peer_addr_len = sizeof (peer_addr);
@@ -52,19 +52,19 @@ error_code tcp_server::accept (details::device ** peer, bool non_blocking)
 
     PFS_ASSERT(sizeof (sockaddr_in) == peer_addr_len);
 
-    if (peer_sock < 0)
-        return get_last_system_error();
+    if (peer_sock < 0) {
+        ec = get_last_system_error();
+        return 0;
+    }
 
-    details::tcp_socket_peer * peer_socket = new details::tcp_socket_peer(peer_sock, peer_addr);
+    details::tcp_socket_peer * peer = new details::tcp_socket_peer(peer_sock, peer_addr);
 
-    PFS_ASSERT(peer_socket->set_nonblocking(non_blocking));
+    PFS_ASSERT(peer->set_nonblocking(non_blocking));
 
-    *peer = dynamic_cast<details::device *> (peer_socket);
-
-    return error_code();
+    return static_cast<details::device *> (peer);
 }
 
-error_code udp_server::accept (details::device ** peer, bool non_blocking)
+details::device * udp_server::accept (bool non_blocking, error_code & ec)
 {
     struct sockaddr_in peer_addr;
     socklen_t peer_addr_len = sizeof (peer_addr);
@@ -73,21 +73,19 @@ error_code udp_server::accept (details::device ** peer, bool non_blocking)
     ssize_t n = recvfrom(_fd, buf, 0, MSG_PEEK
             , reinterpret_cast<sockaddr *> (& peer_addr), & peer_addr_len);
 
-    if (n < 0)
-        return get_last_system_error();
+    if (n < 0) {
+        ec = get_last_system_error();
+        return 0;
+    }
 
-    details::udp_socket_peer * peer_socket = new details::udp_socket_peer(_fd, peer_addr);
+    details::udp_socket_peer * peer = new details::udp_socket_peer(_fd, peer_addr);
 
-    PFS_ASSERT(peer_socket->set_nonblocking(non_blocking));
+    PFS_ASSERT(peer->set_nonblocking(non_blocking));
 
-    *peer = dynamic_cast<details::device *> (peer_socket);
-
-    return error_code();
+    return static_cast<details::device *> (peer);
 }
 
-}
-}
-}
+}}} // namespace
 
 namespace pfs {
 namespace io {

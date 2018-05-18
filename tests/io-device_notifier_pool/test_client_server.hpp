@@ -26,7 +26,7 @@ using pfs::net::inet4_addr;
 pfs::atomic_int not_quit(NCLIENTS);
 
 static const char * loremipsum [] = {
-      "1.Lorem ipsum dolor sit amet, consectetuer adipiscing elit,"
+     "1.Lorem ipsum dolor sit amet, consectetuer adipiscing elit,"
     , "2.sed diam nonummy nibh euismod tincidunt ut laoreet dolore"
     , "3.magna aliquam erat volutpat. Ut wisi enim ad minim veniam,"
     , "4.quis nostrud exerci tation ullamcorper suscipit lobortis"
@@ -98,8 +98,6 @@ struct event_handler
         std::cout << "Server: socket disconnected:  " << d->url() << std::endl;
         pfs::byte_string * buffer = d->context<pfs::byte_string>();
         TEST_OK(*buffer == sample);
-        //std::cout << '[' << buffer->c_str() << ']' << std::endl;
-        //PFS_DEBUG(printf("*** DISCONNECTED: [%d]\n", not_quit.load()));
         --not_quit;
     }
 
@@ -158,7 +156,7 @@ class ServerThread
         event_handler eh;
 
         do {
-            pool.dispatch(eh, 100);
+            pool.dispatch(eh, 0);
         } while (not_quit);
     }
 };
@@ -229,6 +227,8 @@ void run ()
     pfs::this_thread::sleep_for(pfs::chrono::milliseconds(100));
 
     for (int i = 0; i < NCLIENTS; ++i) {
+        // Need some delay in order to device_notifier_pool process data properly (and poll() this way)
+        pfs::this_thread::sleep_for(pfs::chrono::microseconds(100));
         client_threads[i] = pfs::make_unique<pfs::thread>(& ClientThread::run, & clients[i]);
     }
 
