@@ -112,13 +112,13 @@ class device_notifier_pool
             device_ptr device () const
             {
                 PFS_ASSERT(!(*basic_device_it)->is_server());
-                return static_pointer_cast<details::device>(*basic_device_it);
+                return pfs::static_pointer_cast<details::device>(*basic_device_it);
             }
 
             server_ptr server () const
             {
                 PFS_ASSERT((*basic_device_it)->is_server());
-                return static_pointer_cast<details::server>(*basic_device_it);
+                return pfs::static_pointer_cast<details::server>(*basic_device_it);
             }
 
             short revents () const
@@ -178,7 +178,7 @@ class device_notifier_pool
 
         void insert_deferred (device_ptr const & d)
         {
-            _deferred_devices.push_back(static_pointer_cast<basic_device>(d));
+            _deferred_devices.push_back(pfs::static_pointer_cast<basic_device>(d));
         }
 
         void insert (basic_device_ptr const & d, short notify_events)
@@ -309,6 +309,16 @@ public:
         _pollfds.remove(_pollfds.find(pfs::static_pointer_cast<basic_device>(s)));
     }
 
+    void erase (device_ptr const & d)
+    {
+        _pollfds.erase(_pollfds.find(pfs::static_pointer_cast<basic_device>(d)));
+    }
+
+    void erase (server_ptr const & s)
+    {
+        _pollfds.erase(_pollfds.find(pfs::static_pointer_cast<basic_device>(s)));
+    }
+
     template <typename EventHandler>
     void dispatch (EventHandler & event_handler, int millis = 0)
     {
@@ -361,10 +371,10 @@ public:
         while (first != last) {
             if (!first.is_server()) {
                 if (filter) {
-                    if (filter(first->device(), context))
-                        inserter++ = first->device();
+                    if (filter(first.device(), context))
+                        inserter++ = first.device();
                 } else {
-                    inserter++ = first->device();
+                    inserter++ = first.device();
                 }
             }
             ++first;
@@ -387,10 +397,10 @@ public:
         while (first != last) {
             if (first.is_server()) {
                 if (filter) {
-                    if (filter(first->device(), context))
-                        inserter++ = first->device();
+                    if (filter(first.server(), context))
+                        inserter++ = first.server();
                 } else {
-                    inserter++ = first->device();
+                    inserter++ = first.server();
                 }
             }
             ++first;

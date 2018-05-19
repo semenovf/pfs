@@ -329,11 +329,11 @@ public:
     typedef Container container_type;
 
     explicit back_insert_iterator (Container & x)
-        : _container (addressof(x))
+        : _container(pfs::addressof(x))
     {}
 
     back_insert_iterator &
-            operator= (const typename Container::value_type & value)
+            operator = (const typename Container::value_type & value)
     {
         _container->push_back(value);
         return *this;

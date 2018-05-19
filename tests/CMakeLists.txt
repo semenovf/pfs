@@ -1,4 +1,5 @@
 project(pfs-unit-test CXX)
+enable_testing()
 
 include(../solution.cmake)
 

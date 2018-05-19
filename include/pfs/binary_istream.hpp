@@ -84,8 +84,8 @@ protected:
     }
 
 private:
-    DevicePtr & _dev;
-    endian      _order;
+    DevicePtr _dev;
+    endian    _order;
 };
 
 } //pfs
