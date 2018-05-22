@@ -254,17 +254,29 @@ public:
     template <template <typename> class SequenenceContainer>
     void fetch_devices (SequenenceContainer<device_ptr> & devices
             , bool (* filter) (device_ptr const & d, void * context)
-            , void * context)
+            , void * context = 0)
     {
         _p1.fetch_devices(devices, filter, context);
     }
 
     template <template <typename> class SequenenceContainer>
+    void fetch_devices (SequenenceContainer<device_ptr> & devices)
+    {
+        _p1.fetch_devices(devices, 0, 0);
+    }
+
+    template <template <typename> class SequenenceContainer>
     void fetch_servers (SequenenceContainer<server_ptr> & servers
             , bool (* filter) (server_ptr const & s, void * context)
-            , void * context)
+            , void * context = 0)
     {
         _p1.fetch_servers(servers, filter, context);
+    }
+
+    template <template <typename> class SequenenceContainer>
+    void fetch_servers (SequenenceContainer<server_ptr> & servers)
+    {
+        _p1.fetch_servers(servers, 0, 0);
     }
 
     void dispatch (int millis = 0)

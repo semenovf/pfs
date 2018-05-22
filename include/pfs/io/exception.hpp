@@ -17,10 +17,6 @@ struct io_errc
         , operation_in_progress
         , connection_refused
         , bad_file_descriptor
-//        , bad_radix // bad radix
-//        , underflow
-//        , overflow
-//        , invalid_string
         , stream
 #if __cplusplus < 201103L
     };

@@ -358,7 +358,7 @@ public:
     template <template <typename> class SequenenceContainer>
     void fetch_devices (SequenenceContainer<device_ptr> & devices
             , bool (* filter) (device_ptr const & d, void * context)
-            , void * context)
+            , void * context = 0)
     {
         pfs::lock_guard<pfs::mutex> locker(_mtx);
 
@@ -382,9 +382,16 @@ public:
     }
 
     template <template <typename> class SequenenceContainer>
+    void fetch_devices (SequenenceContainer<device_ptr> & devices)
+    {
+        this->fetch_devices(devices, 0, 0);
+    }
+
+
+    template <template <typename> class SequenenceContainer>
     void fetch_servers (SequenenceContainer<server_ptr> & servers
             , bool (* filter) (server const & s, void * context)
-            , void * context)
+            , void * context = 0)
     {
         pfs::lock_guard<pfs::mutex> locker(_mtx);
 
@@ -405,6 +412,12 @@ public:
             }
             ++first;
         }
+    }
+
+    template <template <typename> class SequenenceContainer>
+    void fetch_servers (SequenenceContainer<server_ptr> & servers)
+    {
+        this->fetch_servers(servers, 0, 0);
     }
 
 private:

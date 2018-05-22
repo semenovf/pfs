@@ -147,9 +147,11 @@ struct id_generator
 //
 // struct protocol
 // {
+//     pfs::byte_string envelope (pfs::byte_string const & payload) const?
+//     pfs::byte_string unenvelope (pfs::byte_string const & data) const?
 // };
-
-///////////////////////////////////////////////////////////////////////////
+//
+//////////////////////////////////////////////////////////////////////////
 // Transport                                                             //
 ///////////////////////////////////////////////////////////////////////////
 //
@@ -180,11 +182,11 @@ struct rpc
     // Client                                                                //
     ///////////////////////////////////////////////////////////////////////////
 
-    template <template <typename> class Transport>
+    template <typename Transport>
     class client
     {
         friend struct session;
-        typedef Transport<Protocol> transport_type;
+        typedef Transport transport_type;
 
         struct session
         {
@@ -247,7 +249,8 @@ struct rpc
                 //
                 // Send data
                 //
-                ssize_t n = _owner._transport.send(_serializer.pack(), ec);
+                pfs::byte_string packet = Protocol().envelope(_serializer.pack());
+                ssize_t n = _owner._transport.send(packet, ec);
 
                 if (n < 0 || ec)
                     return ec;
@@ -342,11 +345,11 @@ struct rpc
     // Server                                                                //
     ///////////////////////////////////////////////////////////////////////////
 
-    template <template <typename> class Transport>
+    template <typename Transport>
     class server
     {
         friend struct session;
-        typedef Transport<Protocol> transport_type;
+        typedef Transport transport_type;
 
         struct basic_binder
         {
@@ -547,7 +550,9 @@ struct rpc
 
             serializer_type in;
 
-            if (! in.unpack(buffer, ec))
+            byte_string payload = Protocol().unenvelope(buffer);
+
+            if (! in.unpack(payload, ec))
                 return ec;
 
             uint8_t major, minor;

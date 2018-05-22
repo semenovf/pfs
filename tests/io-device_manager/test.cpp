@@ -24,7 +24,7 @@ int main ()
 
     pfs::error_code ec;
     device_manager_slots devslots;
-    device_manager devman; // poll timeout is 10 milliseconds
+    device_manager devman;
 
     devman.connected.connect          (& devslots, & device_manager_slots::device_accepted);
     devman.ready_read.connect         (& devslots, & device_manager_slots::device_ready_read);

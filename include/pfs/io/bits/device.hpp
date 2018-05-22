@@ -146,7 +146,7 @@ public:
         return this->read(bytes, available());
     }
 
-    virtual ssize_t write (const byte_t * bytes, size_t n) = 0;
+    virtual ssize_t write (byte_t const * bytes, size_t n) = 0;
 
     ssize_t write (const char * chars, size_t n)
     {

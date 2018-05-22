@@ -23,7 +23,7 @@ struct simple_protocol
 {
     simple_protocol () {}
 
-    pfs::byte_string pack (pfs::byte_string const & payload) const
+    pfs::byte_string envelope (pfs::byte_string const & payload) const
     {
         pfs::byte_string buffer;
         pfs::byte_string_ostream os(buffer);
@@ -31,53 +31,20 @@ struct simple_protocol
         return buffer;
     }
 
-    ssize_t unpack (pfs::byte_string const & buffer, pfs::byte_string & payload)
+    pfs::byte_string unenvelope (pfs::byte_string & data)
     {
         uint8_t a, b, c, d;
         pfs::byte_string::size_type sz;
-        pfs::byte_string_istream is(buffer);
+        pfs::byte_string_istream is(data);
+        pfs::byte_string payload;
         is >> a >> b >> sz;
         is >> pfs::byte_string_ref(payload, sz) >> c >> d;
 
-        if (a == '\x10' && b == '\x01' && c == '\x10' && d == '\x02')
-            return payload.size() + 4 + sizeof(sz);
+        if (!(a == '\x10' && b == '\x01' && c == '\x10' && d == '\x02'))
+            payload.clear();
 
-        return -1;
+        return payload;
     }
-};
-
-template <typename Protocol>
-struct simple_transport
-{
-    simple_transport (/*pfs::io::device & dev*/)
-    {
-        //dev.set_context(this);
-    }
-
-    ssize_t send (pfs::byte_string const & payload, pfs::error_code & ec)
-    {
-//         pfs::byte_string packet = Protocol().pack(payload);
-//         return _dev.write(packet);
-
-
-
-//         _os << packet;
-//         return pfs::integral_cast_check<ssize_t>(packet.size());
-        return -1;
-    }
-
-    ssize_t recv (pfs::byte_string & payload, pfs::error_code & ec)
-    {
-//         ssize_t r = Protocol().unpack(_buffer, payload);
-//         _buffer.clear();
-//         return r;
-        return -1;
-    }
-
-// protected:
-//     pfs::io::device _dev;
-//     pfs::byte_string _buffer;
-//     pfs::byte_string_ostream _os;
 };
 
 typedef pfs::json::json<> json_t;
@@ -123,9 +90,9 @@ struct device_manager_slots : pfs::sigslot<>::has_slots
 
     device_manager_slots (log_ns::logger & logger) : _logger(logger) {}
 
-    void device_accepted (pfs::io::device_ptr & d, pfs::io::server_ptr & s)
+    void device_connected (pfs::io::device_ptr & d, pfs::io::server_ptr & s)
     {
-        _logger.info("Server: client accepted on: " + d.url());
+        _logger.info("Server: client accepted on: " + d->url());
         //d.set_context(new pfs::io::buffered_device(d));
     }
 
@@ -136,7 +103,7 @@ struct device_manager_slots : pfs::sigslot<>::has_slots
 
     void device_disconnected (pfs::io::device_ptr & d)
     {
-        _logger.info("Server: client disconnected: " + d.url());
+        _logger.info("Server: client disconnected: " + d->url());
     }
 
     void device_opened (pfs::io::device_ptr & d)
@@ -156,7 +123,7 @@ struct device_manager_slots : pfs::sigslot<>::has_slots
 
     void server_opened (pfs::io::server_ptr & s)
     {
-        _logger.info("Server: listen on: " + s.url());
+        _logger.info("Server: listen on: " + s->url());
     }
 
     void server_opening (pfs::io::server_ptr & s)
@@ -175,13 +142,46 @@ struct device_manager_slots : pfs::sigslot<>::has_slots
     }
 };
 
+struct transport
+{
+    transport (/*pfs::io::device & dev*/)
+    {
+        //dev.set_context(this);
+    }
+
+    ssize_t send (pfs::byte_string const & payload, pfs::error_code & ec)
+    {
+//         pfs::byte_string packet = Protocol().pack(payload);
+//         return _dev.write(packet);
+
+
+
+//         _os << packet;
+//         return pfs::integral_cast_check<ssize_t>(packet.size());
+        return -1;
+    }
+
+    ssize_t recv (pfs::byte_string & payload, pfs::error_code & ec)
+    {
+//         ssize_t r = Protocol().unpack(_buffer, payload);
+//         _buffer.clear();
+//         return r;
+        return -1;
+    }
+
+// protected:
+//     pfs::io::device _dev;
+//     pfs::byte_string _buffer;
+//     pfs::byte_string_ostream _os;
+};
+
 void run ()
 {
     pfs::io::device_manager<> devman;
     device_manager_slots devslots(g_logger);
     pfs::error_code ec;
 
-    devman.accepted.connect           (& devslots, & device_manager_slots::device_accepted);
+    devman.connected.connect          (& devslots, & device_manager_slots::device_connected);
     devman.ready_read.connect         (& devslots, & device_manager_slots::device_ready_read);
     devman.opened.connect             (& devslots, & device_manager_slots::device_opened);
     devman.opening.connect            (& devslots, & device_manager_slots::device_opening);
@@ -192,16 +192,16 @@ void run ()
     devman.server_open_failed.connect (& devslots, & device_manager_slots::server_open_failed);
     devman.error.connect              (& devslots, & device_manager_slots::device_io_error);
 
-    pfs::io::server tcp_server = devman.new_server(
+    pfs::io::server_ptr tcp_server = devman.new_server(
         pfs::io::open_params<pfs::io::tcp_server>(TCP_LISTENER_ADDR
                 , TCP_LISTENER_PORT
                 , TCP_LISTENER_DEFAULT_BACKLOG
                 , pfs::io::read_write | pfs::io::non_blocking)
-            , & ec);
+            , ec);
 
 
-    simple_transport<simple_protocol> server_transport;
-    rpc_ns::server<simple_transport> server(server_transport);
+    transport server_transport;
+    rpc_ns::server<transport> server(server_transport);
 
     server.bind("integer", integer);
     server.bind("echo", echo);
@@ -219,50 +219,91 @@ void run ()
 
 } // namespace client
 
+///////////////////////////////////////////////////////////////////////////////
+// Client                                                                    //
+///////////////////////////////////////////////////////////////////////////////
 namespace client {
 
-struct device_manager_slots : pfs::sigslot<>::has_slots
+struct transport : pfs::sigslot<>::has_slots
 {
+    transport (log_ns::logger & logger) : _logger(logger) {}
+
+    bool init ()
+    {
+        pfs::error_code ec;
+        pfs::io::device_ptr tcp_socket = _devman.new_device(
+                  pfs::io::open_params<pfs::io::tcp_socket>(
+                          TCP_LISTENER_ADDR
+                        , TCP_LISTENER_PORT), ec);
+
+        if (ec)
+            return false;
+    }
+
+    void device_ready_read (pfs::io::device_ptr & d)
+    {
+        std::cout << "device_ready_read\n";
+    }
+
+    void device_disconnected (pfs::io::device_ptr & d)
+    {
+        std::cout << "device_disconnected: " << d->url() << "\n";
+        _d.reset();
+    }
+
+    void device_opened (pfs::io::device_ptr & d)
+    {
+        std::cout << "device_opened\n";
+        _d = d;
+    }
+
+    void device_opening (pfs::io::device_ptr & d)
+    {
+        std::cout << "device_opening\n";
+    }
+
+    void device_open_failed (pfs::io::device_ptr & d, pfs::error_code const & ec)
+    {
+        std::cout << "device_open_failed\n";
+    }
+
+    void device_io_error (pfs::error_code const & ec)
+    {
+        std::cout << "device_io_error\n";
+    }
+
+    ssize_t send (pfs::byte_string const & payload, pfs::error_code & ec)
+    {
+        if (!_d)
+            return 0;
+
+        ssize_t result = _d->write(payload);
+
+        if (_d->is_error())
+            ec = _d->errorcode();
+
+        return result;
+    }
+
+    ssize_t recv (pfs::byte_string & payload, pfs::error_code & ec)
+    {
+        ssize_t result = _d->read(payload);
+
+        if (_d->is_error())
+            ec = _d->errorcode();
+
+        return result;
+    }
+
+private:
     log_ns::logger & _logger;
-
-    device_manager_slots (log_ns::logger & logger) : _logger(logger) {}
-
-    void device_ready_read (pfs::io::device d)
-    {
-        _logger.info("Client: device_ready_read");
-    }
-
-    void device_disconnected (pfs::io::device d)
-    {
-        _logger.info("Client: disconnected from: " + d.url());
-    }
-
-    void device_opened (pfs::io::device d)
-    {
-        _logger.info("Client: connected to: " + d.url());
-        //d.set_context(new pfs::io::buffered_device(d));
-    }
-
-    void device_opening (pfs::io::device d)
-    {
-        _logger.info("Client: connecting to: " + d.url());
-    }
-
-    void device_open_failed (pfs::io::device d, pfs::error_code ec)
-    {
-        _logger.error("Client: device_open_failed: " + pfs::to_string(ec));
-    }
-
-    void device_io_error (pfs::error_code ec)
-    {
-        _logger.error("Client: device_io_error: " + pfs::to_string(ec));
-    }
+    pfs::io::device_manager<> _devman;
+    pfs::io::device_ptr _d;
 };
 
 void run ()
 {
-    pfs::error_code ec;
-    pfs::io::device_manager<> devman(10);
+
     device_manager_slots devslots(g_logger);
 
     devman.ready_read.connect  (& devslots, & device_manager_slots::device_ready_read);
@@ -272,28 +313,20 @@ void run ()
     devman.disconnected.connect(& devslots, & device_manager_slots::device_disconnected);
     devman.error.connect       (& devslots, & device_manager_slots::device_io_error);
 
-    pfs::io::device tcp_socket = devman.new_device(
-            pfs::io::open_params<pfs::io::tcp_socket>(TCP_LISTENER_ADDR
-                        , TCP_LISTENER_PORT
-                        , pfs::io::read_write | pfs::io::non_blocking)
-                , & ec);
-
-    if (ec)
-        return;
 
     ADD_TESTS(3);
-    simple_transport<simple_protocol> client_transport;
-    rpc_ns::client<simple_transport> client(client_transport);
+    transport client_transport(tcp_socket);
+    rpc_ns::client<transport> client(client_transport);
 
-    //devman.dispatch();
-
-    //tcp_socket.close();
 //     TEST_OK(client.call("integer").result<int>() == 123);
 //     TEST_OK(client.call("echo")(425).result<int>() == 425);
 //     TEST_OK(client.call("sum")(1)(2).result<int>() == 3);
 
     //     client.notify("notify1").send();
 //     client.notify("notify2")(123).send();
+
+//    while (true)
+        devman.dispatch();
 }
 
 } // namespace client
@@ -329,8 +362,10 @@ int main ()
 
     pfs::this_thread::sleep_for(pfs::chrono::seconds(1));
 
-    for (int i = 0; i < CLIENT_COUNT; ++i)
+    for (int i = 0; i < CLIENT_COUNT; ++i) {
         client_threads[i]->join();
+        pfs::this_thread::sleep_for(pfs::chrono::microseconds(100));
+    }
 
     server_thread.join();
 
