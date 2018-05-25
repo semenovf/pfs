@@ -12,7 +12,7 @@ struct byte_string_idevice
         , _cursor(0)
     {}
 
-    ssize_t read (char * s, size_t n)
+    ssize_t read_wait (char * s, size_t n, int millis = -1)
     {
         _buffer.copy(reinterpret_cast<byte_string::pointer>(s), n, _cursor);
         _cursor += n;
@@ -32,7 +32,7 @@ void test_binary_istream (InputDevicePtr dev)
     ADD_TESTS(11);
 
     pfs::endian order = pfs::endian::network_order();
-    binary_istream bis(dev, order);
+    binary_istream bis(dev, -1, order);
 
     bool t;
     bool f;

@@ -18,6 +18,7 @@ struct io_errc
         , connection_refused
         , bad_file_descriptor
         , stream
+        , timeout
 #if __cplusplus < 201103L
     };
 

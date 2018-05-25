@@ -252,6 +252,11 @@ private:
     }
 };
 
+inline int32_t operator - (time const & a, time const & b)
+{
+    return a.millis_from_midnight() - b.millis_from_midnight();
+}
+
 /**
  *
  * @param format

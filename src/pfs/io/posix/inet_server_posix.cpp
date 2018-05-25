@@ -91,17 +91,18 @@ namespace pfs {
 namespace io {
 
 template <>
-server_ptr open_server<tcp_server> (const open_params<tcp_server> & op, error_code & ex)
+server_ptr open_server<tcp_server> (open_params<tcp_server> const & op, error_code & ec)
 {
     bool non_blocking_flag = op.oflags & pfs::io::non_blocking;
 
     details::tcp_server * d = new details::tcp_server;
 
-    ex = d->open(non_blocking_flag);
-    if (!ex) ex = d->bind(op.addr.native(), op.port);
-    if (!ex) ex = d->listen(op.npendingconn);
+    ec = d->open(non_blocking_flag);
 
-    if (ex) {
+    if (!ec) ec = d->bind(op.addr.native(), op.port);
+    if (!ec) ec = d->listen(op.npendingconn);
+
+    if (ec) {
         delete d;
         return server_ptr();
     }
@@ -110,17 +111,17 @@ server_ptr open_server<tcp_server> (const open_params<tcp_server> & op, error_co
 }
 
 template <>
-server_ptr open_server<udp_server> (const open_params<udp_server> & op, error_code & ex)
+server_ptr open_server<udp_server> (const open_params<udp_server> & op, error_code & ec)
 {
     bool non_blocking_flag = op.oflags & pfs::io::non_blocking;
 
     details::udp_server * d = new details::udp_server;
 
-    ex = d->open(non_blocking_flag);
+    ec = d->open(non_blocking_flag);
 
-    if (!ex) ex = d->bind(op.addr.native(), op.port);
+    if (!ec) ec = d->bind(op.addr.native(), op.port);
 
-    if (ex) {
+    if (ec) {
         delete d;
         return server_ptr();
     }

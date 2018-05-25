@@ -37,28 +37,26 @@ public:
         close();
     }
 
-    error_code connect (uint32_t addr, uint16_t port);
-
-    virtual bool reopen () pfs_override;
+    virtual error_code connect (uint32_t addr, uint16_t port) = 0;
 
     virtual open_mode_flags open_mode () const pfs_override;
 
     virtual ssize_t available () const pfs_override;
 
-    virtual ssize_t read (byte_t * bytes, size_t n) pfs_override;
+    //virtual ssize_t write (const byte_t * bytes, size_t n, error_code & ec) pfs_override = 0;
 
-    virtual ssize_t write (const byte_t * bytes, size_t n) pfs_override;
-
-    virtual bool close () pfs_override
+    virtual error_code close () pfs_override
     {
-        bool r = true;
-        if (close_socket(_fd) != 0) {
-            this->_ec = get_last_system_error();
-            r = false;
-        }
+        error_code ec;
+
+        if (close_socket(_fd) != 0)
+            ec = get_last_system_error();
+
         _fd = -1;
-        return r;
+        return ec;
     }
+
+    virtual error_code reopen () pfs_override;
 
     virtual bool opened () const pfs_override
     {
@@ -101,7 +99,7 @@ public:
     {
         _fd = create_tcp_socket(non_blocking);
         return _fd < 0
-                ? error_code(errno, pfs::generic_category())
+                ? get_last_system_error()
                 : error_code();
     }
 
@@ -109,6 +107,12 @@ public:
     tcp_socket ()
         : inet_socket()
     {}
+
+    virtual error_code connect (uint32_t addr, uint16_t port) pfs_override;
+
+    virtual ssize_t read (byte_t * bytes, size_t n, error_code & ec) pfs_override;
+
+    virtual ssize_t write (const byte_t * bytes, size_t n, error_code & ec) pfs_override;
 
     virtual device_type type () const pfs_override
     {
@@ -160,6 +164,11 @@ public:
         : inet_socket()
     {}
 
+    virtual error_code connect (uint32_t addr, uint16_t port) pfs_override;
+
+    virtual ssize_t read (byte_t * bytes, size_t n, error_code & ec) pfs_override;
+    virtual ssize_t write (byte_t const * bytes, size_t n, error_code & ec) pfs_override;
+
     virtual device_type type () const pfs_override
     {
         return device_udp_socket;
@@ -177,7 +186,7 @@ public:
     typedef udp_socket::native_handle_type native_handle_type;
 
 public:
-    udp_socket_peer (native_handle_type fd, const sockaddr_in & sockaddr)
+    udp_socket_peer (native_handle_type fd, sockaddr_in const & sockaddr)
         : udp_socket()
     {
         _fd = fd;
@@ -196,13 +205,13 @@ public:
 
     // Reimplemented to avoid descriptor closing
     //
-    virtual bool close () pfs_override
+    virtual error_code close () pfs_override
     {
         // Really descriptor cannot be closed,
         // it still used by server
         //
         _fd = -1;
-        return true;
+        return error_code();
     }
 };
 

@@ -60,22 +60,22 @@ struct basic_file : public details::device
         return pfs::io::is_nonblocking(_fd);
     }
 
-    virtual ssize_t read (byte_t * bytes, size_t n) pfs_override
+    virtual ssize_t read (byte_t * bytes, size_t n, error_code & ec) pfs_override
     {
         ssize_t sz = ::read(_fd, bytes, n);
 
         if (sz < 0)
-            this->_ec = error_code(errno, pfs::generic_category());
+            ec = get_last_system_error();
 
         return sz;
     }
 
-    virtual ssize_t write (const byte_t * bytes, size_t n) pfs_override
+    virtual ssize_t write (const byte_t * bytes, size_t n, error_code & ec) pfs_override
     {
         ssize_t sz = ::write(_fd, bytes, n);
 
         if (sz < 0)
-            this->_ec = error_code(errno, pfs::generic_category());
+            ec = get_last_system_error();
 
         return sz;
     }
@@ -109,25 +109,27 @@ struct standard_stream : basic_file
         return error_code();
     }
 
-    virtual bool close () pfs_override
+    virtual error_code close () pfs_override
     {
-        bool r = true;
+        error_code ec;
 
         if (_fd > 0 && _fd != _orig_fd) {
-            if (::close(_fd) < 0) {
-                this->_ec = error_code(errno, pfs::generic_category());
-                r = false;
-            }
-            _fd = -1;
+            if (::close(_fd) < 0)
+                ec = get_last_system_error();
         }
-        return r;
+
+       _fd = -1;
+        return ec;
     }
 
-    virtual bool reopen () pfs_override
+    virtual error_code reopen () pfs_override
     {
+        error_code ec;
+
         if (close())
-            this->_ec = open(_orig_fd);
-        return this->_ec == error_code();
+            ec = open(_orig_fd);
+
+        return ec;
     }
 
     virtual open_mode_flags open_mode () const pfs_override
@@ -197,39 +199,41 @@ struct file : basic_file
     error_code open (filesystem::path const & path, int of, mode_t om)
     {
         int fd = ::open(path.native().c_str(), of, om);
+        error_code ec;
 
-        if (fd < 0) {
-            return error_code(errno, pfs::generic_category());
+        if (fd >= 0) {
+            this->_fd = fd;
+            this->path = path;
+            this->oflags = of;
+            this->omode = om;
+        } else {
+            ec = get_last_system_error();
         }
 
-        this->_fd = fd;
-        this->path = path;
-        this->oflags = of;
-        this->omode = om;
-
-        return error_code();
+        return ec;
     }
 
-    virtual bool close () pfs_override
+    virtual error_code close () pfs_override
     {
-        bool r = true;
+        error_code ec;
 
         if (_fd > 0) {
-            if (::close(_fd) < 0) {
-                this->_ec = error_code(errno, pfs::generic_category());
-                r = false;
-            }
+            if (::close(_fd) < 0)
+                ec = get_last_system_error();
         }
 
         _fd = -1;
-        return r;
+        return ec;
     }
 
-    virtual bool reopen () pfs_override
+    virtual error_code reopen () pfs_override
     {
+        error_code ec;
+
         if (close())
-            this->_ec = open(path, oflags, omode);
-        return this->_ec == error_code();
+            ec = open(path, oflags, omode);
+
+        return ec;
     }
 
     virtual open_mode_flags open_mode () const pfs_override

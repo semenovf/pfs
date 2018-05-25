@@ -33,19 +33,7 @@ enum socket_set_option
 };
 
 struct inet_socket {};
-
-/**
- * @struct pfs::io::tcp_socket
- * @brief TCP socket device implementation.
- * @see pfs::io::device.
- */
 struct tcp_socket {};
-
-/**
- * @struct pfs::io::udp_socket
- * @brief UDP socket device implementation.
- * @see pfs::io::device.
- */
 struct udp_socket {};
 
 // Helper structure for tcp/udp sockets
@@ -53,17 +41,17 @@ struct udp_socket {};
 template <>
 struct open_params<inet_socket>
 {
-	net::inet4_addr addr;
-	uint16_t port;
-	open_mode_flags oflags;
-	uint32_t socketopts;
+    net::inet4_addr addr;
+    uint16_t port;
+    open_mode_flags oflags;
+    uint32_t socketopts;
 
     open_params (net::inet4_addr a, uint16_t p, open_mode_flags of, uint32_t sso)
         : addr(a)
-		, port(p)
-		, oflags(of)
-		, socketopts(sso)
-	{}
+        , port(p)
+        , oflags(of)
+        , socketopts(sso)
+    {}
 };
 
 template <>
@@ -71,27 +59,21 @@ struct open_params<tcp_socket> : public open_params<inet_socket>
 {
     typedef open_params<inet_socket> base_class;
 
-	open_params ()
+    open_params ()
         : base_class(net::inet4_addr(), 0, 0, 0)
     {}
 
-	/**
-	 * @param a IPv4 address.
-	 * @param p Port number
-	 * @param of Only non_blocking applicable.
-	 * @param sso Socket set options (@see socket_set_option).
-	 */
-	open_params (net::inet4_addr a, uint16_t p, open_mode_flags of, uint32_t sso)
+    open_params (net::inet4_addr a, uint16_t p, open_mode_flags of, uint32_t sso)
         : base_class(a, p, of, sso)
-	{}
+    {}
 
-	open_params (net::inet4_addr a, uint16_t p, open_mode_flags of)
+    open_params (net::inet4_addr a, uint16_t p, open_mode_flags of)
         : base_class(a, p, of, 0)
-	{}
+    {}
 
-	open_params (net::inet4_addr a, uint16_t p)
+    open_params (net::inet4_addr a, uint16_t p)
         : base_class(a, p, read_write | non_blocking, 0)
-	{}
+    {}
 };
 
 template <>
@@ -99,47 +81,27 @@ struct open_params<udp_socket> : public open_params<inet_socket>
 {
     typedef open_params<inet_socket> base_class;
 
-	open_params ()
+    open_params ()
         : base_class(net::inet4_addr(), 0, 0, 0)
     {}
 
-	/**
-	 * @param a IPv4 address.
-	 * @param p Port number
-	 * @param of Only device::non_blocking applicable.
-	 * @param sso Socket set options (@see socket_set_option).
-	 */
-	open_params (net::inet4_addr a, uint16_t p, open_mode_flags of, uint32_t sso)
+    open_params (net::inet4_addr a, uint16_t p, open_mode_flags of, uint32_t sso)
         : base_class(a, p, of, sso)
-	{}
+    {}
 
-	open_params (net::inet4_addr a, uint16_t p, open_mode_flags of)
+    open_params (net::inet4_addr a, uint16_t p, open_mode_flags of)
         : base_class(a, p, of, 0)
-	{}
+    {}
 
-	open_params (net::inet4_addr a, uint16_t p)
+    open_params (net::inet4_addr a, uint16_t p)
         : base_class(a, p, read_write | non_blocking, 0)
-	{}
+    {}
 };
 
-/**
- * @fn bool open_device<file> (device & d, const open_params<file> & op)
- *
- * @brief Open file device.
- *
- * @param d File device to open.
- * @param op Open device parameters.
- * 		@li open_params(size_t n, uint32_t oflags)
- * 		@li open_params(byte_t * p, size_t n, uint32_t oflags)
- * 		@li open_params(char * p, size_t n, uint32_t oflags)
- *
- * @return @c true if open is successful, @c false otherwise
- *         (i.e. file device is already opened).
- */
 template <>
-device_ptr open_device<tcp_socket> (open_params<tcp_socket> const & op, error_code & ex);
+device_ptr open_device<tcp_socket> (open_params<tcp_socket> const & op, error_code & ec);
 
 template <>
-device_ptr open_device<udp_socket> (open_params<udp_socket> const & op, error_code & ex);
+device_ptr open_device<udp_socket> (open_params<udp_socket> const & op, error_code & ec);
 
 }} // pfs::io

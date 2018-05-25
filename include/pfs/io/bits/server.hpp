@@ -32,7 +32,7 @@ struct server : public basic_device
 
     virtual bool opened () const = 0;
 
-    virtual bool close () = 0;
+    virtual error_code close () = 0;
 
     virtual bool set_nonblocking (bool on) = 0;
 

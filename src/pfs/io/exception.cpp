@@ -17,16 +17,19 @@ std::string io_category::message (int ev) const
 
     case static_cast<int>(io_errc::operation_in_progress):
         return "operation in progress";
-    
+
     case static_cast<int>(io_errc::connection_refused):
         return "connection refused";
-        
+
     case static_cast<int>(io_errc::bad_file_descriptor):
         return "bad file descriptor";
 
     case static_cast<int>(io_errc::stream):
         return "stream error";
-        
+
+    case static_cast<int>(io_errc::timeout):
+        return "timed out";
+
     default: return "unknown I/O error";
     }
 }

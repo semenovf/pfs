@@ -232,7 +232,7 @@ void test_write_read ()
     TEST_FAIL((d = open_device(open_params<file>(file_path, pfs::io::write_only), ec)));
 
     TEST_FAIL(d->write(loremipsum, ::strlen(loremipsum)) == ssize_t(::strlen(loremipsum)));
-    TEST_FAIL(d->close());
+    TEST_FAIL(!pfs::is_error(d->close()));
 
     TEST_FAIL((d = open_device(open_params<file>(file_path, pfs::io::read_only))));
     pfs::byte_string bs;
@@ -241,9 +241,9 @@ void test_write_read ()
     size_t navailable = pfs::integral_cast_check<size_t>(d->available());
     std::cout << "3. d.available()=" << d->available() << std::endl;
     std::cout << "navailable=" << navailable << std::endl;
-    d->read(bs, navailable);
+    d->read_wait(bs, navailable);
 
-    TEST_OK(d->close());
+    TEST_OK(!pfs::is_error(d->close()));
     TEST_OK(bs == loremipsum);
 
     TEST_FAIL2(pfs::filesystem::remove(file_path, ec), "Temporary file unlink");
@@ -317,7 +317,7 @@ void test_io_iterator ()
     device_ptr d;
     TEST_FAIL((d = open_device(open_params<file>(file_path, pfs::io::write_only), ec)));
     TEST_FAIL(d->write(hello, ::strlen(hello)) == ssize_t(::strlen(hello)));
-    TEST_FAIL(d->close());
+    TEST_FAIL(!pfs::is_error(d->close()));
 
     if (1) {
         ADD_TESTS(6);
@@ -429,7 +429,7 @@ void test_io_iterator ()
         TEST_OK(*it2++ == 'e');
         TEST_OK(it2 == last);
 
-        TEST_FAIL(d->close());
+        TEST_FAIL(!pfs::is_error(d->close()));
     }
 
     if (1) {
@@ -449,7 +449,7 @@ void test_io_iterator ()
         TEST_OK(*it++ == 'e');
         TEST_OK(it == last);
 
-        TEST_FAIL(d->close());
+        TEST_FAIL(!pfs::is_error(d->close()));
     }
 
     TEST_FAIL2(pfs::filesystem::remove(file_path, ec), "Temporary file unlink");

@@ -117,6 +117,10 @@ enum rpc_entity {
     , RPC_NOTIFICATION = 2
     , RPC_SUCCESS      = 3
     , RPC_ERROR        = 4
+    , rpc_method       = RPC_METHOD
+    , rpc_notification = RPC_NOTIFICATION
+    , rpc_success      = RPC_SUCCESS
+    , rpc_error        = RPC_ERROR
 };
 
 ///////////////////////////////////////////////////////////////////////////
@@ -187,6 +191,8 @@ struct rpc
     {
         friend struct session;
         typedef Transport transport_type;
+        typedef typename Transport::istream_type istream_type;
+        typedef typename Transport::ostream_type ostream_type;
 
         struct session
         {
@@ -207,6 +213,14 @@ struct rpc
                     .set_method(name);
                 return *this;
             }
+
+//             session & notify (string_type const & name)
+//             {
+//                 _serializer.set_version(MajorVersion, MinorVersion)
+//                     .set_entity(RPC_NOTIFICATION)
+//                     .set_method(name);
+//                 return *this;
+//             }
 
             template <typename T>
             inline session & operator () (T const & value)
@@ -245,27 +259,26 @@ struct rpc
             error_code result (T & value)
             {
                 error_code ec;
+                Protocol proto;
 
                 //
                 // Send data
                 //
-                pfs::byte_string packet = Protocol().envelope(_serializer.pack());
-                ssize_t n = _owner._transport.send(packet, ec);
+                ostream_type & writer = _owner._transport.writer();
 
-                if (n < 0 || ec)
-                    return ec;
+                if (! proto.send(writer, _serializer.pack()))
+                    return make_error_code(rpc_errc::internal_error); // TODO May be need special error for this situation
 
                 //
                 // Receive data
                 //
+                byte_string payload;
+                istream_type & reader = _owner._transport.reader();
 
-                byte_string buffer;
-                n = _owner._transport.recv(buffer, ec);
+                if (! proto.recv(reader, payload))
+                    return make_error_code(rpc_errc::internal_error); // TODO May be need special error for this situation
 
-                if (n < 0 || ec)
-                    return ec;
-
-                if (! _serializer.unpack(buffer, ec))
+                if (! _serializer.unpack(payload, ec))
                     return ec;
 
                 uint8_t major, minor;

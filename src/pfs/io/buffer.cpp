@@ -21,9 +21,9 @@ struct buffer : public details::device
         , _pos(0)
     {}
 
-    virtual bool reopen ()
+    virtual error_code reopen ()
     {
-        return true;
+        return error_code();
     }
 
     virtual open_mode_flags open_mode () const
@@ -36,13 +36,13 @@ struct buffer : public details::device
         return _buffer.size() - _pos;
     }
 
-    virtual ssize_t read (byte_t * bytes, size_t n) pfs_override;
+    virtual ssize_t read (byte_t * bytes, size_t n, error_code & ec) pfs_override;
 
-    virtual ssize_t write (const byte_t * bytes, size_t n) pfs_override;
+    virtual ssize_t write (const byte_t * bytes, size_t n, error_code & ec) pfs_override;
 
-    virtual bool close ()
+    virtual error_code close ()
     {
-        return true;
+        return error_code();
     }
 
     virtual bool opened () const
@@ -79,7 +79,7 @@ struct buffer : public details::device
     }
 };
 
-ssize_t buffer::read (byte_t * bytes, size_t n)
+ssize_t buffer::read (byte_t * bytes, size_t n, error_code & ec)
 {
     if (_pos >= _buffer.size())
         return 0;
@@ -91,7 +91,7 @@ ssize_t buffer::read (byte_t * bytes, size_t n)
     return integral_cast_check<ssize_t>(n);
 }
 
-ssize_t buffer::write (byte_t const * bytes, size_t n)
+ssize_t buffer::write (byte_t const * bytes, size_t n, error_code & ec)
 {
     PFS_ASSERT(numeric_limits<size_t>::max() - _pos >= n);
 
@@ -114,7 +114,6 @@ template <>
 device_ptr open_device<buffer> (open_params<buffer> const & op, error_code & ec)
 {
     device_ptr result(new details::buffer(op._bs));
-    ec.clear();
     return result;
 }
 

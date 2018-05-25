@@ -10,9 +10,9 @@ struct null : public details::device
 {
     null () {}
 
-    virtual bool reopen () pfs_override
+    virtual error_code reopen () pfs_override
     {
-        return true;
+        return error_code();
     }
 
     virtual open_mode_flags open_mode () const pfs_override
@@ -25,19 +25,19 @@ struct null : public details::device
         return 0;
     }
 
-    virtual ssize_t read (byte_t * /*bytes*/, size_t /*n*/) pfs_override
+    virtual ssize_t read (byte_t * /*bytes*/, size_t /*n*/, error_code &) pfs_override
     {
         return 0;
     }
 
-    virtual ssize_t write (const byte_t * /*bytes*/, size_t n) pfs_override
+    virtual ssize_t write (const byte_t * /*bytes*/, size_t n, error_code &) pfs_override
     {
         return integral_cast_check<ssize_t>(n);
     }
 
-    virtual bool close () pfs_override
+    virtual error_code close () pfs_override
     {
-        return true;
+        return error_code();
     }
 
     virtual bool opened () const pfs_override

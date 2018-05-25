@@ -31,7 +31,6 @@ set(PFS_LIB_COMMON_SOURCES
 
 #   IO
     io/buffer.cpp
-    io/buffered_device.cpp
     io/device.cpp
     io/exception.cpp
     io/file.cpp

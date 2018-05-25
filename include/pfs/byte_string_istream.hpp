@@ -13,7 +13,7 @@ class byte_string_istream : public binary_istream<byte_string_istream *>
 
 public:
     byte_string_istream (byte_string & buffer, endian order = endian::network_order())
-        : base_class(this, order)
+        : base_class(this, -1, order)
         , _first(buffer.cbegin())
         , _last(buffer.cend())
     {}
@@ -21,7 +21,7 @@ public:
     byte_string_istream (byte_string::const_iterator first
             , byte_string::const_iterator last
             , endian order = endian::network_order())
-        : base_class(this, order)
+        : base_class(this, -1, order)
         , _first(first)
         , _last(last)
     {}
@@ -35,7 +35,7 @@ public:
         _last = buffer.cend();
     }
 
-    ssize_t read (char * s, size_t n)
+    ssize_t read_wait (char * s, size_t n, int millis = -1)
     {
         n = pfs::min(pfs::distance(_first, _last), integral_cast_check<ssize_t>(n));
         pfs::copy(_first, _first + n, s);
@@ -43,7 +43,7 @@ public:
         return static_cast<ssize_t>(n);
     }
 
-    ssize_t read (byte_string & v, byte_string::size_type n)
+    ssize_t read_wait (byte_string & v, byte_string::size_type n, int millis = -1)
     {
         n = pfs::min(pfs::distance(_first, _last), integral_cast_check<ssize_t>(n));
         v.append(_first, _first + n);
@@ -118,37 +118,36 @@ public:
         return *this;
     }
 
+    byte_string_istream & operator >> (buffer_wrapper<byte_string::value_type> const & v)
+    {
+        this->read_wait(reinterpret_cast<char *>(v.p), v.max_size);
+        return *this;
+    }
+
+    byte_string_istream & operator >> (buffer_wrapper<char> const & v)
+    {
+        this->read_wait(v.p, v.max_size);
+        return *this;
+    }
+
+    template <int N>
+    byte_string_istream & operator >> (byte_string_ref_n<N> const & v)
+    {
+        typename byte_string_ref_n<N>::size_type sz = 0;
+        *this >> sz;
+        this->read_wait(*v.p, sz);
+        return *this;
+    }
+
+    byte_string_istream & operator >> (byte_string_ref const & v)
+    {
+        this->read_wait(*v.p, v.max_size);
+        return *this;
+    }
+
 private:
     byte_string::const_iterator _first;
     byte_string::const_iterator _last;
 };
-
-inline byte_string_istream & operator >> (byte_string_istream & is, buffer_wrapper<byte_string::value_type> const & v)
-{
-    is.read(reinterpret_cast<char *>(v.p), v.max_size);
-    return is;
-}
-
-inline byte_string_istream & operator >> (byte_string_istream & is, buffer_wrapper<char> const & v)
-{
-    is.read(v.p, v.max_size);
-    return is;
-}
-
-template <int N>
-inline byte_string_istream & operator >> (byte_string_istream & is, byte_string_ref_n<N> const & v)
-{
-    typename byte_string_ref_n<N>::size_type sz = 0;
-    is >> sz;
-    is.read(*v.p, sz);
-    return is;
-}
-
-inline byte_string_istream & operator >> (byte_string_istream & is, byte_string_ref const & v)
-{
-    is.read(*v.p, v.max_size);
-    return is;
-}
-
 
 } // pfs

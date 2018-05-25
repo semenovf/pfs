@@ -1,3 +1,4 @@
+#include "pfs/time.hpp"
 #include "pfs/io/device.hpp"
 
 namespace pfs {
@@ -7,26 +8,81 @@ static const ssize_t DEFAULT_READ_BUFSZ = 256;
 
 namespace details {
 
-bool device::read (byte_string & bytes, ssize_t n)
+ssize_t device::read_wait (byte_t * bytes, size_t n, error_code & ec, int millis)
 {
     byte_t buffer[DEFAULT_READ_BUFSZ];
-    ssize_t sz = 0;
-    ssize_t total = 0;
-    ssize_t chunk_size = DEFAULT_READ_BUFSZ;
+    size_t total = 0;
+    size_t chunk_size = DEFAULT_READ_BUFSZ;
+
+    pfs::time start = current_time();
 
     do {
         if (n - total < chunk_size)
             chunk_size = n - total;
 
-        sz = this->read(buffer, chunk_size);
+        ssize_t sz = this->read(buffer, chunk_size, ec);
+
+        if (sz < 0)
+            break;
+
+        if (sz > 0) {
+            std::memcpy(bytes, buffer, size_t(sz));
+            total += sz;
+            bytes += sz;
+
+            if (millis >= 0)
+                start = current_time();
+        } else {
+            if (millis >= 0) {
+                int32_t diff = current_time() - start;
+
+                if (diff >= millis) {
+                    ec = make_error_code(io_errc::timeout);
+                    break;
+                }
+            }
+        }
+    } while (total < n);
+
+    return is_error(ec) ? -1 : total;
+}
+
+ssize_t device::read_wait (byte_string & bytes, size_t n, error_code  & ec, int millis)
+{
+    byte_t buffer[DEFAULT_READ_BUFSZ];
+    size_t total = 0;
+    size_t chunk_size = DEFAULT_READ_BUFSZ;
+
+    pfs::time start = current_time();
+
+    do {
+        if (n - total < chunk_size)
+            chunk_size = n - total;
+
+        ssize_t sz = this->read(buffer, chunk_size, ec);
+
+        if (sz < 0)
+            break;
 
         if (sz > 0) {
             bytes.append(buffer, size_t(sz));
             total += sz;
-        }
-    } while (sz > 0 && total < n);
 
-    return this->errorcode() == error_code();
+            if (millis >= 0)
+                start = current_time();
+        } else {
+            if (millis >= 0) {
+                int32_t diff = current_time() - start;
+
+                if (diff >= millis) {
+                    ec = make_error_code(io_errc::timeout);
+                    break;
+                }
+            }
+        }
+    } while (total < n);
+
+    return is_error(ec) ? -1 : total;
 }
 
 } // namespace details
@@ -42,16 +98,13 @@ bool device::read (byte_string & bytes, ssize_t n)
  *         @li -1 and @a *ex == 0 if size of written data is not equals to size of read data;
  *         @li >=0 if data is succesfull.
  */
-ssize_t copy (device_ptr & dest, device_ptr & src, size_t chunk_size, error_code * ec)
+ssize_t copy (device_ptr & dest, device_ptr & src, size_t chunk_size, error_code & ec)
 {
     byte_t buffer[DEFAULT_READ_BUFSZ];
     ssize_t r = 0;
 
-    if (ec)
-        ec->clear();
-
     while (r < static_cast<ssize_t>(chunk_size)) {
-        ssize_t r1 = src->read(buffer, DEFAULT_READ_BUFSZ);
+        ssize_t r1 = src->read(buffer, DEFAULT_READ_BUFSZ, ec);
 
         if (r1 < 0)
             return -1;
@@ -59,7 +112,7 @@ ssize_t copy (device_ptr & dest, device_ptr & src, size_t chunk_size, error_code
         if (r1 == 0)
             break;
 
-        ssize_t r2 = dest->write(buffer, static_cast<size_t>(r1));
+        ssize_t r2 = dest->write(buffer, static_cast<size_t>(r1), ec);
 
         if (r2 <= 0)
             return -1;

@@ -32,103 +32,20 @@ namespace pfs {
 namespace io {
 namespace details {
 
-error_code inet_socket::connect (uint32_t addr, uint16_t port)
-{
-    memset(& _sockaddr, 0, sizeof (_sockaddr));
-
-    _sockaddr.sin_family = PF_INET;
-    _sockaddr.sin_port = htons(port);
-    _sockaddr.sin_addr.s_addr = htonl(addr);
-
-    int rc = ::connect(_fd
-            , reinterpret_cast<struct sockaddr *> (& _sockaddr)
-            , sizeof (_sockaddr));
-
-    error_code ex;
-
-    if (rc < 0) {
-        switch (errno) {
-        case EISCONN:
-            //        	sock._state = bits::connected_state;
-            break;
-
-        case ECONNREFUSED:
-        case EINVAL:
-            ex = make_error_code(io_errc::connection_refused);
-            //            sock._state = bits::unconnected_state;
-            break;
-
-        case ETIMEDOUT:
-            ex = get_last_system_error();
-            break;
-
-        case EHOSTUNREACH:
-            ex = get_last_system_error();
-            //        	sock._state = bits::unconnected_state;
-            break;
-
-        case ENETUNREACH:
-            ex = get_last_system_error();
-            //        	sock._state = bits::unconnected_state;
-            break;
-
-        case EADDRINUSE:
-            ex = get_last_system_error();
-            break;
-
-            /* TODO
-                errno == EINPROGRESS:
-                The socket is nonblocking and the connection cannot be completed immediately.
-                It is possible to select(2) or poll(2) for completion by selecting
-                the socket for writing. After select(2) indicates writability,
-                use getsockopt(2) to read the SO_ERROR option at level SOL_SOCKET
-                to determine whether connect() completed successfully (SO_ERROR is zero) or
-                unsuccessfully (SO_ERROR is one of the usual error codes listed here,
-                explaining the reason for the failure).
-             */
-        case EINPROGRESS:
-        case EALREADY:
-            ex = make_error_code(io_errc::operation_in_progress);
-            //        	sock._state = bits::connecting_state;
-            break;
-
-        case EAGAIN:
-            ex = get_last_system_error();
-            break;
-
-        case EACCES:
-        case EPERM:
-            ex = get_last_system_error();
-            //            sock._state = bits::unconnected_state;
-            break;
-
-        case EAFNOSUPPORT:
-        case EBADF:
-        case EFAULT:
-        case ENOTSOCK:
-            //        	sock._state = bits::unconnected_state;
-            break;
-
-        default:
-            break;
-        }
-    }
-
-    return ex;
-}
-
 // FIXME Return in non-blocking mode (need to change this behavior)
 //
-
-bool inet_socket::reopen ()
+error_code inet_socket::reopen ()
 {
+    error_code ec;
+
     if (close()) {
-        this->_ec = open(true);
+        ec = open(true);
 
         // Need conversion ntoh() because connect() will convert again (see connect() above)
-        if (!this->_ec) this->_ec = connect(ntohl(_sockaddr.sin_addr.s_addr), ntohs(_sockaddr.sin_port));
+        if (!ec)
+            ec = this->connect(ntohl(_sockaddr.sin_addr.s_addr), ntohs(_sockaddr.sin_port));
     }
-    return this->_ec == error_code();
+    return ec;
 }
 
 details::device::open_mode_flags inet_socket::open_mode () const
@@ -185,28 +102,111 @@ error_code inet_socket::set_socket_options (uint32_t sso)
     return error_code();
 }
 
-ssize_t inet_socket::read (byte_t * bytes, size_t n)
+error_code tcp_socket::connect (uint32_t addr, uint16_t port)
+{
+    memset(& _sockaddr, 0, sizeof (_sockaddr));
+
+    _sockaddr.sin_family = PF_INET;
+    _sockaddr.sin_port = htons(port);
+    _sockaddr.sin_addr.s_addr = htonl(addr);
+
+    int rc = ::connect(_fd
+            , reinterpret_cast<struct sockaddr *> (& _sockaddr)
+            , sizeof (_sockaddr));
+
+    error_code ec;
+
+    if (rc < 0) {
+        switch (errno) {
+        case EISCONN:
+            //        	sock._state = bits::connected_state;
+            break;
+
+        case ECONNREFUSED:
+        case EINVAL:
+            ec = make_error_code(io_errc::connection_refused);
+            //            sock._state = bits::unconnected_state;
+            break;
+
+        case ETIMEDOUT:
+            ec = get_last_system_error();
+            break;
+
+        case EHOSTUNREACH:
+            ec = get_last_system_error();
+            //        	sock._state = bits::unconnected_state;
+            break;
+
+        case ENETUNREACH:
+            ec = get_last_system_error();
+            //        	sock._state = bits::unconnected_state;
+            break;
+
+        case EADDRINUSE:
+            ec = get_last_system_error();
+            break;
+
+            /* TODO
+                errno == EINPROGRESS:
+                The socket is nonblocking and the connection cannot be completed immediately.
+                It is possible to select(2) or poll(2) for completion by selecting
+                the socket for writing. After select(2) indicates writability,
+                use getsockopt(2) to read the SO_ERROR option at level SOL_SOCKET
+                to determine whether connect() completed successfully (SO_ERROR is zero) or
+                unsuccessfully (SO_ERROR is one of the usual error codes listed here,
+                explaining the reason for the failure).
+             */
+        case EINPROGRESS:
+        case EALREADY:
+            ec = make_error_code(io_errc::operation_in_progress);
+            //        	sock._state = bits::connecting_state;
+            break;
+
+        case EAGAIN:
+            ec = get_last_system_error();
+            break;
+
+        case EACCES:
+        case EPERM:
+            ec = get_last_system_error();
+            //            sock._state = bits::unconnected_state;
+            break;
+
+        case EAFNOSUPPORT:
+        case EBADF:
+        case EFAULT:
+        case ENOTSOCK:
+            //        	sock._state = bits::unconnected_state;
+            break;
+
+        default:
+            break;
+        }
+    }
+
+    return ec;
+}
+
+ssize_t tcp_socket::read (byte_t * bytes, size_t n, error_code & ec)
 {
     PFS_ASSERT(_fd >= 0);
 
     ssize_t r = 0;
 
-    r = recv(_fd, bytes, n, 0);
+    r = recv(_fd, bytes, n, MSG_DONTWAIT);
 
-    PFS_ASSERT(EAGAIN == EWOULDBLOCK);
-
-    if (r < 0 && errno == EAGAIN) { // || errno == EWOULDBLOCK)) {
+    if (r < 0
+            && errno == EAGAIN
+                    || (EAGAIN != EWOULDBLOCK && errno == EWOULDBLOCK))
         r = 0;
-    }
 
-    if (r < 0) {
-        this->_ec = get_last_system_error();
-    }
+    if (r < 0)
+        ec = get_last_system_error();
 
     return r;
 }
 
-ssize_t inet_socket::write (const byte_t * bytes, size_t nbytes)
+ssize_t tcp_socket::write (byte_t const * bytes, size_t nbytes, error_code & ec)
 {
     PFS_ASSERT(_fd >= 0);
 
@@ -221,9 +221,8 @@ ssize_t inet_socket::write (const byte_t * bytes, size_t nbytes)
         ssize_t n = send(_fd, bytes + r, nbytes, MSG_NOSIGNAL);
 
         if (n < 0) {
-            PFS_ASSERT(EAGAIN == EWOULDBLOCK);
-
-            if (errno == EAGAIN) // || errno == EWOULDBLOCK)
+            if (errno == EAGAIN
+                    || (EAGAIN != EWOULDBLOCK && errno == EWOULDBLOCK))
                 continue;
 
             r = -1;
@@ -235,7 +234,78 @@ ssize_t inet_socket::write (const byte_t * bytes, size_t nbytes)
     }
 
     if (r < 0)
-        this->_ec = get_last_system_error();
+        ec = get_last_system_error();
+
+    return r;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// udp_socket                                                                //
+///////////////////////////////////////////////////////////////////////////////
+
+error_code udp_socket::connect (uint32_t addr, uint16_t port)
+{
+    memset(& _sockaddr, 0, sizeof (_sockaddr));
+
+    // Server socket
+    _sockaddr.sin_family = PF_INET;
+    _sockaddr.sin_port = htons(port);
+    _sockaddr.sin_addr.s_addr = htonl(addr);
+
+    return error_code();
+}
+
+ssize_t udp_socket::read (byte_t * bytes, size_t n, error_code & ec)
+{
+    PFS_ASSERT(_fd >= 0);
+
+    sockaddr * serveraddrptr = reinterpret_cast<sockaddr *>(& _sockaddr);
+    socklen_t serveraddrlen = sizeof(_sockaddr);
+
+    ssize_t r = recvfrom(_fd, bytes, n, MSG_DONTWAIT, serveraddrptr, & serveraddrlen);
+
+    if (r < 0
+            && errno == EAGAIN
+                    || (EAGAIN != EWOULDBLOCK && errno == EWOULDBLOCK))
+        r = 0;
+
+    if (r < 0)
+        ec = get_last_system_error();
+
+    return r;
+}
+
+ssize_t udp_socket::write (byte_t const * bytes, size_t nbytes, error_code & ec)
+{
+    PFS_ASSERT(_fd >= 0);
+
+    int r = 0; // total sent
+    sockaddr * serveraddrptr = reinterpret_cast<sockaddr *>(& _sockaddr);
+    socklen_t serveraddrlen = sizeof(_sockaddr);
+
+    while (nbytes) {
+        // MSG_NOSIGNAL flag means:
+        // requests not to send SIGPIPE on errors on stream oriented sockets
+        // when the other end breaks the connection.
+        // The EPIPE error is still returned.
+        //
+        ssize_t n = sendto(_fd, bytes + r, nbytes, MSG_NOSIGNAL, serveraddrptr, serveraddrlen);
+
+        if (n < 0) {
+            if (errno == EAGAIN
+                    || (EAGAIN != EWOULDBLOCK && errno == EWOULDBLOCK))
+                continue;
+
+            r = -1;
+            break;
+        }
+
+        r += n;
+        nbytes -= n;
+    }
+
+    if (r < 0)
+        ec = get_last_system_error();
 
     return r;
 }
@@ -246,11 +316,10 @@ namespace pfs {
 namespace io {
 
 template <>
-device_ptr open_device<tcp_socket> (const open_params<tcp_socket> & op, error_code & ec)
+device_ptr open_device<tcp_socket> (open_params<tcp_socket> const & op, error_code & ec)
 {
-    bool non_blocking_flag = op.oflags & pfs::io::non_blocking;
-
     details::tcp_socket * d = new details::tcp_socket;
+    bool non_blocking_flag = op.oflags & pfs::io::non_blocking;
 
     ec = d->open(non_blocking_flag);
 
@@ -271,9 +340,8 @@ device_ptr open_device<tcp_socket> (const open_params<tcp_socket> & op, error_co
 template <>
 device_ptr open_device<udp_socket> (const open_params<udp_socket> & op, error_code & ec)
 {
-    bool non_blocking_flag = op.oflags & pfs::io::non_blocking;
-
     details::udp_socket * d = new details::udp_socket;
+    bool non_blocking_flag = op.oflags & pfs::io::non_blocking;
 
     ec = d->open(non_blocking_flag);
 

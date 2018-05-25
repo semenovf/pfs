@@ -26,3 +26,12 @@ struct error_code_converter_helper
 
 #include <pfs/cxxversion.hpp>
 #include PFS_CXX_HEADER(system_error)
+
+namespace pfs {
+
+inline bool is_error (error_code const & ec)
+{
+    return static_cast<bool>(ec);
+}
+
+} // namespace pfs

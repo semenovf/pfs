@@ -355,8 +355,32 @@ public:
         }
     }
 
+    size_t count_devices (bool (* filter) (device_ptr const & d, void * context)
+            , void * context = 0)
+    {
+        pfs::lock_guard<pfs::mutex> locker(_mtx);
+
+        size_t result = 0;
+        iterator first = _pollfds.begin();
+        iterator last  = _pollfds.end();
+
+        while (first != last) {
+            if (!first.is_server()) {
+                if (filter) {
+                    if (filter(first.device(), context))
+                        result++;
+                } else {
+                    result++;
+                }
+            }
+            ++first;
+        }
+
+        return result;
+    }
+
     template <template <typename> class SequenenceContainer>
-    void fetch_devices (SequenenceContainer<device_ptr> & devices
+    size_t fetch_devices (SequenenceContainer<device_ptr> & devices
             , bool (* filter) (device_ptr const & d, void * context)
             , void * context = 0)
     {
@@ -379,17 +403,42 @@ public:
             }
             ++first;
         }
+
+        return devices.size();
     }
 
     template <template <typename> class SequenenceContainer>
-    void fetch_devices (SequenenceContainer<device_ptr> & devices)
+    size_t fetch_devices (SequenenceContainer<device_ptr> & devices)
     {
-        this->fetch_devices(devices, 0, 0);
+        return this->fetch_devices(devices, 0, 0);
     }
 
+    size_t count_servers (bool (* filter) (server const & s, void * context)
+            , void * context = 0)
+    {
+        pfs::lock_guard<pfs::mutex> locker(_mtx);
+
+        size_t result = 0;
+        iterator first = _pollfds.begin();
+        iterator last  = _pollfds.end();
+
+        while (first != last) {
+            if (first.is_server()) {
+                if (filter) {
+                    if (filter(first.server(), context))
+                        result++;
+                } else {
+                    result++;
+                }
+            }
+            ++first;
+        }
+
+        return result;
+    }
 
     template <template <typename> class SequenenceContainer>
-    void fetch_servers (SequenenceContainer<server_ptr> & servers
+    size_t fetch_servers (SequenenceContainer<server_ptr> & servers
             , bool (* filter) (server const & s, void * context)
             , void * context = 0)
     {
@@ -412,12 +461,14 @@ public:
             }
             ++first;
         }
+
+        return servers.size();
     }
 
     template <template <typename> class SequenenceContainer>
-    void fetch_servers (SequenenceContainer<server_ptr> & servers)
+    size_t fetch_servers (SequenenceContainer<server_ptr> & servers)
     {
-        this->fetch_servers(servers, 0, 0);
+        return this->fetch_servers(servers, 0, 0);
     }
 
 private:

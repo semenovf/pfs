@@ -19,7 +19,7 @@ public:
     inline typename enable_if<is_integral<T>::value, binary_ostream &>::type
     operator << (T const & v)
     {
-        ssize_t r = write_integral<T>(v);
+        write_integral<T>(v);
         return *this;
     }
 
@@ -27,25 +27,37 @@ public:
     inline typename enable_if<is_floating_point<T>::value, binary_ostream &>::type
     operator << (T const & v)
     {
-        ssize_t r = write_float<T>(v);
+        write_float<T>(v);
         return *this;
     }
 
     binary_ostream & operator << (char const * s)
     {
-        ssize_t r = _dev->write(s, std::strlen(s));
+        _dev->write(s, std::strlen(s));
         return *this;
     }
 
     binary_ostream & operator << (std::string const & s)
     {
-        ssize_t r = _dev->write(s.c_str(), s.size());
+        _dev->write(s.c_str(), s.size());
         return *this;
     }
 
     binary_ostream & operator << (byte_string const & s)
     {
-        ssize_t r = _dev->write(s.c_str(), s.size());
+        _dev->write(s.c_str(), s.size());
+        return *this;
+    }
+
+    binary_ostream & operator << (buffer_wrapper<byte_string::value_type const> const & v)
+    {
+        _dev->write(reinterpret_cast<char const *>(v.p), v.max_size);
+        return *this;
+    }
+
+    binary_ostream & operator << (buffer_wrapper<char const> const & v)
+    {
+        _dev->write(v.p, v.max_size);
         return *this;
     }
 

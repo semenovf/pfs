@@ -51,3 +51,4 @@ makefile.*
 moc_*.cpp
 qrc_*.cpp
 .sconsign.dblite
+Doxyget.err

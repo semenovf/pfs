@@ -49,12 +49,12 @@ struct handlers : pfs::has_slots<>
 
     void device_opened (pfs::io::device d)
     {
-        cout << fmt("%s: device successfully opened/connected") % d.url() << endl; 
+        cout << fmt("%s: device successfully opened/connected") % d.url() << endl;
     }
 
     void device_opening (pfs::io::device d)
     {
-        cout << fmt("%s: open/connection device in progress") % d.url() << endl; 
+        cout << fmt("%s: open/connection device in progress") % d.url() << endl;
     }
 
     void device_open_failed (pfs::io::device d, pfs::error_code ex)
@@ -69,17 +69,17 @@ struct handlers : pfs::has_slots<>
 
     void device_disconnected (pfs::io::device d)
     {
-        cerr << fmt("%s: device closed/disconnected") % d.url() << endl; 
+        cerr << fmt("%s: device closed/disconnected") % d.url() << endl;
     }
 
     void server_opened (pfs::io::server s)
     {
-        cout << fmt("%s: server successfully opened") % s.url() << endl; 
+        cout << fmt("%s: server successfully opened") % s.url() << endl;
     }
 
     void server_opening (pfs::io::server s)
     {
-        cout << fmt("%s: open server in progress") % s.url() << endl; 
+        cout << fmt("%s: open server in progress") % s.url() << endl;
     }
 
     void server_open_failed (pfs::io::server s, pfs::error_code ex)
@@ -98,7 +98,7 @@ struct handlers : pfs::has_slots<>
     }
 };
 
-int main (int argc, char * argv[])
+int main ()
 {
 #if __SIMPLE_SERVER__
 
@@ -109,8 +109,6 @@ int main (int argc, char * argv[])
     return poll_udp_server(argc, argv);
 
 #else
-    (void)argc;
-    (void)argv;
     int const millis = 100;
     device_manager devman(millis);
     pfs::net::inet4_addr ip(pfs::net::inet4_addr::any_addr_value);

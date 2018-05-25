@@ -1,6 +1,4 @@
-#ifndef __PFS_INET_SERVER_POSIX_HPP__
-#define __PFS_INET_SERVER_POSIX_HPP__
-
+#pragma once
 #include "pfs/io/inet_server.hpp"
 #include "posix_utils.hpp"
 
@@ -14,8 +12,8 @@ public:
     typedef details::server::native_handle_type native_handle_type;
 
 protected:
-	native_handle_type _fd;
-	sockaddr_in  _sockaddr;
+    native_handle_type _fd;
+    sockaddr_in  _sockaddr;
 
 public:
     inet_server ()
@@ -23,20 +21,20 @@ public:
         , _fd(-1)
     {}
 
-  	virtual ~inet_server ()
-	{
-		close();
-	}
-
-    virtual bool close () pfs_override
+    virtual ~inet_server ()
     {
-        bool r = true;
-        if (pfs::io::close_socket(_fd) != 0) {
-            this->_ec = get_last_system_error();
-            r = false;
-        }
+        close();
+    }
+
+    virtual error_code close () pfs_override
+    {
+        error_code ec;
+
+        if (pfs::io::close_socket(_fd) != 0)
+            ec = get_last_system_error();
+
         _fd = -1;
-        return r;
+        return ec;
     }
 
     virtual bool opened () const pfs_override
@@ -91,7 +89,7 @@ public:
 
     virtual server_type type () const pfs_override
     {
-    	return server_tcp;
+        return server_tcp;
     }
 
     virtual string url () const pfs_override
@@ -139,8 +137,4 @@ public:
     virtual details::device * accept (bool non_blocking, error_code & ec) pfs_override;
 };
 
-
 }}}
-
-#endif /* __PFS_INET_SERVER_POSIX_HPP__ */
-

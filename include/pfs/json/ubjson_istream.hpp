@@ -30,25 +30,25 @@ struct ubjson_istream
 
     ubjson_istream & operator >> (json_type & j)
     {
-        pfs::error_code ex = read(j, UBJSON_CHAR_UNSPEC);
-        if (ex)
-            throw json_exception(ex);
+        error_code ec = read(j, UBJSON_CHAR_UNSPEC);
+        if (ec)
+            throw json_exception(ec);
         return *this;
     }
 
-    pfs::error_code read (json_type & j, int8_t type = UBJSON_CHAR_UNSPEC);
+    error_code read (json_type & j, int8_t type = UBJSON_CHAR_UNSPEC);
 
 private:
     int8_t read_type (bool ignore_noop = true);
-    pfs::error_code read_integer (integer_type & n, int8_t type);
-    pfs::error_code read_string (string_type & s, int8_t type);
-    pfs::error_code read_key (string_type & s, int8_t type);
-    pfs::error_code read_array (json_type & j);
-    pfs::error_code read_nonoptimized_array (json_type & j, int8_t ch);
-    pfs::error_code read_optimized_array (json_type & j, integer_type count, int8_t type);
-    pfs::error_code read_object (json_type & j);
-    pfs::error_code read_nonoptimized_object (json_type & j, int8_t ch);
-    pfs::error_code read_optimized_object (json_type & j, integer_type count, int8_t type);
+    error_code read_integer (integer_type & n, int8_t type);
+    error_code read_string (string_type & s, int8_t type);
+    error_code read_key (string_type & s, int8_t type);
+    error_code read_array (json_type & j);
+    error_code read_nonoptimized_array (json_type & j, int8_t ch);
+    error_code read_optimized_array (json_type & j, integer_type count, int8_t type);
+    error_code read_object (json_type & j);
+    error_code read_nonoptimized_object (json_type & j, int8_t ch);
+    error_code read_optimized_object (json_type & j, integer_type count, int8_t type);
 
 private:
     IStreamType & _is;

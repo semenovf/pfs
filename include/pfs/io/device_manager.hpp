@@ -236,8 +236,8 @@ public:
 
         while (*it < item && it != last) {
             device_ptr d = it->d;
-            d->reopen();
-            insert_device(d, d->errorcode());
+            error_code ec = d->reopen();
+            insert_device(d, ec);
 
             ++it;
         }
@@ -251,32 +251,54 @@ public:
         _p1.erase(d);
     }
 
+    size_t count_devices (bool (* filter) (device_ptr const & d, void * context)
+            , void * context = 0)
+    {
+        return _p1.count_devices(filter, context);
+    }
+
+    size_t count_devices ()
+    {
+        return _p1.count_devices(0, 0);
+    }
+
     template <template <typename> class SequenenceContainer>
-    void fetch_devices (SequenenceContainer<device_ptr> & devices
+    size_t fetch_devices (SequenenceContainer<device_ptr> & devices
             , bool (* filter) (device_ptr const & d, void * context)
             , void * context = 0)
     {
-        _p1.fetch_devices(devices, filter, context);
+        return _p1.fetch_devices(devices, filter, context);
     }
 
     template <template <typename> class SequenenceContainer>
-    void fetch_devices (SequenenceContainer<device_ptr> & devices)
+    size_t fetch_devices (SequenenceContainer<device_ptr> & devices)
     {
-        _p1.fetch_devices(devices, 0, 0);
+        return _p1.fetch_devices(devices, 0, 0);
+    }
+
+    size_t count_servers (bool (* filter) (server_ptr const & s, void * context)
+            , void * context = 0)
+    {
+        return _p1.count_servers(filter, context);
+    }
+
+    size_t count_servers ()
+    {
+        return _p1.count_servers(0, 0);
     }
 
     template <template <typename> class SequenenceContainer>
-    void fetch_servers (SequenenceContainer<server_ptr> & servers
+    size_t fetch_servers (SequenenceContainer<server_ptr> & servers
             , bool (* filter) (server_ptr const & s, void * context)
             , void * context = 0)
     {
-        _p1.fetch_servers(servers, filter, context);
+        return _p1.fetch_servers(servers, filter, context);
     }
 
     template <template <typename> class SequenenceContainer>
-    void fetch_servers (SequenenceContainer<server_ptr> & servers)
+    size_t fetch_servers (SequenenceContainer<server_ptr> & servers)
     {
-        _p1.fetch_servers(servers, 0, 0);
+        return _p1.fetch_servers(servers, 0, 0);
     }
 
     void dispatch (int millis = 0)

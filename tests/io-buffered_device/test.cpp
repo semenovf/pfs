@@ -71,7 +71,7 @@ int main ()
         device_ptr d = open_device(open_params<pfs::io::buffer>(buffer));
 
         byte_string result;
-        pfs::io::buffered_device bd(d, initial_size);
+        pfs::io::buffered_device<device_ptr> bd(d, initial_size);
 
         while (!bd.at_end()) {
             bd.read(result, initial_size);

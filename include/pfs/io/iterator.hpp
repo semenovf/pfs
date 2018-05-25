@@ -11,6 +11,8 @@ class input_iterator : public pfs::iterator_facade<
         , input_iterator<CharType>
         , CharType, CharType *, CharType &>
 {
+    static int const DEFAULT_TIMEOUT = 100;
+
     typedef pfs::iterator_facade<
           pfs::input_iterator_tag
         , input_iterator
@@ -89,10 +91,11 @@ private:
     void read ()
     {
         if (_pd) {
-            ssize_t n = _pd->read(& _value, sizeof(char_type));
+            error_code ec;
+            ssize_t n = _pd->read_wait(& _value, sizeof(char_type), ec, DEFAULT_TIMEOUT);
 
             if (n < 0)
-                throw io_exception(_pd->errorcode());
+                throw io_exception(ec);
 
             if (n == 0) {
                 _value = 0;

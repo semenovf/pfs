@@ -191,17 +191,18 @@ public:
         size_t total_bytes_sent = 0;
 
         for (int i = 0; i < n; ++i) {
+            pfs::error_code ec;
             pfs::byte_string data(loremipsum[i]);
             sample_size += std::strlen(loremipsum[i]);
 
-            ssize_t bytes_sent = client->write(data);
+            ssize_t bytes_sent = client->write(data, ec);
 
             if (bytes_sent > 0) {
                 total_bytes_sent += pfs::integral_cast_check<size_t>(bytes_sent);
             } else if (bytes_sent == 0) {
                 std::cerr << "WARN (client): Oops! Zero bytes sent" << std::endl;
             } else {
-                std::cerr << "ERROR (client): " << client->errorcode().message() << std::endl;
+                std::cerr << "ERROR (client): " << ec.message() << std::endl;
             }
         }
 
