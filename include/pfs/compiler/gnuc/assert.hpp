@@ -1,10 +1,9 @@
-#ifndef __PFS_COMPILER_GNUC_ASSERT_HPP__
-#define __PFS_COMPILER_GNUC_ASSERT_HPP__
+#pragma once
 
 #define __TFILE__ __FILE__
 
-#ifndef PFS_GNUC_BACKTRACE_SIZE
-#   define PFS_GNUC_BACKTRACE_SIZE 20
+#ifndef PFS_GNUC_BACKTRACE_MAXSIZE
+#   define PFS_GNUC_BACKTRACE_MAXSIZE 1024
 #endif
 
 // Default is standard error
@@ -14,8 +13,5 @@
 
 // Default is standard output
 #ifndef PFS_GNUC_BACKTRACE_FD
-#   define PFS_GNUC_BACKTRACE_FD    1 
+#   define PFS_GNUC_BACKTRACE_FD    1
 #endif
-
-#endif /* __PFS_COMPILER_GNUC_ASSERT_HPP__ */
-

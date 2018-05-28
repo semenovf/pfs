@@ -26,17 +26,17 @@ public:
         , char_t
         , char_t *
         , char_t> base_class;
-    
+
     typedef typename base_class::difference_type difference_type;
-    
+
 private:
     char_t * operator -> () const; // avoid '->' operator
-        
+
 public:
     utf16_iterator ()
         : _p(0)
     {}
-    
+
     utf16_iterator (CodePointIter p)
         : _p(p)
     {}
@@ -45,12 +45,12 @@ public:
     {
         return decode(_p, 0);
     }
-    
+
     operator CodePointIter ()
     {
         return _p;
     }
-    
+
     CodePointIter base () const
     {
         return _p;
@@ -98,10 +98,10 @@ protected:
             n += n1;
             return;
         }
-        
+
         CodePointIter prev = p;
         difference_type nprev = n;
-        
+
         while (n-- && p < end) {
             prev = p;
             nprev = n + 1;
@@ -153,21 +153,21 @@ protected:
             n = nprev;
         }
     }
-    
+
     static void advance_forward (CodePointIter & p, difference_type n)
     {
         advance_forward_safe(p, unicode_iterator_traits<CodePointIter>::max(), n);
-    }    
-    
+    }
+
     static void advance_backward (CodePointIter & p, difference_type n)
     {
         advance_backward_safe(p, unicode_iterator_traits<CodePointIter>::min(), n);
     }
-    
+
     static char_t decode (CodePointIter const & p, CodePointIter * pnewpos)
     {
         CodePointIter newpos = p;
-        
+
         uint16_t w1 = 0;
         uint16_t w2 = 0;
 
@@ -180,7 +180,7 @@ protected:
             w2 = code_point_cast<uint16_t>(*(p + 1));
             newpos += 2;
         } else { // Invalid char
-            throw range_error("utf16_iterator::decode()");
+            PFS_THROW(range_error("utf16_iterator::decode()"));
         }
 
         char_t::value_type result = construct_codepoint(w1, w2);
@@ -189,7 +189,7 @@ protected:
             *pnewpos = newpos;
 
         return result;
-    }    
+    }
 
 public:
     static void increment (utf16_iterator & it, difference_type)
@@ -201,18 +201,18 @@ public:
     {
         return it1._p == it2._p;
     }
-    
+
     static void decrement (utf16_iterator & it, difference_type)
     {
         advance_backward(it._p, 1);
     }
-    
+
 public:
     void advance_safe (CodePointIter end, difference_type & n)
     {
         advance_forward_safe(_p, end, n);
     }
-        
+
     static void advance (CodePointIter & p, difference_type n)
     {
         advance_forward(p, n);
@@ -227,7 +227,7 @@ public:
     {
         return decode(p, & p);
     }
-    
+
     template <typename BackInsertIt>
     static BackInsertIt encode (char_t uc, BackInsertIt it);
 

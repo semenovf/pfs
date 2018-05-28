@@ -129,7 +129,7 @@ public:
         error_code ec;
         ssize_t r = read(bytes, n, ec);
         if (r < 0)
-            throw io_exception(ec);
+            PFS_THROW(io_exception(ec));
         return r;
     }
 
@@ -145,18 +145,23 @@ public:
 
     ssize_t read (byte_string & bytes, size_t n, error_code & ec) pfs_noexcept
     {
-        bytes.reserve(bytes.size() + n + 1);
+        if (n == 0)
+            return 0;
 
-        ssize_t r = read(bytes.data() + bytes.size(), n, ec);
+        size_t oldsize = bytes.size();
+
+        bytes.resize(oldsize + n);
+
+        ssize_t r = read(bytes.data() + oldsize, n, ec);
 
         if (r < 0) {
             // Restore previous state of buffer
-            bytes.resize(bytes.size());
+            bytes.resize(oldsize);
             return r;
         }
 
-        if (r > 0)
-            bytes.resize(bytes.size() + r);
+        if (r > 0 && n != integral_cast_check<size_t>(r))
+            bytes.resize(oldsize + r);
 
         return r;
     }
@@ -166,7 +171,7 @@ public:
         error_code ec;
         ssize_t r = read(bytes, n, ec);
         if (r < 0)
-            throw io_exception(ec);
+            PFS_THROW(io_exception(ec));
         return r;
     }
 
@@ -195,7 +200,7 @@ public:
         error_code ec;
         ssize_t r = read_wait(bytes, n, ec, millis);
         if (r < 0)
-            throw io_exception(ec);
+            PFS_THROW(io_exception(ec));
         return r;
     }
 
@@ -224,7 +229,7 @@ public:
         error_code ec;
         ssize_t r = read_wait(bytes, n, ec, millis);
         if (r < 0)
-            throw io_exception(ec);
+            PFS_THROW(io_exception(ec));
         return r;
     }
 
@@ -248,7 +253,7 @@ public:
         error_code ec;
         ssize_t r = write(bytes, n, ec);
         if (r < 0)
-            throw io_exception(ec);
+            PFS_THROW(io_exception(ec));
         return r;
     }
 

@@ -1,6 +1,5 @@
 #pragma once
 #include <pfs/assert.hpp>
-#include <pfs/exception.hpp>
 #include <pfs/memory.hpp>
 #include <pfs/type_traits.hpp>
 #include <pfs/stdcxx/basic_string.hpp>
@@ -207,7 +206,8 @@ CharT * uintmax_to_cstr (uintmax_t num
     CharT * p = & buf[n - 1];
 
     if (!(radix >= 2 && radix <= 36))
-        throw pfs::invalid_argument("uintmax_to_cstr(): bad radix");
+        PFS_THROW(invalid_argument("uintmax_to_cstr(): bad radix"));
+
 
     buf[n - 1] = '\0';
     const CharT * digits = uppercase ? digits_upper : digits_lower;

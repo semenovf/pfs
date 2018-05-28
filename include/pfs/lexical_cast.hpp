@@ -23,7 +23,7 @@ lexical_cast (string const & s, int radix = 10)
             , radix);
 
     if (badpos != s.cend())
-        throw bad_lexical_cast(pfs::make_error_code(lexical_cast_errc::invalid_string));
+        PFS_THROW(bad_lexical_cast(pfs::make_error_code(lexical_cast_errc::invalid_string)));
 
     return result;
 }
@@ -42,7 +42,7 @@ lexical_cast (string const & s, int radix = 10)
             , radix);
 
     if (badpos != s.cend())
-        throw bad_lexical_cast(pfs::make_error_code(lexical_cast_errc::invalid_string));
+        PFS_THROW(bad_lexical_cast(pfs::make_error_code(lexical_cast_errc::invalid_string)));
 
     return result;
 }
@@ -60,7 +60,7 @@ lexical_cast (string const & s, string::value_type decimal_point = '.')
             , & badpos);
 
     if (badpos != s.cend())
-        throw bad_lexical_cast(pfs::make_error_code(lexical_cast_errc::invalid_string));
+        PFS_THROW(bad_lexical_cast(pfs::make_error_code(lexical_cast_errc::invalid_string)));
 
     return static_cast<RealType>(result);
 }

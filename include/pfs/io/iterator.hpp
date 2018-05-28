@@ -95,7 +95,7 @@ private:
             ssize_t n = _pd->read_wait(& _value, sizeof(char_type), ec, DEFAULT_TIMEOUT);
 
             if (n < 0)
-                throw io_exception(ec);
+                PFS_THROW(io_exception(ec));
 
             if (n == 0) {
                 _value = 0;

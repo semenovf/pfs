@@ -47,9 +47,9 @@ public:
 
     ubjson_ostream & operator << (json_type const & j)
     {
-        pfs::error_code ex = write_json(j, true);
-        if (ex)
-            throw json_exception(ex);
+        pfs::error_code ec = write_json(j, true);
+        if (ec)
+            PFS_THROW(json_exception(ec));
         return *this;
     }
 
@@ -362,7 +362,7 @@ pfs::error_code ubjson_ostream<OStreamType, JsonType>::write_json (json_type con
 }
 
 template <typename JsonType>
-pfs::byte_string to_ubjson (JsonType const & j, int flags, pfs::error_code & ex)
+pfs::byte_string to_ubjson (JsonType const & j, int flags, pfs::error_code & ec)
 {
     typedef pfs::json::ubjson_ostream<byte_string_ostream, JsonType> ubjson_ostream_t;
 
@@ -371,7 +371,7 @@ pfs::byte_string to_ubjson (JsonType const & j, int flags, pfs::error_code & ex)
     //                                    |
     //                                    v
     byte_string_ostream os(result, endian::native_order());
-    ex = ubjson_ostream_t(os, flags).write(j);
+    ec = ubjson_ostream_t(os, flags).write(j);
     return result;
 }
 
@@ -384,11 +384,11 @@ inline pfs::byte_string to_ubjson (JsonType const & j, pfs::error_code & ex)
 template <typename JsonType>
 pfs::byte_string to_ubjson (JsonType const & j, int flags)
 {
-    pfs::error_code ex;
-    pfs::byte_string r = to_ubjson<JsonType>(j, flags, ex);
+    pfs::error_code ec;
+    pfs::byte_string r = to_ubjson<JsonType>(j, flags, ec);
 
-    if (ex)
-        throw json_exception(ex);
+    if (ec)
+        PFS_THROW(json_exception(ec));
 
     return r;
 }

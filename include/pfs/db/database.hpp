@@ -39,7 +39,7 @@ public:
         string_type errstr;
 
         if (!open(uri, ec, & errstr))
-            throw db_exception(ec, errstr);
+            PFS_THROW(db_exception(ec, errstr));
 
         return true;
     }
@@ -98,10 +98,8 @@ bool database<Traits>::query (string_type const & sql)
     pfs::error_code ec;
     string_type errstr;
 
-    if (!_d.query(sql, ec, & errstr)) {
-        //errstr = "query failed: " + errstr;
-        throw db_exception(ec, errstr);
-    }
+    if (!_d.query(sql, ec, & errstr))
+        PFS_THROW(db_exception(ec, errstr));
 
     return true;
 }

@@ -21,11 +21,11 @@ class map_basic
 public:
     typedef map_basic<KvType, traits::container_value<KvType, map_wrapper> >     container_value_type;
     typedef map_basic<KvType, traits::container_reference<KvType, map_wrapper> > container_reference_type;
-    
+
     typedef typename internal_type::native_type            native_type;
     typedef typename internal_type::native_reference       native_reference;
     typedef typename internal_type::const_native_reference const_native_reference;
-    
+
     //typedef typename native_type::const_pointer    const_pointer;
     //typedef typename native_type::reference        reference;
     //typedef typename native_type::const_reference  const_reference;
@@ -39,13 +39,13 @@ public:
     typedef typename native_type::key_type         key_type;
     typedef typename native_type::mapped_type      mapped_type;
     typedef pair<key_type, mapped_type>            value_type;
-    
+
 //    typedef typename native_type::key_compare      key_compare;
 //    typedef typename native_type::value_compare    value_compare;
 
 protected:
     internal_type _p;
-    
+
 public:
     map_basic ()
     {}
@@ -57,7 +57,7 @@ public:
     map_basic (const_native_reference rhs)
         : _p(rhs)
     {}
-    
+
 //    map (const_pointer s)
 //        : _p(s)
 //    {}
@@ -66,7 +66,7 @@ public:
 //    basic_string (InputIt first, InputIt last)
 //        : _p(first, last)
 //    {}
-    
+
     map_basic & operator = (native_reference rhs)
     {
         *_p = rhs;
@@ -97,28 +97,28 @@ public:
     {
         return _p->begin();
     }
-    
+
     const_iterator begin () const
     {
         return _p->begin();
     }
-    
+
     iterator end ()
     {
         return _p->end();
     }
-    
+
     const_iterator end () const
     {
         return _p->end();
     }
-    
+
 #if __cplusplus >= 201103L
     const_iterator cbegin () const
     {
         return _p->cbegin();
     }
-    
+
     const_iterator cend () const
     {
         return _p->cend();
@@ -128,31 +128,31 @@ public:
     {
         return _p->begin();
     }
-    
+
     const_iterator cend () const
     {
         return _p->end();
     }
-#endif    
+#endif
 
     // *** CAPACITY ***
-    // 
+    //
 
     size_type size () const pfs_noexcept
     {
         return _p->size();
     }
-    
+
     size_type max_size () const pfs_noexcept
     {
         return _p->max_size();
     }
-    
+
     bool empty () const pfs_noexcept
     {
         return _p->empty();
     }
-    
+
     // *** MODIFIERS ***
     //
     void clear ()
@@ -164,23 +164,23 @@ public:
     {
         return _p->erase(pos);
     }
-    
+
     size_type erase (key_type const & key)
     {
         return _p->erase(key);
     }
 
 
-    
+
     // FIXME
 //    void swap (container & rhs)
 //    {
 //        _p->swap(*rhs._p);
 //    }
-    
+
     // *** NON-MEMBER FUNCTIONS (OPERATORS) ***
     //
-    
+
     friend inline bool operator == (map_basic const & lhs
         , map_basic const & rhs)
     {
@@ -203,17 +203,17 @@ public:
 
     // *** LOOKUP ***
     //
-    
+
     iterator find (key_type const & key)
     {
         return _p->find(key);
     }
-    
+
     const_iterator find (key_type const & key) const
     {
         return _p->find(key);
     }
-    
+
     // *** MODIFIERS
     //
 //    pfs::pair<iterator, bool> insert (value_type const & value)
@@ -239,12 +239,12 @@ public:
 
     // *** OBSERVERS ***
     //
-    
+
 //    key_compare key_comp () const
 //    {
 //        return _p->key_comp();
 //    }
-    
+
 //    value_compare value_comp () const
 //    {
 //        return _p->value_comp();
@@ -252,7 +252,7 @@ public:
     // *************************************************************************
     // } END Requirements for ordered associative container traits
     // *************************************************************************
-    
+
     static key_type const & key (iterator it)
     {
         return it.key();
@@ -267,7 +267,7 @@ public:
     {
         return it.value();
     }
-    
+
     static mapped_type const & mapped_reference (const_iterator it)
     {
         return it.value();
@@ -285,7 +285,7 @@ public:
     typedef typename base_class::const_native_reference const_native_reference;
 
     typedef typename base_class::key_type               key_type;
-    
+
 public:
     map ()
         : base_class()
@@ -309,9 +309,9 @@ public:
     typedef typename base_class::native_type            native_type;
     typedef typename base_class::native_reference       native_reference;
     typedef typename base_class::const_native_reference const_native_reference;
-    
+
     typedef typename base_class::key_type               key_type;
-    
+
 public:
     map_reference ()
         : base_class()
@@ -336,12 +336,12 @@ public:
 //class map : public container<T, map_wrapper>
 //{
 //    typedef container<T, map_wrapper> base_class;
-//    
+//
 //public:
 //    typedef typename base_class::native_type      native_type;
 //    typedef typename base_class::native_reference native_reference;
 //    typedef typename base_class::size_type        size_type;
-//    
+//
 //    typedef typename pfs::pair<typename T::first_type
 //            , typename T::second_type>                value_type;
 //    typedef typename native_type::mapped_type &       reference;
@@ -351,7 +351,7 @@ public:
 //    map (native_reference rhs)
 //        : base_class(rhs)
 //    {}
-//        
+//
 //    size_type max_size () const pfs_noexcept
 //    {
 //        return ((INT_MAX)/sizeof(T) - sizeof(native_type)) / 2; // FIXME
@@ -392,7 +392,7 @@ struct map_const_iterator : public QMap<Key, T>::const_iterator
     map_const_iterator () pfs_noexcept
         : base_type()
     {}
-    
+
     map_const_iterator (base_type lhs) pfs_noexcept
         : base_type(lhs)
     {}
@@ -414,7 +414,7 @@ struct map_rep<Key, T, QMap> : public QMap<Key, T>
     typedef typename qt::map_const_iterator<Key, T>        const_iterator;
     typedef typename std::reverse_iterator<iterator>       reverse_iterator;
     typedef typename std::reverse_iterator<const_iterator> const_reverse_iterator;
-    
+
 	explicit map_rep ()
 		: base_class()
 	{}
@@ -430,7 +430,7 @@ struct map_rep<Key, T, QMap> : public QMap<Key, T>
 #else
         base_class::erase(position++);
         return position;
-#endif        
+#endif
     }
 
     iterator erase (iterator first, iterator last)
@@ -442,12 +442,12 @@ struct map_rep<Key, T, QMap> : public QMap<Key, T>
         return last;
 #endif
     }
-    
+
     mapped_type & at (Key const & key)
     {
         iterator it = this->find(key);
         if (it == this->end())
-            throw out_of_range("map::at");
+            throw out_of_range("map::at()" + PFS_AT_LINEINFO);
         return it.value();
     }
 
@@ -455,11 +455,11 @@ struct map_rep<Key, T, QMap> : public QMap<Key, T>
     {
         const_iterator it = this->find(key);
         if (it == this->end())
-            throw out_of_range("map::at");
+            throw out_of_range("map::at()" + PFS_AT_LINEINFO);
         return it.value();
     }
 };
-//    
+//
 //    virtual pfs::pair<iterator, bool> xinsert (Key const & key, T const & value)
 //    {
 //        iterator it = iterator(this->_d.insert(key, value));

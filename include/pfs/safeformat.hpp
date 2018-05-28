@@ -303,12 +303,12 @@ struct stringifier : public base_stringifier<BackInsertIt>
 #if PFS_CC_MSC
         int written = _snprintf(buf, bufsz, format, this->val);
 #else
-      	// FIXME Need the recognition of GLIBC version.
-    	// Supporting modern behavior only now.
+        // FIXME Need the recognition of GLIBC version.
+        // Supporting modern behavior only now.
         int written = snprintf(buf, bufsz, format, this->val);
 #endif
         if (written < 0)
-            throw pfs::runtime_error("safeformat: snprintf() error (a negative value is returned)");
+            PFS_THROW(runtime_error("safeformat: snprintf() error (a negative value is returned)"));
 
         // A return value of size or more means that the output was truncated.
         //
@@ -323,7 +323,7 @@ struct stringifier : public base_stringifier<BackInsertIt>
 #endif
 
             if (written < 0)
-                throw pfs::runtime_error("safeformat: snprintf() error (a negative value is returned)");
+                PFS_THROW(runtime_error("safeformat: snprintf() error (a negative value is returned)"));
 
             PFS_ASSERT(static_cast<size_t>(written) < bufsz);
         }
@@ -650,7 +650,7 @@ private:
             if (conv_spec.good) {
                 process_conversion_specification(stringifier, conv_spec);
             } else {
-                throw invalid_argument("safeformat: bad conversion specification");
+                PFS_THROW(invalid_argument("safeformat: bad conversion specification"));
             }
         }
     }

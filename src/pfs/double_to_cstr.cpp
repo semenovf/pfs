@@ -41,8 +41,8 @@ char * double_to_cstr (double num
 
 
     // The glibc implementation of the functions snprintf() and vsnprintf()
-    // conforms to the C99 standard, that is, behaves as described above, 
-    // since glibc version 2.1. Until glibc 2.0.6 they would return -1 
+    // conforms to the C99 standard, that is, behaves as described above,
+    // since glibc version 2.1. Until glibc 2.0.6 they would return -1
     // when the output was truncated.
 
 #if PFS_CC_MSC
@@ -53,7 +53,7 @@ char * double_to_cstr (double num
     int written = snprintf(buf, *n, format, num);
 #endif
     if (written < 0)
-        throw pfs::runtime_error("safeformat: snprintf() error (a negative value is returned)");
+        PFS_THROW(runtime_error("safeformat: snprintf() error (a negative value is returned)"));
 
     // A return value of size or more means that the output was truncated.
     if (static_cast<size_t>(written) >= *n) {

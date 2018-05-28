@@ -58,42 +58,12 @@ inline pfs::error_code make_error_code (db_errc e)
     return pfs::error_code(static_cast<int>(e), db_category());
 }
 
-class db_exception : public logic_error
+class db_exception : public error_code_exception
 {
 public:
-    db_exception (pfs::error_code ec)
-        : logic_error(db_category().message(ec.value()))
-    {}
-
-    db_exception (pfs::error_code ec, char const * what)
-        : logic_error(db_category().message(ec.value())
-            + ": " + what)
-    {}
-
-    db_exception (pfs::error_code ec, std::string const & what)
-        : logic_error(db_category().message(ec.value())
-            + ": " + what)
-    {}
-
-    db_exception (pfs::error_code ec, pfs::string const & what)
-        : logic_error(db_category().message(ec.value())
-            + ": " + what.utf8())
-    {}
-
-    virtual ~db_exception() throw() {}
+    db_exception (error_code const & ec) : error_code_exception(ec) {}
+    explicit db_exception (error_code const & ec, char const * s) : error_code_exception(ec, s) {}
+    explicit db_exception (error_code const & ec, std::string const & s) : error_code_exception(ec, s) {}
 };
 
 } // pfs
-
-namespace std {
-
-// TODO implement for C++98
-#if __cplusplus >= 201103L
-
-template<>
-struct is_error_code_enum<pfs::db_errc>
-        : public std::true_type
-{};
-
-#endif
-} // std

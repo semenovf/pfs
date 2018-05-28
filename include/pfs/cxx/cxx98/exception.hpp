@@ -1,47 +1,117 @@
-#ifndef __PFS_CXX98_EXCEPTION_HPP__
-#define __PFS_CXX98_EXCEPTION_HPP__
-
+#pragma once
+#include <string>
 #include <stdexcept>
+#include <cstdio>
+#include <pfs/cxxlang.hpp>
+#include <pfs/assert.hpp>
 
 namespace pfs {
 
-typedef std::bad_alloc        bad_alloc;
-typedef std::invalid_argument invalid_argument;
-typedef std::length_error     length_error;
-typedef std::out_of_range     out_of_range;
-typedef std::runtime_error    runtime_error;
-typedef std::range_error      range_error;
-typedef std::overflow_error   overflow_error;
-typedef std::underflow_error  underflow_error;
-
-
-class logic_error : public std::logic_error 
+class exception : public std::exception
 {
-    typedef std::logic_error base_class;
+    typedef std::exception base_class;
+
+    std::string _msg;
+    std::string _enhanced_msg;
 
 public:
-    explicit logic_error (std::string const & s) : base_class(s) {}
+    exception () pfs_noexcept
+        : base_class()
+    {}
 
-#if __cplusplus >= 201103L
-    explicit logic_error (char const * s) : base_class(s) {}
-#else
-    explicit logic_error (char const * s) : base_class(std::string(s)) {}
-#endif
+    explicit exception (char const * s)
+        : base_class()
+        , _msg(s)
+        , _enhanced_msg(s)
+    {}
+
+    explicit exception (std::string const & s)
+        : base_class()
+        , _msg(s)
+        , _enhanced_msg(s)
+    {}
+
+    virtual ~exception () throw() { };
+
+    virtual std::string message () const
+    {
+        return _msg;
+    }
+
+    virtual char const * what () const throw()
+    {
+        return _enhanced_msg.c_str();
+    }
+
+    exception & at (char const * filename, int lineno)
+    {
+        char linestr[12];
+        sprintf(linestr, "%d", lineno);
+        _enhanced_msg += std::string() + " at " + filename + ":" + linestr;
+        return *this;
+    }
+
+    exception & backtrace ()
+    {
+        append_backtrace(_enhanced_msg);
+        return *this;
+    }
+
+private:
+    void append_backtrace (std::string & buffer);
 };
 
-class domain_error : public std::domain_error
+// typedef std::bad_alloc        bad_alloc;
+// typedef std::length_error     length_error;
+// typedef std::overflow_error   overflow_error;
+// typedef std::underflow_error  underflow_error;
+
+class runtime_error : public exception
 {
-    typedef std::domain_error base_class;
 public:
-    explicit domain_error (std::string const & s) : base_class(s) {}
-#if __cplusplus >= 201103L
-    explicit domain_error (char const * s) : base_class(s) {}
-#else
-    explicit domain_error (char const * s) : base_class(std::string(s)) {}
-#endif
+    runtime_error () : exception() {}
+    explicit runtime_error (char const * s) : exception(s) {}
+    explicit runtime_error (std::string const & s) : exception(s) {}
+};
+
+class logic_error : public exception
+{
+public:
+    logic_error () : exception() {}
+    explicit logic_error (char const * s) : exception(s) {}
+    explicit logic_error (std::string const & s) : exception(s) {}
+};
+
+class invalid_argument : public logic_error
+{
+public:
+    invalid_argument () : logic_error() {}
+    explicit invalid_argument (char const * s) : logic_error(s) {}
+    explicit invalid_argument (std::string const & s) : logic_error(s) {}
+};
+
+class domain_error : public logic_error
+{
+public:
+    domain_error () : logic_error() {}
+    explicit domain_error (char const * s) : logic_error(s) {}
+    explicit domain_error (std::string const & s) : logic_error(s) {}
+};
+
+class out_of_range : public logic_error
+{
+public:
+    out_of_range () : logic_error() {}
+    explicit out_of_range (char const * s) : logic_error(s) {}
+    explicit out_of_range (std::string const & s) : logic_error(s) {}
+};
+
+class range_error : public runtime_error
+{
+public:
+    range_error () : runtime_error() {}
+    explicit range_error (char const * s) : runtime_error(s) {}
+    explicit range_error (std::string const & s) : runtime_error(s) {}
 };
 
 } // pfs
-
-#endif /* __PFS_CXX98_EXCEPTION_HPP__ */
-

@@ -316,7 +316,7 @@ match<Iterator, AtomicInt>::match_rpt::do_match (context<Iterator, AtomicInt> * 
         to = _to;
 
     if (from > to)
-        throw out_of_range("match_rpt::do_match()");
+        PFS_THROW(out_of_range("match_rpt::do_match()"));
 
     int i = 0;
 

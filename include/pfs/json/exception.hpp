@@ -61,38 +61,12 @@ inline pfs::error_code make_error_code (json_errc e)
     return pfs::error_code(static_cast<int>(e), json_category());
 }
 
-class json_exception : public logic_error
+class json_exception : public error_code_exception
 {
 public:
-    json_exception (pfs::error_code ec)
-        : logic_error(json_category().message(ec.value()))
-    {}
-
-    json_exception (pfs::error_code ec, char const * what)
-        : logic_error(json_category().message(ec.value())
-            + ": " + what)
-    {}
-
-    json_exception (pfs::error_code ec, std::string const & what)
-        : logic_error(json_category().message(ec.value())
-            + ": " + what)
-    {}
-
-    virtual ~json_exception() throw() {}
+    json_exception (error_code const & ec) : error_code_exception(ec) {}
+    explicit json_exception (error_code const & ec, char const * s) : error_code_exception(ec, s) {}
+    explicit json_exception (error_code const & ec, std::string const & s) : error_code_exception(ec, s) {}
 };
 
 } // pfs
-
-namespace std {
-
-// TODO implement for C++98
-#if __cplusplus >= 201103L
-
-template<>
-struct is_error_code_enum<pfs::json_errc>
-        : public std::true_type
-{};
-
-#endif
-
-} // std

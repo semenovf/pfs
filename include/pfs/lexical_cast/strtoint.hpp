@@ -296,7 +296,7 @@ UIntT string_to_uint (CharIt beginpos
             , endpos, badpos, radix, ec);
 
     if (ec.value() != static_cast<int>(lexical_cast_errc::success))
-        throw bad_lexical_cast(ec);
+        PFS_THROW(bad_lexical_cast(ec));
 
     return result;
 }
@@ -313,7 +313,7 @@ IntT string_to_int (CharIt beginpos
             , endpos, badpos, radix, ec);
 
     if (ec.value() != static_cast<int>(lexical_cast_errc::success))
-        throw bad_lexical_cast(ec);
+        PFS_THROW(bad_lexical_cast(ec));
 
     return result;
 }

@@ -59,7 +59,7 @@ public:
     void reserve (size_type new_cap)
     {
         if (new_cap > base_class::max_size())
-            throw pfs::length_error("contigous_container::reserve()");
+            throw pfs::length_error("contigous_container::reserve()" + PFS_AT_LINEINFO);
         base_class::_p.reserve(new_cap);
     }
 

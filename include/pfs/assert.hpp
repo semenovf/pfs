@@ -1,4 +1,5 @@
 #pragma once
+#include <string>
 
 void pfs_backtrace (char const * file, int line, char const * text);
 void pfs_assert (char const * file, int line, char const * text);
@@ -26,16 +27,8 @@ void pfs_check_error (char const * file, int line, char const * text);
 
 #endif /* !NDEBUG */
 
-//#define PFS_ASSERT_FORMAT(x)      PFS_ASSERT(x)
-//#define PFS_ASSERT_RANGE(x)       PFS_ASSERT(x)
-//#define PFS_ASSERT_OVERFLOW(x)    PFS_ASSERT(x)
-//#define PFS_ASSERT_BAD_CAST(x)    PFS_ASSERT(x)
-#define PFS_ASSERT_UNEXPECTED()   PFS_ASSERT(false)
-//#define PFS_ASSERT_UNEXPECTED_X(errstr) PFS_ASSERT_X(false, errstr)
-#define PFS_ASSERT_NULLPTR(x)     PFS_ASSERT((x) != 0)
-//#define PFS_ASSERT_IS_NULL(x)     PFS_ASSERT(!(x).is_null())
-//#define PFS_ASSERT_DOMAIN(errstr) PFS_ASSERT_X(false, errstr)
-//#define PFS_ASSERT_INVALID_ARGUMENT(x) PFS_ASSERT(x)
+#define PFS_ASSERT_UNEXPECTED() PFS_ASSERT(false)
+#define PFS_ASSERT_NULLPTR(x)   PFS_ASSERT((x) != 0)
 
 #define PFS_WARN(x) if (!(x)) { pfs_check_warn(__TFILE__, __LINE__, #x); }
 #define PFS_ERROR(x) if (!(x)) { pfs_check_error(__TFILE__, __LINE__, #x); }

@@ -40,7 +40,7 @@ public:
             v = o.convert(d->v);
             b = pos;
         } else {
-            throw io_exception(make_error_code(io_errc::stream), NOT_ENOUGH_DATA_EXCEPTION_STR);
+            PFS_THROW(io_exception(NOT_ENOUGH_DATA_EXCEPTION_STR, make_error_code(io_errc::stream)));
         }
     }
 
@@ -100,7 +100,7 @@ public:
     void read (byte_string::pointer v, byte_string::size_type sz)
     {
         if (static_cast<byte_string::size_type> (pfs::distance(b, e)) < sz)
-            throw io_exception(make_error_code(io_errc::stream), NOT_ENOUGH_DATA_EXCEPTION_STR);
+            PFS_THROW(io_exception(NOT_ENOUGH_DATA_EXCEPTION_STR, make_error_code(io_errc::stream)));
         pfs::copy(b.base(), b.base() + sz, v);
         pfs::advance(b, sz);
     }

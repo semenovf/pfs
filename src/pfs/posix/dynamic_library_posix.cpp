@@ -125,8 +125,7 @@ bool dynamic_library::open (filesystem::path const & p
     error_code ec;
 
     if (! open(p, searchdirs, ec))
-        throw filesystem::filesystem_error(std::string(::dlerror())
-                , _path, ec);
+        throw filesystem::filesystem_error(std::string(::dlerror()), _path, ec);
 
     return true;
 }
@@ -153,8 +152,7 @@ dynamic_library::symbol_type dynamic_library::resolve (char const * symbol_name)
     symbol_type sym = resolve(symbol_name, ec);
 
     if (! sym)
-        throw filesystem::filesystem_error(std::string(::dlerror())
-                , _path, ec);
+        throw filesystem::filesystem_error(std::string(::dlerror()), _path, ec);
 
     return sym;
 }

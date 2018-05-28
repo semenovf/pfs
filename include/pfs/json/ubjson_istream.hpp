@@ -32,7 +32,7 @@ struct ubjson_istream
     {
         error_code ec = read(j, UBJSON_CHAR_UNSPEC);
         if (ec)
-            throw json_exception(ec);
+            PFS_THROW(json_exception(ec));
         return *this;
     }
 
@@ -494,7 +494,7 @@ JsonType from_ubjson (pfs::byte_string const & bs)
     JsonType j = from_ubjson<JsonType>(bs, ec);
 
     if (ec)
-        throw json_exception(ec);
+        PFS_THROW(json_exception(ec));
 
     return j;
 }

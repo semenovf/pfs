@@ -74,41 +74,15 @@ inline pfs::error_code make_error_code (rpc_errc e)
     return pfs::error_code(static_cast<int>(e), rpc_error_category());
 }
 
-class rpc_exception : public logic_error
+class rpc_exception : public error_code_exception
 {
 public:
-    rpc_exception (pfs::error_code ec)
-        : logic_error(rpc_error_category().message(ec.value()))
-    {}
-
-    rpc_exception (pfs::error_code ec, char const * what)
-        : logic_error(rpc_error_category().message(ec.value())
-            + ": " + what)
-    {}
-
-    rpc_exception (pfs::error_code ec, std::string const & what)
-        : logic_error(rpc_error_category().message(ec.value())
-            + ": " + what)
-    {}
-
-    virtual ~rpc_exception() throw() {}
+    rpc_exception (error_code const & ec) : error_code_exception(ec) {}
+    explicit rpc_exception (error_code const & ec, char const * s) : error_code_exception(ec, s) {}
+    explicit rpc_exception (error_code const & ec, std::string const & s) : error_code_exception(ec, s) {}
 };
 
 } // pfs
-
-
-namespace std {
-
-// TODO implement for C++98
-#if __cplusplus >= 201103L
-
-template<>
-struct is_error_code_enum<pfs::rpc_errc>
-        : public std::true_type
-{};
-
-#endif
-} // std
 
 namespace pfs {
 
@@ -251,7 +225,7 @@ struct rpc
                 T value;
                 error_code ec = this->result(value);
                 if (ec)
-                    throw rpc_exception(ec);
+                    PFS_THROW(rpc_exception(ec));
                 return value;
             }
 

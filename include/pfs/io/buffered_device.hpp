@@ -120,7 +120,7 @@ public:
         error_code ec;
         ssize_t r = this->read(bytes, n, ec);
         if (r < 0)
-            throw io_exception(ec);
+            PFS_THROW(io_exception(ec));
         return r;
     }
 
@@ -164,7 +164,7 @@ public:
         error_code ec;
         ssize_t r = this->read(bytes, n, ec);
         if (r < 0)
-            throw io_exception(ec);
+            PFS_THROW(io_exception(ec));
         return r;
     }
 
@@ -197,7 +197,7 @@ public:
         error_code ec;
         bool r = this->read_byte(c, ec);
         if (is_error(ec))
-            throw io_exception(ec);
+            PFS_THROW(io_exception(ec));
         return r;
     }
 
@@ -213,7 +213,7 @@ public:
         error_code ec;
         bool r = this->peek_byte(c, ec);
         if (is_error(ec))
-            throw io_exception(ec);
+            PFS_THROW(io_exception(ec));
         return r;
     }
 
@@ -239,7 +239,7 @@ public:
         error_code ec;
         ssize_t r = this->read_line(line, max_size, ec);
         if (r < 0)
-            throw io_exception(ec);
+            PFS_THROW(io_exception(ec));
         return r;
     }
 
@@ -261,7 +261,7 @@ public:
         error_code ec;
         ssize_t r = write(bytes, n, ec);
         if (r < 0)
-            throw io_exception(ec);
+            PFS_THROW(io_exception(ec));
         return r;
     }
 
@@ -285,7 +285,7 @@ public:
         error_code ec;
         ssize_t r = write(bytes, n, ec);
         if (r < 0)
-            throw io_exception(ec);
+            PFS_THROW(io_exception(ec));
         return r;
     }
 

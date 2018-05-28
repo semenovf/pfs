@@ -450,7 +450,7 @@ RealType string_to_real (CharIt first
     RealType result = string_to_real<RealType, CharIt>(first, last, decimal_point, badpos, ec);
 
     if (ec.value() != static_cast<int>(lexical_cast_errc::success))
-        throw bad_lexical_cast(ec);
+        PFS_THROW(bad_lexical_cast(ec));
 
     return result;
 }

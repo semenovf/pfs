@@ -412,7 +412,7 @@ struct grammar
                         uint32_t uc = string_to_uint<uint32_t>(ufirst, ulast, & badpos, 16);
 
                         if (badpos != ulast)
-                            throw json_exception(make_error_code(json_errc::bad_number));
+                            PFS_THROW(json_exception(make_error_code(json_errc::bad_number)));
 
                         *out++ = unicode::char_t(static_cast<intmax_t>(uc));
 
@@ -428,7 +428,7 @@ struct grammar
         }
 
         if (escaped)
-            throw json_exception(make_error_code(json_errc::bad_number));
+            PFS_THROW(json_exception(make_error_code(json_errc::bad_number)));
 
         return result;
     }

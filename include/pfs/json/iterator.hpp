@@ -1,7 +1,7 @@
 #pragma once
 #include <pfs/type_traits.hpp>
 #include <pfs/iterator.hpp>
-#include <pfs/exception.hpp>
+#include <pfs/json/exception.hpp>
 #include <pfs/json/constants.hpp>
 
 namespace pfs {
@@ -52,12 +52,12 @@ public:
 
     static void increment (scalar_iterator &, difference_type /*n*/ = 1)
     {
-        throw domain_error("json::scalar_iterator::increment()");
+        PFS_THROW(runtime_error("json::scalar_iterator::increment()"));
     }
 
     static void decrement (scalar_iterator & it, difference_type n = 1)
     {
-        throw domain_error("json::scalar_iterator::decrement()");
+        PFS_THROW(runtime_error("json::scalar_iterator::decrement()"));
     }
 
     static bool equals (scalar_iterator const & lhs
@@ -69,19 +69,19 @@ public:
     static int compare (scalar_iterator const & lhs
             , scalar_iterator const & rhs)
     {
-        throw domain_error("json::scalar_iterator::compare()");
+        PFS_THROW(runtime_error("json::scalar_iterator::compare()"));
     }
 
     static reference subscript (scalar_iterator & it
             , difference_type n)
     {
-        throw domain_error("json::scalar_iterator::subscript()");
+        PFS_THROW(runtime_error("json::scalar_iterator::subscript()"));
     }
 
     static difference_type diff (scalar_iterator const & lhs
             , scalar_iterator const & rhs)
     {
-        throw domain_error("json::scalar_iterator::diff()");
+        PFS_THROW(runtime_error("json::scalar_iterator::diff()"));
     }
 
 public:
@@ -376,7 +376,7 @@ void basic_iterator<JsonType>::increment (basic_iterator & it, difference_type n
         else if (n == -1)
             --it._object_it;
         else
-            throw out_of_range("json::basic_iterator::increment()");
+            PFS_THROW(out_of_range("json::basic_iterator::increment()"));
         break;
 
 	case data_type::array:
@@ -413,7 +413,7 @@ int basic_iterator<JsonType>::compare (basic_iterator const & lhs
 {
     switch (lhs._pvalue->type()) {
 	case data_type::object:
-        throw domain_error("json::basic_iterator::compare(): object");
+        PFS_THROW(runtime_error("json::basic_iterator::compare(): object"));
 
 	case data_type::array:
 		return lhs._array_it - rhs._array_it;
@@ -431,7 +431,7 @@ basic_iterator<JsonType>::subscript (basic_iterator & it, difference_type n)
 {
     switch (it._pvalue->type()) {
 	case data_type::object:
-        throw domain_error("json::basic_iterator::subscript(): object");
+        PFS_THROW(runtime_error("json::basic_iterator::subscript(): object"));
 
 	case data_type::array:
 		return it._array_it[n];
@@ -450,7 +450,7 @@ basic_iterator<JsonType>::diff (basic_iterator const & lhs
 {
     switch (lhs._pvalue->type()) {
 	case data_type::object:
-        throw domain_error("json::basic_iterator::diff(): object");
+        PFS_THROW(runtime_error("json::basic_iterator::diff(): object"));
 
 	case data_type::array:
 		return lhs._array_it - rhs._array_it;

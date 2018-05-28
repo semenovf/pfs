@@ -53,6 +53,7 @@ if (UNIX)
 
     if (CMAKE_COMPILER_IS_GNUCXX)
         list(APPEND PFS_LIB_PLATFORM_SOURCES gnuc/assert.cpp)
+        list(APPEND PFS_LIB_PLATFORM_SOURCES gnuc/exception.cpp)
         list(APPEND PFS_LIB_PLATFORM_SOURCES gnuc/net/inet_addrinfo.cpp)
     endif()
 endif(UNIX)

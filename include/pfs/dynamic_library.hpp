@@ -160,17 +160,3 @@ inline void * func_void_ptr_cast (FuncPtr f)
 }
 
 } // pfs
-
-namespace std {
-
-// TODO implement for C++98
-#if __cplusplus >= 201103L
-
-template<>
-struct is_error_code_enum<pfs::dynamic_library_errc>
-        : public std::true_type
-{};
-
-#endif
-
-} // std

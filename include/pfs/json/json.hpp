@@ -474,7 +474,7 @@ public:
             _d = array_type();
 
         if (_d.type != data_type::array)
-            throw json_exception(make_error_code(json_errc::array_expected));
+            PFS_THROW(json_exception(make_error_code(json_errc::array_expected)));
 
         for (size_t i = _d.array->size(); i <= index; ++i)
             _d.array->push_back(json());
@@ -487,10 +487,10 @@ public:
     const_reference operator [] (size_type index) const
     {
         if (_d.type != data_type::array)
-            throw json_exception(make_error_code(json_errc::array_expected));
+            PFS_THROW(json_exception(make_error_code(json_errc::array_expected)));
 
         if (index >= _d.array->size())
-            throw json_exception(make_error_code(json_errc::range));
+            PFS_THROW(json_exception(make_error_code(json_errc::range)));
 
         typename array_type::iterator it = _d.array->begin();
         pfs::advance(it, index);
@@ -503,7 +503,7 @@ public:
             _d = object_type();
 
         if (_d.type != data_type::object)
-            throw json_exception(make_error_code(json_errc::object_expected));
+            PFS_THROW(json_exception(make_error_code(json_errc::object_expected)));
 
         typename object_type::iterator it = _d.object->find(key);
 
@@ -521,12 +521,12 @@ public:
     const_reference operator [] (key_type const & key) const
     {
         if (_d.type != data_type::object)
-            throw json_exception(make_error_code(json_errc::object_expected));
+            PFS_THROW(json_exception(make_error_code(json_errc::object_expected)));
 
         typename object_type::const_iterator it = _d.object->find(key);
 
         if (it == _d.object->cend())
-            throw json_exception(make_error_code(json_errc::range));
+            PFS_THROW(json_exception(make_error_code(json_errc::range)));
 
         return object_type::mapped_reference(it);
     }

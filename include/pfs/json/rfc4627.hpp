@@ -334,7 +334,6 @@ struct grammar
         try {
             d = lexical_cast<real_t, string_type>(number_str);
         } catch (bad_lexical_cast ex) {
-            //throw json_exception(json_errc::bad_number);
             ctx->ec = make_error_code(json_errc::bad_number);
             return false;
         }

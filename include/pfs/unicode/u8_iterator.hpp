@@ -405,7 +405,7 @@ protected:
             nunits = 6;
         } else {
             // Invalid
-            throw range_error("utf8_iterator::decode()");
+            PFS_THROW(range_error("utf8_iterator::decode()"));
         }
 
         ++newpos;
@@ -417,7 +417,7 @@ protected:
                 result = (result << 6) | (b & 0x3F);
             } else {
                 // Invalid
-                throw range_error("utf8_iterator::decode()");
+                PFS_THROW(range_error("utf8_iterator::decode()"));
             }
             ++newpos;
         }

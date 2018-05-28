@@ -57,37 +57,12 @@ inline pfs::error_code make_error_code (io_errc e)
     return pfs::error_code(static_cast<int>(e), io_category());
 }
 
-class io_exception : public logic_error
+class io_exception : public error_code_exception
 {
 public:
-    io_exception (pfs::error_code ec)
-        : logic_error(io_category().message(ec.value()))
-    {}
-
-    io_exception (pfs::error_code ec, char const * what)
-        : logic_error(io_category().message(ec.value())
-            + ": " + what)
-    {}
-
-    io_exception (pfs::error_code ec, std::string const & what)
-        : logic_error(io_category().message(ec.value())
-            + ": " + what)
-    {}
-
-    virtual ~io_exception() throw() {}
+    io_exception (error_code const & ec) : error_code_exception(ec) {}
+    explicit io_exception (error_code const & ec, char const * s) : error_code_exception(ec, s) {}
+    explicit io_exception (error_code const & ec, std::string const & s) : error_code_exception(ec, s) {}
 };
 
 } // pfs
-
-namespace std {
-
-// TODO implement for C++98
-#if __cplusplus >= 201103L
-
-template<>
-struct is_error_code_enum<pfs::io_errc>
-        : public std::true_type
-{};
-
-#endif
-} // std

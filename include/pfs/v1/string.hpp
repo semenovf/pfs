@@ -272,7 +272,7 @@ public:
     value_type at (size_type pos) const
     {
         if (pos >= this->size())
-            throw out_of_range("string::at");
+            throw out_of_range("string::at()" + PFS_AT_LINEINFO);
         return _p.at(pos);
     }
 
@@ -483,7 +483,7 @@ public:
     string & erase (size_type index = 0, size_type count = size_type(-1))
     {
         if (index > size())
-            throw out_of_range("string::erase()");
+            throw out_of_range("string::erase()" + PFS_AT_LINEINFO);
         _p.erase(index, count);
         return *this;
     }
@@ -512,7 +512,7 @@ public:
     string & insert (size_type index, string const & str, size_type index_str, size_type count)
     {
         if (index_str > str.size())
-            throw pfs::out_of_range("string::insert()");
+            throw pfs::out_of_range("string::insert(): " + PFS_AT_LINEINFO);
 
         return insert(index, str.data() + index_str, count);
     }
@@ -642,7 +642,7 @@ typename string<StringImplType>::string_value_type
 string<StringImplType>::substr (const_iterator pos, size_type count) const
 {
     if (pos >= cend() || pos < cbegin())
-        throw out_of_range("string::substr()");
+        throw out_of_range("string::substr()" + PFS_AT_LINEINFO);
 
     // This rough condition guarantees need to return the tail
     if (count > size())
@@ -712,7 +712,7 @@ CharT * uintmax_to_cstr (uintmax_t num
 	CharT * p = & buf[n - 1];
 
 	if (!(radix >= 2 && radix <= 36))
-        throw pfs::invalid_argument("uintmax_to_cstr(): bad radix");
+        throw pfs::invalid_argument("uintmax_to_cstr(): bad radix" + PFS_AT_LINEINFO);
 
 	buf[n - 1] = '\0';
     const CharT * digits = uppercase ? digits_upper : digits_lower;
