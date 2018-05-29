@@ -39,7 +39,7 @@ public:
         string_type errstr;
 
         if (!open(uri, ec, & errstr))
-            PFS_THROW(db_exception(ec, errstr));
+            PFS_THROW(db_exception(ec, uri + ": " + errstr));
 
         return true;
     }

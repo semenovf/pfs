@@ -111,4 +111,4 @@ endif()
 
 configure_file(${CMAKE_CURRENT_LIST_DIR}/pfs_config.h.in ${CMAKE_BINARY_DIR}/pfs_config.h)
 
-include_directories(${CMAKE_CURRENT_LIST_DIR}/include ${CMAKE_BINARY_DIR})
+include_directories(${CMAKE_CURRENT_LIST_DIR}/include ${CMAKE_SOURCE_DIR} ${CMAKE_BINARY_DIR})

@@ -37,7 +37,7 @@ ssize_t device::read_wait (byte_t * bytes, size_t n, error_code & ec, int millis
                 int32_t diff = current_time() - start;
 
                 if (diff >= millis) {
-                    ec = make_error_code(io_errc::timeout);
+                    //ec = make_error_code(io_errc::timeout);
                     break;
                 }
             }
@@ -75,7 +75,7 @@ ssize_t device::read_wait (byte_string & bytes, size_t n, error_code  & ec, int 
                 int32_t diff = current_time() - start;
 
                 if (diff >= millis) {
-                    ec = make_error_code(io_errc::timeout);
+                    //ec = make_error_code(io_errc::timeout);
                     break;
                 }
             }

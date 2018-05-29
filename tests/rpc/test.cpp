@@ -29,8 +29,8 @@ struct simple_protocol
     {
         try {
             out << '\x10' << '\x01' << payload.size() << payload << '\x10' << '\x02';
-        } catch (pfs::io_exception const & ex) {
-            g_logger.error("failed to send RPC packet: " + pfs::string(ex.what()));
+        } catch (pfs::exception const & ex) {
+            g_logger.error("failed to send RPC packet: " + pfs::string(ex.message()));
             return false;
         }
 
@@ -46,8 +46,8 @@ struct simple_protocol
             pfs::byte_string::size_type sz;
             in >> a >> b >> sz;
             in >> pfs::byte_string_ref(payload, sz) >> c >> d;
-        } catch (pfs::io_exception const & ex) {
-            g_logger.error("failed to receive RPC packet: " + pfs::string(ex.what()));
+        } catch (pfs::exception const & ex) {
+            g_logger.error("failed to receive RPC packet: " + pfs::string(ex.message()));
             return false;
         }
 
@@ -102,7 +102,7 @@ namespace client {
 
 struct transport
 {
-    static int const DEFAULT_INPUT_TIMEOUT = 1000;
+    static int const DEFAULT_INPUT_TIMEOUT = 10;
     typedef pfs::binary_istream<pfs::io::device_ptr> istream_type;
     typedef pfs::binary_ostream<pfs::io::device_ptr> ostream_type;
 
@@ -142,8 +142,8 @@ void run ()
 
     //     client.notify("notify1").send();
 //     client.notify("notify2")(123).send();
-    } catch (pfs::rpc_exception const & ex) {
-        g_logger.error("RPC client failed: " + pfs::string(ex.what()));
+    } catch (pfs::exception const & ex) {
+        g_logger.error("RPC client failed: " + pfs::string(ex.message()));
     }
 
     d->close();

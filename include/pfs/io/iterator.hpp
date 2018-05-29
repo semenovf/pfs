@@ -92,7 +92,7 @@ private:
     {
         if (_pd) {
             error_code ec;
-            ssize_t n = _pd->read_wait(& _value, sizeof(char_type), ec, DEFAULT_TIMEOUT);
+            ssize_t n = _pd->read(& _value, sizeof(char_type), ec);
 
             if (n < 0)
                 PFS_THROW(io_exception(ec));

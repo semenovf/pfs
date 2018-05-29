@@ -23,8 +23,8 @@ void sqlite3_test0 ()
         db_t db;
         db.open("sqlite3:/nonexists.db");
         db.close();
-    } catch (pfs::db_exception ex) {
-        cerr << "Exception:" << ex.what() << endl;
+    } catch (pfs::exception const & ex) {
+        cerr << "Exception:" << ex.message() << endl;
         ok = true;
     }
 
@@ -56,8 +56,8 @@ void sqlite3_test1 ()
             db_t db;
             db.open(dburi);
             db.close();
-        } catch (pfs::db_exception ex) {
-            cerr << "Exception:" << ex.what() << endl;
+        } catch (pfs::exception const & ex) {
+            cerr << "Exception:" << ex.message() << endl;
             ok = false;
         }
     }
@@ -74,8 +74,8 @@ void sqlite3_test1 ()
             db_t db;
             db.open(dburi);
             db.close();
-        } catch (pfs::db_exception ex) {
-            cerr << "Exception:" << ex.what() << endl;
+        } catch (pfs::exception const & ex) {
+            cerr << "Exception:" << ex.message() << endl;
             ok = false;
         }
     }

@@ -204,12 +204,12 @@ public:
         return r;
     }
 
-    ssize_t read_wait (char * chars, size_t n, error_code & ec, int millis) pfs_noexcept
+    inline ssize_t read_wait (char * chars, size_t n, error_code & ec, int millis) pfs_noexcept
     {
         return this->read_wait(reinterpret_cast<byte_t *>(chars), n, ec, millis);
     }
 
-    ssize_t read_wait (char * chars, size_t n, int millis)
+    inline ssize_t read_wait (char * chars, size_t n, int millis)
     {
         return this->read_wait(reinterpret_cast<byte_t *>(chars), n, millis);
     }
