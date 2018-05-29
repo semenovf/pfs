@@ -103,6 +103,12 @@ if (Qt5::Core)
     set(HAVE_QT5_CORE 1)
 endif()
 
+# Optional: Stack trace pretty printer library for C++
+# https://github.com/bombela/backward-cpp
+if (EXISTS ${CMAKE_SOURCE_DIR}/3rdparty/backward-cpp/backward.hpp)
+    set(HAVE_BACKWARD_CPP 1)
+endif()
+
 configure_file(${CMAKE_CURRENT_LIST_DIR}/pfs_config.h.in ${CMAKE_BINARY_DIR}/pfs_config.h)
 
 include_directories(${CMAKE_CURRENT_LIST_DIR}/include ${CMAKE_BINARY_DIR})

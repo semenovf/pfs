@@ -37,3 +37,5 @@
 #cmakedefine01 HAVE_QT5_CORE
 
 #cmakedefine01 HAVE_READLINE
+
+#cmakedefine01 HAVE_BACKWARD_CPP
