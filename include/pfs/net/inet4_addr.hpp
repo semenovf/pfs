@@ -369,6 +369,7 @@ public:
     }
 
 public:
+    // TODO DEPRECATED (use net::uri class instead)
     /**
      * @brief Parses string representing TCP/UDP address in format @c proto://inet4_addr:port.
      *
