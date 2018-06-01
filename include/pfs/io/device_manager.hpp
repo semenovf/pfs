@@ -52,9 +52,9 @@ class device_manager : SigslotNS::has_slots
         {}
 
     public:
-        void connected (device_ptr & d, server_ptr & server)
+        void accepted (device_ptr & d, server_ptr & server)
         {
-            _m->connected(d, server);
+            _m->accepted(d, server);
         }
 
         void ready_read (device_ptr & d)
@@ -133,7 +133,7 @@ private:
     device_manager & operator = (device_manager const &);
 
 private:
-    void insert_device (device_ptr d, pfs::error_code const & ec)
+    void insert_device (device_ptr d, pfs::error_code & ec)
     {
         if (!ec) {
             _p1.insert(d);
@@ -141,6 +141,7 @@ private:
         } else {
             if (ec == pfs::make_error_code(io_errc::operation_in_progress)) {
                 _p2.insert(d);
+                ec.clear();
                 opening(d);
             } else {
                 open_failed(d, ec);
@@ -148,7 +149,7 @@ private:
         }
     }
 
-    void insert_server (server_ptr s, pfs::error_code const & ec)
+    void insert_server (server_ptr s, pfs::error_code & ec)
     {
         if (!ec) {
             _p1.insert(s);
@@ -156,6 +157,7 @@ private:
         } else {
             if (ec == pfs::make_error_code(io_errc::operation_in_progress)) {
                 _p2.insert(s);
+                ec.clear();
                 server_opening(s);
             } else {
                 server_open_failed(s, ec);
@@ -313,7 +315,7 @@ public:
     }
 
 public: // signals
-    typename SigslotNS::template signal2<device_ptr &, server_ptr &>       connected;    ///<! accept connection (for connection based server devices)
+    typename SigslotNS::template signal2<device_ptr &, server_ptr &>       accepted;     ///<! accept connection (for connection based server devices)
     typename SigslotNS::template signal1<device_ptr &>                     ready_read;   ///<! device is ready for read
     typename SigslotNS::template signal1<device_ptr &>                     opened;       ///<! opened (for regular files, servers) or connected (for connection based client devices)
     typename SigslotNS::template signal1<device_ptr &>                     disconnected; ///<! disconnection for connection based devices, including peer devices

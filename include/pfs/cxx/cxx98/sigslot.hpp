@@ -199,7 +199,7 @@ struct sigslot
         typedef typename sender_set::const_iterator const_iterator;
 
     public:
-        basic_has_slots()
+        basic_has_slots ()
         {}
 
         virtual bool use_async_slots () const = 0;

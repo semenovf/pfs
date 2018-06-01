@@ -486,7 +486,7 @@ private:
             event_handler.on_error(ec);
         } else {
             device_ptr pdev(peer);
-            event_handler.connected(pdev, server);
+            event_handler.accepted(pdev, server);
 
             //PFS_DEBUG(printf("*** [%s]: CONNECTED\n", pdev->url().c_str()));
 
@@ -528,8 +528,14 @@ private:
         //
         // TODO Research this feature and implement handling
         //
+        // 1. Occured while tcp socket attempts to connect to non-existance server socket
+        // 2. ... ?
         if (revents & POLLERR) {
-            PFS_DEBUG(puts("pfs::io::pool::dispatch(): device error condition"));
+            if (d->type() == device_tcp_socket) {
+                event_handler.on_error(make_error_code(io_errc::connection_refused));
+            } else {
+                PFS_DEBUG(printf("pfs::io::pool::dispatch(): device error condition at %s:%d", __FILE__, __LINE__));
+            }
         }
 
         // Invalid request: fd not open (output only).

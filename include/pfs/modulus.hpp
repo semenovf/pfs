@@ -441,14 +441,7 @@ struct modulus
         void disconnect_all ();
         void unregister_all ();
         bool start ();
-
-        void finalize ()
-        {
-            if (_module_spec_map.size() > 0) {
-                disconnect_all();
-                unregister_all();
-            }
-        }
+        void finalize ();
 
         /**
          * @brief Internal dispatcher loop.
@@ -550,26 +543,22 @@ struct modulus
 
         void print_info (basic_module const * m, string_type const & s)
         {
-            this->_queue_ptr->template push_method<logger_type, string_type const &>(
-                    & logger_type::info, & _logger, (m != 0 ? m->name() + ": " + s : s));
+            (this->*info_printer)(m, s);
         }
 
         void print_debug (basic_module const * m, string_type const & s)
         {
-            this->_queue_ptr->template push_method<logger_type, string_type const &>(
-                    & logger_type::debug, & _logger, (m != 0 ? m->name() + ": " + s : s));
+            (this->*debug_printer)(m, s);
         }
 
         void print_warn (basic_module const * m, string_type const & s)
         {
-            this->_queue_ptr->template push_method<logger_type, string_type const &>(
-                    & logger_type::warn, & _logger, (m != 0 ? m->name() + ": " + s : s));
+            (this->*warn_printer)(m, s);
         }
 
         void print_error (basic_module const * m, string_type const & s)
         {
-            this->_queue_ptr->template push_method<logger_type, string_type const &>(
-                    & logger_type::error, & _logger, (m != 0 ? m->name() + ": " + s : s));
+            (this->*error_printer)(m, s);
         }
 
       	void print_info (string_type const & s)
@@ -607,7 +596,56 @@ struct modulus
 
         bool register_module ( module_spec const & modspec );
 
+        void sync_print_info (basic_module const * m, string_type const & s)
+        {
+            _logger.info(m != 0 ? m->name() + ": " + s : s);
+        }
+
+        void sync_print_debug (basic_module const * m, string_type const & s)
+        {
+            _logger.debug(m != 0 ? m->name() + ": " + s : s);
+        }
+
+        void sync_print_warn (basic_module const * m, string_type const & s)
+        {
+            _logger.warn(m != 0 ? m->name() + ": " + s : s);
+        }
+
+        void sync_print_error (basic_module const * m, string_type const & s)
+        {
+            _logger.error(m != 0 ? m->name() + ": " + s : s);
+        }
+
+        void async_print_info (basic_module const * m, string_type const & s)
+        {
+            this->_queue_ptr->template push_method<logger_type, string_type const &>(
+                    & logger_type::info, & _logger, (m != 0 ? m->name() + ": " + s : s));
+        }
+
+        void async_print_debug (basic_module const * m, string_type const & s)
+        {
+            this->_queue_ptr->template push_method<logger_type, string_type const &>(
+                    & logger_type::debug, & _logger, (m != 0 ? m->name() + ": " + s : s));
+        }
+
+        void async_print_warn (basic_module const * m, string_type const & s)
+        {
+            this->_queue_ptr->template push_method<logger_type, string_type const &>(
+                    & logger_type::warn, & _logger, (m != 0 ? m->name() + ": " + s : s));
+        }
+
+        void async_print_error (basic_module const * m, string_type const & s)
+        {
+            this->_queue_ptr->template push_method<logger_type, string_type const &>(
+                    & logger_type::error, & _logger, (m != 0 ? m->name() + ": " + s : s));
+        }
+
     private:
+        void (dispatcher::*info_printer) (basic_module const * m, string_type const & s);
+        void (dispatcher::*debug_printer) (basic_module const * m, string_type const & s);
+        void (dispatcher::*warn_printer) (basic_module const * m, string_type const & s);
+        void (dispatcher::*error_printer) (basic_module const * m, string_type const & s);
+
         typename sigslot_ns::signal0    _emit_quit;
         atomic_int _quitfl; // quit flag
         filesystem::pathlist   _searchdirs;
@@ -624,6 +662,10 @@ modulus<PFS_MODULUS_TEMPLETE_ARGS>::dispatcher::dispatcher (
         api_item_type * mapper
         , int n)
     : basic_dispatcher()
+    , info_printer(& dispatcher::sync_print_info)
+    , debug_printer(& dispatcher::sync_print_debug)
+    , warn_printer(& dispatcher::sync_print_warn)
+    , error_printer(& dispatcher::sync_print_error)
     , _master_module_ptr(0)
     , _quitfl(0)
 {
@@ -699,7 +741,42 @@ bool modulus<PFS_MODULUS_TEMPLETE_ARGS>::dispatcher::start ()
         }
     }
 
+    //
+    // All modules started successfully.
+    // Redirect log ouput.
+    //
+    if (r) {
+        info_printer  = & dispatcher::async_print_info;
+        debug_printer = & dispatcher::async_print_debug;
+        warn_printer  = & dispatcher::async_print_warn;
+        error_printer = & dispatcher::async_print_error;
+    }
+
     return r;
+}
+
+template <PFS_MODULUS_TEMPLETE_SIGNATURE>
+void modulus<PFS_MODULUS_TEMPLETE_ARGS>::dispatcher::finalize ()
+{
+    this->_queue_ptr->call_all();
+
+    info_printer  = & dispatcher::sync_print_info;
+    debug_printer = & dispatcher::sync_print_debug;
+    warn_printer  = & dispatcher::sync_print_warn;
+    error_printer = & dispatcher::sync_print_error;
+
+    if (_module_spec_map.size() > 0) {
+        typename module_spec_map_type::iterator imodule      = _module_spec_map.begin();
+        typename module_spec_map_type::iterator imodule_last = _module_spec_map.end();
+
+        for (; imodule != imodule_last; ++imodule) {
+            module_spec & modspec = imodule->second;
+            modspec.pmodule->on_finish();
+        }
+
+        disconnect_all();
+        unregister_all();
+    }
 }
 
 template <PFS_MODULUS_TEMPLETE_SIGNATURE>
@@ -1156,14 +1233,6 @@ int modulus<PFS_MODULUS_TEMPLETE_ARGS>::dispatcher::exec_main ()
 
     for (; ithread != ithread_last; ++ithread) {
         (*ithread)->join();
-    }
-
-    typename module_spec_map_type::iterator imodule      = _module_spec_map.begin();
-    typename module_spec_map_type::iterator imodule_last = _module_spec_map.end();
-
-    for (; imodule != imodule_last; ++imodule) {
-        module_spec & modspec = imodule->second;
-        modspec.pmodule->on_finish();
     }
 
     return r;

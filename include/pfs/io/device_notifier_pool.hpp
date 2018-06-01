@@ -19,7 +19,7 @@ namespace io {
 
 struct default_event_handler
 {
-    void connected (device_ptr &, server_ptr &) {}
+    void accepted (device_ptr &, server_ptr &) {}
     void disconnected (device_ptr &) {}
     void ready_read (device_ptr &) {}
     void can_write (device_ptr &) {}
