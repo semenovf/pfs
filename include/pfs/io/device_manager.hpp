@@ -141,7 +141,6 @@ private:
         } else {
             if (ec == pfs::make_error_code(io_errc::operation_in_progress)) {
                 _p2.insert(d);
-                ec.clear();
                 opening(d);
             } else {
                 open_failed(d, ec);
@@ -157,7 +156,6 @@ private:
         } else {
             if (ec == pfs::make_error_code(io_errc::operation_in_progress)) {
                 _p2.insert(s);
-                ec.clear();
                 server_opening(s);
             } else {
                 server_open_failed(s, ec);
