@@ -60,7 +60,7 @@ struct basic_file : public details::device
         return pfs::io::is_nonblocking(_fd);
     }
 
-    virtual ssize_t read (byte_t * bytes, size_t n, error_code & ec) pfs_override
+    virtual ssize_t read (byte_t * bytes, size_t n, error_code & ec) pfs_noexcept pfs_override
     {
         ssize_t sz = ::read(_fd, bytes, n);
 
@@ -70,7 +70,7 @@ struct basic_file : public details::device
         return sz;
     }
 
-    virtual ssize_t write (const byte_t * bytes, size_t n, error_code & ec) pfs_override
+    virtual ssize_t write (const byte_t * bytes, size_t n, error_code & ec) pfs_noexcept pfs_override
     {
         ssize_t sz = ::write(_fd, bytes, n);
 

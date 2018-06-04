@@ -36,9 +36,9 @@ struct buffer : public details::device
         return _buffer.size() - _pos;
     }
 
-    virtual ssize_t read (byte_t * bytes, size_t n, error_code & ec) pfs_override;
+    virtual ssize_t read (byte_t * bytes, size_t n, error_code & ec) pfs_noexcept pfs_override;
 
-    virtual ssize_t write (const byte_t * bytes, size_t n, error_code & ec) pfs_override;
+    virtual ssize_t write (const byte_t * bytes, size_t n, error_code & ec) pfs_noexcept pfs_override;
 
     virtual error_code close ()
     {
@@ -79,7 +79,7 @@ struct buffer : public details::device
     }
 };
 
-ssize_t buffer::read (byte_t * bytes, size_t n, error_code & ec)
+ssize_t buffer::read (byte_t * bytes, size_t n, error_code & ec) pfs_noexcept
 {
     if (_pos >= _buffer.size())
         return 0;
@@ -91,7 +91,7 @@ ssize_t buffer::read (byte_t * bytes, size_t n, error_code & ec)
     return integral_cast_check<ssize_t>(n);
 }
 
-ssize_t buffer::write (byte_t const * bytes, size_t n, error_code & ec)
+ssize_t buffer::write (byte_t const * bytes, size_t n, error_code & ec) pfs_noexcept
 {
     PFS_ASSERT(numeric_limits<size_t>::max() - _pos >= n);
 

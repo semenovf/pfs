@@ -110,9 +110,9 @@ public:
 
     virtual error_code connect (uint32_t addr, uint16_t port) pfs_override;
 
-    virtual ssize_t read (byte_t * bytes, size_t n, error_code & ec) pfs_override;
+    virtual ssize_t read (byte_t * bytes, size_t n, error_code & ec) pfs_noexcept pfs_override;
 
-    virtual ssize_t write (const byte_t * bytes, size_t n, error_code & ec) pfs_override;
+    virtual ssize_t write (const byte_t * bytes, size_t n, error_code & ec) pfs_noexcept pfs_override;
 
     virtual device_type type () const pfs_override
     {
@@ -166,8 +166,8 @@ public:
 
     virtual error_code connect (uint32_t addr, uint16_t port) pfs_override;
 
-    virtual ssize_t read (byte_t * bytes, size_t n, error_code & ec) pfs_override;
-    virtual ssize_t write (byte_t const * bytes, size_t n, error_code & ec) pfs_override;
+    virtual ssize_t read (byte_t * bytes, size_t n, error_code & ec) pfs_noexcept pfs_override;
+    virtual ssize_t write (byte_t const * bytes, size_t n, error_code & ec) pfs_noexcept pfs_override;
 
     virtual device_type type () const pfs_override
     {

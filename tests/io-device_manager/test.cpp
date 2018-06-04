@@ -26,7 +26,7 @@ int main ()
     device_manager_slots devslots;
     device_manager devman;
 
-    devman.connected.connect          (& devslots, & device_manager_slots::device_accepted);
+    devman.accepted.connect          (& devslots, & device_manager_slots::device_accepted);
     devman.ready_read.connect         (& devslots, & device_manager_slots::device_ready_read);
     devman.opened.connect             (& devslots, & device_manager_slots::device_opened);
     devman.opening.connect            (& devslots, & device_manager_slots::device_opening);

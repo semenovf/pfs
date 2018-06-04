@@ -83,7 +83,7 @@ struct event_handler
         }
     }
 
-    virtual void connected (pfs::io::device_ptr & d, pfs::io::server_ptr & s)
+    virtual void accepted (pfs::io::device_ptr & d, pfs::io::server_ptr & s)
     {
         std::cout << "Server: socket connected: " << d->url()
                 << ", non-blocking mode: " << std::boolalpha << d->is_nonblocking()
