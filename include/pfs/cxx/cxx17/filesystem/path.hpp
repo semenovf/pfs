@@ -121,14 +121,14 @@ public:
         , generic_format  ///< Generic pathname format
         , auto_format     ///< Implementation-defined pathname format, auto-detected where possible
     };
-    
+
 public:
     path() noexcept : base_class()
     {}
 
     path (path const & p) : base_class(p) 
     {}
-            
+
     path (path && p) noexcept : base_class(p)
     {}
 

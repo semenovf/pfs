@@ -4,7 +4,7 @@
 #include <pfs/cxx/cxx98/memory.hpp>
 #include <pfs/cxx/cxx98/type_traits.hpp>
 
-#if defined(HAVE_BOOST_BIND)
+#if HAVE_BOOST_BIND
 #   include "bind_boost.hpp"
 #   include "function_boost.hpp"
 #elif defined(PFS_CC_MSC)

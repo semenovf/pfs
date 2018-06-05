@@ -6,7 +6,7 @@
 
 #   error "Implement for Win32"
 
-#elif defined(HAVE_BOOST_CHRONO)
+#elif HAVE_BOOST_CHRONO
 #   include "chrono_boost.hpp"
 #else
 #   include "chrono_custom.hpp"

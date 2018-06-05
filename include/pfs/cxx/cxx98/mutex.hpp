@@ -18,7 +18,7 @@
 //
 //#	define pfs_recursive_mutex_init(m) error @ {} // __FIXME__ need to implement
 
-#elif defined(HAVE_PTHREAD)
+#elif HAVE_PTHREAD
 #   include <pthread.h>
 
     typedef pthread_mutex_t native_mutex_t;
