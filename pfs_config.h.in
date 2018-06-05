@@ -24,6 +24,8 @@
 
 #cmakedefine01 HAVE_BOOST_SMART_PTR
 
+#cmakedefine01 HAVE_BOOST_UNIQUE_PTR
+
 #cmakedefine01 HAVE_BOOST_SYSTEM_ERROR
 
 #cmakedefine01 HAVE_BOOST_THREAD

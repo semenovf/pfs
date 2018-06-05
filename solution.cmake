@@ -62,6 +62,10 @@ if(Boost_FOUND)
         set(HAVE_BOOST_SMART_PTR 1)
     endif()
 
+    if(EXISTS ${Boost_INCLUDE_DIR}/boost/move/unique_ptr.hpp)
+        set(HAVE_BOOST_UNIQUE_PTR 1)
+    endif()
+
     if(EXISTS ${Boost_INCLUDE_DIR}/boost/filesystem.hpp)
         set(HAVE_BOOST_FILESYSTEM 1)
     endif()

@@ -4,9 +4,13 @@
 
 #if defined(HAVE_BOOST_SMART_PTR)
 #   include "shared_ptr_boost.hpp"
-#   include "unique_ptr_boost.hpp"
 #else
 #   include "shared_ptr_custom.hpp"
+#endif
+
+#if defined(HAVE_BOOST_UNIQUE_PTR)
+#   include "unique_ptr_boost.hpp"
+#else
 #   include "unique_ptr_custom.hpp"
 #endif
 
