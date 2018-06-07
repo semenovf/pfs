@@ -59,9 +59,9 @@ using unique_ptr = std::unique_ptr<T, Deleter>;
 // see [std::make_unique](http://en.cppreference.com/w/cpp/memory/unique_ptr/make_unique)
 // `Possible Implementation` section.
 template<typename T, typename... Args>
-inline std::unique_ptr<T> make_unique (Args &&... args)
+inline unique_ptr<T> make_unique (Args &&... args)
 {
-    return std::unique_ptr<T>(new T(std::forward<Args>(args)...));
+    return unique_ptr<T>(new T(std::forward<Args>(args)...));
 }
 
 } // pfs

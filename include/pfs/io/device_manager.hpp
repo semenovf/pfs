@@ -251,6 +251,28 @@ public:
         _p1.erase(d);
     }
 
+    template <template <typename> class SequenenceContainer>
+    void close (SequenenceContainer<device_ptr> & devices)
+    {
+        typename SequenenceContainer<device_ptr>::iterator first = devices.begin();
+        typename SequenenceContainer<device_ptr>::iterator end = devices.end();
+
+        for (;first != end; ++first) {
+            close(*first);
+        }
+    }
+
+    template <template <typename> class SequenenceContainer>
+    void close (SequenenceContainer<server_ptr> & servers)
+    {
+        typename SequenenceContainer<server_ptr>::iterator first = servers.begin();
+        typename SequenenceContainer<server_ptr>::iterator end = servers.end();
+
+        for (;first != end; ++first) {
+            close(*first);
+        }
+    }
+
     size_t count_devices (bool (* filter) (device_ptr const & d, void * context)
             , void * context = 0)
     {
