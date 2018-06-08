@@ -181,6 +181,14 @@ struct ubjson_serializer
         return ec ? false : true;
     }
 
+    bool unpack (byte_string::const_iterator first
+            byte_string::const_iterator last
+            , error_code & ec)
+    {
+        _j = from_ubjson<json_type>(first, last, ec);
+        return ec ? false : true;
+    }
+
     bool get_version (uint8_t & major, uint8_t & minor) const
     {
         pfs::mpl::stringlist<string_type> slist;
