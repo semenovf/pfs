@@ -472,7 +472,9 @@ ubjson_istream<IStreamType, JsonType>::read_optimized_object (json_type & j
 }
 
 template <typename JsonType>
-JsonType from_ubjson (pfs::byte_string const & bs, pfs::error_code & ec)
+JsonType from_ubjson (pfs::byte_string::const_iterator first
+        , pfs::byte_string::const_iterator last
+        , pfs::error_code & ec)
 {
     typedef ubjson_istream<byte_string_istream, JsonType> ubjson_istream_t;
 
@@ -481,8 +483,27 @@ JsonType from_ubjson (pfs::byte_string const & bs, pfs::error_code & ec)
     // ubjson_istream_t has own order-------------------------
     //                                                       |
     //                                                       v
-    byte_string_istream bis(bs.cbegin(), bs.cend(), endian::native_order());
+    byte_string_istream bis(first, last, endian::native_order());
     ec = ubjson_istream_t(bis).read(j);
+
+    return j;
+}
+
+template <typename JsonType>
+inline JsonType from_ubjson (pfs::byte_string const & bs, pfs::error_code & ec)
+{
+    return from_ubjson<JsonType>(bs.cbegin(), bs.cend(), ec);
+}
+
+template <typename JsonType>
+JsonType from_ubjson (pfs::byte_string::const_iterator first
+        , pfs::byte_string::const_iterator last)
+{
+    pfs::error_code ec;
+    JsonType j = from_ubjson<JsonType>(first, last, ec);
+
+    if (ec)
+        PFS_THROW(json_exception(ec));
 
     return j;
 }
