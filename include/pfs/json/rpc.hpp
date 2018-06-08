@@ -182,7 +182,7 @@ struct ubjson_serializer
     }
 
     bool unpack (byte_string::const_iterator first
-            byte_string::const_iterator last
+            , byte_string::const_iterator last
             , error_code & ec)
     {
         _j = from_ubjson<json_type>(first, last, ec);
