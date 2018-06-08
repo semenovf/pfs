@@ -10,7 +10,7 @@
 #include <pfs/io/buffered_device.hpp>
 #include <pfs/thread.hpp>
 #include <pfs/logger.hpp>
-#include "json/rpc.hpp"
+#include <pfs/json/rpc.hpp>
 
 typedef pfs::log<> log_ns;
 static log_ns::logger g_logger;
