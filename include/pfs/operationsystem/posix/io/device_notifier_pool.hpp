@@ -379,6 +379,38 @@ public:
         return result;
     }
 
+    device_ptr first_device () const
+    {
+        pfs::lock_guard<pfs::mutex> locker(_mtx);
+
+        iterator first = _pollfds.begin();
+        iterator last  = _pollfds.end();
+
+        while (first != last) {
+            if (!first.is_server())
+                return first.device();
+            ++first;
+        }
+
+        return device_ptr();
+    }
+
+    device_ptr first_server () const
+    {
+        pfs::lock_guard<pfs::mutex> locker(_mtx);
+
+        iterator first = _pollfds.begin();
+        iterator last  = _pollfds.end();
+
+        while (first != last) {
+            if (first.is_server())
+                return first.server();
+            ++first;
+        }
+
+        return device_ptr();
+    }
+
     template <template <typename> class SequenenceContainer>
     size_t fetch_devices (SequenenceContainer<device_ptr> & devices
             , bool (* filter) (device_ptr const & d, void * context)
