@@ -379,7 +379,7 @@ public:
         return result;
     }
 
-    device_ptr first_device () const
+    device_ptr first_device ()
     {
         pfs::lock_guard<pfs::mutex> locker(_mtx);
 
@@ -395,7 +395,7 @@ public:
         return device_ptr();
     }
 
-    device_ptr first_server () const
+    device_ptr first_server ()
     {
         pfs::lock_guard<pfs::mutex> locker(_mtx);
 

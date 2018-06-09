@@ -323,12 +323,12 @@ public:
         return _p1.fetch_servers(servers, 0, 0);
     }
 
-    device_ptr first_device () const
+    device_ptr first_device ()
     {
         return _p1.first_device();
     }
 
-    server_ptr first_server () const
+    server_ptr first_server ()
     {
         return _p1.first_server();
     }
