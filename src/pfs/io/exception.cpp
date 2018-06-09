@@ -30,6 +30,9 @@ std::string io_category::message (int ev) const
     case static_cast<int>(io_errc::timeout):
         return "timed out";
 
+    case static_cast<int>(io_errc::partial_message_delivery):
+        return "partial message delivery";
+
     default: return "unknown I/O error";
     }
 }
