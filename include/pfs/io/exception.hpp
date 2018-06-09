@@ -19,7 +19,6 @@ struct io_errc
         , bad_file_descriptor
         , stream
         , timeout
-        , partial_message_delivery
 #if __cplusplus < 201103L
     };
 
