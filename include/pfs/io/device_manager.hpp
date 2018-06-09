@@ -323,6 +323,16 @@ public:
         return _p1.fetch_servers(servers, 0, 0);
     }
 
+    device_ptr first_device () const
+    {
+        return _p1.first_device();
+    }
+
+    server_ptr first_server () const
+    {
+        return _p1.first_server();
+    }
+
     void dispatch (int millis = 0)
     {
         _p1.dispatch(_ctx1, millis);
