@@ -118,22 +118,31 @@ struct id_generator<int32_t> : pfs::id_generator<int32_t>
     }
 };
 
-template <typename JsonT
+template <typename Json
         , typename Id
+        , uint8_t Major = 2
+        , uint8_t Minor = 0
         , int Optimization = UBJSON_FULL_OPTIMIZED
         , int Order = endian::network_endian>
-struct ubjson_serializer
+class ubjson_serializer
 {
-    typedef JsonT json_type;
+    typedef Json json_type;
     typedef Id id_type;
     typedef typename json_type::string_type string_type;
 
-    ubjson_serializer () {}
+    json_type _j;
 
+private:
     ubjson_serializer & set_version (uint8_t major, uint8_t minor)
     {
         _j["jsonrpc"] = pfs::to_string(major) + '.' + pfs::to_string(minor);
         return *this;
+    }
+
+public:
+    ubjson_serializer ()
+    {
+        set_version(2,0);
     }
 
     ubjson_serializer & set_entity (rpc_entity value)
@@ -174,6 +183,26 @@ struct ubjson_serializer
     {
         return to_ubjson(_j, Optimization);
     }
+};
+
+
+template <typename Json
+        , typename Id
+        , uint8_t Major = 2
+        , uint8_t Minor = 0
+        , int Optimization = UBJSON_FULL_OPTIMIZED
+        , int Order = endian::network_endian>
+class ubjson_deserializer
+{
+private:
+    typedef Json json_type;
+    typedef Id id_type;
+    typedef typename json_type::string_type string_type;
+
+    json_type _j;
+
+public:
+    ubjson_deserializer () {}
 
     bool unpack (byte_string const & data, error_code & ec)
     {
@@ -201,6 +230,12 @@ struct ubjson_serializer
             typename pfs::mpl::stringlist<string_type>::const_iterator first = slist.cbegin();
             major = pfs::lexical_cast<uint8_t>(*first++);
             minor = pfs::lexical_cast<uint8_t>(*first);
+
+            if (major != Major)
+                return false;
+
+            if (minor != Minor)
+                return false;
         } catch (...) {
             return false;
         }
@@ -292,9 +327,7 @@ struct ubjson_serializer
     {
         return _j["method"].get_string();
     }
-
-private:
-    json_type _j;
 };
+
 
 }}}
