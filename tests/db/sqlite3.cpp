@@ -1,15 +1,15 @@
 #include <iostream>
 #include "pfs/test.hpp"
 #include <pfs/string.hpp>
-#include <pfs/db/sqlite3/database.hpp>
-#include <pfs/db/database.hpp>
+#include <pfs/sql/sqlite3/database.hpp>
+#include <pfs/sql/database.hpp>
 #include <pfs/filesystem.hpp>
 
 using std::cout;
 using std::cerr;
 using std::endl;
 
-typedef pfs::db::database<pfs::db::sqlite3::database> db_t;
+typedef pfs::sql::database<pfs::sql::sqlite3::database> db_t;
 
 void sqlite3_test0 ()
 {

@@ -2,11 +2,11 @@
 #include <pfs/string.hpp>
 #include <pfs/system_error.hpp>
 #include <pfs/net/uri.hpp>
-#include <pfs/db/exception.hpp>
-#include <pfs/db/sqlite3/sqlite3.h>
+#include <pfs/sql/exception.hpp>
+#include <pfs/sql/sqlite3/sqlite3.h>
 
 namespace pfs {
-namespace db {
+namespace sql {
 namespace sqlite3 {
 
 struct database
@@ -71,12 +71,12 @@ public:
         pfs::net::uri<string_type> uri;
 
         if (! uristr.starts_with("sqlite3:")) {
-            ec = make_error_code(db_errc::bad_uri);
+            ec = make_error_code(sql_errc::bad_uri);
             return false;
         }
 
         if (!uri.parse(uristr)) {
-            ec = make_error_code(db_errc::bad_uri);
+            ec = make_error_code(sql_errc::bad_uri);
             return false;
         }
 
@@ -100,17 +100,17 @@ public:
             if (!_h) {
                 // Unable to allocate memory for database handler.
                 // Internal error code.
-                ec = make_error_code(db_errc::bad_alloc);
+                ec = make_error_code(sql_errc::bad_alloc);
             } else {
                 switch (rc) {
                 case SQLITE_CANTOPEN:
-                    ec = make_error_code(db_errc::open_fail);
+                    ec = make_error_code(sql_errc::open_fail);
                     if (errstr) {
                         *errstr = sqlite3_errstr(rc);
                     }
                     return false;
                 default:
-                    ec = make_error_code(db_errc::specific_error);
+                    ec = make_error_code(sql_errc::specific_error);
                     if (errstr) {
                         *errstr = sqlite3_errstr(rc);
                     }
@@ -185,4 +185,4 @@ public:
     }
 };
 
-}}} // pfs::db::sqlite3
+}}} // namespace pfs::sql::sqlite3

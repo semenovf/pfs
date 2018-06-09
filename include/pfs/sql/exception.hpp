@@ -7,10 +7,10 @@
 namespace pfs {
 
 #if __cplusplus >= 201103L
-enum class db_errc
+enum class sql_errc
 {
 #else
-struct db_errc
+struct sql_errc
 {
     enum value_enum {
 #endif
@@ -25,11 +25,11 @@ struct db_errc
 
     value_enum v;
 
-    db_errc (value_enum x)
+    sql_errc (value_enum x)
         : v(x)
     {}
 
-    db_errc & operator = (value_enum x)
+    sql_errc & operator = (value_enum x)
     {
         v = x;
         return *this;
@@ -43,7 +43,7 @@ struct db_errc
 };
 
 namespace details {
-class db_category : public pfs::error_category
+class sql_category : public pfs::error_category
 {
 public:
     virtual char const * name () const pfs_noexcept pfs_override;
@@ -51,19 +51,19 @@ public:
 };
 } // details
 
-pfs::error_category const & db_category ();
+pfs::error_category const & sql_category ();
 
-inline pfs::error_code make_error_code (db_errc e)
+inline pfs::error_code make_error_code (sql_errc e)
 {
-    return pfs::error_code(static_cast<int>(e), db_category());
+    return pfs::error_code(static_cast<int>(e), sql_category());
 }
 
-class db_exception : public error_code_exception
+class sql_exception : public error_code_exception
 {
 public:
-    db_exception (error_code const & ec) : error_code_exception(ec) {}
-    explicit db_exception (error_code const & ec, char const * s) : error_code_exception(ec, s) {}
-    explicit db_exception (error_code const & ec, std::string const & s) : error_code_exception(ec, s) {}
+    sql_exception (error_code const & ec) : error_code_exception(ec) {}
+    explicit sql_exception (error_code const & ec, char const * s) : error_code_exception(ec, s) {}
+    explicit sql_exception (error_code const & ec, std::string const & s) : error_code_exception(ec, s) {}
 };
 
 } // pfs

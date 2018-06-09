@@ -1,9 +1,9 @@
 #pragma once
 #include <pfs/string.hpp>
-#include <pfs/db/exception.hpp>
+#include <pfs/sql/exception.hpp>
 
 namespace pfs {
-namespace db {
+namespace sql {
 
 template <typename DatabaseRep>
 class database
@@ -39,7 +39,7 @@ public:
         string_type errstr;
 
         if (!open(uri, ec, & errstr))
-            PFS_THROW(db_exception(ec, uri + ": " + errstr));
+            PFS_THROW(sql_exception(ec, uri + ": " + errstr));
 
         return true;
     }
@@ -99,9 +99,9 @@ bool database<Traits>::query (string_type const & sql)
     string_type errstr;
 
     if (!_d.query(sql, ec, & errstr))
-        PFS_THROW(db_exception(ec, errstr));
+        PFS_THROW(sql_exception(ec, errstr));
 
     return true;
 }
 
-}} // pfs::db
+}} // namespace pfs::sql

@@ -26,8 +26,8 @@ set(PFS_LIB_COMMON_SOURCES
     time.cpp
 
 #   Db
-    db/exception.cpp
-    db/sqlite3.c
+    sql/exception.cpp
+    sql/sqlite3.c
 
 #   IO
     io/buffer.cpp

@@ -51,14 +51,14 @@
 2. [64-Bit Transition Guide for Cocoa Touch. Major 64-Bit Changes](https://developer.apple.com/library/ios/documentation/General/Conceptual/CocoaTouch64BitGuide/Major64-BitChanges/Major64-BitChanges.html)
 3. [Модель данных](http://www.viva64.com/ru/t/0012/)
 
-### Unicode 
+### Unicode
 1. [UTF-8, UTF-16, UTF-32 & BOM](http://unicode.org/faq/utf_bom.html)
 2. [RFC-2781. UTF-16, an encoding of ISO 10646](https://www.ietf.org/rfc/rfc2781.txt)
 3. [UTF-8 Everywhere](http://utf8everywhere.org/)
 
 ### Compilers
 
-1. [Predefined macros. Visual Studio 2010 ](https://msdn.microsoft.com/ru-ru/library/b0084kay%28v=vs.100%29.aspx)  
+1. [Predefined macros. Visual Studio 2010 ](https://msdn.microsoft.com/ru-ru/library/b0084kay%28v=vs.100%29.aspx)
 
 ### Generic<Programming>, Alignment
 
@@ -118,6 +118,8 @@
 ### Database, ORM
 
 1. [SQLite ORM](https://github.com/fnc12/sqlite_orm)
+2. [SQLAPI++ Library](http://www.sqlapi.com/)
+3. [SOCI - The C++ Database Access Library](https://github.com/SOCI/soci)
 
 ### CLI
 
