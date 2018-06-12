@@ -52,7 +52,7 @@ void test_string_to_int ()
     TEST_OK(test_int_helper<int32_t>("-1", 10, -1, 2));
     TEST_OK(test_int_helper<int32_t>("2147483647", 10, 2147483647L, 10));
     TEST_OK(test_int_helper<int32_t>("+2147483647", 10, 2147483647L, 11));
-    TEST_OK(test_int_helper<int32_t>("-2147483648", 10, -2147483648L, 11));
+    TEST_OK(test_int_helper<int32_t>("-2147483648", 10, -2147483647L - 1, 11)); // use the substract instead of -2147483648L to avoid warning: this decimal constant is unsigned only in ISO C90 [enabled by default] 
     TEST_OK(test_int_helper<int32_t>("-2147483649", 10, -214748364L, 10));
     TEST_OK(test_int_helper<int32_t>("2147483648", 10, 214748364L, 9));
     TEST_OK(test_int_helper<int32_t>("7FFFFFFF", 16,  0x7FFFFFFFL, 8));
