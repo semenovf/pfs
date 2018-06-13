@@ -1047,7 +1047,7 @@ bool modulus<PFS_MODULUS_TEMPLETE_ARGS>::dispatcher::register_modules (
             for (; it != last; ++it) {
                 string_type name = it.key();
                 PropertyTree priority = *it;
-                stringlist priorities;
+                stringlist<string_type> priorities;
                 typename log_ns::appender * pappender = 0;
 
                 if (name == "stdout") {
@@ -1089,7 +1089,7 @@ bool modulus<PFS_MODULUS_TEMPLETE_ARGS>::dispatcher::register_modules (
                     }
                 }
 
-                for (stringlist::const_iterator pri = priorities.cbegin()
+                for (typename stringlist<string_type>::const_iterator pri = priorities.cbegin()
                         ; pri != priorities.cend(); ++pri) {
                     if (*pri == "all") {
                         logger.connect(*pappender);

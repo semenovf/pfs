@@ -101,19 +101,49 @@
 
 namespace pfs {
 namespace json {
-namespace rpc {
 
-enum {
-      DEFAULT_MAJOR_VERSION = 2
-    , DEFAULT_MINOR_VERSION = 0
-}
+template <typename Json
+        , typename Id
+        , int Major = 2
+        , int Minor = 0>
+struct rpc 
+{
+    typedef Json json_type;
+    typedef Id id_type;
+    typedef typename json_type::string_type string_type;
 
-template <typename Id>
-struct id_generator;
+    //
+    // Error codes
+    //
+    static int const NO_ERROR = 0;
+
+    // Invalid JSON was received by the server.
+    // An error occurred on the server while parsing
+    // the JSON text.
+    static int const PARSE_ERROR = -32700;
+
+    // The JSON sent is not a valid Request object.
+    static int const INVALID_REQUEST = -32600;
+
+    // The method does not exist / is not available.
+    static int const METHOD_NOT_FOUND = -32601;
+
+    // Invalid method parameter(s).
+    static int const INVALID_PARAMS = -32602;
+
+    // Internal JSON-RPC error.
+    static int const INTERNAL_ERROR = -32603;
+
+    // -32000 to -32099 Reserved for implementation-defined server-errors.
+    static int const SERVER_ERROR = -32000;
+
+//     template <typename Id>
+//     struct id_generator;
 
 // template <>
 // struct id_generator<int32_t> : pfs::id_generator<int32_t>
 // {
+//     typedef int32_t type;
 //     id_generator () {}
 //
 //     type next_id () const
@@ -122,284 +152,229 @@ struct id_generator;
 //         return ++id;
 //     }
 // };
-
-template <typename Json
-    , typename Id
-    , int Major = DEFAULT_MAJOR_VERSION
-    , int Minor = DEFAULT_MINOR_VERSION>
-class entity
-{
-public:
-    typedef Json json_type;
-    typedef Id id_type;
-    typedef typename json_type::string_type string_type;
-
-protected:
-    json_type & _j;
-
-protected:
-    entity (json_type & j) : _j(j) {}
-
-public:
-    pfs::pair<int, int> version () const
+    
+    bool parse_version (string_type const & version_str
+            , int & major
+            , int & minor) const
     {
-        int major;
-        int minor;
-        pfs::pair<int, int> invalid_result(-1, -1);
-
-        pfs::stringlist<string_type> slist;
-        slist.split(pfs::json::cref(_j)["jsonrpc"].get_string(), ".");
+        stringlist<string_type> slist;
+        slist.split(version_str, ".");
 
         if (slist.size() != 2)
-            return invalid_result;
+            return false;
 
         try {
-            pfs::stringlist<string_type>::const_iterator first = slist.cbegin();
+            typename stringlist<string_type>::const_iterator first = slist.cbegin();
             major = pfs::lexical_cast<int>(*first++);
             minor = pfs::lexical_cast<int>(*first);
 
-            return pfs::make_pair(major, minor);
+            return true;
         } catch (...) {
             ;
         }
 
-        return invalid_result;
+        return false;
     }
 
-    void set_version (int major, int minor)
+    class entity
     {
-        _j["jsonrpc"] = pfs::to_string(major) + '.' + pfs::to_string(minor);
-    }
+    protected:
+        json_type & _j;
+        
+        struct init_tag {};
 
-    id_type id () const
+    protected:
+        entity (json_type & j) : _j(j)  {}
+        
+        entity (json_type & j, init_tag) : _j(j) 
+        {
+            _j["jsonrpc"] = pfs::to_string(Major) + '.' + pfs::to_string(Minor);
+        }
+    };
+
+    class request : public entity
     {
-        return _j["id"].template get<id_type>());
-    }
+    protected:
+        request (json_type & j, string_type const & name) 
+            : entity(j, typename entity::init_tag()) 
+        {
+            this->_j["method"] = name;
+        }
 
-    void set_id (id_type const & value)
+    public:
+        request (json_type & j) : entity(j) {}
+        
+        string_type method () const
+        {
+            string_type result = pfs::json::cref(this->_j)["method"].get_string();
+            return result;
+        }
+
+//         template <typename T>
+//         void add_param (T & value)
+//         {
+//             _j["params"].push_back(value);
+//         }
+// 
+//         void add_param (string_type const & name, T & value)
+//         {
+//             _j["params"][name] = value;
+//         }
+// 
+        bool has_params () const
+        {
+            return this->_j.contains("params");
+        }
+
+//         template <typename T>
+//         T param (int index, T const & default_value) const
+//         {
+//             return pfs::json::cref(_j)[index].template get<T>(default_value);
+//         }
+// 
+//         template <typename T>
+//         T param (string_type const & name, T const & default_value) const
+//         {
+//             return pfs::json::cref(_j)[name].template get<T>(default_value);
+//         }
+
+        bool is_method () const
+        {
+            return this->_j.contains("id");
+        }
+
+        bool is_notification () const
+        {
+            return !is_method();
+        }
+    };
+
+    class notification : public request
     {
-        _j["id"] = value;
-    }
+    protected:
+        notification (json_type & j, string_type const & name)
+            : request(j, name)
+        {}
+    };
 
-    bool has_id () const
+    class method : public request
     {
-        return _j.contains("id");
-    }
-};
+    public:
+        method (json_type & j, id_type id, string_type const & name)
+            : request(j, name)
+        {
+            this->_j["id"] = id;
+        }
+        
+        id_type id () const
+        {
+            return this->_j["id"].template get<id_type>();
+        }
+    };
 
-template <typename Json
-    , typename Id
-    , int Major = DEFAULT_MAJOR_VERSION
-    , int Minor = DEFAULT_MINOR_VERSION>
-class request : public entity<Json>
-{
-    typedef entity<Json> base_class;
-
-public:
-    typedef Json json_type;
-    typedef typename json_type::string_type string_type;
-
-protected:
-    request (json_type & j) : base_class(j) {}
-
-public:
-    string_type method () const
+    class response : public entity
     {
-        return _j["method"].get_string();
-    }
+    protected:
+        response (json_type & j) : entity(j) {}
+        
+        response (json_type & j, id_type const & id)
+            : entity(j) 
+        {
+            this->_j["id"] = id;
+        }
 
-    void set_method (string_type const & name)
+    public:
+        bool is_success () const
+        {
+            return this->_j.contains("result");
+        }
+
+        bool is_error () const
+        {
+            return ! is_success();
+        }
+    };
+
+    class success : public response
     {
-        _j["method"] = name;
-    }
+    protected:
+        success (json_type & j, method const & m) 
+            : response(j, m.id())
+        {}
 
-    template <typename T>
-    void add_param (T & value)
+//     public:
+//         template <typename T>
+//         void set_result (T const & result)
+//         {
+//             _j["result"] = result;
+//         }
+// 
+//         bool has_result () const
+//         {
+//             return _j.contains("result");
+//         }
+// 
+//         // TODO Replace result type with optional
+//         // T must have default constructor
+//         template <typename T>
+//         T result () const
+//         {
+//             return _j["result"].template get<T>();
+//         }
+    };
+
+    class failure : public response
     {
-        _j["params"].push_back(value);
-    }
+    public:
+        failure (json_type & j, int code) 
+            : response(j) 
+        {
+            
+        }
+        
+        failure (json_type & j, int code, method const & m)
+            : response(j, m.id())
+        {
+            this->_j["error"]["code"] = code;
+        }
 
-    void add_param (string_type const & name, T & value)
-    {
-        _j["params"][name] = value;
-    }
+    public:
+//         int code () const
+//         {
+//             return _j["error"]["code"];
+//         }
+// 
+//         void set_message (string_type const & text)
+//         {
+//             _j["error"]["message"] = text;
+//         }
+// 
+//         string_type message () const
+//         {
+//             return pfs::json::cref(_j)["error"]["message"].get_string();
+//         }
+// 
+//         template <typename T>
+//         void set_data (T const & data)
+//         {
+//             _j["error"]["data"] = data;
+//         }
+// 
+//         template <typename T>
+//         T data () const
+//         {
+//             return _j["error"]["data"].template get<T>();
+//         }
+// 
+//         bool has_data () const
+//         {
+//             return _j.contains("error") && _j["error"].contains("data").
+//         }
+    };
 
-    bool has_params () const
-    {
-        return _j["params"];
-    }
-
-    template <typename T>
-    T param (int index, T const & default_value) const
-    {
-        return pfs::json::cref(_j)[index].template get<T>(default_value);
-    }
-
-    template <typename T>
-    T param (string_type const & name, T const & default_value) const
-    {
-        return pfs::json::cref(_j)[name].template get<T>(default_value);
-    }
-
-    bool is_notification () const
-    {
-        return _j.contains("id");
-    }
-
-    bool is_method () const
-    {
-        return !is_notification();
-    }
-};
-
-template <typename Json
-    , typename Id
-    , int Major = DEFAULT_MAJOR_VERSION
-    , int Minor = DEFAULT_MINOR_VERSION>
-class notification : public request<Json, Id>
-{
-    typedef request<Json, Id> base_class;
-
-public:
-    typedef Json json_type;
-    typedef typename json_type::string_type string_type;
-
-protected:
-    notification (json_type & j) : base_class(j) {}
-};
-
-template <typename Json, typename Id>
-class method : public request<Json, Id>
-{
-    typedef request<Json, Id> base_class;
-
-public:
-    typedef Json json_type;
-    typedef typename json_type::string_type string_type;
-
-private:
-    id_generator<Id> & _id_gen;
-
-public:
-    method (json_type & j, string_type const & name, id_generator<Id> & id_gen)
-        : base_class(j)
-        , _id_gen(id_gen)
-    {
-        this->set_id(id_gen.next_id());
-        this->set_method(name);
-    }
-};
-
-template <typename Json
-    , typename Id
-    , int Major = DEFAULT_MAJOR_VERSION
-    , int Minor = DEFAULT_MINOR_VERSION>
-class response : public entity<Json, Id>
-{
-    typedef entity<Json, Id> base_class;
-
-protected:
-    response (json_type & j) : base_class(j) {}
-
-public:
-    bool is_success () const
-    {
-        return _j.contains("result");
-    }
-
-    bool is_error () const
-    {
-        return ! is_success();
-    }
-};
-
-template <typename Json
-    , typename Id
-    , int Major = DEFAULT_MAJOR_VERSION
-    , int Minor = DEFAULT_MINOR_VERSION>
-class success : public response<Json, Id>
-{
-    typedef response<Json, Id> base_class;
-
-protected:
-    success (json_type & j) : base_class(j) {}
-
-public:
-    template <typename T>
-    void set_result (T const & result)
-    {
-        _j["result"] = result;
-    }
-
-    bool has_result () const
-    {
-        return _j.contains("result");
-    }
-
-    // TODO Replace result type with optional
-    // T must have default constructor
-    template <typename T>
-    T result () const
-    {
-        return _j["result"].template get<T>());
-    }
-};
-
-template <typename Json
-    , typename Id
-    , int Major = DEFAULT_MAJOR_VERSION
-    , int Minor = DEFAULT_MINOR_VERSION>
-class failure : public response<Json, Id>
-{
-    typedef response<Json, Id> base_class;
-
-protected:
-    failure (json_type & j) : base_class(j) {}
-
-public:
-    void set_code (int value)
-    {
-        _j["error"]["code"] = value;
-    }
-
-    int code () const
-    {
-        return _j["error"]["code"];
-    }
-
-    void set_message (string_type const & text)
-    {
-        _j["error"]["message"] = text;
-    }
-
-    string_type message () const
-    {
-        return pfs::json::cref(_j)["error"]["message"].get_string();
-    }
-
-    template <typename T>
-    void set_data (T const & data)
-    {
-        _j["error"]["data"] = data;
-    }
-
-    template <typename T>
-    T data () const
-    {
-        return _j["error"]["data"].template get<T>();
-    }
-
-    bool has_data () const
-    {
-        return _j.contains("error") && _j["error"].contains("data").
-    }
-};
-
-// template <typename Json
+//template <typename Json
 //         , typename Id
-//         , int Major = DEFAULT_MAJOR_VERSION
-//         , int Minor = DEFAULT_MINOR_VERSION
-//         , int Optimization = UBJSON_FULL_OPTIMIZED
+//        , int Optimization = UBJSON_FULL_OPTIMIZED
 //         , int Order = endian::network_endian>
 // class ubjson_serializer
 // {
@@ -407,7 +382,7 @@ public:
 //     typedef Id id_type;
 //     typedef typename json_type::string_type string_type;
 //
-//     json_type _j;
+//    json_type _j;
 //
 // private:
 //     ubjson_serializer & set_version (uint8_t major, uint8_t minor)
@@ -466,8 +441,8 @@ public:
 //     {
 //         _j["result"] = result;
 //     }
-// };
-//
+//};
+
 // template <typename Json
 //         , typename Id
 //         , int Major = 2
@@ -605,5 +580,6 @@ public:
 //         return _j["method"].get_string();
 //     }
 // };
-
-}}} // namespace pfs::json::rpc
+};
+    
+}} // namespace pfs::json

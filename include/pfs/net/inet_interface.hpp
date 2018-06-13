@@ -2,12 +2,12 @@
 #include <pfs/config.h>
 
 #if HAVE_IF_NAMEINDEX
-    #include <net/if.h> // if_nameindex(), if_freenameindex()
+#   include <net/if.h> // if_nameindex(), if_freenameindex()
 #endif
 
 #if HAVE_GETIFADDRS
-    #include <arpa/inet.h>
-    #include <ifaddrs.h>
+#   include <arpa/inet.h>
+#   include <ifaddrs.h>
 #endif
 
 #include <pfs/iterator.hpp>
@@ -21,15 +21,15 @@ namespace net {
 class inet_interface
 {
 public: // static
-    static bool names (pfs::stringlist & sl, error_code & ec);
+    static bool names (stringlist<string> & sl, error_code & ec);
 
     template <template <typename> class Container>
     static bool inet4_addrs (Container<inet4_addr> & c, error_code & ec);
 };
 
-bool inet_interface::names (pfs::stringlist & sl, error_code & ec)
+bool inet_interface::names (stringlist<string> & sl, error_code & ec)
 {
-    typedef pfs::stringlist::string_type string_type;
+    typedef string string_type;
 
 #if HAVE_IF_NAMEINDEX
     struct if_nameindex * first = if_nameindex();

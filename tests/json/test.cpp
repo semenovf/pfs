@@ -22,7 +22,7 @@
 //#include "test_substr.hpp"
 //#include "test_cast.hpp"
 //#include "test_erase.hpp"
-//#include "test_rpc.hpp"
+#include "test_rpc.hpp"
 
 namespace stdcxx {
 
@@ -67,7 +67,7 @@ int main ()
     test_stringify::test<stdcxx::json_t>();
     test_pretty_printer::test<stdcxx::json_t>();
     test_serialize::test<stdcxx::json_t>();
-//    test_rpc::test<stdcxx::json_t>();
+    test_rpc::test<stdcxx::json_t>();
 
 // #ifdef HAVE_QT_CORE
 //     std::cout << "===== HAVE_QT_CORE =====" << std::endl;

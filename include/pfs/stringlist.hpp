@@ -4,7 +4,7 @@
 #include <pfs/string.hpp>
 
 namespace pfs {
-namespace mpl {
+
 template <typename StringT = pfs::string>
 class stringlist : public list<StringT>
 {
@@ -26,8 +26,5 @@ public:
         pfs::split(s.begin(), s.end(), separator.begin(), separator.end(), flag, this);
     }
 };
-} // mpl
-
-typedef mpl::stringlist<pfs::string> stringlist;
 
 } // pfs

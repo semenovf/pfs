@@ -131,7 +131,7 @@ public:
     inet4_addr (string const & s)
         : _addr(invalid_addr_value)
     {
-        stringlist sl;
+        stringlist<string> sl;
         string separator(".");
 
         if (s.empty())
@@ -146,7 +146,7 @@ public:
         case 1: {
             uint32_t A = 0;
 
-           stringlist::const_iterator it0 = sl.cbegin();
+           typename stringlist<string>::const_iterator it0 = sl.cbegin();
 
             if (parse_part(A, 0xFFFFFFFF, it0->cbegin(), it0->cend())) {
                 inet4_addr other(A);
@@ -160,8 +160,8 @@ public:
             uint32_t a = 0;
             uint32_t B = 0;
 
-            stringlist::const_iterator it0 = sl.cbegin();
-            stringlist::const_iterator it1 = it0;
+            typename stringlist<string>::const_iterator it0 = sl.cbegin();
+            typename stringlist<string>::const_iterator it1 = it0;
 
             ++it1;
 
@@ -180,9 +180,9 @@ public:
             uint32_t b = 0;
             uint32_t C = 0;
 
-            stringlist::const_iterator it0 = sl.cbegin();
-            stringlist::const_iterator it1 = it0;
-            stringlist::const_iterator it2 = it0;
+            typename stringlist<string>::const_iterator it0 = sl.cbegin();
+            typename stringlist<string>::const_iterator it1 = it0;
+            typename stringlist<string>::const_iterator it2 = it0;
 
             ++it1;
             ++(++it2);
@@ -206,10 +206,10 @@ public:
             uint32_t c = 0;
             uint32_t d = 0;
 
-            stringlist::const_iterator it0 = sl.cbegin();
-            stringlist::const_iterator it1 = it0;
-            stringlist::const_iterator it2 = it0;
-            stringlist::const_iterator it3 = it0;
+            typename stringlist<string>::const_iterator it0 = sl.cbegin();
+            typename stringlist<string>::const_iterator it1 = it0;
+            typename stringlist<string>::const_iterator it2 = it0;
+            typename stringlist<string>::const_iterator it3 = it0;
 
             ++it1;
             ++(++it2);
@@ -384,7 +384,7 @@ public:
             , inet4_addr * ip
             , uint16_t * port)
     {
-        stringlist sl;
+        stringlist<string> sl;
         sl.split(s, string("://"), true);
 
         if (sl.size() != 2)
@@ -393,7 +393,7 @@ public:
 //        if (! (sl[0] == "tcp" || sl[0] == "udp"))
 //            return false;
 
-        stringlist::const_iterator it = sl.cbegin();
+        typename stringlist<string>::const_iterator it = sl.cbegin();
 
         if (proto)
             *proto = *it;
