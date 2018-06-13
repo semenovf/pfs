@@ -1,9 +1,43 @@
 #if __cplusplus < 201103L
 
 #include "pfs/ratio.hpp"
-#include "pfs/triple.hpp"
 
 namespace pfs {
+
+template <typename T1, typename T2, typename T3>
+struct triple
+{
+    typedef T1 first_type;    /// @c first_type is the first bound type
+    typedef T2 second_type;   /// @c second_type is the second bound type
+    typedef T3 third_type;    /// @c third_type is the third bound type
+
+    T1 first;                 /// @c first is a copy of the first object
+    T2 second;                /// @c second is a copy of the second object
+    T3 third;                 /// @c third is a copy of the third object
+
+
+    triple ()
+        : first(), second(), third()
+    {}
+
+
+    triple (T1 const & a, T2 const & b, T3 const & c)
+        : first(a), second(b), third(c)
+    {}
+
+    // TODO Must replaced with code below
+    //---------------------------------
+    //        template<class _U1, class _U2, class = typename
+    //	       enable_if<__and_<is_convertible<const _U1&, _T1>,
+    //				is_convertible<const _U2&, _T2>>::value>::type>
+    //	constexpr pair(const pair<_U1, _U2>& __p)
+    //	: first(__p.first), second(__p.second) { }
+
+    template <typename U1, typename U2, typename U3>
+	triple (triple<U1, U2, U3> const & t)
+        : first(t.first), second(t.second), third(t.third)
+    {}
+};
 
 // Some double-precision utilities, where numbers are represented as
 // Hi * 2 ^ (8 * sizeof(uintmax_t)) + Lo.
@@ -69,7 +103,7 @@ void big_mul (uintmax_t x, uintmax_t y, uintmax_t & hi, uintmax_t & lo)
     uintmax_t mix = x0y1 + x1y0;
     uintmax_t mix_lo = mix * c;
     uintmax_t mix_hi  = mix / c + ((mix < x0y1) ? c : 0);
-    
+
     big_add(mix_hi, mix_lo, x1y1, x0y0, hi, lo);
 };
 
@@ -86,7 +120,7 @@ void big_div_impl (uintmax_t n1, uintmax_t n0, uintmax_t d, uintmax_t & quot, ui
 {
     PFS_ASSERT_X(d >= (uintmax_t(1) << (sizeof(intmax_t) * 8 - 1)), "Internal library error");
     PFS_ASSERT_X(n1 < d, "Internal library error");
-    
+
     uintmax_t c = uintmax_t(1) << (sizeof(intmax_t) * 4);
     uintmax_t d1 = d / c;
     uintmax_t d0 = d % c;
@@ -96,34 +130,34 @@ void big_div_impl (uintmax_t n1, uintmax_t n0, uintmax_t d, uintmax_t & quot, ui
     uintmax_t m = q1x * d0;
     uintmax_t r1y = r1x * c + n0 / c;
     uintmax_t r1z = r1y + d;
-    
-    uintmax_t r1 = ((r1y < m) 
+
+    uintmax_t r1 = ((r1y < m)
             ? ((r1z >= d) && (r1z < m))
-                ? (r1z + d) 
-                : r1z 
+                ? (r1z + d)
+                : r1z
             : r1y) - m;
-    
+
     uintmax_t q1 = q1x - ((r1y < m)
-            ? ((r1z >= d) && (r1z < m)) 
-                ? 2 
+            ? ((r1z >= d) && (r1z < m))
+                ? 2
                 : 1
             : 0);
-    
+
     uintmax_t q0x = r1 / d1;
     uintmax_t r0x = r1 % d1;
     uintmax_t n   = q0x * d0;
     uintmax_t r0y = r0x * c + n0 % c;
     uintmax_t r0z = r0y + d;
-    
-    uintmax_t r0  = ((r0y < n) 
+
+    uintmax_t r0  = ((r0y < n)
             ? ((r0z >= d) && (r0z < n))
                 ? (r0z + d)
-                : r0z 
+                : r0z
             : r0y) - n;
-    
-    uintmax_t q0 = q0x - ((r0y < n) 
-            ? ((r0z >= d) && (r0z < n)) 
-                ? 2 
+
+    uintmax_t q0 = q0x - ((r0y < n)
+            ? ((r0z >= d) && (r0z < n))
+                ? 2
                 : 1
             : 0);
 
@@ -151,7 +185,7 @@ inline int clzll (unsigned long long x)
 #   error "No implementation clzl() call for this platform"
 #endif
 }
-            
+
 inline int clzl (unsigned long x)
 {
 #ifdef PFS_CC_GNUC
@@ -168,8 +202,8 @@ void big_div (uintmax_t n1, uintmax_t n0, uintmax_t d, uintmax_t & quot_hi, uint
             || (sizeof(uintmax_t) == sizeof(unsigned long)),
         "This library calls __builtin_clzl[l] on uintmax_t, which "
         "is unsafe on your platform.");
-    
-    int shift = (sizeof(uintmax_t) == sizeof(unsigned long long)) 
+
+    int shift = (sizeof(uintmax_t) == sizeof(unsigned long long))
             ? clzll(d)
             : clzl(d);
 
@@ -182,7 +216,7 @@ void big_div (uintmax_t n1, uintmax_t n0, uintmax_t d, uintmax_t & quot_hi, uint
     uintmax_t n1_shifted = (n1 % d) * c1;
     uintmax_t n0_top = (shift != 0) ? (n0 / c2) : 0;
     uintmax_t new_n1 = n1_shifted + n0_top;
-    
+
     big_pair_type Res = big_div_impl(new_n1, new_n0, new_d);
 
     quot_hi = n1 / d;
@@ -192,11 +226,11 @@ void big_div (uintmax_t n1, uintmax_t n0, uintmax_t d, uintmax_t & quot_hi, uint
     big_pair_type p0 = big_mul(quot_lo, d);
     big_pair_type p1 = big_mul(quot_hi, d);
     big_pair_type sum = big_add(p0.first, p0.second, p1.second, rem);
-    
+
     // No overflow.
     PFS_ASSERT_X(p1.first == 0, "Internal library error");
     PFS_ASSERT_X(sum.first >= p0.first, "Internal library error");
-    
+
     // Matches the input data.
     PFS_ASSERT_X(sum.first == n1 && sum.second == n0,"Internal library error");
     PFS_ASSERT_X(rem < d, "Internal library error");
@@ -215,13 +249,13 @@ bool ratio_less (intmax_t num1, intmax_t den1, intmax_t num2, intmax_t den2)
     int s2 = num2 < 0 ? -1 : 1;
     bool b1 = num1 == 0 || num2 == 0 || (s1 != s2);
     bool b2 = (s1 == -1 && s2 == -1);
-    
+
     if (b1 == true && b2 == false) {
         return  num1 < num2;
     }
 
     uintmax_t hi1, lo1, hi2, lo2;
-    
+
     // Both are negative
     if (b1 == false && b2 == true) {
         big_mul(-num2, den1, hi1, lo1);
@@ -248,18 +282,18 @@ void ratio_add (intmax_t num1
 {
     // First addendum value is positive ?
     //
-    bool b1 = num1 >= 0; 
-    
+    bool b1 = num1 >= 0;
+
     // Second addendum value is positive ?
     //
-    bool b2 = num2 >= 0; 
-    
+    bool b2 = num2 >= 0;
+
     // Absolute value of first addendum is less than absolute value of second addendum ?
     //
     ratio_pair_type rp1 = ratio_pair(math::details::integral_abs(num1), den1);
     ratio_pair_type rp2 = ratio_pair(math::details::integral_abs(num2), den2);
     bool b3 = ratio_less(rp1, rp2);
-    
+
     // First addendum is negative
     // Second addendum is positive
     // Absolute value of first addendum is less than absolute value of second addendum
@@ -280,18 +314,18 @@ void ratio_add (intmax_t num1
         big_triple_type ng = big_div(n.first, n.second, g);
         uintmax_t g2 = math::details::integral_gcd(ng.third, g);
         big_triple_type n_final = big_div(n.first, n.second, g2);
-        
+
         PFS_ASSERT_X(n_final.third == 0, "Internal library error");
-        PFS_ASSERT_X(n_final.first == 0 
+        PFS_ASSERT_X(n_final.first == 0
                     && n_final.second <= pfs::numeric_limits<intmax_t>::max()
                 , "Overflow in addition");
-        
+
         big_pair_type d_final = big_mul(den1 / g2, d2);
-      
-        PFS_ASSERT_X(d_final.first == 0 
+
+        PFS_ASSERT_X(d_final.first == 0
                     && d_final.second <= pfs::numeric_limits<intmax_t>::max()
                 , "Overflow in addition");
-        
+
         num = ratio_num(n_final.second, d_final.second);
         den = ratio_den(n_final.second, d_final.second);
     } else if (b1 == true && b2 == true) {
@@ -303,30 +337,30 @@ void ratio_add (intmax_t num1
         big_pair_type x = big_mul(num1, den2 / g);
         big_pair_type y = big_mul(num2, den1 / g);
         big_pair_type n = big_add(x.first, x.second, y.first, y.second);
-        
+
         PFS_ASSERT_X(n.first >= x.first, "Internal library error");
-        
+
         big_triple_type ng = big_div(n.first, n.second, g);
         uintmax_t g2 = math::details::integral_gcd(ng.third, g);
         big_triple_type n_final = big_div(n.first, n.second, g2);
-        
+
         PFS_ASSERT_X(n_final.third == 0, "Internal library error");
-        PFS_ASSERT_X(n_final.first == 0 
+        PFS_ASSERT_X(n_final.first == 0
                     && n_final.second <= pfs::numeric_limits<intmax_t>::max()
                 , "Overflow in addition");
-        
+
         big_pair_type d_final = big_mul(den1 / g2, d2);
-        
-        PFS_ASSERT_X(d_final.first == 0 
+
+        PFS_ASSERT_X(d_final.first == 0
                     && d_final.second <= pfs::numeric_limits<intmax_t>::max()
                 , "Overflow in addition");
-        
+
         num = ratio_num(n_final.second, d_final.second);
         den = ratio_den(n_final.second, d_final.second);
     } else {
         intmax_t n, d;
         ratio_add(-num1, den1, -num2, den2, n, d);
-        
+
         num = ratio_num(-n, d);
         den = ratio_den(-n, d);
     }
@@ -352,7 +386,7 @@ inline intmax_t __safe_multiply (intmax_t Pn, intmax_t Qn)
     PFS_ASSERT_X(a0 * b1 + b0 * a1 < (c >> 1), "Overflow in multiplication");
     PFS_ASSERT_X(b0 * a0 <= pfs::numeric_limits<intmax_t>::max(), "Overflow in multiplication");
     PFS_ASSERT_X((a0 * b1 + b0 * a1) * c <= pfs::numeric_limits<intmax_t>::max() - b0 * a0, "Overflow in multiplication");
-    
+
     return Pn * Qn;
 }
 
@@ -371,8 +405,7 @@ void ratio_multiply (intmax_t num1
 }
 
 } // details
-    
+
 } // pfs
 
 #endif
-        

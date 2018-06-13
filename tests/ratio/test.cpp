@@ -1,11 +1,3 @@
-/**
- * @file   test.cpp
- * @author
- * @date
- *
- * @brief testing ...
- */
-
 #include <pfs/test.hpp>
 #include <iostream>
 #include <pfs/ratio.hpp>
