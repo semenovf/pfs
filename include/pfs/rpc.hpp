@@ -87,10 +87,12 @@ public:
 namespace pfs {
 
 enum rpc_entity {
-      RPC_METHOD       = 1
+      RPC_UNKNOWN      = 0
+    , RPC_METHOD       = 1
     , RPC_NOTIFICATION = 2
     , RPC_SUCCESS      = 3
     , RPC_ERROR        = 4
+    , rpc_unknown      = RPC_UNKNOWN
     , rpc_method       = RPC_METHOD
     , rpc_notification = RPC_NOTIFICATION
     , rpc_success      = RPC_SUCCESS

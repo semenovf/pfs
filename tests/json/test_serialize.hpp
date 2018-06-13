@@ -188,9 +188,9 @@ void test_array ()
         pfs::byte_string expected("["
             "Si\x04post"
             "Si\x02idI\x03\xe8"
-            "Si\u0006authorSi\x06rkalla"   // use \u0006 instead of \x06 to avoid interpretation \x06a as valid sequence
+            "Si\x06" "authorSi\x06rkalla"   // split string to avoid interpretation \x06a as valid a sequence
             "Si\x09timestampl\x7f\xff\xff\xff"
-            "Si\u0004bodySi\x10I totally agree!"
+            "Si\x04" "bodySi\x10I totally agree!" // split string to avoid interpretation \x04b as a valid sequence
             "]");
 
         JsonType j;
@@ -307,8 +307,8 @@ void test_object ()
 
         pfs::byte_string expected("{"
             "i\x04post{"
-            "i\u0006authorSi\x06rkalla"   // use \u0006 instead of \x06 to avoid interpretation \x06a as valid sequence
-            "i\u0004bodySi\x10I totally agree!"
+            "i\x06" "authorSi\x06rkalla"
+            "i\x04" "bodySi\x10I totally agree!"
             "i\x02idI\x03\xe8"
             "i\x09timestampl\x7f\xff\xff\xff"
             "}}");
