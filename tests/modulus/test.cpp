@@ -4,11 +4,8 @@
 #include <pfs/string.hpp>
 #include <pfs/modulus.hpp>
 
-typedef pfs::string            string_t;
-typedef pfs::modulus<string_t> modulus_ns;
-// typedef modulus_t::module           module_t;
-// typedef modulus_t::async_module     async_module_t;
-//typedef modulus_t::dispatcher       dispatcher_t;
+typedef pfs::string               string_t;
+typedef pfs::modulus<pfs::string> modulus_ns;
 
 class module : public modulus_ns::module
 {

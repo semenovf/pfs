@@ -24,7 +24,7 @@ int main ()
     tuple1_t t1(10);
     TEST_OK(pfs::tuple_size<tuple1_t>::value == 1);
     TEST_OK(pfs::tuple_size_f(t1) == 1);
-     TEST_OK(pfs::get<0>(t1) == 10);
+    TEST_OK(pfs::get<0>(t1) == 10);
 
     typedef pfs::tuple<int, char> tuple2_t;
     tuple2_t t2(10, 'w');

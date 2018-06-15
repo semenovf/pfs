@@ -147,12 +147,12 @@ template <uint8_t MajorVersion, uint8_t MinorVersion
         , typename IdGenerator
         , typename Serializer
         , typename Protocol
-        , typename StringT = pfs::string
+        , typename String = pfs::string
         , template <typename, typename> class AssociativeContainer = pfs::map
         , template <typename> class SequenceContainer = pfs::list>
 struct rpc
 {
-    typedef StringT                     string_type;
+    typedef String                      string_type;
     typedef IdGenerator                 id_generator;
     typedef typename id_generator::type id_type;
     typedef Serializer                  serializer_type;
@@ -199,13 +199,6 @@ struct rpc
 //             }
 
             template <typename T>
-            inline session & operator () (T const & value)
-            {
-                _serializer.add_param(value);
-                return *this;
-            }
-
-            template <typename T>
             inline session & operator () (string_type const & name, T const & value)
             {
                 _serializer.add_param(name, value);
@@ -218,6 +211,13 @@ struct rpc
             {
                 _serializer.add_param(value);
                 return operator () (args...);
+            }
+#else
+            template <typename T>
+            inline session & operator () (T const & value)
+            {
+                _serializer.add_param(value);
+                return *this;
             }
 #endif
 

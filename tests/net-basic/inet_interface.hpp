@@ -9,8 +9,8 @@ void test_inet_interface_names ()
 {
     ADD_TESTS(1);
 
-    typedef pfs::string               string_t;
-    typedef pfs::stringlist<string_t> stringlist_t;
+    typedef pfs::string                  string_t;
+    typedef pfs::stringlist<pfs::string> stringlist_t;
 
     stringlist_t names;
     pfs::error_code ec;
