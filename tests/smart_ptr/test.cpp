@@ -3,6 +3,8 @@
 #include <pfs/memory.hpp>
 #include <pfs/debug.hpp>
 #include <pfs/assert.hpp>
+
+#include "weak_ptr.hpp"
 //
 // This unit tests base on BOOST's shared_ptr unit tests.
 //
@@ -456,6 +458,8 @@ int main ()
     test_cast();
     test_void_cast();
 //  test_deep_swap_ptr();
+
+    test_weak_ptr();
 
     return END_TESTS;
 }

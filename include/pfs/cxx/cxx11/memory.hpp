@@ -1,6 +1,4 @@
-#ifndef __PFS_CXX_CXX11_MEMORY_HPP__
-#define __PFS_CXX_CXX11_MEMORY_HPP__
-
+#pragma once
 #include <memory>
 #include <pfs/cxxlang.hpp>
 
@@ -17,6 +15,9 @@ inline pfs_constexpr T * addressof (T & arg)
 
 template <typename T>
 using shared_ptr = std::shared_ptr<T>;
+
+template <typename T>
+using weak_ptr = std::weak_ptr<T>;
 
 template <typename T, typename... Args>
 inline shared_ptr<T> make_shared (Args... args)
@@ -65,6 +66,3 @@ inline unique_ptr<T> make_unique (Args &&... args)
 }
 
 } // pfs
-
-#endif /* __PFS_CXX_CXX11_MEMORY_HPP__ */
-
