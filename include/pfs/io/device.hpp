@@ -17,6 +17,7 @@ template <typename DeviceTag>
 struct open_params;
 
 typedef shared_ptr<details::device> device_ptr;
+typedef weak_ptr<details::device> device_weak_ptr;
 
 ssize_t copy (device_ptr & dest, device_ptr & src, size_t chunkSize, error_code * ec = 0);
 
