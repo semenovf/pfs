@@ -284,6 +284,18 @@ public:
         return _p1.count_devices(0, 0);
     }
 
+    void for_each (void (* callback) (device_ptr & d, void * context)
+            , void * context = 0)
+    {
+        return _p1.for_each(callback, context);
+    }
+
+    void for_each (void (* callback) (server_ptr & s, void * context)
+            , void * context = 0)
+    {
+        return _p1.for_each(callback, context);
+    }
+
     template <template <typename> class SequenenceContainer>
     size_t fetch_devices (SequenenceContainer<device_ptr> & devices
             , bool (* filter) (device_ptr const & d, void * context)

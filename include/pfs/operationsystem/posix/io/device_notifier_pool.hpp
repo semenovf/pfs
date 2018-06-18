@@ -503,6 +503,36 @@ public:
         return this->fetch_servers(servers, 0, 0);
     }
 
+    void for_each (void (* callback) (device_ptr & d, void * context)
+            , void * context = 0)
+    {
+        pfs::lock_guard<pfs::mutex> locker(_mtx);
+
+        iterator first = _pollfds.begin();
+        iterator last  = _pollfds.end();
+
+        while (first != last) {
+            if (!first.is_server())
+                callback(first.device(), context);
+            ++first;
+        }
+    }
+
+    void for_each (void (* callback) (server_ptr & s, void * context)
+            , void * context = 0)
+    {
+        pfs::lock_guard<pfs::mutex> locker(_mtx);
+
+        iterator first = _pollfds.begin();
+        iterator last  = _pollfds.end();
+
+        while (first != last) {
+            if (first.is_server())
+                callback(first.server(), context);
+            ++first;
+        }
+    }
+
 private:
 
     template <typename EventHandler>
