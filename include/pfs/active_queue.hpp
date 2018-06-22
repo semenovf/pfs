@@ -258,13 +258,13 @@ public:
 //     }
 //#endif
 
-    void call ()
+    void call (int max_count = 1)
     {
         unique_lock<mutex_type> locker(_mutex);
 
         iterator pos = front_busy();
 
-        if (pos != _sequence.end()) {
+        while (pos != _sequence.end() && max_count--) {
             --_count;
             locker.unlock();
 
