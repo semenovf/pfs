@@ -284,16 +284,16 @@ public:
         return _p1.count_devices(0, 0);
     }
 
-    void for_each (void (* callback) (device_ptr & d, void * context)
-            , void * context = 0)
+    template <typename UnaryFunction>
+    void for_each_device (UnaryFunction f)
     {
-        return _p1.for_each(callback, context);
+        return _p1.template for_each_device<UnaryFunction>(f);
     }
 
-    void for_each (void (* callback) (server_ptr & s, void * context)
-            , void * context = 0)
+    template <typename UnaryFunction>
+    void for_each_server (UnaryFunction f)
     {
-        return _p1.for_each(callback, context);
+        return _p1.template for_each_server<UnaryFunction>(f);
     }
 
     template <template <typename> class SequenenceContainer>

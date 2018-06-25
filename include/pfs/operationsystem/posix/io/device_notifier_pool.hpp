@@ -355,6 +355,7 @@ public:
         }
     }
 
+    // TODO see for_each_device and for_each_server
     size_t count_devices (bool (* filter) (device_ptr const & d, void * context)
             , void * context = 0)
     {
@@ -411,6 +412,7 @@ public:
         return device_ptr();
     }
 
+    // TODO see for_each_device and for_each_server
     template <template <typename> class SequenenceContainer>
     size_t fetch_devices (SequenenceContainer<device_ptr> & devices
             , bool (* filter) (device_ptr const & d, void * context)
@@ -439,12 +441,14 @@ public:
         return devices.size();
     }
 
+    // TODO see for_each_device and for_each_server
     template <template <typename> class SequenenceContainer>
     size_t fetch_devices (SequenenceContainer<device_ptr> & devices)
     {
         return this->fetch_devices(devices, 0, 0);
     }
 
+    // TODO see for_each_device and for_each_server
     size_t count_servers (bool (* filter) (server const & s, void * context)
             , void * context = 0)
     {
@@ -469,6 +473,7 @@ public:
         return result;
     }
 
+    // TODO see for_each_device and for_each_server
     template <template <typename> class SequenenceContainer>
     size_t fetch_servers (SequenenceContainer<server_ptr> & servers
             , bool (* filter) (server const & s, void * context)
@@ -503,8 +508,8 @@ public:
         return this->fetch_servers(servers, 0, 0);
     }
 
-    void for_each (void (* callback) (device_ptr & d, void * context)
-            , void * context = 0)
+    template <typename UnaryFunction>
+    void for_each_device (UnaryFunction f)
     {
         pfs::lock_guard<pfs::mutex> locker(_mtx);
 
@@ -513,13 +518,13 @@ public:
 
         while (first != last) {
             if (!first.is_server())
-                callback(first.device(), context);
+                f(first.device());
             ++first;
         }
     }
 
-    void for_each (void (* callback) (server_ptr & s, void * context)
-            , void * context = 0)
+    template <typename UnaryFunction>
+    void for_each_server (UnaryFunction f)
     {
         pfs::lock_guard<pfs::mutex> locker(_mtx);
 
@@ -528,7 +533,7 @@ public:
 
         while (first != last) {
             if (first.is_server())
-                callback(first.server(), context);
+                f(server());
             ++first;
         }
     }
