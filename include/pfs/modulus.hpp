@@ -198,8 +198,6 @@ struct modulus
     {
         friend class dispatcher;
 
-        //typedef typename sigslot_ns::basic_has_slots base_class;
-
     public:
         typedef StringType string_type;
         typedef modulus::emitter_mapper_pair  emitter_mapper_pair;
@@ -217,17 +215,17 @@ struct modulus
             _pdispatcher->print_info(m, s);
         }
 
-    	void print_debug (basic_module const * m, string_type const & s)
+        void print_debug (basic_module const * m, string_type const & s)
         {
             _pdispatcher->print_debug(m, s);
         }
 
-    	void print_warn (basic_module const * m, string_type const & s)
+        void print_warn (basic_module const * m, string_type const & s)
         {
             _pdispatcher->print_warn(m, s);
         }
 
-    	void print_error (basic_module const * m, string_type const & s)
+        void print_error (basic_module const * m, string_type const & s)
         {
             _pdispatcher->print_error(m, s);
         }
@@ -236,12 +234,14 @@ struct modulus
         string_type  _name;
         dispatcher * _pdispatcher;
         atomic_int   _quitfl; // quit flag
+        bool         _started;
 
     protected:
         basic_module (dispatcher * pdisp)
             //: base_class()
             : _pdispatcher(pdisp)
             , _quitfl(0)
+            , _started(false)
         {}
 
         void set_name (string_type const & name)
@@ -260,6 +260,11 @@ struct modulus
         bool is_registered () const
         {
             return _pdispatcher != 0 ? true : false;
+        }
+
+        bool is_started () const
+        {
+            return _started;
         }
 
         dispatcher * get_dispatcher ()
@@ -738,6 +743,9 @@ bool modulus<PFS_MODULUS_TEMPLETE_ARGS>::dispatcher::start ()
         if (! pmodule->on_start()) {
             _logger.error(fmt("failed to start module: %s") % pmodule->name());
             r = false;
+            pmodule->_started = false;
+        } else {
+            pmodule->_started = true;
         }
     }
 
@@ -771,7 +779,9 @@ void modulus<PFS_MODULUS_TEMPLETE_ARGS>::dispatcher::finalize ()
 
         for (; imodule != imodule_last; ++imodule) {
             module_spec & modspec = imodule->second;
-            modspec.pmodule->on_finish();
+
+            if (modspec.pmodule->is_started())
+                modspec.pmodule->on_finish();
         }
 
         disconnect_all();
