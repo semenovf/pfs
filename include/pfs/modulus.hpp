@@ -210,24 +210,24 @@ struct modulus
         typename sigslot_ns::template signal2<string_type const &, bool &> emit_module_registered;
 
     public:
-        void print_info (basic_module const * m, string_type const & s)
+        void print_info (string_type const & s)
         {
-            _pdispatcher->print_info(m, s);
+            _pdispatcher->print_info(this, s);
         }
 
-        void print_debug (basic_module const * m, string_type const & s)
+        void print_debug (string_type const & s)
         {
-            _pdispatcher->print_debug(m, s);
+            _pdispatcher->print_debug(this, s);
         }
 
-        void print_warn (basic_module const * m, string_type const & s)
+        void print_warn (string_type const & s)
         {
-            _pdispatcher->print_warn(m, s);
+            _pdispatcher->print_warn(this, s);
         }
 
-        void print_error (basic_module const * m, string_type const & s)
+        void print_error (string_type const & s)
         {
-            _pdispatcher->print_error(m, s);
+            _pdispatcher->print_error(this, s);
         }
 
     protected:
