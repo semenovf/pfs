@@ -64,20 +64,22 @@ class device_notifier_pool
     typedef ContigousContainer<ssize_t>          index_vec_type;
     typedef ContigousContainer<basic_device_ptr> device_vec_type;
 
-    struct pollfd_map
+    class pollfd_map
     {
+    public:
         pollfd_vec_type _pollfds;
         device_vec_type _devices;
         index_vec_type  _pollfds_indices;
         device_vec_type _deferred_devices; // candidates for insertion before the next iteration of poll
 
-        struct iterator
+        class revents_iterator
         {
+        public:
             typename pollfd_vec_type::iterator pollfd_it;
             typename pollfd_vec_type::iterator pollfd_end;
             typename device_vec_type::iterator basic_device_it;
 
-            iterator (typename pollfd_vec_type::iterator p
+            revents_iterator (typename pollfd_vec_type::iterator p
                     , typename pollfd_vec_type::iterator end
                     , typename device_vec_type::iterator d)
                 : pollfd_it(p)
@@ -85,18 +87,27 @@ class device_notifier_pool
                 , basic_device_it(d)
             {}
 
-            iterator (iterator const & rhs)
+            revents_iterator (revents_iterator const & rhs)
                 : pollfd_it(rhs.pollfd_it)
                 , pollfd_end(rhs.pollfd_end)
                 , basic_device_it(rhs.basic_device_it)
             {}
 
-            iterator & operator = (iterator const & rhs)
+            revents_iterator & operator = (revents_iterator const & rhs)
             {
                 pollfd_it = rhs.pollfd_it;
                 pollfd_end = rhs.pollfd_end;
                 basic_device_it = rhs.basic_device_it;
                 return *this;
+            }
+
+            void set_begin ()
+            {
+                while (pollfd_it != pollfd_end
+                        && pollfd_it->revents == 0) {
+                    ++pollfd_it;
+                    ++basic_device_it;
+                }
             }
 
             bool is_server () const
@@ -107,6 +118,11 @@ class device_notifier_pool
             basic_device const * basic_device_ptr () const
             {
                 return basic_device_it->get();
+            }
+
+            short operator * () const
+            {
+                return pollfd_it->revents;
             }
 
             device_ptr device () const
@@ -121,17 +137,12 @@ class device_notifier_pool
                 return pfs::static_pointer_cast<details::server>(*basic_device_it);
             }
 
-            short revents () const
-            {
-                return pollfd_it->revents;
-            }
-
             pollfd_type & pollfd () const
             {
                 return *pollfd_it;
             }
 
-            iterator & operator ++ ()
+            revents_iterator & operator ++ ()
             {
                 if (pollfd_it != pollfd_end) {
                     ++pollfd_it;
@@ -147,33 +158,35 @@ class device_notifier_pool
                 return *this;
             }
 
-            iterator operator ++ (int)
+            revents_iterator operator ++ (int)
             {
-                iterator r = *this;
+                revents_iterator r = *this;
                 ++(*this);
                 return r;
             }
 
-            bool operator == (iterator const & rhs) const
+            bool operator == (revents_iterator const & rhs) const
             {
                 return pollfd_it == rhs.pollfd_it;
             }
         };
 
-        typedef pfs::pair<iterator, iterator> poll_result_type;
+        typedef pfs::pair<revents_iterator, revents_iterator> poll_result_type;
 
         pollfd_map () {}
 
         ~pollfd_map () {}
 
-        iterator begin ()
+        revents_iterator revents_begin ()
         {
-            return iterator(_pollfds.begin(), _pollfds.end(), _devices.begin());
+            revents_iterator it(_pollfds.begin(), _pollfds.end(), _devices.begin());
+            it.set_begin();
+            return it;
         }
 
-        iterator end ()
+        revents_iterator revents_end ()
         {
-            return iterator(_pollfds.end(), _pollfds.end(), _devices.end());
+            return revents_iterator(_pollfds.end(), _pollfds.end(), _devices.end());
         }
 
         void insert_deferred (device_ptr const & d)
@@ -207,41 +220,9 @@ class device_notifier_pool
                 index = _pollfds.size() - 1;
             }
 
-            //PFS_DEBUG(printf("*** [%s]: INSERTED: index={%d}\n", d->url().c_str(), int(index)));
-
             _pollfds[index].fd = d->native_handle();
             _pollfds[index].events = poll_events;
             _devices[index] = d;
-        }
-
-        iterator find (basic_device_ptr const & d)
-        {
-            iterator first = begin();
-            iterator last = begin();
-
-            while (first != last) {
-                if (d.get() == first.basic_device_ptr())
-                    return first;
-                ++first;
-            }
-            return last;
-        }
-
-        void remove (iterator pos)
-        {
-            ssize_t index = pfs::distance(_pollfds.begin(), pos.pollfd_it);
-            //PFS_DEBUG(printf("*** [%s]: ERASED: index={%d}\n", pos.device()->url().c_str(), int(index)));
-            pos.pollfd().fd = -1;
-            _pollfds_indices.push_back(index);
-        }
-
-        void erase (iterator pos)
-        {
-            if (pos.is_server())
-                pos.server()->close();
-            else
-                pos.device()->close();
-            remove(pos);
         }
 
         poll_result_type poll (int millis, error_code & ec)
@@ -269,19 +250,60 @@ class device_notifier_pool
             } while (r <= 0 && errno == EINTR);
 
             if (r == 0)
-                return pfs::make_pair(end(), end());
+                return pfs::make_pair(revents_end(), revents_end());
 
             if (r < 0) {
                 ec = get_last_system_error();
-                return pfs::make_pair(end(), end());
+                return pfs::make_pair(revents_end(), revents_end());
             }
 
-            return pfs::make_pair(begin(), end());
+            return pfs::make_pair(revents_begin(), revents_end());
+        }
+
+        ssize_t find (basic_device_ptr const & d)
+        {
+            typename device_vec_type::iterator first = _devices.begin();
+            typename device_vec_type::iterator last  = _devices.end();
+
+            ssize_t r = 0;
+
+            while (first != last) {
+                if (*first && (*first)->native_handle() == d->native_handle())
+                    return r;
+                ++first;
+                ++r;
+            }
+
+            return -1;
+        }
+
+        void erase (revents_iterator pos)
+        {
+            ssize_t index = pfs::distance(_pollfds.begin(), pos.pollfd_it);
+            if (index >= 0) clear(pfs::integral_cast_check<size_t>(index));
+        }
+
+        void erase (basic_device_ptr const & d)
+        {
+            ssize_t index = find(d);
+            if (index >= 0) clear(pfs::integral_cast_check<size_t>(index));
+        }
+
+    private:
+        void clear (size_t index)
+        {
+            _pollfds[index].fd = -1;
+            _pollfds[index].events = 0;
+            _pollfds[index].revents = 0;
+            _pollfds_indices.push_back(index);
+
+            basic_device_ptr tmp;
+            _devices[index].swap(tmp);
         }
     };
 
 public:
-    typedef typename pollfd_map::iterator iterator;
+    typedef typename pollfd_map::revents_iterator revents_iterator;
     typedef typename pollfd_map::poll_result_type poll_result_type;
 
 public:
@@ -299,24 +321,16 @@ public:
         _pollfds.insert(pfs::static_pointer_cast<basic_device>(d), notify_events);
     }
 
-    void remove (device_ptr const & d)
-    {
-        _pollfds.remove(_pollfds.find(pfs::static_pointer_cast<basic_device>(d)));
-    }
-
-    void remove (server_ptr const & s)
-    {
-        _pollfds.remove(_pollfds.find(pfs::static_pointer_cast<basic_device>(s)));
-    }
-
+    // Do not use this method directly
     void erase (device_ptr const & d)
     {
-        _pollfds.erase(_pollfds.find(pfs::static_pointer_cast<basic_device>(d)));
+        _pollfds.erase(pfs::static_pointer_cast<basic_device>(d));
     }
 
+    // Do not use this method directly
     void erase (server_ptr const & s)
     {
-        _pollfds.erase(_pollfds.find(pfs::static_pointer_cast<basic_device>(s)));
+        _pollfds.erase(pfs::static_pointer_cast<basic_device>(s));
     }
 
     template <typename EventHandler>
@@ -329,11 +343,11 @@ public:
         if (ec) {
             event_handler.on_error(ec);
         } else if (result.first != result.second) {
-            iterator first = result.first;
-            iterator last  = result.second;
+            revents_iterator first = result.first;
+            revents_iterator last  = result.second;
 
             while (first != last) {
-                short revents = first.revents();
+                short revents = *first;
 
                 if (revents != 0) {
                     if (first.is_server()) { // accept connection
@@ -355,157 +369,36 @@ public:
         }
     }
 
-    // TODO see for_each_device and for_each_server
-    size_t count_devices (bool (* filter) (device_ptr const & d, void * context)
-            , void * context = 0)
+    device_ptr front_device ()
     {
         pfs::lock_guard<pfs::mutex> locker(_mtx);
 
-        size_t result = 0;
-        iterator first = _pollfds.begin();
-        iterator last  = _pollfds.end();
+        typename device_vec_type::iterator first = _pollfds._devices.begin();
+        typename device_vec_type::iterator last  = _pollfds._devices.end();
 
         while (first != last) {
-            if (!first.is_server()) {
-                if (filter) {
-                    if (filter(first.device(), context))
-                        result++;
-                } else {
-                    result++;
-                }
-            }
-            ++first;
-        }
-
-        return result;
-    }
-
-    device_ptr first_device ()
-    {
-        pfs::lock_guard<pfs::mutex> locker(_mtx);
-
-        iterator first = _pollfds.begin();
-        iterator last  = _pollfds.end();
-
-        while (first != last) {
-            if (!first.is_server())
-                return first.device();
+            if (*first && !(*first)->is_server())
+                return pfs::static_pointer_cast<device>(*first);
             ++first;
         }
 
         return device_ptr();
     }
 
-    device_ptr first_server ()
+    device_ptr front_server ()
     {
         pfs::lock_guard<pfs::mutex> locker(_mtx);
 
-        iterator first = _pollfds.begin();
-        iterator last  = _pollfds.end();
+        typename device_vec_type::iterator first = _pollfds._devices.begin();
+        typename device_vec_type::iterator last  = _pollfds._devices.end();
 
         while (first != last) {
-            if (first.is_server())
-                return first.server();
+            if (*first && (*first)->is_server())
+                return pfs::static_pointer_cast<server>(*first);
             ++first;
         }
 
         return device_ptr();
-    }
-
-    // TODO see for_each_device and for_each_server
-    template <template <typename> class SequenenceContainer>
-    size_t fetch_devices (SequenenceContainer<device_ptr> & devices
-            , bool (* filter) (device_ptr const & d, void * context)
-            , void * context = 0)
-    {
-        pfs::lock_guard<pfs::mutex> locker(_mtx);
-
-        iterator first = _pollfds.begin();
-        iterator last  = _pollfds.end();
-
-        pfs::back_insert_iterator<SequenenceContainer<device_ptr> > inserter
-                = pfs::back_inserter(devices);
-
-        while (first != last) {
-            if (!first.is_server()) {
-                if (filter) {
-                    if (filter(first.device(), context))
-                        inserter++ = first.device();
-                } else {
-                    inserter++ = first.device();
-                }
-            }
-            ++first;
-        }
-
-        return devices.size();
-    }
-
-    // TODO see for_each_device and for_each_server
-    template <template <typename> class SequenenceContainer>
-    size_t fetch_devices (SequenenceContainer<device_ptr> & devices)
-    {
-        return this->fetch_devices(devices, 0, 0);
-    }
-
-    // TODO see for_each_device and for_each_server
-    size_t count_servers (bool (* filter) (server const & s, void * context)
-            , void * context = 0)
-    {
-        pfs::lock_guard<pfs::mutex> locker(_mtx);
-
-        size_t result = 0;
-        iterator first = _pollfds.begin();
-        iterator last  = _pollfds.end();
-
-        while (first != last) {
-            if (first.is_server()) {
-                if (filter) {
-                    if (filter(first.server(), context))
-                        result++;
-                } else {
-                    result++;
-                }
-            }
-            ++first;
-        }
-
-        return result;
-    }
-
-    // TODO see for_each_device and for_each_server
-    template <template <typename> class SequenenceContainer>
-    size_t fetch_servers (SequenenceContainer<server_ptr> & servers
-            , bool (* filter) (server const & s, void * context)
-            , void * context = 0)
-    {
-        pfs::lock_guard<pfs::mutex> locker(_mtx);
-
-        iterator first = _pollfds.begin();
-        iterator last  = _pollfds.end();
-
-        pfs::back_insert_iterator<SequenenceContainer<server_ptr> > inserter
-                = pfs::back_inserter(servers);
-
-        while (first != last) {
-            if (first.is_server()) {
-                if (filter) {
-                    if (filter(first.server(), context))
-                        inserter++ = first.server();
-                } else {
-                    inserter++ = first.server();
-                }
-            }
-            ++first;
-        }
-
-        return servers.size();
-    }
-
-    template <template <typename> class SequenenceContainer>
-    size_t fetch_servers (SequenenceContainer<server_ptr> & servers)
-    {
-        return this->fetch_servers(servers, 0, 0);
     }
 
     template <typename UnaryFunction>
@@ -513,12 +406,27 @@ public:
     {
         pfs::lock_guard<pfs::mutex> locker(_mtx);
 
-        iterator first = _pollfds.begin();
-        iterator last  = _pollfds.end();
+        typename device_vec_type::iterator first = _pollfds._devices.begin();
+        typename device_vec_type::iterator last  = _pollfds._devices.end();
 
         while (first != last) {
-            if (!first.is_server())
-                f(first.device());
+            if (*first && !(*first)->is_server())
+                f(pfs::static_pointer_cast<device>(*first));
+            ++first;
+        }
+    }
+
+    template <typename FilterFunction, typename UnaryFunction>
+    void for_each_device (FilterFunction filter, UnaryFunction f)
+    {
+        pfs::lock_guard<pfs::mutex> locker(_mtx);
+
+        typename device_vec_type::iterator first = _pollfds._devices.begin();
+        typename device_vec_type::iterator last  = _pollfds._devices.end();
+
+        while (first != last) {
+            if (*first && !(*first)->is_server() && filter(pfs::static_pointer_cast<device>(*first)))
+                f(pfs::static_pointer_cast<device>(*first));
             ++first;
         }
     }
@@ -528,12 +436,27 @@ public:
     {
         pfs::lock_guard<pfs::mutex> locker(_mtx);
 
-        iterator first = _pollfds.begin();
-        iterator last  = _pollfds.end();
+        typename device_vec_type::iterator first = _pollfds._devices.begin();
+        typename device_vec_type::iterator last  = _pollfds._devices.end();
 
         while (first != last) {
-            if (first.is_server())
-                f(server());
+            if (*first && (*first)->is_server())
+                f(pfs::static_pointer_cast<server>(*first));
+            ++first;
+        }
+    }
+
+    template <typename FilterFunction, typename UnaryFunction>
+    void for_each_server (FilterFunction filter, UnaryFunction f)
+    {
+        pfs::lock_guard<pfs::mutex> locker(_mtx);
+
+        typename device_vec_type::iterator first = _pollfds._devices.begin();
+        typename device_vec_type::iterator last  = _pollfds._devices.end();
+
+        while (first != last) {
+            if (*first && (*first)->is_server() && filter(pfs::static_pointer_cast<server>(*first)))
+                f(pfs::static_pointer_cast<server>(*first));
             ++first;
         }
     }
@@ -541,7 +464,7 @@ public:
 private:
 
     template <typename EventHandler>
-    void process_server (iterator pos, EventHandler & event_handler)
+    void process_server (revents_iterator pos, EventHandler & event_handler)
     {
         pfs::error_code ec;
         server_ptr server = pos.server();
@@ -554,8 +477,6 @@ private:
         } else {
             device_ptr pdev(peer);
             event_handler.accepted(pdev, server);
-
-            //PFS_DEBUG(printf("*** [%s]: CONNECTED\n", pdev->url().c_str()));
 
             switch (server->type()) {
             case server_udp:
@@ -578,15 +499,14 @@ private:
     }
 
     template <typename EventHandler>
-    void process_device (iterator pos, EventHandler & event_handler)
+    void process_device (revents_iterator pos, EventHandler & event_handler)
     {
         device_ptr d = pos.device();
-        short revents = pos.revents();
+        short revents = *pos;
 
         if (!d->opened()) {
-            //PFS_DEBUG(printf("*** [%s]: WARN: NOT OPENED\n", d->url().c_str()));
             if (revents & POLLNVAL) {
-                // May occurred when device was closed before;
+                ; // May occurred when device was closed before;
             }
             return;
         }
@@ -601,7 +521,7 @@ private:
             if (d->type() == device_tcp_socket) {
                 event_handler.on_error(make_error_code(io_errc::connection_refused));
             } else {
-                PFS_DEBUG(printf("pfs::io::pool::dispatch(): device error condition at %s:%d", __FILE__, __LINE__));
+                PFS_DEBUG(printf("pfs::io::device_notifier_pool::process_device(): device error condition at %s:%d", __FILE__, __LINE__));
             }
         }
 
@@ -628,9 +548,7 @@ private:
             // TODO Check if this event enough to decide to disconnect.
             if (d->available() == 0) {
                 event_handler.ready_read(d); // May be pending data
-                //PFS_DEBUG(printf("*** [%s]: DISCONNECTION\n", d->url().c_str()));
                 event_handler.disconnected(d);
-                //PFS_DEBUG(printf("*** [%s]: DISCONNECTED\n", d->url().c_str()));
                 _pollfds.erase(pos);
                 return;
             } else {

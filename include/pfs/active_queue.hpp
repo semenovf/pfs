@@ -258,21 +258,33 @@ public:
 //     }
 //#endif
 
-    void call (int max_count = 1)
+    void call ()
     {
         unique_lock<mutex_type> locker(_mutex);
 
         iterator pos = front_busy();
 
-        while (pos != _sequence.end() && max_count--) {
+        if (pos != _sequence.end()) {
             --_count;
             locker.unlock();
 
             (*(pos->second))();
 
+            // Destroy item
+            pfs::shared_ptr<binder_base<void> > tmp;
+            tmp.swap(pos->second);
+
             locker.lock();
 
             pos->first = FREE;
+        }
+    }
+
+    void call (int max_count)
+    {
+        if (max_count > 0) {
+            while (!this->empty() && max_count--)
+                call();
         }
     }
 

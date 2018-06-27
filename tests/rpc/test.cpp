@@ -157,13 +157,13 @@ struct device_manager_slots : pfs::sigslot<>::has_slots
 {
     device_manager_slots () {}
 
-    void device_connected (pfs::io::device_ptr & d, pfs::io::server_ptr & s)
+    void device_connected (pfs::io::device_ptr d, pfs::io::server_ptr s)
     {
         g_logger.info("Server: client accepted on: " + d->url());
         //d.set_context(new pfs::io::buffered_device(d));
     }
 
-    void device_ready_read (pfs::io::device_ptr & d)
+    void device_ready_read (pfs::io::device_ptr d)
     {
         //_logger.info("Server: device_ready_read");
         pfs::byte_string bytes;
@@ -171,37 +171,37 @@ struct device_manager_slots : pfs::sigslot<>::has_slots
         g_logger.info("Server: " + pfs::to_string(bytes.size()) + " bytes read");
     }
 
-    void device_disconnected (pfs::io::device_ptr & d)
+    void device_disconnected (pfs::io::device_ptr d)
     {
         g_logger.info("Server: client disconnected: " + d->url());
     }
 
-    void device_opened (pfs::io::device_ptr & d)
+    void device_opened (pfs::io::device_ptr d)
     {
         g_logger.info("Server: device_opened");
     }
 
-    void device_opening (pfs::io::device_ptr & d)
+    void device_opening (pfs::io::device_ptr d)
     {
         g_logger.info("Server: device_opening");
     }
 
-    void device_open_failed (pfs::io::device_ptr & d, pfs::error_code const & ec)
+    void device_open_failed (pfs::io::device_ptr d, pfs::error_code const & ec)
     {
         g_logger.error("Server: device_open_failed" + pfs::to_string(ec));
     }
 
-    void server_opened (pfs::io::server_ptr & s)
+    void server_opened (pfs::io::server_ptr s)
     {
         g_logger.info("Server: listen on: " + s->url());
     }
 
-    void server_opening (pfs::io::server_ptr & s)
+    void server_opening (pfs::io::server_ptr s)
     {
         g_logger.info("Server: opening...");
     }
 
-    void server_open_failed (pfs::io::server_ptr & s, pfs::error_code const & ec)
+    void server_open_failed (pfs::io::server_ptr s, pfs::error_code const & ec)
     {
         g_logger.error("Server: server_open_failed: " + pfs::to_string(ec));
     }

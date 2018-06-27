@@ -83,7 +83,7 @@ struct event_handler
         }
     }
 
-    virtual void accepted (pfs::io::device_ptr & d, pfs::io::server_ptr & s)
+    virtual void accepted (pfs::io::device_ptr d, pfs::io::server_ptr s)
     {
         std::cout << "Server: socket connected: " << d->url()
                 << ", non-blocking mode: " << std::boolalpha << d->is_nonblocking()
@@ -92,7 +92,7 @@ struct event_handler
         d->set_context(new pfs::byte_string);
     }
 
-    virtual void disconnected (pfs::io::device_ptr & d)
+    virtual void disconnected (pfs::io::device_ptr d)
     {
         ++n1;
         std::cout << "Server: socket disconnected:  " << d->url() << std::endl;
@@ -101,7 +101,7 @@ struct event_handler
         --not_quit;
     }
 
-    virtual void ready_read (pfs::io::device_ptr & d)
+    virtual void ready_read (pfs::io::device_ptr d)
     {
         pfs::byte_string bytes;
         d->read(bytes, d->available());
@@ -111,7 +111,7 @@ struct event_handler
         buffer->append(bytes);
     }
 
-    virtual void can_write (pfs::io::device_ptr & d)
+    virtual void can_write (pfs::io::device_ptr d)
     {
         //std::cout << "Server: socket can write: " << d->url() << std::endl;
     }

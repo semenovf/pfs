@@ -19,10 +19,10 @@ namespace io {
 
 struct default_event_handler
 {
-    void accepted (device_ptr &, server_ptr &) {}
-    void disconnected (device_ptr &) {}
-    void ready_read (device_ptr &) {}
-    void can_write (device_ptr &) {}
+    void accepted (device_ptr, server_ptr) {}
+    void disconnected (device_ptr) {}
+    void ready_read (device_ptr) {}
+    void can_write (device_ptr) {}
     void on_error (error_code const &) {}
 };
 
@@ -31,8 +31,8 @@ template <template <typename> class ContigousContainer = pfs::vector
 class device_notifier_pool : public details::device_notifier_pool<ContigousContainer, BasicLockable>
 {
     typedef details::device_notifier_pool<ContigousContainer, BasicLockable> base_class;
-    typedef typename base_class::iterator iterator;
-    typedef typename base_class::poll_result_type poll_result_type;
+//     typedef typename base_class::iterator iterator;
+//     typedef typename base_class::poll_result_type poll_result_type;
 
 public:
     device_notifier_pool () : base_class () {}

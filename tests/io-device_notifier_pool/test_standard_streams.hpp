@@ -7,10 +7,10 @@ static int can_write_counter = 0;
 
 struct event_handler
 {
-    void accepted (device_ptr & d, server_ptr &) { std::cout << "connected: " << d->url().utf8() << std::endl; }
-    void disconnected (device_ptr & d) { std::cout << "disconnected: " << d->url().utf8() << std::endl; }
-    void ready_read (device_ptr & d) { std::cout << "ready_read: " << d->url().utf8() << std::endl; }
-    void can_write (device_ptr & d)
+    void accepted (device_ptr d, server_ptr) { std::cout << "connected: " << d->url().utf8() << std::endl; }
+    void disconnected (device_ptr d) { std::cout << "disconnected: " << d->url().utf8() << std::endl; }
+    void ready_read (device_ptr d) { std::cout << "ready_read: " << d->url().utf8() << std::endl; }
+    void can_write (device_ptr d)
     {
         std::cout << "can_write: " << d->url().utf8() << std::endl;
         can_write_counter++;
