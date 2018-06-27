@@ -75,7 +75,7 @@ struct event_handler : pfs::sigslot<>::has_slots
 
 int main ()
 {
-    BEGIN_TESTS(2);
+    BEGIN_TESTS(3);
 
     pfs::error_code ec;
     event_handler eh;
