@@ -7,9 +7,8 @@ namespace pfs {
 
 class time
 {
-    int32_t _millis; // milliseconds from midnight
-
 public:
+    typedef int32_t value_type;
     static const int NULL_TIME          = -1;
     static const int SECONDS_PER_MINUTE = 60;
     static const int SECONDS_PER_HOUR   = 3600;
@@ -18,8 +17,11 @@ public:
     static const int MILLIS_PER_HOUR    = 3600000;
     static const int MILLIS_PER_DAY     = 86400000;
 
+private:
+    value_type _millis; // milliseconds from midnight
+
 protected:
-    time (int32_t millis) : _millis(millis) {}
+    time (value_type millis) : _millis(millis) {}
 
 public:
     time ()
@@ -31,7 +33,7 @@ public:
         set_time(hour, min, sec, millis);
     }
 
-    int32_t millis_from_midnight () const
+    value_type millis_from_midnight () const
     {
         return _millis;
     }
@@ -64,14 +66,14 @@ public:
         return _millis > NULL_TIME && _millis < MILLIS_PER_DAY;
     }
 
-    int millis_to (const time & t) const
+    int millis_to (time const & t) const
     {
         return valid() && t.valid()
             ? t._millis - _millis
             : 0;
     }
 
-    int seconds_to (const time & t) const
+    int seconds_to (time const & t) const
     {
         return valid() &&  t.valid()
             ? t._millis/1000 - _millis/1000
@@ -80,32 +82,32 @@ public:
 
     bool set_time (int hour, int min, int sec, int millis = 0);
 
-    bool operator == (const time & t) const
+    bool operator == (time const & t) const
     {
         return _millis == t._millis;
     }
 
-    bool operator != (const time & t) const
+    bool operator != (time const & t) const
     {
         return _millis != t._millis;
     }
 
-    bool operator  < (const time & t) const
+    bool operator  < (time const & t) const
     {
         return _millis  < t._millis;
     }
 
-    bool operator <= (const time & t) const
+    bool operator <= (time const & t) const
     {
         return _millis <= t._millis;
     }
 
-    bool operator  > (const time & t) const
+    bool operator  > (time const & t) const
     {
         return _millis  > t._millis;
     }
 
-    bool operator >= (const time & t) const
+    bool operator >= (time const & t) const
     {
         return _millis >= t._millis;
     }
@@ -252,7 +254,7 @@ private:
     }
 };
 
-inline int32_t operator - (time const & a, time const & b)
+inline time::value_type operator - (time const & a, time const & b)
 {
     return a.millis_from_midnight() - b.millis_from_midnight();
 }
