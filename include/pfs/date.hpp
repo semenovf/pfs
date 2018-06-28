@@ -7,13 +7,16 @@ namespace pfs {
 
 class date
 {
-    intmax_t _jd; // Julian Day;
-
 public:
-    static const intmax_t NULL_JULIAN_DAY;
-    static const intmax_t MIN_JULIAN_DAY   = -784366681008L; // Date::julianDay(PFS_INT_MIN, 1, 1)
-    static const intmax_t MAX_JULIAN_DAY   = 784354017364L;  // Date::julianDay(PFS_INT_MAX, 12, 31)
-    static const intmax_t EPOCH_JULIAN_DAY = 2440588L;       // Date::julianDay(1970, 1, 1)
+    typedef intmax_t julian_day_type;
+
+    static const julian_day_type NULL_JULIAN_DAY;
+    static const julian_day_type MIN_JULIAN_DAY   = -784366681008L; // Date::julianDay(PFS_INT_MIN, 1, 1)
+    static const julian_day_type MAX_JULIAN_DAY   = 784354017364L;  // Date::julianDay(PFS_INT_MAX, 12, 31)
+    static const julian_day_type EPOCH_JULIAN_DAY = 2440588L;       // Date::julianDay(1970, 1, 1)
+
+private:
+    julian_day_type _jd; // Julian Day;
 
 public:
     date ()
@@ -78,7 +81,7 @@ public:
         * @param d
         * @return
         */
-    intmax_t days_to (const date & d) const
+    julian_day_type days_to (const date & d) const
     {
         return valid() && d.valid()
                 ? d._jd - _jd
@@ -124,7 +127,7 @@ public:
      *
      * @return
      */
-    intmax_t julian_day() const
+    julian_day_type julian_day() const
     {
         return _jd;
     }
@@ -171,7 +174,7 @@ public:
      * @param day
      * @return
      */
-    static intmax_t julian_day (int year, int month, int day);
+    static julian_day_type julian_day (int year, int month, int day);
 
     /**
      *
@@ -180,14 +183,14 @@ public:
      * @param monthPtr
      * @param dayPtr
      */
-    static void from_julian_day (intmax_t julianDay, int * yearPtr, int * monthPtr, int * dayPtr);
+    static void from_julian_day (julian_day_type julianDay, int * yearPtr, int * monthPtr, int * dayPtr);
 
     /**
      *
      * @param julianDay
      * @return
      */
-    static date from_julian_day (intmax_t julianDay)
+    static date from_julian_day (julian_day_type julianDay)
     {
         date d;
         if (julianDay >= MIN_JULIAN_DAY && julianDay <= MAX_JULIAN_DAY)
