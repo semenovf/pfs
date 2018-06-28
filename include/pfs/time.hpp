@@ -125,7 +125,7 @@ public:
         return MILLIS_PER_HOUR * hour + MILLIS_PER_MINUTE * min + 1000 * sec + millis;
     }
 
-    static time from_millis_from_midnight (int32_t millis)
+    static time from_millis_from_midnight (value_type millis)
     {
         time r;
         r._millis = millis;
