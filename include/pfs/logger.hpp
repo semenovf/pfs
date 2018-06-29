@@ -26,7 +26,7 @@ struct log
     struct priority
     {
         enum type {
-            trace
+              trace
             , debug
             , info
             , warn
@@ -178,41 +178,47 @@ public:
 //#	error "Need to implement `add_appender` using variadic templates"
 //#endif
 
-    void print ( priority level, datetime const & dt, string_type const & msg )
+    void print (priority level, datetime const & dt, string_type const & msg)
     {
         if ( level.value >= _d->_priority && level.value != priority::no_priority )
-            _d->_emitters[level] ( level, dt, msg );
+            _d->_emitters[level](level, dt, msg);
     }
 
-    void connect ( priority level, appender & ap )
+    void connect (priority level, appender & ap)
     {
-        PFS_ASSERT ( level >= 0 && level < priority::count );
-        _d->_emitters[level].connect ( & ap, & appender::print_helper );
+        PFS_ASSERT(level >= 0 && level < priority::count);
+        _d->_emitters[level].connect(& ap, & appender::print_helper);
     }
 
-    void connect ( appender & ap )
+    void connect (appender & ap)
     {
-        _d->_emitters[priority::trace].connect ( & ap, & appender::print_helper );
-        _d->_emitters[priority::debug].connect ( & ap, & appender::print_helper );
-        _d->_emitters[priority::info].connect ( & ap, & appender::print_helper );
-        _d->_emitters[priority::warn].connect ( & ap, & appender::print_helper );
-        _d->_emitters[priority::error].connect ( & ap, & appender::print_helper );
-        _d->_emitters[priority::fatal].connect ( & ap, & appender::print_helper );
+        _d->_emitters[priority::trace].connect(& ap, & appender::print_helper);
+        _d->_emitters[priority::debug].connect(& ap, & appender::print_helper);
+        _d->_emitters[priority::info].connect(& ap, & appender::print_helper);
+        _d->_emitters[priority::warn].connect(& ap, & appender::print_helper);
+        _d->_emitters[priority::error].connect(& ap, & appender::print_helper);
+        _d->_emitters[priority::fatal].connect(& ap, & appender::print_helper);
     }
 
-    void disconnect ( appender & ap )
+    void disconnect (appender & ap)
     {
-        _d->_emitters[priority::trace].disconnect ( & ap );
-        _d->_emitters[priority::debug].disconnect ( & ap );
-        _d->_emitters[priority::info].disconnect ( & ap );
-        _d->_emitters[priority::warn].disconnect ( & ap );
-        _d->_emitters[priority::error].disconnect ( & ap );
-        _d->_emitters[priority::fatal].disconnect ( & ap );
+        _d->_emitters[priority::trace].disconnect(& ap);
+        _d->_emitters[priority::debug].disconnect(& ap);
+        _d->_emitters[priority::info].disconnect(& ap);
+        _d->_emitters[priority::warn].disconnect(& ap);
+        _d->_emitters[priority::error].disconnect(& ap);
+        _d->_emitters[priority::fatal].disconnect(& ap);
     }
 
-    void disconnect ( int level )
+    void disconnect (priority level, appender & ap)
     {
-        PFS_ASSERT ( level >= 0 && level < priority::count );
+        PFS_ASSERT(level >= 0 && level < priority::count);
+        _d->_emitters[level].disconnect(& ap);
+    }
+
+    void disconnect (int level)
+    {
+        PFS_ASSERT(level >= 0 && level < priority::count);
         _d->_emitters[level].disconnect_all();
     }
 
@@ -236,7 +242,7 @@ public:
         }
     }
 
-    void set_priority ( priority pri )
+    void set_priority (priority pri)
     {
         _d->_priority = pri;
     }
@@ -246,40 +252,40 @@ public:
         return _d->_priority;
     }
 
-    void trace ( string_type const & text )
+    void trace (string_type const & text)
     {
-        print ( priority::trace, current_datetime(), text );
+        print(priority::trace, current_datetime(), text);
     }
 
-    void debug ( string_type const & text )
+    void debug (string_type const & text)
     {
-        print ( priority::debug, current_datetime(), text );
+        print (priority::debug, current_datetime(), text);
     }
 
-    void info ( string_type const & text )
+    void info (string_type const & text)
     {
-        print ( priority::info, current_datetime(), text );
+        print (priority::info, current_datetime(), text);
     }
 
-    void warn ( string_type const & text )
+    void warn (string_type const & text)
     {
-        print ( priority::warn, current_datetime(), text );
+        print (priority::warn, current_datetime(), text);
     }
 
-    void error ( string_type const & text )
+    void error (string_type const & text)
     {
-        print ( priority::error, current_datetime(), text );
+        print (priority::error, current_datetime(), text);
     }
 
     void critical ( string_type const & text )
     {
-        print ( priority::critical, current_datetime(), text );
+        print (priority::critical, current_datetime(), text);
         abort();
     }
 
-    void fatal ( string_type const & text )
+    void fatal (string_type const & text)
     {
-        critical ( text );
+        critical(text);
     }
 };
 

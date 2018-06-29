@@ -521,7 +521,7 @@ private:
             if (d->type() == device_tcp_socket) {
                 event_handler.on_error(make_error_code(io_errc::connection_refused));
             } else {
-                PFS_DEBUG(printf("pfs::io::device_notifier_pool::process_device(): device error condition at %s:%d", __FILE__, __LINE__));
+                PFS_DEBUG(printf("pfs::io::device_notifier_pool::process_device(): device error condition at %s:%d\n", __FILE__, __LINE__));
             }
         }
 

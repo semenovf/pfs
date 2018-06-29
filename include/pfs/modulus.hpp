@@ -1220,6 +1220,9 @@ int modulus<PFS_MODULUS_TEMPLETE_ARGS>::dispatcher::exec_main ()
         basic_module * m = irunnable->first;
         thread_function tfunc = irunnable->second;
 
+        // Handle deferred calls after start stage and before thread method call (run()).
+        m->_queue_ptr->call_all();
+
         // Run module if it is not a master
         if (m != _master_module_ptr)
             thread_pool.push_back(pfs::make_shared<thread>(tfunc, m));
