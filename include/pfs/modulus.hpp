@@ -1,9 +1,11 @@
 #pragma once
 #include <pfs/cxxlang.hpp>
 #include <pfs/operationsystem.hpp>
+#include <pfs/type_traits.hpp>
 #include <pfs/atomic.hpp>
 #include <pfs/list.hpp>
 #include <pfs/map.hpp>
+#include <pfs/memory.hpp>
 #include <pfs/string.hpp>
 #include <pfs/stringlist.hpp>
 #include <pfs/dynamic_library.hpp>
@@ -127,66 +129,7 @@ struct modulus
         }
     };
 
-    struct basic_sigslot_mapper
-    {
-        virtual void connect_all () = 0;
-        virtual void disconnect_all () = 0;
-        virtual void append_emitter (emitter_type *e) = 0;
-        virtual void append_detector (basic_module * m, detector_handler d) = 0;
-    };
-
-    struct api_item_type
-    {
-        int                    id;
-        basic_sigslot_mapper * mapper;
-        string_type            desc;
-    };
-
-    template <typename EmitterType, typename DetectorType>
-    struct sigslot_mapper : basic_sigslot_mapper
-    {
-        typedef SequenceContainer<EmitterType *> emitter_sequence;
-        typedef SequenceContainer<detector_pair> detector_sequence;
-
-        emitter_sequence  emitters;
-        detector_sequence detectors;
-
-        virtual void connect_all ()
-        {
-            if (emitters.size() == 0 || detectors.size() == 0)
-                return;
-
-            typename emitter_sequence::const_iterator itEnd = emitters.cend();
-            typename detector_sequence::const_iterator itdEnd = detectors.cend();
-
-            for (typename emitter_sequence::const_iterator it = emitters.cbegin(); it != itEnd; it++) {
-                for (typename detector_sequence::const_iterator itd = detectors.cbegin(); itd != itdEnd; itd++) {
-                    EmitterType * em = *it;
-                    em->connect(itd->mod, reinterpret_cast<DetectorType> (itd->detector));
-                }
-            }
-        }
-
-        virtual void disconnect_all ()
-        {
-            typename emitter_sequence::const_iterator itEnd = emitters.cend();
-
-            for (typename emitter_sequence::const_iterator it = emitters.cbegin(); it != itEnd; it++) {
-                EmitterType * em = *it;
-                em->disconnect_all();
-            }
-        }
-
-        virtual void append_emitter (emitter_type * e)
-        {
-            emitters.push_back(reinterpret_cast<EmitterType*>(e));
-        }
-
-        virtual void append_detector (basic_module * m, detector_handler d)
-        {
-            detectors.push_back(detector_pair(m, d));
-        }
-    };
+    struct api_item_type;
 
     typedef AssociativeContainer<int, api_item_type *>     api_map_type;
     typedef AssociativeContainer<string_type, module_spec> module_spec_map_type;
@@ -238,7 +181,6 @@ struct modulus
 
     protected:
         basic_module (dispatcher * pdisp)
-            //: base_class()
             : _pdispatcher(pdisp)
             , _quitfl(0)
             , _started(false)
@@ -332,7 +274,7 @@ struct modulus
     // Body must be identical to sigslot's has_slots
     // TODO Reimeplement to avoid code duplication
     //
-    class module : public basic_module//, public sigslot_ns::has_slots
+    class module : public basic_module
     {
     public:
         module (dispatcher * pdisp) : basic_module(pdisp) {}
@@ -343,7 +285,7 @@ struct modulus
     // Body must be identical to sigslot's has_async_slots
     // TODO Reimeplement to avoid code duplication
     //
-    class async_module : public basic_module//, public sigslot_ns::has_async_slots
+    class async_module : public basic_module
     {
     public:
         async_module (dispatcher * pdisp) : basic_module(pdisp)
@@ -359,58 +301,140 @@ struct modulus
         }
     };
 
-    struct sigslot_mapping0
-        : sigslot_mapper<typename sigslot_ns::signal0
-                , void (basic_module::*)()>
-    {};
+    class slave_module : public basic_module
+    {
+        async_module * _master;
+
+    public:
+        slave_module (dispatcher * pdisp) : basic_module(pdisp), _master(0) {}
+        virtual bool use_async_slots () const pfs_override { return false; }
+        virtual bool is_slave () const pfs_override { return true; }
+        virtual typename sigslot_ns::basic_has_slots * master () const { return _master; }
+        void set_master (async_module * master) { _master = master; }
+    };
+
+    struct basic_sigslot_mapper
+    {
+        virtual void connect_all () = 0;
+        virtual void disconnect_all () = 0;
+        virtual void append_emitter (emitter_type *e) = 0;
+        virtual void append_detector (basic_module * m, detector_handler d) = 0;
+    };
+
+    struct api_item_type
+    {
+        int                                   id;
+        pfs::shared_ptr<basic_sigslot_mapper> mapper;
+        string_type                           desc;
+    };
+
+    template <typename EmitterType, typename DetectorType>
+    struct sigslot_mapper : basic_sigslot_mapper
+    {
+        typedef SequenceContainer<EmitterType *> emitter_sequence;
+        typedef SequenceContainer<detector_pair> detector_sequence;
+
+        emitter_sequence  emitters;
+        detector_sequence detectors;
+
+        virtual void connect_all ()
+        {
+            if (emitters.size() == 0 || detectors.size() == 0)
+                return;
+
+            typename emitter_sequence::const_iterator itEnd = emitters.cend();
+            typename detector_sequence::const_iterator itdEnd = detectors.cend();
+
+            for (typename emitter_sequence::const_iterator it = emitters.cbegin(); it != itEnd; it++) {
+                for (typename detector_sequence::const_iterator itd = detectors.cbegin(); itd != itdEnd; itd++) {
+                    EmitterType * em = *it;
+                    em->connect(itd->mod, reinterpret_cast<DetectorType> (itd->detector));
+                }
+            }
+        }
+
+        virtual void disconnect_all ()
+        {
+            typename emitter_sequence::const_iterator itEnd = emitters.cend();
+
+            for (typename emitter_sequence::const_iterator it = emitters.cbegin(); it != itEnd; it++) {
+                EmitterType * em = *it;
+                em->disconnect_all();
+            }
+        }
+
+        virtual void append_emitter (emitter_type * e)
+        {
+            emitters.push_back(reinterpret_cast<EmitterType*>(e));
+        }
+
+        virtual void append_detector (basic_module * m, detector_handler d)
+        {
+            detectors.push_back(detector_pair(m, d));
+        }
+    };
+
+    static pfs::shared_ptr<basic_sigslot_mapper> make_mapper ()
+    {
+        typedef sigslot_mapper<typename sigslot_ns::signal0, void (basic_module::*)()> concrete_mapper_type;
+        return pfs::static_pointer_cast<basic_sigslot_mapper>(pfs::make_shared<concrete_mapper_type>());
+    }
 
     template <typename A1>
-    struct sigslot_mapping1
-        : sigslot_mapper<typename sigslot_ns::template signal1<A1>
-                , void (basic_module::*)(A1)>
-    {};
+    static pfs::shared_ptr<basic_sigslot_mapper> make_mapper ()
+    {
+        typedef sigslot_mapper<typename sigslot_ns::template signal1<A1>, void (basic_module::*)(A1)> concrete_mapper_type;
+        return pfs::static_pointer_cast<basic_sigslot_mapper>(pfs::make_shared<concrete_mapper_type>());
+    }
 
     template <typename A1, typename A2>
-    struct sigslot_mapping2
-        : sigslot_mapper<typename sigslot_ns::template signal2<A1, A2>
-                , void (basic_module::*)(A1, A2)>
-    {};
+    static pfs::shared_ptr<basic_sigslot_mapper> make_mapper ()
+    {
+        typedef sigslot_mapper<typename sigslot_ns::template signal2<A1,A2>, void (basic_module::*)(A1,A2)> concrete_mapper_type;
+        return pfs::static_pointer_cast<basic_sigslot_mapper>(pfs::make_shared<concrete_mapper_type>());
+    }
 
     template <typename A1, typename A2, typename A3>
-    struct sigslot_mapping3
-        : sigslot_mapper<typename sigslot_ns::template signal3<A1, A2, A3>
-                , void (basic_module::*)(A1, A2, A3)>
-    {};
+    static pfs::shared_ptr<basic_sigslot_mapper> make_mapper ()
+    {
+        typedef sigslot_mapper<typename sigslot_ns::template signal3<A1,A2,A3>, void (basic_module::*)(A1,A2,A3)> concrete_mapper_type;
+        return pfs::static_pointer_cast<basic_sigslot_mapper>(pfs::make_shared<concrete_mapper_type>());
+    }
 
     template <typename A1, typename A2, typename A3, typename A4>
-    struct sigslot_mapping4
-        : sigslot_mapper<typename sigslot_ns::template signal4<A1, A2, A3, A4>
-                , void (basic_module::*)(A1, A2, A3, A4)>
-    {};
+    static pfs::shared_ptr<basic_sigslot_mapper> make_mapper ()
+    {
+        typedef sigslot_mapper<typename sigslot_ns::template signal4<A1,A2,A3,A4>, void (basic_module::*)(A1,A2,A3,A4)> concrete_mapper_type;
+        return pfs::static_pointer_cast<basic_sigslot_mapper>(pfs::make_shared<concrete_mapper_type>());
+    }
 
     template <typename A1, typename A2, typename A3, typename A4, typename A5>
-    struct sigslot_mapping5
-        : sigslot_mapper<typename sigslot_ns::template signal5<A1, A2, A3, A4, A5>
-                , void (basic_module::*)(A1, A2, A3, A4, A5)>
-    {};
+    static pfs::shared_ptr<basic_sigslot_mapper> make_mapper ()
+    {
+        typedef sigslot_mapper<typename sigslot_ns::template signal5<A1,A2,A3,A4,A5>, void (basic_module::*)(A1,A2,A3,A4,A5)> concrete_mapper_type;
+        return pfs::static_pointer_cast<basic_sigslot_mapper>(pfs::make_shared<concrete_mapper_type>());
+    }
 
     template <typename A1, typename A2, typename A3, typename A4, typename A5, typename A6>
-    struct sigslot_mapping6
-        : sigslot_mapper<typename sigslot_ns::template signal6<A1, A2, A3, A4, A5, A6>
-                , void (basic_module::*)(A1, A2, A3, A4, A5, A6)>
-    {};
+    static pfs::shared_ptr<basic_sigslot_mapper> make_mapper ()
+    {
+        typedef sigslot_mapper<typename sigslot_ns::template signal6<A1,A2,A3,A4,A5,A6>, void (basic_module::*)(A1,A2,A3,A4,A5,A6)> concrete_mapper_type;
+        return pfs::static_pointer_cast<basic_sigslot_mapper>(pfs::make_shared<concrete_mapper_type>());
+    }
 
     template <typename A1, typename A2, typename A3, typename A4, typename A5, typename A6, typename A7>
-    struct sigslot_mapping7
-        : sigslot_mapper<typename sigslot_ns::template signal7<A1, A2, A3, A4, A5, A6, A7>
-                , void (basic_module::*)(A1, A2, A3, A4, A5, A6, A7)>
-    {};
+    static pfs::shared_ptr<basic_sigslot_mapper> make_mapper ()
+    {
+        typedef sigslot_mapper<typename sigslot_ns::template signal7<A1,A2,A3,A4,A5,A6,A7>, void (basic_module::*)(A1,A2,A3,A4,A5,A6,A7)> concrete_mapper_type;
+        return pfs::static_pointer_cast<basic_sigslot_mapper>(pfs::make_shared<concrete_mapper_type>());
+    }
 
     template <typename A1, typename A2, typename A3, typename A4, typename A5, typename A6, typename A7, typename A8>
-    struct sigslot_mapping8
-        : sigslot_mapper<typename sigslot_ns::template signal8<A1, A2, A3, A4, A5, A6, A7, A8>
-                , void (basic_module::*)(A1, A2, A3, A4, A5, A6, A7, A8)>
-    {};
+    static pfs::shared_ptr<basic_sigslot_mapper> make_mapper ()
+    {
+        typedef sigslot_mapper<typename sigslot_ns::template signal8<A1,A2,A3,A4,A5,A6,A7,A8>, void (basic_module::*)(A1,A2,A3,A4,A5,A6,A7,A8)> concrete_mapper_type;
+        return pfs::static_pointer_cast<basic_sigslot_mapper>(pfs::make_shared<concrete_mapper_type>());
+    }
 
     class dispatcher : basic_dispatcher, public sigslot_ns::has_async_slots
     {

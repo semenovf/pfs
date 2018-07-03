@@ -120,7 +120,7 @@ public:
     {
         int i = 3;
         while (! is_quit() && i--) {
-            pfs::this_thread::sleep_for(pfs::chrono::milliseconds(500));
+            pfs::this_thread::sleep_for(pfs::chrono::milliseconds(50));
             call_all();
         }
 
@@ -128,28 +128,85 @@ public:
     }
 };
 
+class slave_module : public modulus_ns::slave_module
+{
+public:
+    slave_module (modulus_ns::dispatcher * pdisp, modulus_ns::async_module * master)
+            : modulus_ns::slave_module(pdisp)
+    {
+        set_master(master);
+    }
+
+    ~slave_module ()
+    {}
+
+    virtual bool on_start ()
+    {
+        emitOneArg(true);
+        emitTwoArgs(true, 'c');
+
+        return true;
+    }
+
+    virtual bool on_finish ()
+    {
+        return true;
+    }
+
+    PFS_V2_MODULE_EMITTERS_INLINE_BEGIN
+          PFS_V2_MODULE_EMITTER(1, emitOneArg)
+        , PFS_V2_MODULE_EMITTER(2, emitTwoArgs)
+    PFS_V2_MODULE_EMITTERS_END
+
+    PFS_V2_MODULE_DETECTORS_INLINE_BEGIN
+          PFS_V2_MODULE_DETECTOR (1, slave_module::onOneArg)
+        , PFS_V2_MODULE_DETECTOR (2, slave_module::onTwoArgs)
+    PFS_V2_MODULE_DETECTORS_END
+
+public: /*signal*/
+    modulus_ns::sigslot_ns::signal1<bool> emitOneArg;
+    modulus_ns::sigslot_ns::signal2<bool, char> emitTwoArgs;
+
+public: /*slots*/
+    void onOneArg ( bool ok );
+    void onTwoArgs ( bool ok, char ch );
+};
+
+inline void slave_module::onOneArg (bool ok)
+{
+    TEST_OK2(ok == true, "from slave_module: onOneArg(bool)");
+}
+
+inline void slave_module::onTwoArgs (bool ok, char ch)
+{
+    TEST_OK2(ok == true && ch == 'c', "from slave_module: onTwoArgs(true, 'c')");
+}
+
 static modulus_ns::api_item_type API[] = {
-      { 0 , new modulus_ns::sigslot_mapping0, "ZeroArg()" }
-    , { 1 , new modulus_ns::sigslot_mapping1<bool>, "OneArg(bool b)\n\t boolean value" }
-    , { 2 , new modulus_ns::sigslot_mapping2<bool, char>, "TwoArgs(bool b, char ch)" }
-    , { 3 , new modulus_ns::sigslot_mapping3<bool, char, short>, "ThreeArgs(bool b, char ch, short n)" }
-    , { 4 , new modulus_ns::sigslot_mapping4<bool, char, short, int>, "FourArgs description" }
-    , { 5 , new modulus_ns::sigslot_mapping5<bool, char, short, int, long>, "FiveArgs description" }
-    , { 6 , new modulus_ns::sigslot_mapping6<bool, char, short, int, long, const char*>, "SixArgs description" }
+      { 0 , modulus_ns::make_mapper(), "ZeroArg()" }
+    , { 1 , modulus_ns::make_mapper<bool>(), "OneArg(bool b)\n\t boolean value" }
+    , { 2 , modulus_ns::make_mapper<bool, char>(), "TwoArgs(bool b, char ch)" }
+    , { 3 , modulus_ns::make_mapper<bool, char, short>(), "ThreeArgs(bool b, char ch, short n)" }
+    , { 4 , modulus_ns::make_mapper<bool, char, short, int>(), "FourArgs description" }
+    , { 5 , modulus_ns::make_mapper<bool, char, short, int, long>(), "FiveArgs description" }
+    , { 6 , modulus_ns::make_mapper<bool, char, short, int, long, const char*>(), "SixArgs description" }
 };
 
 int main ()
 {
-    BEGIN_TESTS(12);
+    BEGIN_TESTS(19);
 
     modulus_ns::dispatcher dispatcher(API, sizeof(API) / sizeof(API[0]));
     dispatcher.add_search_path(pfs::filesystem::path( "." ));
 
     //TEST_OK(dispatcher.register_module_for_name("module-for-test-app"));
+    async_module * async_mod = new async_module(& dispatcher);
+
     TEST_OK(dispatcher.register_local_module(new module(& dispatcher), "mod-local-for-test-app"));
-    TEST_OK(dispatcher.register_local_module(new async_module(& dispatcher), "async_mod"));
+    TEST_OK(dispatcher.register_local_module(async_mod, "async_mod"));
+    TEST_OK(dispatcher.register_local_module(new slave_module(& dispatcher, async_mod), "slave_mod"));
     TEST_OK(!dispatcher.register_module_for_name("module-for-test-app-nonexistence"));
-    TEST_OK(dispatcher.count() == 2 );
+    TEST_OK(dispatcher.count() == 3 );
     TEST_OK(dispatcher.exec() == 0 );
 
     return END_TESTS;
