@@ -543,7 +543,10 @@ struct modulus
                 , char const * class_name = 0
                 , void * mod_data = 0);
 
-        void set_master_module (string_type const & name);
+        bool set_dependences (string_type const & name, string_type const & depends_name);
+
+        // TODO Unsuitbale member name, rename it
+        bool set_master_module (string_type const & name);
 
         size_t count () const
         {
@@ -669,6 +672,8 @@ struct modulus
                     & logger_type::error, & _logger, (m != 0 ? m->name() + ": " + s : s));
         }
 
+        basic_module * find_registered_module (string_type const & name);
+
     private:
         void (dispatcher::*info_printer) (basic_module const * m, string_type const & s);
         void (dispatcher::*debug_printer) (basic_module const * m, string_type const & s);
@@ -680,8 +685,8 @@ struct modulus
         filesystem::pathlist   _searchdirs;
         api_map_type           _api;
         module_spec_map_type   _module_spec_map;
-        runnable_sequence_type _runnable_modules; // modules run in a separate threads
-        basic_module *         _master_module_ptr;
+        runnable_sequence_type _runnable_modules;  // modules run in a separate threads
+        basic_module *         _master_module_ptr; // TODO Unsuitbale member name, rename it
         logger_type            _logger;
     }; // class dispatcher
 }; // struct modulus
@@ -1164,6 +1169,7 @@ bool modulus<PFS_MODULUS_TEMPLETE_ARGS>::dispatcher::register_modules (
             string_type path_str = (*it)["path"].template get<string_type>();
             bool is_active  = (*it)["active"].template get<bool>();
             bool is_master  = (*it)["master-module"].template get<bool>();
+            string_type depends_name_str = (*it)["depends"].template get<string_type>();
 
             if (name_str.empty()) {
                 _logger.error("found anonymous module");
@@ -1181,12 +1187,19 @@ bool modulus<PFS_MODULUS_TEMPLETE_ARGS>::dispatcher::register_modules (
                              , name_str, 0, & *it);
 
                 if (rc) {
-                    if (is_master) {
-                        set_master_module(name_str);
-                    }
-                } else {
-                    result = false;
+                    // Module is slave.
+                    // Set master module for it.
+                    if (!depends_name_str.empty())
+                        rc = set_dependences(name_str, depends_name_str);
                 }
+
+                if (rc) {
+                    if (is_master) {
+                        rc = set_master_module(name_str);
+                    }
+                }
+
+                result = rc;
             } else {
                 _logger.debug(fmt("%s: module is inactive")(name_str).str());
             }
@@ -1213,8 +1226,8 @@ bool modulus<PFS_MODULUS_TEMPLETE_ARGS>::dispatcher::register_module_for_path (
 }
 
 template <PFS_MODULUS_TEMPLETE_SIGNATURE>
-void modulus<PFS_MODULUS_TEMPLETE_ARGS>::dispatcher::set_master_module (
-        string_type const & name)
+typename modulus<PFS_MODULUS_TEMPLETE_ARGS>::basic_module *
+modulus<PFS_MODULUS_TEMPLETE_ARGS>::dispatcher::find_registered_module (string_type const & name)
 {
     typename module_spec_map_type::iterator first = _module_spec_map.begin();
     typename module_spec_map_type::iterator last  = _module_spec_map.end();
@@ -1224,8 +1237,75 @@ void modulus<PFS_MODULUS_TEMPLETE_ARGS>::dispatcher::set_master_module (
         shared_ptr<basic_module> pmodule = modspec.pmodule;
 
         if (pmodule->name() == name)
-            _master_module_ptr = pmodule.get();
+            return pmodule.get();
     }
+
+    return static_cast<basic_module *>(0);
+}
+
+template <PFS_MODULUS_TEMPLETE_SIGNATURE>
+bool modulus<PFS_MODULUS_TEMPLETE_ARGS>::dispatcher::set_dependences (
+          string_type const & name
+        , string_type const & depends_name)
+{
+    basic_module * slave  = find_registered_module(name);
+
+    if (!slave) {
+        _logger.error(fmt("%s: module not found") % name);
+        return false;
+    }
+
+    basic_module * master = find_registered_module(depends_name);
+
+    if (!master) {
+        _logger.error(fmt("%s: module not found") % depends_name);
+        return false;
+    }
+
+    if (!slave->is_slave()) {
+        _logger.error(fmt("%s: module is not a slave") % depends_name);
+        return false;
+    }
+
+    if (!master->use_async_slots()) {
+        _logger.error(fmt("%s: module must be asynchronous") % depends_name);
+        return false;
+    }
+
+    static_cast<slave_module *>(slave)->set_master(static_cast<async_module *>(master));
+
+    return true;
+}
+
+template <PFS_MODULUS_TEMPLETE_SIGNATURE>
+bool modulus<PFS_MODULUS_TEMPLETE_ARGS>::dispatcher::set_master_module (
+        string_type const & name)
+{
+    basic_module * master = find_registered_module(name);
+
+    if (!master) {
+        _logger.error(fmt("%s: master module not found") % name);
+        return false;
+    }
+
+    if (!master->use_async_slots()) {
+        _logger.error(fmt("%s: module must be asynchronous") % name);
+        return false;
+    }
+
+    _master_module_ptr = master;
+    return true;
+
+//     typename module_spec_map_type::iterator first = _module_spec_map.begin();
+//     typename module_spec_map_type::iterator last  = _module_spec_map.end();
+//
+//     for (; first != last; ++first) {
+//         module_spec modspec = first->second;
+//         shared_ptr<basic_module> pmodule = modspec.pmodule;
+//
+//         if (pmodule->name() == name)
+//             _master_module_ptr = pmodule.get();
+//     }
 }
 
 template <PFS_MODULUS_TEMPLETE_SIGNATURE>
