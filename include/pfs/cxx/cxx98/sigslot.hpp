@@ -262,6 +262,17 @@ struct sigslot
         virtual bool use_async_slots () const pfs_override { return true; }
     };
 
+    class has_slave_slots : public basic_has_slots
+    {
+        basic_has_slots * _master;
+
+    public:
+        has_slave_slots (basic_has_slots * master) : _master(master) {}
+        virtual bool use_async_slots () const pfs_override { return false; }
+        virtual bool is_slave () const pfs_override { return true; }
+        virtual basic_has_slots * master () const { return _master; }
+    };
+
     class signal_base0 : public signal_base
     {
     public:

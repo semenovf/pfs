@@ -1263,7 +1263,7 @@ bool modulus<PFS_MODULUS_TEMPLETE_ARGS>::dispatcher::set_dependences (
     }
 
     if (!slave->is_slave()) {
-        _logger.error(fmt("%s: module is not a slave") % depends_name);
+        _logger.error(fmt("%s: module is not a slave") % name);
         return false;
     }
 

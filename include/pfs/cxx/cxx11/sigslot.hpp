@@ -1,4 +1,8 @@
 #pragma once
+#include <pfs/cxx/cxx98/sigslot.hpp>
+
+#if __FIXME__
+
 #include <set>
 #include <list>
 #include <pfs/mutex.hpp>
@@ -2253,3 +2257,5 @@ struct sigslot
 }; // struct sigslot
 
 } // pfs
+
+#endif
