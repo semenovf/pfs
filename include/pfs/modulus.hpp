@@ -760,7 +760,7 @@ void modulus<PFS_MODULUS_TEMPLETE_ARGS>::dispatcher::run ()
 template <PFS_MODULUS_TEMPLETE_SIGNATURE>
 bool modulus<PFS_MODULUS_TEMPLETE_ARGS>::dispatcher::start ()
 {
-    bool r = true;
+    bool ok = true;
 
     typename module_spec_map_type::iterator first = _module_spec_map.begin();
     typename module_spec_map_type::iterator last  = _module_spec_map.end();
@@ -769,12 +769,19 @@ bool modulus<PFS_MODULUS_TEMPLETE_ARGS>::dispatcher::start ()
         module_spec modspec = first->second;
         shared_ptr<basic_module> pmodule = modspec.pmodule;
 
-        if (! pmodule->on_start()) {
-            _logger.error(fmt("failed to start module: %s") % pmodule->name());
-            r = false;
-            pmodule->_started = false;
-        } else {
-            pmodule->_started = true;
+        if (pmodule->is_slave() && pmodule->master() == 0) {
+            _logger.error(fmt("module is slave but has no master: %s") % pmodule->name());
+            ok = false;
+        }
+
+        if (ok) {
+            if (! pmodule->on_start()) {
+                _logger.error(fmt("failed to start module: %s") % pmodule->name());
+                ok = false;
+                pmodule->_started = false;
+            } else {
+                pmodule->_started = true;
+            }
         }
     }
 
@@ -782,14 +789,14 @@ bool modulus<PFS_MODULUS_TEMPLETE_ARGS>::dispatcher::start ()
     // All modules started successfully.
     // Redirect log ouput.
     //
-    if (r) {
+    if (ok) {
         info_printer  = & dispatcher::async_print_info;
         debug_printer = & dispatcher::async_print_debug;
         warn_printer  = & dispatcher::async_print_warn;
         error_printer = & dispatcher::async_print_error;
     }
 
-    return r;
+    return ok;
 }
 
 template <PFS_MODULUS_TEMPLETE_SIGNATURE>

@@ -68,8 +68,6 @@ struct sigslot
         virtual ~connection_base0() {}
         virtual basic_has_slots* getdest() const = 0;
         virtual void emit_() = 0;
-//         virtual void sync_emit() = 0;
-//         virtual void async_emit() = 0;
         virtual connection_base0* clone() = 0;
         virtual connection_base0* duplicate(basic_has_slots* pnewdest) = 0;
     };
@@ -81,8 +79,6 @@ struct sigslot
         virtual ~connection_base1() {}
         virtual basic_has_slots* getdest() const = 0;
         virtual void emit_(A1) = 0;
-//         virtual void sync_emit(A1) = 0;
-//         virtual void async_emit(A1) = 0;
         virtual connection_base1<A1>* clone() = 0;
         virtual connection_base1<A1>* duplicate(basic_has_slots* pnewdest) = 0;
     };
@@ -94,8 +90,6 @@ struct sigslot
         virtual ~connection_base2() {}
         virtual basic_has_slots* getdest() const = 0;
         virtual void emit_(A1, A2) = 0;
-//         virtual void sync_emit(A1, A2) = 0;
-//         virtual void async_emit(A1, A2) = 0;
         virtual connection_base2<A1, A2>* clone() = 0;
         virtual connection_base2<A1, A2>* duplicate(basic_has_slots* pnewdest) = 0;
     };
@@ -107,8 +101,6 @@ struct sigslot
         virtual ~connection_base3() {}
         virtual basic_has_slots* getdest() const = 0;
         virtual void emit_(A1, A2, A3) = 0;
-//         virtual void sync_emit(A1, A2, A3) = 0;
-//         virtual void async_emit(A1, A2, A3) = 0;
         virtual connection_base3<A1, A2, A3>* clone() = 0;
         virtual connection_base3<A1, A2, A3>* duplicate(basic_has_slots* pnewdest) = 0;
     };
@@ -120,8 +112,6 @@ struct sigslot
         virtual ~connection_base4() {}
         virtual basic_has_slots* getdest() const = 0;
         virtual void emit_(A1, A2, A3, A4) = 0;
-//         virtual void sync_emit(A1, A2, A3, A4) = 0;
-//         virtual void async_emit(A1, A2, A3, A4) = 0;
         virtual connection_base4<A1, A2, A3, A4>* clone() = 0;
         virtual connection_base4<A1, A2, A3, A4>* duplicate(basic_has_slots* pnewdest) = 0;
     };
@@ -133,8 +123,6 @@ struct sigslot
         virtual ~connection_base5() {}
         virtual basic_has_slots* getdest() const = 0;
         virtual void emit_(A1, A2, A3, A4, A5) = 0;
-//         virtual void sync_emit(A1, A2, A3, A4, A5) = 0;
-//         virtual void async_emit(A1, A2, A3, A4, A5) = 0;
         virtual connection_base5<A1, A2, A3, A4, A5>* clone() = 0;
         virtual connection_base5<A1, A2, A3, A4, A5>* duplicate(basic_has_slots* pnewdest) = 0;
     };
@@ -146,8 +134,6 @@ struct sigslot
         virtual ~connection_base6() {}
         virtual basic_has_slots* getdest() const = 0;
         virtual void emit_(A1, A2, A3, A4, A5, A6) = 0;
-//         virtual void sync_emit(A1, A2, A3, A4, A5, A6) = 0;
-//         virtual void async_emit(A1, A2, A3, A4, A5, A6) = 0;
         virtual connection_base6<A1, A2, A3, A4, A5, A6> * clone() = 0;
         virtual connection_base6<A1, A2, A3, A4, A5, A6> * duplicate(basic_has_slots* pnewdest) = 0;
     };
@@ -159,8 +145,6 @@ struct sigslot
         virtual ~connection_base7() {}
         virtual basic_has_slots * getdest() const = 0;
         virtual void emit_(A1, A2, A3, A4, A5, A6, A7) = 0;
-//         virtual void sync_emit(A1, A2, A3, A4, A5, A6, A7) = 0;
-//         virtual void async_emit(A1, A2, A3, A4, A5, A6, A7) = 0;
         virtual connection_base7<A1, A2, A3, A4, A5, A6, A7> * clone() = 0;
         virtual connection_base7<A1, A2, A3, A4, A5, A6, A7> * duplicate(basic_has_slots* pnewdest) = 0;
     };
@@ -172,8 +156,6 @@ struct sigslot
         virtual ~connection_base8() {}
         virtual basic_has_slots * getdest() const = 0;
         virtual void emit_(A1, A2, A3, A4, A5, A6, A7, A8) = 0;
-//         virtual void sync_emit(A1, A2, A3, A4, A5, A6, A7, A8) = 0;
-//         virtual void async_emit(A1, A2, A3, A4, A5, A6, A7, A8) = 0;
         virtual connection_base8<A1, A2, A3, A4, A5, A6, A7, A8> * clone() = 0;
         virtual connection_base8<A1, A2, A3, A4, A5, A6, A7, A8> * duplicate(basic_has_slots* pnewdest) = 0;
     };
