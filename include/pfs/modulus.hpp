@@ -149,10 +149,21 @@ struct modulus
         typedef modulus::thread_function      thread_function;
 
     public: // signals
-        typename sigslot_ns::signal0  emit_quit;
+        //typename sigslot_ns::signal0  emit_quit;
         typename sigslot_ns::template signal2<string_type const &, bool &> emit_module_registered;
 
     public:
+        // TODO OBSOLETE, use quit()
+        void emit_quit ()
+        {
+            _pdispatcher->quit();
+        }
+
+        void quit ()
+        {
+            _pdispatcher->quit();
+        }
+
         void print_info (string_type const & s)
         {
             _pdispatcher->print_info(this, s);
@@ -176,13 +187,11 @@ struct modulus
     protected:
         string_type  _name;
         dispatcher * _pdispatcher;
-        atomic_int   _quitfl; // quit flag
         bool         _started;
 
     protected:
         basic_module (dispatcher * pdisp)
             : _pdispatcher(pdisp)
-            , _quitfl(0)
             , _started(false)
         {}
 
@@ -238,7 +247,7 @@ struct modulus
 
         bool is_quit () const
         {
-            return _quitfl == 0 ? false : true;
+            return _pdispatcher->is_quit();
         }
 
         /**
@@ -261,12 +270,6 @@ struct modulus
         virtual bool on_finish ()
         {
             return true;
-        }
-
-    public: // slots
-        void on_quit ()
-        {
-            _quitfl = 1;
         }
     };// basic_module
 
@@ -489,7 +492,12 @@ struct modulus
 
         virtual void quit () pfs_override
         {
-            _emit_quit();
+            _quitfl = 1;
+        }
+
+        bool is_quit () const
+        {
+            return (_quitfl.load() != 0);
         }
 
         int exec ();
@@ -561,12 +569,6 @@ struct modulus
         logger_type & get_logger () { return _logger; }
         logger_type const & get_logger () const { return _logger; }
 
-    protected: // slots
-        void on_quit ()
-        {
-            _quitfl = 1;
-        }
-
     public: // slots
         void module_registered ( string_type const & pname, bool & result )
         {
@@ -593,17 +595,17 @@ struct modulus
             (this->*error_printer)(m, s);
         }
 
-      	void print_info (string_type const & s)
+        void print_info (string_type const & s)
         {
             print_info(0, s);
         }
 
-    	void print_debug (string_type const & s)
+        void print_debug (string_type const & s)
         {
             print_debug(0, s);
         }
 
-    	void print_warn (string_type const & s)
+        void print_warn (string_type const & s)
         {
             print_warn(0, s);
         }
@@ -680,7 +682,6 @@ struct modulus
         void (dispatcher::*warn_printer) (basic_module const * m, string_type const & s);
         void (dispatcher::*error_printer) (basic_module const * m, string_type const & s);
 
-        typename sigslot_ns::signal0    _emit_quit;
         atomic_int _quitfl; // quit flag
         filesystem::pathlist   _searchdirs;
         api_map_type           _api;
@@ -717,8 +718,6 @@ modulus<PFS_MODULUS_TEMPLETE_ARGS>::dispatcher::dispatcher (
     _logger.connect(log_ns::priority::warn    , cerr_appender);
     _logger.connect(log_ns::priority::error   , cerr_appender);
     _logger.connect(log_ns::priority::critical, cerr_appender);
-
-    this->_emit_quit.connect(this, & dispatcher::on_quit);
 
     register_api(mapper, n);
 }
@@ -957,9 +956,6 @@ bool modulus<PFS_MODULUS_TEMPLETE_ARGS>::dispatcher::register_module (
         _logger.error(fmt("%s: module already registered") % (pmodule->name()));
         return false;
     }
-
-    pmodule->emit_quit.connect(this, & dispatcher::quit);
-    this->_emit_quit.connect(pmodule.get(), & basic_module::on_quit);
 
     if (!pmodule->on_loaded()) {
         _logger.error(fmt("%s: on_loaded stage failed") % pmodule->name());
