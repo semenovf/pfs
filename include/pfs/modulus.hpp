@@ -149,7 +149,6 @@ struct modulus
         typedef modulus::thread_function      thread_function;
 
     public: // signals
-        //typename sigslot_ns::signal0  emit_quit;
         typename sigslot_ns::template signal2<string_type const &, bool &> emit_module_registered;
 
     public:
@@ -492,7 +491,7 @@ struct modulus
 
         virtual void quit () pfs_override
         {
-            _quitfl = 1;
+            _quitfl.store(1);
         }
 
         bool is_quit () const
@@ -752,8 +751,11 @@ void modulus<PFS_MODULUS_TEMPLETE_ARGS>::dispatcher::run ()
             pfs::this_thread::sleep_for(pfs::chrono::milliseconds(100));
             continue;
         }
-        this->_queue_ptr->call_all();
+
+        this->_queue_ptr->call(5);
     }
+
+    this->_queue_ptr->call_all();
 }
 
 template <PFS_MODULUS_TEMPLETE_SIGNATURE>
@@ -1391,18 +1393,18 @@ int modulus<PFS_MODULUS_TEMPLETE_ARGS>::dispatcher::exec ()
 XMOD::emitter_mapper_pair const *                                              \
 XMOD::get_emitters (int & count)                                               \
 {                                                                              \
-	static emitter_mapper_pair __emitter_mapper[] = {
+    static emitter_mapper_pair __emitter_mapper[] = {
 
 #define PFS_V2_MODULE_EMITTERS_INLINE_BEGIN                                    \
 emitter_mapper_pair const *                                                    \
 get_emitters (int & count) pfs_override                                        \
 {                                                                              \
-	static emitter_mapper_pair __emitter_mapper[] = {
+    static emitter_mapper_pair __emitter_mapper[] = {
 
 #define PFS_V2_MODULE_EMITTERS_END                                             \
-	};                                                                         \
-	count = sizeof(__emitter_mapper)/sizeof(__emitter_mapper[0]);              \
-	return & __emitter_mapper[0];                                              \
+    };                                                                         \
+    count = sizeof(__emitter_mapper)/sizeof(__emitter_mapper[0]);              \
+    return & __emitter_mapper[0];                                              \
 }
 
 #define PFS_V2_MODULE_DETECTORS_EXTERN                                         \
@@ -1413,16 +1415,16 @@ get_detectors (int & count) pfs_override;
 XMOD::detector_mapper_pair const *                                             \
 XMOD::get_detectors (int & count)                                              \
 {                                                                              \
-	static detector_mapper_pair __detector_mapper[] = {
+    static detector_mapper_pair __detector_mapper[] = {
 
 #define PFS_V2_MODULE_DETECTORS_INLINE_BEGIN                                   \
 detector_mapper_pair const *                                                   \
 get_detectors (int & count) pfs_override                                       \
 {                                                                              \
-	static detector_mapper_pair __detector_mapper[] = {
+    static detector_mapper_pair __detector_mapper[] = {
 
 #define PFS_V2_MODULE_DETECTORS_END		                                       \
-	};                                                                         \
-	count = sizeof(__detector_mapper)/sizeof(__detector_mapper[0]);            \
-	return & __detector_mapper[0];                                             \
+    };                                                                         \
+    count = sizeof(__detector_mapper)/sizeof(__detector_mapper[0]);            \
+    return & __detector_mapper[0];                                             \
 }
