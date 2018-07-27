@@ -1346,6 +1346,8 @@ int modulus<PFS_MODULUS_TEMPLETE_ARGS>::dispatcher::exec_main ()
 
         // And call master function
         r = (_master_module_ptr->*master_thread_function)();
+
+        dthread.join();
     } else {
         this->run();
     }
