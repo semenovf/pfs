@@ -1334,17 +1334,17 @@ struct sigslot
                 (_pobject->*_pmemfun)(a1, a2);
         }
 
-        virtual void sync_emit (A1 a1, A2 a2) pfs_override
-        {
-            (_pobject->*_pmemfun)(a1, a2);
-        }
-
-        virtual void async_emit (A1 a1, A2 a2) pfs_override
-        {
-            _pobject->callback_queue().template push_method<dest_type
-                    , A1
-                    , A2>(_pmemfun, _pobject, a1, a2);
-        }
+//         virtual void sync_emit (A1 a1, A2 a2) pfs_override
+//         {
+//             (_pobject->*_pmemfun)(a1, a2);
+//         }
+//
+//         virtual void async_emit (A1 a1, A2 a2) pfs_override
+//         {
+//             _pobject->callback_queue().template push_method<dest_type
+//                     , A1
+//                     , A2>(_pmemfun, _pobject, a1, a2);
+//         }
 
         virtual basic_has_slots* getdest() const
         {
