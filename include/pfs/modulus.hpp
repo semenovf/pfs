@@ -1380,53 +1380,73 @@ int modulus<PFS_MODULUS_TEMPLETE_ARGS>::dispatcher::exec ()
 
 } // pfs
 
-#define PFS_V2_DETECTOR_CAST(slot) reinterpret_cast<detector_handler>(& slot)
-#define PFS_V2_EMITTER_CAST(e)     reinterpret_cast<void *>(& e)
-#define PFS_V2_MODULE_API extern "C" PFS_DLL_API
+#define PFS_DETECTOR_CAST(slot) reinterpret_cast<detector_handler>(& slot)
+#define PFS_MODULE_API          extern "C" PFS_DLL_API
+#define PFS_EMITTER_CAST(e)     reinterpret_cast<void *>(& e)
+#define PFS_V2_DETECTOR_CAST(slot) PFS_DETECTOR_CAST(slot) // TODO OBSOLETE
+#define PFS_V2_EMITTER_CAST(e)     PFS_EMITTER_CAST(e)     // TODO OBSOLETE
+#define PFS_V2_MODULE_API          PFS_MODULE_API          // TODO OBSOLETE
 
-#define PFS_V2_MODULE_EMITTER(id, em) { id , PFS_V2_EMITTER_CAST(em) }
-#define PFS_V2_MODULE_DETECTOR(id, dt) { id , PFS_V2_DETECTOR_CAST(dt) }
+#define PFS_MODULE_EMITTER(id, em) { id , PFS_V2_EMITTER_CAST(em) }
+#define PFS_MODULE_DETECTOR(id, dt) { id , PFS_V2_DETECTOR_CAST(dt) }
+#define PFS_V2_MODULE_EMITTER(id, em) { id , PFS_V2_EMITTER_CAST(em) }   // TODO OBSOLETE
+#define PFS_V2_MODULE_DETECTOR(id, dt) { id , PFS_V2_DETECTOR_CAST(dt) } // TODO OBSOLETE
 
-#define PFS_V2_MODULE_EMITTERS_EXTERN                                          \
+#define PFS_MODULE_EMITTERS_EXTERN                                             \
     emitter_mapper_pair const *                                                \
     get_emitters (int & count) pfs_override;
+#define PFS_V2_MODULE_EMITTERS_EXTERN PFS_MODULE_EMITTERS_EXTERN // TODO OBSOLETE
 
-#define PFS_V2_MODULE_EMITTERS_BEGIN(XMOD)                                     \
+#define PFS_MODULE_EMITTERS_BEGIN(XMOD)                                        \
 XMOD::emitter_mapper_pair const *                                              \
 XMOD::get_emitters (int & count)                                               \
 {                                                                              \
     static emitter_mapper_pair __emitter_mapper[] = {
 
-#define PFS_V2_MODULE_EMITTERS_INLINE_BEGIN                                    \
+#define PFS_V2_MODULE_EMITTERS_BEGIN(XMOD) PFS_MODULE_EMITTERS_BEGIN(XMOD) // TODO OBSOLETE
+
+#define PFS_MODULE_EMITTERS_INLINE_BEGIN                                    \
 emitter_mapper_pair const *                                                    \
 get_emitters (int & count) pfs_override                                        \
 {                                                                              \
     static emitter_mapper_pair __emitter_mapper[] = {
 
-#define PFS_V2_MODULE_EMITTERS_END                                             \
+#define PFS_V2_MODULE_EMITTERS_INLINE_BEGIN PFS_MODULE_EMITTERS_INLINE_BEGIN // TODO OBSOLETE
+
+#define PFS_MODULE_EMITTERS_END                                                \
     };                                                                         \
     count = sizeof(__emitter_mapper)/sizeof(__emitter_mapper[0]);              \
     return & __emitter_mapper[0];                                              \
 }
 
-#define PFS_V2_MODULE_DETECTORS_EXTERN                                         \
+#define PFS_V2_MODULE_EMITTERS_END PFS_MODULE_EMITTERS_END   // TODO OBSOLETE
+
+#define PFS_MODULE_DETECTORS_EXTERN                                            \
 detector_mapper_pair const *                                                   \
 get_detectors (int & count) pfs_override;
 
-#define PFS_V2_MODULE_DETECTORS_BEGIN(XMOD)                                    \
+#define PFS_V2_MODULE_DETECTORS_EXTERN PFS_MODULE_DETECTORS_EXTERN // TODO OBSOLETE
+
+#define PFS_MODULE_DETECTORS_BEGIN(XMOD)                                       \
 XMOD::detector_mapper_pair const *                                             \
 XMOD::get_detectors (int & count)                                              \
 {                                                                              \
     static detector_mapper_pair __detector_mapper[] = {
 
-#define PFS_V2_MODULE_DETECTORS_INLINE_BEGIN                                   \
+#define PFS_V2_MODULE_DETECTORS_BEGIN(XMOD) PFS_MODULE_DETECTORS_BEGIN(XMOD) // TODO OBSOLETE
+
+#define PFS_MODULE_DETECTORS_INLINE_BEGIN                                      \
 detector_mapper_pair const *                                                   \
 get_detectors (int & count) pfs_override                                       \
 {                                                                              \
     static detector_mapper_pair __detector_mapper[] = {
 
-#define PFS_V2_MODULE_DETECTORS_END		                                       \
+#define PFS_V2_MODULE_DETECTORS_INLINE_BEGIN PFS_MODULE_DETECTORS_INLINE_BEGIN // TODO OBSOLETE
+
+#define PFS_MODULE_DETECTORS_END                                               \
     };                                                                         \
     count = sizeof(__detector_mapper)/sizeof(__detector_mapper[0]);            \
     return & __detector_mapper[0];                                             \
 }
+
+#define PFS_V2_MODULE_DETECTORS_END PFS_MODULE_DETECTORS_END // TODO OBSOLETE
