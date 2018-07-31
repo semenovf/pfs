@@ -1380,17 +1380,18 @@ int modulus<PFS_MODULUS_TEMPLETE_ARGS>::dispatcher::exec ()
 
 } // pfs
 
-#define PFS_DETECTOR_CAST(slot) reinterpret_cast<detector_handler>(& slot)
 #define PFS_MODULE_API          extern "C" PFS_DLL_API
+#define PFS_V2_MODULE_API          PFS_MODULE_API          // TODO OBSOLETE
+
+#define PFS_DETECTOR_CAST(slot) reinterpret_cast<detector_handler>(& slot)
 #define PFS_EMITTER_CAST(e)     reinterpret_cast<void *>(& e)
 #define PFS_V2_DETECTOR_CAST(slot) PFS_DETECTOR_CAST(slot) // TODO OBSOLETE
 #define PFS_V2_EMITTER_CAST(e)     PFS_EMITTER_CAST(e)     // TODO OBSOLETE
-#define PFS_V2_MODULE_API          PFS_MODULE_API          // TODO OBSOLETE
 
-#define PFS_MODULE_EMITTER(id, em) { id , PFS_V2_EMITTER_CAST(em) }
-#define PFS_MODULE_DETECTOR(id, dt) { id , PFS_V2_DETECTOR_CAST(dt) }
-#define PFS_V2_MODULE_EMITTER(id, em) { id , PFS_V2_EMITTER_CAST(em) }   // TODO OBSOLETE
-#define PFS_V2_MODULE_DETECTOR(id, dt) { id , PFS_V2_DETECTOR_CAST(dt) } // TODO OBSOLETE
+#define PFS_MODULE_EMITTER(id, em) { id , PFS_EMITTER_CAST(em) }
+#define PFS_MODULE_DETECTOR(id, dt) { id , PFS_DETECTOR_CAST(dt) }
+#define PFS_V2_MODULE_EMITTER(id, em) { id , PFS_EMITTER_CAST(em) }   // TODO OBSOLETE
+#define PFS_V2_MODULE_DETECTOR(id, dt) { id , PFS_DETECTOR_CAST(dt) } // TODO OBSOLETE
 
 #define PFS_MODULE_EMITTERS_EXTERN                                             \
     emitter_mapper_pair const *                                                \
