@@ -614,6 +614,9 @@ struct modulus
             print_error(0, s);
         }
 
+        void connect_console_appenders ();
+        void disconnect_console_appenders ();
+
     protected:
         module_spec module_for_path ( filesystem::path const & path
                 , char const * class_name = 0
@@ -688,6 +691,10 @@ struct modulus
         runnable_sequence_type _runnable_modules;  // modules run in a separate threads
         basic_module *         _master_module_ptr; // TODO Unsuitbale member name, rename it
         logger_type            _logger;
+
+        // Console appenders
+        typename log_ns::appender * _cout_appender_ptr;
+        typename log_ns::appender * _cerr_appender_ptr;
     }; // class dispatcher
 }; // struct modulus
 
@@ -704,21 +711,32 @@ modulus<PFS_MODULUS_TEMPLETE_ARGS>::dispatcher::dispatcher (
     , _quitfl(0)
 {
     // Initialize default logger
-    typename log_ns::appender & cout_appender
-            = _logger.template add_appender<typename log_ns::stdout_appender>();
-    typename log_ns::appender & cerr_appender
-            = _logger.template add_appender<typename log_ns::stderr_appender>();
-    cout_appender.set_pattern("%d{ABSOLUTE} [%p]: %m");
-    cerr_appender.set_pattern("%d{ABSOLUTE} [%p]: %m");
+    _cout_appender_ptr = & _logger.template add_appender<typename log_ns::stdout_appender>();
+    _cerr_appender_ptr = & _logger.template add_appender<typename log_ns::stderr_appender>();
+    _cout_appender_ptr->set_pattern("%d{ABSOLUTE} [%p]: %m");
+    _cerr_appender_ptr->set_pattern("%d{ABSOLUTE} [%p]: %m");
 
-    _logger.connect(log_ns::priority::trace   , cout_appender);
-    _logger.connect(log_ns::priority::debug   , cout_appender);
-    _logger.connect(log_ns::priority::info    , cout_appender);
-    _logger.connect(log_ns::priority::warn    , cerr_appender);
-    _logger.connect(log_ns::priority::error   , cerr_appender);
-    _logger.connect(log_ns::priority::critical, cerr_appender);
+    connect_console_appenders();
 
     register_api(mapper, n);
+}
+
+template <PFS_MODULUS_TEMPLETE_SIGNATURE>
+void modulus<PFS_MODULUS_TEMPLETE_ARGS>::dispatcher::connect_console_appenders ()
+{
+    _logger.connect(log_ns::priority::trace   , *_cout_appender_ptr);
+    _logger.connect(log_ns::priority::debug   , *_cout_appender_ptr);
+    _logger.connect(log_ns::priority::info    , *_cout_appender_ptr);
+    _logger.connect(log_ns::priority::warn    , *_cerr_appender_ptr);
+    _logger.connect(log_ns::priority::error   , *_cerr_appender_ptr);
+    _logger.connect(log_ns::priority::critical, *_cerr_appender_ptr);
+}
+
+template <PFS_MODULUS_TEMPLETE_SIGNATURE>
+void modulus<PFS_MODULUS_TEMPLETE_ARGS>::dispatcher::disconnect_console_appenders ()
+{
+    _logger.disconnect(*_cout_appender_ptr);
+    _logger.disconnect(*_cerr_appender_ptr);
 }
 
 template <PFS_MODULUS_TEMPLETE_SIGNATURE>
@@ -817,13 +835,21 @@ void modulus<PFS_MODULUS_TEMPLETE_ARGS>::dispatcher::finalize ()
         for (; imodule != imodule_last; ++imodule) {
             module_spec & modspec = imodule->second;
 
-            if (modspec.pmodule->is_started())
+            if (modspec.pmodule->is_started()) {
+
+                // Call deferred callbacks in modules
+                if (modspec.pmodule->use_async_slots())
+                    static_cast<async_module *>(modspec.pmodule.get())->call_all();
+
                 modspec.pmodule->on_finish();
+            }
         }
 
         disconnect_all();
         unregister_all();
     }
+
+    this->_queue_ptr->call_all();
 }
 
 template <PFS_MODULUS_TEMPLETE_SIGNATURE>
