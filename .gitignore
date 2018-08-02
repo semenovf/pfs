@@ -2,6 +2,7 @@
 
 .settings/
 .build*/
+build*/
 .kdev4/
 .idea/
 .project
