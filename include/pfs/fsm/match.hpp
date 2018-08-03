@@ -1,6 +1,4 @@
-#ifndef __PFS_FSM_MATCH_HPP__
-#define __PFS_FSM_MATCH_HPP__
-
+#pragma once
 #include <pfs/assert.hpp>
 #include <pfs/fsm/traits.hpp>
 
@@ -25,15 +23,15 @@ public:
     typedef typename match_traits_type::result_type    result_type;
     typedef typename match_traits_type::func_type      func_type;
 
-protected:    
+protected:
     struct match_base
     {
         atomic_type ref;
-        
+
         match_base ()
             : ref(1)
         {}
-        
+
         virtual ~match_base () {}
         virtual result_type do_match (context<Iterator, AtomicInt> * ctx
                 , iterator begin
@@ -46,12 +44,12 @@ protected:
     match (match_base * p)
         : _p(p)
     {}
-        
+
 public:
     ~match ()
     {
         PFS_ASSERT(_p->ref > 0);
-        
+
         if(!--_p->ref) {
             delete _p;
         }
@@ -68,7 +66,7 @@ public:
         this->~match();
         _p = m._p;
         ++_p->ref;
-        
+
         return *this;
     }
 
@@ -149,7 +147,7 @@ public:
         {}
     };
 
-    
+
     class match_one_of : public match_base
     {
         iterator _seq_begin;
@@ -187,7 +185,7 @@ public:
                 , _max(max)
         {}
     };
-    
+
     class match_func : public match_base
     {
         func_type _fn;
@@ -210,7 +208,7 @@ public:
     class match_tr : public match_base
     {
         transition<Iterator, AtomicInt> const * _tr;
-        
+
         virtual result_type do_match (context<Iterator, AtomicInt> * ctx
                 , iterator begin
                 , iterator end) const;
@@ -226,7 +224,7 @@ public:
         match<Iterator, AtomicInt> _match;
         int _from;
         int _to;
-        
+
         virtual result_type do_match (context<Iterator, AtomicInt> * ctx
                 , iterator begin
                 , iterator end) const;
@@ -238,7 +236,7 @@ public:
                 , _to(to)
         {}
     };
-    
+
     template <typename MatchT>
     static match make ()
     {
@@ -289,6 +287,3 @@ public:
 };
 
 }} // pfs::fsm
-
-#endif /* __PFS_FSM_MATCH_HPP__ */
-

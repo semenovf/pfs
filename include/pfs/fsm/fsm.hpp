@@ -134,6 +134,19 @@ public:
                 , transition_type const *>(t);
     }
 
+    static match_type rpt_length (int n
+            , size_type from
+            , size_type to)
+    {
+        return match_type::template make_rpt<typename match_type::match_length
+                , int>(n, from, to);
+    };
+
+    static match_type opt_length (int n)
+    {
+        return rpt_length(n, 0, 1);
+    };
+
     static match_type rpt_one_of (iterator first, iterator last
             , size_type from
             , size_type to)
@@ -161,12 +174,11 @@ public:
     };
 
     static match_type rpt_range (
-                char_type min
+              char_type min
             , char_type max
             , size_type from
             , size_type to)
     {
-
         return match_type::template make<typename match_type::match_range
                 , char_type, char_type>(min, max, from, to);
     };

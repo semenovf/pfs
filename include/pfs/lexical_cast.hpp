@@ -12,7 +12,7 @@ namespace pfs {
 template <typename UintType>
 typename pfs::enable_if<pfs::is_integral<UintType>::value
         && pfs::is_unsigned<UintType>::value, UintType>::type
-lexical_cast (string const & s, int radix = 10)
+lexical_cast (string const & s, error_code & ec, int radix = 10)
 {
     typedef string::const_iterator iterator;
     iterator badpos;
@@ -23,7 +23,20 @@ lexical_cast (string const & s, int radix = 10)
             , radix);
 
     if (badpos != s.cend())
-        PFS_THROW(bad_lexical_cast(pfs::make_error_code(lexical_cast_errc::invalid_string)));
+        ec = pfs::make_error_code(lexical_cast_errc::invalid_string);
+
+    return result;
+}
+
+template <typename UintType>
+inline typename pfs::enable_if<pfs::is_integral<UintType>::value
+        && pfs::is_unsigned<UintType>::value, UintType>::type
+lexical_cast (string const & s, int radix = 10)
+{
+    error_code ec;
+    UintType result = lexical_cast<UintType>(s, ec, radix);
+
+    if (ec) PFS_THROW(bad_lexical_cast(ec));
 
     return result;
 }
@@ -31,7 +44,7 @@ lexical_cast (string const & s, int radix = 10)
 template <typename IntType>
 typename pfs::enable_if<pfs::is_integral<IntType>::value
         && pfs::is_signed<IntType>::value, IntType>::type
-lexical_cast (string const & s, int radix = 10)
+lexical_cast (string const & s, error_code & ec, int radix = 10)
 {
     typedef string::const_iterator iterator;
     iterator badpos;
@@ -42,14 +55,27 @@ lexical_cast (string const & s, int radix = 10)
             , radix);
 
     if (badpos != s.cend())
-        PFS_THROW(bad_lexical_cast(pfs::make_error_code(lexical_cast_errc::invalid_string)));
+        ec = pfs::make_error_code(lexical_cast_errc::invalid_string);
+
+    return result;
+}
+
+template <typename IntType>
+inline typename pfs::enable_if<pfs::is_integral<IntType>::value
+        && pfs::is_signed<IntType>::value, IntType>::type
+lexical_cast (string const & s, int radix = 10)
+{
+    error_code ec;
+    IntType result = lexical_cast<IntType>(s, ec, radix);
+
+    if (ec) PFS_THROW(bad_lexical_cast(ec));
 
     return result;
 }
 
 template <typename RealType>
 typename pfs::enable_if<pfs::is_floating_point<RealType>::value, RealType>::type
-lexical_cast (string const & s, string::value_type decimal_point = '.')
+lexical_cast (string const & s, error_code & ec, string::value_type decimal_point = '.')
 {
     typedef string::const_iterator iterator;
     iterator badpos;
@@ -60,9 +86,21 @@ lexical_cast (string const & s, string::value_type decimal_point = '.')
             , & badpos);
 
     if (badpos != s.cend())
-        PFS_THROW(bad_lexical_cast(pfs::make_error_code(lexical_cast_errc::invalid_string)));
+        ec = pfs::make_error_code(lexical_cast_errc::invalid_string);
 
     return static_cast<RealType>(result);
+}
+
+template <typename RealType>
+inline typename pfs::enable_if<pfs::is_floating_point<RealType>::value, RealType>::type
+lexical_cast (string const & s, string::value_type decimal_point = '.')
+{
+    error_code ec;
+    RealType result = lexical_cast<RealType>(s, ec, decimal_point);
+
+    if (ec) PFS_THROW(bad_lexical_cast(ec));
+
+    return result;
 }
 
 } // pfs
