@@ -1,14 +1,15 @@
 #pragma once
 #include <pfs/algo/split.hpp>
+#include <pfs/algo/join.hpp>
 #include <pfs/list.hpp>
 #include <pfs/string.hpp>
 
 namespace pfs {
 
-template <typename StringT = pfs::string>
-class stringlist : public list<StringT>
+template <typename StringT = pfs::string, template <typename> class Sequence = pfs::list>
+class stringlist : public Sequence<StringT>
 {
-    typedef list<StringT> base_class;
+    typedef Sequence<StringT> base_class;
 
 public:
     typedef StringT string_type;
@@ -20,11 +21,30 @@ public:
 public:
     stringlist () : base_class() {}
 
+#if __cplusplus >= 201103L
+    stringlist (stringlist && rhs)
+        : base_class(std::forward<stringlist>(rhs))
+    {}
+
+    stringlist (std::initializer_list<StringT> ilist)
+        : base_class(ilist.begin(), ilist.end())
+    {}
+#endif
+
+
     void split (string_type const & s, string_type const & separator
             , bool flag = keep_empty)
     {
         pfs::split(s.begin(), s.end(), separator.begin(), separator.end(), flag, this);
     }
+
+    string_type join (string_type const & separator)
+    {
+        string_type s;
+        pfs::join(this->cbegin(), this->cend(), separator, & s);
+        return s;
+    }
+
 };
 
 } // pfs

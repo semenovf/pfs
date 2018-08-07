@@ -196,7 +196,7 @@ public:
 
 #if __cplusplus >= 201103L
     /**
-    * @fn iterator insert( const_iterator hint, value_type&& value );
+    * @fn iterator insert (const_iterator hint, value_type && value);
     */
 #endif
 

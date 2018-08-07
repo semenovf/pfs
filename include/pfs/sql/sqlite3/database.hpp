@@ -9,6 +9,7 @@ namespace pfs {
 namespace sql {
 namespace sqlite3 {
 
+template <typename DerivedT>
 struct database
 {
     static int const MAX_BUSY_TIMEOUT = 1000; // 1 second
@@ -23,7 +24,7 @@ public:
     database () : _h(0) {}
 
     /**
-    * @brief Connects to sqlite3 databases.
+    * @brief Connects to sqlite3 database.
     *
     * @param driver_dsn Details see SQLite docs on sqlite3_open_v2 function.
     *        Examples:
@@ -145,10 +146,10 @@ public:
         return _h != 0;
     }
 
-    bool query (char const * sql, pfs::error_code & ec, string_type * errstr)
+    bool query (string_type const & sql, pfs::error_code & ec, string_type * errstr)
     {
         char * errmsg;
-        int rc = sqlite3_exec(_h, sql, NULL, NULL, & errmsg);
+        int rc = sqlite3_exec(_h, sql.c_str(), NULL, NULL, & errmsg);
 
         if (SQLITE_OK != rc) {
             if (errmsg && errstr) {
@@ -159,11 +160,6 @@ public:
         }
 
         return true;
-    }
-
-    bool query (string_type const & sql, pfs::error_code & ec, string_type * errstr)
-    {
-        return query(sql.c_str(), ec, errstr);
     }
 
     bool begin ()

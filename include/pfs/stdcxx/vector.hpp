@@ -410,6 +410,18 @@ public:
      * @fn void swap (vector & rhs)
      */
 
+
+    template <typename InputIt>
+    iterator append (InputIt first, InputIt last)
+    {
+        return this->insert(this->cend(), first, last);
+    }
+
+    iterator append (vector const & rhs)
+    {
+        return this->insert(this->cend(), rhs.cbegin(), rhs.cend());
+    }
+
     ///////////////////////////////////////////////////////////////////////////
     // Compare operators                                                     //
     ///////////////////////////////////////////////////////////////////////////
