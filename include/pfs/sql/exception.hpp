@@ -20,6 +20,7 @@ struct sql_errc
         , bad_alloc
         , query_fail
         , specific_error
+        , bad_handle
 #if __cplusplus < 201103L
     };
 

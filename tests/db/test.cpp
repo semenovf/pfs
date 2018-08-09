@@ -2,6 +2,7 @@
 
 extern void sqlite3_test0 ();
 extern void sqlite3_test1 ();
+//extern void sqlite3_statement ();
 
 int main ()
 {
@@ -9,6 +10,7 @@ int main ()
 
     sqlite3_test0();
     sqlite3_test1();
+    //sqlite3_statement();
 
     return END_TESTS;
 }

@@ -1,32 +1,42 @@
 #pragma once
+#include <pfs/sql/sqlite3/sqlite3.h>
+#include <pfs/noncopyable.hpp>
 #include <pfs/string.hpp>
+#include <pfs/stringlist.hpp>
 #include <pfs/system_error.hpp>
 #include <pfs/net/uri.hpp>
 #include <pfs/sql/exception.hpp>
-#include <pfs/sql/sqlite3/sqlite3.h>
+#include <pfs/sql/sqlite3/statement.hpp>
 
 namespace pfs {
 namespace sql {
 namespace sqlite3 {
 
-template <typename DerivedT>
-struct database
+template <typename StringListT = pfs::stringlist<>, typename StringT = pfs::string>
+class database : noncopyable
 {
     static int const MAX_BUSY_TIMEOUT = 1000; // 1 second
 
-    typedef pfs::string      string_type;
-    typedef struct sqlite3 * native_handle;
+public:
+    typedef StringT            string_type;
+    typedef StringListT        stringlist_type;
+    typedef statement<StringT> statement_type;
 
 private:
-    native_handle _h;
+    native_handle_type _h;
 
 public:
     database () : _h(0) {}
 
+    native_handle_type native_handle () const
+    {
+        return _h;
+    }
+
     /**
     * @brief Connects to sqlite3 database.
     *
-    * @param driver_dsn Details see SQLite docs on sqlite3_open_v2 function.
+    * @param db_uri Details see SQLite docs on sqlite3_open_v2 function.
     *        Examples:
     *            file:data.db
     *                Open the file "data.db" in the current directory.
@@ -67,16 +77,16 @@ public:
     *
     * @note  Autocommit mode is on by default.
     */
-    bool open (string_type const & uristr, error_code & ec, string_type * errstr)
+    bool open (string_type const & db_uri, error_code & ec, string_type & errstr)
     {
         pfs::net::uri<string_type> uri;
 
-        if (! uristr.starts_with("sqlite3:")) {
+        if (! db_uri.starts_with("sqlite3:")) {
             ec = make_error_code(sql_errc::bad_uri);
             return false;
         }
 
-        if (!uri.parse(uristr)) {
+        if (!uri.parse(db_uri)) {
             ec = make_error_code(sql_errc::bad_uri);
             return false;
         }
@@ -106,15 +116,11 @@ public:
                 switch (rc) {
                 case SQLITE_CANTOPEN:
                     ec = make_error_code(sql_errc::open_fail);
-                    if (errstr) {
-                        *errstr = sqlite3_errstr(rc);
-                    }
+                    errstr = result_code<string_type>::errorstr(sqlite3_errstr(rc), rc);
                     return false;
                 default:
                     ec = make_error_code(sql_errc::specific_error);
-                    if (errstr) {
-                        *errstr = sqlite3_errstr(rc);
-                    }
+                    errstr = result_code<string_type>::errorstr(sqlite3_errstr(rc), rc);
                     break;
                 }
 
@@ -146,14 +152,15 @@ public:
         return _h != 0;
     }
 
-    bool query (string_type const & sql, pfs::error_code & ec, string_type * errstr)
+    bool query (string_type const & sql, pfs::error_code & ec, string_type & errstr)
     {
         char * errmsg;
-        int rc = sqlite3_exec(_h, sql.c_str(), NULL, NULL, & errmsg);
+        int rc = sqlite3_exec(_h, sql.utf8().c_str(), NULL, NULL, & errmsg);
 
         if (SQLITE_OK != rc) {
-            if (errmsg && errstr) {
-                *errstr = errmsg;
+            if (errmsg) {
+                ec = pfs::make_error_code(pfs::sql_errc::query_fail);
+                errstr = result_code<string_type>::errorstr(errmsg, rc);
                 sqlite3_free(errmsg);
             }
             return false;
@@ -178,6 +185,25 @@ public:
     {
         pfs::error_code ec;
         return query("ROLLBACK", ec, 0);
+    }
+
+    stringlist_type tables (pfs::error_code & rc, string_type & errstr) const
+    {
+        stringlist_type result;
+
+        statement_type stmt;
+
+        if (stmt.prepare(_h
+                , "SELECT anme FROM sqlite_master WHERE type='table' ORDER BY name"
+                , ec
+                , errstr)) {
+
+            if (stmt.exec(ec, errstr)) {
+
+            }
+        }
+
+        return result;
     }
 };
 

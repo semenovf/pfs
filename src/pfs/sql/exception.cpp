@@ -24,6 +24,8 @@ std::string sql_category::message (int ev) const
         return "query failed";
     case static_cast<int>(sql_errc::specific_error):
         return "specific error";
+    case static_cast<int>(sql_errc::bad_handle):
+        return "handle is not valid";
     default: break;
     }
     return "unknown DB error";
