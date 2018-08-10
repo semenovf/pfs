@@ -2,21 +2,20 @@
 #include <pfs/sql/sqlite3/sqlite3.h>
 #include <pfs/string.hpp>
 #include <pfs/system_error.hpp>
-#include <pfs/sql/sqlite3/database.hpp>
 #include <pfs/sql/sqlite3/result_code.hpp>
 #include <pfs/sql/sqlite3/id.hpp>
 #include <pfs/sql/exception.hpp>
 
 namespace pfs {
-namespace db {
+namespace sql {
 namespace sqlite3 {
 
 template <typename StringT = pfs::string>
 class statement
 {
-    typedef StringT        string_type;
-    typedef sqlite3 *      db_native_handle_type;
-    typedef sqlite3_stmt * native_handle_type;
+    typedef StringT          string_type;
+    typedef struct sqlite3 * db_native_handle_type;
+    typedef struct sqlite3_stmt * native_handle_type;
 
 private:
     native_handle_type _h;
@@ -95,9 +94,9 @@ public:
         // of data will be returned. A SELECT statement will always have a positive
         // sqlite3_column_count() but depending on the WHERE clause constraints
         // and the table content, it might return no rows.
-        _columnt_count = sqlite3_column_count(_h);
+        _column_count = sqlite3_column_count(_h);
 
-        if (_columnt_count > 0) {
+        if (_column_count > 0) {
             rc = sqlite3_reset(_h);
         } else {
             rc = sqlite3_step(_h);
@@ -135,4 +134,4 @@ public:
     }
 };
 
-}}} // pfs::db::sqlite3
+}}} // pfs::sql::sqlite3

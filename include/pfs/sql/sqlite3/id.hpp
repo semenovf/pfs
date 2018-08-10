@@ -2,7 +2,7 @@
 #include <pfs/sql/sqlite3/sqlite3.h>
 
 namespace pfs {
-namespace db {
+namespace sql {
 namespace sqlite3 {
 
 class id
@@ -19,5 +19,5 @@ public:
     native_type native () const { return _value; }
 };
 
-}}} // pfs::db::sqlite3
+}}} // pfs::sql::sqlite3
 

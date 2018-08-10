@@ -9,11 +9,11 @@ namespace pfs {
 namespace sql {
 
 template <typename IdRep
-        , template <typename> class DatabaseRep
+        , template <typename, typename> class DatabaseRep // must inherits noncopyable
         , template <typename> class StatementRep
         , typename StringListT = pfs::stringlist<>
         , typename StringT = pfs::string>
-struct debyy
+struct debby
 {
     typedef StringT     string_type;
     typedef StringListT stringlist_type;
@@ -41,7 +41,7 @@ struct debyy
 // Statement                                                                  //
 ////////////////////////////////////////////////////////////////////////////////
 
-    class statement : public StatementRep<string_type>, noncopyable
+    class statement : public StatementRep<string_type>
     {
         typedef StatementRep<string_type> base_class;
 
@@ -60,7 +60,7 @@ struct debyy
 // Database                                                                   //
 ////////////////////////////////////////////////////////////////////////////////
 
-    class database : public DatabaseRep<stringlist_type, string_type>, noncopyable
+    class database : public DatabaseRep<stringlist_type, string_type>
     {
         typedef DatabaseRep<stringlist_type, string_type> base_class;
         using base_class::open;
@@ -115,7 +115,7 @@ struct debyy
         {
             statement result;
 
-            return result.prepare(native_handle(), sql, ec, errstr)
+            return result.prepare(base_class::native_handle(), sql, ec, errstr)
                     ? result
                     : statement();
         }

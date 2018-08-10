@@ -22,7 +22,6 @@ list(APPEND MY_TEST_TARGETS byte_string)
 list(APPEND MY_TEST_TARGETS chrono)
 list(APPEND MY_TEST_TARGETS command)
 list(APPEND MY_TEST_TARGETS date)
-list(APPEND MY_TEST_TARGETS db)
 list(APPEND MY_TEST_TARGETS dynamic_library)
 #list(APPEND MY_TEST_TARGETS filesystem) -- Fixme
 list(APPEND MY_TEST_TARGETS fsm)
@@ -46,6 +45,7 @@ list(APPEND MY_TEST_TARGETS regex)
 list(APPEND MY_TEST_TARGETS safeformat)
 list(APPEND MY_TEST_TARGETS sigslot)
 list(APPEND MY_TEST_TARGETS smart_ptr)
+list(APPEND MY_TEST_TARGETS sql)
 list(APPEND MY_TEST_TARGETS string)
 list(APPEND MY_TEST_TARGETS time)
 list(APPEND MY_TEST_TARGETS tuple)
@@ -53,9 +53,9 @@ list(APPEND MY_TEST_TARGETS utf8)
 list(APPEND MY_TEST_TARGETS algo-tricks)
 list(APPEND MY_TEST_TARGETS variadic-templates)
 
-set(test-db_SOURCES
-    db/test.cpp
-    db/sqlite3.cpp)
+set(test-sql_SOURCES
+    sql/test.cpp
+    sql/sqlite3.cpp)
 
 set(test-io-server_SOURCES
     io-server/test.cpp

@@ -2,7 +2,7 @@
 #include <pfs/sql/sqlite3/sqlite3.h>
 
 namespace pfs {
-namespace db {
+namespace sql {
 namespace sqlite3 {
 
 template <typename StringT>
@@ -51,11 +51,11 @@ struct result_code
     static string_type errorstr (string_type const & msg, int rc)
     {
         string_type r(msg);
-        r += '(';
+        r += " (";
         r += to_string(rc);
         r += ')';
         return r;
     }
 };
 
-}}} // namespace pfs::db::sqlite3
+}}} // namespace pfs::sql::sqlite3

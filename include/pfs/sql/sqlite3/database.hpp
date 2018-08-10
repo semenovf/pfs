@@ -21,6 +21,7 @@ public:
     typedef StringT            string_type;
     typedef StringListT        stringlist_type;
     typedef statement<StringT> statement_type;
+    typedef struct sqlite3 *   native_handle_type;
 
 private:
     native_handle_type _h;
@@ -187,7 +188,7 @@ public:
         return query("ROLLBACK", ec, 0);
     }
 
-    stringlist_type tables (pfs::error_code & rc, string_type & errstr) const
+    stringlist_type tables (pfs::error_code & ec, string_type & errstr) const
     {
         stringlist_type result;
 
