@@ -44,7 +44,7 @@ struct result_code
         case SQLITE_WARNING     : return string_type("SQLITE_WARNING");
         case SQLITE_ROW         : return string_type("SQLITE_ROW");
         case SQLITE_DONE        : return string_type("SQLITE_DONE");
-        default: return string_type("unknown code = ") + pfs::to_string(rc).utf8().c_str();
+        default: return string_type("unknown code (may be extended code) = ") + pfs::to_string(rc).utf8().c_str();
         }
     }
 

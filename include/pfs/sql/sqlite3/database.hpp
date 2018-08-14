@@ -1,37 +1,59 @@
 #pragma once
 #include <pfs/sql/sqlite3/sqlite3.h>
-#include <pfs/noncopyable.hpp>
 #include <pfs/string.hpp>
 #include <pfs/stringlist.hpp>
 #include <pfs/system_error.hpp>
 #include <pfs/net/uri.hpp>
 #include <pfs/sql/exception.hpp>
 #include <pfs/sql/sqlite3/statement.hpp>
+#include <pfs/sql/sqlite3/result.hpp>
+#include <pfs/sql/sqlite3/private_data.hpp>
 
 namespace pfs {
 namespace sql {
 namespace sqlite3 {
 
 template <typename StringListT = pfs::stringlist<>, typename StringT = pfs::string>
-class database : noncopyable
+class database
 {
     static int const MAX_BUSY_TIMEOUT = 1000; // 1 second
 
 public:
-    typedef StringT            string_type;
-    typedef StringListT        stringlist_type;
-    typedef statement<StringT> statement_type;
-    typedef struct sqlite3 *   native_handle_type;
+    typedef StringT               string_type;
+    typedef StringListT           stringlist_type;
+    typedef statement<StringT>    statement_type;
+    typedef result<StringT>       result_type;
+    typedef db_native_handle_type native_handle_type;
+//     typedef struct sqlite3_stmt * stmt_native_handle_type;
 
 private:
-    native_handle_type _h;
+    db_handle_shared _pd;
+
+private:
+    bool query (string_type const & sql, pfs::error_code & ec, string_type & errstr)
+    {
+        char * errmsg;
+        int rc = sqlite3_exec(_pd.get(), sql.utf8().c_str(), NULL, NULL, & errmsg);
+
+        if (SQLITE_OK != rc) {
+            if (errmsg) {
+                ec = pfs::make_error_code(pfs::sql_errc::query_fail);
+                errstr = result_code<string_type>::errorstr(errmsg, rc);
+                sqlite3_free(errmsg);
+            }
+            return false;
+        }
+
+        return true;
+    }
+
 
 public:
-    database () : _h(0) {}
+    database () {}
 
     native_handle_type native_handle () const
     {
-        return _h;
+        return _pd.get();
     }
 
     /**
@@ -106,10 +128,12 @@ public:
         filename.set_path(uri.path());
         filename.set_query(uri.query());
 
-        int rc = sqlite3_open_v2(filename.to_string().utf8().c_str(), & _h, flags, NULL);
+        db_native_handle_type dbh = 0;
+
+        int rc = sqlite3_open_v2(filename.to_string().utf8().c_str(), & dbh, flags, NULL);
 
         if (rc != SQLITE_OK) {
-            if (!_h) {
+            if (!dbh) {
                 // Unable to allocate memory for database handler.
                 // Internal error code.
                 ec = make_error_code(sql_errc::bad_alloc);
@@ -125,86 +149,91 @@ public:
                     break;
                 }
 
-                sqlite3_close_v2(_h);
-                _h = 0;
+                sqlite3_close_v2(dbh);
+                dbh = 0;
             }
 
             return false;
         } else {
             // TODO what for this call ?
-            sqlite3_busy_timeout(_h, MAX_BUSY_TIMEOUT);
+            sqlite3_busy_timeout(dbh, MAX_BUSY_TIMEOUT);
 
             // Enable extended result codes
-            sqlite3_extended_result_codes(_h, 1);
+            sqlite3_extended_result_codes(dbh, 1);
         }
 
+        db_handle_shared pd(dbh, db_handle_deleter());
+        _pd.swap(pd);
         return true;
-    }
-
-    bool close ()
-    {
-        int rc = sqlite3_close_v2(_h);
-        _h = 0;
-        return rc == SQLITE_OK;
     }
 
     bool opened () const
     {
-        return _h != 0;
+        return _pd.get() != 0;
     }
 
-    bool query (string_type const & sql, pfs::error_code & ec, string_type & errstr)
+    //
+    // Used by debby::database to create statement
+    //
+    statement_type prepare (string_type const & sql
+            , pfs::error_code & ec
+            , string_type & errstr)
     {
-        char * errmsg;
-        int rc = sqlite3_exec(_h, sql.utf8().c_str(), NULL, NULL, & errmsg);
+        unsigned int prep_flags = 0;
+        stmt_native_handle_type sth;
+        std::string utf8_query(sql.utf8());
 
-        if (SQLITE_OK != rc) {
-            if (errmsg) {
-                ec = pfs::make_error_code(pfs::sql_errc::query_fail);
-                errstr = result_code<string_type>::errorstr(errmsg, rc);
-                sqlite3_free(errmsg);
-            }
-            return false;
+        int rc = sqlite3_prepare_v3(_pd.get() // Database handle
+                , utf8_query.c_str()          // SQL statement, UTF-8 encoded
+                , utf8_query.size()           // Maximum length of zSql in bytes
+                , prep_flags                  // Zero or more SQLITE_PREPARE_ flags
+                , & sth                       // OUT: Statement handle
+                , NULL);                      // OUT: Pointer to unused portion of zSql (unsigned)
+
+        if (rc != SQLITE_OK) {
+            ec = pfs::make_error_code(pfs::sql_errc::query_fail);
+            errstr = result_code<string_type>::errorstr(sqlite3_errmsg(_pd.get()), rc);
+            return statement_type();
         }
 
-        return true;
+        return statement_type(sth);
     }
 
-    bool begin ()
+    bool begin_transaction (pfs::error_code & ec, string_type & errstr)
     {
-        pfs::error_code ec;
-        return query("BEGIN", ec, 0);
+        return query("BEGIN TRANSACTION", ec, errstr);
     }
 
-    bool commit ()
+    bool commit (pfs::error_code & ec, string_type & errstr)
     {
-        pfs::error_code ec;
-        return query("COMMIT", ec, 0);
+        return query("COMMIT", ec, errstr);
     }
 
-    bool rollback ()
+    bool rollback (pfs::error_code & ec, string_type & errstr)
     {
-        pfs::error_code ec;
-        return query("ROLLBACK", ec, 0);
+        return query("ROLLBACK", ec, errstr);
     }
 
-    stringlist_type tables (pfs::error_code & ec, string_type & errstr) const
+    stringlist_type tables (pfs::error_code & ec, string_type & errstr)
     {
-        stringlist_type result;
-
-        statement_type stmt;
-
-        if (stmt.prepare(_h
-                , "SELECT anme FROM sqlite_master WHERE type='table' ORDER BY name"
+        stringlist_type r;
+        statement_type stmt = prepare(
+                 "SELECT name FROM sqlite_master WHERE type='table' ORDER BY name"
                 , ec
-                , errstr)) {
+                , errstr);
 
-            if (stmt.exec(ec, errstr)) {
+        if (stmt) {
+            result_type res = stmt.exec(ec, errstr);
 
+            if (!ec) {
+                while (res.has_more()) {
+                    r.push_back(res.template get<string_type>(0));
+                    ++res;
+                }
             }
         }
 
-        return result;
+        return r;
     }
 };
 

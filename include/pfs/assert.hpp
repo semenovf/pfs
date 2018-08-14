@@ -15,15 +15,15 @@ void pfs_check_error (char const * file, int line, char const * text);
 
 #ifndef NDEBUG
 
-#	define PFS_ASSERT(expr)        if (!(expr)) { pfs_assert(__TFILE__, __LINE__, #expr); }
-#	define PFS_ASSERT_X(expr,text) if (!(expr)) { pfs_assert(__TFILE__, __LINE__, text); }
-#	define PFS_BACKTRACE(text)     pfs_backtrace(__TFILE__, __LINE__, text)
+#   define PFS_ASSERT(expr)        if (!(expr)) { pfs_assert(__TFILE__, __LINE__, #expr); }
+#   define PFS_ASSERT_X(expr,text) if (!(expr)) { pfs_assert(__TFILE__, __LINE__, text); }
+#   define PFS_BACKTRACE(text)     pfs_backtrace(__TFILE__, __LINE__, text)
 
 #else // NDEBUG
 
-#	define PFS_ASSERT(x)
-#	define PFS_ASSERT_X(x,y)
-#	define PFS_BACKTRACE(text)
+#   define PFS_ASSERT(x)
+#   define PFS_ASSERT_X(x,y)
+#   define PFS_BACKTRACE(text)
 
 #endif /* !NDEBUG */
 

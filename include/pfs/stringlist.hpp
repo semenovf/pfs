@@ -14,6 +14,7 @@ class stringlist : public Sequence<StringT>
 public:
     typedef StringT string_type;
     typedef typename base_class::value_type      value_type;
+    typedef typename base_class::size_type       size_type;
     typedef typename base_class::difference_type difference_type;
     typedef typename base_class::iterator        iterator;
     typedef typename base_class::const_iterator  const_iterator;
@@ -31,7 +32,6 @@ public:
     {}
 #endif
 
-
     void split (string_type const & s, string_type const & separator
             , bool flag = keep_empty)
     {
@@ -45,6 +45,19 @@ public:
         return s;
     }
 
+    string_type & operator [] (size_type index)
+    {
+        iterator it = this->begin();
+        pfs::advance(it, index);
+        return *it;
+    }
+
+    string_type const & operator [] (size_type index) const
+    {
+        const_iterator it = this->cbegin();
+        pfs::advance(it, index);
+        return *it;
+    }
 };
 
 } // pfs

@@ -11,6 +11,7 @@ namespace sql {
 template <typename IdRep
         , template <typename, typename> class DatabaseRep // must inherits noncopyable
         , template <typename> class StatementRep
+        , template <typename> class ResultRep
         , typename StringListT = pfs::stringlist<>
         , typename StringT = pfs::string>
 struct debby
@@ -38,6 +39,26 @@ struct debby
     };
 
 ////////////////////////////////////////////////////////////////////////////////
+// Result                                                                     //
+////////////////////////////////////////////////////////////////////////////////
+
+    class result : public ResultRep<string_type>
+    {
+        typedef ResultRep<string_type> base_class;
+
+    public:
+        result () : base_class() {}
+        result (base_class const & rhs) : base_class(rhs) {}
+
+        /**
+         * @fn string_type column_name (int column)
+         * @brief Return the name assigned to a particular column in the result
+         *        set of a @c SELECT statement.
+         */
+
+    };
+
+////////////////////////////////////////////////////////////////////////////////
 // Statement                                                                  //
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -47,12 +68,31 @@ struct debby
 
     public:
         statement () : base_class() {}
-        // statement (statement const & rhs) = default;
-        // statement & operator = (statement const & rhs) = default;
+        statement (base_class const & rhs) : base_class(rhs) {}
 
         id last_insert_id () const
         {
             return id(base_class::last_insert_id());
+        }
+
+        result exec (pfs::error_code & ec, string_type & errstr)
+        {
+            result res(base_class::exec(ec, errstr));
+            return res;
+        }
+
+        /**
+         *
+         */
+        result exec ()
+        {
+            pfs::error_code ec;
+            string_type errstr;
+            result res = base_class::exec(ec, errstr);
+
+            if (ec) PFS_THROW(sql_exception(ec, errstr));
+
+            return res;
         }
     };
 
@@ -60,6 +100,7 @@ struct debby
 // Database                                                                   //
 ////////////////////////////////////////////////////////////////////////////////
 
+    // Non-copyable
     class database : public DatabaseRep<stringlist_type, string_type>
     {
         typedef DatabaseRep<stringlist_type, string_type> base_class;
@@ -113,21 +154,68 @@ struct debby
 
         statement prepare (string_type const & sql, pfs::error_code & ec, string_type & errstr)
         {
-            statement result;
+            statement stmt(base_class::prepare(sql, ec, errstr));
+            return stmt;
+        }
 
-            return result.prepare(base_class::native_handle(), sql, ec, errstr)
-                    ? result
-                    : statement();
+        statement prepare (string_type const & sql)
+        {
+            pfs::error_code ec;
+            string_type errstr;
+            statement stmt = this->prepare(sql, ec, errstr);
+
+            if (ec) PFS_THROW(sql_exception(ec, errstr));
+
+            return stmt;
+        }
+
+        result exec (string_type const & sql, pfs::error_code & ec, string_type & errstr)
+        {
+            statement stmt = prepare(sql, ec, errstr);
+
+            if (ec)
+                return result();
+
+            result res = stmt.exec(ec, errstr);
+
+            if (ec)
+                return result();
+
+            return res;
+        }
+
+        result exec (string_type const & sql)
+        {
+            pfs::error_code ec;
+            string_type errstr;
+            result res = exec(sql, ec, errstr);
+
+            if (ec) PFS_THROW(sql_exception(ec, errstr));
+
+            return res;
         }
 
         /**
-         * @fn stringlist_type tables () const
+         * @fn stringlist_type tables (pfs::error_code & ec, string_type & errstr) const
          */
 
-    // //  bool tableExists (const string & name) const;
+        /**
+         * @brief
+         */
+        stringlist_type tables ()
+        {
+            pfs::error_code ec;
+            string_type errstr;
+
+            stringlist_type r = base_class::tables(ec, errstr);
+
+            if (ec) PFS_THROW(sql_exception(ec, errstr));
+
+            return r;
+        }
 
         /**
-        * @fn bool begin ()
+        * @fn bool begin_transaction ()
         * @brief Begin transaction
         */
 

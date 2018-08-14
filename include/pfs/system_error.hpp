@@ -43,11 +43,11 @@ public:
     {}
 
     explicit error_code_exception (error_code const & ec, char const * s)
-        : exception(ec.message() + ": " + s)
+        : exception(s == 0 ? ec.message() : ec.message() + ": " + s)
     {}
 
     explicit error_code_exception (error_code const & ec, std::string const & s)
-        : exception(ec.message() + ": " + s)
+        : exception(s.empty() ? ec.message() : ec.message() + ": " + s)
     {}
 };
 
