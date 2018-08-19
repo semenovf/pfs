@@ -6,6 +6,7 @@
 #include <pfs/sql/sqlite3/result_code.hpp>
 #include <pfs/sql/sqlite3/result.hpp>
 #include <pfs/sql/sqlite3/private_data.hpp>
+#include <pfs/sql/sqlite3/binder.hpp>
 #include <pfs/sql/exception.hpp>
 
 namespace pfs {
@@ -67,6 +68,25 @@ public:
         }
 
         return result_type(_pd, rc);
+    }
+
+    //
+    // The leftmost SQL parameter has an index of 1 for sqlite3_bind_*()
+    // routines, but 'debby' starts field numbering at 0.
+    //
+    template <typename T>
+    bool bind (int index, T const & value, pfs::error_code & ec, string_type & errstr)
+    {
+        return details::binder<T, string_type>()(_pd.get(), index + 1, value, ec, errstr);
+    }
+
+    bool bind (int index, char const * value, pfs::error_code & ec, string_type & errstr)
+    {
+        // If the fourth parameter to sqlite3_bind_text() or sqlite3_bind_text16()
+        // is negative, then the length of the string is the number of bytes up
+        // to the first zero terminator.
+        int rc = sqlite3_bind_text(_pd.get(), index + 1, value, -1, SQLITE_STATIC);
+        return (rc != SQLITE_OK) ? details::binder_fail<StringT>(_pd.get(), rc, ec, errstr) : true;
     }
 };
 

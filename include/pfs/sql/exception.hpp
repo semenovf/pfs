@@ -19,6 +19,7 @@ struct sql_errc
         , open_fail
         , bad_alloc
         , query_fail
+        , bind_fail
         , specific_error
         , bad_handle
 #if __cplusplus < 201103L

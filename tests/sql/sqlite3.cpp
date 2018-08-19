@@ -98,11 +98,8 @@ void sqlite3_test ()
         TEST_FAIL2(pfs::filesystem::remove(path, ec), "Remove DB file");
     }
 
-////////////////////////////////////////////////////////////////////////////////
-// Database operations                                                        //
-////////////////////////////////////////////////////////////////////////////////
     {
-        ADD_TESTS(20);
+        ADD_TESTS(26);
 
         pfs::error_code ec;
         pfs::filesystem::path path = pfs::filesystem::temp_directory_path();
@@ -113,6 +110,10 @@ void sqlite3_test ()
 
         if (ok) {
             try {
+////////////////////////////////////////////////////////////////////////////////
+// Database operations                                                        //
+////////////////////////////////////////////////////////////////////////////////
+
                 TEST_FAIL2(!pfs::filesystem::exists(path, ec), "File not found");
 
                 pfs::string dburi("sqlite3:");
@@ -127,7 +128,6 @@ void sqlite3_test ()
                 // https://www.thegeekstuff.com/2012/09/sqlite-command-examples
                 //
 
-                debby_ns::statement stmt;
                 debby_ns::result res;
 
                 res = db.exec("create table department(deptid integer,name varchar(20),location varchar(10));");
@@ -154,6 +154,27 @@ void sqlite3_test ()
                 TEST_OK(db.exec("insert into employee values(104,'Jane Smith','Sale Manager')").done());
                 TEST_OK(db.exec("insert into employee values(105,'Rita Patel','DBA')").done());
 
+////////////////////////////////////////////////////////////////////////////////
+// Statement operations                                                       //
+////////////////////////////////////////////////////////////////////////////////
+
+                debby_ns::statement stmt;
+                stmt = db.prepare("insert into department values(?, 'Research & Development','Yekaterinburg')");
+                TEST_OK(stmt.bind(0, 4));
+                res = stmt.exec();
+                TEST_OK2(res.done(), "Inserted department 'Research & Development'");
+
+                stmt = db.prepare("insert into employee values(?,?,?)");
+                TEST_OK(stmt.bind(0, 401));
+                TEST_OK(stmt.bind(1, "Fedor Semenov"));
+                TEST_OK(stmt.bind(2, "Software Developer"));
+                res = stmt.exec();
+                TEST_OK2(res.done(), "Inserted employee 'Software Developer'");
+
+////////////////////////////////////////////////////////////////////////////////
+// Check operations' results                                                  //
+////////////////////////////////////////////////////////////////////////////////
+
                 int count = 0;
                 res = db.exec("select * from department");
 
@@ -165,7 +186,7 @@ void sqlite3_test ()
                     ++count;
                 }
 
-                TEST_OK2(count == 3, "3 records in 'department'");
+                TEST_OK2(count == 4, "4 records in 'department'");
                 TEST_OK2(res.done(), "Select from 'department'");
 
                 count = 0;
@@ -179,7 +200,7 @@ void sqlite3_test ()
                     ++count;
                 }
 
-                TEST_OK2(count == 5, "5 records in 'employee'");
+                TEST_OK2(count == 6, "6 records in 'employee'");
                 TEST_OK2(res.done(), "Select from 'employee'");
 
             } catch (pfs::exception const & ex) {

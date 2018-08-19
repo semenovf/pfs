@@ -22,6 +22,8 @@ std::string sql_category::message (int ev) const
         return "insufficient memory";
     case static_cast<int>(sql_errc::query_fail):
         return "query failed";
+    case static_cast<int>(sql_errc::bind_fail):
+        return "parameter binding failed";
     case static_cast<int>(sql_errc::specific_error):
         return "specific error";
     case static_cast<int>(sql_errc::bad_handle):

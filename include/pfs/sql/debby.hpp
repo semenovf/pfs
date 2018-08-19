@@ -94,6 +94,40 @@ struct debby
 
             return res;
         }
+
+        /**
+         * @fn template <typename T>
+         *     bool bind (int index, T const & value, pfs::error_code & ec, string_type & errstr)
+         *
+         * @param index The index of the SQL parameter to be set. The leftmost
+         *        SQL parameter has an index of 1.
+         */
+
+        /**
+         *
+         */
+        template <typename T>
+        bool bind (int index, T const & value)
+        {
+            pfs::error_code ec;
+            string_type errstr;
+            bool r = base_class::template bind<T>(index, value, ec, errstr);
+
+            if (ec) PFS_THROW(sql_exception(ec, errstr));
+
+            return r;
+        }
+
+        bool bind (int index, char const * value)
+        {
+            pfs::error_code ec;
+            string_type errstr;
+            bool r = base_class::bind(index, value, ec, errstr);
+
+            if (ec) PFS_THROW(sql_exception(ec, errstr));
+
+            return r;
+        }
     };
 
 ////////////////////////////////////////////////////////////////////////////////
