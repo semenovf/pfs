@@ -24,7 +24,7 @@ public:
     using base_class::insert;
     using base_class::push_back;
     using base_class::substr;
-    using base_class::operator =;
+    //using base_class::operator =;
     using base_class::operator +=;
 
     typedef base_class::value_type       value_type;
@@ -59,7 +59,7 @@ public:
         : base_class(s)
     {}
 
-    byte_string(const_pointer s, size_type n)
+    byte_string (const_pointer s, size_type n)
         : base_class(s, n)
     {}
 

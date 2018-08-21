@@ -68,16 +68,16 @@ public:
     // Assign operators and methods                                          //
     ///////////////////////////////////////////////////////////////////////////
 
-    DerivedT & operator = (vector const & rhs)
+    DerivedT & operator = (DerivedT const & rhs)
     {
         base_class::operator = (rhs);
         return *this;
     }
 
 #if __cplusplus >= 201103L
-    DerivedT & operator = (vector && rhs)
+    DerivedT & operator = (DerivedT && rhs)
     {
-        base_class::operator = (std::forward<vector>(rhs));
+        base_class::operator = (std::forward<DerivedT>(rhs));
         return *this;
     }
 

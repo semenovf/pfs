@@ -35,6 +35,10 @@ inline bool is_error (error_code const & ec)
     return static_cast<bool>(ec);
 }
 
+//
+// This a base class for exceptions that supports error codes.
+// Do not use it directly.
+//
 class error_code_exception : public exception
 {
 public:

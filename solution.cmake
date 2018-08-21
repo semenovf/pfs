@@ -107,6 +107,19 @@ if (Qt5::Core)
     set(HAVE_QT5_CORE 1)
 endif()
 
+# PostgreSQL
+#
+# When CMake not found PostgreSQL but last is exists.
+# 1. On Ubuntu CMake outputs "-- Could NOT find PostgreSQL (missing:  PostgreSQL_TYPE_INCLUDE_DIR) (found version "9.X.X")"
+#    This occured because CMake not found 'pg_type.h'. Need to install package 'postgresql-server-dev-9.X'
+#
+find_package(PostgreSQL)
+
+if (PostgreSQL_FOUND)
+    set(HAVE_POSTGRESQL 1)
+endif()
+
+
 # Optional: Stack trace pretty printer library for C++
 # https://github.com/bombela/backward-cpp
 if (EXISTS ${CMAKE_SOURCE_DIR}/3rdparty/backward-cpp/backward.hpp)

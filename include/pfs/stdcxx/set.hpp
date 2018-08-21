@@ -69,14 +69,14 @@ public:
     // Assign operators and methods                                          //
     ///////////////////////////////////////////////////////////////////////////
 
-    DerivedT & operator = (set const & rhs)
+    DerivedT & operator = (DerivedT const & rhs)
     {
         base_class::operator = (rhs);
         return *this;
     }
 
 #if __cplusplus >= 201103L
-    DerivedT & operator = (set && rhs)
+    DerivedT & operator = (DerivedT && rhs)
     {
         base_class::operator = (std::forward<set>(rhs));
         return *this;

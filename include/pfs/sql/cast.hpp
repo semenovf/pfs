@@ -3,7 +3,6 @@
 
 namespace pfs {
 namespace sql {
-namespace sqlite3 {
 namespace details {
 
 template <typename T1, typename T2, typename StringT>
@@ -201,5 +200,5 @@ template <typename StringT>
 struct cast_traits<StringT, StringT>
     : public cast_traits_basic<StringT, StringT, StringT> {};
 
-}}}} // pfs::sql::sqlite3::details
+}}} // pfs::sql::details
 

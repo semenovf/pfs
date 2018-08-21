@@ -1,7 +1,5 @@
 project(pfs C CXX)
 
-include(../../solution.cmake)
-
 if(NOT PFS_TARGET_SHARED_LIB_NAME)
     message(FATAL_ERROR "PFS_TARGET_SHARED_LIB_NAME must be specified")
 endif()

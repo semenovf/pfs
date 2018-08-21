@@ -56,6 +56,12 @@ struct debby
          *        set of a @c SELECT statement.
          */
 
+        /**
+         * @fn int column_count () const
+         * @brief Return the number of columns in the result set returned by
+         *        the prepared statement.
+         */
+
     };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -102,6 +108,7 @@ struct debby
          * @param index The index of the SQL parameter to be set. The leftmost
          *        SQL parameter has an index of 1.
          */
+        using base_class::bind;
 
         /**
          *
@@ -134,11 +141,9 @@ struct debby
 // Database                                                                   //
 ////////////////////////////////////////////////////////////////////////////////
 
-    // Non-copyable
     class database : public DatabaseRep<stringlist_type, string_type>
     {
         typedef DatabaseRep<stringlist_type, string_type> base_class;
-        using base_class::open;
 
     public:
         database () : base_class() {}
@@ -147,6 +152,7 @@ struct debby
         * @fn bool open (string_type const & uristr, error_code & ec, string_type & errstr)
         * @brief Open connection to database.
         */
+        using base_class::open;
 
         /**
         * @brief Open connection to database.
@@ -203,26 +209,16 @@ struct debby
             return stmt;
         }
 
-        result exec (string_type const & sql, pfs::error_code & ec, string_type & errstr)
-        {
-            statement stmt = prepare(sql, ec, errstr);
-
-            if (ec)
-                return result();
-
-            result res = stmt.exec(ec, errstr);
-
-            if (ec)
-                return result();
-
-            return res;
-        }
+        /**
+         * @fn result exec (string_type const & sql, pfs::error_code & ec, string_type & errstr)
+         */
+        using base_class::exec;
 
         result exec (string_type const & sql)
         {
             pfs::error_code ec;
             string_type errstr;
-            result res = exec(sql, ec, errstr);
+            result res = base_class::exec(sql, ec, errstr);
 
             if (ec) PFS_THROW(sql_exception(ec, errstr));
 
@@ -232,6 +228,7 @@ struct debby
         /**
          * @fn stringlist_type tables (pfs::error_code & ec, string_type & errstr) const
          */
+        using base_class::tables;
 
         /**
          * @brief
@@ -249,19 +246,61 @@ struct debby
         }
 
         /**
-        * @fn bool begin_transaction ()
+        * @fn bool begin_transaction (pfs::error_code & ec, string_type & errstr)
+        */
+        using base_class::begin_transaction;
+
+        /**
         * @brief Begin transaction
         */
+        bool begin_transaction ()
+        {
+            pfs::error_code ec;
+            string_type errstr;
+            bool r = begin_transaction(ec, errstr);
+
+            if (ec) PFS_THROW(sql_exception(ec, errstr));
+
+            return r;
+        }
 
         /**
-        * @fn bool commit ()
+        * @fn bool commit (pfs::error_code & ec, string_type & errstr)
+        */
+        using base_class::commit;
+
+        /**
         * @brief Commit transaction
         */
+        bool commit ()
+        {
+            pfs::error_code ec;
+            string_type errstr;
+            bool r = commit(ec, errstr);
+
+            if (ec) PFS_THROW(sql_exception(ec, errstr));
+
+            return r;
+        }
 
         /**
-        * @fn bool rollback ()
+        * @fn bool rollback (pfs::error_code & ec, string_type & errstr)
+        */
+        using base_class::rollback;
+
+        /**
         * @brief Rollback transaction
         */
+        bool rollback ()
+        {
+            pfs::error_code ec;
+            string_type errstr;
+            bool r = rollback(ec, errstr);
+
+            if (ec) PFS_THROW(sql_exception(ec, errstr));
+
+            return r;
+        }
 
         /**
         * @brief Complete transaction according the @a success status.

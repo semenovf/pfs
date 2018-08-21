@@ -1,8 +1,6 @@
 project(pfs-unit-test CXX)
 enable_testing()
 
-include(../solution.cmake)
-
 add_definitions(-DPFS_TEST)
 
 if (HAVE_QT5_CORE)
@@ -53,9 +51,22 @@ list(APPEND MY_TEST_TARGETS utf8)
 list(APPEND MY_TEST_TARGETS algo-tricks)
 list(APPEND MY_TEST_TARGETS variadic-templates)
 
-set(test-sql_SOURCES
-    sql/test.cpp
-    sql/sqlite3.cpp)
+################################################################################
+# SQL test specific configuration                                              #
+################################################################################
+#set(test-sql_SOURCES
+#    sql/test.cpp
+#    sql/sqlite3.cpp)
+
+if (HAVE_POSTGRESQL)
+    message("PostgrSQL support activated ('libpq-fe.h' found at '${PostgreSQL_INCLUDE_DIRS}')")
+    set(test-sql_LIBS ${PostgreSQL_LIBRARIES})
+    include_directories(${PostgreSQL_INCLUDE_DIRS})
+else()
+    message("PostgrSQL support is inactive")
+endif()
+
+################################################################################
 
 set(test-io-server_SOURCES
     io-server/test.cpp
@@ -83,7 +94,12 @@ foreach(MY_TEST_TARGET ${MY_TEST_TARGETS})
         add_executable(test-${MY_TEST_TARGET} ${MY_TEST_TARGET}/test.cpp)
     endif()
 
-    target_link_libraries(test-${MY_TEST_TARGET} pfs)
+    if(test-${MY_TEST_TARGET}_LIBS)
+        target_link_libraries(test-${MY_TEST_TARGET} pfs ${test-${MY_TEST_TARGET}_LIBS})
+    else()
+        target_link_libraries(test-${MY_TEST_TARGET} pfs)
+    endif()
+
     #set_property(TARGET test-${MY_TEST_TARGET} PROPERTY CXX_STANDARD ${PFS_PREFERRED_CXX_STANDARD})
     add_test(NAME ${MY_TEST_TARGET} COMMAND test-${MY_TEST_TARGET})
 endforeach(MY_TEST_TARGET)

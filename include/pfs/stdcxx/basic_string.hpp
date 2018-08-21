@@ -89,7 +89,7 @@ public:
      * @brief Default copy assignment
      * @details Replaces the contents with the copy of @a s
      */
-    DerivedT & operator = (basic_string const & s)
+    DerivedT & operator = (DerivedT const & s)
     {
         base_class::operator = (s);
         return *static_cast<DerivedT *>(this);
@@ -106,6 +106,14 @@ public:
         base_class::operator = (c);
         return *static_cast<DerivedT *>(this);
     }
+
+#if __cplusplus >= 201103L
+    DerivedT & operator = (DerivedT && rhs)
+    {
+        base_class::operator = (std::forward<DerivedT>(rhs));
+        return *this;
+    }
+#endif
 
     /**
      * @fn basic_string & assign (size_type count, CharT c)

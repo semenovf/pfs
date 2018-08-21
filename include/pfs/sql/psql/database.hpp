@@ -1,134 +1,211 @@
-#if __FIXME__
-
 #pragma once
-#include <libpq-fe.h>
-#include <pfs/exception.hpp>
-#include <pfs/traits/db/tags.hpp>
-#include <pfs/traits/db/database.hpp>
+#include <pfs/atomic.hpp>
+#include <pfs/string.hpp>
+#include <pfs/stringlist.hpp>
+#include <pfs/system_error.hpp>
+#include <pfs/net/uri.hpp>
+#include <pfs/sql/exception.hpp>
+#include <pfs/sql/psql/private_data.hpp>
+#include <pfs/sql/psql/statement.hpp>
+#include <pfs/sql/psql/result_code.hpp>
+#include <pfs/sql/psql/result.hpp>
 
 namespace pfs {
-namespace db {
+namespace sql {
+namespace psql {
 
-typedef <typename StringT>
-struct database_traits<postgresql_tag>
+template <typename StringListT = pfs::stringlist<>, typename StringT = pfs::string>
+class database
 {
-    typedef pfs::string string_type;
-    typedef db::exception exception;
+public:
+    typedef StringT               string_type;
+    typedef StringListT           stringlist_type;
+    typedef statement<StringT>    statement_type;
+    typedef result<StringT>       result_type;
+    typedef db_native_handle_type native_handle_type;
 
-    typedef struct data
+private:
+    db_handle_shared _pd;
+
+private:
+    static string_type make_unique_statement_name ()
     {
-        PGconn * conn;
-        string_type errstr; // last error description
+        static pfs::atomic_int32_t psql_statement_count(0);
+        string_type r("pfs_psql_stmt_");
+        r += pfs::to_string(++psql_statement_count, 16, true);
+        return r;
+    }
 
-        data () : conn(0) {}
-    } data_type;
+public:
+    database () {}
 
-    static bool xopen (data_type & d, string_type const & uri, error_code & ec);
-    static void xclose (data_type & d);
+    native_handle_type native_handle () const
+    {
+        return _pd.get();
+    }
+
+    /**
+    * @brief Connects to postgresql database.
+    *
+    * @param db_uri Connection URI.
+    *       The general form for a connection URI is:
+    *       @code
+    *           postgresql://[user[:password]@][netloc][:port][/dbname][?param1=value1&...]
+    *       @endcode
+    *       The URI scheme designator can be either @c postgresql:// or @c postgres://
+    *       Examples:
+    *       @code
+    *           postgresql://
+    *           postgresql://localhost
+    *           postgresql://localhost:5433
+    *           postgresql://localhost/mydb
+    *           postgresql://user@localhost
+    *           postgresql://user:secret@localhost
+    *           postgresql://other@localhost/otherdb?connect_timeout=10&application_name=myapp
+    *       @endcode
+    *       Components of the hierarchical part of the URI can also be given as parameters. For example:
+    *       @code
+    *           postgresql:///mydb?host=localhost&port=5433
+    *       @endcode
+    *       Details see PostgresSQL documentation (section 'Connection Strings',
+    *       section number 31.1.1 for PostgresSQL 9.3.9).
+    *
+    * @return DBI connection to specified sqlite3 databases.
+    *
+    * @note  Autocommit mode is on by default.
+    */
+    bool open (string_type const & db_uri, error_code & ec, string_type & errstr)
+    {
+        pfs::net::uri<string_type> uri;
+
+        if (! (db_uri.starts_with("postgresql:")
+                    || db_uri.starts_with("postgres:"))) {
+            ec = make_error_code(sql_errc::bad_uri);
+            return false;
+        }
+
+        if (!uri.parse(db_uri)) {
+            ec = make_error_code(sql_errc::bad_uri);
+            return false;
+        }
+
+        //
+        // This function will always return a non-null object pointer,
+        // unless perhaps there is too little memory even
+        // to allocate the PGconn object. The PQstatus function should be
+        // called to check the return value for a successful connection before
+        // queries are sent via the connection object.
+        //
+        native_handle_type dbh = PQconnectdb(db_uri.c_str());
+
+        if (!dbh) {
+            ec = make_error_code(sql_errc::bad_alloc);
+            return false;
+        } else if (PQstatus(dbh) != CONNECTION_OK) {
+            ec = make_error_code(sql_errc::open_fail);
+            errstr = result_code<string_type>::to_string(dbh);
+
+            PQfinish(dbh);
+            dbh = 0;
+            return false;
+        }
+
+        // CONNECTION_OK
+
+        db_handle_shared pd(dbh, db_handle_deleter());
+        _pd.swap(pd);
+        return true;
+    }
+
+    bool opened () const
+    {
+        return _pd.get() != 0;
+    }
+
+    result_type exec (string_type const & sql, pfs::error_code & ec, string_type & errstr)
+    {
+        PGresult * res = PQexec(_pd.get(), sql.utf8().c_str());
+
+        ExecStatusType status = PQresultStatus(res);
+        bool r = (status == PGRES_COMMAND_OK || status == PGRES_TUPLES_OK);
+
+        if (!r) {
+            errstr = result_code<string_type>::to_string(res);
+            if (res)
+                PQclear(res);
+            return result_type();
+        }
+
+        return result_type(res);
+    }
+
+    //
+    // Used by debby::database to create statement
+    //
+    statement_type prepare (string_type const & sql
+            , pfs::error_code & ec
+            , string_type & errstr)
+    {
+        string_type stmt_name = make_unique_statement_name();
+        std::string utf8_query(sql.utf8());
+
+        stmt_native_handle_type sth = PQprepare(_pd.get()
+                , stmt_name.utf8().c_str()
+                , utf8_query.c_str()
+                , 0
+                , 0);
+
+        ExecStatusType status = PQresultStatus(sth);
+
+        if (!(status == PGRES_COMMAND_OK || status == PGRES_TUPLES_OK)) {
+            ec = pfs::make_error_code(pfs::sql_errc::query_fail);
+            errstr = result_code<string_type>::to_string(sth);
+
+            if (sth)
+                PQclear(sth);
+
+            return statement_type();
+        }
+
+        return statement_type(sth, _pd, stmt_name);
+    }
+
+    bool begin_transaction (pfs::error_code & ec, string_type & errstr)
+    {
+        return query("BEGIN", ec, errstr);
+    }
+
+    bool commit (pfs::error_code & ec, string_type & errstr)
+    {
+        return query("COMMIT", ec, errstr);
+    }
+
+    bool rollback (pfs::error_code & ec, string_type & errstr)
+    {
+        return query("ROLLBACK", ec, errstr);
+    }
+
+    stringlist_type tables (pfs::error_code & ec, string_type & errstr)
+    {
+        stringlist_type r;
+        statement_type stmt = prepare(
+                 "SELECT tablename FROM pg_tables ORDER BY tablename"
+                , ec
+                , errstr);
+
+        if (stmt) {
+            result_type res = stmt.exec(ec, errstr);
+
+            if (!ec) {
+                while (res.has_more()) {
+                    r.push_back(res.template get<string_type>(0));
+                    ++res;
+                }
+            }
+        }
+
+        return r;
+    }
 };
 
-//
-// 31.1.1.2. Connection URIs
-//
-// The general form for a connection URI is:
-//
-//    postgresql://[user[:password]@][netloc][:port][/dbname][?param1=value1&...]
-
-// The URI scheme designator can be either postgresql:// or postgres:// .
-// Each of the URI parts is optional.The following examples illustrate
-// valid URI syntax uses:
-//
-//    postgresql://
-//    postgresql://localhost
-//    postgresql://localhost:5433
-//    postgresql://localhost/mydb
-//    postgresql://user@localhost
-//    postgresql://user:secret@localhost
-//    postgresql://other@localhost/otherdb?connect_timeout=10&application_name=myapp
-//
-// Components of the hierarchical part of the URI can also be given
-// as parameters. For example:
-//
-//    postgresql:///mydb?host=localhost&port=5433
-//
-// Percent-encoding may be used to include symbols with special meaning in any
-// of the URI parts.
-// Any connection parameters not corresponding to key words listed
-// in Section 31.1.2 are ignored and a warning message about them is sent
-// to stderr.
-// For improved compatibility with JDBC connection URIs, instances of
-// parameter ssl=true are translated into sslmode=require.
-// The host part may be either host name or an IP address. To specify an IPv6
-// host address, enclose it in square brackets:
-//
-//    postgresql://[2001:db8::1234]/database
-//
-// The host component is interpreted as described for the parameter host.
-// In particular, a Unix-domain socket connection is chosen if the host part is
-// either empty or starts with a slash, otherwise a TCP/IP connection is
-// initiated. Note, however, that the slash is a reserved character in the
-// hierarchical part of the URI. So, to specify a non-standard Unix-domain
-// socket directory, either omit the host specification in the URI and specify
-// the host as a parameter, or percent-encode the path in the host component of
-// the URI:
-//
-//  postgresql:///dbname?host=/var/lib/postgresql
-//  postgresql://%2Fvar%2Flib%2Fpostgresql/dbname
-//
-bool database_traits<postgresql_tag>::xopen (data_type & d
-    , string_type const & uri, error_code & ec)
-{
-    string_builder sb;
-
-    if (uri.starts_with(string_type("postgresql://"))) {
-        sb.push_back("postgresql://");
-    }
-
-    sb.push_back(uri);
-
-    // This function will always return a non-null object pointer,
-    // unless perhaps there is too little memory even
-    // to allocate the PGconn object. The PQstatus function should be called
-    // to check the return value for a successful connection before queries
-    // are sent via the connection object
-    d.conn = PQconnectdb(c_str(sb.str())());
-
-    if (!d.conn) {
-        ec = make_error_code(db_errc::bad_alloc);
-        return false;
-    }
-
-    if (PQstatus(d.conn) != CONNECTION_OK) {
-        // Nearly all libpq functions will set a message for PQerrorMessage
-        // if they fail. Note that by libpq convention, a nonempty
-        // PQerrorMessage result can consist of multiple lines, and will
-        // include a trailing newline. The caller should not free the result
-        // directly. It will be freed when the associated PGconn handle is
-        // passed to PQfinish . The result string should not be expected to
-        // remain the same across operations on the PGconn structure.
-        d.errstr = PQerrorMessage(d.conn);
-        ec = make_error_code(db_errc::open_failed);
-        return false;
-    }
-
-    return true;
-}
-
-void database_traits<postgresql_tag>::xclose (data_type & d)
-{
-    if (d.conn) {
-        // Closes the connection to the server.
-        // Also frees memory used by the PGconn object.
-        // Note that even if the server connection attempt fails
-        // (as indicated by PQstatus ), the application should call PQfinish
-        // to free the memory used by the PGconn object.
-        // The PGconn pointer must not be used again after
-        // PQfinish has been called.
-        PQfinish(d.conn);
-        d.conn = 0;
-    }
-}
-
-}} // namespace pfs::db
-
-#endif // __FIXME__
+}}} // namespace pfs::sql::psql

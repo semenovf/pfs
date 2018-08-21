@@ -1,24 +1,6 @@
-#include <iostream>
-#include "pfs/test.hpp"
-#include <pfs/string.hpp>
-#include <pfs/filesystem.hpp>
-#include <pfs/sql/sqlite3/id.hpp>
-#include <pfs/sql/sqlite3/database.hpp>
-#include <pfs/sql/sqlite3/statement.hpp>
-#include <pfs/sql/sqlite3/result.hpp>
-#include <pfs/sql/debby.hpp>
-
-using std::cout;
-using std::cerr;
-using std::endl;
-
-typedef pfs::sql::debby<pfs::sql::sqlite3::id
-        , pfs::sql::sqlite3::database
-        , pfs::sql::sqlite3::statement
-        , pfs::sql::sqlite3::result> debby_ns;
-
 void sqlite3_test ()
 {
+    typedef sqlite3_debby_ns debby_ns;
 ////////////////////////////////////////////////////////////////////////////////
 // Open non-exists database                                                   //
 ////////////////////////////////////////////////////////////////////////////////
@@ -34,7 +16,7 @@ void sqlite3_test ()
             debby_ns::database db;
             db.open("sqlite3:/nonexists.db");
         } catch (pfs::exception const & ex) {
-            cerr << "Exception: " << ex.message() << endl;
+            std::cerr << "Exception: " << ex.message() << std::endl;
             ok = true;
         }
 
@@ -56,7 +38,7 @@ void sqlite3_test ()
         if (pfs::filesystem::exists(path, ec))
             pfs::filesystem::remove(path, ec);
 
-        cout << "DB path: " << path << endl;
+        std::cout << "DB path: " << path << std::endl;
 
         bool ok = true;
 
@@ -68,11 +50,11 @@ void sqlite3_test ()
                 dburi.append(pfs::to_string(path));
                 dburi.append("?mode=rwc");
 
-                cout << "DB URI: " << dburi << endl;
+                std::cout << "DB URI: " << dburi << std::endl;
                 debby_ns::database db;
                 db.open(dburi);
             } catch (pfs::exception const & ex) {
-                cerr << "Exception: " << ex.message() << endl;
+                std::cerr << "Exception: " << ex.message() << std::endl;
                 ok = false;
             }
         }
@@ -85,11 +67,11 @@ void sqlite3_test ()
 
                 pfs::string dburi("sqlite3:");
                 dburi.append(pfs::to_string(path));
-                cout << "DB URI: " << dburi << endl;
+                std::cout << "DB URI: " << dburi << std::endl;
                 debby_ns::database db;
                 db.open(dburi);
             } catch (pfs::exception const & ex) {
-                cerr << "Exception: " << ex.message() << endl;
+                std::cerr << "Exception: " << ex.message() << std::endl;
                 ok = false;
             }
         }
@@ -99,7 +81,7 @@ void sqlite3_test ()
     }
 
     {
-        ADD_TESTS(26);
+        ADD_TESTS(28);
 
         pfs::error_code ec;
         pfs::filesystem::path path = pfs::filesystem::temp_directory_path();
@@ -119,7 +101,7 @@ void sqlite3_test ()
                 pfs::string dburi("sqlite3:");
                 dburi.append(pfs::to_string(path));
                 dburi.append("?mode=rwc");
-                cout << "DB URI: " << dburi << endl;
+                std::cout << "DB URI: " << dburi << std::endl;
                 debby_ns::database db;
                 db.open(dburi);
 
@@ -178,10 +160,12 @@ void sqlite3_test ()
                 int count = 0;
                 res = db.exec("select * from department");
 
+                TEST_OK2(res.column_count() == 3, "There are 3 columns by row in the select 'department' result");
+
                 while (res.has_more()) {
-                    cout << res.get<int>(0)
+                    std::cout << res.get<int>(0)
                             << " | " << res.get<debby_ns::string_type>(1)
-                            << " | " << res.get<debby_ns::string_type>(2) << endl;
+                            << " | " << res.get<debby_ns::string_type>(2) << std::endl;
                     ++res;
                     ++count;
                 }
@@ -192,10 +176,12 @@ void sqlite3_test ()
                 count = 0;
                 res = db.exec("select * from employee");
 
+                TEST_OK2(res.column_count() == 3, "There are 3 columns by row in the select 'employee' result");
+
                 while (res.has_more()) {
-                    cout << res.get<int>(0)
+                    std::cout << res.get<int>(0)
                             << " | " << res.get<debby_ns::string_type>(1)
-                            << " | " << res.get<debby_ns::string_type>(2) << endl;
+                            << " | " << res.get<debby_ns::string_type>(2) << std::endl;
                     ++res;
                     ++count;
                 }
@@ -204,7 +190,7 @@ void sqlite3_test ()
                 TEST_OK2(res.done(), "Select from 'employee'");
 
             } catch (pfs::exception const & ex) {
-                cerr << "Exception: " << ex.message() << endl;
+                std::cerr << "Exception: " << ex.message() << std::endl;
                 ok = false;
             }
         }

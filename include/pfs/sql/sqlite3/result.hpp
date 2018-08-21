@@ -3,8 +3,8 @@
 #include <pfs/string.hpp>
 #include <pfs/system_error.hpp>
 #include <pfs/sql/sqlite3/id.hpp>
-#include <pfs/sql/sqlite3/cast.hpp>
 #include <pfs/sql/sqlite3/private_data.hpp>
+#include <pfs/sql/cast.hpp>
 
 namespace pfs {
 namespace sql {
@@ -63,6 +63,11 @@ public:
         result r(*this);
         ++r;
         return r;
+    }
+
+    int column_count () const
+    {
+        return sqlite3_column_count(_pd.get());
     }
 
     template <typename T>

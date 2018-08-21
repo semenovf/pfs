@@ -76,14 +76,14 @@ public:
     // Assign operators and methods                                          //
     ///////////////////////////////////////////////////////////////////////////
 
-    DerivedT & operator = (map const & rhs)
+    DerivedT & operator = (DerivedT const & rhs)
     {
         base_class::operator = (rhs);
         return *this;
     }
 
 #if __cplusplus >= 201103L
-    DerivedT & operator = (map && rhs)
+    DerivedT & operator = (DerivedT && rhs)
     {
         base_class::operator = (std::forward<map>(rhs));
         return *this;

@@ -24,7 +24,6 @@ public:
     typedef statement<StringT>    statement_type;
     typedef result<StringT>       result_type;
     typedef db_native_handle_type native_handle_type;
-//     typedef struct sqlite3_stmt * stmt_native_handle_type;
 
 private:
     db_handle_shared _pd;
@@ -46,7 +45,6 @@ private:
 
         return true;
     }
-
 
 public:
     database () {}
@@ -170,6 +168,21 @@ public:
     bool opened () const
     {
         return _pd.get() != 0;
+    }
+
+    result_type exec (string_type const & sql, pfs::error_code & ec, string_type & errstr)
+    {
+        statement_type stmt = prepare(sql, ec, errstr);
+
+        if (! stmt)
+            return result_type();
+
+        result_type res = stmt.exec(ec, errstr);
+
+        if (!res)
+            return result_type();
+
+        return res;
     }
 
     //
