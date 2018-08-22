@@ -38,7 +38,7 @@ public:
         pfs::split(s.begin(), s.end(), separator.begin(), separator.end(), flag, this);
     }
 
-    string_type join (string_type const & separator)
+    string_type join (string_type const & separator) const
     {
         string_type s;
         pfs::join(this->cbegin(), this->cend(), separator, & s);

@@ -57,7 +57,8 @@ inline error_code_converter_helper<::std::error_code, ::std::error_code>::~error
 
 } // pfs
 
-#if HAVE_BOOST_SYSTEM_ERROR
+//#if HAVE_BOOST_SYSTEM_ERROR
+#if 0
 
 //[Unifying error codes](http://breese.github.io/2016/06/18/unifying-error-codes.html)
 
