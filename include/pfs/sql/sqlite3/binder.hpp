@@ -1,13 +1,7 @@
 #pragma once
 #include <string>
 #include <pfs/sql/sqlite3/sqlite3.h>
-// #include <pfs/utility.hpp>
-// #include <pfs/string.hpp>
-// #include <pfs/system_error.hpp>
-// #include <pfs/sql/sqlite3/result_code.hpp>
-// #include <pfs/sql/sqlite3/result.hpp>
 #include <pfs/sql/sqlite3/private_data.hpp>
-// #include <pfs/sql/exception.hpp>
 
 namespace pfs {
 namespace sql {
@@ -81,6 +75,21 @@ struct binder<StringT, StringT>
 
         std::string utf8str = value.utf8();
         int rc = sqlite3_bind_text(sth, index, utf8str.c_str(), utf8str.size(), SQLITE_TRANSIENT);
+        return (rc != SQLITE_OK) ? binder_fail<StringT>(sth, rc, ec, errstr) : true;
+    }
+};
+
+template <typename StringT>
+struct binder<std::string, StringT>
+{
+    bool operator () (stmt_native_handle_type sth
+            , int index
+            , std::string const & value
+            , pfs::error_code & ec
+            , StringT & errstr)
+    {
+
+        int rc = sqlite3_bind_text(sth, index, value.c_str(), value.size(), SQLITE_TRANSIENT);
         return (rc != SQLITE_OK) ? binder_fail<StringT>(sth, rc, ec, errstr) : true;
     }
 };

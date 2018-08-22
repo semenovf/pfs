@@ -131,6 +131,7 @@ public:
 
         if (!r) {
             errstr = result_code<string_type>::to_string(res);
+            ec = make_error_code(sql_errc::query_fail);
             if (res)
                 PQclear(res);
             return result_type();
@@ -172,24 +173,30 @@ public:
 
     bool begin_transaction (pfs::error_code & ec, string_type & errstr)
     {
-        return query("BEGIN", ec, errstr);
+        return exec("BEGIN TRANSACTION", ec, errstr).done();
     }
 
     bool commit (pfs::error_code & ec, string_type & errstr)
     {
-        return query("COMMIT", ec, errstr);
+        return exec("COMMIT TRANSACTION", ec, errstr).done();
     }
 
     bool rollback (pfs::error_code & ec, string_type & errstr)
     {
-        return query("ROLLBACK", ec, errstr);
+        return exec("ROLLBACK TRANSACTION", ec, errstr).done();
     }
 
     stringlist_type tables (pfs::error_code & ec, string_type & errstr)
     {
         stringlist_type r;
+
+        // SQL statement borrowed from Qt5 project
         statement_type stmt = prepare(
-                 "SELECT tablename FROM pg_tables ORDER BY tablename"
+                  "select pg_class.relname, pg_namespace.nspname from pg_class"
+                  " left join pg_namespace on (pg_class.relnamespace = pg_namespace.oid)"
+                  " where (pg_class.relkind = 'r') and (pg_class.relname !~ '^Inv')"
+                  " and (pg_class.relname !~ '^pg_')"
+                  " and (pg_namespace.nspname != 'information_schema');"
                 , ec
                 , errstr);
 

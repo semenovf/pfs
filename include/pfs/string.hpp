@@ -369,6 +369,21 @@ inline string to_string (unsigned long long a, int radix = 10
 }
 #endif
 
+inline string to_string (std::string const & s)
+{
+    return string(s);
+}
+
+inline string to_string (string const & s)
+{
+    return s;
+}
+
+inline string to_string (char const * s)
+{
+    return string(s);
+}
+
 namespace details {
 namespace fp {
 

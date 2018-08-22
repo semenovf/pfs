@@ -1,10 +1,10 @@
 #pragma once
 #include <pfs/string.hpp>
 #include <pfs/vector.hpp>
+#include <pfs/algorithm.hpp>
 #include <pfs/sql/psql/private_data.hpp>
+#include <pfs/sql/psql/result_code.hpp>
 #include <pfs/sql/psql/result.hpp>
-
-#include <pfs/debug.hpp>
 
 namespace pfs {
 namespace sql {
@@ -13,6 +13,8 @@ namespace psql {
 template <typename StringT = pfs::string>
 class statement
 {
+    static int const INITIAL_SIZE = 10;
+
     typedef StringT                 string_type;
     typedef result<string_type>     result_type;
     typedef stmt_native_handle_type native_handle_type;
@@ -30,9 +32,18 @@ private:
     void ensure_capacity (int index)
     {
         if (index >= _param_string_values.size()) {
-            _param_string_values.resize(index + 1);
-            _param_values.resize(index + 1);
-            _param_lengths.resize(index + 1);
+            int size = index + 1;
+
+            if (_param_string_values.empty()) {
+                // Static casting need to avoid linker error:
+                // "undefined reference to `pfs::sql::psql::statement<pfs::string>::INITIAL_SIZE'"
+                // due to pfs::max() has parameters of types 'T const &'
+                _param_string_values.reserve(pfs::max(size, static_cast<int>(INITIAL_SIZE)));
+            }
+
+            _param_string_values.resize(size);
+            _param_values.resize(size);
+            _param_lengths.resize(size);
         }
     }
 
@@ -69,8 +80,6 @@ public:
             return result_type();
         }
 
-        PFS_DEBUG(std::cout << "***Statement name: " << _name << std::endl);
-
         native_handle_type res = PQexecPrepared(_pdbh.get()
                 , _name.utf8().c_str()
                 , _param_values.size()
@@ -78,6 +87,18 @@ public:
                 , _param_lengths.data()
                 , 0 /* _param_formats.data() */
                 , 0 /*_result_format */);
+
+        ExecStatusType status = PQresultStatus(res);
+
+        if (!(status == PGRES_COMMAND_OK || status == PGRES_TUPLES_OK)) {
+            ec = pfs::make_error_code(pfs::sql_errc::query_fail);
+            errstr = result_code<string_type>::to_string(res);
+
+            if (res)
+                PQclear(res);
+
+            return result_type();
+        }
 
         return result_type(res);
     }
@@ -93,25 +114,27 @@ public:
         return true;
     }
 
-//     template <typename T>
-//     bool bind (int index, string_type const & value, pfs::error_code & ec, string_type & errstr)
-//     {
-//         _param_string_values[index] = value.utf8();
-//         _param_values[index]        = _param_string_values[index].c_str();
-//         _param_lengths[index]       = _param_string_values[index].size();
-//
-//         return true;
-//     }
+    template <typename T>
+    bool bind (int index, string_type const & value, pfs::error_code & ec, string_type & errstr)
+    {
+        ensure_capacity(index);
+        _param_string_values[index] = value.utf8();
+        _param_values[index]        = _param_string_values[index].c_str();
+        _param_lengths[index]       = _param_string_values[index].size();
 
-//     template <typename T>
-//     bool bind (int index, std::string const & value, pfs::error_code & ec, string_type & errstr)
-//     {
-//         _param_string_values[index] = value;
-//         _param_values[index]        = _param_string_values[index].c_str();
-//         _param_lengths[index]       = _param_string_values[index].size();
-//
-//         return true;
-//     }
+        return true;
+    }
+
+    template <typename T>
+    bool bind (int index, std::string const & value, pfs::error_code & ec, string_type & errstr)
+    {
+         ensure_capacity(index);
+        _param_string_values[index] = value;
+        _param_values[index]        = _param_string_values[index].c_str();
+        _param_lengths[index]       = _param_string_values[index].size();
+
+        return true;
+    }
 
     bool bind (int index, char const * value, pfs::error_code & ec, string_type & errstr)
     {

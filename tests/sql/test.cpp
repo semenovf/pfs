@@ -36,7 +36,7 @@ int main ()
 {
     BEGIN_TESTS(0);
 
-    //sqlite3_test();
+    sqlite3_test();
 
 #if HAVE_POSTGRESQL
     postgresql_test();

@@ -112,10 +112,10 @@ void sqlite3_test ()
 
                 debby_ns::result res;
 
-                res = db.exec("create table department(deptid integer,name varchar(20),location varchar(10));");
+                res = db.exec("create table department(deptid integer,name varchar(30),location varchar(20));");
                 TEST_OK2(res.done(), "Create table 'department'");
 
-                res = db.exec("create table employee(empid integer,name varchar(20),title varchar(10));");
+                res = db.exec("create table employee(empid integer,name varchar(30),title varchar(20));");
                 TEST_OK2(res.done(), "Create table 'employee'");
 
                 debby_ns::stringlist_type tables = db.tables();
@@ -141,15 +141,15 @@ void sqlite3_test ()
 ////////////////////////////////////////////////////////////////////////////////
 
                 debby_ns::statement stmt;
-                stmt = db.prepare("insert into department values(?, 'Research & Development','Yekaterinburg')");
+                stmt = db.prepare("insert into department values($1, 'Research & Development','Yekaterinburg')");
                 TEST_OK(stmt.bind(0, 4));
                 res = stmt.exec();
                 TEST_OK2(res.done(), "Inserted department 'Research & Development'");
 
-                stmt = db.prepare("insert into employee values(?,?,?)");
+                stmt = db.prepare("insert into employee values($1,$2,$3)");
                 TEST_OK(stmt.bind(0, 401));
                 TEST_OK(stmt.bind(1, "Fedor Semenov"));
-                TEST_OK(stmt.bind(2, "Software Developer"));
+                TEST_OK(stmt.bind(2, std::string("Software Developer")));
                 res = stmt.exec();
                 TEST_OK2(res.done(), "Inserted employee 'Software Developer'");
 
