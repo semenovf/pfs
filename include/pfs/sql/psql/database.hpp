@@ -122,6 +122,12 @@ public:
         return _pd.get() != 0;
     }
 
+    void close ()
+    {
+        db_handle_shared pd;
+        _pd.swap(pd);
+    }
+
     result_type exec (string_type const & sql, pfs::error_code & ec, string_type & errstr)
     {
         PGresult * res = PQexec(_pd.get(), sql.utf8().c_str());

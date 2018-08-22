@@ -165,6 +165,12 @@ public:
         return true;
     }
 
+    void close ()
+    {
+        db_handle_shared pd;
+        _pd.swap(pd);
+    }
+
     bool opened () const
     {
         return _pd.get() != 0;
