@@ -81,6 +81,13 @@ inline bool remove (path const & p, error_code & ec) pfs_noexcept
     return ::boost::filesystem::remove(p, boost_ec);
 }
 
+inline void rename (path const & old_p, path const & new_p, error_code & ec)
+{
+    ::boost::system::error_code boost_ec;
+    error_code_converter_helper< ::boost::system::error_code, error_code> conv(boost_ec, ec);
+    ::boost::filesystem::rename(old_p, new_p, boost_ec);
+}
+
 inline path temp_directory_path ()
 {
     return path(::boost::filesystem::temp_directory_path());

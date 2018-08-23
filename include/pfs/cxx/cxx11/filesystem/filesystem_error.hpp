@@ -1,6 +1,4 @@
-#ifndef __PFS_CXX_CXX11_FILESYSTEM_FILESYSTEM_ERROR_HPP__
-#define __PFS_CXX_CXX11_FILESYSTEM_FILESYSTEM_ERROR_HPP__
-
+#pragma once
 #include <pfs/compiler.hpp>
 
 #if PFS_CC_GCC_VERSION >= 50300 && HAVE_STDCXX_FS_EXPERIMENTAL
@@ -34,6 +32,3 @@ using filesystem_error = std::experimental::filesystem::filesystem_error;
 #else
 #   include <pfs/cxx/cxx98/filesystem/filesystem_error.hpp>
 #endif
-
-#endif /* __PFS_CXX_CXX11_FILESYSTEM_FILESYSTEM_ERROR_HPP__ */
-

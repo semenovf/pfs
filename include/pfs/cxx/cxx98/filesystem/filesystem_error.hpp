@@ -9,8 +9,11 @@
 namespace pfs {
 namespace filesystem {
 
-struct filesystem_error : public ::boost::filesystem::filesystem_error
+class filesystem_error : public ::boost::filesystem::filesystem_error
 {
+    std::string _enhanced_msg;
+
+public:
     typedef ::boost::filesystem::filesystem_error base_class;
 
     filesystem_error (std::string const & what_arg
