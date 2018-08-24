@@ -1,6 +1,4 @@
-#ifndef __PFS_CXX_CXX11_THREAD_HPP__
-#define __PFS_CXX_CXX11_THREAD_HPP__
-
+#pragma once
 #include <thread>
 #include "chrono.hpp"
 
@@ -35,6 +33,3 @@ inline void sleep_until (pfs::chrono::time_point<Clock, Duration> const & sleep_
 } // this_thread
 
 } // pfs
-
-#endif /* __PFS_CXX_CXX11_THREAD_HPP__ */
-

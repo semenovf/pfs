@@ -4,7 +4,7 @@ language: cpp
 compiler:
     - gcc
 
-install:
+before_install:
     - sudo apt-get install -qq libboost-system1.54-dev
     - sudo apt-get install -qq libboost-filesystem1.54-dev
     - sudo apt-get install -qq libboost-thread1.54-dev
