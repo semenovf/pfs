@@ -39,6 +39,8 @@ public:
             , p2
             , error_code_cast<error_code, ::boost::system::error_code>(ec))
     {}
+
+    virtual ~filesystem_error () throw() {}
 };
 
 }} // pfs::filesystem
