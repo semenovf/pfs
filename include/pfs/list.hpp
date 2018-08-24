@@ -3,6 +3,13 @@
 
 namespace pfs {
 
+#if __cplusplus >= 201103L
+
+template <typename T>
+using list = stdcxx::list<T>;
+
+#else
+
 template <typename T>
 class list : public stdcxx::list<T, list<T> >
 {
@@ -36,20 +43,8 @@ public:
     list (InputIt first, InputIt last)
         : base_class(first, last)
     {}
-
-    list (list const & rhs)
-        : base_class(rhs)
-    {}
-
-#if __cplusplus >= 201103L
-    list (list && rhs)
-        : base_class(std::forward<list>(rhs))
-    {}
-
-    list (std::initializer_list<T> ilist)
-        : base_class(ilist.begin(), ilist.end())
-    {}
-#endif
 };
+
+#endif
 
 } // pfs

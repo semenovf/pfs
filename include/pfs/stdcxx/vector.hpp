@@ -2,15 +2,21 @@
 #include <vector>
 
 namespace pfs {
-
 namespace stdcxx {
 
-template <typename T, typename DerivedT>
+#if __cplusplus >= 201103L
+    template <typename T>
+#else
+    template <typename T, typename DerivedT>
+#endif
 class vector : public std::vector<T>
 {
     typedef std::vector<T> base_class;
 
 public:
+#if __cplusplus >= 201103L
+    using DerivedT = vector;
+#endif
     typedef typename base_class::value_type       value_type;
     typedef typename base_class::size_type        size_type;
     typedef typename base_class::difference_type  difference_type;

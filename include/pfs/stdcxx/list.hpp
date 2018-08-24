@@ -2,15 +2,21 @@
 #include <list>
 
 namespace pfs {
-
 namespace stdcxx {
 
-template <typename T, typename DerivedT>
+#if __cplusplus >= 201103L
+    template <typename T>
+#else
+    template <typename T, typename DerivedT>
+#endif
 class list : public std::list<T>
 {
     typedef std::list<T> base_class;
 
 public:
+#if __cplusplus >= 201103L
+    using DerivedT = list;
+#endif
     typedef typename base_class::value_type       value_type;
     typedef typename base_class::size_type        size_type;
     typedef typename base_class::difference_type  difference_type;

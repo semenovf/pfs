@@ -17,8 +17,8 @@
 // typedef byte_string::reverse_iterator reverse_iterator;
 // typedef byte_string::const_reverse_iterator const_reverse_iterator;
 
-// #include "test_constructors.hpp"
-// #include "test_assignments.hpp"
+#include "test_constructors.hpp"
+#include "test_assignments.hpp"
 // #include "test_access.hpp"
 // #include "test_iterators.hpp"
 // #include "test_capacity.hpp"
@@ -30,8 +30,8 @@ int main ()
 {
     BEGIN_TESTS(0);
 
-//     test_constructors();
-//     test_assignments();
+    test_constructors();
+    test_assignments();
 //     test_access();
 //     test_iterators();
 //     test_capacity();

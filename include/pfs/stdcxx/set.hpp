@@ -5,12 +5,19 @@
 namespace pfs {
 namespace stdcxx {
 
-template <typename Key, typename DerivedT>
-class set : public std::set<Key>
+#if __cplusplus >= 201103L
+    template <typename T>
+#else
+    template <typename T, typename DerivedT>
+#endif
+class set : public std::set<T>
 {
-    typedef std::set<Key> base_class;
+    typedef std::set<T> base_class;
 
 public:
+#if __cplusplus >= 201103L
+    using DerivedT = set;
+#endif
     typedef typename base_class::key_type         key_type;
     typedef typename base_class::value_type       mapped_type;
     typedef typename base_class::value_type       value_type;

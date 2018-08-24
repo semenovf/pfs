@@ -3,6 +3,13 @@
 
 namespace pfs {
 
+#if __cplusplus >= 201103L
+
+template <typename T>
+using deque = stdcxx::deque<T>;
+
+#else
+
 template <typename T>
 class deque : public stdcxx::deque<T, deque<T> >
 {
@@ -36,21 +43,9 @@ public:
     deque (InputIt first, InputIt last)
         : base_class(first, last)
     {}
-
-    deque (deque const & rhs)
-        : base_class(rhs)
-    {}
-
-#if __cplusplus >= 201103L
-    deque (deque && rhs)
-        : base_class(std::forward<deque>(rhs))
-    {}
-
-    deque (std::initializer_list<T> ilist)
-        : base_class(ilist.begin(), ilist.end())
-    {}
-#endif
 };
+
+#endif
 
 } // pfs
 

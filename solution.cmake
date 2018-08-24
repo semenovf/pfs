@@ -34,7 +34,11 @@ if(CMAKE_USE_PTHREADS_INIT)
     set(HAVE_PTHREAD 1)
 endif()
 
-CHECK_INCLUDE_FILE_CXX(experimental/filesystem HAVE_STDCXX_FS_EXPERIMENTAL)
+if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+    set(CMAKE_REQUIRED_FLAGS "-std=c++11")
+    CHECK_INCLUDE_FILE_CXX(experimental/filesystem HAVE_STDCXX_FS_EXPERIMENTAL)
+endif()
+
 CHECK_INCLUDE_FILE_CXX(filesystem HAVE_STDCXX_FS)
 
 # [FindBoost](https://cmake.org/cmake/help/git-master/module/FindBoost.html)

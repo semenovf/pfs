@@ -1,6 +1,7 @@
 #include "pfs/safeformat.hpp"
 #include "pfs/getusername.hpp"
 
+#if 1
 
 static char const * postgresql_help =
     "********************************************************************************\n"
@@ -156,3 +157,5 @@ void postgresql_test ()
         TEST_OK2(ok, "Process statements for database");
    }
 }
+
+#endif

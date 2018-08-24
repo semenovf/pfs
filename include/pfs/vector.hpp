@@ -3,6 +3,13 @@
 
 namespace pfs {
 
+#if __cplusplus >= 201103L
+
+template <typename T>
+using vector = stdcxx::vector<T>;
+
+#else
+
 template <typename T>
 class vector : public stdcxx::vector<T, vector<T> >
 {
@@ -36,21 +43,9 @@ public:
     vector (InputIt first, InputIt last)
         : base_class(first, last)
     {}
-
-    vector (vector const & rhs)
-        : base_class(rhs)
-    {}
-
-#if __cplusplus >= 201103L
-    vector (vector && rhs)
-        : base_class(std::forward<vector>(rhs))
-    {}
-
-    vector (std::initializer_list<T> ilist)
-        : base_class(ilist.begin(), ilist.end())
-    {}
-#endif
 };
+
+#endif
 
 } // pfs
 

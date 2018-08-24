@@ -4,12 +4,19 @@
 namespace pfs {
 namespace stdcxx {
 
-template <typename T, typename Container, typename DerivedT>
+#if __cplusplus >= 201103L
+    template <typename T, typename Container>
+#else
+    template <typename T, typename Container, typename DerivedT>
+#endif
 class stack : public std::stack<T, Container>
 {
     typedef std::stack<T, Container> base_class;
 
 public:
+#if __cplusplus >= 201103L
+    using DerivedT = stack;
+#endif
     typedef Container                           container_type;
     typedef typename Container::value_type      value_type;
     typedef typename Container::size_type       size_type;

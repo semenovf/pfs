@@ -3,10 +3,17 @@
 
 namespace pfs {
 
-template <typename Key>
-class set : public stdcxx::set<Key, set<Key> >
+#if __cplusplus >= 201103L
+
+template <typename T>
+using set = stdcxx::set<T>;
+
+#else
+
+template <typename T>
+class set : public stdcxx::set<T, set<T> >
 {
-    typedef stdcxx::set<Key, set<Key> > base_class;
+    typedef stdcxx::set<T, set<T> > base_class;
 
 public:
     typedef typename base_class::key_type         key_type;
@@ -30,20 +37,8 @@ public:
     set (InputIt first, InputIt last)
         : base_class(first, last)
     {}
-
-    set (set const & rhs)
-        : base_class(rhs)
-    {}
-
-#if __cplusplus >= 201103L
-    set (set && rhs)
-        : base_class(std::forward<set>(rhs))
-    {}
-
-    set (std::initializer_list<value_type> ilist)
-        : base_class(ilist)
-    {}
-#endif
 };
+
+#endif
 
 } // pfs

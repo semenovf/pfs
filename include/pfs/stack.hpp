@@ -4,6 +4,13 @@
 
 namespace pfs {
 
+#if __cplusplus >= 201103L
+
+template <typename T, typename Container = pfs::deque<T> >
+using stack = stdcxx::stack<T, Container>;
+
+#else
+
 template <typename T, typename Container = pfs::deque<T> >
 class stack : public stdcxx::stack<T, Container, stack<T, Container> >
 {
@@ -20,28 +27,14 @@ public:
     ///////////////////////////////////////////////////////////////////////////
     // Constructors                                                          //
     ///////////////////////////////////////////////////////////////////////////
-    
+
     stack () : base_class() {}
-    
+
     explicit stack (Container const & cont)
         : base_class(cont)
     {}
-    
-    stack (stack const & rhs)
-        : base_class(rhs)
-    {}
-
-#if __cplusplus >= 201103L
-
-    stack (stack && rhs)
-        : base_class(std::forward<stack>(rhs))
-    {}
-
-    explicit stack (Container && cont)
-        : base_class(std::forward<Container>(cont))
-    {}
+};
 
 #endif
-};
 
 } //pfs

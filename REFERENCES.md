@@ -120,6 +120,7 @@
 1. [SQLite ORM](https://github.com/fnc12/sqlite_orm)
 2. [SQLAPI++ Library](http://www.sqlapi.com/)
 3. [SOCI - The C++ Database Access Library](https://github.com/SOCI/soci)
+4. [Wt::Dbo](https://www.webtoolkit.eu/wt/doc/tutorial/dbo.html)
 
 ### CLI
 

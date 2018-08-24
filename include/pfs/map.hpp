@@ -4,6 +4,13 @@
 
 namespace pfs {
 
+#if __cplusplus >= 201103L
+
+template <typename Key, typename T>
+using map = stdcxx::map<Key, T>;
+
+#else
+
 template <typename Key, typename T>
 class map : public stdcxx::map<Key, T, map<Key, T> >
 {
@@ -31,21 +38,9 @@ public:
     map (InputIt first, InputIt last)
         : base_class(first, last)
     {}
-
-    map (map const & rhs)
-        : base_class(rhs)
-    {}
-
-#if __cplusplus >= 201103L
-    map (map && rhs)
-        : base_class(std::forward<map>(rhs))
-    {}
-
-    map (std::initializer_list<std::pair<Key const, T> > ilist)
-        : base_class(ilist)
-    {}
-#endif
 };
+
+#endif
 
 } // pfs
 

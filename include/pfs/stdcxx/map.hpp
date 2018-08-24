@@ -4,20 +4,27 @@
 namespace pfs {
 namespace stdcxx {
 
-    //
-    // Trick to convert const_iterator to iterator (>= C++11) described at:
-    // [How to remove constness of const_iterator?](https://stackoverflow.com/questions/765148/how-to-remove-constness-of-const-iterator)
-    //
-    // Original at:
-    // [Hat tip to Howard Hinnant and Jon Kalb for this trick](https://twitter.com/_JonKalb/status/202815932089896960)
-    //
+//
+// Trick to convert const_iterator to iterator (>= C++11) described at:
+// [How to remove constness of const_iterator?](https://stackoverflow.com/questions/765148/how-to-remove-constness-of-const-iterator)
+//
+// Original at:
+// [Hat tip to Howard Hinnant and Jon Kalb for this trick](https://twitter.com/_JonKalb/status/202815932089896960)
+//
 
-template <typename Key, typename T, typename DerivedT>
+#if __cplusplus >= 201103L
+    template <typename Key, typename T>
+#else
+    template <typename Key, typename T, typename DerivedT>
+#endif
 class map : public std::map<Key, T>
 {
     typedef std::map<Key, T> base_class;
 
 public:
+#if __cplusplus >= 201103L
+    using DerivedT = map;
+#endif
     typedef typename base_class::key_type         key_type;
     typedef typename base_class::mapped_type      mapped_type;
     typedef typename base_class::value_type       value_type;

@@ -1,8 +1,7 @@
 #include "pfs/cxxlang.hpp"
 #include "pfs/system_error.hpp"
 
-//#if __cplusplus >= 201103L && HAVE_BOOST_SYSTEM_ERROR
-#if 0
+#if __cplusplus >= 201103L && HAVE_BOOST_SYSTEM_ERROR
 
 namespace pfs {
 namespace boost {
