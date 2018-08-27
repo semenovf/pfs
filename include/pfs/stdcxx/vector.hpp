@@ -388,14 +388,18 @@ public:
 #endif
 
 #if __cplusplus >= 201103L
-    // TODO Implement to meet C++17:
-    // reference emplace_back (Args &&... args)
-    //
-
     /**
      * @fn template <typename... Args>
-     *     void emplace_back (Args &&... args)
+     *     reference emplace_back (Args &&... args)
      */
+#   if __cplusplus <= 201402L
+        template <typename... Args>
+        reference emplace_back (Args &&... args)
+        {
+            this->emplace_back(std::forward<Args>(args)...);
+            return this->back();
+        }
+#   endif
 #endif
 
     /**

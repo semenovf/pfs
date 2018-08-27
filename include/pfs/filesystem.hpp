@@ -13,7 +13,8 @@ inline bool exists (path const & p)
     error_code ec;
 
     if (!exists(p, ec)) {
-        if (ec) throw filesystem_error("exists", p, ec);
+        if (ec && ec != pfs::make_error_code(pfs::errc::no_such_file_or_directory))
+            throw filesystem_error("exists", p, ec);
         return false;
     }
 

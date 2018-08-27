@@ -61,6 +61,35 @@ struct binder<sqlite3_int64, StringT>
     }
 };
 
+template <typename StringT>
+struct binder<long, StringT>
+{
+    bool operator () (stmt_native_handle_type sth
+            , int index
+            , sqlite3_int64 const & value
+            , pfs::error_code & ec
+            , StringT & errstr)
+    {
+        int rc = sqlite3_bind_int64(sth, index, value);
+        return (rc != SQLITE_OK) ? binder_fail<StringT>(sth, rc, ec, errstr) : true;
+    }
+};
+#else
+
+template <typename StringT>
+struct binder<long, StringT>
+{
+    bool operator () (stmt_native_handle_type sth
+            , int index
+            , long const & value
+            , pfs::error_code & ec
+            , StringT & errstr)
+    {
+        int rc = sqlite3_bind_int(sth, index, value);
+        return (rc != SQLITE_OK) ? binder_fail<StringT>(sth, rc, ec, errstr) : true;
+    }
+};
+
 #endif
 
 template <typename StringT>
