@@ -19,7 +19,13 @@ public:
     filesystem_error (std::string const & what_arg
             , error_code ec)
         : base_class(what_arg
-                , error_code_cast<error_code, ::boost::system::error_code>(ec))
+// FIXME Fix with correct conversion
+#if __cplusplus >= 201103L
+            , ::boost::system::error_code(ec.value(), ::boost::system::system_category())
+#else
+            , ec
+#endif
+        )
     {}
 
     filesystem_error (std::string const & what_arg
@@ -27,7 +33,13 @@ public:
             , error_code ec)
         : base_class(what_arg
             , p1
-            , error_code_cast<error_code, ::boost::system::error_code>(ec))
+// FIXME Fix with correct conversion
+#if __cplusplus >= 201103L
+            , ::boost::system::error_code(ec.value(), ::boost::system::system_category())
+#else
+            , ec
+#endif
+        )
      {}
 
     filesystem_error (std::string const & what_arg
@@ -37,7 +49,13 @@ public:
         : base_class(what_arg
             , p1
             , p2
-            , error_code_cast<error_code, ::boost::system::error_code>(ec))
+// FIXME Fix with correct conversion
+#if __cplusplus >= 201103L
+            , ::boost::system::error_code(ec.value(), ::boost::system::system_category())
+#else
+            , ec
+#endif
+        )
     {}
 
     virtual ~filesystem_error () throw() {}

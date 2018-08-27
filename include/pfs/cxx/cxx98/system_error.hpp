@@ -126,14 +126,7 @@ inline error_category const & generic_category () pfs_noexcept
 
 inline error_code make_error_code (errc e) pfs_noexcept
 {
-    return error_code(e, system_category());
-}
-
-template <>
-inline ::boost::system::error_code
-error_code_cast< ::boost::system::error_code, ::boost::system::error_code> (::boost::system::error_code const & ec)
-{
-    return ec;
+    return error_code(e, generic_category());
 }
 
 inline string to_string (error_code const & ec)
@@ -149,7 +142,7 @@ inline error_code get_last_system_error ()
 #if PFS_CC_MSC
     return error_code(::GetLastError(), system_category());
 #else // POSIX
-    return error_code(errno, system_category());
+    return error_code(errno, generic_category());
 #endif // !PFS_CC_MSC
 }
 

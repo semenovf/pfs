@@ -70,21 +70,35 @@ public:
 inline bool exists (path const & p, error_code & ec) pfs_noexcept
 {
     ::boost::system::error_code boost_ec;
-    error_code_converter_helper< ::boost::system::error_code, error_code> conv(boost_ec, ec);
-    return ::boost::filesystem::exists(p, boost_ec);
+    bool r = ::boost::filesystem::exists(p, boost_ec);
+
+    PFS_ASSERT(boost_ec.category() == ::boost::system::system_category());
+#if __cplusplus >= 201103L
+    ec = std::make_error_code(std::errc(boost_ec.value()));
+#endif
+
+    return r;
 }
 
 inline bool remove (path const & p, error_code & ec) pfs_noexcept
 {
     ::boost::system::error_code boost_ec;
-    error_code_converter_helper< ::boost::system::error_code, error_code> conv(boost_ec, ec);
-    return ::boost::filesystem::remove(p, boost_ec);
+    bool r = ::boost::filesystem::remove(p, boost_ec);
+
+    PFS_ASSERT(boost_ec.category() == ::boost::system::system_category());
+#if __cplusplus >= 201103L
+    ec = std::make_error_code(std::errc(boost_ec.value()));
+#endif
+    return r;
 }
 
 inline void rename (path const & old_p, path const & new_p, error_code & ec)
 {
     ::boost::system::error_code boost_ec;
-    error_code_converter_helper< ::boost::system::error_code, error_code> conv(boost_ec, ec);
+    PFS_ASSERT(boost_ec.category() == ::boost::system::system_category());
+#if __cplusplus >= 201103L
+    ec = std::make_error_code(std::errc(boost_ec.value()));
+#endif
     ::boost::filesystem::rename(old_p, new_p, boost_ec);
 }
 
@@ -96,8 +110,12 @@ inline path temp_directory_path ()
 inline path temp_directory_path (error_code & ec)
 {
     ::boost::system::error_code boost_ec;
-    error_code_converter_helper< ::boost::system::error_code, error_code> ch(boost_ec, ec);
-    return ::boost::filesystem::temp_directory_path(boost_ec);
+    path p = ::boost::filesystem::temp_directory_path(boost_ec);
+    PFS_ASSERT(boost_ec.category() == ::boost::system::system_category());
+#if __cplusplus >= 201103L
+    ec = std::make_error_code(std::errc(boost_ec.value()));
+#endif
+    return p;
 }
 
 inline path current_path ()
@@ -108,8 +126,12 @@ inline path current_path ()
 inline path current_path (error_code & ec)
 {
     ::boost::system::error_code boost_ec;
-    error_code_converter_helper< ::boost::system::error_code, error_code> ch(boost_ec, ec);
-    return ::boost::filesystem::current_path(boost_ec);
+    path p = ::boost::filesystem::current_path(boost_ec);
+    PFS_ASSERT(boost_ec.category() == ::boost::system::system_category());
+#if __cplusplus >= 201103L
+    ec = std::make_error_code(std::errc(boost_ec.value()));
+#endif
+    return p;
 }
 
 inline void current_path (path const & p)
@@ -120,8 +142,11 @@ inline void current_path (path const & p)
 inline void current_path (path const & p, error_code & ec)
 {
     ::boost::system::error_code boost_ec;
-    error_code_converter_helper< ::boost::system::error_code, error_code> ch(boost_ec, ec);
     ::boost::filesystem::current_path(p, boost_ec);
+    PFS_ASSERT(boost_ec.category() == ::boost::system::system_category());
+#if __cplusplus >= 201103L
+    ec = std::make_error_code(std::errc(boost_ec.value()));
+#endif
 }
 
 }} // pfs::filesystem
