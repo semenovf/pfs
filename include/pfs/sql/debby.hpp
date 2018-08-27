@@ -135,6 +135,23 @@ struct debby
 
             return r;
         }
+
+        /**
+         * @fn bool reset (pfs::error_code & ec, string_type & errstr);
+         */
+        using base_class::reset;
+
+
+        bool reset ()
+        {
+            pfs::error_code ec;
+            string_type errstr;
+            bool r = base_class::reset(ec, errstr);
+
+            if (ec) PFS_THROW(sql_exception(ec, errstr));
+
+            return r;
+        }
     };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -192,7 +209,9 @@ struct debby
         * @note Cannot be used for statements that contain binary data (sqlite3)
         */
 
-        statement prepare (string_type const & sql, pfs::error_code & ec, string_type & errstr)
+        statement prepare (string_type const & sql
+                , pfs::error_code & ec
+                , string_type & errstr)
         {
             statement stmt(base_class::prepare(sql, ec, errstr));
             return stmt;

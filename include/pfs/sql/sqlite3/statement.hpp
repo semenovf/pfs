@@ -88,6 +88,20 @@ public:
         int rc = sqlite3_bind_text(_pd.get(), index + 1, value, -1, SQLITE_STATIC);
         return (rc != SQLITE_OK) ? details::binder_fail<StringT>(_pd.get(), rc, ec, errstr) : true;
     }
+
+    bool reset (pfs::error_code & ec, string_type & errstr)
+    {
+        int rc = sqlite3_reset(_pd.get());
+
+        if (rc != SQLITE_OK) {
+            db_native_handle_type dbh = sqlite3_db_handle(_pd.get());
+            ec = pfs::make_error_code(pfs::sql_errc::query_fail);
+            errstr = result_code<string_type>::errorstr(sqlite3_errmsg(dbh), rc);
+            return false;
+        }
+
+        return true;
+    }
 };
 
 }}} // pfs::sql::sqlite3
