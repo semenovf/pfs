@@ -396,7 +396,7 @@ public:
         template <typename... Args>
         reference emplace_back (Args &&... args)
         {
-            this->emplace_back(std::forward<Args>(args)...);
+            base_class::emplace_back(std::forward<Args>(args)...);
             return this->back();
         }
 #   endif
