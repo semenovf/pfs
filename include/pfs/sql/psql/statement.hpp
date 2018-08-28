@@ -145,6 +145,11 @@ public:
 
         return true;
     }
+
+    bool reset (pfs::error_code & /*ec*/, string_type & /*errstr*/)
+    {
+        return true;
+    }
 };
 
 }}} // namespace pfs::sql::psql

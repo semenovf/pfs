@@ -141,7 +141,6 @@ struct debby
          */
         using base_class::reset;
 
-
         bool reset ()
         {
             pfs::error_code ec;
