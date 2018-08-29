@@ -254,6 +254,16 @@ struct rpc
             return false;
         }
 
+        bool empty () const
+        {
+            return _j.empty();
+        }
+
+        void clear ()
+        {
+            return _j.clear();
+        }
+
 #if PFS_TEST
     public: json_type const & internal_data () const { return _j; }
 #endif
@@ -371,15 +381,17 @@ struct rpc
 
         static void make_notification (request & r, method_type const & name)
         {
-            request r(name);
+            if (r._j.contains("id"))
+                r._j.erase("id");
+            r._j["method"] = name;
             return r;
         }
 
         static void make_method (request & r, IdGenerator & idgen, method_type const & name)
         {
-            request r(name);
-            r._j["id"] = idgen.next();
-            return r;
+            if (!r._j.contains("id"))
+                r._j["id"] = idgen.next();
+            r._j["method"] = name;
         }
 
         static pfs::byte_string serialize (request const & rq)
