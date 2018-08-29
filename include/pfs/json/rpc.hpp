@@ -147,6 +147,7 @@ struct ubjson_serializer
 };
 
 template <typename Json
+        , typename Method = typename Json::string_type
         , typename IdGenerator = id_generator
         , typename Serializer = ubjson_serializer<Json>
         , int Major = 2
@@ -154,6 +155,7 @@ template <typename Json
 struct rpc
 {
     typedef Json json_type;
+    typedef Method method_type;
     typedef IdGenerator id_generator_type;
     typedef Serializer serializer_type;
     typedef typename IdGenerator::type id_type;
@@ -260,7 +262,7 @@ struct rpc
     class request : public entity
     {
     protected:
-        request (string_type const & name)
+        request (method_type const & name)
             : entity(typename entity::init_tag())
         {
             this->_j["method"] = name;
@@ -269,9 +271,9 @@ struct rpc
     public:
         request () : entity() {}
 
-        string_type name () const
+        method_type name () const
         {
-            string_type result = pfs::json::cref(this->_j)["method"].get_string();
+            method_type result = pfs::json::cref(this->_j)["method"].get<method_type>();
             return result;
         }
 
@@ -354,13 +356,26 @@ struct rpc
         }
 
     public: // static
-        static request make_notification (string_type const & name)
+        static request make_notification (method_type const & name)
         {
             request r(name);
             return r;
         }
 
-        static request make_method (IdGenerator & idgen, string_type const & name)
+        static request make_method (IdGenerator & idgen, method_type const & name)
+        {
+            request r(name);
+            r._j["id"] = idgen.next();
+            return r;
+        }
+
+        static void make_notification (request & r, method_type const & name)
+        {
+            request r(name);
+            return r;
+        }
+
+        static void make_method (request & r, IdGenerator & idgen, method_type const & name)
         {
             request r(name);
             r._j["id"] = idgen.next();

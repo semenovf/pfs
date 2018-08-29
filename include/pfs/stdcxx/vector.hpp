@@ -377,6 +377,15 @@ public:
     }
 #endif
 
+    inline iterator erase (size_type index)
+    {
+        if (index >= this->size())
+            return;
+        const_iterator it = this->cbegin();
+        std::distance(it, index);
+        return this->erase(it);
+    }
+
     /**
      * @fn void push_back (const_reference value)
      */

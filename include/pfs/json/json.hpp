@@ -541,19 +541,34 @@ public:
         return operator [] (key_type(key));
     }
 
-//    void erase (const size_type index)
-//    {
-//        PFS_ASSERT(_type == type_array);
-//        PFS_ASSERT_RANGE(index < _value.array->size());
-//        _value.array->erase(_value.array->begin() + static_cast<difference_type> (index));
-//    }
-//
-//    size_type erase (const object_type::key_type & key)
-//    {
-//        PFS_ASSERT(_type == type_object);
-//        return _value.object->erase(key);
-//    }
-//
+    void erase (int index)
+    {
+        if (index < 0) return;
+        erase(static_cast<size_type>(index));
+    }
+
+    void erase (size_type index)
+    {
+        if (_d.type() != data_type::array)
+            PFS_THROW(json_exception(make_error_code(json_errc::array_expected)));
+        if (index >= _d.array->size())
+            PFS_THROW(json_exception(make_error_code(json_errc::range)));
+        _d.array->erase(index);
+    }
+
+    void erase (key_type const & key)
+    {
+        if (_d.type() != data_type::object)
+            PFS_THROW(json_exception(make_error_code(json_errc::object_expected)));
+
+        _d.object->erase(key);
+    }
+
+    void erase (char const * key)
+    {
+        this->erase(key_type(key));
+    }
+
     bool empty () const
     {
         return (_d.type == data_type::null
