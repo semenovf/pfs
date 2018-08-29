@@ -19,8 +19,8 @@ struct transition
     bool       (* action)(iterator begin
                     , iterator end
                     , void * context
-                    , void * action_args);
-    void *     action_args;
+                    , void const * action_args);
+    void const * action_args;
 };
 
 template <typename Iterator, typename AtomicInt>

@@ -375,7 +375,7 @@ protected:
 
         pattern_grammar ();
 
-        static bool begin_spec (iterator /*first*/, iterator /*last*/, void * context, void * /*action_args*/)
+        static bool begin_spec (iterator /*first*/, iterator /*last*/, void * context, void const * /*action_args*/)
         {
             if (context) {
                 parse_context * ctx = static_cast<parse_context *>(context);
@@ -388,7 +388,7 @@ protected:
             return true;
         }
 
-        static bool end_spec (iterator /*first*/, iterator /*last*/, void * context, void * /*action_args*/)
+        static bool end_spec (iterator /*first*/, iterator /*last*/, void * context, void const * /*action_args*/)
         {
             if (context) {
                 parse_context * ctx = static_cast<parse_context *>(context);
@@ -453,7 +453,7 @@ protected:
             return true;
         }
 
-        static bool append_plain_char (iterator first, iterator last, void * context, void * /*action_args*/)
+        static bool append_plain_char (iterator first, iterator last, void * context, void const * /*action_args*/)
         {
             if (context) {
                 parse_context * ctx = static_cast<parse_context *>(context);
@@ -462,7 +462,7 @@ protected:
             return true;
         }
 
-        static bool set_left_justify (iterator first, iterator last, void * context, void * /*action_args*/)
+        static bool set_left_justify (iterator first, iterator last, void * context, void const * /*action_args*/)
         {
             if (context) {
                 parse_context * ctx = static_cast<parse_context *>(context);
@@ -474,7 +474,7 @@ protected:
             return true;
         }
 
-        static bool set_min_width (iterator first, iterator last, void * context, void * /*action_args*/)
+        static bool set_min_width (iterator first, iterator last, void * context, void const * /*action_args*/)
         {
             if (context) {
                 parse_context * ctx = static_cast<parse_context *>(context);
@@ -491,7 +491,7 @@ protected:
             return true;
         }
 
-        static bool set_max_width (iterator first, iterator last, void * context, void * /*action_args*/)
+        static bool set_max_width (iterator first, iterator last, void * context, void const * /*action_args*/)
         {
             if (context) {
                 parse_context * ctx = static_cast<parse_context *>(context);
@@ -508,7 +508,7 @@ protected:
             return true;
         }
 
-        static bool set_spec_char (iterator first, iterator /*last*/, void * context, void * /*action_args*/)
+        static bool set_spec_char (iterator first, iterator /*last*/, void * context, void const * /*action_args*/)
         {
             if (context) {
                 parse_context * ctx = static_cast<parse_context *>(context);
@@ -517,7 +517,7 @@ protected:
             return true;
         }
 
-        static bool set_format_spec (iterator first, iterator last, void * context, void * /*action_args*/)
+        static bool set_format_spec (iterator first, iterator last, void * context, void const * /*action_args*/)
         {
             if (context) {
                 parse_context * ctx = static_cast<parse_context *>(context);

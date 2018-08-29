@@ -433,7 +433,7 @@ struct grammar
         return result;
     }
 
-    static bool false_value (iterator /*first*/, iterator /*last*/, void * context, void * /*action_args*/)
+    static bool false_value (iterator /*first*/, iterator /*last*/, void * context, void const * /*action_args*/)
     {
         if (!context) return true;
 
@@ -443,7 +443,7 @@ struct grammar
         return result;
     }
 
-    static bool null_value (iterator /*first*/, iterator /*last*/, void * context, void * /*action_args*/)
+    static bool null_value (iterator /*first*/, iterator /*last*/, void * context, void const * /*action_args*/)
     {
         if (!context) return true;
 
@@ -453,7 +453,7 @@ struct grammar
         return result;
     }
 
-    static bool true_value (iterator /*first*/, iterator /*last*/, void * context, void * /*action_args*/)
+    static bool true_value (iterator /*first*/, iterator /*last*/, void * context, void const * /*action_args*/)
     {
         if (!context) return true;
 
@@ -463,7 +463,7 @@ struct grammar
         return result;
     }
 
-    static bool number_sign (iterator first, iterator last, void * context, void * /*action_args*/)
+    static bool number_sign (iterator first, iterator last, void * context, void const * /*action_args*/)
     {
         if (!context) return true;
 
@@ -473,7 +473,7 @@ struct grammar
         return true;
     }
 
-    static bool number_integral_part (iterator first, iterator last, void * context, void * /*action_args*/)
+    static bool number_integral_part (iterator first, iterator last, void * context, void const * /*action_args*/)
     {
         if (!context) return true;
 
@@ -483,7 +483,7 @@ struct grammar
         return true;
     }
 
-    static bool number_frac_part (iterator first, iterator last, void * context, void * /*action_args*/)
+    static bool number_frac_part (iterator first, iterator last, void * context, void const * /*action_args*/)
     {
         if (!context) return true;
 
@@ -493,7 +493,7 @@ struct grammar
         return true;
     }
 
-    static bool number_exp_part (iterator first, iterator last, void * context, void * /*action_args*/)
+    static bool number_exp_part (iterator first, iterator last, void * context, void const * /*action_args*/)
     {
         if (!context) return true;
 
@@ -503,7 +503,7 @@ struct grammar
         return true;
     }
 
-    static bool number_value (iterator /*first*/, iterator /*last*/, void * context, void * /*action_args*/)
+    static bool number_value (iterator /*first*/, iterator /*last*/, void * context, void const * /*action_args*/)
     {
         if (!context) return true;
 
@@ -547,7 +547,7 @@ struct grammar
         return badpos == last;
     }
 
-    static bool string_value (iterator begin, iterator end, void * context, void * /*action_args*/)
+    static bool string_value (iterator begin, iterator end, void * context, void const * /*action_args*/)
     {
         if (!context) return true;
 
@@ -560,7 +560,7 @@ struct grammar
         return result;
     }
 
-    static bool begin_json (iterator /*first*/, iterator /*last*/, void * context, void * /*action_args*/)
+    static bool begin_json (iterator /*first*/, iterator /*last*/, void * context, void const * /*action_args*/)
     {
         if (!context) return true;
 
@@ -568,7 +568,7 @@ struct grammar
         return ctx->sax->on_begin_json();
     }
 
-    static bool success_end_json (iterator /*first*/, iterator /*last*/, void * context, void * /*action_args*/)
+    static bool success_end_json (iterator /*first*/, iterator /*last*/, void * context, void const * /*action_args*/)
     {
         if (!context) return true;
 
@@ -576,7 +576,7 @@ struct grammar
         return ctx->sax->on_end_json(true);
     }
 
-    static bool failed_end_json (iterator /*first*/, iterator /*last*/, void * context, void * /*action_args*/)
+    static bool failed_end_json (iterator /*first*/, iterator /*last*/, void * context, void const * /*action_args*/)
     {
         if (!context) return true;
 
@@ -585,7 +585,7 @@ struct grammar
         return ctx->sax->on_end_json(false);
     }
 
-    static bool begin_member (iterator first, iterator last, void * context, void * /*action_args*/)
+    static bool begin_member (iterator first, iterator last, void * context, void const * /*action_args*/)
     {
         if (context) {
             parse_context * ctx = static_cast<parse_context *>(context);
@@ -597,7 +597,7 @@ struct grammar
         return true;
     }
 
-    static bool end_member (iterator /*first*/, iterator /*last*/, void * context, void * /*action_args*/)
+    static bool end_member (iterator /*first*/, iterator /*last*/, void * context, void const * /*action_args*/)
     {
         if (context) {
             parse_context * ctx = static_cast<parse_context *>(context);
@@ -606,7 +606,7 @@ struct grammar
         return true;
     }
 
-    static bool begin_object (iterator /*first*/, iterator /*last*/, void * context, void * /*action_args*/)
+    static bool begin_object (iterator /*first*/, iterator /*last*/, void * context, void const * /*action_args*/)
     {
         if (!context) return true;
 
@@ -625,7 +625,7 @@ struct grammar
         return result;
     }
 
-    static bool end_object (iterator /*first*/, iterator /*last*/, void * context, void * /*action_args*/)
+    static bool end_object (iterator /*first*/, iterator /*last*/, void * context, void const * /*action_args*/)
     {
         if (!context) return true;
 
@@ -636,7 +636,7 @@ struct grammar
         return ctx->sax->on_end_object(member_name);
     }
 
-    static bool begin_array (iterator /*first*/, iterator /*last*/, void * context, void * /*action_args*/)
+    static bool begin_array (iterator /*first*/, iterator /*last*/, void * context, void const * /*action_args*/)
     {
         if (!context) return true;
 
@@ -652,7 +652,7 @@ struct grammar
         return result;
     }
 
-    static bool end_array (iterator /*first*/, iterator /*last*/, void * context, void * /*action_args*/)
+    static bool end_array (iterator /*first*/, iterator /*last*/, void * context, void const * /*action_args*/)
     {
         if (!context) return true;
 
