@@ -154,12 +154,18 @@ template <typename Json
         , int Minor = 0>
 struct rpc
 {
-    typedef Json json_type;
-    typedef Method method_type;
-    typedef IdGenerator id_generator_type;
-    typedef Serializer serializer_type;
-    typedef typename IdGenerator::type id_type;
-    typedef typename json_type::string_type string_type;
+    typedef Json                                json_type;
+    typedef Method                              method_type;
+    typedef IdGenerator                         id_generator_type;
+    typedef Serializer                          serializer_type;
+    typedef typename IdGenerator::type          id_type;
+    typedef typename json_type::difference_type difference_type;
+    typedef typename json_type::size_type       size_type;
+    typedef typename json_type::string_type     string_type;
+    typedef typename json_type::boolean_type    boolean_type;
+    typedef typename json_type::integer_type    integer_type;
+    typedef typename json_type::real_type       real_type;
+    typedef typename json_type::uinteger_type   uinteger_type;
 
     //
     // Error codes
