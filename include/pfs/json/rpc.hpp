@@ -293,6 +293,11 @@ struct rpc
             return result;
         }
 
+        method_type method () const
+        {
+            return this->name();
+        }
+
         id_type id () const
         {
             return this->_j["id"].template get<id_type>();
@@ -460,6 +465,11 @@ struct rpc
         bool has_result () const
         {
             return this->_j.contains("result");
+        }
+
+        json_type const & result () const
+        {
+            return this->_j["result"];
         }
 
         /**
