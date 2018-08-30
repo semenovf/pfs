@@ -437,6 +437,11 @@ struct rpc
     public:
         response () : entity() {}
 
+        id_type id () const
+        {
+            return this->_j["id"].template get<id_type>();
+        }
+
         bool is_success () const
         {
             return this->_j.contains("result");
