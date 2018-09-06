@@ -134,6 +134,18 @@ public:
                 , transition_type const *>(t);
     }
 
+    static match_type rpt_eq (char_type ch
+            , size_type from
+            , size_type to)
+    {
+        return match_type::template make_rpt<typename match_type::match_eq, char_type>(ch, from, to);
+    };
+
+    static match_type opt_eq (char_type ch)
+    {
+        return rpt_eq(ch, 0, 1);
+    };
+
     static match_type rpt_length (int n
             , size_type from
             , size_type to)
