@@ -45,7 +45,7 @@ void postgresql_test ()
     }
 
     {
-        ADD_TESTS(26);
+        ADD_TESTS(29);
 
         pfs::string db_uri = pfs::safeformat("postgresql://%s@localhost:5432/pfs-test-db?connect_timeout=10")
                 % user;
@@ -81,6 +81,10 @@ void postgresql_test ()
                 debby_ns::stringlist_type tables = db.tables();
 
                 TEST_OK2(tables.size() == 2, "Two tables created");
+
+                TEST_OK(db.table_exists("department"));
+                TEST_OK(db.table_exists("employee"));
+                TEST_OK(!db.table_exists("non-exists-table"));
 
                 // Ordered by name
                 TEST_OK(tables[0] == "department");

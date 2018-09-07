@@ -219,6 +219,28 @@ public:
 
         return r;
     }
+
+    bool table_exists (string_type const & name, pfs::error_code & ec, string_type & errstr)
+    {
+        string_type sql("SELECT relname FROM pg_class WHERE relname='");
+        sql += name;
+        sql += "'";
+
+        statement_type stmt = prepare(sql, ec, errstr);
+
+        if (stmt) {
+            result_type res = stmt.exec(ec, errstr);
+
+            if (!ec) {
+                if (res.has_more())
+                    return true;
+            }
+        }
+
+        return false;
+    }
+
+
 };
 
 }}} // namespace pfs::sql::psql

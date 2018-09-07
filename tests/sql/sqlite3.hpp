@@ -81,7 +81,7 @@ void sqlite3_test ()
     }
 
     {
-        ADD_TESTS(28);
+        ADD_TESTS(31);
 
         pfs::error_code ec;
         pfs::filesystem::path path = pfs::filesystem::temp_directory_path();
@@ -121,6 +121,10 @@ void sqlite3_test ()
                 debby_ns::stringlist_type tables = db.tables();
 
                 TEST_OK2(tables.size() == 2, "Two tables created");
+
+                TEST_OK(db.table_exists("department"));
+                TEST_OK(db.table_exists("employee"));
+                TEST_OK(!db.table_exists("non-exists-table"));
 
                 // Ordered by name
                 TEST_OK(tables[0] == "department");

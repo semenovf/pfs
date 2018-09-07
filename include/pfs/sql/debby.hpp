@@ -264,6 +264,23 @@ struct debby
         }
 
         /**
+         * @fn bool table_exists (string_type const & name, pfs::error_code & ec, string_type & errstr)
+         */
+        using base_class::table_exists;
+
+        bool table_exists (string_type const & name)
+        {
+            pfs::error_code ec;
+            string_type errstr;
+
+            bool r = base_class::table_exists(name, ec, errstr);
+
+            if (ec) PFS_THROW(sql_exception(ec, errstr));
+
+            return r;
+        }
+
+        /**
         * @fn bool begin_transaction (pfs::error_code & ec, string_type & errstr)
         */
         using base_class::begin_transaction;
