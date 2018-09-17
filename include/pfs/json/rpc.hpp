@@ -289,7 +289,7 @@ struct rpc
 
         method_type name () const
         {
-            method_type result = pfs::json::cref(this->_j)["method"].get<method_type>();
+            method_type result = pfs::json::cref(this->_j)["method"].template get<method_type>();
             return result;
         }
 

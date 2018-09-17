@@ -4,7 +4,7 @@
 #include <pfs/compiler.hpp>
 
 //#if PFS_CC_GCC_VERSION >= 50300 && HAVE_STDCXX_FS_EXPERIMENTAL
-#if HAVE_STDCXX_FS_EXPERIMENTAL
+#if 0 //HAVE_STDCXX_FS_EXPERIMENTAL
 
 //
 // [Experimental Library Extensions](https://gcc.gnu.org/onlinedocs/libstdc++/manual/using_dynamic_or_shared.html#manual.intro.using.linkage.experimental)
@@ -49,6 +49,10 @@ public:
         base_class::operator = (other);
         return *this;
     }
+
+    path (pfs::string const & source)
+        : base_class(source.cbegin(), source.cend())
+    {}
 
     template <typename Source>
     path (Source const & source)

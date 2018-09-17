@@ -1,22 +1,11 @@
-/**
- * @file   test.cpp
- * @author
- * @date
- *
- * @brief testing ...
- */
-
 #include <pfs/test.hpp>
 #include "test_path.hpp"
 #include "test_directory_entry.hpp"
 
-int main(int argc, char *argv[])
+int main ()
 {
-    PFS_UNUSED(argc);
-    PFS_UNUSED(argv);
-
     BEGIN_TESTS(0);
-    
+
     test_path();
     test_directory_entry();
 

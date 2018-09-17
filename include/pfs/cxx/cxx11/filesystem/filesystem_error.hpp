@@ -1,7 +1,7 @@
 #pragma once
 #include <pfs/compiler.hpp>
 
-#if PFS_CC_GCC_VERSION >= 50300 && HAVE_STDCXX_FS_EXPERIMENTAL
+#if 0 // PFS_CC_GCC_VERSION >= 50300 && HAVE_STDCXX_FS_EXPERIMENTAL
 
 #include <experimental/filesystem>
 

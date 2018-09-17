@@ -1,10 +1,8 @@
-#ifndef __PFS_CXX_CXX11_FILESYSTEM_CONSTANTS_HPP__
-#define __PFS_CXX_CXX11_FILESYSTEM_CONSTANTS_HPP__
-
+#pragma once
 #include <pfs/config.h>
 #include <pfs/compiler.hpp>
 
-#if PFS_CC_GCC_VERSION >= 50300 && HAVE_STDCXX_FS_EXPERIMENTAL
+#if 0 //PFS_CC_GCC_VERSION >= 50300 && HAVE_STDCXX_FS_EXPERIMENTAL
 
 #include <experimental/filesystem>
 
@@ -19,6 +17,3 @@ using perms = std::experimental::filesystem::perms;
 #else
 #include <pfs/cxx/cxx98/filesystem/constants.hpp>
 #endif
-
-#endif /* __PFS_CXX_CXX11_FILESYSTEM_CONSTANTS_HPP__ */
-
