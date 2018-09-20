@@ -29,10 +29,13 @@ private:
     db_handle_shared _pd;
 
 private:
-    bool query (string_type const & sql, pfs::error_code & ec, string_type & errstr)
+    static bool query (db_native_handle_type dbh
+        , string_type const & sql
+        , pfs::error_code & ec
+        , string_type & errstr)
     {
         char * errmsg;
-        int rc = sqlite3_exec(_pd.get(), sql.utf8().c_str(), NULL, NULL, & errmsg);
+        int rc = sqlite3_exec(dbh, sql.utf8().c_str(), NULL, NULL, & errmsg);
 
         if (SQLITE_OK != rc) {
             if (errmsg) {
@@ -44,6 +47,11 @@ private:
         }
 
         return true;
+    }
+
+    bool query (string_type const & sql, pfs::error_code & ec, string_type & errstr)
+    {
+        return query(_pd.get(), sql, ec, errstr);
     }
 
 public:
@@ -159,6 +167,9 @@ public:
             // Enable extended result codes
             sqlite3_extended_result_codes(dbh, 1);
         }
+
+        if (!query(dbh, string_t{"PRAGMA foreign_keys = ON"}, ec, errstr))
+            return false;
 
         db_handle_shared pd(dbh, db_handle_deleter());
         _pd.swap(pd);
