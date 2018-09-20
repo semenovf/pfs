@@ -1,4 +1,5 @@
 #pragma once
+#include <pfs/safeformat.hpp>
 #include <pfs/sql/sqlite3/sqlite3.h>
 
 namespace pfs {
@@ -44,7 +45,8 @@ struct result_code
         case SQLITE_WARNING     : return string_type("SQLITE_WARNING");
         case SQLITE_ROW         : return string_type("SQLITE_ROW");
         case SQLITE_DONE        : return string_type("SQLITE_DONE");
-        default: return string_type("unknown code (may be extended code) = ") + pfs::to_string(rc).utf8().c_str();
+        case SQLITE_CONSTRAINT_FOREIGNKEY: return string_type("SQLITE_CONSTRAINT_FOREIGNKEY");
+        default: return safeformat("unknown code (%d), may be extended code)") % rc;
         }
     }
 
