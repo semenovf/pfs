@@ -88,6 +88,25 @@ public:
         return exec(0, begin, end);
     }
 
+    static bool exec (transition_type const * initial, void * parse_context
+            , iterator begin, iterator end)
+    {
+//         preprocessor_grammar::parse_context context;
+//         context.pmod = this;
+//
+//         string_t::const_iterator first = cmd.cbegin();
+//         string_t::const_iterator last = cmd.cend();
+
+        // Initialize grammar's static members
+//         static grammar_type grammar;
+
+        fsm f(initial, parse_context);
+        result_type r = f.exec(first, last);
+
+        bool result = (r.first && r.second == last);
+        return result;
+    }
+
     static match_type nothing ()
     {
         return match_type::template make<typename match_type::match_nothing>();
