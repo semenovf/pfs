@@ -91,15 +91,6 @@ public:
     static bool exec (transition_type const * initial, void * parse_context
             , iterator begin, iterator end)
     {
-//         preprocessor_grammar::parse_context context;
-//         context.pmod = this;
-//
-//         string_t::const_iterator first = cmd.cbegin();
-//         string_t::const_iterator last = cmd.cend();
-
-        // Initialize grammar's static members
-//         static grammar_type grammar;
-
         fsm f(initial, parse_context);
         result_type r = f.exec(first, last);
 
