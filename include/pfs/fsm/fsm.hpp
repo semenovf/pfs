@@ -89,7 +89,7 @@ public:
     }
 
     static bool exec (transition_type const * initial, void * parse_context
-            , iterator begin, iterator end)
+            , iterator first, iterator last)
     {
         fsm f(initial, parse_context);
         result_type r = f.exec(first, last);

@@ -168,7 +168,7 @@ public:
             sqlite3_extended_result_codes(dbh, 1);
         }
 
-        if (!query(dbh, string_t{"PRAGMA foreign_keys = ON"}, ec, errstr))
+        if (!query(dbh, string_type("PRAGMA foreign_keys = ON"), ec, errstr))
             return false;
 
         db_handle_shared pd(dbh, db_handle_deleter());

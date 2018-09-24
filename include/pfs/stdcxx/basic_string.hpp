@@ -4,6 +4,8 @@
 #include <pfs/config.h>
 #include <pfs/type_traits.hpp>
 #include <pfs/compiler.hpp>
+#include <pfs/unicode/char.hpp>
+#include <pfs/unicode/u8_iterator.hpp>
 
 // TODO Make like vector
 
@@ -24,7 +26,6 @@ public:
     using base_class::copy;
     using base_class::erase;
     using base_class::insert;
-    using base_class::push_back;
     using base_class::substr;
 
     typedef typename base_class::value_type       value_type;
@@ -503,6 +504,15 @@ public:
     /**
      * @fn void push_back (CharT ch)
      */
+    using base_class::push_back;
+
+    /**
+     */
+    void push_back (unicode::char_t ch)
+    {
+        pfs::unicode::u8_output_iterator<pfs::back_insert_iterator<basic_string> > out(pfs::back_inserter(*this));
+        *out++ = ch;
+    }
 
 #if __cplusplus < 201103L
     inline void pop_back ()
