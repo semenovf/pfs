@@ -14,6 +14,12 @@ namespace pfs {
 namespace sql {
 namespace psql {
 
+//
+// Useful functions:
+//
+// 1. database name for live connection
+//      char * PQdb (PGconn const * conn);
+//
 template <typename StringListT = pfs::stringlist<>, typename StringT = pfs::string>
 class database
 {

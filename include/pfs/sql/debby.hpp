@@ -280,6 +280,31 @@ struct debby
             return r;
         }
 
+        void clear (pfs::error_code & ec, string_type & errstr)
+        {
+            stringlist_type tlist = this->tables();
+            typename stringlist_type::const_iterator first = tlist.cbegin();
+            typename stringlist_type::const_iterator last = tlist.cend();
+
+            for (; first != last; ++first) {
+                string_type sql("DROP TABLE IF EXISTS ");
+                sql += *first;
+                result res = this->exec(sql, ec, errstr);
+
+                if (ec) return;
+            }
+        }
+
+        void clear ()
+        {
+            pfs::error_code ec;
+            string_type errstr;
+
+            this->clear(ec, errstr);
+
+            if (ec) PFS_THROW(sql_exception(ec, errstr));
+        }
+
         /**
         * @fn bool begin_transaction (pfs::error_code & ec, string_type & errstr)
         */

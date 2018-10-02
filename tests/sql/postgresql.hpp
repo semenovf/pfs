@@ -149,6 +149,8 @@ void postgresql_test ()
                 TEST_OK2(count == 6, "6 records in 'employee'");
                 TEST_OK2(res.done(), "Select from 'employee'");
 
+                db.clear();
+
             } catch (pfs::exception const & ex) {
                 std::cerr << "Exception: " << ex.message() << std::endl;
                 std::cout << postgresql_help;

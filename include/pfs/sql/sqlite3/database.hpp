@@ -3,6 +3,7 @@
 #include <pfs/string.hpp>
 #include <pfs/stringlist.hpp>
 #include <pfs/system_error.hpp>
+#include <pfs/filesystem.hpp>
 #include <pfs/net/uri.hpp>
 #include <pfs/sql/exception.hpp>
 #include <pfs/sql/sqlite3/statement.hpp>
@@ -13,6 +14,12 @@ namespace pfs {
 namespace sql {
 namespace sqlite3 {
 
+//
+// Useful functions:
+//
+// 1. Databases's absolute file path for connection
+//      char const * filename = sqlite3_db_filename(sqlite3 *, "main");
+//
 template <typename StringListT = pfs::stringlist<>, typename StringT = pfs::string>
 class database
 {
