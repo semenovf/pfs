@@ -134,6 +134,28 @@ public:
         _pd.swap(pd);
     }
 
+    bool clear (pfs::error_code & ec, string_type & errstr)
+    {
+        stringlist_type tlist = this->tables(ec, errstr);
+
+        if (ec)
+            return false;
+
+        typename stringlist_type::const_iterator first = tlist.cbegin();
+        typename stringlist_type::const_iterator last = tlist.cend();
+
+        for (; first != last; ++first) {
+            string_type sql("DROP TABLE IF EXISTS \"");
+            sql += *first;
+            sql += "\" CASCADE";
+            result_type res = this->exec(sql, ec, errstr);
+
+            if (!res) return false;
+        }
+
+        return true;
+    }
+
     result_type exec (string_type const & sql, pfs::error_code & ec, string_type & errstr)
     {
         PGresult * res = PQexec(_pd.get(), sql.utf8().c_str());

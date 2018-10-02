@@ -194,6 +194,31 @@ public:
         return _pd.get() != 0;
     }
 
+    bool clear (pfs::error_code & ec, string_type & errstr)
+    {
+        stringlist_type tlist = this->tables(ec, errstr);
+
+        if (ec)
+            return false;
+
+        typename stringlist_type::const_iterator first = tlist.cbegin();
+        typename stringlist_type::const_iterator last = tlist.cend();
+
+        if (!query(_pd.get(), string_type("PRAGMA foreign_keys = OFF"), ec, errstr))
+            return false;
+
+        for (; first != last; ++first) {
+            string_type sql("DROP TABLE IF EXISTS [");
+            sql += *first;
+            sql += ']';
+            result_type res = this->exec(sql, ec, errstr);
+
+            if (!res) return false;
+        }
+
+        return query(_pd.get(), string_type("PRAGMA foreign_keys = ON"), ec, errstr);
+    }
+
     result_type exec (string_type const & sql, pfs::error_code & ec, string_type & errstr)
     {
         statement_type stmt = prepare(sql, ec, errstr);
