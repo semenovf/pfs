@@ -1,4 +1,5 @@
 #pragma once
+#include <pfs/config.h>
 
 #if defined(__cplusplus)
 

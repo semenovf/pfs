@@ -1,6 +1,2 @@
-#ifndef __PFS_CXX14_ARRAY_HPP__
-#define __PFS_CXX14_ARRAY_HPP__
-
+#pragma once
 #include <pfs/cxx/cxx11/array.hpp>
-
-#endif /* __PFS_CXX14_ARRAY_HPP__ */

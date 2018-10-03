@@ -1,3 +1,6 @@
 [submodule "3rdparty/backward-cpp"]
 	path = 3rdparty/backward-cpp
 	url = https://github.com/bombela/backward-cpp.git
+[submodule "3rdparty/variant"]
+	path = 3rdparty/variant
+	url = https://github.com/mpark/variant.git

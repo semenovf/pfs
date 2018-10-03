@@ -30,7 +30,7 @@
         pfs::test::todo(#expr, false, __FILE__, __LINE__);   \
     }
 
-#define TEST_OK_X(expr, stmt) if ((expr)) {                  \
+#define TEST_OK_X(expr,stmt) if ((expr)) {                   \
         pfs::test::todo(#expr, true, __FILE__, __LINE__);    \
     } else {                                                 \
         pfs::test::todo(#expr, false, __FILE__, __LINE__);   \
@@ -64,6 +64,10 @@
         pfs::test::todo(desc, false, __FILE__, __LINE__);    \
         ABORT_TESTS                                          \
     }
+
+#define TEST_NOK(expr) TEST_OK(!(expr))
+#define TEST_NOK_X(expr,stmt) TEST_OK_X(!(expr),stmt)
+#define TEST_NOK2(expr,desc) TEST_OK2(!(expr),desc)
 
 namespace pfs {
 

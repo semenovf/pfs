@@ -1,6 +1,4 @@
-#ifndef __PFS_CXX17_STRING_VIEW_HPP__
-#define __PFS_CXX17_STRING_VIEW_HPP__
-
+#pragma once
 #include <string_view>
 
 namespace pfs {
@@ -14,6 +12,3 @@ typedef u16string_view std::u16string_view;
 typedef u32string_view std::u32string_view;
 
 } // pfs
-
-#endif /* __PFS_CXX17_STRING_VIEW_HPP__ */
-

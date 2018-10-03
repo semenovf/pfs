@@ -43,3 +43,5 @@
 #cmakedefine01 HAVE_BACKWARD_CPP
 
 #cmakedefine01 HAVE_POSTGRESQL
+
+#cmakedefine01 HAVE_MPARK_VARIANT

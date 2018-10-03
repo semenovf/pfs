@@ -55,6 +55,7 @@ list(APPEND MY_TEST_TARGETS tuple)
 list(APPEND MY_TEST_TARGETS utf8)
 list(APPEND MY_TEST_TARGETS algo-tricks)
 list(APPEND MY_TEST_TARGETS variadic-templates)
+list(APPEND MY_TEST_TARGETS variant)
 list(APPEND MY_TEST_TARGETS vector)
 
 ################################################################################

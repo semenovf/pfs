@@ -125,9 +125,13 @@ endif()
 
 # Optional: Stack trace pretty printer library for C++
 # https://github.com/bombela/backward-cpp
-#if (EXISTS ${CMAKE_SOURCE_DIR}/3rdparty/backward-cpp/backward.hpp)
 if (EXISTS ${CMAKE_CURRENT_LIST_DIR}/3rdparty/backward-cpp/backward.hpp)
     set(HAVE_BACKWARD_CPP 1)
+endif()
+
+if (EXISTS ${CMAKE_CURRENT_LIST_DIR}/3rdparty/variant/include/mpark/variant.hpp)
+    set(HAVE_MPARK_VARIANT 1)
+    include_directories(${CMAKE_CURRENT_LIST_DIR}/3rdparty/variant/include)
 endif()
 
 configure_file(${CMAKE_CURRENT_LIST_DIR}/pfs_config.h.in ${CMAKE_BINARY_DIR}/pfs_config.h)

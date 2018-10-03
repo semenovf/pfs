@@ -1,6 +1,4 @@
-#ifndef __PFS_CXX11_TYPE_TRAITS_HPP__
-#define __PFS_CXX11_TYPE_TRAITS_HPP__
-
+#pragma once
 #include <type_traits>
 
 namespace pfs {
@@ -49,6 +47,12 @@ using make_unsigned = std::make_unsigned<T>;
 template <typename T>
 using make_signed = std::make_signed<T>;
 
-}
+template <typename T>
+using add_pointer = std::add_pointer<T>;
 
-#endif /* __PFS_CXX11_TYPE_TRAITS_HPP__ */
+#if __cplusplus == 201103L
+template <typename T>
+using add_pointer_t = typename add_pointer<T>::type;
+#endif
+
+}
