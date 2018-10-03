@@ -27,10 +27,10 @@ void test_comparisons ()
         TEST_OK(w <= v);
         TEST_OK(w >= v);
 
-#if __cplusplus >= 201103L
+#if __cplusplus >= 201103L && (!defined(__GNUC__) || __GNUC__ >= 5)
         constexpr pfs::variant<int, const char *> cv(0), cw(0);
         // `cv` op `cw`
-        static_assert(cv == cw, "");
+        static_assert(cv == cw, "");   // g++ error (prior to version 5): non-constant condition for static assertion
         static_assert(!(cv != cw), "");
         static_assert(!(cv < cw), "");
         static_assert(!(cv > cw), "");
@@ -64,7 +64,7 @@ void test_comparisons ()
         TEST_NOK(w <= v);
         TEST_OK(w >= v);
 
-#if __cplusplus >= 201103L
+#if __cplusplus >= 201103L && (!defined(__GNUC__) || __GNUC__ >= 5)
         constexpr pfs::variant<int, const char *> cv(0), cw(1);
         // `cv` op `cw`
         static_assert(!(cv == cw), "");
@@ -101,7 +101,7 @@ void test_comparisons ()
         TEST_NOK(w <= v);
         TEST_OK(w >= v);
 
-#if __cplusplus >= 201103L
+#if __cplusplus >= 201103L && (!defined(__GNUC__) || __GNUC__ >= 5)
         constexpr pfs::variant<int, unsigned int> cv(0), cw(0u);
         // `cv` op `cw`
         static_assert(!(cv == cw), "");
@@ -138,7 +138,7 @@ void test_comparisons ()
         TEST_NOK(w <= v);
         TEST_OK(w >= v);
 
-#if __cplusplus >= 201103L
+#if __cplusplus >= 201103L && (!defined(__GNUC__) || __GNUC__ >= 5)
         constexpr pfs::variant<int, unsigned int> cv(0), cw(1u);
         // `cv` op `cw`
         static_assert(!(cv == cw), "");
