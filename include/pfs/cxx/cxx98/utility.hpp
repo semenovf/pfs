@@ -1,6 +1,4 @@
-#ifndef __PFS_CXX98_UTILITY_HPP__
-#define __PFS_CXX98_UTILITY_HPP__
-
+#pragma once
 #include <pfs/cxx/cxx98/utility_common.hpp>
 
 namespace pfs {
@@ -96,5 +94,3 @@ inline bool operator >= (pair<T1,T2> const & lhs, pair<T1,T2> const & rhs)
 }
 
 } // pfs
-
-#endif /* __PFS_CXX98_UTILITY_HPP__ */

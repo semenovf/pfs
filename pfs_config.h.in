@@ -32,6 +32,8 @@
 
 #cmakedefine01 HAVE_BOOST_OPTIONAL
 
+#cmakedefine01 HAVE_BOOST_VARIANT
+
 #cmakedefine01 HAVE_QT_CORE
 
 #cmakedefine01 HAVE_QT4_CORE

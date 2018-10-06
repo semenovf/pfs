@@ -1,5 +1,4 @@
-#ifndef __PFS_CXX_CXX98_THREAD_HPP__
-#define __PFS_CXX_CXX98_THREAD_HPP__
+#pragma once
 
 // Programmatically find the number of cores on a machine
 // =============================================================================
@@ -25,6 +24,4 @@
 #else
 #   error "No native support for threads"
 #endif
-
-#endif /* __PFS_CXX_CXX98_THREAD_HPP__ */
 

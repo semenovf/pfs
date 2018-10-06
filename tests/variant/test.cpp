@@ -1,13 +1,13 @@
 #include <cstring>
 #include <iostream>
 #include <pfs/test.hpp>
+#include <pfs/variant.hpp>
+
+#include "test_constructors.hpp"
 
 // TODO Need to implement for C++ prior to C++11
 #if __cplusplus >= 201103L
 
-#include <pfs/variant.hpp>
-
-#include "test_constructors.hpp"
 #include "test_assignments.hpp"
 #include "test_destructors.hpp"
 #include "test_get.hpp"
@@ -22,8 +22,9 @@ int main ()
 {
     BEGIN_TESTS(0);
 
-#if __cplusplus >= 201103L
     test_constructors();
+
+#if __cplusplus >= 201103L
     test_assignments();
     test_destructors();
     test_get();

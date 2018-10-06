@@ -1,3 +1,9 @@
 #pragma once
+#include <pfs/config.h>
+#include <pfs/cxxlang.hpp>
 
-#error "Variant does not implemented yet for C++98"
+#if HAVE_BOOST_VARIANT
+#   include "variant_boost.hpp"
+#else
+#   include "variant_custom.hpp"
+#endif

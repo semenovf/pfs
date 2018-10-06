@@ -93,6 +93,10 @@ if(Boost_FOUND)
     if(EXISTS ${Boost_INCLUDE_DIR}/boost/optional.hpp)
         set(HAVE_BOOST_OPTIONAL 1)
     endif()
+
+    if(EXISTS ${Boost_INCLUDE_DIR}/boost/variant.hpp)
+        set(HAVE_BOOST_VARIANT 1)
+    endif()
 endif(Boost_FOUND)
 
 # [CMake with Qt4](https://wiki.qt.io/Using_CMake_build_system)
