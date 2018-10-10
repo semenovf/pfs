@@ -1,7 +1,7 @@
 #pragma once
 
 #if HAVE_MPARK_VARIANT
-#include <mpark/variant.hpp>
+#include <pfs/../../3rdparty/variant/include/mpark/variant.hpp>
 #include <pfs/type_traits.hpp>
 
 namespace pfs {

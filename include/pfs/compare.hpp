@@ -1,7 +1,5 @@
 #pragma once
 
-namespace pfs {
-
 template <typename T, typename U>
 inline bool operator != (T const & a, U const & b)
 {
@@ -25,5 +23,3 @@ inline bool operator >= (T const & a, U const & b)
 {
     return !(a < b);
 }
-
-} // pfs
