@@ -42,6 +42,11 @@ inline void sort (RandomIt first, RandomIt last)
     std::sort(first, last);
 }
 
+/**
+ * The signature ot the comparison function should be equivalent to the following:
+ *
+ * bool cmp (Type1 const & a, Type2 const & b);
+ */
 template <typename RandomIt, template Compare>
 inline void sort (RandomIt first, RandomIt last, Compare comp)
 {
