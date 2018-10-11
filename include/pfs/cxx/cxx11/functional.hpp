@@ -33,4 +33,10 @@ using std::bind;
 template <typename... Args>
 using function = std::function<Args...>;
 
+template <typename T = void>
+using greater = std::greater<T>;
+
+template <typename T = void>
+using less = std::less<T>;
+
 } // pfs
