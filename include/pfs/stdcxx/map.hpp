@@ -215,9 +215,10 @@ public:
 
     /**
      */
-    std::pair<iterator,bool> insert (key_type const & key, mapped_type const & value)
+    pfs::pair<iterator,bool> insert (key_type const & key, mapped_type const & value)
     {
-        return base_class::insert(std::make_pair(key, value));
+        std::pair<iterator,bool> result = base_class::insert(std::make_pair(key, value));
+        return pfs::make_pair(result.first, result.second);
     }
 
     /**

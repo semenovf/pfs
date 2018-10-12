@@ -4,14 +4,13 @@
 
 namespace pfs {
 
+template <typename Key, typename T>
 #if __cplusplus >= 201103L
 
-template <typename Key, typename T>
 using map = stdcxx::map<Key, T>;
 
 #else
 
-template <typename Key, typename T>
 class map : public stdcxx::map<Key, T, map<Key, T> >
 {
     typedef stdcxx::map<Key, T, map<Key, T> > base_class;

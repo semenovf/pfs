@@ -1,6 +1,5 @@
-#ifndef __PFS_CXX98_UTILITY_HPP__
-#define __PFS_CXX98_UTILITY_HPP__
-
+#pragma once
+#include <pfs/compare.hpp>
 #include <pfs/cxx/cxx98/utility_common.hpp>
 
 namespace pfs {
@@ -64,37 +63,17 @@ inline bool operator == (pair<T1,T2> const & lhs, pair<T1,T2> const & rhs)
     return lhs.first == rhs.first && lhs.second == rhs.second;
 }
 
-template <typename T1, typename T2>
-inline bool operator != (pair<T1,T2> const & lhs, pair<T1,T2> const & rhs)
-{
-    return ! (lhs == rhs);
-}
-
+// template <typename T1, typename T2>
+// inline bool operator != (pair<T1,T2> const & lhs, pair<T1,T2> const & rhs)
+// {
+//     return ! (lhs == rhs);
+// }
+//
 template <typename T1, typename T2>
 inline bool operator < (pair<T1,T2> const & lhs, pair<T1,T2> const & rhs)
 {
     return lhs.first < rhs.first
-	     || (!(rhs.first < lhs.first) && lhs.second < rhs.second);
-}
-
-template <typename T1, typename T2>
-inline bool operator <= (pair<T1,T2> const & lhs, pair<T1,T2> const & rhs)
-{
-    return !(rhs < lhs);
-}
-
-template <typename T1, typename T2>
-inline bool operator > (pair<T1,T2> const & lhs, pair<T1,T2> const & rhs)
-{
-    return rhs < lhs;
-}
-
-template <typename T1, typename T2>
-inline bool operator >= (pair<T1,T2> const & lhs, pair<T1,T2> const & rhs)
-{
-    return !(lhs < rhs);
+            || (!(rhs.first < lhs.first) && lhs.second < rhs.second);
 }
 
 } // pfs
-
-#endif /* __PFS_CXX98_UTILITY_HPP__ */

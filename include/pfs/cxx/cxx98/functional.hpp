@@ -111,4 +111,11 @@ inline reference_wrapper<const T> cref (reference_wrapper<T> ref)
 //        return std::invoke(get(), std::forward<ArgTypes>(args)...);
 //    }
 
+template <typename T = void>
+struct greater : std::greater<T> {};
+
+template <typename T = void>
+struct less : std::less<T> {};
+
+
 } // pfs

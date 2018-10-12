@@ -508,7 +508,7 @@ public:
         typename object_type::iterator it = _d.object->find(key);
 
         if (it == _d.object->end()) {
-            std::pair<typename object_type::iterator, bool> result
+            pfs::pair<typename object_type::iterator, bool> result
                 = _d.object->insert(key, json());
             it = result.first;
 
@@ -998,7 +998,7 @@ bool json<PFS_JSON_TEMPLETE_ARGS>::operator == (json const & rhs) const
         const_iterator itr  = rhs.cbegin();
 
         for (; itl != last; ++itl, ++itr)
-            if (*itl != *itr)
+            if (!(*itl == *itr))
                 return false;
 
         break;
@@ -1016,7 +1016,7 @@ bool json<PFS_JSON_TEMPLETE_ARGS>::operator == (json const & rhs) const
             if (itl.key() != itr.key())
                 return false;
 
-            if (*itl != *itr)
+            if (!(*itl == *itr))
                 return false;
         }
 

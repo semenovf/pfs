@@ -292,7 +292,7 @@ void test_parse ()
         JsonType json;
         TEST_OK(json.parse(json_real_str) == pfs::error_code());
         TEST_OK(json.is_real());
-        TEST_OK(pfs::fabs(json.template get<real_t>() - (-37.7668f)) < 0.001f);
+        TEST_OK(pfs::abs(json.template get<real_t>() - (-37.7668f)) < 0.001f);
     }
 
     {
@@ -302,7 +302,7 @@ void test_parse ()
         JsonType json;
         TEST_OK(json.parse(json_ureal_str) == pfs::error_code());
         TEST_OK(json.is_real());
-        TEST_OK(pfs::fabs(json.template get<real_t>() - 37.7668f) < 0.001f);
+        TEST_OK(pfs::abs(json.template get<real_t>() - 37.7668f) < 0.001f);
     }
 
     {

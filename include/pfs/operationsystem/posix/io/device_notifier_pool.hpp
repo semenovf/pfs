@@ -9,6 +9,7 @@
 #include <pfs/utility.hpp>
 #include <pfs/io/device.hpp>
 #include <pfs/io/server.hpp>
+#include <pfs/compare.hpp>
 #include <pfs/debug.hpp>
 
 #if defined __USE_XOPEN || defined __USE_XOPEN2K8

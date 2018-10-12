@@ -1,6 +1,4 @@
-#ifndef __PFS_CXX_CXX98_ALGORITHM_HPP__
-#define __PFS_CXX_CXX98_ALGORITHM_HPP__
-
+#pragma once
 #include <algorithm>
 #include <pfs/cxxlang.hpp>
 
@@ -47,7 +45,7 @@ inline void sort (RandomIt first, RandomIt last)
  *
  * bool cmp (Type1 const & a, Type2 const & b);
  */
-template <typename RandomIt, template Compare>
+template <typename RandomIt, typename Compare>
 inline void sort (RandomIt first, RandomIt last, Compare comp)
 {
     std::sort(first, last, comp);
@@ -88,6 +86,5 @@ bool none_of (InputIt first, InputIt last, UnaryPredicate p)
     }
     return true;
 }
-} // pfs
 
-#endif /* __PFS_CXX_CXX98_ALGORITHM_HPP__ */
+} // namespace pfs

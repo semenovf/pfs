@@ -81,7 +81,7 @@ static bool __test_string_to_real (char const * s
     RealType std_result = std_string_to_float<RealType>(s, & endptr);
 
     if (result != std_result) {
-        RealType absdiff = pfs::fabs(result - std_result);
+        RealType absdiff = pfs::abs(result - std_result);
 
         if (absdiff <= pfs::numeric_limits<RealType>::epsilon()) {
             __print_diff_less_than_epsilon("Comparing with result of strtof[d,ld]()"
