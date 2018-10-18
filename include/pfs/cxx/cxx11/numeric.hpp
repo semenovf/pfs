@@ -1,15 +1,12 @@
-#ifndef __PFS_CXX_CXX11_NUMERIC_HPP__
-#define __PFS_CXX_CXX11_NUMERIC_HPP__
-
-#include <numeric>
+#pragma once
+#include <pfs/cxx/cxx98/numeric.hpp>
 
 namespace pfs {
 
-template <typename ForwardIterator, typename T>
-using iota = std::iota<ForwardIterator, T>;
+template <typename ForwardIt, typename T>
+inline void iota (ForwardIt first, ForwardIt last, T value)
+{
+    std::iota(first, last, value);
+}
 
 } // pfs
-
-
-#endif /* __PFS_CXX_CXX11_NUMERIC_HPP__ */
-
