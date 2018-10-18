@@ -1,6 +1,7 @@
 #pragma once
 #include <algorithm>
 #include <pfs/cxxlang.hpp>
+#include <pfs/utility.hpp>
 
 namespace pfs {
 
@@ -86,5 +87,108 @@ bool none_of (InputIt first, InputIt last, UnaryPredicate p)
     }
     return true;
 }
+
+template <typename ForwardIt>
+inline ForwardIt max_element (ForwardIt first, ForwardIt last)
+{
+    return std::max_element(first, last);
+}
+
+template <typename ForwardIt, typename Compare>
+inline ForwardIt max_element (ForwardIt first, ForwardIt last, Compare comp)
+{
+    return std::max_element(first, last, comp);
+}
+
+template <typename ForwardIt>
+inline ForwardIt min_element (ForwardIt first, ForwardIt last)
+{
+    return std::min_element(first, last);
+}
+
+template <typename ForwardIt, typename Compare>
+inline ForwardIt min_element (ForwardIt first, ForwardIt last, Compare comp)
+{
+    return std::min_element(first, last, comp);
+}
+
+#if __cplusplus < 201103L
+
+//
+// https://en.cppreference.com/w/cpp/algorithm/minmax_element
+//
+template <typename ForwardIt>
+pfs::pair<ForwardIt,ForwardIt> minmax_element (ForwardIt first, ForwardIt last)
+{
+    pfs::pair<ForwardIt, ForwardIt> result(first, first);
+
+    if (first == last) return result;
+    if (++first == last) return result;
+
+    if (*first < *result.first) {
+        result.first = first;
+    } else {
+        result.second = first;
+    }
+
+    while (++first != last) {
+        ForwardIt i = first;
+
+        if (++first == last) {
+            if (*i < *result.first) result.first = i;
+            else if (!(*i < *result.second)) result.second = i;
+            break;
+        } else {
+            if (*first < *i) {
+                if (*first < *result.first) result.first = first;
+                if (!(*i < *result.second)) result.second = i;
+            } else {
+                if (*i < *result.first) result.first = i;
+                if (!(*first < *result.second)) result.second = first;
+            }
+        }
+    }
+
+    return result;
+}
+
+//
+// https://en.cppreference.com/w/cpp/algorithm/minmax_element
+//
+template <typename ForwardIt, typename Compare>
+pfs::pair<ForwardIt,ForwardIt> minmax_element (ForwardIt first, ForwardIt last, Compare comp)
+{
+    pfs::pair<ForwardIt, ForwardIt> result(first, first);
+
+    if (first == last) return result;
+    if (++first == last) return result;
+
+    if (comp(*first, *result.first)) {
+        result.first = first;
+    } else {
+        result.second = first;
+    }
+
+    while (++first != last) {
+        ForwardIt i = first;
+        if (++first == last) {
+            if (comp(*i, *result.first)) result.first = i;
+            else if (!(comp(*i, *result.second))) result.second = i;
+            break;
+        } else {
+            if (comp(*first, *i)) {
+                if (comp(*first, *result.first)) result.first = first;
+                if (!(comp(*i, *result.second))) result.second = i;
+            } else {
+                if (comp(*i, *result.first)) result.first = i;
+                if (!(comp(*first, *result.second))) result.second = first;
+            }
+        }
+    }
+
+    return result;
+}
+
+#endif
 
 } // namespace pfs
