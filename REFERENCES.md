@@ -121,6 +121,7 @@
 2. [SQLAPI++ Library](http://www.sqlapi.com/)
 3. [SOCI - The C++ Database Access Library](https://github.com/SOCI/soci)
 4. [Wt::Dbo](https://www.webtoolkit.eu/wt/doc/tutorial/dbo.html)
+5. [sqlite3](https://www.sqlite.org/docs.html)
 
 ### CLI
 
