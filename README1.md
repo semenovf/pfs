@@ -14,7 +14,15 @@ __pfs__ is an attempt to make cross-standard C++ library.
     <td>g++</td>
     <td>4.8</td>
     <td>Boost 1.54</td>
-    <td rowspan="2"> <a href="https://travis-ci.org/semenovf/pfs"><img src="https://travis-ci.org/semenovf/pfs.svg?branch=master" /></a> </td>
+    <td rowspan="2">
+      <a href="https://travis-ci.org/semenovf/pfs">
+        <img src="https://travis-ci.org/semenovf/pfs.svg?branch=master"/>
+      </a>
+      <br/>
+      <a href="https://coveralls.io/github/semenovf/pfs?branch=master">
+          <img src="https://coveralls.io/repos/github/semenovf/pfs/badge.svg?branch=master"/>
+      </a>
+    </td>
   </tr>
   <tr>
     <td>C++11</td>
