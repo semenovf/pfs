@@ -9,8 +9,10 @@ namespace pfs {
 template <typename ForwardIt, typename T>
 inline void iota (ForwardIt first, ForwardIt last, T value)
 {
-    while (first != last)
-        *first++ = value++;
+    while (first != last) {
+        *first++ = value;
+        ++value;
+    }
 }
 
 #endif
