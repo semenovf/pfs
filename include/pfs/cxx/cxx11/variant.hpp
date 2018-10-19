@@ -6,6 +6,8 @@
 
 namespace pfs {
 
+constexpr std::size_t variant_npos = mpark::variant_npos;
+
 using in_place_t = mpark::in_place_t;
 
 template <std::size_t I>
