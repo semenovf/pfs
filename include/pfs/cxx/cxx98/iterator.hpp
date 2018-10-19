@@ -417,4 +417,18 @@ public:
     {}
 };
 
+template <typename ForwardIt>
+inline ForwardIt next (ForwardIt it, typename iterator_traits<ForwardIt>::difference_type n = 1)
+{
+    pfs::advance(it, n);
+    return it;
+}
+
+template <typename BidirIt>
+inline BidirIt prev (BidirIt it, typename iterator_traits<BidirIt>::difference_type n = 1)
+{
+    pfs::advance(it, -n);
+    return it;
+}
+
 } // pfs

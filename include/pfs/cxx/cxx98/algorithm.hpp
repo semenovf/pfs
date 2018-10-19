@@ -52,6 +52,18 @@ inline void sort (RandomIt first, RandomIt last, Compare comp)
     std::sort(first, last, comp);
 }
 
+template <typename RandomIt>
+inline void nth_element (RandomIt first, RandomIt nth, RandomIt last)
+{
+    std::nth_element(first, nth, last);
+}
+
+template <typename RandomIt, typename Compare>
+inline void nth_element (RandomIt first, RandomIt nth, RandomIt last, Compare comp)
+{
+    std::nth_element(first, nth, last, comp);
+}
+
 template <typename ForwardIt, typename T>
 inline void replace (ForwardIt first
             , ForwardIt last

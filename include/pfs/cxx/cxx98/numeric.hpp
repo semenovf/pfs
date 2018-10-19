@@ -4,6 +4,18 @@
 
 namespace pfs {
 
+template <typename InputIt, typename T>
+inline T accumulate (InputIt first, InputIt last, T init)
+{
+    return std::accumulate(first, last, init);
+}
+
+template <typename InputIt, typename T, typename BinaryOp>
+inline T accumulate (InputIt first, InputIt last, T init, BinaryOp op)
+{
+    return std::accumulate(first, last, init, op);
+}
+
 #if __cplusplus < 201103L
 
 template <typename ForwardIt, typename T>
