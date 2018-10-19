@@ -7,7 +7,7 @@ void test_summation ()
     std::cout << "//                             Summation                                 //\n";
     std::cout << "///////////////////////////////////////////////////////////////////////////\n";
 
-    ADD_TESTS(6);
+    ADD_TESTS(7);
 
     {
         int arr[] = { -5, 2, -10, 10, 3, 7, 0 };
@@ -51,6 +51,36 @@ void test_summation ()
         int n = sizeof(arr)/sizeof(arr[0]);
         double sum = pfs::summate<pfs::compensated_summation>(arr, arr + n, double(0));
         TEST_OK2(sum >= double(7.3) && sum <= double(7.31), "Compensated summation of doubles");
+    }
+
+    {
+        static double const PI = 3.1415926535897932384626;
+        static int const COUNT = 10000;
+
+        double naive_pi_sum = 0;
+
+        for (int i = 0; i < COUNT; i++)
+            naive_pi_sum += PI;
+
+        double arr[COUNT];
+
+        for (int i = 0; i < COUNT; i++)
+            arr[i] = PI;
+
+        double compensated_pi_sum = pfs::summate<pfs::compensated_summation>(arr, arr + COUNT, double(0));
+
+        std::cout << "Naive sum of 10000 PIs = " << std::setprecision(28) << naive_pi_sum << std::endl;
+        std::cout << "Kahan sum of 10000 PIs = " << std::setprecision(28) << compensated_pi_sum << std::endl;
+
+        std::cout << "It is seems that this two values are equal ... ";
+
+        if (naive_pi_sum == compensated_pi_sum) {
+            std::cout << "and this is true" << std::endl;
+        } else {
+            std::cout << "but this is false" << std::endl;
+        }
+
+        TEST_OK(naive_pi_sum != compensated_pi_sum);
     }
 }
 
