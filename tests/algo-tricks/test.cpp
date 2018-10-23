@@ -8,7 +8,7 @@
 //
 size_t calculate_bits_1 (byte_t b)
 {
-    //if (b == 0) return 0;
+    if (b == 0) return 0;
 
     byte_t x = b;
 

@@ -10,3 +10,4 @@ include_directories(${CMAKE_CURRENT_LIST_DIR}/include ${CMAKE_SOURCE_DIR} ${CMAK
 add_subdirectory(src/pfs)
 add_subdirectory(tests)
 add_subdirectory(src/demo-logger)
+add_subdirectory(src/demo-sfinae)
