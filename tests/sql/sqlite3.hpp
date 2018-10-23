@@ -1,3 +1,13 @@
+
+bool sqlite3_is_table_empty (sqlite3_debby_ns::database * db, pfs::string const & name)
+{
+    typedef sqlite3_debby_ns debby_ns;
+
+    pfs::string sql(pfs::safeformat("SELECT * FROM \"%s\" LIMIT 1") % name);
+    debby_ns::result res = db->exec(sql);
+    return !res.has_more();
+}
+
 void sqlite3_test ()
 {
     typedef sqlite3_debby_ns debby_ns;
@@ -81,7 +91,7 @@ void sqlite3_test ()
     }
 
     {
-        ADD_TESTS(31);
+        ADD_TESTS(35);
 
         pfs::error_code ec;
         pfs::filesystem::path path = pfs::filesystem::temp_directory_path();
@@ -130,6 +140,9 @@ void sqlite3_test ()
                 TEST_OK(tables[0] == "department");
                 TEST_OK(tables[1] == "employee");
 
+                TEST_OK(sqlite3_is_table_empty(& db, tables[0]));
+                TEST_OK(sqlite3_is_table_empty(& db, tables[1]));
+
                 TEST_OK(db.exec("insert into department values(1,'Sales','Los Angeles')").done());
                 TEST_OK(db.exec("insert into department values(2,'Technology','San Jose')").done());
                 TEST_OK(db.exec("insert into department values(3,'Marketing','Los Angeles')").done());
@@ -139,6 +152,9 @@ void sqlite3_test ()
                 TEST_OK(db.exec("insert into employee values(103,'Jason Bourne','Developer')").done());
                 TEST_OK(db.exec("insert into employee values(104,'Jane Smith','Sale Manager')").done());
                 TEST_OK(db.exec("insert into employee values(105,'Rita Patel','DBA')").done());
+
+                TEST_OK(!sqlite3_is_table_empty(& db, tables[0]));
+                TEST_OK(!sqlite3_is_table_empty(& db, tables[1]));
 
 ////////////////////////////////////////////////////////////////////////////////
 // Statement operations                                                       //

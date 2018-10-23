@@ -2,6 +2,7 @@
 #include "pfs/config.h"
 #include "pfs/test.hpp"
 #include "pfs/string.hpp"
+#include "pfs/safeformat.hpp"
 #include "pfs/filesystem.hpp"
 #include "pfs/sql/sqlite3/id.hpp"
 #include "pfs/sql/sqlite3/database.hpp"

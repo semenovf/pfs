@@ -62,6 +62,26 @@ struct debby
          *        the prepared statement.
          */
 
+        /**
+         * @fn bool done () const
+         * @brief
+         */
+
+        /**
+         * @fn bool fail () const
+         * @brief
+         */
+
+        /**
+         * @fn bool has_more () const
+         * @brief
+         */
+
+        /**
+         * @fn template <typename T>
+         *     T get (int column) const
+         * @brief
+         */
     };
 
 ////////////////////////////////////////////////////////////////////////////////
