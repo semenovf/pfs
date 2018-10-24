@@ -132,6 +132,24 @@ inline long double round (long double x)
 }
 #endif // PFS_HAVE_LONG_DOUBLE
 
+
+inline float floor (float x)
+{
+    return std::floor(x);
+}
+
+inline double floor (double x)
+{
+    return std::floor(x);
+}
+
+#if PFS_HAVE_LONG_DOUBLE
+inline long double floor (long double x)
+{
+    return std::floor(x);
+}
+#endif
+
 } // pfs
 
 namespace pfs {
