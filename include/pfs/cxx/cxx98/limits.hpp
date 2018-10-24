@@ -1,6 +1,4 @@
-#ifndef __PFS_CXX_CXX98_LIMITS_HPP__
-#define __PFS_CXX_CXX98_LIMITS_HPP__
-
+#pragma once
 #include <limits>
 
 namespace pfs {
@@ -10,6 +8,3 @@ struct numeric_limits : public std::numeric_limits<T>
 {};
 
 }
-
-#endif /* __PFS_CXX_CXX98_LIMITS_HPP__ */
-
