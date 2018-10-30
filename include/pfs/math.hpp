@@ -150,6 +150,17 @@ inline long double floor (long double x)
 }
 #endif
 
+
+//
+// The idea and implementation is from:
+// https://stackoverflow.com/questions/1903954/is-there-a-standard-sign-function-signum-sgn-in-c-c
+//
+template <typename T>
+int sign_of (T value)
+{
+    return (T(0) < value) - (value < T(0));
+}
+
 } // pfs
 
 namespace pfs {
