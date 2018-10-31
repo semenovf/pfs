@@ -15,9 +15,9 @@ void pfs_check_error (char const * file, int line, char const * text);
 
 #ifndef NDEBUG
 
-#   define PFS_ASSERT(expr)        if (!(expr)) { pfs_assert(__TFILE__, __LINE__, #expr); }
-#   define PFS_ASSERT_X(expr,text) if (!(expr)) { pfs_assert(__TFILE__, __LINE__, text); }
-#   define PFS_BACKTRACE(text)     pfs_backtrace(__TFILE__, __LINE__, text)
+#   define PFS_ASSERT(expr)          if (!(expr)) { pfs_assert(__TFILE__, __LINE__, #expr); }
+#   define PFS_ASSERT_X(expr,text)   if (!(expr)) { pfs_assert(__TFILE__, __LINE__, text); }
+#   define PFS_BACKTRACE(text)       pfs_backtrace(__TFILE__, __LINE__, text)
 
 #else // NDEBUG
 
@@ -29,6 +29,7 @@ void pfs_check_error (char const * file, int line, char const * text);
 
 #define PFS_ASSERT_UNEXPECTED() PFS_ASSERT(false)
 #define PFS_ASSERT_NULLPTR(x)   PFS_ASSERT((x) != 0)
+#define PFS_ASSERT_ZERO_DIV(x)  PFS_ASSERT_X(x,"division by zero")
 
 #define PFS_WARN(x) if (!(x)) { pfs_check_warn(__TFILE__, __LINE__, #x); }
 #define PFS_ERROR(x) if (!(x)) { pfs_check_error(__TFILE__, __LINE__, #x); }

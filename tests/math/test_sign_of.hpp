@@ -32,7 +32,7 @@ void test_sign_of_unsigned_integral ()
 template <typename T>
 void test_sign_of_fp ()
 {
-    ADD_TESTS(7);
+    ADD_TESTS(9);
 
     TEST_OK(pfs::sign_of<T>(0) == 0);
     TEST_OK(pfs::sign_of<T>(-0) == 0);

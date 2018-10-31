@@ -11,7 +11,9 @@ elseif (HAVE_QT4_CORE)
     add_definitions(${QT_DEFINITIONS})
 endif()
 
+#
 # Add unit test targets
+#
 list(APPEND MY_TEST_TARGETS static_cast)
 list(APPEND MY_TEST_TARGETS active_queue)
 list(APPEND MY_TEST_TARGETS active_map)
@@ -44,6 +46,7 @@ list(APPEND MY_TEST_TARGETS net-uri)
 list(APPEND MY_TEST_TARGETS numeric)
 #list(APPEND MY_TEST_TARGETS optional) -- Experimental yet
 list(APPEND MY_TEST_TARGETS ratio)
+list(APPEND MY_TEST_TARGETS rational)
 list(APPEND MY_TEST_TARGETS regex)
 #list(APPEND MY_TEST_TARGETS rpc)
 list(APPEND MY_TEST_TARGETS safeformat)
@@ -96,7 +99,9 @@ set(test-utf8_SOURCES
     utf8/rune.c
     utf8/vietnamese.c)
 
-# Porcess all unit test targets
+#
+# Process all unit test targets
+#
 foreach(MY_TEST_TARGET ${MY_TEST_TARGETS})
     if(test-${MY_TEST_TARGET}_SOURCES)
         add_executable(test-${MY_TEST_TARGET} ${test-${MY_TEST_TARGET}_SOURCES})
