@@ -145,9 +145,7 @@ public:
     rational invert () const pfs_noexcept
     {
         PFS_ASSERT_ZERO_DIV(_num != int_type(0));
-        int_type den = pfs::abs(_num);
-        _num = sign_of(_num) * _den;
-        _den = den;
+        return rational(sign_of(_num) * _den, pfs::abs(_num));
     }
 
     /**
@@ -156,6 +154,21 @@ public:
     bool is_decimal() const pfs_noexcept;
 
     string to_string (int radix = 10, string const & decimal_point = ".") const pfs_noexcept;
+
+    //
+    // Compare
+    //
+    int compare (rational const & rhs) const;
+
+    bool operator == (rational const & rhs) const
+    {
+        return compare(rhs) == 0;
+    }
+
+    bool operator < (rational const & rhs) const
+    {
+        return compare(rhs) < 0;
+    }
 
     //
     // Arithmetic operators
@@ -169,8 +182,6 @@ public:
     rational & operator -= (int_type const & i) { _num -= i * _den; return *this; }
     rational & operator *= (int_type const & i);
     rational & operator /= (int_type const & i);
-
-    int compare (rational const & s) const;
 };
 
 template <typename IntT>
@@ -322,34 +333,46 @@ rational<IntT> & rational<IntT>::operator /= (IntT const & i)
     return *this;
 }
 
-//
-// see [Euclidian division](https://wikipedia.org/wiki/Euclidian_division)
-// see [Division algorithm](https://wikipedia.org/wiki/Division_algorithm)
-//
-// Euclidian theorem:
-//
-// [1] n = d * q + r;
-// [2] 0 <= r < |d|
-//
-// [3]<=[1] n / d = q + r / d
-// [4]<=[3] n1 / d1 ? n2 / d2 => (q1 + r1 / d1) ? (q2 + r2 / d2)
-// [5]<=[2] |r / d| < 1
-//
-// For positive numbers:
-//
-// [6] if q1 != q2
-//     then n1 / d1 < n2 / d2 if q1 < q2
-//     or   n1 / d1 > n2 / d2 if q1 > q2
-//
-// [7] if q1 == q2
-//     then n1 / d1 < n2 / d2  if (r1 / d1) <  (r2 / d2)
-//     or   n1 / d1 > n2 / d2  if (r1 / d1) >  (r2 / d2)
-//     or   n1 / d1 == n2 / d2 if (r1 / d1) == (r2 / d2)
-//
-// [7'] if q1 == q2
-//     then n1 / d1 < n2 / d2  if (r1 * d2) <  (r2 * d1)
-//     or   n1 / d1 > n2 / d2  if (r1 * d2) >  (r2 * d1)
-//     or   n1 / d1 == n2 / d2 if (r1 * d2) == (r2 * d1)
+namespace details {
+
+#if PFS_HAVE_INT64
+    typedef uint64_t multiply_param_type;
+    typedef uint32_t multiply_part_type;
+    inline pfs_constexpr uint64_t uint_lo(uint64_t x) { return x & 0xffffffff; }
+    inline pfs_constexpr uint64_t uint_hi(uint64_t x) { return x >> 32; }
+    static uint64_t const uint_carry = (static_cast<uint64_t>(1) << 32);
+#else
+    typedef uint32_t multiply_param_type;
+    typedef uint16_t multiply_part_type;
+    inline pfs_constexpr uint32_t uint_lo(uint32_t x) { return x & 0xffff; }
+    inline pfs_constexpr uint32_t uint_hi(uint32_t x) { return x >> 16; }
+    static uint32_t const uint_carry = (static_cast<uint32_t>(1) << 16);
+#endif
+
+inline void multiply (multiply_param_type a, multiply_param_type b
+        , multiply_param_type & hi, multiply_param_type & lo)
+{
+    multiply_part_type al = uint_lo(a);
+    multiply_part_type ah = uint_hi(a);
+    multiply_part_type bl = uint_lo(b);
+    multiply_part_type bh = uint_hi(b);
+
+    multiply_param_type r0 = static_cast<multiply_param_type>(al) * bl;
+    multiply_param_type r1 = static_cast<multiply_param_type>(al) * bh;
+    multiply_param_type r2 = static_cast<multiply_param_type>(ah) * bl;
+    multiply_param_type r3 = static_cast<multiply_param_type>(ah) * bh;
+
+    r1 += uint_hi(r0);
+    r1 += r2;
+
+    if (r1 < r2)
+        r3 += uint_carry;
+
+    hi = r3 + uint_hi(r1);
+    lo = (uint_lo(r1) << 32) + uint_lo(r0);
+}
+
+} // namespace details
 
 template <typename IntT>
 int rational<IntT>::compare (rational const & rhs) const
@@ -361,17 +384,17 @@ int rational<IntT>::compare (rational const & rhs) const
                 ? 1 : 0;
     }
 
-    int a_sign = sign_of(*this);
-    int b_sign = sign_of(rhs);
+    int sign1 = sign_of(*this);
+    int sign2 = sign_of(rhs);
 
-    if (a_sign < b_sign)
+    if (sign1 < sign2)
         return -1;
 
-    if (b_sign < a_sign)
+    if (sign2 < sign1)
         return 1;
 
     //
-    // Signs are same further
+    // Bellow compared rationals has same signs
     //
 
     // Quotients
@@ -382,67 +405,48 @@ int rational<IntT>::compare (rational const & rhs) const
     if (q1 != q2)
         return q1 < q2 ? -1 : 1;
 
-    // Remainders
-    int_type r1 = static_cast<int_type>(_num % _den);
-    int_type r2 = static_cast<int_type>(rhs._num % rhs._den);
+    if (sizeof(intmax_t) > sizeof(int_type)) {
+        intmax_t m1 = static_cast<intmax_t>(_num) * rhs._den;
+        intmax_t m2 = static_cast<intmax_t>(rhs._num) * _den;
+
+        return m1 == m2
+                ? 0
+                : m1 < m2 ? -1 : 1;
+    }
 
     //
-    // Now compare r / d
+    // Emulate comparison of big integers
     //
+#if PFS_HAVE_INT64
+    uint64_t a1 = pfs::abs(_num);
+    uint64_t b1 = rhs._den;
+    uint64_t a2 = pfs::abs(rhs._num);
+    uint64_t b2 = _den;
 
-    bool over1 = numeric_limits<int_type>::max() / b._den < a._num;
-    bool over2 = numeric_limits<int_type>::max() / a._den < b._num;
+    uint64_t lo1, hi1, lo2, hi2;
+#else
+    uint32_t a1 = pfs::abs(_num);
+    uint32_t b1 = rhs._den;
+    uint32_t a2 = pfs::abs(rhs._num);
+    uint32_t b2 = _den;
 
-//    unsigned reverse = 0u;
-//
-//     rational a(*this);
-//     rational b(rhs);
-//
-//     a.reduce();
-//     b.reduce();
-//
-//     if (a._num == b._num && a._den == b._den)
-//         return 0;
-//
-//     //
-//     // Now only < or >
-//     //
-//
-//     if (a._den == b._den)
-//         return a._num < b._num ? -1 : 1;
-//
-//     int a_sign = sign_of(a);
-//     int b_sign = sign_of(b);
-//
-//     if (a_sign < b_sign)
-//         return -1;
-//
-//     if (b_sign < a_sign)
-//         return 1;
-//
-//     a = a.abs();
-//     b = b.abs();
-//
-//     bool aover = numeric_limits<int_type>::max() / b._den < a._num;
-//     bool bover = numeric_limits<int_type>::max() / a._den < b._num;
-//
-//     // Will no overflow
-//     if (!aover && !bover)
-//         return a_sign * a._num * b._den < b_sign * b._num * a._den ? -1 : 1;
-//
-//     // One part is overflow (left)
-//     if (aover && !bover)
-//         return a_sign < b_sign ? -1 : 1;
-//
-//     // One part is overflow (right)
-//     if (!aover && bover)
-//         return a_sign < b_sign ? 1 : -1;
-//
-//     // All indirect comparisons are exhausted.
-//     // Now emulate comparison of big integers (128)
-//     PFS_ASSERT_T(sizeof(int_type) <= 8);
+    uint32_t lo1, hi1, lo2, hi2;
+#endif
 
+    details::multiply(a1, b1, lo1, hi1);
+    details::multiply(a2, b2, lo2, hi2);
 
+    if (hi1 == hi2)
+        return lo1 == lo2
+                ? 0
+                : lo1 < lo2
+                    ? -1 * sign1
+                    : sign1;
+
+    if (hi1 < hi2)
+        return -1 * sign1;
+
+    return sign1;
 }
 
 template <typename IntT>
@@ -492,6 +496,86 @@ inline string to_string (rational<IntT> const & r
         , string const & decimal_point = ".")
 {
     return r.to_string(radix, decimal_point);
+}
+
+template <typename IntT>
+inline rational<IntT> operator + (rational<IntT> const & lhs, rational<IntT> const & rhs)
+{
+    rational<IntT> result(lhs);
+    return result += rhs;
+}
+
+template <typename IntT>
+inline rational<IntT> operator - (rational<IntT> const & lhs, rational<IntT> const & rhs)
+{
+    rational<IntT> result(lhs);
+    return result -= rhs;
+}
+
+template <typename IntT>
+inline rational<IntT> operator * (rational<IntT> const & lhs, rational<IntT> const & rhs)
+{
+    rational<IntT> result(lhs);
+    return result *= rhs;
+}
+
+template <typename IntT>
+inline rational<IntT> operator / (rational<IntT> const & lhs, rational<IntT> const & rhs)
+{
+    rational<IntT> result(lhs);
+    return result /= rhs;
+}
+
+template <typename IntT>
+inline rational<IntT> operator + (rational<IntT> const & lhs, typename rational<IntT>::int_type const & rhs)
+{
+    rational<IntT> result(lhs);
+    return result += rhs;
+}
+
+template <typename IntT>
+inline rational<IntT> operator - (rational<IntT> const & lhs, typename rational<IntT>::int_type const & rhs)
+{
+    rational<IntT> result(lhs);
+    return result -= rhs;
+}
+
+template <typename IntT>
+inline rational<IntT> operator * (rational<IntT> const & lhs, typename rational<IntT>::int_type const & rhs)
+{
+    rational<IntT> result(lhs);
+    return result *= rhs;
+}
+
+template <typename IntT>
+inline rational<IntT> operator / (rational<IntT> const & lhs, typename rational<IntT>::int_type const & rhs)
+{
+    rational<IntT> result(lhs);
+    return result /= rhs;
+}
+
+template <typename IntT>
+inline rational<IntT> operator + (typename rational<IntT>::int_type const & lhs, rational<IntT> const & rhs)
+{
+    return rational<IntT>(lhs) + rhs;
+}
+
+template <typename IntT>
+inline rational<IntT> operator - (typename rational<IntT>::int_type const & lhs, rational<IntT> const & rhs)
+{
+    return rational<IntT>(lhs) - rhs;
+}
+
+template <typename IntT>
+inline rational<IntT> operator * (typename rational<IntT>::int_type const & lhs, rational<IntT> const & rhs)
+{
+    return rational<IntT>(lhs) * rhs;
+}
+
+template <typename IntT>
+inline rational<IntT> operator / (typename rational<IntT>::int_type const & lhs, rational<IntT> const & rhs)
+{
+    return rational<IntT>(lhs) / rhs;
 }
 
 } // namespace pfs
