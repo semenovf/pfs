@@ -6,7 +6,7 @@ typedef pfs::rational<int> rational;
 
 int main ()
 {
-    BEGIN_TESTS(80);
+    BEGIN_TESTS(179);
 
     std::cout << "///////////////////////////////////////////////////////////////////////////\n";
     std::cout << "//                             Constructors                              //\n";
