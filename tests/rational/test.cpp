@@ -275,30 +275,3 @@ int main ()
 
     return END_TESTS;
 }
-
-//TEST_CASE("Numeric sum/substruct") {
-//     Numeric {-1, 9, 6} += Numeric {1, 9, 6};
-//
-//     (Numeric {1, 9, 6} += Numeric {-1, 9, 6}) == Numeric {};
-//
-//     CHECK((Numeric {} += Numeric {}) == Numeric {});
-//     CHECK((Numeric {1, 0} += Numeric {-1, 0}) == Numeric {});
-//     CHECK((Numeric {-1, 0} += Numeric {1, 0}) == Numeric {});
-//     CHECK((Numeric {-1, 0} += Numeric {-1, 0}) == Numeric {});
-//
-//     // X + Y
-//     CHECK((Numeric {1, 2, 2} += Numeric {1, 2, 3}) == Numeric {1, 4, 5});
-//     CHECK((Numeric {1, 9, 5} += Numeric {1, 9, 6}) == Numeric {1,19, 1});
-//
-//     // X + -Y
-//     CHECK((Numeric {1, 9, 6} += Numeric {-1, 9, 6}) == Numeric {});
-//     CHECK((Numeric {1, 9, 6} += Numeric {-1, 9, 7}) == Numeric {-1, 0, 1});
-//     CHECK((Numeric {1, 9, 6} += Numeric {-1, 9, 765}) == Numeric {-1, 0, 165});
-//
-//     // -X + Y
-//     CHECK((Numeric {-1, 9, 6} += Numeric {1, 9, 6}) == Numeric {});
-//     CHECK((Numeric {-1, 9, 6} += Numeric {1, 9, 7}) == Numeric {1, 0, 1});
-//     CHECK((Numeric {-1, 9, 6} += Numeric {1, 9, 765}) == Numeric {1, 0, 165});
-//
-//     // -X + -Y
-//}
