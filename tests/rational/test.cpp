@@ -1,12 +1,13 @@
 #include <iostream>
 #include <pfs/test.hpp>
+#include <pfs/algorithm.hpp>
 #include <pfs/rational.hpp>
 
 typedef pfs::rational<int> rational;
 
 int main ()
 {
-    BEGIN_TESTS(179);
+    BEGIN_TESTS(189);
 
     std::cout << "///////////////////////////////////////////////////////////////////////////\n";
     std::cout << "//                             Constructors                              //\n";
@@ -208,7 +209,6 @@ int main ()
     TEST_OK((rational(-7, 11) /=-11) == rational( 7, 121));
     TEST_OK((rational(-7, 11) /= 11) == rational(-7, 121));
 
-    //
     TEST_OK((rational(-7, 11) + rational(0)) == rational(-7, 11));
     TEST_OK((rational(-7, 11) + rational( 7, 11)) == rational(0));
     TEST_OK((rational( 7, 11) + rational( 7, 11)) == rational( 14, 11));
@@ -272,6 +272,35 @@ int main ()
     TEST_OK(( 7 / rational(-7, 11)) == rational(-11));
     TEST_OK(( 7 / rational( 7, 11)) == rational( 11));
     TEST_OK((-7 / rational(-7, 11)) == rational( 11));
+
+    std::cout << "///////////////////////////////////////////////////////////////////////////\n";
+    std::cout << "//                           Sort algorithm                              //\n";
+    std::cout << "///////////////////////////////////////////////////////////////////////////\n";
+    {
+        rational rationals[] = {
+              rational(1, 2)
+            , rational(1, 3)
+            , rational(1, 4)
+            , rational(1, 5)
+            , rational(1, 6)
+        };
+
+        pfs::sort(rationals, rationals + sizeof(rationals)/sizeof(rationals[0]), std::less<rational>());
+
+        TEST_OK(rationals[0] == rational(1, 6));
+        TEST_OK(rationals[1] == rational(1, 5));
+        TEST_OK(rationals[2] == rational(1, 4));
+        TEST_OK(rationals[3] == rational(1, 3));
+        TEST_OK(rationals[4] == rational(1, 2));
+
+        pfs::sort(rationals, rationals + sizeof(rationals)/sizeof(rationals[0]), std::greater<rational>());
+
+        TEST_OK(rationals[0] == rational(1, 2));
+        TEST_OK(rationals[1] == rational(1, 3));
+        TEST_OK(rationals[2] == rational(1, 4));
+        TEST_OK(rationals[3] == rational(1, 5));
+        TEST_OK(rationals[4] == rational(1, 6));
+    }
 
     return END_TESTS;
 }
