@@ -77,7 +77,7 @@ typedef compensated_summation kahan_summation;
 template <typename SummationPolicy, typename InputIt, typename T>
 inline T summate (InputIt first, InputIt last, T init)
 {
-    return SummationPolicy().summate<InputIt, T>(first, last, init);
+    return SummationPolicy().template summate<InputIt, T>(first, last, init);
 }
 
 template <typename InputIt, typename T>
