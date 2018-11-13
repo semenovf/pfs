@@ -151,6 +151,22 @@ inline long double floor (long double x)
 }
 #endif
 
+inline float ceil (float x)
+{
+    return std::ceil(x);
+}
+
+inline double ceil (double x)
+{
+    return std::ceil(x);
+}
+
+#if PFS_HAVE_LONG_DOUBLE
+inline long double ceil (long double x)
+{
+    return std::ceil(x);
+}
+#endif
 
 //
 // The idea and implementation is from:
