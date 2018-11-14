@@ -9,6 +9,7 @@ namespace pfs {
 
 //
 // Inspired from Boost::rational.
+// See also http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2012/n3363.html
 //
 
 template <typename IntT>
@@ -497,6 +498,42 @@ inline string to_string (rational<IntT> const & r
 {
     return r.to_string(radix, decimal_point);
 }
+
+template <typename IntT>
+inline typename rational<IntT>::int_type floor (rational<IntT> const & val)
+{
+    typename rational<IntT>::int_type n = val.numerator();
+    typename rational<IntT>::int_type d = val.denominator();
+
+//  Algorithm:
+//     if (n % d == 0) return n / d;
+//     if (n > 0) return n / d;
+//     if (n < 0) return (n / d) - 1;
+    typename rational<IntT>::int_type result = n / d;
+
+    if ((n < 0) && (n % d != 0)) --result;
+
+    return result;
+}
+
+template <typename IntT>
+inline typename rational<IntT>::int_type ceil (rational<IntT> const & val)
+{
+    IntT n = val.numerator();
+    IntT d = val.denominator();
+
+//  Algorithm:
+//     if (n % d == 0) return n / d;
+//     if (n > 0) return (n / d) + 1;
+//     if (n < 0) return n / d;
+    typename rational<IntT>::int_type result = n / d;
+
+    if ((n > 0) && (n % d != 0)) ++result;
+
+    return result;
+}
+
+//rational::int_type trunc(const rational& val);
 
 template <typename IntT>
 inline rational<IntT> operator + (rational<IntT> const & lhs, rational<IntT> const & rhs)

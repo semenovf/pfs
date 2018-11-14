@@ -7,7 +7,7 @@ typedef pfs::rational<int> rational;
 
 int main ()
 {
-    BEGIN_TESTS(189);
+    BEGIN_TESTS(209);
 
     std::cout << "///////////////////////////////////////////////////////////////////////////\n";
     std::cout << "//                             Constructors                              //\n";
@@ -301,6 +301,34 @@ int main ()
         TEST_OK(rationals[3] == rational(1, 5));
         TEST_OK(rationals[4] == rational(1, 6));
     }
+
+    std::cout << "///////////////////////////////////////////////////////////////////////////\n";
+    std::cout << "//                                Floor                                  //\n";
+    std::cout << "///////////////////////////////////////////////////////////////////////////\n";
+    TEST_OK(floor(rational(-4, 2)) == -2);
+    TEST_OK(floor(rational(-3, 2)) == -2);
+    TEST_OK(floor(rational(-2, 2)) == -1);
+    TEST_OK(floor(rational(-1, 2)) == -1);
+    TEST_OK(floor(rational( 0, 2)) == 0);
+    TEST_OK(floor(rational( 1, 2)) == 0);
+    TEST_OK(floor(rational( 2, 2)) == 1);
+    TEST_OK(floor(rational( 3, 2)) == 1);
+    TEST_OK(floor(rational( 4, 2)) == 2);
+    TEST_OK(floor(rational( 5, 2)) == 2);
+
+    std::cout << "///////////////////////////////////////////////////////////////////////////\n";
+    std::cout << "//                                Ceil                                   //\n";
+    std::cout << "///////////////////////////////////////////////////////////////////////////\n";
+    TEST_OK(ceil(rational(-4, 2)) == -2);
+    TEST_OK(ceil(rational(-3, 2)) == -1);
+    TEST_OK(ceil(rational(-2, 2)) == -1);
+    TEST_OK(ceil(rational(-1, 2)) ==  0);
+    TEST_OK(ceil(rational( 0, 2)) ==  0);
+    TEST_OK(ceil(rational( 1, 2)) ==  1);
+    TEST_OK(ceil(rational( 2, 2)) ==  1);
+    TEST_OK(ceil(rational( 3, 2)) ==  2);
+    TEST_OK(ceil(rational( 4, 2)) ==  2);
+    TEST_OK(ceil(rational( 5, 2)) ==  3);
 
     return END_TESTS;
 }
