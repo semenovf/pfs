@@ -1,6 +1,4 @@
-#ifndef __PFS_CXX_CXX17_FILESYSTEM_PATH_HPP__
-#define __PFS_CXX_CXX17_FILESYSTEM_PATH_HPP__
-
+#pragma once
 #include <pfs/compiler.hpp>
 
 #if PFS_CC_GCC_VERSION >= 80000
@@ -738,6 +736,3 @@ inline path u8path (InputIt first, InputIt last)
 #else
 #   include <pfs/cxx/cxx14/filesystem/path.hpp>
 #endif
-
-#endif /* __PFS_CXX_CXX17_FILESYSTEM_PATH_HPP__ */
-

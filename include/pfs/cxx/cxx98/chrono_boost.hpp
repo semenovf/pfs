@@ -1,6 +1,4 @@
-#ifndef __PFS_CXX_CXX98_CHRONO_BOOST_HPP__
-#define __PFS_CXX_CXX98_CHRONO_BOOST_HPP__
-
+#pragma once
 #include <boost/chrono.hpp>
 #include <pfs/cxxlang.hpp>
 #include "ratio_boost.hpp"
@@ -60,6 +58,3 @@ typedef duration<int64_t, ratio< 60> >  minutes;
 typedef duration<int64_t, ratio<3600> > hours;
 
 }} // pfs::chrono
-
-#endif /* __PFS_CXX_CXX98_CHRONO_BOOST_HPP__ */
-

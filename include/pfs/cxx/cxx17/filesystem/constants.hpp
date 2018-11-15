@@ -1,7 +1,4 @@
-#ifndef __PFS_CXX_CXX17_FILESYSTEM_CONSTANTS_HPP__
-#define __PFS_CXX_CXX17_FILESYSTEM_CONSTANTS_HPP__
-
-#include <pfs/compiler.hpp>
+#pragma once
 
 #if PFS_CC_GCC_VERSION >= 80000
 
@@ -11,7 +8,7 @@ namespace pfs {
 namespace filesystem {
 namespace details {
 
-    using perms = std::filesystem::perms;
+using perms = std::filesystem::perms;
 
 }}} // pfs::filesystem::details
 
@@ -20,7 +17,4 @@ namespace details {
 #include <pfs/cxx/cxx14/filesystem/constants.hpp>
 
 #endif
-
-
-#endif /* __PFS_CXX_CXX17_FILESYSTEM_CONSTANTS_HPP__ */
 
