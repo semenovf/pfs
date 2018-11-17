@@ -11,4 +11,4 @@ namespace {
   }
 {% endfor %}
 
-} // namespace::
+} // namespace

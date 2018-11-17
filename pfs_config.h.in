@@ -6,8 +6,6 @@
 
 #cmakedefine01 HAVE_PTHREAD
 
-#cmakedefine01 HAVE_STDCXX_FS_EXPERIMENTAL
-
 #cmakedefine01 HAVE_STDCXX_FS
 
 #cmakedefine01 HAVE_BOOST

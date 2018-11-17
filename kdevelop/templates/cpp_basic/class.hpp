@@ -20,4 +20,4 @@ public:
 {% endfor %}
 }; // class {{ name }}
 
-} // namespace::
+} // namespace 
