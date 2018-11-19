@@ -33,6 +33,12 @@ public:
         : base_class(other)
     {}
 
+#if __cplusplus >= 201103L
+    string (string && other)
+        : base_class(std::forward<string>(other))
+    {}
+#endif
+
     string (string const & other
             , size_type pos
             , size_type count = base_class::npos)
@@ -72,6 +78,20 @@ public:
 
     ~string ()
     {}
+
+    string & operator = (string const & s)
+    {
+        base_class::operator = (s);
+        return *this;
+    }
+
+#if __cplusplus >= 201103L
+    string & operator = (string && other)
+    {
+        base_class::operator = (std::forward<string>(other));
+        return *this;
+    }
+#endif
 
     std::string utf8 () const
     {

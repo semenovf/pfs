@@ -49,6 +49,12 @@ public:
         : base_class(other)
     {}
 
+#if __cplusplus >= 201103L
+    byte_string (byte_string && other)
+        : base_class(std::forward<byte_string>(other))
+    {}
+#endif
+
     byte_string (byte_string const & other
             , size_type pos
             , size_type count = npos)
@@ -88,11 +94,22 @@ public:
     {}
 
     /**
-     * @fn byte_string & operator = (byte_string const & s)
-     *
      * @brief Default copy assignment
      * @details Replaces the contents with the copy of @a s
      */
+    byte_string & operator = (byte_string const & s)
+    {
+        base_class::operator = (s);
+        return *this;
+    }
+
+#if __cplusplus >= 201103L
+    byte_string & operator = (byte_string && other)
+    {
+        base_class::operator = (std::forward<byte_string>(other));
+        return *this;
+    }
+#endif
 
     /**
      * @fn byte_string & operator = (const_pointer s)

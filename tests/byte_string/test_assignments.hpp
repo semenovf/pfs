@@ -17,6 +17,20 @@ void test_assignments ()
     TEST_OK(bs_default.size() == std::strlen(raw_chars));
     TEST_OK(std::strcmp(bs_default.c_str(), raw_chars) == 0);
 
+#if __cplusplus >= 201103L
+    ADD_TESTS(3);
+    //
+    // Move Assignment
+    //
+    byte_string bs_move1(raw_bytes);
+    byte_string bs_move2;
+    bs_move2 = std::move(bs_move1);
+
+    TEST_OK(bs_move1.size() == 0);
+    TEST_OK(std::strcmp(bs_move1.c_str(), "") == 0);
+    TEST_OK(std::strcmp(bs_move2.c_str(), raw_chars) == 0);
+#endif
+
     //
     // Assignment from raw const pointer
     //

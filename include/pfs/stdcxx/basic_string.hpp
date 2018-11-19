@@ -50,6 +50,12 @@ public:
         : base_class(other)
     {}
 
+#if __cplusplus >= 201103L
+    basic_string (basic_string && other)
+        : base_class(std::forward<basic_string>(other))
+    {}
+#endif
+
     basic_string (basic_string const & other
             , size_type pos
             , size_type count = npos)
@@ -114,7 +120,7 @@ public:
     DerivedT & operator = (DerivedT && rhs)
     {
         base_class::operator = (std::forward<DerivedT>(rhs));
-        return *this;
+        return *static_cast<DerivedT *>(this);
     }
 #endif
 

@@ -45,6 +45,19 @@ void test_constructors ()
     TEST_OK(std::strcmp(bs_copy2.c_str(), "string") == 0);
     TEST_OK(std::strcmp(bs_copy3.c_str(), "te_st") == 0);
 
+#if __cplusplus >= 201103L
+    ADD_TESTS(3);
+    //
+    // Move constructor with limits
+    //
+    byte_string bs_move1(raw_bytes);
+    byte_string bs_move2(std::move(bs_move1));
+
+    TEST_OK(bs_move1.size() == 0);
+    TEST_OK(std::strcmp(bs_move1.c_str(), "") == 0);
+    TEST_OK(std::strcmp(bs_move2.c_str(), raw_chars) == 0);
+#endif
+
     //
     // Construct from C string
     //
