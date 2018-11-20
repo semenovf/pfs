@@ -221,6 +221,16 @@ public:
         return pfs::make_pair(result.first, result.second);
     }
 
+#if __cplusplus >= 201103L
+    pfs::pair<iterator,bool> insert (key_type && key, mapped_type && value)
+    {
+        std::pair<iterator,bool> result = base_class::insert(
+                std::make_pair(std::forward<key_type>(key)
+                        , std::forward<mapped_type>(value)));
+        return pfs::make_pair(result.first, result.second);
+    }
+#endif
+
     /**
      * @fn std::pair<iterator,bool> insert (value_type const & value)
      */
