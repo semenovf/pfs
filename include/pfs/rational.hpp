@@ -60,7 +60,7 @@ private:
 public:
     rational () : _num(0), _den(1) {}
 
-    rational (int_type const & num, int_type const & den = 1)
+    rational (int_type num, int_type den = 1)
         : _num(sign_of(num) * sign_of(den) * pfs::abs(num))
         , _den(pfs::abs(den))
     {
@@ -93,7 +93,7 @@ public:
     ~rational () {}
 #endif
 
-    rational & assign (int_type const & n, int_type const & d)
+    rational & assign (int_type n, int_type d)
     {
         *this = rational(n, d);
         return *this;
@@ -152,9 +152,10 @@ public:
     /**
      * @return @c true if the denominator is a power of ten, @c false otherwise.
      */
-    bool is_decimal() const pfs_noexcept;
+    bool is_decimal () const pfs_noexcept;
 
     string to_string (int radix = 10, string const & decimal_point = ".") const pfs_noexcept;
+    string to_pretty_string (int radix = 10, string const & decimal_point = ".") const pfs_noexcept;
 
     //
     // Compare
@@ -179,10 +180,10 @@ public:
     rational & operator *= (rational const & rhs);
     rational & operator /= (rational const & rhs);
 
-    rational & operator += (int_type const & i) { _num += i * _den; return *this; }
-    rational & operator -= (int_type const & i) { _num -= i * _den; return *this; }
-    rational & operator *= (int_type const & i);
-    rational & operator /= (int_type const & i);
+    rational & operator += (int_type i) { _num += i * _den; return *this; }
+    rational & operator -= (int_type i) { _num -= i * _den; return *this; }
+    rational & operator *= (int_type i);
+    rational & operator /= (int_type i);
 };
 
 template <typename IntT>
@@ -301,7 +302,7 @@ rational<IntT> & rational<IntT>::operator /= (rational const & rhs)
 }
 
 template <typename IntT>
-inline rational<IntT> & rational<IntT>::operator *= (IntT const & i)
+inline rational<IntT> & rational<IntT>::operator *= (IntT i)
 {
     // Avoid overflow and preserve normalization
     int_type gcd = pfs::gcd(i, _den);
@@ -312,7 +313,7 @@ inline rational<IntT> & rational<IntT>::operator *= (IntT const & i)
 }
 
 template <typename IntT>
-rational<IntT> & rational<IntT>::operator /= (IntT const & i)
+rational<IntT> & rational<IntT>::operator /= (IntT i)
 {
     // Avoid repeated construction
     int_type const zero(0);
@@ -456,6 +457,19 @@ string rational<IntT>::to_string (int radix
 {
     string result;
 
+    result += pfs::to_string(_num, radix);
+    result += '/';
+    result += pfs::to_string(_den, radix);
+
+    return result;
+}
+
+template <typename IntT>
+string rational<IntT>::to_pretty_string (int radix
+        , string const & decimal_point) const pfs_noexcept
+{
+    string result;
+
     if (_num % _den == 0) {
         result += pfs::to_string(_num / _den, radix);
     } else if (pfs::abs(_num) == _den) {
@@ -498,6 +512,15 @@ inline string to_string (rational<IntT> const & r
 {
     return r.to_string(radix, decimal_point);
 }
+
+template <typename IntT>
+inline string to_pretty_string (rational<IntT> const & r
+        , int radix = 10
+        , string const & decimal_point = ".")
+{
+    return r.to_pretty_string(radix, decimal_point);
+}
+
 
 template <typename IntT>
 inline typename rational<IntT>::int_type floor (rational<IntT> const & val)
@@ -564,53 +587,53 @@ inline rational<IntT> operator / (rational<IntT> const & lhs, rational<IntT> con
 }
 
 template <typename IntT>
-inline rational<IntT> operator + (rational<IntT> const & lhs, typename rational<IntT>::int_type const & rhs)
+inline rational<IntT> operator + (rational<IntT> const & lhs, typename rational<IntT>::int_type rhs)
 {
     rational<IntT> result(lhs);
     return result += rhs;
 }
 
 template <typename IntT>
-inline rational<IntT> operator - (rational<IntT> const & lhs, typename rational<IntT>::int_type const & rhs)
+inline rational<IntT> operator - (rational<IntT> const & lhs, typename rational<IntT>::int_type rhs)
 {
     rational<IntT> result(lhs);
     return result -= rhs;
 }
 
 template <typename IntT>
-inline rational<IntT> operator * (rational<IntT> const & lhs, typename rational<IntT>::int_type const & rhs)
+inline rational<IntT> operator * (rational<IntT> const & lhs, typename rational<IntT>::int_type rhs)
 {
     rational<IntT> result(lhs);
     return result *= rhs;
 }
 
 template <typename IntT>
-inline rational<IntT> operator / (rational<IntT> const & lhs, typename rational<IntT>::int_type const & rhs)
+inline rational<IntT> operator / (rational<IntT> const & lhs, typename rational<IntT>::int_type rhs)
 {
     rational<IntT> result(lhs);
     return result /= rhs;
 }
 
 template <typename IntT>
-inline rational<IntT> operator + (typename rational<IntT>::int_type const & lhs, rational<IntT> const & rhs)
+inline rational<IntT> operator + (typename rational<IntT>::int_type lhs, rational<IntT> const & rhs)
 {
     return rational<IntT>(lhs) + rhs;
 }
 
 template <typename IntT>
-inline rational<IntT> operator - (typename rational<IntT>::int_type const & lhs, rational<IntT> const & rhs)
+inline rational<IntT> operator - (typename rational<IntT>::int_type lhs, rational<IntT> const & rhs)
 {
     return rational<IntT>(lhs) - rhs;
 }
 
 template <typename IntT>
-inline rational<IntT> operator * (typename rational<IntT>::int_type const & lhs, rational<IntT> const & rhs)
+inline rational<IntT> operator * (typename rational<IntT>::int_type lhs, rational<IntT> const & rhs)
 {
     return rational<IntT>(lhs) * rhs;
 }
 
 template <typename IntT>
-inline rational<IntT> operator / (typename rational<IntT>::int_type const & lhs, rational<IntT> const & rhs)
+inline rational<IntT> operator / (typename rational<IntT>::int_type lhs, rational<IntT> const & rhs)
 {
     return rational<IntT>(lhs) / rhs;
 }
