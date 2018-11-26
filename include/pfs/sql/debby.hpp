@@ -264,19 +264,19 @@ struct debby
         }
 
         /**
-         * @fn stringlist_type tables (pfs::error_code & ec, string_type & errstr) const
+         * @fn stringlist_type tables (string_type const & pattern, pfs::error_code & ec, string_type & errstr) const
          */
         using base_class::tables;
 
         /**
          * @brief
          */
-        stringlist_type tables ()
+        stringlist_type tables (string_type const & pattern = string_type())
         {
             pfs::error_code ec;
             string_type errstr;
 
-            stringlist_type r = base_class::tables(ec, errstr);
+            stringlist_type r = base_class::tables(pattern, ec, errstr);
 
             if (ec) PFS_THROW(sql_exception(ec, errstr));
 

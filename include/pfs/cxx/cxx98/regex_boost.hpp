@@ -151,6 +151,10 @@ public:
     { }
 };
 
+////////////////////////////////////////////////////////////////////////////////
+// regex_match                                                                //
+////////////////////////////////////////////////////////////////////////////////
+
 template <typename StringType>
 inline bool regex_match (
           typename StringType::const_iterator first
@@ -189,6 +193,50 @@ inline bool regex_match (typename StringType::const_pointer str
         , regex_constants::match_flag_type flags = regex_constants::match_default)
 {
     return ::boost::regex_match(str, m, re, flags);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// regex_search                                                               //
+////////////////////////////////////////////////////////////////////////////////
+
+template <typename StringType>
+inline bool regex_search (
+          typename StringType::const_iterator first
+        , typename StringType::const_iterator last
+        , match_results<typename StringType::const_pointer> & m
+        , basic_regex<StringType> & re
+        , regex_constants::match_flag_type flags = regex_constants::match_default)
+{
+    return ::boost::regex_search(first.base(), last.base(), m, re, flags);
+}
+
+template <typename StringType>
+inline bool regex_search (
+          typename StringType::const_pointer first
+        , typename StringType::const_pointer last
+        , match_results<typename StringType::const_pointer> & m
+        , basic_regex<StringType> & re
+        , regex_constants::match_flag_type flags = regex_constants::match_default)
+{
+    return ::boost::regex_search(first, last, m, re, flags);
+}
+
+template <typename StringType>
+inline bool regex_search (StringType const & s
+        , match_results<typename StringType::const_pointer> & m
+        , basic_regex<StringType> & re
+        , regex_constants::match_flag_type flags = regex_constants::match_default)
+{
+    return regex_search<StringType>(s.cbegin(), s.cend(), m, re, flags);
+}
+
+template <typename StringType>
+inline bool regex_search (typename StringType::const_pointer str
+        , match_results<typename StringType::const_pointer> & m
+        , basic_regex<StringType> & re
+        , regex_constants::match_flag_type flags = regex_constants::match_default)
+{
+    return ::boost::regex_search(str, m, re, flags);
 }
 
 } // namespace pfs

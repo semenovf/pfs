@@ -67,4 +67,16 @@ void test_regex_match ()
         TEST_OK(m2.size() == 7);
         TEST_OK(m2[0].str() == target);
     }
+
+    {
+        ADD_TESTS(2);
+        string_type pattern("abc");
+        regex re(pattern);
+        match m;
+
+        string_type s("xabcy");
+
+        TEST_OK(!pfs::regex_match(s, m, re));
+        TEST_OK(pfs::regex_search(s, m, re));
+    }
 }

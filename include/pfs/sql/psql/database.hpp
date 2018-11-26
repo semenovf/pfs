@@ -3,6 +3,7 @@
 #include <pfs/string.hpp>
 #include <pfs/stringlist.hpp>
 #include <pfs/system_error.hpp>
+#include <pfs/regex.hpp>
 #include <pfs/net/uri.hpp>
 #include <pfs/sql/exception.hpp>
 #include <pfs/sql/psql/private_data.hpp>
@@ -136,7 +137,7 @@ public:
 
     bool clear (pfs::error_code & ec, string_type & errstr)
     {
-        stringlist_type tlist = this->tables(ec, errstr);
+        stringlist_type tlist = this->tables(string_type(), ec, errstr);
 
         if (ec)
             return false;
@@ -220,7 +221,9 @@ public:
         return exec("ROLLBACK TRANSACTION", ec, errstr).done();
     }
 
-    stringlist_type tables (pfs::error_code & ec, string_type & errstr)
+    stringlist_type tables (string_type const & pattern
+            , pfs::error_code & ec
+            , string_type & errstr)
     {
         stringlist_type r;
 
@@ -238,9 +241,22 @@ public:
             result_type res = stmt.exec(ec, errstr);
 
             if (!ec) {
-                while (res.has_more()) {
-                    r.push_back(res.template get<string_type>(0));
-                    ++res;
+                if (pattern.empty()) {
+                    while (res.has_more()) {
+                        r.push_back(res.template get<string_type>(0));
+                        ++res;
+                    }
+                } else {
+                    basic_regex<string_type> rx(pattern);
+                    typename basic_regex<string_type>::match_results m;
+
+                    while (res.has_more()) {
+                        string_type s = res.template get<string_type>(0);
+
+                        if (pfs::regex_search(s, m, rx))
+                            r.push_back(s);
+                        ++res;
+                    }
                 }
             }
         }
