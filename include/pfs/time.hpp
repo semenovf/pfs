@@ -87,29 +87,9 @@ public:
         return _millis == t._millis;
     }
 
-    bool operator != (time const & t) const
-    {
-        return _millis != t._millis;
-    }
-
     bool operator  < (time const & t) const
     {
         return _millis  < t._millis;
-    }
-
-    bool operator <= (time const & t) const
-    {
-        return _millis <= t._millis;
-    }
-
-    bool operator  > (time const & t) const
-    {
-        return _millis  > t._millis;
-    }
-
-    bool operator >= (time const & t) const
-    {
-        return _millis >= t._millis;
     }
 
     static bool valid (int hour, int min, int sec, int millis = 0)
@@ -132,110 +112,7 @@ public:
         return r;
     }
 
-    string to_string (string const & format) const
-    {
-        string r;
-
-        string::const_iterator p = format.cbegin();
-        string::const_iterator end = format.cend();
-
-        bool need_spec = false; // true if conversion specifier character expected
-
-        while (p < end) {
-            if (*p == '%') {
-                if (need_spec) {
-                    r.push_back('%');
-                    need_spec = false;
-                } else {
-                    need_spec = true;
-                }
-            } else {
-                if (!need_spec) {
-                    r.push_back(*p);
-                } else {
-                    switch (to_ascii(*p)) {
-                    case 'n':
-                        r.push_back('\n');
-                        break;
-
-                    case 't':
-                        r.push_back('\t');
-                        break;
-
-                    case 'H':
-                        append_prefixed2(r, '0', hour());
-                        break;
-
-                    case 'I':
-                        append_prefixed2(r, '0', hour() % 12);
-                        break;
-
-                    case 'k':
-                        append_prefixed2(r, ' ', hour());
-                        break;
-
-                    case 'l':
-                        append_prefixed2(r, ' ', hour() % 12);
-                        break;
-
-                    case 'M':
-                        append_prefixed2(r, '0', minute());
-                        break;
-
-                    case 'q':
-                        r.append(pfs::to_string(millis()));
-                        break;
-
-                    case 'Q':
-                        append_prefixed3(r, '0', millis());
-                        break;
-
-                    case 'S':
-                        append_prefixed2(r, '0', second());
-                        break;
-
-                    case 'R':
-                        append_prefixed2(r, '0', hour());
-                        r.push_back(':');
-                        append_prefixed2(r, '0', minute());
-                        break;
-
-                    case 'T':
-                        append_prefixed2(r, '0', hour());
-                        r.push_back(':');
-                        append_prefixed2(r, '0', minute());
-                        r.push_back(':');
-                        append_prefixed2(r, '0', second());
-                        break;
-
-                    case 'J':
-                        append_prefixed2(r, '0', hour());
-                        r.push_back(':');
-                        append_prefixed2(r, '0', minute());
-                        r.push_back(':');
-                        append_prefixed2(r, '0', second());
-                        r.push_back('.');
-                        append_prefixed3(r, '0', millis());
-                        break;
-
-                    case 'p':
-                        r.append(hour() < 12 ? string("AM") : string("PM"));
-                        break;
-
-                    default:
-                        r.push_back('%');
-                        r.push_back(*p);
-                        break;
-                    }
-
-                    need_spec = false;
-                }
-            }
-            ++p;
-        }
-
-        return r;
-    }
+    string to_string (string const & format) const;
 
 private:
     static inline void append_prefixed2 (string & s, string::value_type fill_char, int i2)

@@ -4,12 +4,12 @@
 #include "pfs/algorithm.hpp"
 
 // Sources:
-// 		http://en.wikipedia.org/wiki/Julian_day ,
-// 		http://www.tondering.dk/claus/cal/julperiod.php ,
+//      http://en.wikipedia.org/wiki/Julian_day ,
+//      http://www.tondering.dk/claus/cal/julperiod.php ,
 //      http://www.hermetic.ch/cal_stud/jdn.htm ,
-// 		and source files from Qt library.
+//      and source files from Qt library.
 // Useful links:
-//		Julian Day Calculator: http://www.csgnetwork.com/juliandaydate.html
+//      Julian Day Calculator: http://www.csgnetwork.com/juliandaydate.html
 
 
 namespace pfs {
@@ -20,7 +20,7 @@ static const byte_t __daysInMonth[] = { 0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 3
 
 static inline date __valid_date(int y, int m, int d)
 {
-	// first day of the month
+    // first day of the month
     date r(y, m, 1);
 
     // set date according to the number of days in the specified month.
@@ -38,31 +38,31 @@ static inline date __valid_date(int y, int m, int d)
  */
 intmax_t date::julian_day (int year, int month, int day) // static
 {
-	if (year < 0) // there is no 0 year
-		++year;
+    if (year < 0) // there is no 0 year
+        ++year;
 
-	int      a = math::floor_div(14 - month, 12);
-	intmax_t y = intmax_t(year) + 4800 - a;
-	int      m = month + 12 * a - 3;
+    int      a = math::floor_div(14 - month, 12);
+    intmax_t y = intmax_t(year) + 4800 - a;
+    int      m = month + 12 * a - 3;
 
-	// Gregorian calendar: >= 15.10.1582
-	if (year > 1582 || (year == 1582 && (month > 10 || (month == 10 && day >= 15)))) {
-		return day + math::floor_div(153 * m + 2, 5)
-			+ 365 * y
-			+ math::floor_div(y, 4)
-			- math::floor_div(y, 100)
-			+ math::floor_div(y, 400)
-			- 32045;
-	}
-	// Julian calendar: <= 4.10.1582
-	else if (year < 1582 || (year == 1582 && (month < 10 || (month == 10 && day <= 4)))) {
-		return day + math::floor_div(153 * m + 2, 5)
-			+ 365 * y
-			+ math::floor_div(y, 4)
-			- 32083;
-	}
+    // Gregorian calendar: >= 15.10.1582
+    if (year > 1582 || (year == 1582 && (month > 10 || (month == 10 && day >= 15)))) {
+        return day + math::floor_div(153 * m + 2, 5)
+            + 365 * y
+            + math::floor_div(y, 4)
+            - math::floor_div(y, 100)
+            + math::floor_div(y, 400)
+            - 32045;
+    }
+    // Julian calendar: <= 4.10.1582
+    else if (year < 1582 || (year == 1582 && (month < 10 || (month == 10 && day <= 4)))) {
+        return day + math::floor_div(153 * m + 2, 5)
+            + 365 * y
+            + math::floor_div(y, 4)
+            - 32083;
+    }
 
-	return NULL_JULIAN_DAY;
+    return NULL_JULIAN_DAY;
 }
 
 /**
@@ -77,19 +77,19 @@ intmax_t date::julian_day (int year, int month, int day) // static
  */
 void date::from_julian_day (intmax_t julianDay, int * yearPtr, int * monthPtr, int * dayPtr) // static
 {
-	intmax_t b = 0;
-	intmax_t c = 0;
+    intmax_t b = 0;
+    intmax_t c = 0;
 
-	// Gregorian calendar
-	//
-	if (julianDay >= 2299161) {
-		intmax_t a = julianDay + 32044;
-		b = math::floor_div(4 * a + 3, 146097);
-		c = a - math::floor_div(146097 * b, 4);
-	} else {
-		b = 0;
-		c = julianDay + 32082;
-	}
+    // Gregorian calendar
+    //
+    if (julianDay >= 2299161) {
+        intmax_t a = julianDay + 32044;
+        b = math::floor_div(4 * a + 3, 146097);
+        c = a - math::floor_div(146097 * b, 4);
+    } else {
+        b = 0;
+        c = julianDay + 32082;
+    }
 
     intmax_t    d = math::floor_div(4 * c + 3, 1461);
     intmax_t    e = c - math::floor_div(1461 * d, 4);
@@ -125,23 +125,104 @@ bool date::valid (int year, int month, int day) // static
 {
     return year == 0
         ? false
-    	: (day > 0 && month > 0 && month <= 12) &&
+        : (day > 0 && month > 0 && month <= 12) &&
            (day <= __daysInMonth[month] || (day == 29 && month == 2 && is_leap_year(year)));
 }
 
+string date::to_string (string const & format) const
+{
+    if (year() < 0 || year() > 9999)
+        return string();
+
+    // std::basic_stringstream<typename string::value_type> ss;
+    string r;
+
+    string::const_iterator p = format.cbegin();
+    string::const_iterator end = format.cend();
+
+    bool need_spec = false; // true if conversion specifier character expected
+
+    while (p < end) {
+        if (*p == '%') {
+            if (need_spec) {
+                r.push_back('%');
+                need_spec = false;
+            } else {
+                need_spec = true;
+            }
+        } else {
+            if (!need_spec) {
+                r.push_back(*p);
+            } else {
+                switch (to_ascii(*p)) {
+                case 'n':
+                    r.push_back('\n');
+                    break;
+                case 't':
+                    r.push_back('\t');
+                    break;
+                case 'C':
+                    append_prefixed2(r, '0', year()/100);
+                    break;
+                case 'd':
+                    append_prefixed2(r, '0', day());
+                    break;
+                case 'e':
+                    append_prefixed2(r, ' ', day());
+                    break;
+                case 'F':
+                    append_prefixed4(r, '0', year());
+                    r.push_back('-');
+                    append_prefixed2(r, '0', month());
+                    r.push_back('-');
+                    append_prefixed2(r, '0', day());
+                    break;
+                case 'j':
+                    append_prefixed3(r, '0', day_of_year());
+                    break;
+                case 'm':
+                    append_prefixed2(r, '0', month());
+                    break;
+                case 'b':
+                case 'h':
+                    r.append(month_abbrev(month()));
+                    break;
+                case 'u':
+                    r.append(pfs::to_string(day_of_week()));
+                    break;
+                case 'y':
+                    append_prefixed2(r, '0', year() % 100);
+                    break;
+                case 'Y':
+                    append_prefixed4(r, '0', year());
+                    break;
+                default:
+                    r.push_back('%');
+                    r.push_back(*p);
+                    break;
+                }
+
+                need_spec = false;
+            }
+        }
+        ++p;
+    }
+
+    return r;
+}
 
 
 // 31.01.2013 + 1 mon = 29.02.2013
 // 31.01.2013 - 2 mon = 30.11.2012
 date date::add_months (int nmonths) const
 {
-	// Note: algorithm adopted from QDate::addMonths
+    // Note: algorithm adopted from QDate::addMonths
 
     if (!valid())
         return date();
 
     if (!nmonths)
-    	return *this;
+        return *this;
 
     int y, m, d;
     from_julian_day(_jd, & y, & m, & d);
@@ -149,46 +230,46 @@ date date::add_months (int nmonths) const
     int start_year = y;
 
     while (nmonths != 0) {
-    	if (nmonths < 0 && nmonths + 12 <= 0) {
-    		--y;
-    		nmonths += 12;
-    	} else if (nmonths < 0) {
-    		m += nmonths;
-    		nmonths = 0;
+        if (nmonths < 0 && nmonths + 12 <= 0) {
+            --y;
+            nmonths += 12;
+        } else if (nmonths < 0) {
+            m += nmonths;
+            nmonths = 0;
 
-    		if (m <= 0) {
-    			--y;
-    			m += 12;
-    		}
-    	} else if (nmonths - 12 >= 0) {
-    		++y;
-    		nmonths -= 12;
-    	} else if (m == 12) {
-    		++y;
-    		m = 0;
-    	} else {
-    		m += nmonths;
-    		nmonths = 0;
+            if (m <= 0) {
+                --y;
+                m += 12;
+            }
+        } else if (nmonths - 12 >= 0) {
+            ++y;
+            nmonths -= 12;
+        } else if (m == 12) {
+            ++y;
+            m = 0;
+        } else {
+            m += nmonths;
+            nmonths = 0;
 
-    		if (m > 12) {
-    			++y;
-    			m -= 12;
-    		}
-    	}
+            if (m > 12) {
+                ++y;
+                m -= 12;
+            }
+        }
     }
 
     // special cases: transition the year through 0
     if (start_year > 0 && y <= 0)      // decreasing months
-    	--y;
+        --y;
     else if (start_year < 0 && y >= 0) // increasing months
-    	++y;
+        ++y;
 
     return __valid_date(y, m, d);
 }
 
 date date::add_years (int nyears) const
 {
-	// Note: algorithm adopted from QDate::addYears
+    // Note: algorithm adopted from QDate::addYears
 
     if (!valid())
         return date();
@@ -201,9 +282,9 @@ date date::add_years (int nyears) const
 
     // special cases: transition the year through 0
     if (start_year > 0 && y <= 0)      // decreasing months
-    	--y;
+        --y;
     else if (start_year < 0 && y >= 0) // increasing months
-    	++y;
+        ++y;
 
     return __valid_date(y, m, d);
 }
@@ -220,8 +301,8 @@ int date::day_of_week() const
     return !valid()
         ? 0
         : (_jd >= 0)
-          	  ? (_jd % 7) + 1
-    		  : ((_jd + 1) % 7) + 7;
+                ? (_jd % 7) + 1
+                : ((_jd + 1) % 7) + 7;
 }
 
 /**
@@ -254,8 +335,8 @@ int date::days_in_month() const
     from_julian_day(_jd, & y, & m, 0);
 
     return  (m == 2 && is_leap_year(y))
-    		? 29
-    		: __daysInMonth[m];
+            ? 29
+            : __daysInMonth[m];
 }
 
 /**

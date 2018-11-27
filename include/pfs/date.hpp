@@ -81,7 +81,7 @@ public:
         * @param d
         * @return
         */
-    value_type days_to (const date & d) const
+    value_type days_to (date const & d) const
     {
         return valid() && d.valid()
                 ? d._jd - _jd
@@ -137,34 +137,14 @@ public:
      * @param other
      * @return
      */
-    bool operator == ( const date & other ) const
+    bool operator == (date const & other) const
     {
         return _jd == other._jd;
     }
 
-    bool operator != ( const date & other ) const
-    {
-        return _jd != other._jd;
-    }
-
-    bool operator  < ( const date & other ) const
+    bool operator  < (date const & other) const
     {
         return _jd <  other._jd;
-    }
-
-    bool operator <= ( const date & other ) const
-    {
-        return _jd <= other._jd;
-    }
-
-    bool operator > (const date & other) const
-    {
-        return _jd >  other._jd;
-    }
-
-    bool operator >= (const date & other) const
-    {
-        return _jd >= other._jd;
     }
 
     /**
@@ -226,87 +206,7 @@ public:
      */
     static bool valid (int year, int month, int day);
 
-    string to_string (string const & format) const
-    {
-        if (year() < 0 || year() > 9999)
-            return string();
-
-        // std::basic_stringstream<typename string::value_type> ss;
-        string r;
-
-        string::const_iterator p = format.cbegin();
-        string::const_iterator end = format.cend();
-
-        bool need_spec = false; // true if conversion specifier character expected
-
-        while (p < end) {
-            if (*p == '%') {
-                if (need_spec) {
-                    r.push_back('%');
-                    need_spec = false;
-                } else {
-                    need_spec = true;
-                }
-            } else {
-                if (!need_spec) {
-                    r.push_back(*p);
-                } else {
-                    switch (to_ascii(*p)) {
-                    case 'n':
-                        r.push_back('\n');
-                        break;
-                    case 't':
-                        r.push_back('\t');
-                        break;
-                    case 'C':
-                        append_prefixed2(r, '0', year()/100);
-                        break;
-                    case 'd':
-                        append_prefixed2(r, '0', day());
-                        break;
-                    case 'e':
-                        append_prefixed2(r, ' ', day());
-                        break;
-                    case 'F':
-                        append_prefixed4(r, '0', year());
-                        r.push_back('-');
-                        append_prefixed2(r, '0', month());
-                        r.push_back('-');
-                        append_prefixed2(r, '0', day());
-                        break;
-                    case 'j':
-                        append_prefixed3(r, '0', day_of_year());
-                        break;
-                    case 'm':
-                        append_prefixed2(r, '0', month());
-                        break;
-                    case 'b':
-                    case 'h':
-                        r.append(month_abbrev(month()));
-                        break;
-                    case 'u':
-                        r.append(pfs::to_string(day_of_week()));
-                        break;
-                    case 'y':
-                        append_prefixed2(r, '0', year() % 100);
-                        break;
-                    case 'Y':
-                        append_prefixed4(r, '0', year());
-                        break;
-                    default:
-                        r.push_back('%');
-                        r.push_back(*p);
-                        break;
-                    }
-
-                    need_spec = false;
-                }
-            }
-            ++p;
-        }
-
-        return r;
-    }
+    string to_string (string const & format) const;
 
    /**
     * @brief Locale specific month abbreviation.

@@ -3,8 +3,10 @@
 #include <pfs/string.hpp>
 #include <pfs/time.hpp>
 
-typedef pfs::string string_type;
+typedef pfs::string string_t;
 typedef pfs::time time_type;
+
+#include "compare.hpp"
 
 void test_base (void)
 {
@@ -36,12 +38,12 @@ void test_stringify ()
 {
     ADD_TESTS(6);
 
-    TEST_OK(pfs::to_string(time_type(14, 0, 0), string_type("%H:%M:%S")) == string_type("14:00:00"));
-    TEST_OK(pfs::to_string(time_type(9, 54, 3), string_type("%H:%M:%S")) == string_type("09:54:03"));
-    TEST_OK(pfs::to_string(time_type(9, 54, 3), string_type("[%%%H::%M::%S%%]")) == string_type("[%09::54::03%]"));
-    TEST_OK(pfs::to_string(time_type(14, 0, 0)) == string_type("14:00:00"));
-    TEST_OK(pfs::to_string(time_type(9, 54, 3)) == string_type("09:54:03"));
-    TEST_OK(pfs::to_string(time_type(11, 59, 12, 414), string_type("%J")) == string_type("11:59:12.414"));
+    TEST_OK(pfs::to_string(time_type(14, 0, 0), string_t("%H:%M:%S")) == string_t("14:00:00"));
+    TEST_OK(pfs::to_string(time_type(9, 54, 3), string_t("%H:%M:%S")) == string_t("09:54:03"));
+    TEST_OK(pfs::to_string(time_type(9, 54, 3), string_t("[%%%H::%M::%S%%]")) == string_t("[%09::54::03%]"));
+    TEST_OK(pfs::to_string(time_type(14, 0, 0)) == string_t("14:00:00"));
+    TEST_OK(pfs::to_string(time_type(9, 54, 3)) == string_t("09:54:03"));
+    TEST_OK(pfs::to_string(time_type(11, 59, 12, 414), string_t("%J")) == string_t("11:59:12.414"));
 }
 
 int main ()
@@ -50,6 +52,7 @@ int main ()
 
     test_base();
     test_stringify();
+    test_compare();
 
     return END_TESTS;
 }

@@ -4,7 +4,7 @@
 #include "pfs/logger.hpp"
 
 typedef pfs::log<>  log_ns;
-typedef pfs::string string_type;
+typedef pfs::string string_t;
 typedef pfs::safeformat fmt;
 // typedef pfs::logger::stdout_appender<string_type>    stdout_appender;
 // typedef pfs::logger::stderr_appender<string_type>    stderr_appender;
@@ -16,7 +16,7 @@ int main ()
     log.set_priority(log_ns::priority::trace);
     log.connect(log.add_appender<log_ns::stdout_appender>());
     log.trace(fmt("%s, %s!")("Hello")("World").str());
-    string_type s(fmt("%s, %s!")("Hello")("World").str());
+    string_t s(fmt("%s, %s!")("Hello")("World").str());
     log.trace(fmt("%s")(s).str());
 
     log_ns::stdout_appender out_appender;

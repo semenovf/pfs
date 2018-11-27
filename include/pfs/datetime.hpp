@@ -45,40 +45,13 @@ public:
         return _offset;
     }
 
-    /*
+    /**
      * @brief Converts UTC offset to string.
      * @param off UTC offset value.
      *
      * @return String in format '+hhmm' or '-hhmm' (that is, the hour and minute offset from UTC).
      */
-    static string offset_to_string (long int off)
-    {
-        int sign = 1;
-
-        if (off < 0) {
-            off *= -1;
-            sign = -1;
-        }
-
-        int h = off / 3600;
-        int m = (off - h * 3600) / 60;
-
-        string result(1, (sign < 0 ? '-' : '+'));
-        string hh(to_string(h, 10));
-        string mm(to_string(m, 10));
-
-        if (h < 10)
-            result += '0';
-
-        result += hh;
-
-        if (m < 10)
-            result += '0';
-
-        result += mm;
-
-        return result;
-    }
+    static string offset_to_string (long int off);
 
     string offset_to_string () const
     {
@@ -97,12 +70,12 @@ public:
         , _time()
     {}
 
-    datetime (const date & d)
+    datetime (date const & d)
         : _date(d)
         , _time()
     {}
 
-    datetime (const date & d, const time & t)
+    datetime (date const & d, time const & t)
         : _date(d)
         , _time(t)
     {}
@@ -129,19 +102,19 @@ public:
         return add_millis(secs * 1000);
     }
 
-    intmax_t days_to (const datetime & other) const
+    intmax_t days_to (datetime const & other) const
     {
         return _date.days_to(other._date);
     }
 
-    intmax_t seconds_to (const datetime & other) const
+    intmax_t seconds_to (datetime const & other) const
     {
         return valid() && other.valid()
                 ? _date.days_to(other._date) * time::SECONDS_PER_DAY + intmax_t(_time.seconds_to(other._time))
                 : 0;
     }
 
-    intmax_t millis_to (const datetime & other) const
+    intmax_t millis_to (datetime const & other) const
     {
 
         return valid() && other.valid()
@@ -166,9 +139,9 @@ public:
         return _time;
     }
 
-    void set_date (const date & d);
+    void set_date (date const & d);
 
-    void set_time (const time & t)
+    void set_time (time const & t)
     {
         _time = t;
     }
@@ -182,37 +155,17 @@ public:
         return _date.valid() && _time.valid();
     }
 
-    bool operator == (const datetime & other) const
+    bool operator == (datetime const & other) const
     {
         return _time == other._time
                 && _date == other._date;
     }
 
-    bool operator != (const datetime & other) const
-    {
-        return ! (*this == other);
-    }
-
-    bool operator < (const datetime & other) const
+    bool operator < (datetime const & other) const
     {
         return _date != other._date
                 ? _date < other._date
                 : _time < other._time;
-    }
-
-    bool operator <= (const datetime & other) const
-    {
-        return ! (other < *this);
-    }
-
-    bool operator  > (const datetime & other) const
-    {
-        return other < *this;
-    }
-
-    bool operator >= (const datetime & other) const
-    {
-        return ! (*this < other);
     }
 
     static datetime from_millis_since_epoch (intmax_t millis)
@@ -222,53 +175,14 @@ public:
         return d;
     }
 
-    string to_string (timezone const & tz, string const & format) const
+    static datetime from_seconds_since_epoch (unsigned long int seconds)
     {
-        string tmp = pfs::to_string(get_date(), format);
-        tmp = pfs::to_string(get_time(), tmp);
-
-        string::const_iterator p = tmp.cbegin();
-        string::const_iterator end = tmp.cend();
-
-        bool need_spec = false; // true if conversion specifier character expected
-
-        string r;
-
-        while (p < end) {
-            if (*p == '%') {
-                if (need_spec) {
-                    r.push_back('%');
-                    need_spec = false;
-                } else {
-                    need_spec = true;
-                }
-            } else {
-                if (!need_spec) {
-                    r.push_back(*p);
-                } else {
-                    switch (to_ascii(*p)) {
-                    case 'Z':
-                        r.append(tz.tzname());
-                        break;
-
-                    case 'z':
-                        r.append(tz.offset_to_string());
-                        break;
-
-                    default:
-                        r.push_back('%');
-                        r.push_back(*p);
-                        break;
-                    }
-
-                    need_spec = false;
-                }
-            }
-            ++p;
-        }
-
-        return r;
+        datetime d;
+        d.set_millis_since_epoch(seconds * 1000);
+        return d;
     }
+
+    string to_string (timezone const & tz, string const & format) const;
 };
 
 inline string to_string (datetime const & dt, timezone const & tz, string const & format)

@@ -88,7 +88,7 @@ struct test
             _sec = static_cast<double> (c.QuadPart);
 #else
             struct timeval now = {0, 0};
-            PFS_ASSERT(gettimeofday(& now, 0) == 0);
+            PFS_ASSERT(::gettimeofday(& now, 0) == 0);
             _sec = static_cast<double>(now.tv_sec) + static_cast<double>(now.tv_usec)/1000000;
 #endif
         }
@@ -102,7 +102,7 @@ struct test
             return (static_cast<double> (c.QuadPart) - _sec) / static_cast<double> (freq.QuadPart);
 #else
             struct timeval now = {0, 0};
-            PFS_ASSERT(gettimeofday(& now, 0) == 0);
+            PFS_ASSERT(::gettimeofday(& now, 0) == 0);
             return (static_cast<double>(now.tv_sec) + static_cast<double>(now.tv_usec)/1000000) - _sec;
 #endif
         }

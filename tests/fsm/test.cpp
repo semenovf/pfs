@@ -11,13 +11,13 @@
 #include <pfs/fsm/traits.hpp>
 #include <pfs/iterator.hpp>
 
-typedef std::string                                string_type;
-typedef pfs::fsm::fsm<string_type::const_iterator> fsm_type;
+typedef std::string                                string_t;
+typedef pfs::fsm::fsm<string_t::const_iterator> fsm_type;
 typedef fsm_type::char_type                        char_type;
 
 /* DIGIT / "A" / "B" / "C" / "D" / "E" / "F" */
-static string_type const _DIGITS("0123456789");
-static string_type const _HEXDIGITS("ABCDEFabcdef");
+static string_t const _DIGITS("0123456789");
+static string_t const _HEXDIGITS("ABCDEFabcdef");
 
 static fsm_type::transition_type hexdig_tr[] = {
 	  {-1, 1, fsm_type::one_of(_DIGITS.begin(), _DIGITS.end())      , fsm_type::accept, 0, 0 }
@@ -28,16 +28,16 @@ static void test_alternatives_simple ()
 {
     ADD_TESTS(4);
 
-	string_type const hexdig("F");
-	string_type const digit("9");
-	string_type const notdigit("w");
+	   string_t const hexdig("F");
+	   string_t const digit("9");
+	   string_t const notdigit("w");
 
 	fsm_type fsm(hexdig_tr);
     fsm_type::result_type r = fsm.exec(0, hexdig.begin()
             , hexdig.begin());
 	TEST_FAIL(r.first == false);
 
-	string_type::const_iterator it_end;
+	   string_t::const_iterator it_end;
 
 	it_end = hexdig.begin();
 	pfs::advance(it_end, 1);
@@ -55,7 +55,7 @@ static void test_alternatives_simple ()
 	TEST_FAIL(!r.first && r.second == it_end);
 }
 
-static string_type const alphabet("ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+static string_t const alphabet("ABCDEFGHIJKLMNOPQRSTUVWXYZ"
         "abcdefghijklmnopqrstuvwxyz");
 
 static fsm_type::transition_type alphabet_length_tr[] = {
@@ -71,8 +71,8 @@ static fsm_type::transition_type alphabet_length_tr[] = {
 	, {-1,-1, fsm_type::length(7), fsm_type::accept, 0, 0 }
 };
 
-static string_type const Z("Z");
-static string_type const z("z");
+static string_t const Z("Z");
+static string_t const z("z");
 
 static fsm_type::transition_type z_pos_tr[] = {
 	  { 1,-1, fsm_type::length(25)                , fsm_type::normal, 0, 0 }
@@ -95,14 +95,14 @@ void test_length ()
 			== fsm_type::result_type(true, alphabet.end()));
 }
 
-static string_type const ABCD("ABCD");
-static string_type const EFGH("EFGH");
-static string_type const IJKL("IJKL");
-static string_type const MNOP("MNOP");
-static string_type const QRST("QRST");
-static string_type const UVWX("UVWX");
-static string_type const YZ("YZ");
-static string_type const a_z("abcdefghijklmnopqrstuvwxyz");
+static string_t const ABCD("ABCD");
+static string_t const EFGH("EFGH");
+static string_t const IJKL("IJKL");
+static string_t const MNOP("MNOP");
+static string_t const QRST("QRST");
+static string_t const UVWX("UVWX");
+static string_t const YZ("YZ");
+static string_t const a_z("abcdefghijklmnopqrstuvwxyz");
 
 static fsm_type::transition_type subseq_tr[] = {
 	  { 1,-1, fsm_type::seq(ABCD.begin(), ABCD.end()), fsm_type::normal, 0, 0 }
@@ -150,7 +150,7 @@ static fsm_type::result_type is_alphabet (
                         , void * /*parse_context*/
                         , void * /*fn_context*/)
 {
-    string_type sample(begin, end);
+    string_t sample(begin, end);
 
     if (sample == alphabet) {
         return fsm_type::result_type(true, begin + alphabet.size());
@@ -183,12 +183,12 @@ static void test_repetition_0more ()
 {
     ADD_TESTS(11);
 
-	string_type const dec("1972");
-	string_type const notdec("x1972");
+	   string_t const dec("1972");
+	   string_t const notdec("x1972");
 
 	fsm_type fsm(decimal0more_tr);
 
-	string_type::const_iterator it_end;
+	   string_t::const_iterator it_end;
 	fsm_type::result_type r;
 
 	it_end = dec.begin();
@@ -256,14 +256,14 @@ static void test_repetition_1or2more ()
 {
     ADD_TESTS(23);
 
-	string_type const dec("1972");
-	string_type const notdec("x1972");
-	string_type const hex("BEAF");
-	string_type const nothex("BEAR");
+	   string_t const dec("1972");
+	   string_t const notdec("x1972");
+	   string_t const hex("BEAF");
+	   string_t const nothex("BEAR");
 
 	fsm_type fsm(decimal1more_tr, 0);
 
-	string_type::const_iterator it_end;
+	   string_t::const_iterator it_end;
 	fsm_type::result_type r;
 
 	it_end = dec.begin();
@@ -363,7 +363,7 @@ static void test_repetition_1or2more ()
 	TEST_FAIL(r.first && pfs::distance(nothex.begin(), r.second) == 3);
 }
 
-static string_type const _NONZERODIGITS("123456789");
+static string_t const _NONZERODIGITS("123456789");
 
 /* NON-ZERO_DIGIT *DIGIT */
 static fsm_type::transition_type non_zero_decimal_tr[] = {
@@ -371,8 +371,8 @@ static fsm_type::transition_type non_zero_decimal_tr[] = {
 	, { 1,-1, fsm_type::one_of(_DIGITS.begin(), _DIGITS.end()), fsm_type::accept, 0, 0 }
 };
 
-static string_type const _ZERO("0");
-static string_type const _xX("xX");
+static string_t const _ZERO("0");
+static string_t const _xX("xX");
 
 /* (non-zero-dec dec)  / ( "0" ("x" / "X") hex ) */
 static fsm_type::transition_type number_tr[] = {
@@ -386,13 +386,13 @@ static void test_alternatives ()
 {
     ADD_TESTS(16);
 
-	string_type const hex("0xDEAD");
-	string_type const decimal("1972");
-	string_type const notnumber("[number]");
+	   string_t const hex("0xDEAD");
+	   string_t const decimal("1972");
+	   string_t const notnumber("[number]");
 
 	fsm_type fsm(number_tr, 0);
 
-	string_type::const_iterator it_end;
+	   string_t::const_iterator it_end;
 	fsm_type::result_type r;
 
 	it_end = hex.begin();
@@ -461,7 +461,7 @@ static void test_alternatives ()
             == fsm_type::result_type(false, it_end));
 }
 
-static string_type const _ABC("_ABC");
+static string_t const _ABC("_ABC");
 
 static fsm_type::transition_type rpt_tr[] = {
 	{-1,-1, fsm_type::rpt_seq(_ABC.begin(), _ABC.end(), 0, 10), fsm_type::accept, 0, 0 }
@@ -471,7 +471,7 @@ void test_rpt ()
 {
     ADD_TESTS(1);
 
-    static string_type const rpt_chars("_ABC_ABC_ABC_ABC");
+    static string_t const rpt_chars("_ABC_ABC_ABC_ABC");
 	fsm_type fsm(rpt_tr, 0);
 
 	TEST_FAIL(fsm.exec(0, rpt_chars.begin(), rpt_chars.end())

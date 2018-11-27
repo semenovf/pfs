@@ -24,6 +24,7 @@ list(APPEND MY_TEST_TARGETS byte_string)
 list(APPEND MY_TEST_TARGETS chrono)
 list(APPEND MY_TEST_TARGETS command)
 list(APPEND MY_TEST_TARGETS date)
+list(APPEND MY_TEST_TARGETS datetime)
 list(APPEND MY_TEST_TARGETS deque)
 list(APPEND MY_TEST_TARGETS dynamic_library)
 #list(APPEND MY_TEST_TARGETS filesystem) -- Fixme

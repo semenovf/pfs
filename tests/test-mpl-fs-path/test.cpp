@@ -15,7 +15,7 @@
 
 typedef pfs::fs::traits<std::string, stdcxx::list> traits_type;
 typedef pfs::fs::path<traits_type>   path_type;
-typedef typename traits_type::string_type string_type;
+typedef typename traits_type::string_t string_type;
 
 #include "test_path.hpp"
 #include "test_canonical.hpp"

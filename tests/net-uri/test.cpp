@@ -4,7 +4,7 @@
 #include "pfs/string.hpp"
 #include "test_grammar.hpp"
 
-typedef pfs::string string_type;
+typedef pfs::string string_t;
 
 #if __COMMENT__
 
