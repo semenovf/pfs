@@ -1,11 +1,12 @@
 #pragma once
 #include <pfs/types.hpp>
+#include <pfs/compare.hpp>
 #include <pfs/string.hpp>
 #include <pfs/lexical_cast.hpp>
 
 namespace pfs {
 
-class time
+class time : public compare_op<time>
 {
 public:
     typedef int32_t value_type;

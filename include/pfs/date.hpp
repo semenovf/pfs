@@ -1,11 +1,12 @@
 #pragma once
 #include <pfs/types.hpp>
+#include <pfs/compare.hpp>
 #include <pfs/string.hpp>
 #include <pfs/lexical_cast.hpp>
 
 namespace pfs {
 
-class date
+class date : public compare_op<date>
 {
 public:
     typedef intmax_t value_type;

@@ -1,6 +1,7 @@
 #pragma once
 #include <pfs/types.hpp>
 #include <pfs/lexical_cast.hpp>
+#include <pfs/compare.hpp>
 #include <pfs/date.hpp>
 #include <pfs/time.hpp>
 
@@ -59,7 +60,7 @@ public:
     }
 };
 
-class datetime
+class datetime : public compare_op<datetime>
 {
     date _date;
     time _time;
