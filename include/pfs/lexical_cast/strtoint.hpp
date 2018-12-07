@@ -10,7 +10,7 @@ namespace pfs {
 //
 // Grammar (case radix = 0)
 //
-// result =   *ws ["+" / "-"] NON_ZERO_DIGIT *DIGIT
+// integer = *ws ["+" / "-"] NON_ZERO_DIGIT *DIGIT
 //          / *ws ["+" / "-"] "0" "x" 1*HEXDIGIT
 //          / *ws ["+" / "-"] "0" 1*OCTALDIGIT
 // NON_ZERO_DIGIT = "1" / "2" / ... / "9"
@@ -21,7 +21,7 @@ namespace pfs {
 //
 // Grammar (case radix > 1)
 //
-// result =   *ws ["+" / "-"] NON_ZERO_DIGIT *DIGIT
+// integer =   *ws ["+" / "-"] NON_ZERO_DIGIT *DIGIT
 //
 
 template <typename CharIt>
