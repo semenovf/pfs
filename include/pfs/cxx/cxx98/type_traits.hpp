@@ -1,6 +1,4 @@
-#ifndef __PFS_CXX98_TYPE_TRAITS_HPP__
-#define __PFS_CXX98_TYPE_TRAITS_HPP__
-
+#pragma once
 #include <pfs/types.hpp>
 
 namespace pfs {
@@ -39,13 +37,13 @@ typedef integral_constant<bool, false> false_type;
 template <bool, typename T1, typename>
 struct conditional
 {
-	typedef T1 type;
+    typedef T1 type;
 };
 
 template <typename T1, typename T2>
 struct conditional<false, T1, T2>
 {
-	typedef T2 type;
+    typedef T2 type;
 };
 
 namespace details {
@@ -65,25 +63,25 @@ struct not_op
 template<typename T>
 struct remove_const
 {
-	typedef T type;
+    typedef T type;
 };
 
 template<typename T>
 struct remove_const<T const>
 {
-	typedef T type;
+    typedef T type;
 };
 
 template<typename T>
 struct remove_volatile
 {
-	typedef T type;
+    typedef T type;
 };
 
 template<typename T>
 struct remove_volatile<T volatile>
 {
-	typedef T type;
+    typedef T type;
 };
 
 template<typename T>
@@ -391,7 +389,7 @@ struct is_volatile<T volatile>
 {};
 
 template <typename>
-struct is_reference : public false_type 
+struct is_reference : public false_type
 {};
 
 template <typename T>
@@ -623,5 +621,3 @@ template <> struct make_signed<unsigned long long const volatile> { typedef sign
 #endif
 
 } // pfs
-
-#endif /* __PFS_CXX98_TYPE_TRAITS_HPP__ */

@@ -4,9 +4,7 @@
 #include <pfs/math.hpp>
 #include <pfs/ratio.hpp>
 #include <pfs/string.hpp>
-#include <pfs/lexical_cast.hpp>
 #include <pfs/type_traits.hpp>
-#include <pfs/lexical_cast/strtorational.hpp>
 
 namespace pfs {
 
@@ -641,7 +639,7 @@ inline rational<IntT> operator / (typename rational<IntT>::int_type lhs, rationa
     return rational<IntT>(lhs) / rhs;
 }
 
-template <typename> struct is_rational : public false_type {};
+template <typename> struct is_rational : false_type {};
 template <> struct is_rational<rational<signed char> > : public true_type {};
 template <> struct is_rational<rational<unsigned char> > : public true_type {};
 template <> struct is_rational<rational<short int> > : public true_type {};
@@ -656,7 +654,11 @@ template <> struct is_rational<rational<long long int> > : public true_type {};
 template <> struct is_rational<rational<unsigned long long int> > : public true_type {};
 #endif
 
+} // namespace pfs
 
+#include <pfs/lexical_cast/strtorational.hpp>
+
+namespace pfs {
 
 /**
  * @brief Converts string representation of rational number.
@@ -685,22 +687,23 @@ template <typename RationalT>
 inline typename pfs::enable_if<pfs::is_rational<RationalT>::value, RationalT>::type
 lexical_cast (string const & s, error_code & ec, string::value_type decimal_point = '.')
 {
-    if (s.empty()) {
-        ec = pfs::make_error_code(lexical_cast_errc::invalid_string);
-        return RationalT();
-    }
-
-    typedef string::const_iterator iterator;
-    iterator badpos;
-
-    RationalT result = string_to_rational<RationalT, iterator>(s.cbegin()
-            , s.cend()
-            , & badpos);
-
-    if (badpos != s.cend())
-        ec = pfs::make_error_code(lexical_cast_errc::invalid_string);
-
-    return result;
+//     if (s.empty()) {
+//         ec = pfs::make_error_code(lexical_cast_errc::invalid_string);
+//         return RationalT();
+//     }
+//
+//     typedef string::const_iterator iterator;
+//     iterator badpos;
+//
+//     RationalT result = string_to_rational<RationalT, iterator>(s.cbegin()
+//             , s.cend()
+//             , & badpos);
+//
+//     if (badpos != s.cend())
+//         ec = pfs::make_error_code(lexical_cast_errc::invalid_string);
+//
+//     return result;
+    return RationalT();
 }
 
 template <typename RationalT>
@@ -714,6 +717,5 @@ lexical_cast (string const & s, string::value_type decimal_point = '.')
 
     return result;
 }
-
 
 } // namespace pfs

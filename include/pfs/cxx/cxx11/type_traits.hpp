@@ -3,6 +3,9 @@
 
 namespace pfs {
 
+using false_type = std::false_type;
+using true_type = std::true_type;
+
 template <typename T, typename U>
 using is_same = std::is_same<T, U>;
 
