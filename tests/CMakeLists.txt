@@ -11,6 +11,11 @@ elseif (HAVE_QT4_CORE)
     add_definitions(${QT_DEFINITIONS})
 endif()
 
+# This is the "object library" target: compiles the sources only once
+add_library(CATCH_OBJLIB OBJECT catch-main.cpp)
+# Optional: shared libraries need PIC
+set_property(TARGET CATCH_OBJLIB PROPERTY POSITION_INDEPENDENT_CODE 1)
+
 #
 # Add unit test targets
 #
@@ -105,6 +110,8 @@ set(test-utf8_SOURCES
     utf8/rune.c
     utf8/vietnamese.c)
 
+add_library(catch SHARED $<TARGET_OBJECTS:CATCH_OBJLIB>)
+
 #
 # Process all unit test targets
 #
@@ -116,9 +123,9 @@ foreach(MY_TEST_TARGET ${MY_TEST_TARGETS})
     endif()
 
     if(test-${MY_TEST_TARGET}_LIBS)
-        target_link_libraries(test-${MY_TEST_TARGET} pfs ${test-${MY_TEST_TARGET}_LIBS})
+        target_link_libraries(test-${MY_TEST_TARGET} catch pfs ${test-${MY_TEST_TARGET}_LIBS})
     else()
-        target_link_libraries(test-${MY_TEST_TARGET} pfs)
+        target_link_libraries(test-${MY_TEST_TARGET} catch pfs)
     endif()
 
     #set_property(TARGET test-${MY_TEST_TARGET} PROPERTY CXX_STANDARD ${PFS_PREFERRED_CXX_STANDARD})
