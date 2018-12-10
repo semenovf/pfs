@@ -69,6 +69,14 @@
 #define TEST_NOK_X(expr,stmt) TEST_OK_X(!(expr),stmt)
 #define TEST_NOK2(expr,desc) TEST_OK2(!(expr),desc)
 
+#define TEST_EX(ExceptionType,expr) try {                    \
+    (expr);                                                  \
+} catch (ExceptionType const & e) {                          \
+    pfs::test::todo(#expr, true, __FILE__, __LINE__);        \
+} catch (...) {                                              \
+    pfs::test::todo(#expr, true, __FILE__, __LINE__);        \
+}
+
 namespace pfs {
 
 struct test

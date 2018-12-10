@@ -11,12 +11,14 @@
 // #include "test_lexical_cast_real.hpp"
 
 extern void test_parse_digits ();
+extern void test_parse_integral_part ();
 
 int main ()
 {
     BEGIN_TESTS(0);
 
     test_parse_digits();
+    test_parse_integral_part();
 //     test_string_to_uint();
 //     test_string_to_int();
 //     test_string_to_real<float>();

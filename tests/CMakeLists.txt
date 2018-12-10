@@ -84,7 +84,8 @@ endif()
 
 set(test-lexical_cast_SOURCES
     lexical_cast/test.cpp
-    lexical_cast/parse_number.cpp)
+    lexical_cast/parse_digits.cpp
+    lexical_cast/parse_integral_part.cpp)
 
 set(test-io-server_SOURCES
     io-server/test.cpp
