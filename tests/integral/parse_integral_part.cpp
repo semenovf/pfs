@@ -1,7 +1,7 @@
 #include <cstdlib> // for random
 #include <ctime>
 #include <pfs/string.hpp>
-#include <pfs/lexical_cast/parse_number.hpp>
+#include <pfs/integral.hpp>
 #include "../catch.hpp"
 
 #include <pfs/debug.hpp>
