@@ -1,5 +1,6 @@
 #pragma once
-#include <pfs/lexical_cast.hpp>
+#include <pfs/integral.hpp>
+#include <pfs/real.hpp>
 
 namespace pfs {
 namespace json {
@@ -95,7 +96,7 @@ struct cast_traits_basic<intmax_t, intmax_t, JsonType>
 
     static intmax_t cast (typename JsonType::string_type const & v)
     {
-        return pfs::lexical_cast<intmax_t>(v);
+        return to_integral<intmax_t>(v);
     }
 
     static intmax_t cast (typename JsonType::array_type const & v)
@@ -134,7 +135,7 @@ struct cast_traits_basic<double, double, JsonType>
 
     static double cast (typename JsonType::string_type const & v)
     {
-        return pfs::lexical_cast<double>(v);
+        return to_real<double>(v);
     }
 
     static double cast (typename JsonType::array_type const & v)

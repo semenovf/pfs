@@ -1,6 +1,6 @@
 #pragma once
 #include <pfs/fsm/fsm.hpp>
-#include <pfs/lexical_cast.hpp>
+#include <pfs/integral.hpp>
 
 namespace pfs {
 namespace net {
@@ -180,13 +180,10 @@ struct uri_grammar
         parse_context * ctx = static_cast<parse_context *>(context);
         string_type digits(first, last);
 
-        try {
-            ctx->port = lexical_cast<uint16_t>(digits, 10);
-        } catch (bad_lexical_cast ex) {
-            return false;
-        }
+        error_code ec;
+        ctx->port = to_integral<uint16_t>(digits, ec);
 
-        return true;
+        return ec ? false : true;
     }
 
     static bool set_raw_host (iterator /*first*/, iterator /*last*/, void * context, void const * /*action_args*/)

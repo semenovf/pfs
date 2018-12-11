@@ -1,5 +1,6 @@
 #pragma once
-#include <pfs/lexical_cast.hpp>
+#include <pfs/integral.hpp>
+#include <pfs/real.hpp>
 
 namespace pfs {
 namespace sql {
@@ -71,7 +72,7 @@ struct cast_traits_basic<intmax_t, intmax_t, StringT>
 
     static intmax_t cast (StringT const & v)
     {
-        return pfs::lexical_cast<intmax_t>(v);
+        return to_integral<intmax_t>(v);
     }
 };
 
@@ -100,7 +101,7 @@ struct cast_traits_basic<double, double, StringT>
 
     static double cast (StringT const & v)
     {
-        return pfs::lexical_cast<double>(v);
+        return to_real<double>(v);
     }
 };
 

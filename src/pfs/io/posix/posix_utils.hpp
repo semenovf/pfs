@@ -1,7 +1,6 @@
 #pragma once
 #include <netinet/in.h>
 #include <pfs/compiler.hpp>
-#include <pfs/lexical_cast.hpp>
 #include <pfs/string.hpp>
 
 #if PFS_CC_GCC

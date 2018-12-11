@@ -1,31 +1,42 @@
 #pragma once
-#include <pfs/types.hpp>
-#include <pfs/assert.hpp>
-#include <pfs/math.hpp>
-#include <pfs/lexical_cast/exception.hpp>
+#include <pfs/cxxlang.hpp>
+#include <pfs/type_traits.hpp>
+#include <pfs/string.hpp>
 
-/* Grammar:
+/*
+ * Grammars:
  *
- * double =   [sign] [integral-part] POINT fract-part [exp-part]
- *          / [sign] integral-part POINT [exp-part]
- *          / [sign] integral-part exp-part
+ * [1] number = integer / real / rational
+ *
+ * [2] integer = integral-part
+ *
+ * [3] real = [integral-part] POINT fract-part [exp-part]
+ *          / integral-part POINT [exp-part]
+ *          / integral-part exp-part
  *          / [sign] (N | n ) (A | a ) (N | n )
  *          / [sign] (I | i ) (N | n ) (F | f ) [(I | i ) (N | n ) (I | i ) (T | t ) (Y | y )]
  *
- * integral-part = digit-seq
+ * [4] rational = integral-part
+ *          /  integral-part POINT [ fract-part ]
+ *          /  numinator *ws '/' *ws denominator
  *
- * fract-part    = digit-seq
+ * integral-part = *ws [ sign ] +DIGIT
  *
- * exp-part = exp-char [exp-sign] digit-seq
+ * fract-part    = +DIGIT
  *
- * exp-char = 'e' / 'E'
+ * numinator     = integral-part
+ *
+ * denominator   = +DIGIT
  *
  * sign = '+' / '-'
  *
- * exp-sign = '+' / '-'
+ * POINT = '.' ; or user-defined
  *
- * digit-seq = digit
- *              / digit-seq digit
+ * NON_ZERO_DIGIT = "1" / "2" / ... / "9" / ...  ; depends on radix
+ *
+ * DIGIT          = "0" / 1" / "2" / ... / "9" / ... ; depends on radix
+ *
+ * ws             = <whitespace>
  *
  */
 
@@ -173,21 +184,29 @@ struct char_iterator_wrapper
 
 } // details
 
-template <typename RealType, typename CharIt>
-RealType string_to_real (CharIt first
+// template <typename IntT, typename CharIt>
+// IntT parse_integral_part (CharIt first
+//         , CharIt last
+//         , error_code & ec
+//         , CharIt * endpos
+//         , int radix)
+// {
+template <typename RealT, typename CharIt>
+RealT parse_real (CharIt first
         , CharIt last
+        , error_code & ec
         , typename iterator_traits<CharIt>::value_type decimal_point_char
-        , CharIt * badpos
-        , error_code & ec) // badpos
+        , CharIt * endpos)
 {
     typedef typename iterator_traits<CharIt>::value_type value_type;
+
     static double frac1_powers[] = {1.0e0, 1.0e1, 1.0e2, 1.0e3, 1.0e4, 1.0e5
             , 1.0e6, 1.0e7, 1.0e8, 1.0e9};
 
     CharIt p(first);
     double r = 0.0f;
     int sign = 1;
-    RealType dbl_exp = 1.0f;
+    RealT dbl_exp = 1.0f;
     int exp_sign = 1;
     int exp = 0;
     int frac_exp = 0;
@@ -202,9 +221,9 @@ RealType string_to_real (CharIt first
     details::char_iterator_wrapper<CharIt> exp_pos;
 
     if (first == last) {
-        if (badpos)
-            *badpos = first;
-        return RealType(0.0f);
+        if (endpos)
+            *endpos = first;
+        return RealT(0.0f);
     }
 
     // Skip over any leading whitespace
@@ -231,7 +250,7 @@ RealType string_to_real (CharIt first
             ++nan;
             if (*nan == 'N' || *nan == 'n') {
                 ++nan;
-                r = pfs::numeric_limits<RealType>::quiet_NaN();
+                r = pfs::numeric_limits<RealT>::quiet_NaN();
                 goto done;
             }
         }
@@ -257,14 +276,14 @@ RealType string_to_real (CharIt first
                                 ++inf;
                                 if (*inf == 'Y' || *inf == 'y') {
                                     ++inf;
-                                    r = pfs::numeric_limits<RealType>::infinity();
+                                    r = pfs::numeric_limits<RealT>::infinity();
                                     goto done;
                                 }
                             }
                         }
                     }
                 } else { // 'INF' string
-                    r = pfs::numeric_limits<RealType>::infinity();
+                    r = pfs::numeric_limits<RealT>::infinity();
                     goto done;
                 }
             }
@@ -406,22 +425,22 @@ RealType string_to_real (CharIt first
         exp_sign = 1;
     }
 
-    if (exp < pfs::numeric_limits<RealType>::min_exponent10) { // underflow
-        ec = pfs::make_error_code(lexical_cast_errc::underflow);
+    if (exp < pfs::numeric_limits<RealT>::min_exponent10) { // underflow
+        ec = pfs::make_error_code(errc::result_out_of_range);
         r = 0.0f;
         goto done;
-    } else if (exp > pfs::numeric_limits<RealType>::max_exponent10) { // overflow
+    } else if (exp > pfs::numeric_limits<RealT>::max_exponent10) { // overflow
         if (sign < 0) {
-            r = -pfs::numeric_limits<RealType>::infinity();
+            r = -pfs::numeric_limits<RealT>::infinity();
         } else {
-            r = pfs::numeric_limits<RealType>::infinity();
+            r = pfs::numeric_limits<RealT>::infinity();
         }
 
-        ec = pfs::make_error_code(lexical_cast_errc::overflow);
+        ec = pfs::make_error_code(errc::result_out_of_range);
         goto done;
     }
 
-    for (RealType * d = powersOf10<RealType>::values(); exp != 0; exp >>= 1, d += 1) {
+    for (RealT * d = powersOf10<RealT>::values(); exp != 0; exp >>= 1, d += 1) {
         if (exp & 01) {
             dbl_exp *= *d;
         }
@@ -434,25 +453,61 @@ RealType string_to_real (CharIt first
     }
 
 done:
-    if (badpos)
-        *badpos = pos.pos;
+    if (endpos)
+        *endpos = pos.pos;
 
     return sign < 0 ? -r : r;
 }
 
-template <typename RealType, typename CharIt>
-RealType string_to_real (CharIt first
+template <typename RealT, typename CharIt>
+inline RealT to_real (CharIt first
         , CharIt last
-        , typename iterator_traits<CharIt>::value_type decimal_point
-        , CharIt * badpos)
+        , error_code & ec
+        , typename iterator_traits<CharIt>::value_type decimal_point_char
+        , CharIt * endpos)
 {
-    error_code ec;
-    RealType result = string_to_real<RealType, CharIt>(first, last, decimal_point, badpos, ec);
+    return parse_real<RealT, CharIt>(first, last, ec, decimal_point_char, endpos);
+}
 
-    if (ec.value() != static_cast<int>(lexical_cast_errc::success))
-        PFS_THROW(bad_lexical_cast(ec));
+template <typename RealT>
+inline RealT to_real (string::const_iterator first
+        , string::const_iterator last
+        , error_code & ec
+        , string::value_type decimal_point = '.'
+        , string::const_iterator * str_end = 0)
+{
+    return parse_real<RealT>(first, last, ec, decimal_point, str_end);
+}
+
+template <typename RealT>
+inline RealT to_real (string const & str
+        , error_code & ec
+        , string::value_type decimal_point = '.'
+        , string::const_iterator * str_end = 0)
+{
+    return to_real<RealT>(str.cbegin(), str.cend(), ec, decimal_point, str_end);
+}
+
+template <typename RealT>
+RealT to_real (string const & str, string::value_type decimal_point = '.'
+        , string::const_iterator * str_end = 0)
+{
+    string::const_iterator endpos;
+    error_code ec;
+
+    RealT result = parse_real<RealT>(str.cbegin(), str.cend()
+            , ec, decimal_point, & endpos);
+
+    if (str_end)
+        *str_end = endpos;
+
+    if (ec) {
+        if (ec == make_error_code(errc::result_out_of_range))
+            throw out_of_range();
+        throw exception("to_real(): unknown reason");
+    }
 
     return result;
 }
 
-} // pfs
+} // namespace pfs

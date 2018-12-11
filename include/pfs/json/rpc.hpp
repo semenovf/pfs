@@ -218,15 +218,14 @@ struct rpc
         if (slist.size() != 2)
             return false;
 
-        try {
-            typename stringlist<string_type>::const_iterator first = slist.cbegin();
-            major = pfs::lexical_cast<int>(*first++);
-            minor = pfs::lexical_cast<int>(*first);
+        typename stringlist<string_type>::const_iterator first = slist.cbegin();
 
+        error_code ec;
+        major = to_integral<int>(*first++, ec);
+        minor = to_integral<int>(*first, ec);
+
+        if (!ec)
             return true;
-        } catch (bad_lexical_cast const &) {
-            ;
-        }
 
         return false;
     }

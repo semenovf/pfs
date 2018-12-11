@@ -1,10 +1,10 @@
 #pragma once
 #include <pfs/utility.hpp>
 #include <pfs/string.hpp>
-#include <pfs/lexical_cast.hpp>
 #include <pfs/algo/split.hpp>
 #include <pfs/string.hpp>
 #include <pfs/stringlist.hpp>
+#include <pfs/integral.hpp>
 
 namespace pfs {
 namespace net {
@@ -419,11 +419,9 @@ public:
         ++it;
 
         if (port) {
-            try {
-                *port = ::pfs::lexical_cast<uint16_t>(*it, 0);
-            } catch (bad_lexical_cast) {
-                return false;
-            }
+            error_code ec;
+            *port = to_integral<uint16_t>(*it, ec, 0, 0);
+            if (ec) return false;
         }
 
         return true;
@@ -436,12 +434,10 @@ private:
             , string::const_iterator end)
     {
         uint32_t r = 0;
+        error_code ec;
+        r = to_integral<uint32_t>(begin, end, ec, 0, 0);
 
-        try {
-            r = lexical_cast<uint32_t>(string(begin, end), 0);
-        } catch (bad_lexical_cast) {
-            return false;
-        }
+        if (ec) return false;
 
         if (!(r <= maxvalue))
             return false;

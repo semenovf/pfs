@@ -2,7 +2,6 @@
 #include <pfs/types.hpp>
 #include <pfs/compare.hpp>
 #include <pfs/string.hpp>
-#include <pfs/lexical_cast.hpp>
 
 namespace pfs {
 

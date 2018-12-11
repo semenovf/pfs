@@ -53,6 +53,7 @@ list(APPEND MY_TEST_TARGETS numeric)
 #list(APPEND MY_TEST_TARGETS optional) -- Experimental yet
 list(APPEND MY_TEST_TARGETS ratio)
 list(APPEND MY_TEST_TARGETS rational)
+list(APPEND MY_TEST_TARGETS real)
 list(APPEND MY_TEST_TARGETS regex)
 #list(APPEND MY_TEST_TARGETS rpc)
 list(APPEND MY_TEST_TARGETS safeformat)
@@ -87,10 +88,9 @@ endif()
 
 ################################################################################
 
-set(test-lexical_cast_SOURCES
-    lexical_cast/test.cpp
-    lexical_cast/parse_digits.cpp
-    lexical_cast/parse_integral_part.cpp)
+set(test-integral_SOURCES
+    integral/test.cpp
+    integral/parse_integral_part.cpp)
 
 set(test-io-server_SOURCES
     io-server/test.cpp

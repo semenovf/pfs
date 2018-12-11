@@ -1,10 +1,10 @@
 #pragma once
 #include <pfs/fsm/fsm.hpp>
-#include <pfs/lexical_cast.hpp>
 #include <pfs/stack.hpp>
 #include <pfs/json/constants.hpp>
 #include <pfs/unicode/char.hpp>
 #include <pfs/unicode/unicode_iterator.hpp>
+#include <pfs/integral.hpp>
 #include "exception.hpp"
 
 namespace pfs {
@@ -406,12 +406,12 @@ struct grammar
                     else if (c == value_type('u') || c == value_type('U')) {
                         iterator ufirst = ++it;
                         iterator ulast = ufirst;
-                        iterator badpos;
+                        error_code ec;
 
                         pfs::advance(ulast, 4);
-                        uint32_t uc = string_to_uint<uint32_t>(ufirst, ulast, & badpos, 16);
+                        uint32_t uc = to_integral<uint32_t>(ufirst, ulast, ec, 0, 16);
 
-                        if (badpos != ulast)
+                        if (ec)
                             PFS_THROW(json_exception(make_error_code(json_errc::bad_number)));
 
                         *out++ = unicode::char_t(static_cast<intmax_t>(uc));
@@ -512,6 +512,7 @@ struct grammar
         iterator first = ctx->number_ctx.sign.first;
         iterator last  = ctx->number_ctx.integral_part.last;
         iterator badpos;
+        error_code ec;
 
         // Integer number
         if ((ctx->number_ctx.frac_part.first == ctx->number_ctx.frac_part.last)
@@ -519,13 +520,13 @@ struct grammar
 
             // Negative
             if (ctx->number_ctx.sign.first != ctx->number_ctx.sign.last) {
-                intmax_t n = string_to_int<intmax_t>(first, last, & badpos, 10);
+                intmax_t n = to_integral<intmax_t>(first, last, ec, & badpos, 10);
 
                 // Ok
                 if (badpos == last)
                     result = ctx->sax->on_integer_value(ctx->member_name, n);
             } else {
-                uintmax_t n = string_to_uint<uintmax_t>(first, last, & badpos, 10);
+                uintmax_t n = to_integral<uintmax_t>(first, last, ec, & badpos, 10);
 
                 if (badpos == last)
                     result = ctx->sax->on_uinteger_value(ctx->member_name, n);
@@ -535,7 +536,7 @@ struct grammar
         if (badpos != last) {
             last = ctx->number_ctx.exp_part.last;
 
-            real_t d = string_to_real<real_t>(first, last, '.', & badpos);
+            real_t d = to_real<real_t>(first, last, ec, '.', & badpos);
 
             if (badpos == last)
                 result = ctx->sax->on_real_value(ctx->member_name, d);

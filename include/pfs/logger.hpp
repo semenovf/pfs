@@ -9,6 +9,7 @@
 #include <pfs/filesystem.hpp>
 #include <pfs/string.hpp>
 #include <pfs/list.hpp>
+#include <pfs/integral.hpp>
 
 namespace pfs {
 
@@ -481,11 +482,10 @@ protected:
 
                 if (first != last) {
                     string_type n(first, last);
-                    try {
-                        ctx->spec.min_width = lexical_cast<size_t>(n);
-                    } catch (...) {
-                        ;
-                    }
+                    error_code ec;
+                    ctx->spec.min_width = to_integral<size_t>(n, ec);
+                    if(ec)
+                        ctx->spec.min_width = 0;
                 }
             }
             return true;
@@ -498,11 +498,11 @@ protected:
 
                 if (first != last) {
                     string_type n(first, last);
-                    try {
-                        ctx->spec.max_width = lexical_cast<size_t>(n);
-                    } catch (...) {
-                        ;
-                    }
+                    error_code ec;
+                    ctx->spec.max_width = to_integral<size_t>(n, ec);
+
+                    if (ec)
+                        ctx->spec.max_width = numeric_limits<size_t>::max();
                 }
             }
             return true;

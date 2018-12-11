@@ -1,6 +1,7 @@
 #pragma once
 #include <pfs/cxxlang.hpp>
 #include <pfs/type_traits.hpp>
+#include <pfs/system_error.hpp>
 #include <pfs/string.hpp>
 
 /*
@@ -216,12 +217,12 @@ IntT parse_integral_part (CharIt first
                 radix = 8;
                 ++pos;
 
-                // No digits seen
-                if (pos == last) {
-                    pos = first;
-                    ec = make_error_code(errc::invalid_argument);
-                    break;
-                }
+//                 // No digits seen
+//                 if (pos == last) {
+//                     pos = first;
+//                     ec = make_error_code(errc::invalid_argument);
+//                     break;
+//                 }
             } else {
                 radix = 10;
             }
@@ -273,6 +274,16 @@ IntT parse_integral_part (CharIt first
     return result * sign;
 }
 
+template <typename IntT, typename CharIt>
+inline IntT to_integral (CharIt first
+        , CharIt last
+        , error_code & ec
+        , CharIt * endpos
+        , int radix)
+{
+    return parse_integral_part<IntT, CharIt>(first, last, ec, endpos, radix);
+}
+
 /**
  * @brief Interprets a signed integer value in the string str.
  *
@@ -296,6 +307,33 @@ IntT parse_integral_part (CharIt first
  *      if the prefix is @c 0, the base is octal, if the prefix is @b 0x
  *      or @b 0X, the base is hexadecimal, otherwise the base is decimal.
  *
+ * @param first Start position of the sequence.
+ * @param last End position of the sequence.
+ * @param ec Reference to store error code.
+ * @param str_end Address of iterator to store position past the last character
+ *      interpreted. If @a str_end is NULL, it is ignored.
+ * @param radix Base of the interpreted integer value.
+ * @return Specified integer type value converted from string.
+ */
+template <typename IntT>
+IntT to_integral (string::const_iterator first
+        , string::const_iterator last
+        , error_code & ec
+        , string::const_iterator * str_end = 0, int radix = 10)
+{
+    string::const_iterator endpos;
+
+    IntT result = parse_integral_part<IntT>(first, last, ec, & endpos, radix);
+
+    if (str_end)
+        *str_end = endpos;
+
+    return result;
+}
+
+/**
+ * @brief Interprets a signed integer value in the string str.
+ *
  * @param str The string to convert
  * @param ec Reference to store error code.
  * @param str_end Address of iterator to store position past the last character
@@ -304,18 +342,10 @@ IntT parse_integral_part (CharIt first
  * @return Specified integer type value converted from string.
  */
 template <typename IntT>
-IntT to_integral (string const & str, error_code & ec
+inline IntT to_integral (string const & str, error_code & ec
         , string::const_iterator * str_end = 0, int radix = 10)
 {
-    string::const_iterator endpos;
-
-    IntT result = parse_integral_part<IntT>(
-            str.cbegin(), str.cend(), ec, & endpos, radix);
-
-    if (str_end)
-        str_end = endpos;
-
-    return result;
+    return to_integral<IntT>(str.cbegin(), str.cend(), ec, str_end, radix);
 }
 
 /**
@@ -338,10 +368,10 @@ IntT to_integral (string const & str, string::const_iterator * str_end = 0, int 
     error_code ec;
 
     IntT result = parse_integral_part<IntT>(
-            str.cbegin(), str.cend(), & endpos, radix, ec);
+            str.cbegin(), str.cend(), ec, & endpos, radix);
 
     if (str_end)
-        str_end = endpos;
+        *str_end = endpos;
 
     if (ec) {
         if (ec == make_error_code(errc::invalid_argument))
@@ -353,7 +383,6 @@ IntT to_integral (string const & str, string::const_iterator * str_end = 0, int 
 
     return result;
 }
-
 
 } // pfs
 

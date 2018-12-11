@@ -5,8 +5,8 @@
 #include <pfs/limits.hpp>
 #include <pfs/exception.hpp>
 #include <pfs/iterator.hpp>
-#include <pfs/lexical_cast.hpp>
 #include <pfs/string.hpp>
+#include <pfs/integral.hpp>
 
 //
 // [Formatted Output](http://www.qnx.com/developers/docs/6.5.0/topic/com.qnx.doc.dinkum_en_c99/lib_prin.html)
@@ -496,11 +496,11 @@ private:
                 ++_p;
 
             if (_p != first) {
-                const_iterator badpos;
-                conv_spec->field_width = string_to_int<int, const_iterator>(first, _p, & badpos, 10);
+                error_code ec;
+                conv_spec->field_width = to_integral<int>(first, _p, ec);
 
                 // bad value for field_width
-                if (badpos != _p)
+                if (ec)
                     conv_spec->good = false;
             }
         }
@@ -544,11 +544,11 @@ private:
                 ++_p;
 
             if (_p != first) {
-                const_iterator badpos;
-                conv_spec->prec = string_to_int<int, const_iterator>(first, _p, & badpos, 10);
+                error_code ec;
+                conv_spec->prec = to_integral<int>(first, _p, ec);
 
                 // bad value for precision
-                if (badpos != _p)
+                if (ec)
                     conv_spec->good = false;
             }
         }

@@ -19,7 +19,6 @@ set(PFS_LIB_COMMON_SOURCES
     dynamic_library.cpp
     endian.cpp
     json.cpp
-    lexical_cast.cpp
     rpc.cpp
     string.cpp
     system_error.cpp

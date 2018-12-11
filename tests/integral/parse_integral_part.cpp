@@ -51,7 +51,7 @@ struct test_data {
 };
 
 template <typename IntT>
-void run_tests (test_data<IntT> * data, int count)
+void run_syntatic_tests (test_data<IntT> * data, int count)
 {
     for (int i = 0; i < count; i++) {
         pfs::string str(data[i].s);
@@ -60,9 +60,9 @@ void run_tests (test_data<IntT> * data, int count)
 
         IntT result = pfs::parse_integral_part<IntT>(str.cbegin()
                 , str.cend()
+                , ec
                 , & endpos
-                , data[i].radix
-                , ec);
+                , data[i].radix);
 
         // multiplcation to 1 need to output char type
         // as number not as symbol
@@ -72,7 +72,32 @@ void run_tests (test_data<IntT> * data, int count)
     }
 }
 
-TEST_CASE("Parse integral part") {
+template <typename IntT>
+void run_generated_tests (int count)
+{
+    for (int radix = 2; radix <= 36; radix++) {
+        for (int i = 0; i < count; i++) {
+            pfs::string s = generate_integral_part(radix);
+            pfs::error_code ec;
+            char_iterator_type endpos;
+
+            IntT result = pfs::parse_integral_part<IntT>(s.cbegin()
+                    , s.cend()
+                    , ec
+                    , & endpos
+                    , radix);
+
+            std::cout << "source=\"" << s << '"'
+                    << " result=[" << 1 * result << ']'
+                    << " radix=" << radix
+                    << " endpos=" << pfs::distance(s.cbegin(), endpos)
+                    << " error=" << '"' <<  pfs::to_string(ec) << '"'
+                    << std::endl;
+        }
+    }
+}
+
+TEST_CASE("Tests on predefined sources") {
     std::srand(std::time(0));
 
     SECTION("signed char") {
@@ -85,29 +110,12 @@ TEST_CASE("Parse integral part") {
             , { "-128", 10, 4, pfs::error_code(), -128 }
         };
 
-        run_tests<signed char>(data, sizeof(data) / sizeof(data[0]));
+        run_syntatic_tests<signed char>(data, sizeof(data) / sizeof(data[0]));
     }
+}
 
-    typedef signed char IntType;
-
-    for (int radix = 2; radix <= 36; radix++) {
-        for (int i = 0; i < 10; i++) {
-            pfs::string s = generate_integral_part(radix);
-            pfs::error_code ec;
-            char_iterator_type endpos;
-
-            IntType result = pfs::parse_integral_part<IntType>(s.cbegin()
-                    , s.cend()
-                    , & endpos
-                    , radix
-                    , ec);
-
-            std::cout << "source=\"" << s << '"'
-                    << " result=[" << 1 * result << ']'
-                    << " radix=" << radix
-                    << " endpos=" << pfs::distance(s.cbegin(), endpos)
-                    << " error=" << '"' <<  pfs::to_string(ec) << '"'
-                    << std::endl;
-        }
-    }
+TEST_CASE("Tests on generated sources") {
+    run_generated_tests<signed char>(10);
+    run_generated_tests<char>(10);
+    run_generated_tests<long>(10);
 }
