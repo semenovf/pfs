@@ -98,6 +98,91 @@ CharIt parse_digits (CharIt first, CharIt last, int radix, Container<DigitType> 
     return pos;
 }
 
+template <typename CharIt>
+bool parse_integral_part_helper (CharIt & pos
+        , CharIt last
+        , error_code & ec
+        , int & radix
+        , int & sign
+        , bool & digits_found)
+{
+    typedef typename iterator_traits<CharIt>::value_type value_type;
+
+    // Bad radix
+    if (radix != 0 && (radix < 2 || radix > 36)) {
+        ec = make_error_code(errc::invalid_argument);
+        return false;
+    }
+
+    // Empty sequence
+    if (pos == last) {
+        ec = make_error_code(errc::invalid_argument);
+        return false;
+    }
+
+    // Skip white spaces
+    while (pos != last && pfs::is_space(*pos))
+        ++pos;
+
+    // No digits seen
+    if (pos == last) {
+        ec = make_error_code(errc::invalid_argument);
+        return false;
+    }
+
+    value_type c = *pos;
+
+    // Sign
+    if (c == value_type('+') || c == value_type('-')) {
+        ++pos;
+
+        // No digits seen
+        if (pos == last) {
+            ec = make_error_code(errc::invalid_argument);
+            return false;
+        }
+
+        if (c == value_type('-'))
+            sign = -1;
+    }
+
+    // Determine radix
+    if (radix == 0 || radix == 16) {
+        CharIt nextpos = pos;
+        ++nextpos;
+
+        if (nextpos != last) {
+            if (*pos == value_type('0')
+                    && (*nextpos == value_type('x')
+                        || *nextpos == value_type('X'))) {
+                radix = 16;
+                ++pos;
+                ++pos;
+
+                // No digits seen
+                if (pos == last) {
+                    ec = make_error_code(errc::invalid_argument);
+                    return false;
+                }
+            }
+        }
+    }
+
+    // Determine radix (continue)
+    if (radix == 0 || radix == 8) {
+        if (*pos == value_type('0')) {
+            radix = 8;
+            ++pos;
+            digits_found = true;
+        }
+    }
+
+    if (radix == 0)
+        radix = 10;
+
+    return true;
+}
+
 /**
  * @brief Parse integral part from the character sequence.
  * @param first Character sequence begin position.
@@ -139,104 +224,28 @@ IntT parse_integral_part (CharIt first
     int sign = 1;
     CharIt pos = first;
     ec.clear();
+    bool digits_found = false;
 
-    do {
-        // Bad radix
-        if (radix != 0 && (radix < 2 || radix > 36)) {
-            ec = make_error_code(errc::invalid_argument);
-            break;
-        }
-
-        // Empty sequence
-        if (first == last) {
-            ec = make_error_code(errc::invalid_argument);
-            break;
-        }
-
-        // Skip white spaces
-        while (pos != last && pfs::is_space(*pos))
-            ++pos;
-
-        // No digits seen
-        if (pos == last) {
-            pos = first;
-            ec = make_error_code(errc::invalid_argument);
-            break;
-        }
-
-        value_type c = *pos;
-
-        // Sign
-        if (c == value_type('+') || c == value_type('-')) {
-            ++pos;
-
-            // No digits seen
-            if (pos == last) {
-                pos = first;
-                ec = make_error_code(errc::invalid_argument);
-                break;
-            }
-
-            if (c == value_type('-'))
-                sign = -1;
-        }
-
-        // Expected unsigned integer
-        if (sign < 0 && numeric_limits<IntT>::min() >= 0) {
-            pos = first;
-            ec = make_error_code(errc::invalid_argument);
-            break;
-        }
-
-        // Determine radix
-        if (radix == 0 || radix == 16) {
-            CharIt nextpos = pos;
-            ++nextpos;
-
-            if (nextpos != last) {
-                if (*pos == value_type('0')
-                        && (*nextpos == value_type('x')
-                            || *nextpos == value_type('X'))) {
-                    radix = 16;
-                    ++pos;
-                    ++pos;
-
-                    // No digits seen
-                    if (pos == last) {
-                        pos = first;
-                        ec = make_error_code(errc::invalid_argument);
-                        break;
-                    }
-                }
-            }
-        }
-
-        // Determine radix (continue)
-        if (radix == 0 || radix == 8) {
-            if (*pos == value_type('0')) {
-                radix = 8;
-                ++pos;
-
-//                 // No digits seen
-//                 if (pos == last) {
-//                     pos = first;
-//                     ec = make_error_code(errc::invalid_argument);
-//                     break;
-//                 }
-            } else {
-                radix = 10;
-            }
-        }
+    if (parse_integral_part_helper<CharIt>(pos
+                , last
+                , ec
+                , radix
+                , sign
+                , digits_found)) {
 
         IntT cutoff_value = 0;
         IntT cutoff_limit = 0;
 
-        if (sign > 0) {
+        //if (sign > 0) {
+        if (is_unsigned<IntT>::value) {
             cutoff_value = numeric_limits<IntT>::max() / radix;
             cutoff_limit = numeric_limits<IntT>::max() % radix;
         } else {
-            cutoff_value = -1 * numeric_limits<IntT>::min() / radix;
-            cutoff_limit = -1 * numeric_limits<IntT>::min() % radix;
+            cutoff_value = numeric_limits<IntT>::min() / radix;
+            cutoff_limit = numeric_limits<IntT>::min() % radix;
+
+            cutoff_value *= -1;
+            cutoff_limit *= -1;
         }
 
         for (; pos != last; ++pos) {
@@ -253,25 +262,37 @@ IntT parse_integral_part (CharIt first
             } else {
                 break;
             }
+
+            digits_found = true;
         }
 
         if (parse_digit<CharIt>(pos, radix) >= 0) {
             ec = make_error_code(errc::result_out_of_range);
 
-            if (sign > 0)
+            if (is_unsigned<IntT>::value) {
                 result = numeric_limits<IntT>::max();
-            else
-                result = numeric_limits<IntT>::min();
+            } else {
+                if (sign > 0)
+                    result = numeric_limits<IntT>::max();
+                else
+                    result = numeric_limits<IntT>::min();
+            }
 
             while (parse_digit<CharIt>(pos, radix) >= 0)
                 ++pos;
+        } else {
+           result *= sign;
         }
-    } while (false);
+    }
 
-    if (endpos)
-        *endpos = pos;
+    if (endpos) {
+        if (digits_found)
+            *endpos = pos;
+        else
+            *endpos = first;
+    }
 
-    return result * sign;
+    return result;
 }
 
 template <typename IntT, typename CharIt>
