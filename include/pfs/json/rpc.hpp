@@ -307,6 +307,13 @@ struct rpc
             return this->_j.contains("params");
         }
 
+        size_type param_count () const
+        {
+            return has_params()
+                    ? this->_j["params"].size()
+                    : 0;
+        }
+
         /**
          * @throw json_exception if parameter by @a index not found.
          */
