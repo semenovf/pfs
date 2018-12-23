@@ -88,6 +88,8 @@ if(Boost_FOUND)
     if(EXISTS ${Boost_INCLUDE_DIR}/boost/optional.hpp)
         set(HAVE_BOOST_OPTIONAL 1)
     endif()
+else()    
+    include_directories(${CMAKE_CURRENT_LIST_DIR}/3rdparty)
 endif(Boost_FOUND)
 
 # [CMake with Qt4](https://wiki.qt.io/Using_CMake_build_system)
