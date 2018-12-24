@@ -3,8 +3,11 @@
 
 namespace pfs {
 
+void base64_encode (char const * first, char const * last, byte_string & result);
+void base64_encode (char const * first, char const * last, string & result);
 void base64_encode (byte_string const & src, byte_string & result);
 void base64_encode (byte_string const & src, string & result);
+void base64_decode (char const * first, char const * last, byte_string & result);
 void base64_decode (byte_string const & src, byte_string & result);
 void base64_decode (string const & src, byte_string & result);
 

@@ -1,5 +1,21 @@
+#include <cstring>
 #include <pfs/base64.hpp>
 #include "../catch.hpp"
+
+template <typename Container>
+bool compare_raw_encoded (char const * src, char const * result)
+{
+    Container out;
+    pfs::base64_encode(src, src + std::strlen(src), out);
+    return out == Container(result);
+}
+
+bool compare_raw_decoded (char const * src, char const * result)
+{
+    pfs::byte_string out;
+    pfs::base64_decode(src, src + std::strlen(src), out);
+    return out == pfs::byte_string(result);
+}
 
 template <typename Container>
 bool compare_encoded (char const * src, char const * result)
@@ -24,7 +40,9 @@ bool compare_decoded (char const * src, char const * result)
 template <typename Container>
 bool check_codec (char const * src, char const * result)
 {
-    return compare_encoded<Container>(src, result)
+    return compare_raw_encoded<Container>(src, result)
+            && compare_raw_decoded(result, src)
+            && compare_encoded<Container>(src, result)
             && compare_decoded<Container>(result, src);
 }
 

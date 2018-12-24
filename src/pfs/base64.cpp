@@ -1,3 +1,4 @@
+#include "pfs/assert.hpp"
 #include "pfs/iterator.hpp"
 #include "pfs/base64.hpp"
 
@@ -7,34 +8,27 @@
 
 namespace pfs {
 
-template <typename Container>
-void __base64_encode (byte_string const & src, Container & result)
+template <typename InputIt, typename OutputIt>
+void __base64_encode (InputIt first, InputIt last, OutputIt out)
 {
     static const char alphabet[] = "ABCDEFGH" "IJKLMNOP" "QRSTUVWX" "YZabcdef"
                     "ghijklmn" "opqrstuv" "wxyz0123" "456789+/";
     static const char padchar = '=';
     int padlen = 0;
-    size_t sz = src.size();
 
-    result.clear();
-    result.reserve((sz * 4) / 3 + 3);
-    back_insert_iterator<Container> out = pfs::back_inserter(result);
-
-    size_t i = 0;
-    byte_string::const_pointer d = src.data();
-
-    while (i < sz) {
+    while (first != last) {
         int chunk = 0;
-            chunk |= int(d[i++]) << 16;
-        if (i == sz) {
+        chunk |= int(*first++) << 16;
+
+        if (first == last) {
             padlen = 2;
         } else {
-            chunk |= int(d[i++]) << 8;
+            chunk |= int(*first++) << 8;
 
-            if (i == sz)
+            if (first == last)
                 padlen = 1;
             else
-                chunk |= int(d[i++]);
+                chunk |= int(*first++);
         }
 
         int j = (chunk & 0x00fc0000) >> 18;
@@ -56,19 +50,20 @@ void __base64_encode (byte_string const & src, Container & result)
     }
 }
 
-template <typename Container>
-void __base64_decode (Container const & src, byte_string & result)
+template <typename InputIt>
+void __base64_decode (InputIt first, InputIt last, byte_string & result)
 {
-   size_t sz = src.size();
+    typename pfs::iterator_traits<InputIt>::difference_type sz
+            = pfs::distance(first, last);
+    PFS_ASSERT(sz >= 0);
 
-    result.clear();
-    result.reserve((sz * 3) / 4);
+    result.reserve(result.size() + (sz * 3) / 4);
 
     unsigned int buf = 0;
     int nbits = 0;
 
-    for (size_t i = 0; i < sz; ++i) {
-        int ch = src.at(i);
+    for (; first != last; ++first) {
+        int ch = static_cast<int>(*first);
         int d = -1;
 
         if (ch >= 'A' && ch <= 'Z')
@@ -94,27 +89,54 @@ void __base64_decode (Container const & src, byte_string & result)
         }
     }
 
-    result.resize(result.size());
+    //result.resize(result.size());
+}
+
+template <typename InputIt, typename ResultContainer>
+void __base64_encode_container (InputIt first, InputIt last, ResultContainer & result)
+{
+    typename pfs::iterator_traits<InputIt>::difference_type sz
+            = pfs::distance(first, last);
+    PFS_ASSERT(sz >= 0);
+    result.reserve(result.size() + (sz * 4) / 3 + 3);
+    back_insert_iterator<ResultContainer> out = pfs::back_inserter(result);
+
+    __base64_encode(first, last, out);
+}
+
+void base64_encode (char const * first, char const * last, byte_string & result)
+{
+    __base64_encode_container(first, last, result);
+}
+
+void base64_encode (char const * first, char const * last, string & result)
+{
+    __base64_encode_container(first, last, result);
 }
 
 void base64_encode (byte_string const & src, byte_string & result)
 {
-    __base64_encode(src, result);
+    __base64_encode_container(src.cbegin(), src.cend(), result);
 }
 
 void base64_encode (byte_string const & src, string & result)
 {
-    __base64_encode(src, result);
+    __base64_encode_container(src.cbegin(), src.cend(), result);
+}
+
+void base64_decode (char const * first, char const * last, byte_string & result)
+{
+    __base64_decode(first, last, result);
 }
 
 void base64_decode (byte_string const & src, byte_string & result)
 {
-    __base64_decode(src, result);
+    __base64_decode(src.cbegin(), src.cend(), result);
 }
 
 void base64_decode (string const & src, byte_string & result)
 {
-    __base64_decode(src, result);
+    __base64_decode(src.cbegin(), src.cend(), result);
 }
 
 } // namespace pfs
