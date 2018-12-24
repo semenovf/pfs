@@ -9,7 +9,7 @@ class directory_entry : public ::boost::filesystem::directory_entry
     typedef ::boost::filesystem::directory_entry base_class;
 
 public:
-    directory_entry () pfs_noexcept
+    directory_entry () noexcept
         : base_class()
     {}
 

@@ -56,17 +56,17 @@ public:
 
     error_code connect (filesystem::path const & filename);
 
-    virtual bool reopen () pfs_override;
+    virtual bool reopen () override;
 
-    virtual open_mode_flags open_mode () const pfs_override;
+    virtual open_mode_flags open_mode () const override;
 
-    virtual ssize_t available () const pfs_override;
+    virtual ssize_t available () const override;
 
-    virtual ssize_t read (byte_t * bytes, size_t n) pfs_override;
+    virtual ssize_t read (byte_t * bytes, size_t n) override;
 
-    virtual ssize_t write (const byte_t * bytes, size_t n) pfs_override;
+    virtual ssize_t write (const byte_t * bytes, size_t n) override;
 
-    virtual bool close () pfs_override
+    virtual bool close () override
     {
         bool r = true;
         if (close_socket(_fd) != 0) {
@@ -77,35 +77,35 @@ public:
         return r;
     }
 
-    virtual bool opened () const pfs_override
+    virtual bool opened () const override
     {
     	return _fd >= 0;
     }
 
-    virtual void flush () pfs_override
+    virtual void flush () override
     {}
 
-    virtual bool set_nonblocking (bool on) pfs_override
+    virtual bool set_nonblocking (bool on) override
     {
         return pfs::io::set_nonblocking(_fd, on);
     }
 
-    virtual bool is_nonblocking () const pfs_override
+    virtual bool is_nonblocking () const override
     {
         return pfs::io::is_nonblocking(_fd);
     }
 
-    virtual native_handle_type native_handle () const pfs_override
+    virtual native_handle_type native_handle () const override
     {
         return _fd;
     }
 
-    virtual device_type type () const pfs_override
+    virtual device_type type () const override
     {
         return device_local_socket;
     }
 
-    virtual string_type url () const pfs_override
+    virtual string_type url () const override
     {
         return local_socket_url("local", _sockaddr);
     }
@@ -126,14 +126,14 @@ public:
         ::memcpy(& _sockaddr, & sockaddr, sizeof(_sockaddr));
     }
 
-    virtual device_type type () const pfs_override
+    virtual device_type type () const override
     {
         return device_local_peer;
     }
 
     // Reimplemented to avoid descriptor closing
     //
-    virtual bool close () pfs_override
+    virtual bool close () override
     {
         // Really descriptor cannot be closed,
         // it still used by server

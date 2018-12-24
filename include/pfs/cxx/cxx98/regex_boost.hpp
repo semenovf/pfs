@@ -30,7 +30,7 @@ class sub_match : public ::boost::sub_match<typename StringType::const_pointer>
     typedef ::boost::sub_match<typename StringType::const_pointer> base_class;
 
 public:
-    pfs_constexpr sub_match () : base_class() { }
+    constexpr sub_match () : base_class() { }
 
     operator StringType () const
     {

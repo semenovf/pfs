@@ -6,31 +6,31 @@
 #endif
 
 // // TODO DEPRECATED
-// #ifdef pfs_constexpr
-// #   undef pfs_constexpr
+// #ifdef constexpr
+// #   undef constexpr
 // #endif
-// 
+//
 // // TODO DEPRECATED
-// #ifdef pfs_noexcept
-// #   undef pfs_noexcept
+// #ifdef noexcept
+// #   undef noexcept
 // #endif
-// 
+//
 // // TODO DEPRECATED
-// #ifdef pfs_override
-// #   undef pfs_override
+// #ifdef override
+// #   undef override
 // #endif
-// 
+//
 // // TODO DEPRECATED
 // #if __cplusplus >= 201103L
-// #   define pfs_constexpr           constexpr
-// #   define pfs_noexcept            noexcept
+// #   define constexpr           constexpr
+// #   define noexcept            noexcept
 // #   define pfs_noexcept_expr(expr) noexcept(expr)
-// #   define pfs_override            override
+// #   define override            override
 // #else
-// #   define pfs_constexpr
-// #   define pfs_noexcept
+// #   define constexpr
+// #   define noexcept
 // #   define pfs_noexcept_expr(expr)
-// #   define pfs_override
+// #   define override
 // #endif
 
 #ifdef constexpr

@@ -138,17 +138,17 @@ public:
     // *** CAPACITY ***
     //
 
-    size_type size () const pfs_noexcept
+    size_type size () const noexcept
     {
         return _p->size();
     }
 
-    size_type max_size () const pfs_noexcept
+    size_type max_size () const noexcept
     {
         return _p->max_size();
     }
 
-    bool empty () const pfs_noexcept
+    bool empty () const noexcept
     {
         return _p->empty();
     }
@@ -352,7 +352,7 @@ public:
 //        : base_class(rhs)
 //    {}
 //
-//    size_type max_size () const pfs_noexcept
+//    size_type max_size () const noexcept
 //    {
 //        return ((INT_MAX)/sizeof(T) - sizeof(native_type)) / 2; // FIXME
 //    }
@@ -375,11 +375,11 @@ struct map_iterator : public QMap<Key, T>::iterator
 {
     typedef typename QMap<Key, T>::iterator base_type;
 
-    map_iterator () pfs_noexcept
+    map_iterator () noexcept
         : base_type()
     {}
 
-    map_iterator (base_type lhs) pfs_noexcept
+    map_iterator (base_type lhs) noexcept
         : base_type(lhs)
     {}
 };
@@ -389,11 +389,11 @@ struct map_const_iterator : public QMap<Key, T>::const_iterator
 {
     typedef typename QMap<Key, T>::const_iterator base_type;
 
-    map_const_iterator () pfs_noexcept
+    map_const_iterator () noexcept
         : base_type()
     {}
 
-    map_const_iterator (base_type lhs) pfs_noexcept
+    map_const_iterator (base_type lhs) noexcept
         : base_type(lhs)
     {}
 };

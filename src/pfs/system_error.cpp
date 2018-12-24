@@ -10,11 +10,11 @@ namespace detail {
 class generic_category : public std::error_category
 {
 public:
-    virtual char const * name () const pfs_noexcept pfs_override
+    virtual char const * name () const noexcept override
     {
         return ::boost::system::generic_category().name();
     }
-    virtual std::string message (int value) const pfs_override
+    virtual std::string message (int value) const override
     {
         return ::boost::system::generic_category().message(value);
     }
@@ -23,11 +23,11 @@ public:
 class system_category : public std::error_category
 {
 public:
-    virtual char const * name () const pfs_noexcept pfs_override
+    virtual char const * name () const noexcept override
     {
         return ::boost::system::system_category().name();
     }
-    virtual std::string message (int value) const pfs_override
+    virtual std::string message (int value) const override
     {
         return ::boost::system::system_category().message(value);
     }

@@ -31,7 +31,7 @@ public:
         : base_class(rhs)
     {}
 
-    size_type max_size () const pfs_noexcept
+    size_type max_size () const noexcept
     {
         return ((INT_MAX)/sizeof(T) - sizeof(native_type));
     }

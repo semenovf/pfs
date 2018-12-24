@@ -12,15 +12,15 @@ class duration : public ::boost::chrono::duration<Rep, Period>
     typedef ::boost::chrono::duration<Rep, Period> base_class;
 
 public:
-    pfs_constexpr duration () : base_class() {}
+    constexpr duration () : base_class() {}
 
     template <typename Rep2>
-    pfs_constexpr explicit duration (Rep2 const & r)
+    constexpr explicit duration (Rep2 const & r)
         : base_class(r)
     {}
 
     template <typename Rep2, typename Period2>
-    pfs_constexpr duration (duration<Rep2, Period2> const & d)
+    constexpr duration (duration<Rep2, Period2> const & d)
         : base_class(d)
     {}
 
@@ -37,14 +37,14 @@ class time_point : public ::boost::chrono::time_point<Clock, Duration>
     typedef ::boost::chrono::time_point<Clock, Duration> base_class;
 
 public:
-    pfs_constexpr time_point () : base_class() {}
+    constexpr time_point () : base_class() {}
     
-    pfs_constexpr explicit time_point (Duration const & d)
+    constexpr explicit time_point (Duration const & d)
         : base_class(d)
     {}
 
     template <typename Duration2>
-    pfs_constexpr time_point (time_point<Clock, Duration2> const & t)
+    constexpr time_point (time_point<Clock, Duration2> const & t)
         : base_class(t)
     {}
 };

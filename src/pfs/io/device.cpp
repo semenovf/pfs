@@ -8,7 +8,7 @@ static const ssize_t DEFAULT_READ_BUFSZ = 256;
 
 namespace details {
 
-ssize_t device::read_wait (byte_t * bytes, size_t n, error_code & ec, int millis) pfs_noexcept
+ssize_t device::read_wait (byte_t * bytes, size_t n, error_code & ec, int millis) noexcept
 {
     byte_t buffer[DEFAULT_READ_BUFSZ];
     size_t total = 0;
@@ -47,7 +47,7 @@ ssize_t device::read_wait (byte_t * bytes, size_t n, error_code & ec, int millis
     return is_error(ec) ? -1 : total;
 }
 
-ssize_t device::read_wait (byte_string & bytes, size_t n, error_code  & ec, int millis) pfs_noexcept
+ssize_t device::read_wait (byte_string & bytes, size_t n, error_code  & ec, int millis) noexcept
 {
     byte_t buffer[DEFAULT_READ_BUFSZ];
     size_t total = 0;

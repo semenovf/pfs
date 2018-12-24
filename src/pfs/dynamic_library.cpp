@@ -3,7 +3,7 @@
 namespace pfs {
 
 namespace details {
-char const * dynamic_library_category::name () const pfs_noexcept
+char const * dynamic_library_category::name () const noexcept
 {
     return "dynamic_library_category";
 }

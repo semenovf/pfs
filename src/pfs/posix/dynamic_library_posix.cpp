@@ -78,7 +78,7 @@ bool dynamic_library::open (filesystem::path const & p, error_code & ec)
 
 bool dynamic_library::open (filesystem::path const & p
         , filesystem::pathlist const & searchdirs
-        , error_code & ec) pfs_noexcept
+        , error_code & ec) noexcept
 {
     dynamic_library::native_handle_type h(0);
 
@@ -132,7 +132,7 @@ bool dynamic_library::open (filesystem::path const & p
 
 
 dynamic_library::symbol_type dynamic_library::resolve (char const * symbol_name
-        , error_code & ec) pfs_noexcept
+        , error_code & ec) noexcept
 {
     // clear error
     ::dlerror();
@@ -157,7 +157,7 @@ dynamic_library::symbol_type dynamic_library::resolve (char const * symbol_name)
     return sym;
 }
 
-filesystem::path build_so_filename (string const & name) pfs_noexcept
+filesystem::path build_so_filename (string const & name) noexcept
 {
     filesystem::path p("lib");
     p += name.utf8();

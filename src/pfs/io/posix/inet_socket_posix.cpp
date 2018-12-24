@@ -187,7 +187,7 @@ error_code tcp_socket::connect (uint32_t addr, uint16_t port)
     return ec;
 }
 
-ssize_t tcp_socket::read (byte_t * bytes, size_t n, error_code & ec) pfs_noexcept
+ssize_t tcp_socket::read (byte_t * bytes, size_t n, error_code & ec) noexcept
 {
     PFS_ASSERT(_fd >= 0);
 
@@ -206,7 +206,7 @@ ssize_t tcp_socket::read (byte_t * bytes, size_t n, error_code & ec) pfs_noexcep
     return r;
 }
 
-ssize_t tcp_socket::write (byte_t const * bytes, size_t nbytes, error_code & ec) pfs_noexcept
+ssize_t tcp_socket::write (byte_t const * bytes, size_t nbytes, error_code & ec) noexcept
 {
     PFS_ASSERT(_fd >= 0);
 
@@ -255,7 +255,7 @@ error_code udp_socket::connect (uint32_t addr, uint16_t port)
     return error_code();
 }
 
-ssize_t udp_socket::read (byte_t * bytes, size_t n, error_code & ec) pfs_noexcept
+ssize_t udp_socket::read (byte_t * bytes, size_t n, error_code & ec) noexcept
 {
     PFS_ASSERT(_fd >= 0);
 
@@ -275,7 +275,7 @@ ssize_t udp_socket::read (byte_t * bytes, size_t n, error_code & ec) pfs_noexcep
     return r;
 }
 
-ssize_t udp_socket::write (byte_t const * bytes, size_t nbytes, error_code & ec) pfs_noexcept
+ssize_t udp_socket::write (byte_t const * bytes, size_t nbytes, error_code & ec) noexcept
 {
     PFS_ASSERT(_fd >= 0);
 

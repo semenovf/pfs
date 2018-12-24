@@ -114,17 +114,17 @@ struct errc
     }
 };
 
-inline error_category const & system_category () pfs_noexcept
+inline error_category const & system_category () noexcept
 {
     return ::boost::system::system_category();
 }
 
-inline error_category const & generic_category () pfs_noexcept
+inline error_category const & generic_category () noexcept
 {
     return ::boost::system::generic_category();
 }
 
-inline error_code make_error_code (errc e) pfs_noexcept
+inline error_code make_error_code (errc e) noexcept
 {
     return error_code(e, generic_category());
 }

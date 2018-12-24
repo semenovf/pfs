@@ -62,8 +62,8 @@ namespace details {
 class rpc_error_category : public pfs::error_category
 {
 public:
-    virtual char const * name () const pfs_noexcept pfs_override;
-    virtual std::string message (int ev) const pfs_override;
+    virtual char const * name () const noexcept override;
+    virtual std::string message (int ev) const override;
 };
 } // details
 
@@ -351,7 +351,7 @@ struct rpc
         {
             pfs::function<F> _f;
             binder (pfs::function<F> f) : _f(f) {}
-            virtual error_code operator () (serializer_type & out, serializer_type const & in) pfs_override
+            virtual error_code operator () (serializer_type & out, serializer_type const & in) override
             {
                 return error_code();
             }
@@ -366,7 +366,7 @@ struct rpc
 //
 //             binder (F f) : _f(boost::bind<F>(f)) {}
 //
-//             virtual error_code operator () (serializer_type & out, serializer_type const & in) pfs_override
+//             virtual error_code operator () (serializer_type & out, serializer_type const & in) override
 //             {
 //                 if (in.has_params())
 //                     return make_error_code(rpc_errc::invalid_params);
@@ -420,7 +420,7 @@ struct rpc
 //                 : _f(f)
 //                 , _args(a1, a2, a3, a4, a5, a6, a7, a8, a9) {}
 //
-//             error_code operator () (serializer_type & out, serializer_type const & in) pfs_override
+//             error_code operator () (serializer_type & out, serializer_type const & in) override
 //             {
 //                 if ()
 //
@@ -441,7 +441,7 @@ struct rpc
 //             F _f;
 //             binder1 (F f) : _f(f) {}
 //
-//             virtual error_code operator () (R & result, serializer_type & serializer) pfs_override
+//             virtual error_code operator () (R & result, serializer_type & serializer) override
 //             {
 //                 A1 a1;
 //
@@ -461,7 +461,7 @@ struct rpc
 //             F _f;
 //             binder2 (F f) : _f(f) {}
 //
-//             virtual error_code operator () (R & result, serializer_type & serializer) pfs_override
+//             virtual error_code operator () (R & result, serializer_type & serializer) override
 //             {
 //                 A1 a1;
 //                 A2 a2;
@@ -484,7 +484,7 @@ struct rpc
 //             F _f;
 //             binder3 (F f) : _f(f) {}
 //
-//             virtual error_code operator () (R & result, serializer_type & serializer) pfs_override
+//             virtual error_code operator () (R & result, serializer_type & serializer) override
 //             {
 //                 A1 a1;
 //                 A2 a2;

@@ -333,13 +333,13 @@ struct rpc
         }
 
         template <typename T>
-        T get (int index, T const & default_value) const pfs_noexcept
+        T get (int index, T const & default_value) const noexcept
         {
             return pfs::json::cref(this->_j)["params"][index].template get<T>(default_value);
         }
 
         template <typename T>
-        T get (string_type const & name, T const & default_value) const pfs_noexcept
+        T get (string_type const & name, T const & default_value) const noexcept
         {
             return pfs::json::cref(this->_j)["params"][name].template get<T>(default_value);
         }
@@ -505,7 +505,7 @@ struct rpc
          * @return String providing a short description of the error.
          * @note The message should be limited to a concise single sentence.
          */
-        string_type message () const pfs_noexcept
+        string_type message () const noexcept
         {
             return pfs::json::cref(this->_j)["error"]["message"].get_string();
         }

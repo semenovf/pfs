@@ -26,12 +26,12 @@ struct basic_file : public details::device
 
     basic_file () : _fd(-1) {}
 
-    virtual bool opened () const pfs_override
+    virtual bool opened () const override
     {
         return _fd >= 0;
     }
 
-    virtual void flush () pfs_override
+    virtual void flush () override
     {
 #if PFS_CC_GCC
         ::fsync(_fd);
@@ -40,12 +40,12 @@ struct basic_file : public details::device
 #endif
     }
 
-    virtual native_handle_type native_handle () const pfs_override
+    virtual native_handle_type native_handle () const override
     {
         return _fd;
     }
 
-    virtual bool set_nonblocking (bool on) pfs_override
+    virtual bool set_nonblocking (bool on) override
     {
         int flags = fcntl(_fd, F_GETFL, 0);
         if (on)
@@ -55,12 +55,12 @@ struct basic_file : public details::device
         return fcntl(_fd, F_SETFL, flags) >= 0;
     }
 
-    virtual bool is_nonblocking () const pfs_override
+    virtual bool is_nonblocking () const override
     {
         return pfs::io::is_nonblocking(_fd);
     }
 
-    virtual ssize_t read (byte_t * bytes, size_t n, error_code & ec) pfs_noexcept pfs_override
+    virtual ssize_t read (byte_t * bytes, size_t n, error_code & ec) noexcept override
     {
         ssize_t sz = ::read(_fd, bytes, n);
 
@@ -70,7 +70,7 @@ struct basic_file : public details::device
         return sz;
     }
 
-    virtual ssize_t write (const byte_t * bytes, size_t n, error_code & ec) pfs_noexcept pfs_override
+    virtual ssize_t write (const byte_t * bytes, size_t n, error_code & ec) noexcept override
     {
         ssize_t sz = ::write(_fd, bytes, n);
 
@@ -109,7 +109,7 @@ struct standard_stream : basic_file
         return error_code();
     }
 
-    virtual error_code close () pfs_override
+    virtual error_code close () override
     {
         error_code ec;
 
@@ -122,7 +122,7 @@ struct standard_stream : basic_file
         return ec;
     }
 
-    virtual error_code reopen () pfs_override
+    virtual error_code reopen () override
     {
         error_code ec;
 
@@ -132,7 +132,7 @@ struct standard_stream : basic_file
         return ec;
     }
 
-    virtual open_mode_flags open_mode () const pfs_override
+    virtual open_mode_flags open_mode () const override
     {
         // stdin
         if (_orig_fd == 0)
@@ -144,7 +144,7 @@ struct standard_stream : basic_file
         return not_open;
     }
 
-    virtual ssize_t available () const pfs_override
+    virtual ssize_t available () const override
     {
         PFS_ASSERT(_fd >= 0);
         int n = 0;
@@ -157,12 +157,12 @@ struct standard_stream : basic_file
         return static_cast<ssize_t> (n);
     }
 
-    virtual device_type type () const pfs_override
+    virtual device_type type () const override
     {
         return device_stream;
     }
 
-    virtual string url () const pfs_override
+    virtual string url () const override
     {
         string r("stream://");
         if (_orig_fd == 0)
@@ -213,7 +213,7 @@ struct file : basic_file
         return ec;
     }
 
-    virtual error_code close () pfs_override
+    virtual error_code close () override
     {
         error_code ec;
 
@@ -226,7 +226,7 @@ struct file : basic_file
         return ec;
     }
 
-    virtual error_code reopen () pfs_override
+    virtual error_code reopen () override
     {
         error_code ec;
 
@@ -236,7 +236,7 @@ struct file : basic_file
         return ec;
     }
 
-    virtual open_mode_flags open_mode () const pfs_override
+    virtual open_mode_flags open_mode () const override
     {
         details::device::open_mode_flags r = 0;
 
@@ -251,7 +251,7 @@ struct file : basic_file
         return r;
     }
 
-    virtual ssize_t available () const pfs_override
+    virtual ssize_t available () const override
     {
         PFS_ASSERT(_fd >= 0);
 
@@ -275,12 +275,12 @@ struct file : basic_file
         return static_cast<ssize_t>(total - cur);
     }
 
-    virtual device_type type () const pfs_override
+    virtual device_type type () const override
     {
         return device_file;
     }
 
-    virtual string url () const pfs_override
+    virtual string url () const override
     {
         string r("file:/");
         r.append(path.native());

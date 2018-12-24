@@ -46,13 +46,13 @@ struct hello_command : pfs::command
         output = out;
     }
 
-    virtual void exec () const pfs_override
+    virtual void exec () const override
     {
         (*output) << "Hello, " << _name << "!\n";
         std::cout << "Hello, " << _name << "!\n";
     }
 
-    virtual void undo () const pfs_override
+    virtual void undo () const override
     {
         (*output) << "Bye, " << _name << "!\n";
         std::cout << "Bye, " << _name << "!\n";

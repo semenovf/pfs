@@ -63,7 +63,7 @@ public:
     }
 };
 
-inline bool exists (path const & p, error_code & ec) pfs_noexcept
+inline bool exists (path const & p, error_code & ec) noexcept
 {
     ::boost::system::error_code boost_ec;
     bool r = ::boost::filesystem::exists(p, boost_ec);
@@ -76,7 +76,7 @@ inline bool exists (path const & p, error_code & ec) pfs_noexcept
     return r;
 }
 
-inline bool remove (path const & p, error_code & ec) pfs_noexcept
+inline bool remove (path const & p, error_code & ec) noexcept
 {
     ::boost::system::error_code boost_ec;
     bool r = ::boost::filesystem::remove(p, boost_ec);

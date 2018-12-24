@@ -4,7 +4,7 @@ namespace pfs {
 
 namespace details {
 
-char const * rpc_error_category::name () const pfs_noexcept
+char const * rpc_error_category::name () const noexcept
 {
     return "rpc_error_category";
 }

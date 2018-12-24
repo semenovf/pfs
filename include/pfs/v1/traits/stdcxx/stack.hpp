@@ -106,7 +106,7 @@ public:
         _p->pop();
     }
 
-    void swap (basic_stack & s) pfs_noexcept
+    void swap (basic_stack & s) noexcept
     {
         _p.swap(s._p);
     }

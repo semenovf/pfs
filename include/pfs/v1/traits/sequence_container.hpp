@@ -81,7 +81,7 @@ public:
     // *** MODIFIERS ***
     //
 
-    void clear () pfs_noexcept
+    void clear () noexcept
     {
         base_class::_p.clear();
     }

@@ -15,7 +15,7 @@ class exception : public std::exception
     std::string _enhanced_msg;
 
 public:
-    exception () pfs_noexcept
+    exception () noexcept
         : base_class()
     {}
 

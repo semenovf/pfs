@@ -20,7 +20,7 @@ template <typename T>
 struct default_deleter<T[]>
 {
 public:
-    default_deleter() pfs_noexcept {}
+    default_deleter() noexcept {}
 
     void operator () (T * p) const
     {

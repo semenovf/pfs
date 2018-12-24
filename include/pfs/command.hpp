@@ -229,7 +229,7 @@ protected:
 //template <typename ConcreteCommand>
 //struct command_factory : basic_command_factory
 //{
-//    virtual shared_ptr<command> make () pfs_override
+//    virtual shared_ptr<command> make () override
 //    {
 //        return make_command<ConcreteCommand>();
 //    }

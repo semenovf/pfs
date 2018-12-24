@@ -71,10 +71,10 @@ public:
 
     bool open (filesystem::path const & p
             , filesystem::pathlist const & searchdirs
-            , error_code & ec) pfs_noexcept;
+            , error_code & ec) noexcept;
 
     symbol_type resolve (char const * symbol_name);
-    symbol_type resolve (char const * symbol_name, error_code & ec) pfs_noexcept;
+    symbol_type resolve (char const * symbol_name, error_code & ec) noexcept;
 };
 
 /**
@@ -82,7 +82,7 @@ public:
  *
  * @param name Base name of dynamic library.
  */
-filesystem::path build_so_filename (string const & name) pfs_noexcept;
+filesystem::path build_so_filename (string const & name) noexcept;
 
 #if __cplusplus >= 201103L
 enum class dynamic_library_errc
@@ -123,8 +123,8 @@ namespace details {
 class dynamic_library_category : public pfs::error_category
 {
 public:
-    virtual char const * name () const pfs_noexcept pfs_override;
-    virtual std::string message (int ev) const pfs_override;
+    virtual char const * name () const noexcept override;
+    virtual std::string message (int ev) const override;
 };
 } // details
 

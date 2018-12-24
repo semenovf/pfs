@@ -55,12 +55,12 @@ public:
         return *this;
     }
 
-    operator T & () const pfs_noexcept
+    operator T & () const noexcept
     {
         return this->get();
     }
 
-    T & get () const pfs_noexcept
+    T & get () const noexcept
     {
         return *_ptr;
     }

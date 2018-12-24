@@ -404,15 +404,15 @@ class istreambuf_iterator : public std::istreambuf_iterator<CharT, Traits>
 {
     typedef std::istreambuf_iterator<CharT, Traits> base_class;
 public:
-    pfs_constexpr istreambuf_iterator () pfs_noexcept
+    constexpr istreambuf_iterator () noexcept
         : base_class()
     {}
 
-    istreambuf_iterator (std::basic_istream<CharT,Traits> & is) pfs_noexcept
+    istreambuf_iterator (std::basic_istream<CharT,Traits> & is) noexcept
         : base_class(is)
     {}
 
-    istreambuf_iterator (std::basic_streambuf<CharT,Traits> * is) pfs_noexcept
+    istreambuf_iterator (std::basic_streambuf<CharT,Traits> * is) noexcept
         : base_class(is)
     {}
 };

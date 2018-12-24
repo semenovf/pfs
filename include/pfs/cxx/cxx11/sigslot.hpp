@@ -218,7 +218,7 @@ struct sigslot
     {
     public:
         has_slots () : basic_has_slots () {}
-        virtual bool use_async_slots () const pfs_override { return false; }
+        virtual bool use_async_slots () const override { return false; }
     };
 
     class has_async_slots : public basic_has_slots
@@ -229,7 +229,7 @@ struct sigslot
             this->_queue_ptr = make_unique<callback_queue_type>();
         }
 
-        virtual bool use_async_slots () const pfs_override { return true; }
+        virtual bool use_async_slots () const override { return true; }
     };
 
     class _signal_base0 : public _signal_base
@@ -1186,12 +1186,12 @@ struct sigslot
                 (_pobject->*_pmemfun)();
         }
 
-        virtual void sync_emit () pfs_override
+        virtual void sync_emit () override
         {
             (_pobject->*_pmemfun)();
         }
 
-        virtual void async_emit () pfs_override
+        virtual void async_emit () override
         {
             _pobject->callback_queue().template push_method<dest_type>(_pmemfun, _pobject);
         }
@@ -1239,12 +1239,12 @@ struct sigslot
                 (_pobject->*_pmemfun)(a1);
         }
 
-        virtual void sync_emit (A1 a1) pfs_override
+        virtual void sync_emit (A1 a1) override
         {
             (_pobject->*_pmemfun)(a1);
         }
 
-        virtual void async_emit (A1 a1) pfs_override
+        virtual void async_emit (A1 a1) override
         {
             _pobject->callback_queue().template push_method<dest_type
                     , A1>(_pmemfun, _pobject, a1);
@@ -1299,12 +1299,12 @@ struct sigslot
                 (_pobject->*_pmemfun)(a1, a2);
         }
 
-        virtual void sync_emit (A1 a1, A2 a2) pfs_override
+        virtual void sync_emit (A1 a1, A2 a2) override
         {
             (_pobject->*_pmemfun)(a1, a2);
         }
 
-        virtual void async_emit (A1 a1, A2 a2) pfs_override
+        virtual void async_emit (A1 a1, A2 a2) override
         {
             _pobject->callback_queue().template push_method<dest_type
                     , A1
@@ -1359,12 +1359,12 @@ struct sigslot
                 (_pobject->*_pmemfun)(a1, a2, a3);
         }
 
-        virtual void sync_emit (A1 a1, A2 a2, A3 a3) pfs_override
+        virtual void sync_emit (A1 a1, A2 a2, A3 a3) override
         {
             (_pobject->*_pmemfun)(a1, a2, a3);
         }
 
-        virtual void async_emit (A1 a1, A2 a2, A3 a3) pfs_override
+        virtual void async_emit (A1 a1, A2 a2, A3 a3) override
         {
             _pobject->callback_queue().template push_method<dest_type
                 , A1
@@ -1421,12 +1421,12 @@ struct sigslot
                 (_pobject->*_pmemfun)(a1, a2, a3, a4);
         }
 
-        virtual void sync_emit (A1 a1, A2 a2, A3 a3, A4 a4) pfs_override
+        virtual void sync_emit (A1 a1, A2 a2, A3 a3, A4 a4) override
         {
             (_pobject->*_pmemfun)(a1, a2, a3, a4);
         }
 
-        virtual void async_emit (A1 a1, A2 a2, A3 a3, A4 a4) pfs_override
+        virtual void async_emit (A1 a1, A2 a2, A3 a3, A4 a4) override
         {
             _pobject->callback_queue().template push_method<dest_type
                 , A1
@@ -1490,12 +1490,12 @@ struct sigslot
                 (_pobject->*_pmemfun)(a1, a2, a3, a4, a5);
         }
 
-        virtual void sync_emit (A1 a1, A2 a2, A3 a3, A4 a4, A5 a5) pfs_override
+        virtual void sync_emit (A1 a1, A2 a2, A3 a3, A4 a4, A5 a5) override
         {
             (_pobject->*_pmemfun)(a1, a2, a3, a4, a5);
         }
 
-        virtual void async_emit (A1 a1, A2 a2, A3 a3, A4 a4, A5 a5) pfs_override
+        virtual void async_emit (A1 a1, A2 a2, A3 a3, A4 a4, A5 a5) override
         {
             _pobject->callback_queue().template push_method<dest_type
                 , A1
@@ -1561,12 +1561,12 @@ struct sigslot
                 (_pobject->*_pmemfun)(a1, a2, a3, a4, a5, a6);
         }
 
-        virtual void sync_emit (A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6) pfs_override
+        virtual void sync_emit (A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6) override
         {
             (_pobject->*_pmemfun)(a1, a2, a3, a4, a5, a6);
         }
 
-        virtual void async_emit (A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6) pfs_override
+        virtual void async_emit (A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6) override
         {
             _pobject->callback_queue().template push_method<dest_type
                 , A1
@@ -1631,13 +1631,13 @@ struct sigslot
         }
 
         virtual void sync_emit (A1 a1, A2 a2, A3 a3, A4 a4
-                , A5 a5, A6 a6, A7 a7) pfs_override
+                , A5 a5, A6 a6, A7 a7) override
         {
             (_pobject->*_pmemfun)(a1, a2, a3, a4, a5, a6, a7);
         }
 
         virtual void async_emit (A1 a1, A2 a2, A3 a3, A4 a4
-                , A5 a5, A6 a6, A7 a7) pfs_override
+                , A5 a5, A6 a6, A7 a7) override
         {
             _pobject->callback_queue().template push_method<dest_type
                 , A1
@@ -1708,13 +1708,13 @@ struct sigslot
         }
 
         virtual void sync_emit (A1 a1, A2 a2, A3 a3, A4 a4
-                , A5 a5, A6 a6, A7 a7, A8 a8) pfs_override
+                , A5 a5, A6 a6, A7 a7, A8 a8) override
         {
             (_pobject->*_pmemfun)(a1, a2, a3, a4, a5, a6, a7, a8);
         }
 
         virtual void async_emit (A1 a1, A2 a2, A3 a3, A4 a4
-                , A5 a5, A6 a6, A7 a7, A8 a8) pfs_override
+                , A5 a5, A6 a6, A7 a7, A8 a8) override
         {
             _pobject->callback_queue().template push_method<dest_type
                 , A1
