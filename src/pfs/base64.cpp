@@ -18,17 +18,17 @@ void __base64_encode (InputIt first, InputIt last, OutputIt out)
 
     while (first != last) {
         int chunk = 0;
-        chunk |= int(*first++) << 16;
+        chunk |= int(static_cast<byte_t>(*first++)) << 16;
 
         if (first == last) {
             padlen = 2;
         } else {
-            chunk |= int(*first++) << 8;
+            chunk |= int(static_cast<byte_t>(*first++)) << 8;
 
             if (first == last)
                 padlen = 1;
             else
-                chunk |= int(*first++);
+                chunk |= int(static_cast<byte_t>(*first++));
         }
 
         int j = (chunk & 0x00fc0000) >> 18;

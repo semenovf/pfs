@@ -74,6 +74,7 @@ TEST_CASE("Test base64 encoding/decoding") {
         , "\x00\x01\x02"
         , "\x00\x01\x02\x03"
         , "fooba"
+        , "\x01\x00\xEF\xFE\x7F\x20"
     };
 
     char const * bins_encoded[] = {
@@ -82,6 +83,7 @@ TEST_CASE("Test base64 encoding/decoding") {
         , "AAEC"
         , "AAECAw=="
         , "Zm9vYmE="
+        , "AQDv/n8g"
     };
 
     for (int i = 0, n = sizeof(bins)/ sizeof(bins[0]); i < n ; i++) {
@@ -89,9 +91,9 @@ TEST_CASE("Test base64 encoding/decoding") {
         pfs::byte_string b;
         pfs::base64_encode(bins[i], bins[i] + i + 1, s);
         std::cout << "bin" << i << ": [" << s << ']' << std::endl;
-        pfs::base64_decode(s, b);
-
         CHECK(s == pfs::string(bins_encoded[i]));
+
+        pfs::base64_decode(pfs::string(bins_encoded[i]), b);
         CHECK(b == pfs::byte_string(bins[i], i + 1));
     }
 }
