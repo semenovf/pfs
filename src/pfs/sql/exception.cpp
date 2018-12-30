@@ -4,7 +4,7 @@ namespace pfs {
 
 namespace details {
 
-char const * sql_category::name () const pfs_noexcept
+char const * sql_category::name () const noexcept
 {
     return "sql_category";
 }

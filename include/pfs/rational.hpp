@@ -100,18 +100,18 @@ public:
         return *this;
     }
 
-    pfs_constexpr IntT numerator () const
+    constexpr IntT numerator () const
     {
         return _num;
     }
 
-    pfs_constexpr IntT denominator () const
+    constexpr IntT denominator () const
     {
         return _den;
     }
 
     // Unary minus
-    rational operator - () const pfs_noexcept
+    rational operator - () const noexcept
     {
         rational result(*this);
         result._num = - result._num;
@@ -119,12 +119,12 @@ public:
     }
 
     // Unary plus
-    rational operator + () const pfs_noexcept
+    rational operator + () const noexcept
     {
         return *this;
     }
 
-    rational abs () const pfs_noexcept
+    rational abs () const noexcept
     {
         if (_num < 0)
             return -*this;
@@ -135,7 +135,7 @@ public:
      * @return An equivalent fraction with all common factors between the
      *         numerator and the denominator removed.
      */
-    rational reduce () const pfs_noexcept
+    rational reduce () const noexcept
     {
         int_type gcd = pfs::gcd(_num, _den);
         return rational(_num / gcd, _den / gcd);
@@ -144,7 +144,7 @@ public:
     /**
      * @return Result of fraction invert operation.
      */
-    rational invert () const pfs_noexcept
+    rational invert () const noexcept
     {
         PFS_ASSERT_ZERO_DIV(_num != int_type(0));
         return rational(sign_of(_num) * _den, pfs::abs(_num));
@@ -153,10 +153,10 @@ public:
     /**
      * @return @c true if the denominator is a power of ten, @c false otherwise.
      */
-    bool is_decimal () const pfs_noexcept;
+    bool is_decimal () const noexcept;
 
-    string to_string (int radix = 10, string const & decimal_point = ".") const pfs_noexcept;
-    string to_pretty_string (int radix = 10, string const & decimal_point = ".") const pfs_noexcept;
+    string to_string (int radix = 10, string const & decimal_point = ".") const noexcept;
+    string to_pretty_string (int radix = 10, string const & decimal_point = ".") const noexcept;
 
     //
     // Compare
@@ -188,7 +188,7 @@ public:
 };
 
 template <typename IntT>
-bool rational<IntT>::is_decimal () const pfs_noexcept
+bool rational<IntT>::is_decimal () const noexcept
 {
     static const intmax_t * __poweroften = poweroften();
     static const uint8_t    __poweroften_size = poweroften_size();
@@ -341,14 +341,14 @@ namespace details {
 #if PFS_HAVE_INT64
     typedef uint64_t multiply_param_type;
     typedef uint32_t multiply_part_type;
-    inline pfs_constexpr uint64_t uint_lo(uint64_t x) { return x & 0xffffffff; }
-    inline pfs_constexpr uint64_t uint_hi(uint64_t x) { return x >> 32; }
+    inline constexpr uint64_t uint_lo(uint64_t x) { return x & 0xffffffff; }
+    inline constexpr uint64_t uint_hi(uint64_t x) { return x >> 32; }
     static uint64_t const uint_carry = (static_cast<uint64_t>(1) << 32);
 #else
     typedef uint32_t multiply_param_type;
     typedef uint16_t multiply_part_type;
-    inline pfs_constexpr uint32_t uint_lo(uint32_t x) { return x & 0xffff; }
-    inline pfs_constexpr uint32_t uint_hi(uint32_t x) { return x >> 16; }
+    inline constexpr uint32_t uint_lo(uint32_t x) { return x & 0xffff; }
+    inline constexpr uint32_t uint_hi(uint32_t x) { return x >> 16; }
     static uint32_t const uint_carry = (static_cast<uint32_t>(1) << 16);
 #endif
 
@@ -454,7 +454,7 @@ int rational<IntT>::compare (rational const & rhs) const
 
 template <typename IntT>
 string rational<IntT>::to_string (int radix
-        , string const & decimal_point) const pfs_noexcept
+        , string const & decimal_point) const noexcept
 {
     string result;
 
@@ -467,7 +467,7 @@ string rational<IntT>::to_string (int radix
 
 template <typename IntT>
 string rational<IntT>::to_pretty_string (int radix
-        , string const & decimal_point) const pfs_noexcept
+        , string const & decimal_point) const noexcept
 {
     string result;
 

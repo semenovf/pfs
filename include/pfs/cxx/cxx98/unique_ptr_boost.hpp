@@ -26,11 +26,11 @@ public:
     unique_ptr (T * ptr, Deleter deleter) : base_class(ptr, deleter)
     {}
 
-    unique_ptr (rval const & rhs) pfs_noexcept
+    unique_ptr (rval const & rhs) noexcept
         : base_class(rhs._value, rhs._deleter)
     {}
 
-    unique_ptr & operator = (rval const & rhs) pfs_noexcept
+    unique_ptr & operator = (rval const & rhs) noexcept
     {
         unique_ptr p(rhs);
         this->swap(p);

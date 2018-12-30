@@ -950,9 +950,6 @@ struct byte_string_ref
 //     return r += rhs;
 // }
 
-byte_string & base64_encode (byte_string const & src, byte_string & result);
-byte_string & base64_decode (byte_string const & src, byte_string & result);
-
 inline bool operator == (byte_string const & lhs, byte_string const & rhs)
 {
     return lhs.compare(rhs) == 0;

@@ -122,7 +122,7 @@ public:
     /**
      * @note Implementation must read no more than @a n and return immediately.
      */
-    virtual ssize_t read (byte_t * bytes, size_t n, error_code & ec) pfs_noexcept = 0;
+    virtual ssize_t read (byte_t * bytes, size_t n, error_code & ec) noexcept = 0;
 
     ssize_t read (byte_t * bytes, size_t n)
     {
@@ -133,7 +133,7 @@ public:
         return r;
     }
 
-    ssize_t read (char * chars, size_t n, error_code & ec) pfs_noexcept
+    ssize_t read (char * chars, size_t n, error_code & ec) noexcept
     {
         return this->read(reinterpret_cast<byte_t *>(chars), n, ec);
     }
@@ -143,7 +143,7 @@ public:
         return this->read(reinterpret_cast<byte_t *>(chars), n);
     }
 
-    ssize_t read (byte_string & bytes, size_t n, error_code & ec) pfs_noexcept
+    ssize_t read (byte_string & bytes, size_t n, error_code & ec) noexcept
     {
         if (n == 0)
             return 0;
@@ -178,7 +178,7 @@ public:
     /**
      * @brief Read data from device and appends them
      */
-    ssize_t read (byte_string & bytes, error_code & ec) pfs_noexcept
+    ssize_t read (byte_string & bytes, error_code & ec) noexcept
     {
         return this->read(bytes, available(), ec);
     }
@@ -193,7 +193,7 @@ public:
      *               A negative value in timeout means an infinite timeout.
      *               Zero value means the behaviour as @c read method.
      */
-    virtual ssize_t read_wait (byte_t * bytes, size_t n, error_code & ec, int millis) pfs_noexcept;
+    virtual ssize_t read_wait (byte_t * bytes, size_t n, error_code & ec, int millis) noexcept;
 
     ssize_t read_wait (byte_t * bytes, size_t n, int millis)
     {
@@ -204,7 +204,7 @@ public:
         return r;
     }
 
-    inline ssize_t read_wait (char * chars, size_t n, error_code & ec, int millis) pfs_noexcept
+    inline ssize_t read_wait (char * chars, size_t n, error_code & ec, int millis) noexcept
     {
         return this->read_wait(reinterpret_cast<byte_t *>(chars), n, ec, millis);
     }
@@ -222,7 +222,7 @@ public:
      *               Zero value means the behaviour as @c read method.
      * @return The number of bytes received, or -1 if an error occurred.
      */
-    ssize_t read_wait (byte_string & bytes, size_t n, error_code & ec, int millis) pfs_noexcept;
+    ssize_t read_wait (byte_string & bytes, size_t n, error_code & ec, int millis) noexcept;
 
     ssize_t read_wait (byte_string & bytes, size_t n, int millis)
     {
@@ -236,7 +236,7 @@ public:
     /**
      * @brief Read data from device and appends them
      */
-    ssize_t read_wait (byte_string & bytes, error_code & ec, int millis) pfs_noexcept
+    ssize_t read_wait (byte_string & bytes, error_code & ec, int millis) noexcept
     {
         return this->read_wait(bytes, available(), ec, millis);
     }
@@ -246,7 +246,7 @@ public:
         return this->read_wait(bytes, available(), millis);
     }
 
-    virtual ssize_t write (byte_t const * bytes, size_t n, error_code & ec) pfs_noexcept = 0;
+    virtual ssize_t write (byte_t const * bytes, size_t n, error_code & ec) noexcept = 0;
 
     ssize_t write (byte_t const * bytes, size_t n)
     {
@@ -257,7 +257,7 @@ public:
         return r;
     }
 
-    ssize_t write (const char * chars, size_t n, error_code & ec) pfs_noexcept
+    ssize_t write (const char * chars, size_t n, error_code & ec) noexcept
     {
         return this->write(reinterpret_cast<const byte_t *>(chars), n, ec);
     }
@@ -267,7 +267,7 @@ public:
         return this->write(reinterpret_cast<const byte_t *>(chars), n);
     }
 
-    ssize_t write (byte_string const & bytes, size_t n, error_code & ec) pfs_noexcept
+    ssize_t write (byte_string const & bytes, size_t n, error_code & ec) noexcept
     {
         return this->write(bytes.data(), pfs::min(n, bytes.size()), ec);
     }
@@ -277,7 +277,7 @@ public:
         return this->write(bytes.data(), pfs::min(n, bytes.size()));
     }
 
-    ssize_t write (byte_string const & bytes, error_code & ec) pfs_noexcept
+    ssize_t write (byte_string const & bytes, error_code & ec) noexcept
     {
         return this->write(bytes.data(), bytes.size(), ec);
     }

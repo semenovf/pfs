@@ -6,25 +6,25 @@
 namespace pfs {
 
 template <typename T>
-inline pfs_constexpr T const & min (const T & a, const T & b)
+inline constexpr T const & min (const T & a, const T & b)
 {
     return std::min(a, b);
 }
 
 template <typename T, typename Compare>
-inline pfs_constexpr T const & min (T const & a, T const & b, Compare comp)
+inline constexpr T const & min (T const & a, T const & b, Compare comp)
 {
     return std::min(a, b, comp);
 }
 
 template <typename T>
-inline pfs_constexpr T const & max (const T & a, const T & b)
+inline constexpr T const & max (const T & a, const T & b)
 {
     return std::max(a, b);
 }
 
 template <typename T, typename Compare>
-inline pfs_constexpr T const & max (T const & a, T const & b, Compare comp)
+inline constexpr T const & max (T const & a, T const & b, Compare comp)
 {
     return std::max(a, b, comp);
 }

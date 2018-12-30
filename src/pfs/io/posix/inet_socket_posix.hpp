@@ -39,13 +39,13 @@ public:
 
     virtual error_code connect (uint32_t addr, uint16_t port) = 0;
 
-    virtual open_mode_flags open_mode () const pfs_override;
+    virtual open_mode_flags open_mode () const override;
 
-    virtual ssize_t available () const pfs_override;
+    virtual ssize_t available () const override;
 
-    //virtual ssize_t write (const byte_t * bytes, size_t n, error_code & ec) pfs_override = 0;
+    //virtual ssize_t write (const byte_t * bytes, size_t n, error_code & ec) override = 0;
 
-    virtual error_code close () pfs_override
+    virtual error_code close () override
     {
         error_code ec;
 
@@ -56,27 +56,27 @@ public:
         return ec;
     }
 
-    virtual error_code reopen () pfs_override;
+    virtual error_code reopen () override;
 
-    virtual bool opened () const pfs_override
+    virtual bool opened () const override
     {
         return _fd >= 0;
     }
 
-    virtual void flush () pfs_override
+    virtual void flush () override
     {}
 
-    virtual bool set_nonblocking (bool on) pfs_override
+    virtual bool set_nonblocking (bool on) override
     {
         return pfs::io::set_nonblocking(_fd, on);
     }
 
-    virtual bool is_nonblocking () const pfs_override
+    virtual bool is_nonblocking () const override
     {
         return pfs::io::is_nonblocking(_fd);
     }
 
-    virtual native_handle_type native_handle () const pfs_override
+    virtual native_handle_type native_handle () const override
     {
         return _fd;
     }
@@ -95,7 +95,7 @@ public:
     typedef inet_socket::string_type        string_type;
 
 public:
-    virtual error_code open (bool non_blocking) pfs_override
+    virtual error_code open (bool non_blocking) override
     {
         _fd = create_tcp_socket(non_blocking);
         return _fd < 0
@@ -108,18 +108,18 @@ public:
         : inet_socket()
     {}
 
-    virtual error_code connect (uint32_t addr, uint16_t port) pfs_override;
+    virtual error_code connect (uint32_t addr, uint16_t port) override;
 
-    virtual ssize_t read (byte_t * bytes, size_t n, error_code & ec) pfs_noexcept pfs_override;
+    virtual ssize_t read (byte_t * bytes, size_t n, error_code & ec) noexcept override;
 
-    virtual ssize_t write (const byte_t * bytes, size_t n, error_code & ec) pfs_noexcept pfs_override;
+    virtual ssize_t write (const byte_t * bytes, size_t n, error_code & ec) noexcept override;
 
-    virtual device_type type () const pfs_override
+    virtual device_type type () const override
     {
         return device_tcp_socket;
     }
 
-    virtual string_type url () const pfs_override
+    virtual string_type url () const override
     {
         return inet_socket_url("tcp", _sockaddr);
     }
@@ -138,7 +138,7 @@ public:
         ::memcpy(& _sockaddr, & sockaddr, sizeof(_sockaddr));
     }
 
-    virtual device_type type () const pfs_override
+    virtual device_type type () const override
     {
         return device_tcp_peer;
     }
@@ -151,7 +151,7 @@ public:
     typedef inet_socket::string_type        string_type;
 
 public:
-    virtual error_code open (bool non_blocking) pfs_override
+    virtual error_code open (bool non_blocking) override
     {
         _fd = create_udp_socket(non_blocking);
         return _fd < 0
@@ -164,17 +164,17 @@ public:
         : inet_socket()
     {}
 
-    virtual error_code connect (uint32_t addr, uint16_t port) pfs_override;
+    virtual error_code connect (uint32_t addr, uint16_t port) override;
 
-    virtual ssize_t read (byte_t * bytes, size_t n, error_code & ec) pfs_noexcept pfs_override;
-    virtual ssize_t write (byte_t const * bytes, size_t n, error_code & ec) pfs_noexcept pfs_override;
+    virtual ssize_t read (byte_t * bytes, size_t n, error_code & ec) noexcept override;
+    virtual ssize_t write (byte_t const * bytes, size_t n, error_code & ec) noexcept override;
 
-    virtual device_type type () const pfs_override
+    virtual device_type type () const override
     {
         return device_udp_socket;
     }
 
-    virtual string_type url () const pfs_override
+    virtual string_type url () const override
     {
         return inet_socket_url("udp", _sockaddr);
     }
@@ -198,14 +198,14 @@ public:
         close();
     }
 
-    virtual device_type type () const pfs_override
+    virtual device_type type () const override
     {
         return device_udp_peer;
     }
 
     // Reimplemented to avoid descriptor closing
     //
-    virtual error_code close () pfs_override
+    virtual error_code close () override
     {
         // Really descriptor cannot be closed,
         // it still used by server

@@ -16,7 +16,7 @@ private:
     thread & operator = (thread const &);
     
 public:
-    thread () pfs_noexcept
+    thread () noexcept
         : base_class()
     {}
 
@@ -53,12 +53,12 @@ public:
 
 namespace this_thread {
 
-inline ::boost::thread::id get_id () pfs_noexcept
+inline ::boost::thread::id get_id () noexcept
 {
     return ::boost::this_thread::get_id();
 }
 
-inline void yield () pfs_noexcept
+inline void yield () noexcept
 {
     ::boost::this_thread::yield();
 }

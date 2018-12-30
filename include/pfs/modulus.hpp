@@ -280,7 +280,7 @@ struct modulus
     {
     public:
         module (dispatcher * pdisp) : basic_module(pdisp) {}
-        virtual bool use_async_slots () const pfs_override { return false; }
+        virtual bool use_async_slots () const override { return false; }
     };
 
     //
@@ -295,7 +295,7 @@ struct modulus
             this->_queue_ptr = make_unique<callback_queue_type>();
         }
 
-        virtual bool use_async_slots () const pfs_override { return true; }
+        virtual bool use_async_slots () const override { return true; }
 
         void call_all ()
         {
@@ -309,8 +309,8 @@ struct modulus
 
     public:
         slave_module (dispatcher * pdisp) : basic_module(pdisp), _master(0) {}
-        virtual bool use_async_slots () const pfs_override { return false; }
-        virtual bool is_slave () const pfs_override { return true; }
+        virtual bool use_async_slots () const override { return false; }
+        virtual bool is_slave () const override { return true; }
         virtual typename sigslot_ns::basic_has_slots * master () const { return _master; }
         void set_master (async_module * master) { _master = master; }
     };
@@ -489,7 +489,7 @@ struct modulus
             finalize();
         }
 
-        virtual void quit () pfs_override
+        virtual void quit () override
         {
             _quitfl.store(1);
         }
@@ -1421,7 +1421,7 @@ int modulus<PFS_MODULUS_TEMPLETE_ARGS>::dispatcher::exec ()
 
 #define PFS_MODULE_EMITTERS_EXTERN                                             \
     emitter_mapper_pair const *                                                \
-    get_emitters (int & count) pfs_override;
+    get_emitters (int & count) override;
 #define PFS_V2_MODULE_EMITTERS_EXTERN PFS_MODULE_EMITTERS_EXTERN // TODO OBSOLETE
 
 #define PFS_MODULE_EMITTERS_BEGIN(XMOD)                                        \
@@ -1434,7 +1434,7 @@ XMOD::get_emitters (int & count)                                               \
 
 #define PFS_MODULE_EMITTERS_INLINE_BEGIN                                    \
 emitter_mapper_pair const *                                                    \
-get_emitters (int & count) pfs_override                                        \
+get_emitters (int & count) override                                        \
 {                                                                              \
     static emitter_mapper_pair __emitter_mapper[] = {
 
@@ -1450,7 +1450,7 @@ get_emitters (int & count) pfs_override                                        \
 
 #define PFS_MODULE_DETECTORS_EXTERN                                            \
 detector_mapper_pair const *                                                   \
-get_detectors (int & count) pfs_override;
+get_detectors (int & count) override;
 
 #define PFS_V2_MODULE_DETECTORS_EXTERN PFS_MODULE_DETECTORS_EXTERN // TODO OBSOLETE
 
@@ -1464,7 +1464,7 @@ XMOD::get_detectors (int & count)                                              \
 
 #define PFS_MODULE_DETECTORS_INLINE_BEGIN                                      \
 detector_mapper_pair const *                                                   \
-get_detectors (int & count) pfs_override                                       \
+get_detectors (int & count) override                                       \
 {                                                                              \
     static detector_mapper_pair __detector_mapper[] = {
 

@@ -19,12 +19,12 @@ public:
     //
     // C++17 constructors
     //
-    pfs_constexpr optional () pfs_noexcept : base_class() {}
-    pfs_constexpr optional (nullopt_t none) pfs_noexcept : base_class(none) {}
-    pfs_constexpr optional (optional const & rhs) : base_class(rhs) {}
+    constexpr optional () noexcept : base_class() {}
+    constexpr optional (nullopt_t none) noexcept : base_class(none) {}
+    constexpr optional (optional const & rhs) : base_class(rhs) {}
 
 #if __cplusplus >= 201103L
-    pfs_constexpr optional (optional && rhs) pfs_noexcept
+    constexpr optional (optional && rhs) noexcept
         : base_class(std::forward<optional>(rhs))
     {}
 #endif
@@ -42,17 +42,17 @@ public:
 #endif
 
 //     template <typename... Args>
-//     pfs_constexpr explicit optional( std::in_place_t, Args &&... args );
+//     constexpr explicit optional( std::in_place_t, Args &&... args );
 //
 //     template <typename U, typename ...Args >
-//     pfs_constexpr explicit optional (std::in_place_t,
+//     constexpr explicit optional (std::in_place_t,
 //                              std::initializer_list<U> ilist,
 //                              Args &&... args );
 //     template <class U = value_type>
-//     pfs_constexpr explicit optional (U && value);
+//     constexpr explicit optional (U && value);
 
 
-    optional & operator = (nullopt_t none) pfs_noexcept
+    optional & operator = (nullopt_t none) noexcept
     {
         base_class::operator = (none);
         return *this;
@@ -65,7 +65,7 @@ public:
     }
 
 #if __cplusplus >= 201103L
-    optional & operator = (optional && rhs) pfs_noexcept
+    optional & operator = (optional && rhs) noexcept
     {
         base_class::operator = (std::forward<optional>(rhs));
         return *this;
@@ -107,12 +107,12 @@ public:
         return *this;
     }
 
-    pfs_constexpr operator bool () const pfs_noexcept
+    constexpr operator bool () const noexcept
     {
         return base_class::is_initialized();
     }
 
-    pfs_constexpr bool has_value () const pfs_noexcept
+    constexpr bool has_value () const noexcept
     {
         return bool(*this);
     }
@@ -120,7 +120,7 @@ public:
 #if __cplusplus >= 201103L
     /**
      * @fn template<typename U>
-     *     pfs_constexpr T value_or (U && default_value) const &;
+     *     constexpr T value_or (U && default_value) const &;
      * @note for >= C++11
      */
 
@@ -140,7 +140,7 @@ public:
     }
 
     template<typename U>
-    pfs_constexpr T value_or (U const & default_value) const
+    constexpr T value_or (U const & default_value) const
     {
         return base_class::template value_or<U>(default_value);
     }

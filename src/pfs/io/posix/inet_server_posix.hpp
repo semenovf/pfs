@@ -26,7 +26,7 @@ public:
         close();
     }
 
-    virtual error_code close () pfs_override
+    virtual error_code close () override
     {
         error_code ec;
 
@@ -37,22 +37,22 @@ public:
         return ec;
     }
 
-    virtual bool opened () const pfs_override
+    virtual bool opened () const override
     {
     	return _fd >= 0;
     }
 
-    virtual bool set_nonblocking (bool on) pfs_override
+    virtual bool set_nonblocking (bool on) override
     {
         return pfs::io::set_nonblocking(_fd, on);
     }
 
-    virtual bool is_nonblocking () const pfs_override
+    virtual bool is_nonblocking () const override
     {
         return pfs::io::is_nonblocking(_fd);
     }
 
-    virtual native_handle_type native_handle () const pfs_override
+    virtual native_handle_type native_handle () const override
     {
     	return _fd;
     }
@@ -87,17 +87,17 @@ public:
         : inet_server()
     {}
 
-    virtual server_type type () const pfs_override
+    virtual server_type type () const override
     {
         return server_tcp;
     }
 
-    virtual string url () const pfs_override
+    virtual string url () const override
     {
         return pfs::io::inet_socket_url("tcp", _sockaddr);
     }
 
-    virtual details::device * accept (bool non_blocking, error_code & ec) pfs_override;
+    virtual details::device * accept (bool non_blocking, error_code & ec) override;
 };
 
 class udp_server : public inet_server
@@ -124,17 +124,17 @@ public:
         : inet_server()
     {}
 
-    virtual server_type type () const pfs_override
+    virtual server_type type () const override
     {
         return server_udp;
     }
 
-    virtual string url () const pfs_override
+    virtual string url () const override
     {
         return pfs::io::inet_socket_url("udp", _sockaddr);
     }
 
-    virtual details::device * accept (bool non_blocking, error_code & ec) pfs_override;
+    virtual details::device * accept (bool non_blocking, error_code & ec) override;
 };
 
 }}}

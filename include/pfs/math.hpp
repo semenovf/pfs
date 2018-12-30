@@ -184,7 +184,7 @@ int sign_of (T value)
  * @brief Calculates Greatest Common Divisor. Based on Knuth 4.5.2. algorithm B.
  */
 template <typename IntT>
-IntT gcd (IntT a, IntT b) pfs_noexcept
+IntT gcd (IntT a, IntT b) noexcept
 {
     // Avoid repeated construction
     IntT zero(0);
@@ -223,7 +223,7 @@ IntT gcd (IntT a, IntT b) pfs_noexcept
  */
 
 template <typename IntT>
-inline IntT lcm (IntT a, IntT b) pfs_noexcept
+inline IntT lcm (IntT a, IntT b) noexcept
 {
     // Avoid repeated construction
     IntT zero(0);

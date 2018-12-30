@@ -19,7 +19,7 @@ public:
         native_handle_type _value;
 
     public:
-        id () pfs_noexcept 
+        id () noexcept 
             : _value ()
         {}
 
@@ -32,7 +32,7 @@ public:
         friend class thread;
 
         friend
-        bool operator == (thread::id lhs, thread::id rhs) pfs_noexcept
+        bool operator == (thread::id lhs, thread::id rhs) noexcept
         {
             return pthread_equal(lhs._value, rhs._value) != 0
                     ? true
@@ -40,7 +40,7 @@ public:
         }
 
         friend
-        bool operator < (thread::id lhs, thread::id rhs) pfs_noexcept
+        bool operator < (thread::id lhs, thread::id rhs) noexcept
         {
             return lhs._value < rhs._value;
         }
@@ -59,7 +59,7 @@ private:
 #endif
         
 public:
-    thread () pfs_noexcept;
+    thread () noexcept;
 
     ~thread ()
     {
@@ -67,17 +67,17 @@ public:
             std::terminate();
     }
     
-    bool joinable () const pfs_noexcept
+    bool joinable () const noexcept
     {
         return !(_id == id());
     }
 
-    thread::id get_id () const pfs_noexcept
+    thread::id get_id () const noexcept
     {
         return _id; 
     }
 
-    native_handle_type native_handle () pfs_noexcept
+    native_handle_type native_handle () noexcept
     {
         return _id._value;
     }
@@ -95,44 +95,44 @@ public:
      */
     void detach ();
 
-    static unsigned int hardware_concurrency () pfs_noexcept
+    static unsigned int hardware_concurrency () noexcept
     {
         // Linux, Solaris, AIX and Mac OS X >=10.4 (i.e. Tiger onwards)
         return static_cast<unsigned int>(sysconf(_SC_NPROCESSORS_ONLN));
     }
     
     // TODO
-    //void swap (thread & other) pfs_noexcept;
+    //void swap (thread & other) noexcept;
 };
 
-inline bool operator!= (thread::id lhs, thread::id rhs) pfs_noexcept
+inline bool operator!= (thread::id lhs, thread::id rhs) noexcept
 {
     return !(lhs == rhs);
 }
 
-inline bool operator <= (thread::id lhs, thread::id rhs) pfs_noexcept
+inline bool operator <= (thread::id lhs, thread::id rhs) noexcept
 {
     return !(rhs < lhs);
 }
 
-inline bool operator > (thread::id lhs, thread::id rhs) pfs_noexcept
+inline bool operator > (thread::id lhs, thread::id rhs) noexcept
 {
     return rhs < lhs;
 }
 
-inline bool operator >= (thread::id lhs, thread::id rhs) pfs_noexcept
+inline bool operator >= (thread::id lhs, thread::id rhs) noexcept
 {
     return !(lhs < rhs);
 }
 
 namespace this_thread {
 
-inline thread::id get_id () pfs_noexcept
+inline thread::id get_id () noexcept
 {
     return thread::id(pthread_self());
 }
 
-inline void yield () pfs_noexcept
+inline void yield () noexcept
 {
     pthread_yield();
 }

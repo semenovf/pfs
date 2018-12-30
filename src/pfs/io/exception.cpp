@@ -4,7 +4,7 @@ namespace pfs {
 
 namespace details {
 
-char const * io_category::name () const pfs_noexcept
+char const * io_category::name () const noexcept
 {
     return "io_category";
 }

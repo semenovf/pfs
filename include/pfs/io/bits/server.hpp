@@ -44,7 +44,7 @@ struct server : public basic_device
 
     virtual server_type type () const = 0;
 
-    virtual bool is_server () const pfs_override
+    virtual bool is_server () const override
     {
         return true;
     }

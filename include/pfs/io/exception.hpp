@@ -45,8 +45,8 @@ namespace details {
 class io_category : public pfs::error_category
 {
 public:
-    virtual char const * name () const pfs_noexcept pfs_override;
-    virtual std::string message (int ev) const pfs_override;
+    virtual char const * name () const noexcept override;
+    virtual std::string message (int ev) const override;
 };
 } // details
 

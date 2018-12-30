@@ -11,6 +11,7 @@ if(NOT PFS_TARGET_STATIC_LIB_NAME)
 endif()
 
 set(PFS_LIB_COMMON_SOURCES
+    base64.cpp
     crc32.cpp
     crc64.cpp
     date.cpp

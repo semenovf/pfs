@@ -138,17 +138,17 @@ public:
     // *** CAPACITY ***
     // 
 
-    size_type size () const pfs_noexcept
+    size_type size () const noexcept
     {
         return _p->size();
     }
 
-    size_type max_size () const pfs_noexcept
+    size_type max_size () const noexcept
     {
         return _p->max_size();
     }
 
-    bool empty () const pfs_noexcept
+    bool empty () const noexcept
     {
         return _p->empty();
     }

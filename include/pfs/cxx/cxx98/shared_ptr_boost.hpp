@@ -90,7 +90,7 @@ public:
      * @brief Creates a new @c shared_ptr that shares ownership
      *        of the menaged object.
      */
-    pfs::shared_ptr<T> lock () const pfs_noexcept
+    pfs::shared_ptr<T> lock () const noexcept
     {
         return this->expired()
                 ? pfs::shared_ptr<T>()

@@ -8,7 +8,7 @@ template <typename T>
 using allocator = std::allocator<T>;
 
 template< class T >
-inline pfs_constexpr T * addressof (T & arg)
+inline constexpr T * addressof (T & arg)
 {
     return std::addressof(arg);
 }
@@ -26,19 +26,19 @@ inline shared_ptr<T> make_shared (Args... args)
 }
 
 template <typename T, typename U>
-inline shared_ptr<T> static_pointer_cast (shared_ptr<U> const & r) pfs_noexcept
+inline shared_ptr<T> static_pointer_cast (shared_ptr<U> const & r) noexcept
 {
     return std::static_pointer_cast<T,U>(r);
 }
 
 template <typename T, typename U>
-inline shared_ptr<T> dynamic_pointer_cast (shared_ptr<U> const & r) pfs_noexcept
+inline shared_ptr<T> dynamic_pointer_cast (shared_ptr<U> const & r) noexcept
 {
     return std::dynamic_pointer_cast<T,U>(r);
 }
 
 template <typename T, typename U>
-inline shared_ptr<T> const_pointer_cast (shared_ptr<U> const & r) pfs_noexcept
+inline shared_ptr<T> const_pointer_cast (shared_ptr<U> const & r) noexcept
 {
     return std::const_pointer_cast<T,U>(r);
 }

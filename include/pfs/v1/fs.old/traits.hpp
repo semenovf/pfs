@@ -43,7 +43,7 @@ struct traits
     public:
         explicit filesystem_error (string_type const & arg);
 
-        string_type const & what () const pfs_noexcept
+        string_type const & what () const noexcept
         {
             return _msg;
         }

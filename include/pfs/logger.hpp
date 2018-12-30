@@ -607,7 +607,7 @@ public:
     }
 
 protected:
-    virtual void print (priority, datetime const &, string_type const & msg) pfs_override
+    virtual void print (priority, datetime const &, string_type const & msg) override
     {
         std::cout << msg << std::endl;
     }
@@ -624,7 +624,7 @@ public:
     }
 
 protected:
-    virtual void print (priority, datetime const &, string_type const & msg) pfs_override
+    virtual void print (priority, datetime const &, string_type const & msg) override
     {
         std::cerr << msg << std::endl;
     }
@@ -653,7 +653,7 @@ public:
     }
 
 protected:
-    virtual void print (priority, datetime const &, string_type const & msg) pfs_override
+    virtual void print (priority, datetime const &, string_type const & msg) override
     {
         _d << msg << "\n";
     }

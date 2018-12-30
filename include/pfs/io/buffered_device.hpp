@@ -90,7 +90,7 @@ public:
    /**
     * @brief Read at least @a n bytes from the device.
     */
-    ssize_t read (byte_t * bytes, size_t n, error_code & ec) pfs_noexcept
+    ssize_t read (byte_t * bytes, size_t n, error_code & ec) noexcept
     {
         ssize_t result = ensure_available(n, ec);
 
@@ -107,7 +107,7 @@ public:
    /**
     * @brief Read at least @a n chars from the device.
     */
-    ssize_t read (char * chars, size_t n, error_code & ec) pfs_noexcept
+    ssize_t read (char * chars, size_t n, error_code & ec) noexcept
     {
         return this->read(reinterpret_cast<byte_t *>(chars), n, ec);
     }
@@ -135,7 +135,7 @@ public:
     /**
      * @brief Read at least @a n bytes from device and appends them to @a bytes.
      */
-    ssize_t read (byte_string & bytes, size_t n, error_code & ec) pfs_noexcept
+    ssize_t read (byte_string & bytes, size_t n, error_code & ec) noexcept
     {
         size_t initial_size = bytes.size();
         bytes.resize(initial_size + n);
@@ -151,7 +151,7 @@ public:
     /**
      * @brief Read data from device and appends them to @a bytes.
      */
-    ssize_t read (byte_string & bytes, error_code & ec) pfs_noexcept
+    ssize_t read (byte_string & bytes, error_code & ec) noexcept
     {
         return this->read(bytes, available(), ec);
     }
@@ -185,7 +185,7 @@ public:
      * @return @c true if byte read successfully,
      *         or @c false if error occurred or no more bytes available (i.e. at end of device).
      */
-    bool read_byte (byte_t & c, error_code & ec) pfs_noexcept
+    bool read_byte (byte_t & c, error_code & ec) noexcept
     {
         if (ensure_available(1, ec) > 0)
             c = _buffer[_pos++];
@@ -201,7 +201,7 @@ public:
         return r;
     }
 
-    bool peek_byte (byte_t & c, error_code & ec) pfs_noexcept
+    bool peek_byte (byte_t & c, error_code & ec) noexcept
     {
         if (ensure_available(1, ec) > 0)
             c = _buffer[_pos];
@@ -217,7 +217,7 @@ public:
         return r;
     }
 
-    ssize_t read_line (byte_string & line, size_t max_size, error_code & ec) pfs_noexcept
+    ssize_t read_line (byte_string & line, size_t max_size, error_code & ec) noexcept
     {
         ssize_t n = 0;
         byte_t c;
@@ -246,12 +246,12 @@ public:
         /**
      * @brief Write bytes to the device.
      */
-    ssize_t write (const byte_t * bytes, size_t n, error_code & ec) pfs_noexcept
+    ssize_t write (const byte_t * bytes, size_t n, error_code & ec) noexcept
     {
         return _d->write(bytes, n, ec);
     }
 
-    ssize_t write (const char * chars, size_t n, error_code & ec) pfs_noexcept
+    ssize_t write (const char * chars, size_t n, error_code & ec) noexcept
     {
         return this->write(reinterpret_cast<const byte_t *>(chars), n, ec);
     }
@@ -270,12 +270,12 @@ public:
         return this->write(reinterpret_cast<const byte_t *>(chars), n);
     }
 
-    ssize_t write (byte_string const & bytes, size_t n, error_code & ec) pfs_noexcept
+    ssize_t write (byte_string const & bytes, size_t n, error_code & ec) noexcept
     {
         return this->write(bytes.data(), pfs::min(n, bytes.size()), ec);
     }
 
-    ssize_t write (byte_string const & bytes, error_code & ec) pfs_noexcept
+    ssize_t write (byte_string const & bytes, error_code & ec) noexcept
     {
         return this->write(bytes.data(), bytes.size(), ec);
     }

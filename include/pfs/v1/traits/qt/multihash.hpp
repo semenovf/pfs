@@ -33,7 +33,7 @@ namespace qt {
 //        : base_class(rhs)
 //    {}
 //        
-//    size_type max_size () const pfs_noexcept
+//    size_type max_size () const noexcept
 //    {
 //        return ((INT_MAX)/sizeof(T) - sizeof(native_type)) / 2; // FIXME
 //    }
@@ -54,7 +54,7 @@ struct multimap_iterator : public QMultiMap<Key, T>::iterator
 {
     typedef typename QMultiMap<Key, T>::iterator base_type;
 
-    multimap_iterator (base_type lhs) pfs_noexcept
+    multimap_iterator (base_type lhs) noexcept
         : base_type(lhs)
     {}
 };
@@ -64,7 +64,7 @@ struct multimap_const_iterator : public QMultiMap<Key, T>::const_iterator
 {
     typedef typename QMultiMap<Key, T>::const_iterator base_type;
 
-    multimap_const_iterator (base_type lhs) pfs_noexcept
+    multimap_const_iterator (base_type lhs) noexcept
         : base_type(lhs)
     {}
 };
