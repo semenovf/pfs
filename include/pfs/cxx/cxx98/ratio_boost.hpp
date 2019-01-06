@@ -1,6 +1,4 @@
-#ifndef __PFS_CXX_CXX98_RATIO_BOOST_HPP__
-#define __PFS_CXX_CXX98_RATIO_BOOST_HPP__
-
+#pragma once
 #include <boost/ratio.hpp>
 
 namespace pfs {
@@ -69,5 +67,4 @@ typedef ratio<      1000000000000000000, 1> exa;
 
 } // pfs
 
-#endif /* __PFS_CXX_CXX98_RATIO_BOOST_HPP__ */
 

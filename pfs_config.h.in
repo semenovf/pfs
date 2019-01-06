@@ -1,33 +1,32 @@
-#cmakedefine01 HAVE_IF_NAMEINDEX
-
-#cmakedefine01 HAVE_GETIFADDRS
-
-#cmakedefine01 HAVE_GETNAMEINFO
-
 #cmakedefine01 HAVE_PTHREAD
 
-#cmakedefine01 HAVE_STDCXX_FS
-
-#cmakedefine01 HAVE_BOOST
-
-#cmakedefine01 HAVE_BOOST_BIND
-
-#cmakedefine01 HAVE_BOOST_CHRONO
-
-#cmakedefine01 HAVE_BOOST_FILESYSTEM
-
-#cmakedefine01 HAVE_BOOST_RATIO
-
-#cmakedefine01 HAVE_BOOST_REGEX
-
-#cmakedefine01 HAVE_BOOST_SMART_PTR
-
-#cmakedefine01 HAVE_BOOST_UNIQUE_PTR
+#cmakedefine01 HAVE_STDCXX_SYSTEM_ERROR
+#cmakedefine01 HAVE_STDCXX_FILESYSTEM
+#cmakedefine01 HAVE_STDCXX_CHRONO
+#cmakedefine01 HAVE_STDCXX_REGEX
+#cmakedefine01 HAVE_STDCXX_THREAD
 
 #cmakedefine01 HAVE_BOOST_SYSTEM_ERROR
-
+#cmakedefine01 HAVE_BOOST_FILESYSTEM
+#cmakedefine01 HAVE_BOOST_REGEX
+#cmakedefine01 HAVE_BOOST_CHRONO
 #cmakedefine01 HAVE_BOOST_THREAD
+#cmakedefine01 HAVE_BOOST_MUTEX
+#cmakedefine01 HAVE_BOOST_BIND
+#cmakedefine01 HAVE_BOOST_SMART_PTR
+#cmakedefine01 HAVE_BOOST_RATIO
 
+#cmakedefine01 HAVE_BACKWARD_CPP
+#cmakedefine01 HAVE_MPARK_VARIANT
+
+/*
+ * Platform-specific features
+ */
+#cmakedefine01 HAVE_IF_NAMEINDEX
+#cmakedefine01 HAVE_GETIFADDRS
+#cmakedefine01 HAVE_GETNAMEINFO
+
+/*
 #cmakedefine01 HAVE_BOOST_OPTIONAL
 
 #cmakedefine01 HAVE_QT_CORE
@@ -38,8 +37,5 @@
 
 #cmakedefine01 HAVE_READLINE
 
-#cmakedefine01 HAVE_BACKWARD_CPP
-
 #cmakedefine01 HAVE_POSTGRESQL
-
-#cmakedefine01 HAVE_MPARK_VARIANT
+*/

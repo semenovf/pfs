@@ -3,7 +3,7 @@
 
 void test_constructors ()
 {
-    ADD_TESTS(18)
+    ADD_TESTS(20)
 
     std::cout << "///////////////////////////////////////////////////////////////////////////\n";
     std::cout << "//                             Constructors                              //\n";
@@ -35,11 +35,13 @@ void test_constructors ()
 
 #if __cplusplus >= 201103L
     // `cv`
-    constexpr pfs::variant<int, const char *> cv(42);
+    constexpr pfs::variant<int, const char *> cv{42};
     static_assert(42 == pfs::get<int>(cv), "");
     // `cw`
-    constexpr pfs::variant<int, const char *> cw(cv);
-    static_assert(42 == pfs::get<int>(cw), "");
+    // C++17: constexpr is not usable as variant's copy constructor is defaulted.
+    // But in MPARK implementation it is not defaulted.
+    /*constexpr*/ pfs::variant<int, const char *> cw{cv};
+    /*static_assert*/TEST_OK(42 == pfs::get<int>(cw));
 #endif
     }
 
@@ -175,8 +177,8 @@ void test_constructors ()
     constexpr pfs::variant<int, const char *> cv(42);
     static_assert(42 == pfs::get<int>(cv), "");
     // `cw`
-    constexpr pfs::variant<int, const char *> cw(std::move(cv));
-    static_assert(42 == pfs::get<int>(cw), "");
+    /*constexpr*/ pfs::variant<int, const char *> cw(std::move(cv));
+    /*static_assert*/TEST_OK(42 == pfs::get<int>(cw));
 #endif
     }
 }

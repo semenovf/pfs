@@ -502,7 +502,7 @@ RealT to_real (string const & str, string::value_type decimal_point = '.'
         *str_end = endpos;
 
     if (ec) {
-        if (ec == make_error_code(errc::result_out_of_range))
+        if (ec == pfs::make_error_code(pfs::errc::result_out_of_range))
             throw out_of_range();
         throw exception("to_real(): unknown reason");
     }

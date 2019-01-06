@@ -22,11 +22,14 @@ using variant = mpark::variant<Types...>;
 template <size_t I, typename T>
 using variant_alternative_t = mpark::variant_alternative_t<I, T>;
 
+// There is no such function in C++17
+/*
 template <std::size_t I, typename... Ts>
 inline constexpr bool holds_alternative (variant<Ts...> const & v) noexcept
 {
     return mpark::holds_alternative<I, Ts...>(v);
 }
+*/
 
 template <typename T, typename... Ts>
 inline constexpr bool holds_alternative (variant<Ts...> const & v) noexcept

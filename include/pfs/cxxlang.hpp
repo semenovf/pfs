@@ -1,38 +1,6 @@
 #pragma once
 #include <pfs/config.h>
 
-#if HAVE_BOOST
-#   include <boost/version.hpp>
-#endif
-
-// // TODO DEPRECATED
-// #ifdef constexpr
-// #   undef constexpr
-// #endif
-//
-// // TODO DEPRECATED
-// #ifdef noexcept
-// #   undef noexcept
-// #endif
-//
-// // TODO DEPRECATED
-// #ifdef override
-// #   undef override
-// #endif
-//
-// // TODO DEPRECATED
-// #if __cplusplus >= 201103L
-// #   define constexpr           constexpr
-// #   define noexcept            noexcept
-// #   define pfs_noexcept_expr(expr) noexcept(expr)
-// #   define override            override
-// #else
-// #   define constexpr
-// #   define noexcept
-// #   define pfs_noexcept_expr(expr)
-// #   define override
-// #endif
-
 #ifdef constexpr
 #   undef constexpr
 #endif
@@ -130,13 +98,11 @@
 #ifndef PFS_AUTO
 #   if __cplusplus >= 201103L
 #       define PFS_AUTO(var,expr) auto var = expr
-#   elif defined(BOOST_VERSION) && BOOST_VERSION >= 103400 // BOOST_AUTO since 1.34
-#       include <boost/typeof/typeof.hpp>
-#       define PFS_TYPEOF(expr) BOOST_TYPEOF(expr)
+#   else// defined(BOOST_VERSION) && BOOST_VERSION >= 103400 // BOOST_AUTO since 1.34
+#       include <pfs/boost/typeof/typeof.hpp>
+//#       define PFS_TYPEOF(expr) BOOST_TYPEOF(expr)
 #       define PFS_AUTO(var,expr) BOOST_AUTO(var, expr)
-#   else
-#       include <3rdparty/boost/typeof/typeof.hpp>
-#       define PFS_TYPEOF(expr) BOOST_TYPEOF(expr)
-#       define PFS_AUTO(var,expr) BOOST_AUTO(var, expr)
+// #   else
+// #       error "BOOST_AUTO need for PFS_AUTO macro definition"
 #   endif
 #endif

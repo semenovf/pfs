@@ -1,6 +1,4 @@
-#ifndef __PFS_CXX_CXX98_THREAD_POSIX_HPP__
-#define __PFS_CXX_CXX98_THREAD_POSIX_HPP__
-
+#pragma once
 #include <exception>
 #include <unistd.h>
 #include <pthread.h>
@@ -169,6 +167,3 @@ inline void yield () noexcept
 } // this_thread
 
 } // pfs
-
-#endif /* __PFS_CXX_CXX98_THREAD_POSIX_HPP__ */
-

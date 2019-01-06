@@ -2,8 +2,11 @@
 cmake_minimum_required (VERSION 3.1)
 enable_testing()
 
+set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake;${CMAKE_MODULE_PATH}")
 set(PFS_TARGET_SHARED_LIB_NAME pfs)
 set(PFS_TARGET_STATIC_LIB_NAME pfs-static)
+
+include(solution)
 
 include_directories(${CMAKE_CURRENT_LIST_DIR}/include ${CMAKE_SOURCE_DIR} ${CMAKE_BINARY_DIR})
 

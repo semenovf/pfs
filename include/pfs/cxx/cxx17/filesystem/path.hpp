@@ -1,7 +1,7 @@
 #pragma once
-#include <pfs/compiler.hpp>
+#include <pfs/config.h>
 
-#if PFS_CC_GCC_VERSION >= 80000
+#if HAVE_STDCXX_FILESYSTEM
 
 #include <filesystem>
 #include "../system_error.hpp"

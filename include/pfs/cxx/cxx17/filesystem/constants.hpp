@@ -1,6 +1,7 @@
 #pragma once
+#include <pfs/config.h>
 
-#if PFS_CC_GCC_VERSION >= 80000
+#if HAVE_STDCXX_FILESYSTEM
 
 #include <filesystem>
 

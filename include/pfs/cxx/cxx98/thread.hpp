@@ -1,5 +1,6 @@
-#ifndef __PFS_CXX_CXX98_THREAD_HPP__
-#define __PFS_CXX_CXX98_THREAD_HPP__
+#pragma once
+#include <pfs/config.h>
+#include <pfs/cxxlang.hpp>
 
 // Programmatically find the number of cores on a machine
 // =============================================================================
@@ -11,20 +12,9 @@
 // [Programmatically find the number of cores on a machine](https://stackoverflow.com/questions/150355/programmatically-find-the-number-of-cores-on-a-machine)
 //
 
-#include <pfs/config.h>
-
-#if defined(PFS_CC_MSC)
-#   include "thread_win32.hpp"
-
-#   error "Implement for Win32"
-
-#elif HAVE_BOOST_THREAD
+#if HAVE_BOOST_MUTEX
 #   include "thread_boost.hpp"
-#elif HAVE_PTHREAD
-#   include "thread_posix.hpp"
 #else
-#   error "No native support for threads"
+#   include "thread_custom.hpp"
 #endif
-
-#endif /* __PFS_CXX_CXX98_THREAD_HPP__ */
 

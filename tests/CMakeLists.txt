@@ -1,7 +1,5 @@
 project(pfs-unit-test CXX)
 
-include(${CMAKE_CURRENT_SOURCE_DIR}/../solution.cmake)
-
 add_definitions(-DPFS_TEST)
 
 if (HAVE_QT5_CORE)

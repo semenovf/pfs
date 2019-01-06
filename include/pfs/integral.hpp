@@ -110,13 +110,13 @@ bool parse_integral_part_helper (CharIt & pos
 
     // Bad radix
     if (radix != 0 && (radix < 2 || radix > 36)) {
-        ec = make_error_code(errc::invalid_argument);
+        ec = pfs::make_error_code(pfs::errc::invalid_argument);
         return false;
     }
 
     // Empty sequence
     if (pos == last) {
-        ec = make_error_code(errc::invalid_argument);
+        ec = pfs::make_error_code(pfs::errc::invalid_argument);
         return false;
     }
 
@@ -126,7 +126,7 @@ bool parse_integral_part_helper (CharIt & pos
 
     // No digits seen
     if (pos == last) {
-        ec = make_error_code(errc::invalid_argument);
+        ec = pfs::make_error_code(pfs::errc::invalid_argument);
         return false;
     }
 
@@ -138,7 +138,7 @@ bool parse_integral_part_helper (CharIt & pos
 
         // No digits seen
         if (pos == last) {
-            ec = make_error_code(errc::invalid_argument);
+            ec = pfs::make_error_code(pfs::errc::invalid_argument);
             return false;
         }
 
@@ -161,7 +161,7 @@ bool parse_integral_part_helper (CharIt & pos
 
                 // No digits seen
                 if (pos == last) {
-                    ec = make_error_code(errc::invalid_argument);
+                    ec = pfs::make_error_code(pfs::errc::invalid_argument);
                     return false;
                 }
             }
@@ -267,7 +267,7 @@ IntT parse_integral_part (CharIt first
         }
 
         if (parse_digit<CharIt>(pos, radix) >= 0) {
-            ec = make_error_code(errc::result_out_of_range);
+            ec = pfs::make_error_code(pfs::errc::result_out_of_range);
 
             if (is_unsigned<IntT>::value) {
                 result = numeric_limits<IntT>::max();
@@ -395,10 +395,10 @@ IntT to_integral (string const & str, string::const_iterator * str_end = 0, int 
         *str_end = endpos;
 
     if (ec) {
-        if (ec == make_error_code(errc::invalid_argument))
+        if (ec == pfs::make_error_code(pfs::errc::invalid_argument))
             throw invalid_argument();
 
-        if (ec == make_error_code(errc::invalid_argument))
+        if (ec == pfs::make_error_code(pfs::errc::invalid_argument))
             throw out_of_range();
     }
 

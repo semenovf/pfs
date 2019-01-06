@@ -1,7 +1,5 @@
 project(pfs C CXX)
 
-include(${CMAKE_CURRENT_SOURCE_DIR}/../../solution.cmake)
-
 if(NOT PFS_TARGET_SHARED_LIB_NAME)
     message(FATAL_ERROR "PFS_TARGET_SHARED_LIB_NAME must be specified")
 endif()
@@ -101,11 +99,6 @@ if(UNIX)
     if(HAVE_PTHREAD)
         list(APPEND PFS_TARGET_LIB_LINKS "pthread")
     endif()
-endif()
-
-if (HAVE_STDCXX_FS)
-elseif (HAVE_STDCXX_FS_EXPERIMENTAL)
-    list(APPEND PFS_TARGET_LIB_LINKS "stdc++fs")
 endif()
 
 # [Is it possible to get CMake to build both a static and shared version of the same library?](https://stackoverflow.com/questions/2152077/is-it-possible-to-get-cmake-to-build-both-a-static-and-shared-version-of-the-sam)

@@ -53,7 +53,7 @@ using make_signed = std::make_signed<T>;
 template <typename T>
 using add_pointer = std::add_pointer<T>;
 
-#if __cplusplus == 201103L
+#if __cplusplus >= 201103L
 template <typename T>
 using add_pointer_t = typename add_pointer<T>::type;
 #endif

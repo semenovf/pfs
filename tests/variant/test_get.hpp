@@ -3,7 +3,7 @@
 
 void test_get ()
 {
-    ADD_TESTS(12);
+    ADD_TESTS(10);
 
 #if __cplusplus >= 201103L
     ADD_TESTS(0);
@@ -16,15 +16,15 @@ void test_get ()
     // HoldsAlternative
     {
         pfs::variant<int, std::string> v(42);
-        TEST_OK(pfs::holds_alternative<0>(v));
-        TEST_OK(!pfs::holds_alternative<1>(v));
+//         TEST_OK(pfs::holds_alternative<0>(v));
+//         TEST_OK(!pfs::holds_alternative<1>(v));
         TEST_OK(pfs::holds_alternative<int>(v));
         TEST_OK(!pfs::holds_alternative<std::string>(v));
 
 #if __cplusplus >= 201103L
         constexpr pfs::variant<int, const char *> cv(42);
-        static_assert(pfs::holds_alternative<0>(cv), "");
-        static_assert(!pfs::holds_alternative<1>(cv), "");
+//         static_assert(pfs::holds_alternative<0>(cv), "");
+//         static_assert(!pfs::holds_alternative<1>(cv), "");
         static_assert(pfs::holds_alternative<int>(cv), "");
         static_assert(!pfs::holds_alternative<const char *>(cv), "");
 #endif

@@ -20,12 +20,12 @@ inline byte_string base64_encode (byte_string const & src)
     return result;
 }
 
-inline string base64_encode (byte_string const & src)
-{
-    string result;
-    base64_encode(src, result);
-    return result;
-}
+// inline string base64_encode (byte_string const & src)
+// {
+//     string result;
+//     base64_encode(src, result);
+//     return result;
+// }
 
 inline byte_string base64_decode (byte_string const & src)
 {
