@@ -4,7 +4,8 @@
 
 #if HAVE_BOOST_SMART_PTR
 #   include "shared_ptr_boost.hpp"
-#   include "unique_ptr_boost.hpp"
+// #   include "unique_ptr_boost.hpp" // old libraries has no unique_ptr 
+#   include "unique_ptr_custom.hpp"
 #else
 #   include "shared_ptr_custom.hpp"
 #   include "unique_ptr_custom.hpp"
