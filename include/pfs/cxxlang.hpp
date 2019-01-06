@@ -99,7 +99,7 @@
 #   if __cplusplus >= 201103L
 #       define PFS_AUTO(var,expr) auto var = expr
 #   else// defined(BOOST_VERSION) && BOOST_VERSION >= 103400 // BOOST_AUTO since 1.34
-#       include <pfs/boost/typeof/typeof.hpp>
+#       include <boost/typeof/typeof.hpp>
 //#       define PFS_TYPEOF(expr) BOOST_TYPEOF(expr)
 #       define PFS_AUTO(var,expr) BOOST_AUTO(var, expr)
 // #   else
