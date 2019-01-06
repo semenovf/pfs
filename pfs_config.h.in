@@ -14,6 +14,7 @@
 #cmakedefine01 HAVE_BOOST_MUTEX
 #cmakedefine01 HAVE_BOOST_BIND
 #cmakedefine01 HAVE_BOOST_SMART_PTR
+#cmakedefine01 HAVE_BOOST_UNIQUE_PTR
 #cmakedefine01 HAVE_BOOST_RATIO
 
 #cmakedefine01 HAVE_BACKWARD_CPP
