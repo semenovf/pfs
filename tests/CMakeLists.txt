@@ -89,7 +89,8 @@ endif()
 
 set(test-integral_SOURCES
     integral/test.cpp
-    integral/parse_integral_part.cpp)
+    integral/parse_integral_part.cpp
+    integral/to_integral.cpp)
 
 set(test-io-server_SOURCES
     io-server/test.cpp

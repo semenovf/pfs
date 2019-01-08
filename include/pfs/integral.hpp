@@ -246,6 +246,9 @@ IntT parse_integral_part (CharIt first
 
             cutoff_value *= -1;
             cutoff_limit *= -1;
+            
+            if (sign > 0)
+                --cutoff_limit;
         }
 
         for (; pos != last; ++pos) {
@@ -383,7 +386,7 @@ inline IntT to_integral (string const & str, error_code & ec
  *      range of the result type.
  */
 template <typename IntT>
-IntT to_integral (string const & str, string::const_iterator * str_end = 0, int radix = 10)
+IntT to_integral (string const & str, int radix = 10, string::const_iterator * str_end = 0)
 {
     string::const_iterator endpos;
     error_code ec;
@@ -398,7 +401,7 @@ IntT to_integral (string const & str, string::const_iterator * str_end = 0, int 
         if (ec == pfs::make_error_code(pfs::errc::invalid_argument))
             throw invalid_argument();
 
-        if (ec == pfs::make_error_code(pfs::errc::invalid_argument))
+        if (ec == pfs::make_error_code(pfs::errc::result_out_of_range))
             throw out_of_range();
     }
 
