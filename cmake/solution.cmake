@@ -24,7 +24,7 @@ if(CMAKE_USE_PTHREADS_INIT)
 endif()
 
 # [FindBoost](https://cmake.org/cmake/help/git-master/module/FindBoost.html)
-find_package(Boost COMPONENTS 
+find_package(Boost COMPONENTS
     system
     filesystem
     regex
@@ -65,33 +65,17 @@ if(UNIX)
     CHECK_FUNCTION_EXISTS(getnameinfo HAVE_GETNAMEINFO)
 endif(UNIX)
 
-# # [CMake with Qt4](https://wiki.qt.io/Using_CMake_build_system)
-# find_package(Qt4 COMPONENTS QtCore)
-# 
-# if(Qt4_FOUND)
-#     set(HAVE_QT_CORE 1)
-#     set(HAVE_QT4_CORE 1)
-# endif(Qt4_FOUND)
-# 
-# # [CMake Manual](http://doc.qt.io/qt-5/cmake-manual.html)
-# find_package(Qt5Core)
-# 
-# if (Qt5::Core)
-#     set(HAVE_QT_CORE 1)
-#     set(HAVE_QT5_CORE 1)
-# endif()
+# PostgreSQL
+#
+# When CMake not found PostgreSQL but last is exists.
+# 1. On Ubuntu CMake outputs "-- Could NOT find PostgreSQL (missing:  PostgreSQL_TYPE_INCLUDE_DIR) (found version "9.X.X")"
+#    This occured because CMake not found 'pg_type.h'. Need to install package 'postgresql-server-dev-9.X'
+#
+find_package(PostgreSQL)
 
-# # PostgreSQL
-# #
-# # When CMake not found PostgreSQL but last is exists.
-# # 1. On Ubuntu CMake outputs "-- Could NOT find PostgreSQL (missing:  PostgreSQL_TYPE_INCLUDE_DIR) (found version "9.X.X")"
-# #    This occured because CMake not found 'pg_type.h'. Need to install package 'postgresql-server-dev-9.X'
-# #
-# find_package(PostgreSQL)
-# 
-# if (PostgreSQL_FOUND)
-#     set(HAVE_POSTGRESQL 1)
-# endif()
+if (PostgreSQL_FOUND)
+    set(HAVE_POSTGRESQL 1)
+endif()
 
 # Optional: Stack trace pretty printer library for C++
 # https://github.com/bombela/backward-cpp

@@ -1,6 +1,4 @@
-#ifndef __PFS_CXX_CXX11_MUTEX_HPP__
-#define __PFS_CXX_CXX11_MUTEX_HPP__
-
+#pragma once
 #include <mutex>
 
 namespace pfs {
@@ -15,10 +13,8 @@ using lock_guard = std::lock_guard<Mutex>;
 template <typename Mutex>
 using unique_lock = std::unique_lock<Mutex>;
 
-#define DEFER_LOCK  std::defer_lock
-#define TRY_TO_LOCK std::try_to_lock
-#define ADOPT_LOCK  std::adopt_lock
+#define DEFER_LOCK  std::defer_lock{}
+#define TRY_TO_LOCK std::try_to_lock{}
+#define ADOPT_LOCK  std::adopt_lock{}
 
 } // pfs
-
-#endif /* __PFS_CXX_CXX11_MUTEX_HPP__ */

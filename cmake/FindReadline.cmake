@@ -3,7 +3,7 @@
 #     http://dailycommit.blogspot.ru/2016/08/how-to-search-for-readline-library-with.html
 #
 
-# - Try to find readline include dirs and libraries 
+# - Try to find readline include dirs and libraries
 #
 # Usage of this module as follows:
 #
@@ -33,7 +33,7 @@ find_library(Readline_LIBRARY
         HINTS ${Readline_ROOT_DIR}/lib)
 
 if(Readline_INCLUDE_DIR AND Readline_LIBRARY AND Ncurses_LIBRARY)
-    set(READLINE_FOUND TRUE)
+    set(Readline_FOUND TRUE)
 else()
     find_library(Readline_LIBRARY NAMES readline)
     include(FindPackageHandleStandardArgs)

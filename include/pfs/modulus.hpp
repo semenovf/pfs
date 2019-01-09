@@ -14,6 +14,7 @@
 #include <pfs/sigslot.hpp>
 #include <pfs/safeformat.hpp>
 #include <pfs/datetime.hpp>
+#include <pfs/chrono.hpp>
 #include <pfs/thread.hpp>
 #include <pfs/io/file.hpp>
 #include <pfs/io/iterator.hpp>

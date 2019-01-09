@@ -12,7 +12,7 @@
 // [Programmatically find the number of cores on a machine](https://stackoverflow.com/questions/150355/programmatically-find-the-number-of-cores-on-a-machine)
 //
 
-#if HAVE_BOOST_MUTEX
+#if HAVE_BOOST_THREAD
 #   include "thread_boost.hpp"
 #else
 #   include "thread_custom.hpp"

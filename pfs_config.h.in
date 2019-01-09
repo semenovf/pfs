@@ -27,16 +27,4 @@
 #cmakedefine01 HAVE_GETIFADDRS
 #cmakedefine01 HAVE_GETNAMEINFO
 
-/*
-#cmakedefine01 HAVE_BOOST_OPTIONAL
-
-#cmakedefine01 HAVE_QT_CORE
-
-#cmakedefine01 HAVE_QT4_CORE
-
-#cmakedefine01 HAVE_QT5_CORE
-
-#cmakedefine01 HAVE_READLINE
-
 #cmakedefine01 HAVE_POSTGRESQL
-*/

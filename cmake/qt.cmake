@@ -1,0 +1,15 @@
+if(NOT MY_QT_PREFERRED)
+    set(MY_QT_PREFERRED 5)
+endif()
+
+if(${MY_QT_PREFERRED} EQUAL 5)
+    include(qt5)
+elseif(${MY_QT_PREFERRED} EQUAL 4)
+    include(qt4)
+else()
+    include(qt5)
+
+    if(NOT HAVE_QT5_CORE)
+        include(qt4)
+    endif()
+endif()
