@@ -618,6 +618,8 @@ struct modulus
         void connect_console_appenders ();
         void disconnect_console_appenders ();
 
+        filesystem::pathlist module_paths () const;
+
     protected:
         module_spec module_for_path ( filesystem::path const & path
                 , char const * class_name = 0
@@ -685,7 +687,7 @@ struct modulus
         void (dispatcher::*warn_printer) (basic_module const * m, string_type const & s);
         void (dispatcher::*error_printer) (basic_module const * m, string_type const & s);
 
-        atomic_int _quitfl; // quit flag
+        atomic_int             _quitfl; // quit flag
         filesystem::pathlist   _searchdirs;
         api_map_type           _api;
         module_spec_map_type   _module_spec_map;
@@ -1403,6 +1405,22 @@ int modulus<PFS_MODULUS_TEMPLETE_ARGS>::dispatcher::exec ()
     finalize();
 
     return r;
+}
+
+template <PFS_MODULUS_TEMPLETE_SIGNATURE>
+filesystem::pathlist modulus<PFS_MODULUS_TEMPLETE_ARGS>::dispatcher::module_paths () const
+{
+    filesystem::pathlist result;
+
+    typename module_spec_map_type::const_iterator first = _module_spec_map.cbegin();
+    typename module_spec_map_type::const_iterator last  = _module_spec_map.cend();
+
+    for (; first != last; ++first) {
+        module_spec modspec = first->second;
+        result.push_back(modspec.pdl->path());
+    }
+
+    return result;
 }
 
 } // pfs

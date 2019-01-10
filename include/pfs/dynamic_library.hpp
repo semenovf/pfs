@@ -25,16 +25,12 @@ public:
     typedef pfs::string string_type;
 
 #ifdef PFS_CC_MSC
-	typedef HMODULE native_handle_type;
-	typedef FARPROC symbol_type;
+    typedef HMODULE native_handle_type;
+    typedef FARPROC symbol_type;
 #else
-	typedef void * native_handle_type;
-	typedef void * symbol_type;
+    typedef void * native_handle_type;
+    typedef void * symbol_type;
 #endif
-
-private:
-    native_handle_type _handle;
-    filesystem::path   _path;   // contains path to dynamic library
 
 private:
 #if __cplusplus >= 201103L
@@ -75,6 +71,12 @@ public:
 
     symbol_type resolve (char const * symbol_name);
     symbol_type resolve (char const * symbol_name, error_code & ec) noexcept;
+
+    filesystem::path path () const noexcept { return _path; }
+
+private:
+    native_handle_type _handle;
+    filesystem::path   _path;   // contains path to dynamic library
 };
 
 /**
