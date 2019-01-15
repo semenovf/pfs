@@ -259,7 +259,7 @@ public:
     {
         // Other iterators are not affected
         iterator result = const_cast_iterator(last);
-        base_class(const_cast_iterator(first), result);
+        base_class::erase(const_cast_iterator(first), result);
         return result;
     }
 #endif

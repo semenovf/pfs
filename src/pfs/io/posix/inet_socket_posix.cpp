@@ -36,15 +36,16 @@ namespace details {
 //
 error_code inet_socket::reopen ()
 {
-    error_code ec;
+    //error_code ec;
 
-    if (close()) {
-        ec = open(true);
+    //if (close()) {
+    close();
+    error_code ec = open(true);
 
-        // Need conversion ntoh() because connect() will convert again (see connect() above)
-        if (!ec)
-            ec = this->connect(ntohl(_sockaddr.sin_addr.s_addr), ntohs(_sockaddr.sin_port));
-    }
+    // Need conversion ntoh() because connect() will convert again (see connect() above)
+    if (!ec)
+        ec = this->connect(ntohl(_sockaddr.sin_addr.s_addr), ntohs(_sockaddr.sin_port));
+    //}
     return ec;
 }
 

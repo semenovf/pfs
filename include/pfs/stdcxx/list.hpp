@@ -325,7 +325,7 @@ public:
 
     inline iterator erase (const_iterator first, const_iterator last)
     {
-        return base_class(const_cast_iterator(first)
+        return base_class::erase(const_cast_iterator(first)
                 , const_cast_iterator(last));
     }
 #endif

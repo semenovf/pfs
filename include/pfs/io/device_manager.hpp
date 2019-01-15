@@ -23,7 +23,7 @@ class device_manager : SigslotNS::has_slots
 
         bool operator < (reopen_item const & x) const
         {
-            return (start + timeout) <= (x.start + x.timeout);
+            return (start + timeout) < (x.start + x.timeout);
         }
     };
 
@@ -206,7 +206,8 @@ public:
         item.start   = ::time(0); // TODO may be need to use monotonic clock
 
         // Checking first item will be enough.
-        return (*_rq.begin() < item) ? true : false;
+        bool result = (*_rq.begin() < item);
+        return result;
     }
 
     /**
@@ -222,8 +223,8 @@ public:
         item.timeout = 0;
         item.start   = ::time(0); // TODO may be need to use monotonic clock
 
-        typename reopen_queue::const_iterator it = _rq.begin();
-        typename reopen_queue::const_iterator last = _rq.end();
+        typename reopen_queue::const_iterator it = _rq.cbegin();
+        typename reopen_queue::const_iterator last = _rq.cend();
 
         while (*it < item && it != last) {
             device_ptr d = it->d;
