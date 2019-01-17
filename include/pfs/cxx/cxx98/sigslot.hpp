@@ -1,4 +1,5 @@
 #pragma once
+#include <pfs/assert.hpp>
 #include <pfs/memory.hpp>
 #include <pfs/set.hpp>
 #include <pfs/list.hpp>
