@@ -137,6 +137,13 @@
 1. [Regular expressions library (cppreference.com)](http://en.cppreference.com/w/cpp/regex)
 2. [Regex (cplusplus.com)](http://www.cplusplus.com/reference/regex/)
 
+### Software development principles
+
+1. [DRY](https://en.wikipedia.org/wiki/Don%27t_repeat_yourself) (Don't repeat yourself)
+2. [SOLID (1)](https://en.wikipedia.org/wiki/SOLID)
+3. [SOLID (2)](https://blog.bitsrc.io/solid-principles-every-developer-should-know-b3bfa96bb688)
+4. [FIRST](https://addyosmani.com/first/)
+
 ### Misc
 
 1. [Embedding resource files in a C++ program binary on Linux/*NIX](http://www.atwillys.de/content/cc/embedding-resource-files-in-a-c-plus-plus-program-binary-on-linux-unix/?lang=en)
