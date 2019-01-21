@@ -14,6 +14,17 @@ struct counter_enum
     };
 };
 
+#if __cplusplus >= 201103L
+enum class counter_enum_class : int
+{
+      ZERO
+    , ONE
+    , TWO
+    , THREE
+    , __BAD_VALUE__
+};
+#endif
+
 static pfs::string ACRONYMS[] = {
       pfs::string("0")
     , pfs::string("1")
@@ -35,14 +46,6 @@ static pfs::string STRINGS[] = {
 //
 namespace pfs {
 
-// // voc::name() methos specialization
-// template <>
-// pfs::string const & voc<counter_enum>::name ()
-// {
-//     static pfs::string __name("Counter");
-//     return __name;
-// }
-//
 // to_acronym() function specialization
 template <>
 pfs::string to_acronym<counter_enum> (voc<counter_enum> const & voc)
@@ -56,7 +59,6 @@ pfs::string to_string<counter_enum> (voc<counter_enum> const & voc)
 {
     return STRINGS[voc.value()];
 }
-
 
 // voc::valid() function specialization
 template <>
@@ -78,6 +80,47 @@ voc<counter_enum> make_voc (pfs::string const & s)
     return voc<counter_enum>();
 }
 
+#if __cplusplus >= 201103L
+
+// to_acronym() function specialization
+template <>
+pfs::string to_acronym<counter_enum_class> (voc<counter_enum_class> const & voc)
+{
+    return ACRONYMS[static_cast<int>(voc.value())];
+}
+
+// to_string() function specialization
+template <>
+pfs::string to_string<counter_enum_class> (voc<counter_enum_class> const & voc)
+{
+    return STRINGS[static_cast<int>(voc.value())];
+}
+
+// voc::valid() function specialization
+template <>
+bool voc<counter_enum_clas>::valid (int value)
+{
+    return value >= static_cast<int>(counter_enum_clas::ZERO)
+            && value < static_cast<int>(counter_enum_clas::__BAD_VALUE__);
+}
+
+template <>
+voc<counter_enum_class> make_voc (pfs::string const & s)
+{
+    if (!s.empty()) {
+        for (int i = static_cast<int>(counter_enum_class::ZERO)
+                    ; i < static_cast<int>(counter_enum_class)::__BAD_VALUE__
+                    ; i++) {
+            if (ACRONYMS[i] == s || STRINGS[i] == s)
+                return make_voc<counter_enum_clas>(i);
+        }
+    }
+
+    return voc<counter_enum_class>();
+}
+
+#endif
+
 } // namespace pfs
 
 typedef pfs::voc<counter_enum> voc_t;
@@ -87,6 +130,16 @@ inline std::ostream & operator << (std::ostream & os, voc_t const & value)
     os << value.value();
     return os;
 }
+
+#if __cplusplus >= 201103L
+typedef pfs::voc<counter_enum_class> voc_class_t;
+
+inline std::ostream & operator << (std::ostream & os, voc_class_t const & value)
+{
+    os << static_cast<int>(value.value());
+    return os;
+}
+#endif
 
 
 TEST_CASE("Default constructor") {

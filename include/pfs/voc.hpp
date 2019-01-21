@@ -1,4 +1,5 @@
 #pragma once
+#include <pfs/type_traits.hpp>
 #include <pfs/string.hpp>
 #include <pfs/compare.hpp>
 

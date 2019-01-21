@@ -17,6 +17,8 @@ if(MY_QT_REQUIRED)
             add_definitions(${Qt5Widgets_DEFINITIONS})
             include_directories(${Qt5Widgets_INCLUDE_DIRS})
             list(APPEND QT_LIBRARIES ${Qt5Widgets_LIBRARIES})
+        elseif(${module} STREQUAL "QtCore")
+            # Already found
         else()
             find_package(${module} REQUIRED)
             add_definitions(${${module}_DEFINITIONS})
