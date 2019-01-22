@@ -873,7 +873,7 @@ struct buffer_wrapper
 template <int N>
 struct byte_string_ref_n
 {
-    typedef typename size_type_n<N>::type size_type;
+    typedef typename size_type_n<N>::unsigned_type size_type;
     byte_string * p;
 
     byte_string_ref_n (byte_string & bs)
