@@ -100,5 +100,8 @@ inline voc<StructEnumT> make_voc (int value)
 template <typename StructEnumT>
 voc<StructEnumT> make_voc (string const & s);
 
+template <typename StructEnumT>
+string voc_name ();
+
 } // namespace pfs
 

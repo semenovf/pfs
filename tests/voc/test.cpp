@@ -41,10 +41,23 @@ static pfs::string STRINGS[] = {
     , pfs::string("?")
 };
 
+static pfs::string NAME1("Counter enumeration");
+
+#if __cplusplus >= 201103L
+static pfs::string NAME2("Counter enumeration class");
+#endif
+
 //
 // Specializations
 //
 namespace pfs {
+
+// voc_name() function specialization
+template <>
+string voc_name<counter_enum> ()
+{
+    return NAME1;
+}
 
 // to_acronym() function specialization
 template <>
@@ -81,6 +94,13 @@ voc<counter_enum> make_voc (pfs::string const & s)
 }
 
 #if __cplusplus >= 201103L
+
+// voc_name() function specialization
+template <>
+string voc_name<counter_enum_class> ()
+{
+    return NAME2;
+}
 
 // to_acronym() function specialization
 template <>
@@ -140,7 +160,6 @@ inline std::ostream & operator << (std::ostream & os, voc_class_t const & value)
     return os;
 }
 #endif
-
 
 TEST_CASE("Default constructor") {
     voc_t voc;
@@ -281,4 +300,8 @@ TEST_CASE("Comparisons") {
     CHECK(counter_enum::ONE > zero);
     CHECK(counter_enum::ONE >= zero);
     CHECK(counter_enum::ONE >= one);
+}
+
+TEST_CASE("Test vocabulary name") {
+    CHECK(pfs::voc_name<counter_enum>() == NAME1);
 }
