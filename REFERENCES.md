@@ -137,6 +137,12 @@
 1. [Regular expressions library (cppreference.com)](http://en.cppreference.com/w/cpp/regex)
 2. [Regex (cplusplus.com)](http://www.cplusplus.com/reference/regex/)
 
+### Reflective enums
+
+1. [wise_enum](https://github.com/quicknir/wise_enum)
+2. [Better Enums](https://github.com/aantron/better-enums)
+3. [Meta Enum - Static reflection on enums in C++17](https://github.com/therocode/meta_enum)
+
 ### Software development principles
 
 1. [DRY](https://en.wikipedia.org/wiki/Don%27t_repeat_yourself) (Don't repeat yourself)
