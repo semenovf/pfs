@@ -10,7 +10,6 @@ struct counter_enum
         , ONE
         , TWO
         , THREE
-        , __BAD_VALUE__
     };
 };
 
@@ -21,7 +20,6 @@ enum class counter_enum_class : int
     , ONE
     , TWO
     , THREE
-    , __BAD_VALUE__
 };
 #endif
 
@@ -30,7 +28,6 @@ static pfs::string ACRONYMS[] = {
     , pfs::string("1")
     , pfs::string("2")
     , pfs::string("3")
-    , pfs::string("?")
 };
 
 static pfs::string STRINGS[] = {
@@ -38,7 +35,6 @@ static pfs::string STRINGS[] = {
     , pfs::string("One")
     , pfs::string("Two")
     , pfs::string("Three")
-    , pfs::string("?")
 };
 
 static pfs::string NAME1("Counter enumeration");
@@ -52,39 +48,38 @@ static pfs::string NAME2("Counter enumeration class");
 //
 namespace pfs {
 
-// voc_name() function specialization
+// voc::name() method specialization
 template <>
-string voc_name<counter_enum> ()
+string voc<counter_enum>::name ()
 {
     return NAME1;
 }
 
-// to_acronym() function specialization
+// to_acronym() method specialization
 template <>
-pfs::string to_acronym<counter_enum> (voc<counter_enum> const & voc)
+string voc<counter_enum>::to_acronym () const
 {
-    return ACRONYMS[voc.value()];
+    return valid() ? ACRONYMS[_value] : string();
 }
 
-// to_string() function specialization
+// to_string() method specialization
 template <>
-pfs::string to_string<counter_enum> (voc<counter_enum> const & voc)
+string voc<counter_enum>::to_string () const
 {
-    return STRINGS[voc.value()];
-}
-
-// voc::valid() function specialization
-template <>
-bool voc<counter_enum>::valid (int value)
-{
-    return value >= counter_enum::ZERO && value < counter_enum::__BAD_VALUE__;
+    return valid() ? STRINGS[_value] : string();
 }
 
 template <>
-voc<counter_enum> make_voc (pfs::string const & s)
+bool voc<counter_enum>::valid (native_type value)
+{
+    return value >= counter_enum::ZERO && value <= counter_enum::THREE;
+}
+
+template <>
+voc<counter_enum> make_voc (string const & s)
 {
     if (!s.empty()) {
-        for (int i = counter_enum::ZERO; i < counter_enum::__BAD_VALUE__; i++) {
+        for (int i = counter_enum::ZERO; i <= counter_enum::THREE; i++) {
             if (ACRONYMS[i] == s || STRINGS[i] == s)
                 return make_voc<counter_enum>(i);
         }
@@ -187,7 +182,7 @@ TEST_CASE("Constructors and assign operators") {
     CHECK(three.valid());
     CHECK(three_clone.valid());
 
-    voc_t bad(counter_enum::__BAD_VALUE__);
+    voc_t bad;
     voc_t bad_clone(bad);
     CHECK_FALSE(bad.valid());
     CHECK_FALSE(bad_clone.valid());
@@ -208,15 +203,15 @@ TEST_CASE("Constructors and assign operators") {
     CHECK(voc.value() == counter_enum::THREE);
 
     voc = bad;
-    CHECK(voc.value() == counter_enum::__BAD_VALUE__);
+    CHECK_THROWS(voc.value());
 }
 
 TEST_CASE("Makers") {
     voc_t bad_voc = pfs::make_voc<counter_enum>(-1);
-    CHECK(bad_voc.value() == counter_enum::__BAD_VALUE__);
+    CHECK_THROWS(bad_voc.value());
 
     bad_voc = pfs::make_voc<counter_enum>(100);
-    CHECK(bad_voc.value() == counter_enum::__BAD_VALUE__);
+    CHECK_THROWS(bad_voc.value());
 
     voc_t zero = pfs::make_voc<counter_enum>(0);
     CHECK(zero.value() == counter_enum::ZERO);
@@ -231,8 +226,8 @@ TEST_CASE("Makers") {
     CHECK(three.value() == counter_enum::THREE);
 
 
-    CHECK(pfs::make_voc<counter_enum>("-1").value() == counter_enum::__BAD_VALUE__);
-    CHECK(pfs::make_voc<counter_enum>("Bad Value").value() == counter_enum::__BAD_VALUE__);
+    CHECK_THROWS(pfs::make_voc<counter_enum>("-1").value());
+    CHECK_THROWS(pfs::make_voc<counter_enum>("Bad Value").value());
 
     CHECK(pfs::make_voc<counter_enum>("0").value() == 0);
     CHECK(pfs::make_voc<counter_enum>("Zero").value() == 0);
@@ -248,20 +243,20 @@ TEST_CASE("Makers") {
 }
 
 TEST_CASE("To string conversions") {
-    CHECK(pfs::to_acronym(voc_t()) == "?");
-    CHECK(pfs::to_string(voc_t()) == "?");
+    CHECK(voc_t().to_acronym().empty());
+    CHECK(voc_t().to_string().empty());
 
-    CHECK(pfs::to_acronym(voc_t(counter_enum::ZERO)) == "0");
-    CHECK(pfs::to_string(voc_t(counter_enum::ZERO)) == "Zero");
+    CHECK(voc_t(counter_enum::ZERO).to_acronym() == "0");
+    CHECK(voc_t(counter_enum::ZERO).to_string() == "Zero");
 
-    CHECK(pfs::to_acronym(voc_t(counter_enum::ONE)) == "1");
-    CHECK(pfs::to_string(voc_t(counter_enum::ONE)) == "One");
+    CHECK(voc_t(counter_enum::ONE).to_acronym() == "1");
+    CHECK(voc_t(counter_enum::ONE).to_string() == "One");
 
-    CHECK(pfs::to_acronym(voc_t(counter_enum::TWO)) == "2");
-    CHECK(pfs::to_string(voc_t(counter_enum::TWO)) == "Two");
+    CHECK(voc_t(counter_enum::TWO).to_acronym() == "2");
+    CHECK(voc_t(counter_enum::TWO).to_string() == "Two");
 
-    CHECK(pfs::to_acronym(voc_t(counter_enum::THREE)) == "3");
-    CHECK(pfs::to_string(voc_t(counter_enum::THREE)) == "Three");
+    CHECK(voc_t(counter_enum::THREE).to_acronym() == "3");
+    CHECK(voc_t(counter_enum::THREE).to_string() == "Three");
 }
 
 TEST_CASE("Comparisons") {
@@ -269,13 +264,13 @@ TEST_CASE("Comparisons") {
     voc_t one(counter_enum::ONE);
     voc_t two(counter_enum::TWO);
     voc_t three(counter_enum::THREE);
-    voc_t bad(counter_enum::__BAD_VALUE__);
+    voc_t bad;
 
     CHECK(zero == zero);
     CHECK(one == one);
     CHECK(two == two);
     CHECK(three == three);
-    CHECK(bad == bad);
+    CHECK_THROWS(bad == bad);
 
     CHECK(zero != one);
     CHECK(zero < one);
@@ -303,5 +298,5 @@ TEST_CASE("Comparisons") {
 }
 
 TEST_CASE("Test vocabulary name") {
-    CHECK(pfs::voc_name<counter_enum>() == NAME1);
+    CHECK(voc_t::name() == NAME1);
 }

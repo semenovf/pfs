@@ -3,6 +3,7 @@
 #include <pfs/limits.hpp>
 #include <pfs/string.hpp>
 #include <pfs/compare.hpp>
+#include <pfs/exception.hpp>
 
 namespace pfs {
 
@@ -11,16 +12,15 @@ namespace pfs {
 template <typename StructEnumT>
 class voc
 {
-#if __cplusplus < 201103L
-    typedef typename size_type_n<sizeof(typename StructEnumT::value_enum)>::signed_type value_type;
-    static const value_type bad_value ()
+public:
+    typedef typename size_type_n<sizeof(typename StructEnumT::value_enum)>::signed_type native_type;
+
+private:
+    static const native_type bad_value ()
     {
-        return numeric_limits<value_type>::max();
+        return numeric_limits<native_type>::max();
     }
-#else
-    // TODO for enum class
-#endif
-    
+
 public:
     /**
      * @fn voc (voc const & other);
@@ -31,43 +31,43 @@ public:
      * @fn voc & operator = (voc const & other);
      * @brief Copy assignable operator.
      */
-    
-#if __cplusplus < 201103L
-    voc (typename StructEnumT::value_enum value = StructEnumT::__BAD_VALUE__)
-        : _value(value)
-    {}
-#else
-    // TODO for enum class
-#endif
 
-#if __cplusplus < 201103L
+    /**
+     */
+    voc () : _value(bad_value()) {}
+
+    explicit voc (typename StructEnumT::value_enum value)
+        : _value(static_cast<native_type>(value))
+    {}
+
     voc & operator = (typename StructEnumT::value_enum value)
     {
-        _value = value;
+        _value = static_cast<native_type>(value);
         return *this;
     }
-#else
-    // TODO for enum class
-#endif
 
-#if __cplusplus < 201103L
     typename StructEnumT::value_enum value () const
     {
-        return _value;
+        PFS_THROW_EXPR(valid());
+        return static_cast<typename StructEnumT::value_enum>(_value);
     }
-#else
-    // TODO for enum class
-#endif
 
     bool valid () const
     {
-        return valid(_value);
+        return _value != bad_value();
     }
 
-    static bool valid (int value);
+    //
+    // Candidates for specialization
+    //
+    string to_string () const;
+    string to_acronym () const;
+
+    static string name ();
+    static bool valid (native_type value);
 
 private:
-    value_type _value;
+    native_type _value;
 };
 
 template <typename StructEnumT>
@@ -76,25 +76,17 @@ inline bool operator == (voc<StructEnumT> const & lhs, voc<StructEnumT> const & 
     return lhs.value() == rhs.value();
 }
 
-#if __cplusplus < 201103L
 template <typename StructEnumT>
 inline bool operator == (voc<StructEnumT> const & lhs, typename StructEnumT::value_enum rhs)
 {
     return lhs.value() == rhs;
 }
-#else
-    // TODO for enum class
-#endif
 
-#if __cplusplus < 201103L
 template <typename StructEnumT>
 inline bool operator == (typename StructEnumT::value_enum lhs, voc<StructEnumT> const & rhs)
 {
     return lhs == rhs.value();
 }
-#else
-    // TODO for enum class
-#endif
 
 template <typename StructEnumT>
 inline bool operator < (voc<StructEnumT> const & lhs, voc<StructEnumT> const & rhs)
@@ -102,49 +94,34 @@ inline bool operator < (voc<StructEnumT> const & lhs, voc<StructEnumT> const & r
     return lhs.value() < rhs.value();
 }
 
-#if __cplusplus < 201103L
 template <typename StructEnumT>
 inline bool operator < (voc<StructEnumT> const & lhs, typename StructEnumT::value_enum rhs)
 {
     return lhs.value() < rhs;
 }
-#else
-    // TODO for enum class
-#endif
 
-#if __cplusplus < 201103L
 template <typename StructEnumT>
 inline bool operator < (typename StructEnumT::value_enum lhs, voc<StructEnumT> const & rhs)
 {
     return lhs < rhs.value();
 }
-#else
-    // TODO for enum class
-#endif
 
 template <typename StructEnumT>
-string to_string (voc<StructEnumT> const & voc);
-
-template <typename StructEnumT>
-string to_acronym (voc<StructEnumT> const & voc);
-
-#if __cplusplus < 201103L
-template <typename StructEnumT>
-inline voc<StructEnumT> make_voc (int value)
+inline voc<StructEnumT> make_voc (typename voc<StructEnumT>::native_type value)
 {
     return voc<StructEnumT>::valid(value)
             ? voc<StructEnumT>(static_cast<typename StructEnumT::value_enum>(value))
             : voc<StructEnumT>();
 }
-#else
-    // TODO for enum class
-#endif
 
 template <typename StructEnumT>
 voc<StructEnumT> make_voc (string const & s);
 
 template <typename StructEnumT>
-string voc_name ();
+inline string to_string (voc<StructEnumT> const & voc)
+{
+    return voc.to_string();
+}
 
 } // namespace pfs
 
