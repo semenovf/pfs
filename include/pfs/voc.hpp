@@ -42,7 +42,7 @@ private:
     {
         return pfs::numeric_limits<underlying_type>::max();
     }
-    
+
 public:
     /**
      * @fn voc (voc const & other);
@@ -57,7 +57,7 @@ public:
     /**
      */
     voc () : _value(bad_value()) {}
-    
+
     explicit voc (type value)
         : _value(static_cast<underlying_type>(value))
     {}
@@ -67,13 +67,13 @@ public:
         _value = static_cast<underlying_type>(value);
         return *this;
     }
-    
+
     type value () const
     {
         PFS_THROW_EXPR(valid());
         return static_cast<type>(_value);
     }
-    
+
     bool valid () const
     {
         return _value != bad_value();
@@ -87,7 +87,7 @@ public:
 
     static string name ();
     static bool valid (underlying_type value);
-    
+
 private:
     underlying_type _value;
 };

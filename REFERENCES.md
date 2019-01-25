@@ -127,6 +127,10 @@
 
 1. [Docopt](http://docopt.org/)
 2. [Optional](https://mulholland.xyz/docs/optional/index.html)
+3. [cxxopts - Lightweight C++ command line option parser](https://github.com/jarro2783/cxxopts)
+4. [argagg - A simple C++11 command line argument parser](https://github.com/vietjtnguyen/argagg)
+5. [Boost.Program_options](https://www.boost.org/doc/libs/1_58_0/doc/html/program_options.html)
+6. [Clara - A simple to use, composable, command line parser for C++ 11 and beyond](https://github.com/catchorg/Clara)
 
 ### File system
 
