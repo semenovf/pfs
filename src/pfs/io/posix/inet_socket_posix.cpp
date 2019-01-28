@@ -72,7 +72,14 @@ ssize_t inet_socket::available () const
     // Check if any data available on socket
     byte_t buffer;
     ssize_t rc1 = recv(_fd, & buffer, 1, MSG_PEEK);
-    PFS_ASSERT(rc1 >= 0);
+
+    if (rc1 < 0
+        && errno == EAGAIN
+                || (EAGAIN != EWOULDBLOCK && errno == EWOULDBLOCK)) {
+        return 0;
+    }
+
+    //PFS_ASSERT_X(rc1 >= 0, get_last_system_error().message().c_str());
 
     if (rc1 == 0)
         return 0;
