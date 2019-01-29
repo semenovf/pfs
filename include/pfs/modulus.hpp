@@ -298,9 +298,26 @@ struct modulus
 
         virtual bool use_async_slots () const override { return true; }
 
+        /**
+         * @see process_events.
+         */
         void call_all ()
         {
             this->callback_queue().call_all();
+        }
+
+        /**
+         * @brief process_events() is a synonym for call_all().
+         * @see call_all.
+         */
+        void process_events ()
+        {
+            this->callback_queue().call_all();
+        }
+
+        bool has_pending_events () const
+        {
+            return !this->callback_queue().empty();
         }
     };
 
