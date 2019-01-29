@@ -256,7 +256,7 @@ TEST_CASE("Constructors and assign operators (C++11)") {
     voc = bad;
     CHECK_THROWS(voc.value());
 }
-#endif    
+#endif
 
 TEST_CASE("Makers") {
     voc_t bad_voc = pfs::make_voc<counter_enum>(-1);
@@ -329,7 +329,7 @@ TEST_CASE("Makers (C++11)") {
     CHECK(pfs::make_voc<counter_enum_class>("3").value() == counter_enum_class::THREE);
     CHECK(pfs::make_voc<counter_enum_class>("Three").value() == counter_enum_class::THREE);
 }
-#endif    
+#endif
 
 TEST_CASE("To string conversions") {
     CHECK(voc_t().to_acronym().empty());
@@ -365,7 +365,7 @@ TEST_CASE("To string conversions (C++11)") {
     CHECK(voc_class_t(counter_enum_class::THREE).to_acronym() == "3");
     CHECK(voc_class_t(counter_enum_class::THREE).to_string() == "Three");
 }
-#endif    
+#endif
 
 TEST_CASE("Comparisons") {
     voc_t zero(counter_enum::ZERO);
@@ -443,7 +443,7 @@ TEST_CASE("Comparisons (C++11)") {
     CHECK(counter_enum_class::ONE >= zero);
     CHECK(counter_enum_class::ONE >= one);
 }
-#endif    
+#endif
 
 
 TEST_CASE("Test vocabulary name") {
@@ -454,4 +454,4 @@ TEST_CASE("Test vocabulary name") {
 TEST_CASE("Test vocabulary name (C++11)") {
     CHECK(voc_class_t::name() == NAME2);
 }
-#endif    
+#endif
