@@ -225,6 +225,7 @@ struct sigslot
         }
 
         callback_queue_type & callback_queue () { return *_queue_ptr; }
+        callback_queue_type const & callback_queue () const { return *_queue_ptr; }
     };
 
     class has_slots : public basic_has_slots
