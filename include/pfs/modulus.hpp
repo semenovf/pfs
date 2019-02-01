@@ -315,6 +315,11 @@ struct modulus
             this->callback_queue().call_all();
         }
 
+        void process_events (int max_count)
+        {
+            this->callback_queue().call(max_count);
+        }
+
         bool has_pending_events () const
         {
             return !this->callback_queue().empty();
