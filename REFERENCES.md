@@ -152,6 +152,10 @@
 2. [Better Enums](https://github.com/aantron/better-enums)
 3. [Meta Enum - Static reflection on enums in C++17](https://github.com/therocode/meta_enum)
 
+### JSON
+
+1. [JSON-RPC 2.0 Specification](https://www.jsonrpc.org/specification)
+
 ### Software development principles
 
 1. [DRY](https://en.wikipedia.org/wiki/Don%27t_repeat_yourself) (Don't repeat yourself)
