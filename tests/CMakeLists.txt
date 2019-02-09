@@ -69,6 +69,7 @@ list(APPEND MY_TEST_TARGETS algo-tricks)
 list(APPEND MY_TEST_TARGETS variadic-templates)
 list(APPEND MY_TEST_TARGETS variant)
 list(APPEND MY_TEST_TARGETS vector)
+list(APPEND MY_TEST_TARGETS enum)
 list(APPEND MY_TEST_TARGETS voc)
 
 ################################################################################

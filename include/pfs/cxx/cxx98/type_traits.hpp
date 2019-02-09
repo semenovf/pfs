@@ -620,4 +620,9 @@ template <> struct make_signed<unsigned long long volatile> { typedef signed lon
 template <> struct make_signed<unsigned long long const volatile> { typedef signed long long const volatile type; };
 #endif
 
+// TODO Valid for GCC only
+template <typename T>
+struct is_enum : public integral_constant<bool, __is_enum(T)>
+{};
+
 } // pfs

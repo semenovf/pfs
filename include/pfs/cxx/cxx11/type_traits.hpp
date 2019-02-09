@@ -58,4 +58,7 @@ template <typename T>
 using add_pointer_t = typename add_pointer<T>::type;
 #endif
 
+template <typename T>
+using is_enum = std::is_enum<T>;
+
 }
