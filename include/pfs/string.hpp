@@ -404,6 +404,19 @@ inline string to_string (char const * s)
     return string(s);
 }
 
+string to_lower (string::const_iterator first, string::const_iterator last);
+string to_upper (string::const_iterator first, string::const_iterator last);
+
+inline string to_lower (string const & s)
+{
+    return to_lower(s.cbegin(), s.cend());
+}
+
+inline string to_upper (string const & s)
+{
+    return to_upper(s.cbegin(), s.cend());
+}
+
 namespace details {
 namespace fp {
 

@@ -133,6 +133,9 @@ inline void invalidate (char_t & c)
     c.value = char_t::max_code_point;
 }
 
+char_t to_lower (char_t const & c);
+char_t to_upper (char_t const & c);
+
 }} // pfs::unicode
 
 namespace pfs {

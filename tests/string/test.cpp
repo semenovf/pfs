@@ -128,6 +128,7 @@
 
 #include "test_constructors.hpp"
 #include "test_trim.hpp"
+#include "test_case.hpp"
 
 int main ()
 {
@@ -135,6 +136,7 @@ int main ()
 
     test_constructors<pfs::string>();
     test_trim<pfs::string>();
+    test_case<pfs::string>();
 
 #ifdef HAVE_QT_CORE
     //test_constructors<pfs::qt::string>();

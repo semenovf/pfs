@@ -22,6 +22,7 @@ set(PFS_LIB_COMMON_SOURCES
     string.cpp
     system_error.cpp
     time.cpp
+    unicode.cpp
 
 #   Db
     sql/exception.cpp

@@ -1,33 +1,65 @@
-//#include <istream>
-//#include <iterator>
-//#include <streambuf>
-//#include <fstream>
-//#include "pfs/type_traits.hpp"
-//#include "pfs/string.hpp"
-//#include "pfs/io/device.hpp"
-//#include "pfs/io/iterator.hpp"
-//#include "pfs/unicode/utf8_iterator.hpp"
-//#include "pfs/traits/stdcxx/string.hpp"
-//
-//#if HAVE_QT_CORE
-//#   include "pfs/traits/qt/string.hpp"
-//#endif
+#include <cctype>
+#include "pfs/string.hpp"
+#include "pfs/unicode/char.hpp"
+#include "pfs/unicode/unicode_iterator.hpp"
 
 namespace pfs {
+
+string to_lower (string::const_iterator first, string::const_iterator last)
+{
+    typedef pfs::unicode::unicode_iterator_traits<
+            string::const_iterator>::iterator unicode_iterator;
+
+    typedef pfs::unicode::unicode_iterator_traits<
+            string::iterator>::output_iterator output_iterator;
+
+    string result;
+
+    output_iterator out(pfs::back_inserter(result));
+
+    unicode_iterator f(first);
+    unicode_iterator l(last);
+
+    while (f != l)
+        *out++ = unicode::to_lower(*f++);
+
+    return result;
+}
+
+string to_upper (string::const_iterator first, string::const_iterator last)
+{
+    typedef pfs::unicode::unicode_iterator_traits<
+            string::const_iterator>::iterator unicode_iterator;
+
+    typedef pfs::unicode::unicode_iterator_traits<
+            string::iterator>::output_iterator output_iterator;
+
+    string result;
+
+    output_iterator out(pfs::back_inserter(result));
+
+    unicode_iterator f(first);
+    unicode_iterator l(last);
+
+    while (f != l)
+        *out++ = unicode::to_upper(*f++);
+
+    return result;
+}
 
 //template <typename StringType, typename OctetInputIt>
 //StringType __read_all (OctetInputIt first, OctetInputIt last)
 //{
 //    typedef unicode::u8_input_iterator<OctetInputIt> utf8_input_iterator;
-//    
+//
 //    StringType result;
-//    
+//
 //    utf8_input_iterator it(first, last);
 //    utf8_input_iterator end(last);
 //
 //    while (it != end)
 //        result.push_back(*it++);
-//    
+//
 //    return result;
 //}
 
@@ -35,15 +67,15 @@ namespace pfs {
 //StringType __read_line (OctetInputIt first, OctetInputIt last)
 //{
 //    typedef unicode::utf8_input_iterator<OctetInputIt> utf8_input_iterator;
-//    
+//
 //    StringType result;
-//    
+//
 //    utf8_input_iterator it(first, last);
 //    utf8_input_iterator end(last);
 //
 //    while (it != end && *it != '\n')
 //        result.push_back(*it++);
-//    
+//
 //    return result;
 //}
 
@@ -168,4 +200,3 @@ namespace pfs {
 //#endif
 
 } // pfs
-

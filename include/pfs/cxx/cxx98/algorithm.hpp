@@ -203,4 +203,27 @@ pfs::pair<ForwardIt,ForwardIt> minmax_element (ForwardIt first, ForwardIt last, 
 
 #endif
 
+template <typename InputIt, typename OutputIt, typename UnaryOperation>
+inline OutputIt transform (InputIt first1, InputIt last1
+        , OutputIt d_first, UnaryOperation unary_op)
+{
+    return std::transform<InputIt, OutputIt, UnaryOperation>(
+              first1
+            , last1
+            , d_first
+            , unary_op);
+}
+
+template <typename InputIt1, typename InputIt2, typename OutputIt, typename BinaryOperation>
+inline OutputIt transform (InputIt1 first1, InputIt1 last1
+        , InputIt2 first2, OutputIt d_first, BinaryOperation binary_op)
+{
+    return std::transform<InputIt1, InputIt2, OutputIt, BinaryOperation>(
+              first1
+            , last1
+            , first2
+            , d_first
+            , binary_op);
+}
+
 } // namespace pfs
