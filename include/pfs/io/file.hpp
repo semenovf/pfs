@@ -1,4 +1,5 @@
 #pragma once
+#include <pfs/string.hpp>
 #include <pfs/filesystem.hpp>
 #include <pfs/io/device.hpp>
 
@@ -74,5 +75,7 @@ device_ptr open_device<file_stdout> (open_params<file_stdout> const & op, error_
 
 template <>
 device_ptr open_device<file_stderr> (open_params<file_stderr> const & op, error_code & ec);
+
+string u8_read_all (filesystem::path const & path, error_code & ec);
 
 }} // pfs::io

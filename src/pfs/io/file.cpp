@@ -19,4 +19,29 @@ filesystem::perms const open_params<file>::default_create_perms = filesystem::pe
 //    PFS_ERROR2(ex == 0, string("Failed to write log message: ").append(to_string(ex)).c_str());
 //}
 
+string u8_read_all (filesystem::path const & path, error_code & ec)
+{
+    device_ptr d = open_device(open_params<file>(path, pfs::io::read_only), ec);
+    
+    if (ec)
+        return string();
+    
+    ssize_t available = d->available();
+    
+    if (available <= 0)
+        return string();
+    
+    string result;
+    size_t sz = integral_cast_check<size_t>(available);
+    result.resize(sz);
+
+    ssize_t n = d->read(result.data(), sz, ec);
+    
+    if (n < 0)
+        return string();
+    
+    result.resize(pfs::integral_cast_check<size_t>(n));
+    return result;
+}
+
 }} // pfs::io
