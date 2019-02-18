@@ -591,6 +591,11 @@ struct modulus
         logger_type & get_logger () { return _logger; }
         logger_type const & get_logger () const { return _logger; }
 
+        void set_log_directory (filesystem::path const & dir)
+        {
+            _log_directory = dir;
+        }
+
     public: // slots
         void module_registered ( string_type const & pname, bool & result )
         {
@@ -715,6 +720,7 @@ struct modulus
         module_spec_map_type   _module_spec_map;
         runnable_sequence_type _runnable_modules;  // modules run in a separate threads
         basic_module *         _master_module_ptr; // TODO Unsuitbale member name, rename it
+        filesystem::path       _log_directory;
         logger_type            _logger;
 
         // Console appenders
@@ -1152,6 +1158,10 @@ bool modulus<PFS_MODULUS_TEMPLETE_ARGS>::dispatcher::register_modules (
                 } else {
                     // Construct path from pattern
                     filesystem::path path(to_string(current_datetime(), name)); // `name` is a pattern here
+
+                    if (path.is_relative() && !_log_directory.empty())
+                        path = _log_directory / path;
+
                     pappender = & logger.template add_appender<typename log_ns::file_appender>(path);
 
                     if (! pappender->is_open()) {

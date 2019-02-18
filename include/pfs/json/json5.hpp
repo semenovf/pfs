@@ -1,6 +1,5 @@
 #pragma once
 #include <pfs/fsm/fsm.hpp>
-#include <pfs/lexical_cast.hpp>
 #include <pfs/stack.hpp>
 #include <pfs/json/constants.hpp>
 #include <pfs/unicode/char.hpp>
