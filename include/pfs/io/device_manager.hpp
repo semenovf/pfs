@@ -2,7 +2,7 @@
 #include <ctime>
 #include <pfs/cxxlang.hpp>
 #include <pfs/sigslot.hpp>
-#include <pfs/set.hpp>
+#include <pfs/multiset.hpp>
 #include <pfs/vector.hpp>
 #include <pfs/io/device_notifier_pool.hpp>
 
@@ -12,7 +12,7 @@ namespace io {
 template <typename SigslotNS = pfs::sigslot<>
         , template <typename> class ContigousContainer = pfs::vector
         , typename BasicLockable = pfs::mutex
-        , template <typename> class PriorityContainer = pfs::set>
+        , template <typename> class PriorityContainer = pfs::multiset>
 class device_manager : SigslotNS::has_slots
 {
     struct reopen_item
@@ -206,7 +206,8 @@ public:
         item.start   = ::time(0); // TODO may be need to use monotonic clock
 
         // Checking first item will be enough.
-        bool result = (*_rq.begin() < item);
+        bool result = *_rq.begin() < item;
+
         return result;
     }
 
