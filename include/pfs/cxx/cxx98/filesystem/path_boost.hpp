@@ -145,4 +145,35 @@ inline void current_path (path const & p, error_code & ec)
 #endif
 }
 
+inline path absolute (filesystem::path const & p)
+{
+    return ::boost::filesystem::absolute(p);
+}
+
+inline path absolute (filesystem::path const & p, error_code &)
+{
+    return ::boost::filesystem::absolute(p);
+//     ::boost::system::error_code boost_ec;
+//     path result = ::boost::filesystem::absolute(p, boost_ec);
+//     PFS_ASSERT(boost_ec.category() == ::boost::system::system_category());
+// #if __cplusplus >= 201103L
+//     ec = std::make_error_code(std::errc(boost_ec.value()));
+// #endif
+}
+
+inline path canonical (filesystem::path const & p)
+{
+    return ::boost::filesystem::canonical(p);
+}
+
+inline path canonical (filesystem::path const & p, error_code & ec)
+{
+    ::boost::system::error_code boost_ec;
+    path result = ::boost::filesystem::canonical(p, boost_ec);
+    PFS_ASSERT(boost_ec.category() == ::boost::system::system_category());
+#if __cplusplus >= 201103L
+    ec = std::make_error_code(std::errc(boost_ec.value()));
+#endif
+}
+
 }} // pfs::filesystem
