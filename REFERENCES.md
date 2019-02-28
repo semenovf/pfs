@@ -163,6 +163,10 @@
 3. [SOLID (2)](https://blog.bitsrc.io/solid-principles-every-developer-should-know-b3bfa96bb688)
 4. [FIRST](https://addyosmani.com/first/)
 
+### Timer
+
+1. [Hashed and Hierarchical Timing Wheels: Data Structures for the Efficient Implementation of a Timer Facility](http://www.cs.columbia.edu/~nahum/w6998/papers/sosp87-timing-wheels.pdf)
+
 ### Misc
 
 1. [Embedding resource files in a C++ program binary on Linux/*NIX](http://www.atwillys.de/content/cc/embedding-resource-files-in-a-c-plus-plus-program-binary-on-linux-unix/?lang=en)
