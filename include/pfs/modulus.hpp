@@ -1,6 +1,7 @@
 #pragma once
 #include <pfs/cxxlang.hpp>
 #include <pfs/operationsystem.hpp>
+#include <pfs/bits/timer.h>
 #include <pfs/type_traits.hpp>
 #include <pfs/atomic.hpp>
 #include <pfs/list.hpp>
@@ -10,6 +11,7 @@
 #include <pfs/stringlist.hpp>
 #include <pfs/dynamic_library.hpp>
 #include <pfs/active_queue.hpp>
+#include <pfs/active_map.hpp>
 #include <pfs/logger.hpp>
 #include <pfs/sigslot.hpp>
 #include <pfs/safeformat.hpp>
@@ -86,6 +88,11 @@ struct modulus
     typedef pfs::active_queue<ActiveQueueContainer
         , BasicLockable
         , GcThreshold>  callback_queue_type;
+
+    typedef pfs::active_map<int // timer id type
+        , void
+        , AssociativeContainer
+        , BasicLockable> timer_callback_map;
 
     typedef sigslot<callback_queue_type, BasicLockable> sigslot_ns;
 
@@ -282,6 +289,17 @@ struct modulus
     public:
         module (dispatcher * pdisp) : basic_module(pdisp) {}
         virtual bool use_async_slots () const override { return false; }
+
+        void start_timer (timer_type_enum timer_type, double seconds, void (* f) ())
+        {
+            this->get_dispatcher()->start_timer(timer_type, seconds, f);
+        }
+
+        template <typename Arg1>
+        void start_timer (timer_type_enum timer_type, double seconds, void (* f) (Arg1), Arg1 a1)
+        {
+            this->get_dispatcher()->start_timer(timer_type, seconds, f, a1);
+        }
     };
 
     //
@@ -293,6 +311,7 @@ struct modulus
     public:
         async_module (dispatcher * pdisp) : basic_module(pdisp)
         {
+            this->_priority_queue_ptr = make_unique<callback_queue_type>();
             this->_queue_ptr = make_unique<callback_queue_type>();
         }
 
@@ -303,6 +322,7 @@ struct modulus
          */
         void call_all ()
         {
+            this->priority_callback_queue().call_all();
             this->callback_queue().call_all();
         }
 
@@ -312,17 +332,30 @@ struct modulus
          */
         void process_events ()
         {
-            this->callback_queue().call_all();
+            this->call_all();
         }
 
         void process_events (int max_count)
         {
+            this->priority_callback_queue().call_all();
             this->callback_queue().call(max_count);
         }
 
         bool has_pending_events () const
         {
-            return !this->callback_queue().empty();
+            return !(this->priority_callback_queue().empty()
+                    && this->callback_queue().empty());
+        }
+
+        void start_timer (timer_type_enum timer_type, double seconds, void (* f) ())
+        {
+            this->get_dispatcher()->start_timer(timer_type, seconds, *this, f);
+        }
+
+        template <typename Arg1>
+        void start_timer (timer_type_enum timer_type, double seconds, void (* f) (Arg1), Arg1 a1)
+        {
+            this->get_dispatcher()->template start_timer<Arg1>(timer_type, seconds, *this, f, a1);
         }
     };
 
@@ -336,6 +369,17 @@ struct modulus
         virtual bool is_slave () const override { return true; }
         virtual typename sigslot_ns::basic_has_slots * master () const { return _master; }
         void set_master (async_module * master) { _master = master; }
+
+        void start_timer (timer_type_enum timer_type, double seconds, void (* f) ())
+        {
+            this->get_dispatcher()->start_timer(timer_type, seconds, *_master, f);
+        }
+
+        template <typename Arg1>
+        void start_timer (timer_type_enum timer_type, double seconds, void (* f) (Arg1), Arg1 a1)
+        {
+            this->get_dispatcher()->start_timer(timer_type, seconds, *_master, f, a1);
+        }
     };
 
     struct basic_sigslot_mapper
@@ -524,6 +568,35 @@ struct modulus
 
         int exec ();
 
+        void start_timer (timer_type_enum timer_type, double seconds, async_module & m, void (* f) ())
+        {
+            start_timer(timer_type, seconds, & m.priority_callback_queue(), f);
+        }
+
+        template <typename Arg1>
+        void start_timer (timer_type_enum timer_type, double seconds, async_module & m, void (* f) (Arg1), Arg1 a1)
+        {
+            start_timer<Arg1>(timer_type, seconds, & m.priority_callback_queue(), f, a1);
+        }
+
+        void start_timer (timer_type_enum timer_type, double seconds, void (* f) ())
+        {
+            start_timer(timer_type, seconds, & this->priority_callback_queue(), f);
+        }
+
+        template <typename Arg1>
+        void start_timer (timer_type_enum timer_type, double seconds, void (* f) (Arg1), Arg1 a1)
+        {
+            start_timer<Arg1>(timer_type, seconds, & this->priority_callback_queue(), f, a1);
+        }
+
+        void stop_timer (timer_id_t id)
+        {
+            pfs::unique_lock<BasicLockable> locker(_timer_mutex);
+            timer_unset(id);
+            _timer_callbacks.erase(id);
+        }
+
         void register_api (api_item_type * mapper, int n);
 
         void add_search_path (filesystem::path const & dir)
@@ -708,6 +781,32 @@ struct modulus
 
         basic_module * find_registered_module (string_type const & name);
 
+        static void deferred_caller (callback_queue_type * q, void (* f) ())
+        {
+            q->push_function(f);
+        }
+
+        template <typename Arg1>
+        static void deferred_caller (callback_queue_type * q, void (* f) (Arg1 a1), Arg1 a1)
+        {
+            q->template push_function<Arg1>(f, a1);
+        }
+
+        void start_timer (timer_type_enum timer_type, double seconds, callback_queue_type * q, void (* f) ())
+        {
+            pfs::unique_lock<BasicLockable> locker(_timer_mutex);
+            timer_id_t id = timer_set(timer_type, seconds);
+            _timer_callbacks.insert_function(id, deferred_caller, q, f);
+        }
+
+        template <typename Arg1>
+        void start_timer (timer_type_enum timer_type, double seconds, callback_queue_type * q, void (* f) (Arg1), Arg1 a1)
+        {
+            pfs::unique_lock<BasicLockable> locker(_timer_mutex);
+            timer_id_t id = timer_set(timer_type, seconds);
+            _timer_callbacks.template insert_function<callback_queue_type *, void (*) (Arg1), Arg1>(id, deferred_caller, q, f, a1);
+        }
+
     private:
         void (dispatcher::*info_printer) (basic_module const * m, string_type const & s);
         void (dispatcher::*debug_printer) (basic_module const * m, string_type const & s);
@@ -722,6 +821,9 @@ struct modulus
         basic_module *         _master_module_ptr; // TODO Unsuitbale member name, rename it
         filesystem::path       _log_directory;
         logger_type            _logger;
+
+        BasicLockable       _timer_mutex;
+        timer_callback_map  _timer_callbacks;
 
         // Console appenders
         typename log_ns::appender * _cout_appender_ptr;
@@ -794,10 +896,32 @@ void modulus<PFS_MODULUS_TEMPLETE_ARGS>::dispatcher::connect_all ()
 template <PFS_MODULUS_TEMPLETE_SIGNATURE>
 void modulus<PFS_MODULUS_TEMPLETE_ARGS>::dispatcher::run ()
 {
+    pfs::unique_lock<BasicLockable> locker(_timer_mutex, DEFER_LOCK);
+
     while (! _quitfl) {
+        locker.lock();
+
+        int ntimers = timer_count();
+
+        if (ntimers > 0) {
+            for (int i = 0; i < ntimers; ++i) {
+                if (timer_passed(i)) {
+                    if (timer_is_periodic(i)) {
+                        _timer_callbacks.call(i);
+                    } else {
+                        _timer_callbacks.call_and_erase(i);
+                    }
+
+                    timer_reset(i);
+                }
+            }
+        }
+
+        locker.unlock();
+
         // FIXME Use condition_variable to wait until _callback_queue will not be empty.
         if (this->_queue_ptr->empty()) {
-            pfs::this_thread::sleep_for(pfs::chrono::milliseconds(100));
+            pfs::this_thread::sleep_for(pfs::chrono::microseconds(100));
             continue;
         }
 
@@ -846,6 +970,17 @@ bool modulus<PFS_MODULUS_TEMPLETE_ARGS>::dispatcher::start ()
         error_printer = & dispatcher::async_print_error;
     }
 
+    //
+    // Start timer
+    //
+    if (ok) {
+        if (timer_init() != 0) {
+            print_error(fmt("failed to initialize timer: %s")
+                    % pfs::to_string(pfs::get_last_system_error()));
+            ok = false;
+        }
+    }
+
     return ok;
 }
 
@@ -853,6 +988,9 @@ template <PFS_MODULUS_TEMPLETE_SIGNATURE>
 void modulus<PFS_MODULUS_TEMPLETE_ARGS>::dispatcher::finalize ()
 {
     this->_queue_ptr->call_all();
+
+    _timer_callbacks.clear();
+    timer_done();
 
     info_printer  = & dispatcher::sync_print_info;
     debug_printer = & dispatcher::sync_print_debug;

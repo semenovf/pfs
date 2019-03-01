@@ -43,6 +43,7 @@ if (UNIX)
         posix/datetime_posix.cpp
         posix/dynamic_library_posix.cpp
         posix/time_posix.cpp
+        posix/timer_c_posix.c
         app/posix/signal.cpp
         io/posix/file_posix.cpp
         io/posix/inet_server_posix.cpp
@@ -97,6 +98,7 @@ endif()
 
 if(UNIX)
     list(APPEND PFS_TARGET_LIB_LINKS "dl")
+    list(APPEND PFS_TARGET_LIB_LINKS "rt")
 
     if(HAVE_PTHREAD)
         list(APPEND PFS_TARGET_LIB_LINKS "pthread")

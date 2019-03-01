@@ -179,6 +179,7 @@ struct sigslot
 
         sender_set _senders;
         unique_ptr<callback_queue_type> _queue_ptr;
+        unique_ptr<callback_queue_type> _priority_queue_ptr;
 
     public:
         basic_has_slots ()
@@ -226,6 +227,8 @@ struct sigslot
 
         callback_queue_type & callback_queue () { return *_queue_ptr; }
         callback_queue_type const & callback_queue () const { return *_queue_ptr; }
+        callback_queue_type & priority_callback_queue () { return *_priority_queue_ptr; }
+        callback_queue_type const & priority_callback_queue () const { return *_priority_queue_ptr; }
     };
 
     class has_slots : public basic_has_slots
@@ -240,6 +243,7 @@ struct sigslot
     public:
         has_async_slots () : basic_has_slots ()
         {
+            this->_priority_queue_ptr = make_unique<callback_queue_type>();
             this->_queue_ptr = make_unique<callback_queue_type>();
         }
 
