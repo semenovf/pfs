@@ -10,6 +10,7 @@
 #define TIMEOUT_PASSED 4
 
 static timer_t               timeout_timer;
+static int                   timeout_timer_created = 0;
 static volatile sig_atomic_t timeout_state[MAX_NTIMERS] = { 0 };
 static timer_type_enum       timeout_type[MAX_NTIMERS]  = { Timer_Invalid }; /* Timer_Invalid | Timer_OneShot | Timer_Periodic */
 static int                   timeout_count = 0;
@@ -353,6 +354,8 @@ int timer_init (void)
     if (timer_create(CLOCK_REALTIME, & evt, & timeout_timer))
         return errno;
 
+    timeout_timer_created = 1;
+
     /*
      *  Disarm the timeout timer (for now)
      */
@@ -387,18 +390,23 @@ int timer_done (void)
     /*
      * Disarm any current timeouts
      */
-    arm.it_value.tv_sec = 0;
-    arm.it_value.tv_nsec = 0L;
-    arm.it_interval.tv_sec = 0;
-    arm.it_interval.tv_nsec = 0;
-    if (timer_settime(timeout_timer, 0, &arm, NULL))
-        if (!errors) errors = errno;
+    if (timeout_timer_created) {
+        arm.it_value.tv_sec = 0;
+        arm.it_value.tv_nsec = 0L;
+        arm.it_interval.tv_sec = 0;
+        arm.it_interval.tv_nsec = 0;
+
+        if (timer_settime(timeout_timer, 0, &arm, NULL))
+            if (!errors) errors = errno;
+    }
 
     /*
      * Destroy the timer itself
      */
-    if (timer_delete(timeout_timer))
-        if (!errors) errors = errno;
+    if (timeout_timer_created) {
+        if (timer_delete(timeout_timer))
+            if (!errors) errors = errno;
+    }
 
     /*
      * If any errors occurred, set errno
