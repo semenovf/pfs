@@ -10,7 +10,11 @@ include(WriteCompilerDetectionHeader)
 write_compiler_detection_header(
   FILE "${CMAKE_BINARY_DIR}/cxx_features.h"
   PREFIX PFS
-  COMPILERS GNU Clang MSVC
+#
+# Below line cause the error on Elbrus platform: Unsupported compiler MSVC
+#  COMPILERS GNU Clang MSVC
+#
+  COMPILERS GNU Clang
   FEATURES
     cxx_generalized_initializers
     cxx_variadic_templates
