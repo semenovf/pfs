@@ -71,6 +71,8 @@ list(APPEND MY_TEST_TARGETS variant)
 list(APPEND MY_TEST_TARGETS vector)
 list(APPEND MY_TEST_TARGETS enum)
 list(APPEND MY_TEST_TARGETS voc)
+list(APPEND MY_TEST_TARGETS result_status)
+list(APPEND MY_TEST_TARGETS result_code)
 
 ################################################################################
 # SQL test specific configuration                                              #
