@@ -1,4 +1,5 @@
 #pragma once
+#include <pfs/system_error.hpp>
 #include <pfs/cxxlang.hpp>
 #include <pfs/type_traits.hpp>
 #include <pfs/string.hpp>
