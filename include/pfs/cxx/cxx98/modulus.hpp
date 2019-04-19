@@ -1006,9 +1006,13 @@ void modulus<PFS_MODULUS_TEMPLETE_ARGS>::dispatcher::finalize ()
 
             if (modspec.pmodule->is_started()) {
 
-                // Call deferred callbacks in modules
-                if (modspec.pmodule->use_async_slots())
-                    static_cast<async_module *>(modspec.pmodule.get())->call_all();
+                // Do not 'Call deferred callbacks in modules'
+                // to avoid segmentation fault when signal handlers depends on varibales
+                // which lifetime limited by run() method
+                //
+//                 // Call deferred callbacks in modules
+//                 if (modspec.pmodule->use_async_slots())
+//                     static_cast<async_module *>(modspec.pmodule.get())->call_all();
 
                 modspec.pmodule->on_finish();
             }
