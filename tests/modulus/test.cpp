@@ -34,25 +34,25 @@ public:
         return true;
     }
 
-    PFS_V2_MODULE_EMITTERS_INLINE_BEGIN
-          PFS_V2_MODULE_EMITTER ( 0, emitZeroArg )
-        , PFS_V2_MODULE_EMITTER ( 1, emitOneArg )
-        , PFS_V2_MODULE_EMITTER ( 2, emitTwoArgs )
-        , PFS_V2_MODULE_EMITTER ( 3, emitThreeArgs )
-        , PFS_V2_MODULE_EMITTER ( 4, emitFourArgs )
-        , PFS_V2_MODULE_EMITTER ( 5, emitFiveArgs )
-        , PFS_V2_MODULE_EMITTER ( 6, emitSixArgs )
-    PFS_V2_MODULE_EMITTERS_END
+    PFS_MODULE_EMITTERS_INLINE_BEGIN
+          PFS_MODULE_EMITTER ( 0, emitZeroArg )
+        , PFS_MODULE_EMITTER ( 1, emitOneArg )
+        , PFS_MODULE_EMITTER ( 2, emitTwoArgs )
+        , PFS_MODULE_EMITTER ( 3, emitThreeArgs )
+        , PFS_MODULE_EMITTER ( 4, emitFourArgs )
+        , PFS_MODULE_EMITTER ( 5, emitFiveArgs )
+        , PFS_MODULE_EMITTER ( 6, emitSixArgs )
+    PFS_MODULE_EMITTERS_END
 
-    PFS_V2_MODULE_DETECTORS_INLINE_BEGIN
-          PFS_V2_MODULE_DETECTOR ( 0, module::onZeroArg )
-        , PFS_V2_MODULE_DETECTOR ( 1, module::onOneArg )
-        , PFS_V2_MODULE_DETECTOR ( 2, module::onTwoArgs )
-        , PFS_V2_MODULE_DETECTOR ( 3, module::onThreeArgs )
-        , PFS_V2_MODULE_DETECTOR ( 4, module::onFourArgs )
-        , PFS_V2_MODULE_DETECTOR ( 5, module::onFiveArgs )
-        , PFS_V2_MODULE_DETECTOR ( 6, module::onSixArgs )
-    PFS_V2_MODULE_DETECTORS_END
+    PFS_MODULE_DETECTORS_INLINE_BEGIN
+          PFS_MODULE_DETECTOR ( 0, module::onZeroArg )
+        , PFS_MODULE_DETECTOR ( 1, module::onOneArg )
+        , PFS_MODULE_DETECTOR ( 2, module::onTwoArgs )
+        , PFS_MODULE_DETECTOR ( 3, module::onThreeArgs )
+        , PFS_MODULE_DETECTOR ( 4, module::onFourArgs )
+        , PFS_MODULE_DETECTOR ( 5, module::onFiveArgs )
+        , PFS_MODULE_DETECTOR ( 6, module::onSixArgs )
+    PFS_MODULE_DETECTORS_END
 
 public: /*signal*/
     modulus_ns::sigslot_ns::signal0 emitZeroArg;
@@ -153,15 +153,15 @@ public:
         return true;
     }
 
-    PFS_V2_MODULE_EMITTERS_INLINE_BEGIN
-          PFS_V2_MODULE_EMITTER(1, emitOneArg)
-        , PFS_V2_MODULE_EMITTER(2, emitTwoArgs)
-    PFS_V2_MODULE_EMITTERS_END
+    PFS_MODULE_EMITTERS_INLINE_BEGIN
+          PFS_MODULE_EMITTER(1, emitOneArg)
+        , PFS_MODULE_EMITTER(2, emitTwoArgs)
+    PFS_MODULE_EMITTERS_END
 
-    PFS_V2_MODULE_DETECTORS_INLINE_BEGIN
-          PFS_V2_MODULE_DETECTOR (1, slave_module::onOneArg)
-        , PFS_V2_MODULE_DETECTOR (2, slave_module::onTwoArgs)
-    PFS_V2_MODULE_DETECTORS_END
+    PFS_MODULE_DETECTORS_INLINE_BEGIN
+          PFS_MODULE_DETECTOR (1, slave_module::onOneArg)
+        , PFS_MODULE_DETECTOR (2, slave_module::onTwoArgs)
+    PFS_MODULE_DETECTORS_END
 
 public: /*signal*/
     modulus_ns::sigslot_ns::signal1<bool> emitOneArg;

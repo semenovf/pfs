@@ -1,4 +1,9 @@
 #pragma once
+#include <pfs/config.h>
 
-#error "Need to implement 'array'"
+#if HAVE_BOOST_ARRAY
+#   include "array_boost.hpp"
+#else
+#   include "array_custom.hpp"
+#endif
 

@@ -1,6 +1,4 @@
-#ifndef __PFS_CXX_CXX98_CHRONO_CUSTOM_HPP__
-#define __PFS_CXX_CXX98_CHRONO_CUSTOM_HPP__
-
+#pragma once
 #include <pfs/types.hpp>
 #include <pfs/type_traits.hpp>
 #include "ratio_custom.hpp"
@@ -52,7 +50,7 @@ struct duration
     explicit duration (Rep2 const & rep)
         : _r(static_cast<rep_type>(rep))
     {}
-    
+
 //    template<typename _Rep2, typename _Period2, typename = typename
 //    enable_if<treat_as_floating_point<rep>::value
 //    || (ratio_divide<_Period2, period>::den == 1
@@ -64,7 +62,7 @@ struct duration
 
     ~duration ()
     {}
-    
+
     duration & operator = (duration const & rhs)
     {
         _r = rhs._r;
@@ -279,6 +277,3 @@ typedef duration<int64_t, ratio<3600> > hours;
 //
 
 }} // pfs::chrono
-
-#endif /* __PFS_CXX_CXX98_CHRONO_CUSTOM_HPP__ */
-

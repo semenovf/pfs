@@ -1,6 +1,4 @@
-#ifndef __PFS_CXX_CXX98_RATIO_CUSTOM_HPP__
-#define __PFS_CXX_CXX98_RATIO_CUSTOM_HPP__
-
+#pragma once
 #include <utility> // for std::pair
 #include <pfs/type_traits.hpp>
 #include <pfs/limits.hpp>
@@ -13,10 +11,10 @@ namespace details {
 inline intmax_t ratio_num (intmax_t num, intmax_t denom)
 {
     PFS_ASSERT_X(denom != 0, "Denominator cannot be zero");
-    PFS_ASSERT_X(num >= - numeric_limits<intmax_t>::max() 
+    PFS_ASSERT_X(num >= - numeric_limits<intmax_t>::max()
             && denom >= - numeric_limits<intmax_t>::max()
         , "Out of range");
-    
+
     return num * math::details::integral_sign(denom) / math::details::integral_gcd(num, denom);
 }
 
@@ -39,7 +37,7 @@ inline intmax_t ratio_den (intmax_t num, intmax_t denom)
    *    pfs::ratio<7,-21>::num == -1;
    *    pfs::ratio<7,-21>::den == 3;
    *  @endcode
-   *  
+   *
   */
 template <intmax_t Num, intmax_t Denom = 1>
 struct ratio
@@ -164,7 +162,7 @@ bool const ratio_not_equal<R1, R2>::value = ! ratio_equal<R1, R2>::value;
 
 template <typename R1, typename R2>
 struct ratio_less
-{ 
+{
     static bool const value;
 };
 
@@ -227,7 +225,7 @@ struct ratio_divide
 };
 
 // TODO May be there is a solution to avoid repeated calculation of ratio_add result.
-// 
+//
 template <typename R1, typename R2>
 intmax_t ratio_add<R1, R2>::num = details::ratio_add_and_get_num(R1::num, R1::den, R2::num, R2::den);
 
@@ -270,6 +268,3 @@ typedef ratio<         1000000000000000, 1> peta;
 typedef ratio<      1000000000000000000, 1> exa;
 
 } // namespace pfs
-
-#endif /* __PFS_CXX_CXX98_RATIO_CUSTOM_HPP__ */
-

@@ -18,6 +18,7 @@ set_property(TARGET CATCH_OBJLIB PROPERTY POSITION_INDEPENDENT_CODE 1)
 # Add unit test targets
 #
 list(APPEND MY_TEST_TARGETS static_cast)
+list(APPEND MY_TEST_TARGETS array)
 list(APPEND MY_TEST_TARGETS active_queue)
 list(APPEND MY_TEST_TARGETS active_map)
 list(APPEND MY_TEST_TARGETS algo-between)
@@ -35,6 +36,7 @@ list(APPEND MY_TEST_TARGETS dynamic_library)
 list(APPEND MY_TEST_TARGETS fsm)
 list(APPEND MY_TEST_TARGETS functional)
 list(APPEND MY_TEST_TARGETS json)
+list(APPEND MY_TEST_TARGETS http)
 list(APPEND MY_TEST_TARGETS io-buffer)
 list(APPEND MY_TEST_TARGETS io-buffered_device)
 list(APPEND MY_TEST_TARGETS io-file)
@@ -73,6 +75,7 @@ list(APPEND MY_TEST_TARGETS enum)
 list(APPEND MY_TEST_TARGETS voc)
 list(APPEND MY_TEST_TARGETS result_status)
 list(APPEND MY_TEST_TARGETS result_code)
+list(APPEND MY_TEST_TARGETS kalman_filter_1d)
 
 ################################################################################
 # SQL test specific configuration                                              #
