@@ -110,9 +110,10 @@ TEST_CASE("HTTP / parse request line") {
     REQUIRE(proto::advance_request_line(pos, http_1_0.end(), & r));
     CHECK(std::string(r.method.first, r.method.second) == "GET");
     CHECK(std::string(r.uri.first, r.uri.second) == "https://github.com/semenovf/pfs");
-    CHECK(r.proto == proto::HTTP_PROTO);
-    CHECK(r.version.major == 1);
-    CHECK(r.version.minor == 0);
+    CHECK(std::string(r.proto.s.first, r.proto.s.second) == "HTTP/1.0");
+    CHECK(r.proto.proto == proto::HTTP_PROTO);
+    CHECK(r.proto.version.major == 1);
+    CHECK(r.proto.version.minor == 0);
     CHECK(pos == http_1_0.end());
 
     std::string http_1_1("POST https://github.com/semenovf/pfs HTTP/1.1\n");
@@ -120,9 +121,10 @@ TEST_CASE("HTTP / parse request line") {
     REQUIRE(proto::advance_request_line(pos, http_1_1.end(), & r));
     CHECK(std::string(r.method.first, r.method.second) == "POST");
     CHECK(std::string(r.uri.first, r.uri.second) == "https://github.com/semenovf/pfs");
-    CHECK(r.proto == proto::HTTP_PROTO);
-    CHECK(r.version.major == 1);
-    CHECK(r.version.minor == 1);
+    CHECK(std::string(r.proto.s.first, r.proto.s.second) == "HTTP/1.1");
+    CHECK(r.proto.proto == proto::HTTP_PROTO);
+    CHECK(r.proto.version.major == 1);
+    CHECK(r.proto.version.minor == 1);
     CHECK(pos == http_1_1.end());
 
     std::string http_invalid("POST https://github.com/semenovf/pfs HTTP/1.1");
@@ -152,39 +154,93 @@ TEST_CASE("HTTP / parse field") {
     REQUIRE_FALSE(proto::advance_field(pos, field_invalid.end()));
 }
 
-TEST_CASE("HTTP / parse header") {
+TEST_CASE("HTTP / parse request line and headers") {
     typedef std::map<std::string, std::string> property_tree;
+    http::request_line<std::string::iterator> request_line;
+
+{
     property_tree headers;
 
-    std::string request1 = "GET /live.ffm HTTP/1.1\n"
+    std::string request = "GET /live.ffm HTTP/1.1\n"
             "User-Agent: Lavf/57.83.100\n"
             "Accept: */*\n"
             "Range: bytes=0-\n"
             "Connection: close\n"
             "Host: localhost:9090\n"
             "Icy-MetaData: 1\n\n";
-    std::string::iterator pos = request1.begin();
-    REQUIRE(proto::advance_headers(pos, request1.end(), & headers));
-    CHECK(headers["#method"] == "GET");
-    CHECK(headers["#uri"] == "/live.ffm");
-    CHECK(headers["#proto"] == "HTTP");
-    CHECK(headers["#version"] == "1.1");
+    std::string::iterator pos = request.begin();
+    REQUIRE(http::advance_request_line(pos, request.end(), & request_line));
+    REQUIRE(http::advance_headers(pos, request.end(), & headers));
+    CHECK(std::string(request_line.method.first, request_line.method.second) == "GET");
+    CHECK(std::string(request_line.uri.first, request_line.uri.second) == "/live.ffm");
+    CHECK(std::string(request_line.proto.s.first, request_line.proto.s.second) == "HTTP/1.1");
+    CHECK(http::to_string<std::string>(request_line.proto.proto) == "HTTP");
+    CHECK(request_line.proto.version.major == 1);
+    CHECK(request_line.proto.version.minor == 1);
     CHECK(headers["user-agent"] == "Lavf/57.83.100");
     CHECK(headers["accept"] == "*/*");
     CHECK(headers["range"] == "bytes=0-");
     CHECK(headers["connection"] == "close");
     CHECK(headers["host"] == "localhost:9090");
     CHECK(headers["icy-metadata"] == "1");
+}
 
-    headers.clear();
-
-    std::string request2 = "GET /live.ffm HTTP/1.1\n"
+{
+    property_tree headers;
+    std::string request = "GET /live.ffm HTTP/1.1\n"
             "User-Agent: Lavf/57.83.100\n"
             "Accept: */*\n"
             "Range: bytes=0-\n"
             "Connection: close\n"
             "Host: localhost:9090\n"
             "Icy-MetaData: 1";
-    pos = request2.begin();
-    CHECK_FALSE(proto::advance_headers(pos, request2.end(), & headers));
+    std::string::iterator pos = request.begin();
+    REQUIRE(http::advance_request_line(pos, request.end()));
+    CHECK_FALSE(http::advance_headers(pos, request.end(), & headers));
+}}
+
+TEST_CASE("HTTP / parse message") {
+{
+    http::message<std::string> message;
+
+    std::string request = "GET /live.ffm HTTP/1.1\n"
+            "User-Agent: Lavf/57.83.100\n"
+            "Accept: */*\n"
+            "Range: bytes=0-\n"
+            "Connection: close\n"
+            "Host: localhost:9090\n"
+            "Transfer-Encoding: chunked\n"
+            "Pragma: no-cache\n"
+            "Icy-MetaData: 1\n\n";
+
+    REQUIRE(parse(request.begin(), request.end(), & message) == request.end());
+
+    CHECK(message.method() == "GET");
+    CHECK(message.uri() == "/live.ffm");
+    CHECK(message.protocol() == proto::HTTP_PROTO);
+    CHECK(message.major_version() == 1);
+    CHECK(message.minor_version() == 1);
+    CHECK(message.user_agent.value() == "Lavf/57.83.100");
+    REQUIRE(message.pragma->size() == 1);
+    CHECK(message.pragma->at(0) == "no-cache");
+    REQUIRE(message.transfer_encoding->size() == 1);
+    CHECK(message.transfer_encoding->at(0) == "chunked");
+    CHECK(message["accept"] == "*/*");
+    CHECK(message["range"] == "bytes=0-");
+    CHECK(message["connection"] == "close");
+    CHECK(message["host"] == "localhost:9090");
+    CHECK(message["icy-metadata"] == "1");
 }
+
+{
+    http::message<std::string> message;
+
+    std::string request = "GET /live.ffm HTTP/1.1\n"
+            "User-Agent: Lavf/57.83.100\n"
+            "Accept: */*\n"
+            "Range: bytes=0-\n"
+            "Connection: close\n"
+            "Host: localhost:9090\n"
+            "Icy-MetaData: 1";
+    REQUIRE_FALSE(parse(request.begin(), request.end(), & message) == request.end());
+}}

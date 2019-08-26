@@ -87,24 +87,25 @@ method_enum method_from_string (ForwardIterator first, ForwardIterator last)
     return RTSP_METHOD_UNKNOWN;
 }
 
-char const * to_cstring (method_enum method)
+template <typename StringT>
+StringT to_string (method_enum method)
 {
     switch (method) {
-        case RTSP_METHOD_DESCRIBE:      return "DESCRIBE";
-        case RTSP_METHOD_ANNOUNCE:      return "ANNOUNCE";
-        case RTSP_METHOD_GET_PARAMETER: return "GET_PARAMETER";
-        case RTSP_METHOD_OPTIONS:       return "OPTIONS";
-        case RTSP_METHOD_PAUSE:         return "PAUSE";
-        case RTSP_METHOD_PLAY:          return "PLAY";
-        case RTSP_METHOD_RECORD:        return "RECORD";
-        case RTSP_METHOD_REDIRECT:      return "REDIRECT";
-        case RTSP_METHOD_SETUP:         return "SETUP";
-        case RTSP_METHOD_SET_PARAMETER: return "SET_PARAMETER";
-        case RTSP_METHOD_TEARDOWN:      return "TEARDOWN";
+        case RTSP_METHOD_DESCRIBE:      return StringT("DESCRIBE");
+        case RTSP_METHOD_ANNOUNCE:      return StringT("ANNOUNCE");
+        case RTSP_METHOD_GET_PARAMETER: return StringT("GET_PARAMETER");
+        case RTSP_METHOD_OPTIONS:       return StringT("OPTIONS");
+        case RTSP_METHOD_PAUSE:         return StringT("PAUSE");
+        case RTSP_METHOD_PLAY:          return StringT("PLAY");
+        case RTSP_METHOD_RECORD:        return StringT("RECORD");
+        case RTSP_METHOD_REDIRECT:      return StringT("REDIRECT");
+        case RTSP_METHOD_SETUP:         return StringT("SETUP");
+        case RTSP_METHOD_SET_PARAMETER: return StringT("SET_PARAMETER");
+        case RTSP_METHOD_TEARDOWN:      return StringT("TEARDOWN");
         default: break;
     }
 
-    return "";
+    return StringT();
 }
 
 /**
@@ -184,6 +185,7 @@ enum lower_transport_enum {
       RTSP_UNKNOWN_LOWER_TRANSPORT
     , RTSP_LOWER_TRANSPORT_UDP
     , RTSP_LOWER_TRANSPORT_TCP
+    , RTSP_LOWER_TRANSPORT_UDP_MULTICAST
 };
 
 template <typename ForwardIterator>
@@ -196,7 +198,7 @@ struct transport_entry
     proto::range<ForwardIterator> profile;
     lower_transport_enum lower_transport;
     proto::range<ForwardIterator> destination;
-    bool multicast;
+    //bool multicast;
     proto::range<int> interleaved;
     bool append;
     int ttl;
@@ -283,9 +285,12 @@ bool advance_transport_parameter (ForwardIterator & pos
     }
 
     if (casecompare(parm_name[0], parm_name[1], "unicast") == 0) {
-        if (tran) tran->multicast = false;
+        ;//if (tran) tran->multicast = false;
     } else if (casecompare(parm_name[0], parm_name[1], "multicast") == 0) {
-        if (tran) tran->multicast = true;
+        if (tran) {
+            if (tran->lower_transport == RTSP_LOWER_TRANSPORT_UDP)
+                tran->lower_transport = RTSP_LOWER_TRANSPORT_UDP_MULTICAST;
+        }
     } else if (casecompare(parm_name[0], parm_name[1], "destination") == 0) {
         if (has_arg) {
             last_pos = p;
@@ -431,7 +436,6 @@ bool advance_transport (ForwardIterator & pos
                 = tran.destination.second
                 = last;
         tran.lower_transport = RTSP_LOWER_TRANSPORT_UDP;
-        tran.multicast = true; // default value
         tran.interleaved.first = tran.interleaved.second = 0;
         tran.append = false;
         tran.ttl = 0;
@@ -496,8 +500,8 @@ bool advance_transport (ForwardIterator & pos
             }
         }
 
-        if (tran.lower_transport != RTSP_LOWER_TRANSPORT_UDP)
-            tran.multicast = false;
+//         if (tran.lower_transport != RTSP_LOWER_TRANSPORT_UDP)
+//             tran.multicast = false;
 
         if (out)
             *(*out)++ = tran;
@@ -525,113 +529,135 @@ inline bool advance_transport (ForwardIterator & pos
 //
 ////////////////////////////////////////////////////////////////////////////////
 template <typename StringT>
-class property_base
+struct transport
 {
-protected:
-    StringT _pretty_name;
-    bool _set;
-
-private:
-    property_base (property_base const &) {}
-    property_base & operator = (property_base const &) { return *this; }
-
-public:
-    property_base ()
-        : _set(false)
-    {}
-
-    explicit property_base (char const * pretty_name)
-        : _pretty_name(pretty_name)
-        , _set(false)
-    {}
-
-    bool is_set () const
-    {
-        return _set;
-    }
-
-    StringT const & pretty_name () const
-    {
-        return _pretty_name;
-    }
-};
-
-/**
- */
-template <typename T, typename StringT>
-class property : public property_base<StringT>
-{
-    typedef property_base<StringT> base_class;
-
-    T _value;
-
-private:
-    property (property const &) {}
-    T & operator = (property const &) { return *this; }
-
-public:
-    property ()
-        : base_class()
-    {}
-
-    explicit property (char const * pretty_name)
-        : base_class(pretty_name)
-    {}
-
-    property (char const * pretty_name, T const & value)
-        : base_class(pretty_name)
-        , _value(value)
-    {
-        this->_set = true;
-    }
-
-    property & operator = (T const & value)
-    {
-        _value = value;
-        this->_set = true;
-        return *this;
-    }
-
-    T const & value () const
-    {
-        return _value;
-    }
-};
-
-template <typename StringT>
-class headers
-{
-public:
     typedef StringT string_type;
     typedef std::vector<method_enum> method_container;
 
-    struct transport
-    {
-        string_type protocol;
-        string_type profile;
-        lower_transport_enum lower_transport;
-        string_type destination;
-        bool multicast;
-        std::pair<int,int> interleaved;
-        bool append;
-        int ttl;
-        int layers;
-        std::pair<int,int> port;
-        std::pair<int,int> client_port;
-        std::pair<int,int> server_port;
-        int ssrc;
-        method_container methods;
-    };
+    string_type protocol;
+    string_type profile;
+    lower_transport_enum lower_transport;
+    string_type destination;
+    range<int> interleaved;
+    bool append;
+    int ttl;
+    int layers;
+    range<int> port;
+    range<int> client_port;
+    range<int> server_port;
+    int ssrc;
+    method_container methods;
+};
 
-    typedef property<string_type, string_type> string_property;
-    typedef property<int, string_type> int_property;
+template <typename StringT>
+class transport_container
+{
+    typedef StringT string_type;
+    typedef transport<string_type> transport_type;
+    typedef std::vector<transport_type> internal_container;
 
 public:
-    string_property method;
-    string_property uri;
-    string_property protocol;
-    string_property version;
+    typedef typename internal_container::iterator iterator;
+    typedef typename internal_container::const_iterator const_iterator;
+    typedef typename internal_container::reference reference;
+    typedef typename internal_container::const_reference const_reference;
 
+private:
+    internal_container _transports;
+
+public:
+    transport_container () {}
+    ~transport_container () {}
+
+    size_t size () const
+    {
+        return _transports.size();
+    }
+
+    reference at (int pos)
+    {
+        return _transports[pos];
+    }
+
+    const_reference at (int pos) const
+    {
+        return _transports[pos];
+    }
+
+#if __cplusplus < 201103L
+    reference emplace_back ()
+    {
+        if (_transports.capacity() == _transports.size())
+            _transports.reserve(_transports.size() + 2) ;
+        _transports.resize(_transports.size() + 1);
+        return _transports.back();
+    }
+#elif __cplusplus < 201703L
+    reference emplace_back ()
+    {
+        _transports.emplace_back();
+        return _transports.back();
+    }
+#else
+    reference emplace_back ()
+    {
+        return _transports.emplace_back();
+    }
+#endif
+
+    /**
+     * Returns an iterator to the first element of the container.
+     * If the container is empty, the returned iterator will be equal to end().
+     */
+    iterator begin () { return _transports.begin(); }
+
+    /**
+     * Returns an iterator to the element following the last element
+     * of the container.
+     */
+    iterator end () { return _transports.end(); }
+
+    /**
+     * Returns a const iterator to the first element of the container.
+     * If the container is empty, the returned iterator will be equal to end().
+     */
+    const_iterator begin () const { return _transports.begin(); }
+
+    /**
+     * Returns an iterator to the element following the last element
+     * of the container.
+     */
+    const_iterator end () const { return _transports.end(); }
+
+    /**
+     * Returns a const iterator to the first element of the container.
+     * If the container is empty, the returned iterator will be equal to end().
+     */
+    const_iterator cbegin () const { return _transports.begin(); }
+
+    /**
+     * Returns an iterator to the element following the last element
+     * of the container.
+     */
+    const_iterator cend () const { return _transports.end(); }
+};
+
+template <typename StringT>
+class message : public proto::message<StringT>
+{
+    typedef proto::message<StringT> base_class;
+
+public:
+    typedef StringT string_type;
+    typedef string_type key_type;    // for property_tree_traits
+    typedef string_type mapped_type; // for property_tree_traits
+    typedef transport<string_type> transport_type;
+    typedef transport_container<string_type> transport_container_type;
+    typedef property<string_type, string_type> string_property;
+    typedef property<int, string_type> int_property;
+    typedef property<transport_container_type, string_type> transports_property;
+
+public:
     /**
      * RFC-2326
      * 12.17 CSeq
@@ -645,107 +671,78 @@ public:
      */
     int_property sequence_number;
 
+    /**
+     * RFC-2326
+     * 3.4 Session Identifiers
+     *--------------------------------------------------------------------------
+     * Session identifiers are opaque strings of arbitrary length. Linear
+     * white space must be URL-escaped. A session identifier MUST be chosen
+     * randomly and MUST be at least eight octets long to make guessing it
+     * more difficult.
+     */
     string_property session_id;
-//    transport_property transport;
 
-private:
-    std::map<string_type, string_type> _all_headers;
-    std::vector<transport> _transports;
+    /*
+     * RFC-2326
+     * 12.39 Transport
+     *--------------------------------------------------------------------------
+     * Transports are comma separated, listed in order of preference.
+     * Parameters may be added to each transport, separated by a semicolon.
+     */
+    transports_property transports;
 
 public:
-    headers ()
-        : sequence_number("CSeq")
+    message ()
+        : base_class()
+        , sequence_number("CSeq")
         , session_id("Session")
     {}
-
-    string_type & operator [] (string_type const & key)
-    {
-        return _all_headers[key];
-    }
-
-    int transport_count () const
-    {
-        return _transports.size();
-    }
-
-    transport * transport_at (int index)
-    {
-        return index >= 0 && index < _transports.size()
-                ? & _transports[index]
-                : static_cast<transport *>(0);
-    }
-
-    transport const * transport_at (int index) const
-    {
-        return index >= 0 && index < _transports.size()
-                ? & _transports[index]
-                : static_cast<transport const *>(0);
-    }
-
-    bool parse (typename string_traits<string_type>::const_iterator first
-            , typename string_traits<string_type>::const_iterator last)
-    {
-        return advance_headers(first, last, this);
-    }
 
     bool insert (string_type const & key, string_type const & value);
 };
 
 template <typename StringT>
-bool headers<StringT>::insert (StringT const & key, StringT const & value)
+bool message<StringT>::insert (StringT const & key, StringT const & value)
 {
+    typedef typename string_traits<StringT>::const_iterator const_iterator;
+
     bool ok = true;
 
-    if (key == "#method") {
-        method = value;
-    } else if (key == "#uri") {
-        uri = value;
-    } else if (key == "#proto") {
-        protocol = value;
-    } else if (key == "#version") {
-        version = value;
-    } else if (key == "cseq") {
+    if (key == "cseq") {
         sequence_number = to_integer<int>(begin(value), end(value), 10, & ok);
         if (!ok) return false;
     } else if (key == "session") {
         session_id = value;
     } else if (key == "transport") {
-        typename string_traits<StringT>::const_iterator pos = begin(value);
-        std::vector<transport_entry<typename
-                string_traits<StringT>::const_iterator> > transports;
+        typedef transport_entry<const_iterator> transport_entry;
 
-        if (!advance_transport(pos, end(value), std::back_inserter(transports)))
+        const_iterator pos = begin(value);
+        std::vector<transport_entry> transport_entries;
+
+        if (!advance_transport(pos, end(value), std::back_inserter(transport_entries)))
             return false;
 
-        for (size_t i = 0; i < transports.size(); i++) {
-            _transports.push_back(transport());
-            transport & tran = _transports.back();
+        for (size_t i = 0, count = transport_entries.size(); i < count; i++) {
+            transport_type & tran = transports->emplace_back();
+            transport_entry & te = transport_entries[i];
 
-            tran.protocol = string_type(transports[i].protocol.first
-                    , transports[i].protocol.second);
-            tran.profile = string_type(transports[i].profile.first
-                    , transports[i].profile.second);
-            tran.lower_transport = transports[i].lower_transport;
-            tran.destination = string_type(transports[i].destination.first
-                    , transports[i].destination.second);
-            tran.multicast = transports[i].multicast;
-            tran.interleaved = std::make_pair(transports[i].interleaved.first
-                    , transports[i].interleaved.second);
-            tran.append = transports[i].append;
-            tran.ttl = transports[i].ttl;
-            tran.layers = transports[i].layers;
-            tran.port = std::make_pair(transports[i].port.first
-                    , transports[i].port.second);
-            tran.client_port = std::make_pair(transports[i].client_port.first
-                    , transports[i].client_port.second);
-            tran.server_port = std::make_pair(transports[i].server_port.first
-                    , transports[i].server_port.second);
-            tran.ssrc = transports[i].ssrc;
-            tran.methods = transports[i].methods;
+            tran.protocol = string_type(te.protocol.first, te.protocol.second);
+            tran.profile = string_type(te.profile.first, te.profile.second);
+            tran.lower_transport = te.lower_transport;
+            tran.destination = string_type(te.destination.first, te.destination.second);
+            tran.interleaved = std::make_pair(te.interleaved.first, te.interleaved.second);
+            tran.append = te.append;
+            tran.ttl = te.ttl;
+            tran.layers = te.layers;
+            tran.port = std::make_pair(te.port.first, te.port.second);
+            tran.client_port = std::make_pair(te.client_port.first, te.client_port.second);
+            tran.server_port = std::make_pair(te.server_port.first, te.server_port.second);
+            tran.ssrc = te.ssrc;
+            tran.methods = te.methods;
         }
+    } else {
+        base_class::insert(key, value);
     }
-
-    _all_headers[key] = value;
 
     return true;
 }
@@ -757,16 +754,7 @@ namespace net {
 namespace proto {
 
 template <>
-struct property_tree_traits<rtsp::headers<std::string> >
-{
-    typedef std::string key_type;
-    typedef std::string mapped_type;
-    //typedef typename PropertyTree::iterator iterator;
-    //typedef typename PropertyTree::const_iterator const_iterator;
-};
-
-template <>
-bool inserter<rtsp::headers<std::string> >::insert (std::string const & key
+inline bool inserter<rtsp::message<std::string> >::insert (std::string const & key
         , std::string const & value)
 {
     if (_p)

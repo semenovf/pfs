@@ -12,6 +12,7 @@
 #include <algorithm>
 #include <iterator>
 #include <limits>
+#include <map>
 #include <string>
 #include <utility>
 #include <cerrno>
@@ -63,38 +64,6 @@ struct string_traits
     typedef typename StringT::iterator iterator;
     typedef typename StringT::const_iterator const_iterator;
 };
-
-//// Default implementation corresponds to std::map
-//template <typename PropertyTree>
-//inline typename property_tree_traits<PropertyTree>::mapped_type *
-//mapped_value (PropertyTree & props
-//        , typename property_tree_traits<PropertyTree>::key_type const & key)
-//{
-//    typedef proto::property_tree_traits<PropertyTree> traits;
-//    typedef typename traits::mapped_type mapped_type;
-//    typedef typename traits::iterator iterator;
-
-//    iterator it = props.find(key);
-//    return it == end(props)
-//            ? static_cast<mapped_type *>(0)
-//            : & it->second;
-//}
-
-//// Default implementation corresponds to std::map
-//template <typename PropertyTree>
-//inline typename property_tree_traits<PropertyTree>::mapped_type const *
-//mapped_value (PropertyTree const & props
-//        , typename property_tree_traits<PropertyTree>::key_type const & key)
-//{
-//    typedef proto::property_tree_traits<PropertyTree> traits;
-//    typedef typename traits::mapped_type mapped_type;
-//    typedef typename traits::const_iterator const_iterator;
-
-//    const_iterator it = props.find(key);
-//    return it == end(props)
-//            ? static_cast<mapped_type const *>(0)
-//            : & it->second;
-//}
 
 // NOTE There is a difference between this implementation and
 // std::map::merge() (C++17): if there is an element in @a target with key
@@ -529,10 +498,13 @@ inline bool advance_uri (ForwardIterator & pos, ForwardIterator last)
 {
     ForwardIterator p = pos;
 
+    // TODO Mey be need extend valid characters
     while (p != last
             && (is_token_char(*p)
                 || *p == ':'
-                || *p == '/'))
+                || *p == '/'
+                || *p == '?'
+                || *p == '='))
         ++p;
 
     return compare_and_assign(pos, p);
@@ -541,7 +513,6 @@ inline bool advance_uri (ForwardIterator & pos, ForwardIterator last)
 ////////////////////////////////////////////////////////////////////////////////
 // Version = 1*DIGIT "." 1*DIGIT
 ////////////////////////////////////////////////////////////////////////////////
-template <typename ForwardIterator>
 struct proto_version
 {
     int major;
@@ -550,7 +521,7 @@ struct proto_version
 
 template <typename ForwardIterator>
 bool advance_version (ForwardIterator & pos, ForwardIterator last
-        , proto_version<ForwardIterator> * version = 0)
+        , proto_version * version = 0)
 {
     int major = 0;
     int minor = 0;
@@ -592,19 +563,26 @@ enum proto_enum {
 };
 
 template <typename ForwardIterator>
-bool advance_proto_version (ForwardIterator & pos, ForwardIterator last
-        , proto_enum * proto = 0
-        , proto_version<ForwardIterator> * version = 0)
+struct protocol
 {
-    proto_enum pr = UNKNOWN_PROTO;
-    proto_version<ForwardIterator> ver;
+    proto_enum proto;
+    proto_version version;
+    range<ForwardIterator> s;
+};
 
+template <typename ForwardIterator>
+bool advance_proto_version (ForwardIterator & pos, ForwardIterator last
+        , protocol<ForwardIterator> * protocol = 0/*
+        , proto_enum * proto = 0
+        , proto_version * version = 0*/)
+{
+    proto_enum proto = UNKNOWN_PROTO;
     ForwardIterator p = pos;
 
     if (advance_sequence(p, last, "HTTP")) {
-        pr = HTTP_PROTO;
+        proto = HTTP_PROTO;
     } else if (advance_sequence(p, last, "RTSP")) {
-        pr = RTSP_PROTO;
+        proto = RTSP_PROTO;
     } else {
         return false;
     }
@@ -615,14 +593,16 @@ bool advance_proto_version (ForwardIterator & pos, ForwardIterator last
     if (*p++ != '/')
         return false;
 
-    if (!advance_version(p, last, & ver))
+    proto_version * version = protocol ? & protocol->version : 0;
+
+    if (!advance_version(p, last, version))
         return false;
 
-    if (proto)
-        *proto = pr;
-
-    if (version)
-        *version = ver;
+    if (protocol) {
+        protocol->proto = proto;
+        protocol->s.first = pos;
+        protocol->s.second = p;
+    }
 
     return compare_and_assign(pos, p);
 }
@@ -630,16 +610,18 @@ bool advance_proto_version (ForwardIterator & pos, ForwardIterator last
 /**
  * Converts protocol enumeration value to C-string.
  */
-char const * to_cstring (proto_enum proto)
+template <typename StringT>
+StringT to_string (proto_enum proto)
 {
     switch (proto) {
-        case HTTP_PROTO: return "HTTP";
-        case RTSP_PROTO: return "RTSP";
+        case HTTP_PROTO: return StringT("HTTP");
+        case RTSP_PROTO: return StringT("RTSP");
         default: break;
     }
 
-    return "";
+    return StringT();
 }
+
 ////////////////////////////////////////////////////////////////////////////////
 // HTTP/1.0
 // HTTP/1.1
@@ -684,8 +666,7 @@ struct request_line
 {
     range<ForwardIterator> method;
     range<ForwardIterator> uri;
-    proto_enum proto;
-    proto_version<ForwardIterator> version;
+    protocol<ForwardIterator> proto;
 };
 
 template <typename ForwardIterator>
@@ -720,10 +701,9 @@ bool advance_request_line (ForwardIterator & pos, ForwardIterator last
     if (!advance_spaces(p, last))
         return false;
 
-    proto_enum proto = UNKNOWN_PROTO;
-    proto_version<ForwardIterator> version;
+    protocol<ForwardIterator> proto;
 
-    if (!advance_proto_version(p, last, & proto, & version))
+    if (!advance_proto_version(p, last, & proto))
         return false;
 
     advance_spaces(p, last);
@@ -732,8 +712,7 @@ bool advance_request_line (ForwardIterator & pos, ForwardIterator last
         return false;
 
     if (rq_line) {
-        rq_line->proto   = proto;
-        rq_line->version = version;
+        rq_line->proto = proto;
     }
 
     return compare_and_assign(pos, p);
@@ -811,35 +790,7 @@ bool advance_headers (ForwardIterator & pos
     request_line<ForwardIterator> r;
     ForwardIterator p = pos;
 
-    if (!advance_request_line(p, last, & r))
-        return false;
-
-    mapped_type proto(to_cstring(r.proto));
-    char version_buf[32];
-    int index = std::snprintf(version_buf
-            , sizeof(version_buf) - 1
-            , "%d.%d"
-            , r.version.major
-            , r.version.minor);
-    version_buf[index] = '\0';
-
     inserter<PropertyTree> inserter(props);
-
-    if (props) {
-        if (!inserter.insert(key_type("#method")
-                , mapped_type(r.method.first, r.method.second)))
-            return false;
-
-        if (!inserter.insert(key_type("#uri")
-                , mapped_type(r.uri.first, r.uri.second)))
-            return false;
-
-        if (!inserter.insert(key_type("#proto"), proto))
-            return false;
-
-        if (!inserter.insert(key_type("#version"), version_buf))
-            return false;
-    }
 
     do {
         request_field<ForwardIterator> f;
@@ -863,6 +814,173 @@ bool advance_headers (ForwardIterator & pos
     } while (true);
 
     return compare_and_assign(pos, p);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//
+////////////////////////////////////////////////////////////////////////////////
+template <typename StringT>
+class property_base
+{
+protected:
+    StringT _pretty_name;
+    bool _set;
+
+private:
+    property_base (property_base const &) {}
+    property_base & operator = (property_base const &) { return *this; }
+
+public:
+    property_base ()
+        : _set(false)
+    {}
+
+    explicit property_base (char const * pretty_name)
+        : _pretty_name(pretty_name)
+        , _set(false)
+    {}
+
+    bool is_set () const
+    {
+        return _set;
+    }
+
+    StringT const & pretty_name () const
+    {
+        return _pretty_name;
+    }
+};
+
+/**
+ */
+template <typename T, typename StringT>
+class property : public property_base<StringT>
+{
+    typedef property_base<StringT> base_class;
+
+    T _value;
+
+private:
+    property (property const &) {}
+    T & operator = (property const &) { return *this; }
+
+public:
+    property ()
+        : base_class()
+    {}
+
+    explicit property (char const * pretty_name)
+        : base_class(pretty_name)
+    {}
+
+    property (char const * pretty_name, T const & value)
+        : base_class(pretty_name)
+        , _value(value)
+    {
+        this->_set = true;
+    }
+
+    property & operator = (T const & value)
+    {
+        _value = value;
+        this->_set = true;
+        return *this;
+    }
+
+    T const & value () const
+    {
+        return _value;
+    }
+
+    T * operator -> ()
+    {
+        return & _value;
+    }
+
+    T const * operator -> () const
+    {
+        return & _value;
+    }
+};
+
+template <typename StringT>
+class message
+{
+    typedef std::map<StringT, StringT> property_tree;
+
+public:
+    typedef StringT string_type;
+    typedef string_type key_type;
+    typedef string_type mapped_type;
+    typedef typename property_tree::iterator iterator;
+    typedef typename property_tree::const_iterator const_iterator;
+
+protected:
+    string_type   _method;
+    string_type   _uri;
+    string_type   _proto_version;
+    proto_enum    _protocol;
+    int           _major_version;
+    int           _minor_version;
+    property_tree _headers;
+
+public:
+    message ()
+        : _protocol(UNKNOWN_PROTO)
+        , _major_version(0)
+        , _minor_version(0)
+    {}
+
+    string_type const & method () const { return _method; }
+    string_type const & uri () const { return _uri; }
+    string_type const & proto_version () const { return _proto_version; }
+    proto_enum  protocol () const { return _protocol; }
+    int major_version () const { return _major_version; }
+    int minor_version () const { return _minor_version; }
+
+    string_type & operator [] (string_type const & key)
+    {
+        return _headers[key];
+    }
+
+    string_type const * operator [] (string_type const & key) const
+    {
+        return _headers[key];
+    }
+
+    bool insert (string_type const & key, string_type const & value)
+    {
+        _headers[key] = value;
+        return true;
+    }
+
+template <typename ForwardIterator, typename StringU, template <typename> class MessageT>
+friend ForwardIterator parse (ForwardIterator first
+        , ForwardIterator last
+        , MessageT<StringU> * msg);
+};
+
+template <typename ForwardIterator, typename StringT, template <typename> class MessageT>
+ForwardIterator parse (ForwardIterator first
+        , ForwardIterator last
+        , MessageT<StringT> * msg)
+{
+    ForwardIterator pos = first;
+    proto::request_line<ForwardIterator> request_line;
+
+    if (advance_request_line(pos, last, & request_line)
+            && advance_headers(pos, last, msg)) {
+
+        msg->_method = StringT(request_line.method.first, request_line.method.second);
+        msg->_uri = StringT(request_line.uri.first, request_line.uri.second);
+        msg->_proto_version = StringT(request_line.proto.s.first, request_line.proto.s.second);
+        msg->_protocol = request_line.proto.proto;
+        msg->_major_version = request_line.proto.version.major;
+        msg->_minor_version = request_line.proto.version.minor;
+        return pos;
+    }
+
+    return first;
 }
 
 }}} // namespace pfs::net::proto

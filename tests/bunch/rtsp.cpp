@@ -100,9 +100,8 @@ TEST_CASE("RTSP / parse transport") {
 
         CHECK(proto::compare(t->protocol.first, t->protocol.second, "RTP") == 0);
         CHECK(proto::compare(t->profile.first, t->profile.second, "AVP") == 0);
-        CHECK(t->lower_transport == rtsp::RTSP_LOWER_TRANSPORT_UDP);
+        CHECK(t->lower_transport == rtsp::RTSP_LOWER_TRANSPORT_UDP_MULTICAST);
         CHECK(proto::compare(t->destination.first, t->destination.second, "") == 0);
-        CHECK(t->multicast);
         CHECK((t->interleaved.first == 0 && t->interleaved.second == 0));
         CHECK(!t->append);
         CHECK(t->ttl == 127);
@@ -119,7 +118,6 @@ TEST_CASE("RTSP / parse transport") {
         CHECK(proto::compare(t->profile.first, t->profile.second, "AVP") == 0);
         CHECK(t->lower_transport == rtsp::RTSP_LOWER_TRANSPORT_TCP);
         CHECK(proto::compare(t->destination.first, t->destination.second, "") == 0);
-        CHECK(!t->multicast);
         CHECK((t->interleaved.first == 0 && t->interleaved.second == 0));
         CHECK(!t->append);
         CHECK(t->ttl == 0);
@@ -134,65 +132,48 @@ TEST_CASE("RTSP / parse transport") {
     }
 }
 
-TEST_CASE("RTSP / parse headers") {
-    typedef std::map<std::string, std::string> property_tree;
-    property_tree headers;
+TEST_CASE("RTSP / parse message") {
+    rtsp::message<std::string> message;
 
-    std::string request1 = "OPTIONS rtsp://127.0.0.1:1234/live.h264 RTSP/1.0\n"
-            "CSeq: 123\n"
-            "User-Agent: Lavf/57.83.100\n"
-            "Session: FEEDFEEDBEAFBEAF\n\n";
-    std::string::iterator pos = request1.begin();
-    REQUIRE(rtsp::advance_headers(pos, request1.end(), & headers));
-    CHECK(headers["#method"] == "OPTIONS");
-    CHECK(headers["#uri"] == "rtsp://127.0.0.1:1234/live.h264");
-    CHECK(headers["#proto"] == "RTSP");
-    CHECK(headers["#version"] == "1.0");
-    CHECK(headers["cseq"] == "123");
-    CHECK(headers["user-agent"] == "Lavf/57.83.100");
-    CHECK(headers["session"] == "FEEDFEEDBEAFBEAF");
-}
-
-TEST_CASE("RTSP / headers") {
-    rtsp::headers<std::string> headers;
-    rtsp::headers<std::string>::transport * tran = 0;
-
-    std::string request = "OPTIONS rtsp://127.0.0.1:1234/live.h264 RTSP/1.0\n"
+    std::string request = "OPTIONS rtsp://127.0.0.1:1234/live.h264/streamid=0 RTSP/1.0\n"
             "CSeq: 123\n"
             "User-Agent: Lavf/57.83.100\n"
             "Session: FEEDFEEDBEAFBEAF\n"
             "Transport: RTP/AVP;multicast;ttl=127;mode=\"PLAY\","
-                    "RTP/AVP/TCP;client_port=3456-3457;mode=\"PLAY,OPTIONS\"\n"
+                    "RTP/AVP/TCP;client_port=3456-3457;mode=\"PLAY,OPTIONS\""
             "\n\n";
-    REQUIRE(headers.parse(request.begin(), request.end()));
+    REQUIRE(rtsp::parse(request.begin(), request.end(), & message) == request.end());
 
-    CHECK(headers.method.value() == "OPTIONS");
-    CHECK(headers.uri.value() == "rtsp://127.0.0.1:1234/live.h264");
-    CHECK(headers.protocol.value() == "RTSP");
-    CHECK(headers.version.value() == "1.0");
-    CHECK(headers.sequence_number.value() == 123);
-    CHECK(headers["user-agent"] == "Lavf/57.83.100");
-    CHECK(headers.session_id.value() == "FEEDFEEDBEAFBEAF");
+    CHECK(message.method() == "OPTIONS");
+    CHECK(message.uri() == "rtsp://127.0.0.1:1234/live.h264/streamid=0");
+    CHECK(message.protocol() == proto::RTSP_PROTO);
+    CHECK(message.major_version() == 1);
+    CHECK(message.minor_version() == 0);
+    CHECK(message.sequence_number.value() == 123);
+    CHECK(message["user-agent"] == "Lavf/57.83.100");
+    CHECK(message.session_id.value() == "FEEDFEEDBEAFBEAF");
 
-    CHECK(headers.transport_count() == 2);
+    CHECK(message.transports->size() == 2);
 
-    tran = headers.transport_at(0);
-    CHECK(tran->protocol == "RTP");
-    CHECK(tran->profile == "AVP");
-    CHECK(tran->lower_transport == rtsp::RTSP_LOWER_TRANSPORT_UDP);
-    CHECK(tran->multicast);
-    CHECK(tran->ttl == 127);
-    CHECK(tran->methods.size() == 1);
-    CHECK(tran->methods[0] == rtsp::RTSP_METHOD_PLAY);
+    {
+        rtsp::message<std::string>::transport_type const & tran = message.transports->at(0);
+        CHECK(tran.protocol == "RTP");
+        CHECK(tran.profile == "AVP");
+        CHECK(tran.lower_transport == rtsp::RTSP_LOWER_TRANSPORT_UDP_MULTICAST);
+        CHECK(tran.ttl == 127);
+        CHECK(tran.methods.size() == 1);
+        CHECK(tran.methods[0] == rtsp::RTSP_METHOD_PLAY);
+    }
 
-    tran = headers.transport_at(1);
-    CHECK(tran->protocol == "RTP");
-    CHECK(tran->profile == "AVP");
-    CHECK(tran->lower_transport == rtsp::RTSP_LOWER_TRANSPORT_TCP);
-    CHECK(!tran->multicast);
-    CHECK(tran->client_port.first == 3456);
-    CHECK(tran->client_port.second == 3457);
-    CHECK(tran->methods.size() == 2);
-    CHECK(tran->methods[0] == rtsp::RTSP_METHOD_PLAY);
-    CHECK(tran->methods[1] == rtsp::RTSP_METHOD_OPTIONS);
+    {
+        rtsp::message<std::string>::transport_type const & tran = message.transports->at(1);
+        CHECK(tran.protocol == "RTP");
+        CHECK(tran.profile == "AVP");
+        CHECK(tran.lower_transport == rtsp::RTSP_LOWER_TRANSPORT_TCP);
+        CHECK(tran.client_port.first == 3456);
+        CHECK(tran.client_port.second == 3457);
+        CHECK(tran.methods.size() == 2);
+        CHECK(tran.methods[0] == rtsp::RTSP_METHOD_PLAY);
+        CHECK(tran.methods[1] == rtsp::RTSP_METHOD_OPTIONS);
+    }
 }
