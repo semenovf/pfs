@@ -156,6 +156,19 @@
 
 1. [JSON-RPC 2.0 Specification](https://www.jsonrpc.org/specification)
 
+### HTTP / RTPS
+
+1. [Hypertext Transfer Protocol -- HTTP/1.0](https://tools.ietf.org/html/rfc1945)
+2. [Hypertext Transfer Protocol -- HTTP/1.1](https://tools.ietf.org/html/rfc2616)
+3. [Real Time Streaming Protocol (RTSP)](https://tools.ietf.org/html/rfc2326)
+4. [Real-Time Streaming Protocol Version 2.0](https://tools.ietf.org/html/rfc7826)
+5. [HTTP Made Really Easy](https://www.jmarshall.com/easy/http/)
+6. [PicoHTTPParser](https://github.com/h2o/picohttpparser)
+7. [nghttp2 - HTTP/2 C Library](https://github.com/nghttp2/nghttp2)
+8. [The C++ Network Library Project](https://cpp-netlib.org)
+9. [Microsoft C++ REST SDK](https://github.com/Microsoft/cpprestsdk)
+10.[Yet Another HTTP Library](https://github.com/cmouse/yahttp)
+
 ### Software development principles
 
 1. [DRY](https://en.wikipedia.org/wiki/Don%27t_repeat_yourself) (Don't repeat yourself)
@@ -171,3 +184,9 @@
 
 1. [Embedding resource files in a C++ program binary on Linux/*NIX](http://www.atwillys.de/content/cc/embedding-resource-files-in-a-c-plus-plus-program-binary-on-linux-unix/?lang=en)
 2. [Embedding a File in an Executable, aka Hello World, Version 5967](http://www.linuxjournal.com/content/embedding-file-executable-aka-hello-world-version-5967)
+
+### Memory allocators
+
+1. [tcmalloc](https://github.com/gperftools/gperftools)
+2. [jemalloc](http://jemalloc.net)
+3. [mimalloc](https://github.com/microsoft/mimalloc)

@@ -6,7 +6,6 @@
 // Changelog:
 //      2019.08.18 Initial version
 ////////////////////////////////////////////////////////////////////////////////
-
 #pragma once
 #include <iterator>
 #include <map>
@@ -38,6 +37,107 @@ enum method_enum {
     , RTSP_METHOD_SETUP
     , RTSP_METHOD_SET_PARAMETER
     , RTSP_METHOD_TEARDOWN
+};
+
+/** RTSP handling */
+enum status_code_enum {
+      RTSP_STATUS_CONTINUE             = 100
+    , RTSP_STATUS_OK                   = 200
+    , RTSP_STATUS_CREATED              = 201
+    , RTSP_STATUS_LOW_ON_STORAGE_SPACE = 250
+    , RTSP_STATUS_MULTIPLE_CHOICES     = 300
+    , RTSP_STATUS_MOVED_PERMANENTLY    = 301
+    , RTSP_STATUS_MOVED_TEMPORARILY    = 302
+    , RTSP_STATUS_SEE_OTHER            = 303
+    , RTSP_STATUS_NOT_MODIFIED         = 304
+    , RTSP_STATUS_USE_PROXY            = 305
+    , RTSP_STATUS_BAD_REQUEST          = 400
+    , RTSP_STATUS_UNAUTHORIZED         = 401
+    , RTSP_STATUS_PAYMENT_REQUIRED     = 402
+    , RTSP_STATUS_FORBIDDEN            = 403
+    , RTSP_STATUS_NOT_FOUND            = 404
+    , RTSP_STATUS_METHOD               = 405
+    , RTSP_STATUS_NOT_ACCEPTABLE       = 406
+    , RTSP_STATUS_PROXY_AUTH_REQUIRED  = 407
+    , RTSP_STATUS_REQ_TIME_OUT         = 408
+    , RTSP_STATUS_GONE                 = 410
+    , RTSP_STATUS_LENGTH_REQUIRED      = 411
+    , RTSP_STATUS_PRECONDITION_FAILED  = 412
+    , RTSP_STATUS_REQ_ENTITY_2LARGE    = 413
+    , RTSP_STATUS_REQ_URI_2LARGE       = 414
+    , RTSP_STATUS_UNSUPPORTED_MTYPE    = 415
+    , RTSP_STATUS_PARAM_NOT_UNDERSTOOD = 451
+    , RTSP_STATUS_CONFERENCE_NOT_FOUND = 452
+    , RTSP_STATUS_BANDWIDTH            = 453
+    , RTSP_STATUS_SESSION              = 454
+    , RTSP_STATUS_STATE                = 455
+    , RTSP_STATUS_INVALID_HEADER_FIELD = 456
+    , RTSP_STATUS_INVALID_RANGE        = 457
+    , RTSP_STATUS_RONLY_PARAMETER      = 458
+    , RTSP_STATUS_AGGREGATE            = 459
+    , RTSP_STATUS_ONLY_AGGREGATE       = 460
+    , RTSP_STATUS_TRANSPORT            = 461
+    , RTSP_STATUS_UNREACHABLE          = 462
+    , RTSP_STATUS_INTERNAL             = 500
+    , RTSP_STATUS_NOT_IMPLEMENTED      = 501
+    , RTSP_STATUS_BAD_GATEWAY          = 502
+    , RTSP_STATUS_SERVICE              = 503
+    , RTSP_STATUS_GATEWAY_TIME_OUT     = 504
+    , RTSP_STATUS_VERSION              = 505
+    , RTSP_STATUS_UNSUPPORTED_OPTION   = 551
+};
+
+template <typename StringT>
+StringT to_string (status_code_enum status)
+{
+    switch (status) {
+        case RTSP_STATUS_CONTINUE               : return "Continue";
+        case RTSP_STATUS_OK                     : return "OK";
+        case RTSP_STATUS_CREATED                : return "Created";
+        case RTSP_STATUS_LOW_ON_STORAGE_SPACE   : return "Low on Storage Space";
+        case RTSP_STATUS_MULTIPLE_CHOICES       : return "Multiple Choices";
+        case RTSP_STATUS_MOVED_PERMANENTLY      : return "Moved Permanently";
+        case RTSP_STATUS_MOVED_TEMPORARILY      : return "Moved Temporarily";
+        case RTSP_STATUS_SEE_OTHER              : return "See Other";
+        case RTSP_STATUS_NOT_MODIFIED           : return "Not Modified";
+        case RTSP_STATUS_USE_PROXY              : return "Use Proxy";
+        case RTSP_STATUS_BAD_REQUEST            : return "Bad Request";
+        case RTSP_STATUS_UNAUTHORIZED           : return "Unauthorized";
+        case RTSP_STATUS_PAYMENT_REQUIRED       : return "Payment Required";
+        case RTSP_STATUS_FORBIDDEN              : return "Forbidden";
+        case RTSP_STATUS_NOT_FOUND              : return "Not Found";
+        case RTSP_STATUS_METHOD                 : return "Method Not Allowed";
+        case RTSP_STATUS_NOT_ACCEPTABLE         : return "Not Acceptable";
+        case RTSP_STATUS_PROXY_AUTH_REQUIRED    : return "Proxy Authentication Required";
+        case RTSP_STATUS_REQ_TIME_OUT           : return "Request Time-out";
+        case RTSP_STATUS_GONE                   : return "Gone";
+        case RTSP_STATUS_LENGTH_REQUIRED        : return "Length Required";
+        case RTSP_STATUS_PRECONDITION_FAILED    : return "Precondition Failed";
+        case RTSP_STATUS_REQ_ENTITY_2LARGE      : return "Request Entity Too Large";
+        case RTSP_STATUS_REQ_URI_2LARGE         : return "Request URI Too Large";
+        case RTSP_STATUS_UNSUPPORTED_MTYPE      : return "Unsupported Media Type";
+        case RTSP_STATUS_PARAM_NOT_UNDERSTOOD   : return "Parameter Not Understood";
+        case RTSP_STATUS_CONFERENCE_NOT_FOUND   : return "Conference Not Found";
+        case RTSP_STATUS_BANDWIDTH              : return "Not Enough Bandwidth";
+        case RTSP_STATUS_SESSION                : return "Session Not Found";
+        case RTSP_STATUS_STATE                  : return "Method Not Valid in This State";
+        case RTSP_STATUS_INVALID_HEADER_FIELD   : return "Header Field Not Valid for Resource";
+        case RTSP_STATUS_INVALID_RANGE          : return "Invalid Range";
+        case RTSP_STATUS_RONLY_PARAMETER        : return "Parameter Is Read-Only";
+        case RTSP_STATUS_AGGREGATE              : return "Aggregate Operation no Allowed";
+        case RTSP_STATUS_ONLY_AGGREGATE         : return "Only Aggregate Operation Allowed";
+        case RTSP_STATUS_TRANSPORT              : return "Unsupported Transport";
+        case RTSP_STATUS_UNREACHABLE            : return "Destination Unreachable";
+        case RTSP_STATUS_INTERNAL               : return "Internal Server Error";
+        case RTSP_STATUS_NOT_IMPLEMENTED        : return "Not Implemented";
+        case RTSP_STATUS_BAD_GATEWAY            : return "Bad Gateway";
+        case RTSP_STATUS_SERVICE                : return "Service Unavailable";
+        case RTSP_STATUS_GATEWAY_TIME_OUT       : return "Gateway Time-out";
+        case RTSP_STATUS_VERSION                : return "RTSP Version not Supported";
+        case RTSP_STATUS_UNSUPPORTED_OPTION     : return "Option not supported";
+        default: break;
+    }
+    return "";
 };
 
 /**

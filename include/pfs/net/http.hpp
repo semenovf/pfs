@@ -6,15 +6,15 @@
 // Changelog:
 //      2019.08.14 Initial version
 ////////////////////////////////////////////////////////////////////////////////
+// References
+//
+// 1. [Hypertext Transfer Protocol -- HTTP/1.0](https://tools.ietf.org/html/rfc1945)
+// 2. [Hypertext Transfer Protocol -- HTTP/1.1](https://www.ietf.org/rfc/rfc2616.txt)
+////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
 #include "protocols_common.hpp"
 #include <vector>
-
-////////////////////////////////////////////////////////////////////////////////
-// 1. [Hypertext Transfer Protocol -- HTTP/1.0](https://tools.ietf.org/html/rfc1945)
-// 2. [Hypertext Transfer Protocol -- HTTP/1.1](https://www.ietf.org/rfc/rfc2616.txt)
-////////////////////////////////////////////////////////////////////////////////
 
 namespace pfs {
 namespace net {

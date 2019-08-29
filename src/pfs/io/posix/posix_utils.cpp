@@ -6,6 +6,7 @@
 namespace pfs {
 namespace io {
 
+// TODO DEPRECATED Use from pfs/io/utils.hpp
 bool is_nonblocking (int fd)
 {
     int r = fcntl(fd, F_GETFL, 0);
@@ -13,6 +14,7 @@ bool is_nonblocking (int fd)
     return (r & O_NONBLOCK);
 }
 
+// TODO DEPRECATED Use from pfs/io/utils.hpp
 bool set_nonblocking (int fd, bool on)
 {
     int flags = ::fcntl(fd, F_GETFL, 0);
