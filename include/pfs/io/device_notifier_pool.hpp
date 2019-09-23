@@ -26,11 +26,11 @@ struct default_event_handler
     void on_error (error_code const &) {}
 };
 
-template <template <typename> class ContigousContainer = pfs::vector
+template <template <typename> class ContiguousContainer = pfs::vector
         , typename BasicLockable = pfs::mutex>
-class device_notifier_pool : public details::device_notifier_pool<ContigousContainer, BasicLockable>
+class device_notifier_pool : public details::device_notifier_pool<ContiguousContainer, BasicLockable>
 {
-    typedef details::device_notifier_pool<ContigousContainer, BasicLockable> base_class;
+    typedef details::device_notifier_pool<ContiguousContainer, BasicLockable> base_class;
 //     typedef typename base_class::iterator iterator;
 //     typedef typename base_class::poll_result_type poll_result_type;
 

@@ -54,16 +54,16 @@ namespace pfs {
 namespace io {
 namespace details {
 
-template <template <typename> class ContigousContainer = pfs::vector
+template <template <typename> class ContiguousContainer = pfs::vector
         , typename BasicLockable = pfs::mutex>
 class device_notifier_pool
 {
     typedef ::pollfd                             pollfd_type;
     typedef shared_ptr<basic_device>             basic_device_ptr;
     typedef BasicLockable                        mutex_type;
-    typedef ContigousContainer<pollfd_type>      pollfd_vec_type;
-    typedef ContigousContainer<ssize_t>          index_vec_type;
-    typedef ContigousContainer<basic_device_ptr> device_vec_type;
+    typedef ContiguousContainer<pollfd_type>      pollfd_vec_type;
+    typedef ContiguousContainer<ssize_t>          index_vec_type;
+    typedef ContiguousContainer<basic_device_ptr> device_vec_type;
 
     class pollfd_map
     {

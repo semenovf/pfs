@@ -1,23 +1,33 @@
+////////////////////////////////////////////////////////////////////////////////
+// Copyright (c) 2019 Vladislav Trifochkin
+//
+// This file is part of [pfs](https://github.com/semenovf/pfs) library.
+//
+// Inspired from: pfs/io/device_manager.hpp
+// Changelog:
+//      2019.09.11 Initial version
+////////////////////////////////////////////////////////////////////////////////
 #pragma once
-#include <ctime>
-#include <pfs/cxxlang.hpp>
-#include <pfs/sigslot.hpp>
-#include <pfs/multiset.hpp>
-#include <pfs/vector.hpp>
-#include <pfs/io/device_notifier_pool.hpp>
+#include <pfs/cxx11required.hpp>
+#include <pfs/net/socket_notifier_pool_posix.hpp>
+#include <mutex>
+#include <set>
+#include <vector>
 
 namespace pfs {
-namespace io {
+namespace net {
 
-template <typename SigslotNS = pfs::sigslot<>
-        , template <typename> class ContiguousContainer = pfs::vector
-        , typename BasicLockable = pfs::mutex
-        , template <typename> class PriorityContainer = pfs::multiset>
-class device_manager : SigslotNS::has_slots
+template <typename SocketHandler = int
+        , template <typename> class ContiguousContainer = std::vector
+        , template <typename> class PriorityContainer = std::multiset
+        , typename BasicLockable = std::mutex>
+class socket_manager
 {
+    using socket_handler_type = SocketHandler;
+
     struct reopen_item
     {
-        device_ptr d;
+        socket_handler_type d;
         time_t timeout; // reconnection timeout in seconds
         time_t start;   // start time point counting timeout from
 
@@ -326,4 +336,4 @@ public: // signals
     typename SigslotNS::template signal1<error_code const &>             error;
 };
 
-}} // pfs::io
+}} // namespace pfs::net
