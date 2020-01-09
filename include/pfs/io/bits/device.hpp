@@ -299,12 +299,12 @@ public:
 
     bool is_readable () const
     {
-        return this->open_mode() | read_only;
+        return this->open_mode() & read_only;
     }
 
     bool is_writable () const
     {
-        return this->open_mode() | write_only;
+        return this->open_mode() & write_only;
     }
 
     //virtual native_handle_type native_handle () const = 0;
