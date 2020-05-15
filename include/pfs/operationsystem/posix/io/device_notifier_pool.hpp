@@ -247,6 +247,7 @@ class device_notifier_pool
             int r = 0;
 
             do {
+                errno = 0;
                 r = ::poll(pfds, n, millis);
             } while (r <= 0 && errno == EINTR);
 
