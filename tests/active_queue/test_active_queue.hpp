@@ -137,18 +137,21 @@ static int counter3 = 0;
 
 void func1 ()
 {
+    std::printf("func1: %d\n", counter1);
     ++counter1;
 }
 
 void func2 (int i)
 {
-    COUT << "func2(" << i << ")\n";
+//    COUT << "func2(" << i << ")\n";
+    std::printf("func2: %d\n", counter2);
     ++counter2;
 }
 
 void func3 (int a, char b)
 {
-    COUT << "func3(" << a << ", " << b << ")\n";
+    //COUT << "func3(" << a << ", " << b << ")\n";
+    std::printf("func3: %d\n", counter3);
     ++counter3;
 }
 
@@ -166,7 +169,7 @@ void test ()
     int max = pfs::numeric_limits<uint16_t>::max();
 
     for (int i = 0; i < max; ++i) {
-        //COUT << "Push: " << i << endl;
+        std::cout << "Push: " << i << endl;
         q.push_function(& func1);
         q.push_function(& func2, i);
         q.push_function(& func3, i, 'W');
@@ -176,6 +179,8 @@ void test ()
             limit = random();
         }
     }
+
+    std::cout << "test::active_queue::test2: Total iterations to call functions:" << max << "\n";
 
     q.call_all();
 
